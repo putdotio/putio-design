@@ -101,7 +101,44 @@ This is a one-shot run. You should be able to execute the full plan autonomously
 - [ ] Yellow #FDCE45 used correctly as primary accent?
 - [ ] Components named cleanly for developer handoff?
 
-**If something is unclear, make a decision and document it.** Don't stop to ask. The design doc has enough context for you to make informed choices. Note your decisions in a "Design Decisions" section at the end of each Figma page.
+**If something is unclear, make a decision and document it.** Don't stop to ask. The design doc has enough context for you to make informed choices.
+
+## Living progress doc
+
+Create and maintain `docs/progress.md` throughout execution. Update it after every phase. This is your work log — when the human wakes up, this is the first thing they'll read.
+
+Structure:
+```markdown
+# Design System Progress
+
+## Status: [Phase X of 9 — description]
+
+## Completed
+- [ ] Phase 1: Tokens
+- [ ] Phase 2: Components
+- [ ] Phase 3: Web screens
+- ...
+
+## Current Phase
+What you're working on right now.
+
+## Decisions Made
+Every design decision you made autonomously, with reasoning.
+- "Chose Phosphor icons over Lucide because [reason]"
+- "Added a 500GB tier to pricing mockups because 3 users independently asked"
+- "Used SF Pro on tvOS instead of GT America because Apple HIG requires system font for TV"
+
+## Issues & Open Questions
+Things you couldn't resolve or want the human to review.
+
+## Figma File Structure
+Map of what's in the Figma file and where.
+
+## Next Steps
+What's queued up after current phase.
+```
+
+Commit and push `docs/progress.md` after each phase so the repo always reflects current state.
 
 ## Design principles to follow
 
