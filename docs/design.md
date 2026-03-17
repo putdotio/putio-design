@@ -624,6 +624,44 @@ App: app.put.io
 └── Billing (plan management)
 ```
 
+### Android TV App (from store screenshots)
+
+**Login/Activation:**
+- Activation code flow (6-letter code, enter at put.io/link) — standard TV login pattern
+- Kaomoji welcome: ┌( ಠ_ಠ)┘ — brand personality even on TV
+- Yellow brand background on store frames
+
+**File Browser:**
+- Dark background, yellow folder icons (consistent with web)
+- List view: folder name + size + chevron
+- "Refresh" and "Name" sort buttons in top bar
+- Simple, functional. No metadata, no thumbnails — just filenames and sizes
+- "Items shared with you" folder visible — sharing feature surfaces naturally here
+
+**Search:**
+- Full-width search bar with recent searches as pill chips
+- Results: mix of folders and files with type icons (folder, video, subtitle)
+- Eye icon on focused video items — indicates "watched"
+- **Assessment:** Clean but basic. The search chip history is good. No voice search integration visible
+
+**Video Player:**
+- Full-screen player with subtitles
+- Audio track picker overlay (multi-track support)
+- Bottom bar: filename (raw .mkv), yellow progress bar, timestamp, Language/Audio/Subtitles/Settings icons
+- **Assessment:** Functional player. Filename shown raw (no parsing). Audio track picker works but looks generic
+
+**Settings:**
+- User avatar (space invader icon!) + username + storage bar
+- Sections: Playback settings, Storage settings
+- Proxy selection (Amsterdam Direct), playback type (HLS), buffer size, subtitle toggle
+- **Assessment:** Well-organized for TV. The space invader avatar is a nice touch. Proxy/buffer settings are power-user features on a TV — might want to simplify defaults
+
+**Overall TV assessment:** Consistent brand feel (dark + yellow), functional but generic. The kaomoji and space invader avatar show personality peeking through. Biggest opportunity: filename parsing, continue-watching row, and grid view for visual browsing. Currently feels like the web app projected onto a TV screen rather than a TV-native experience.
+
+### Android Phone App (from store screenshots)
+
+Uses the same React Native codebase as Android TV but with touch UI. Store screenshots show similar screens: activation, file browser, search, player, settings. Same yellow-on-dark theme. Mobile-specific: touch-friendly list items, standard Android navigation patterns.
+
 ### Codebase Architecture
 
 **Monorepo: `frontend` (current production)**
