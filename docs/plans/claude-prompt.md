@@ -51,7 +51,7 @@ Then read the execution plan at `docs/plans/claude-design-execution.md` — it b
 
 ## What to build
 
-Follow the 9-phase execution plan. Start with Phase 1 (design tokens) and work through to Phase 9 (cross-platform flows).
+Follow the 9-phase execution plan at `docs/plans/claude-design-execution.md`. Each phase has detailed deliverables.
 
 Create a Figma file with these pages:
 1. 🎨 Tokens — colors, typography, spacing, icons, elevation
@@ -63,6 +63,41 @@ Create a Figma file with these pages:
 7. 📺 Android TV — 4 screens
 8. 📺 Roku / ⌚ watchOS / 🥽 visionOS — 3-4 screens each
 9. 🔄 Flows — cross-platform user journeys
+
+## Execution strategy
+
+This is a one-shot run. You should be able to execute the full plan autonomously without human input.
+
+**Work in a loop:**
+1. Pick the next phase/chunk
+2. Implement it in Figma
+3. Review what you just created — does it match the design doc? Does it follow platform conventions? Does it have personality?
+4. Fix any issues
+5. Verify the result is solid
+6. Move to the next chunk
+
+**Spawn subagents when it makes sense.** If you can parallelize work (e.g., iOS screens and Android screens can be designed simultaneously), do it. Each subagent should:
+- Read the same design doc for context
+- Work on a specific platform or phase
+- Follow the same design tokens and principles
+
+**Chunk the work intelligently:**
+- Phase 1 (tokens) must complete first — everything depends on it
+- Phase 2 (components) must complete before screens
+- Phases 3-8 (platform screens) can run in parallel
+- Phase 9 (cross-platform flows) comes last, referencing completed screens
+
+**Self-review checklist after each phase:**
+- [ ] Light + dark mode for every screen?
+- [ ] Consistent token usage (no hardcoded colors/sizes)?
+- [ ] Platform conventions followed (HIG/Material/Leanback)?
+- [ ] Brand personality present (not corporate, not sterile)?
+- [ ] Filenames parsed into readable metadata where applicable?
+- [ ] Icons unambiguous (save-to-cloud ≠ download-to-device ≠ play)?
+- [ ] Yellow #FDCE45 used correctly as primary accent?
+- [ ] Components named cleanly for developer handoff?
+
+**If something is unclear, make a decision and document it.** Don't stop to ask. The design doc has enough context for you to make informed choices. Note your decisions in a "Design Decisions" section at the end of each Figma page.
 
 ## Design principles to follow
 
