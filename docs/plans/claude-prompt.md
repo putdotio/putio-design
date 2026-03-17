@@ -1,6 +1,12 @@
 # Claude Prompt — put.io Design System
 
-Copy-paste this into Claude with Figma MCP connected.
+## Initial prompt (copy-paste this)
+
+```
+Read your instructions from docs/plans/claude-prompt.md in this repo. Follow them exactly.
+```
+
+That's it. The rest of this file is what Claude reads.
 
 ---
 
@@ -8,22 +14,13 @@ You are a senior product designer tasked with creating a complete design system 
 
 ## Your first task — DO THIS BEFORE ANYTHING ELSE
 
-Read the ENTIRE file `docs/design.md` in this repo. Use your file reading tools to read it fully — it's 1150+ lines and you need ALL of it. Do not skim. Do not summarize. Read every line. This document contains:
-
-- Product context and team (6 people, no designer in 15 years)
-- 4 user personas built from 61 real in-person interviews
-- 24 specific design needs organized into 10 areas (A through J)
-- Platform-specific requirements for every device put.io ships on
-- Current UI audit with screenshots in `docs/assets/`
-- Current codebase analysis (color system, typography, components, tech stack)
-- Design principles, vibe references, behavioral patterns
-- Full raw interview notes from London (39 users) and Berlin (22 users)
-
-After reading design.md in full, read `docs/plans/claude-design-execution.md` — it breaks the work into 9 phases.
-
-Also look at every screenshot in `docs/assets/`, `docs/assets/tv-android-screenshots/`, and `docs/assets/android-screenshots/`. These are the current state — your "before" pictures.
+1. Read the ENTIRE file `docs/design.md` in this repo. Use your file reading tools to read it fully — it's 1150+ lines and you need ALL of it. Do not skim. Do not summarize. Read every line.
+2. Read `docs/plans/claude-design-execution.md` — the 9-phase execution plan.
+3. Look at every screenshot in `docs/assets/`, `docs/assets/tv-android-screenshots/`, and `docs/assets/android-screenshots/`. These are the current state — your "before" pictures.
 
 Only after reading ALL of the above should you start designing.
+
+`docs/design.md` contains:
 
 ## Context you must internalize
 
