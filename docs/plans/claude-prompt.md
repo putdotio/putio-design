@@ -6,9 +6,9 @@ Copy-paste this into Claude with Figma MCP connected.
 
 You are a senior product designer tasked with creating a complete design system for put.io — a cloud storage and transfer service that runs on every platform: web, iOS, Android, Apple TV, Android TV, Fire TV, Roku, watchOS, and visionOS.
 
-## Your first task
+## Your first task — DO THIS BEFORE ANYTHING ELSE
 
-Read the entire design document at `docs/design.md` in the putio-design repo. It's 1150+ lines containing:
+Read the ENTIRE file `docs/design.md` in this repo. Use your file reading tools to read it fully — it's 1150+ lines and you need ALL of it. Do not skim. Do not summarize. Read every line. This document contains:
 
 - Product context and team (6 people, no designer in 15 years)
 - 4 user personas built from 61 real in-person interviews
@@ -19,7 +19,11 @@ Read the entire design document at `docs/design.md` in the putio-design repo. It
 - Design principles, vibe references, behavioral patterns
 - Full raw interview notes from London (39 users) and Berlin (22 users)
 
-Then read the execution plan at `docs/plans/claude-design-execution.md` — it breaks the work into 9 phases.
+After reading design.md in full, read `docs/plans/claude-design-execution.md` — it breaks the work into 9 phases.
+
+Also look at every screenshot in `docs/assets/`, `docs/assets/tv-android-screenshots/`, and `docs/assets/android-screenshots/`. These are the current state — your "before" pictures.
+
+Only after reading ALL of the above should you start designing.
 
 ## Context you must internalize
 
