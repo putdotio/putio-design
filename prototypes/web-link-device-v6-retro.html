@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Link Device (Retro)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A14; --bg-2: #0E0E1A; --bg-3: #141422; --bg-4: #1A1A2C;
+    --bg-5: #222236; --line: #1E1E32; --border: #2A2A44; --solid: #4A4A6E;
+    --text-2: #9898B8; --text: #D0D0E8; --white: #E8E8F8;
+    --yellow: #FDCE45; --yellow-dim: rgba(253,206,69,0.08);
+    --yellow-border: rgba(253,206,69,0.3); --yellow-glow: rgba(253,206,69,0.15);
+    --green: #44FF88; --red: #FF4444; --cyan: #44FFEE;
+    --font-pixel: 'Press Start 2P', monospace;
+    --font-mono: 'Space Mono', 'Courier New', monospace;
+  }
+  body { font-family: var(--font-mono); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+  .page { width: 1440px; height: 900px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+
+  /* CRT Scanlines */
+  .scanlines {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+    pointer-events: none; z-index: 100;
+  }
+  .crt-vignette {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);
+    pointer-events: none; z-index: 99;
+  }
+
+  /* Pixel grid bg */
+  .pixel-grid {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    opacity: 0.03; pointer-events: none;
+    background-image: linear-gradient(var(--yellow) 1px, transparent 1px), linear-gradient(90deg, var(--yellow) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  @keyframes glow-pulse { 0%, 100% { box-shadow: 0 0 20px rgba(253,206,69,0.15); } 50% { box-shadow: 0 0 40px rgba(253,206,69,0.3); } }
+
+  .link-container { width: 640px; text-align: center; position: relative; z-index: 10; }
+
+  /* Logo */
+  .retro-logo { margin-bottom: 40px; }
+  .retro-logo-text { font-family: var(--font-pixel); font-size: 24px; color: var(--yellow); letter-spacing: 0.1em; }
+  .retro-logo-text .dot { color: var(--green); }
+
+  /* Space invader */
+  .invader-wrap { margin-bottom: 24px; }
+  .invader {
+    display: inline-block; width: 48px; height: 48px;
+  }
+
+  .retro-title { font-family: var(--font-pixel); font-size: 16px; color: var(--yellow); letter-spacing: 0.05em; margin-bottom: 8px; line-height: 1.6; }
+  .retro-subtitle { font-family: var(--font-mono); font-size: 14px; color: var(--text-2); margin-bottom: 40px; }
+  .retro-subtitle .cursor-blink { animation: blink 1s step-end infinite; color: var(--yellow); }
+
+  /* Activation Code */
+  .code-section { margin-bottom: 32px; }
+  .code-label { font-family: var(--font-pixel); font-size: 10px; color: var(--solid); letter-spacing: 0.15em; margin-bottom: 20px; }
+  .code-display { display: inline-flex; gap: 8px; }
+  .code-letter {
+    width: 72px; height: 84px; background: var(--bg-3); border: 2px solid var(--yellow);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-pixel); font-size: 28px; color: var(--yellow);
+    animation: glow-pulse 3s ease-in-out infinite;
+    position: relative;
+  }
+  .code-letter::before {
+    content: ''; position: absolute; top: -1px; left: -1px; right: -1px; bottom: -1px;
+    border: 1px solid var(--yellow-border);
+  }
+  /* Stagger animation */
+  .code-letter:nth-child(2) { animation-delay: 0.3s; }
+  .code-letter:nth-child(3) { animation-delay: 0.6s; }
+  .code-letter:nth-child(4) { animation-delay: 0.9s; }
+  .code-letter:nth-child(5) { animation-delay: 1.2s; }
+  .code-letter:nth-child(6) { animation-delay: 1.5s; }
+
+  /* URL */
+  .url-section { margin-bottom: 32px; }
+  .url-label { font-family: var(--font-pixel); font-size: 8px; color: var(--text-2); letter-spacing: 0.1em; margin-bottom: 12px; }
+  .url-box {
+    display: inline-flex; align-items: center; gap: 12px;
+    background: var(--bg-3); border: 1px solid var(--yellow-border); padding: 16px 32px;
+    font-family: var(--font-pixel); font-size: 14px; color: var(--green); letter-spacing: 0.08em;
+  }
+  .url-arrow { color: var(--yellow); }
+
+  /* QR Section */
+  .qr-section {
+    display: inline-flex; align-items: center; gap: 24px;
+    background: var(--bg-3); border: 1px solid var(--border); padding: 24px;
+    margin-bottom: 32px;
+  }
+  .qr-placeholder {
+    width: 100px; height: 100px; background: var(--green); border: 2px solid var(--green);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qr-inner { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; width: 70px; height: 70px; }
+  .qr-cell { background: #0A0A14; }
+  .qr-cell.w { background: var(--green); }
+  .qr-text { text-align: left; }
+  .qr-text-title { font-family: var(--font-pixel); font-size: 8px; color: var(--cyan); margin-bottom: 8px; letter-spacing: 0.1em; }
+  .qr-text-desc { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+
+  /* Terminal steps */
+  .terminal-box {
+    background: var(--bg-3); border: 1px solid var(--border); padding: 24px;
+    text-align: left; margin-bottom: 24px;
+  }
+  .term-header { display: flex; gap: 6px; margin-bottom: 16px; }
+  .term-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .term-dot.r { background: var(--red); }
+  .term-dot.y { background: var(--yellow); }
+  .term-dot.g { background: var(--green); }
+  .term-line { font-family: var(--font-mono); font-size: 13px; margin-bottom: 8px; color: var(--text-2); }
+  .term-line .prompt { color: var(--green); }
+  .term-line .cmd { color: var(--yellow); }
+  .term-line .output { color: var(--cyan); }
+  .term-line .dim { color: var(--solid); }
+
+  .retro-footer { font-family: var(--font-pixel); font-size: 8px; color: var(--solid); letter-spacing: 0.1em; }
+  .retro-footer .blink { animation: blink 1.5s step-end infinite; color: var(--yellow); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="scanlines"></div>
+  <div class="crt-vignette"></div>
+  <div class="pixel-grid"></div>
+
+  <div class="link-container">
+    <div class="retro-logo">
+      <div class="retro-logo-text">PUT<span class="dot">.</span>IO</div>
+    </div>
+
+    <!-- Space Invader -->
+    <div class="invader-wrap">
+      <svg class="invader" viewBox="0 0 48 48" fill="none">
+        <rect x="8" y="4" width="4" height="4" fill="#FDCE45"/>
+        <rect x="36" y="4" width="4" height="4" fill="#FDCE45"/>
+        <rect x="12" y="8" width="4" height="4" fill="#FDCE45"/>
+        <rect x="32" y="8" width="4" height="4" fill="#FDCE45"/>
+        <rect x="8" y="12" width="32" height="4" fill="#FDCE45"/>
+        <rect x="4" y="16" width="8" height="4" fill="#FDCE45"/>
+        <rect x="16" y="16" width="16" height="4" fill="#FDCE45"/>
+        <rect x="36" y="16" width="8" height="4" fill="#FDCE45"/>
+        <rect x="4" y="20" width="40" height="4" fill="#FDCE45"/>
+        <rect x="4" y="24" width="4" height="4" fill="#FDCE45"/>
+        <rect x="12" y="24" width="4" height="4" fill="#FDCE45"/>
+        <rect x="20" y="24" width="8" height="4" fill="#FDCE45"/>
+        <rect x="32" y="24" width="4" height="4" fill="#FDCE45"/>
+        <rect x="40" y="24" width="4" height="4" fill="#FDCE45"/>
+        <rect x="8" y="28" width="8" height="4" fill="#FDCE45"/>
+        <rect x="32" y="28" width="8" height="4" fill="#FDCE45"/>
+        <rect x="16" y="28" width="4" height="4" fill="#FDCE45"/>
+        <rect x="28" y="28" width="4" height="4" fill="#FDCE45"/>
+      </svg>
+    </div>
+
+    <div class="retro-title">ENTER CODE</div>
+    <div class="retro-subtitle">// link your device to put.io<span class="cursor-blink">_</span></div>
+
+    <!-- Activation Code -->
+    <div class="code-section">
+      <div class="code-label">ACTIVATION CODE</div>
+      <div class="code-display">
+        <div class="code-letter">F</div>
+        <div class="code-letter">K</div>
+        <div class="code-letter">M</div>
+        <div class="code-letter">A</div>
+        <div class="code-letter">S</div>
+        <div class="code-letter">X</div>
+      </div>
+    </div>
+
+    <!-- URL -->
+    <div class="url-section">
+      <div class="url-label">NAVIGATE TO</div>
+      <div class="url-box">
+        <span class="url-arrow">&gt;</span>
+        put.io/link
+      </div>
+    </div>
+
+    <!-- QR -->
+    <div class="qr-section">
+      <div class="qr-placeholder">
+        <div class="qr-inner">
+          <div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div>
+          <div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell w"></div><div class="qr-cell"></div>
+          <div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div>
+          <div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell w"></div>
+          <div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div>
+          <div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div>
+          <div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div>
+        </div>
+      </div>
+      <div class="qr-text">
+        <div class="qr-text-title">SCAN TO LINK</div>
+        <div class="qr-text-desc">Point your phone camera at this code to link automatically.</div>
+      </div>
+    </div>
+
+    <!-- Terminal -->
+    <div class="terminal-box">
+      <div class="term-header">
+        <div class="term-dot r"></div>
+        <div class="term-dot y"></div>
+        <div class="term-dot g"></div>
+      </div>
+      <div class="term-line"><span class="prompt">$ </span><span class="cmd">putio link --device tv</span></div>
+      <div class="term-line"><span class="output">DEVICE_TYPE: </span><span class="dim">smart_tv</span></div>
+      <div class="term-line"><span class="output">CODE: </span><span class="cmd">FKMASX</span></div>
+      <div class="term-line"><span class="output">URL: </span><span class="cmd">put.io/link</span></div>
+      <div class="term-line"><span class="dim">// waiting for activation...</span><span class="blink" style="animation: blink 1s step-end infinite; color: var(--yellow);">_</span></div>
+    </div>
+
+    <div class="retro-footer">
+      <span class="blink">&gt;</span> CODE EXPIRES IN 10:00 &lt;<span class="blink">&gt;</span> INSERT COIN TO CONTINUE
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io - Transfers (Retro v2)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #111113;
+    --bg-1: #19191B;
+    --bg-2: #222225;
+    --bg-3: #2B2B2F;
+    --bg-4: #313136;
+    --line: #2B2B2F;
+    --line-strong: #3E3E44;
+    --border: #4E4E56;
+    --solid: #6E6E76;
+    --text-3: #8B8B93;
+    --text-2: #B0B0B8;
+    --text: #DDDDE0;
+    --white: #EEEEEF;
+
+    --yellow: #FDCE45;
+    --yellow-dim: #C9A530;
+    --yellow-glow: rgba(253, 206, 69, 0.06);
+    --yellow-border: rgba(253, 206, 69, 0.25);
+    --yellow-text-shadow: 0 0 6px rgba(253, 206, 69, 0.3);
+
+    --green: #30A46C;
+    --green-bright: #3CB97C;
+    --green-glow: 0 0 4px rgba(48, 164, 108, 0.2);
+    --red: #E5484D;
+    --red-dim: #C53D42;
+    --orange: #E8A230;
+
+    --font-pixel: 'Press Start 2P', monospace;
+    --font-body: 'Space Mono', 'Courier New', monospace;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg-0);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .crt-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgba(0, 0, 0, 0.02) 1px,
+      rgba(0, 0, 0, 0.02) 2px
+    );
+  }
+
+  .app {
+    position: relative;
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    background: var(--bg-0);
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* =============================================
+     SIDEBAR
+     ============================================= */
+  .sidebar {
+    width: 232px;
+    background: var(--bg-1);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo {
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .logo {
+    font-family: var(--font-pixel);
+    font-size: 16px;
+    color: var(--white);
+    line-height: 1.4;
+  }
+  .logo span { color: var(--yellow); }
+  .logo-sub {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--solid);
+    letter-spacing: 0.05em;
+    margin-top: 6px;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 8px 0;
+    overflow-y: auto;
+  }
+
+  .nav-section-label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--solid);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 12px 16px 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--text-2);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    border-left: 2px solid transparent;
+  }
+  .nav-item:hover {
+    background: var(--bg-2);
+    color: var(--text);
+    border-left-color: var(--line-strong);
+  }
+  .nav-item.active {
+    background: var(--yellow-glow);
+    color: var(--yellow);
+    border-left-color: var(--yellow);
+    font-weight: 700;
+  }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .nav-icon svg { width: 16px; height: 16px; }
+
+  .nav-badge {
+    margin-left: auto;
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--text-3);
+    font-weight: 700;
+  }
+
+  .nav-sep { height: 1px; background: var(--line); margin: 6px 16px; }
+
+  .sidebar-storage {
+    padding: 14px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .storage-label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--solid);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .storage-bar-track {
+    width: 100%;
+    height: 6px;
+    background: var(--bg-3);
+    margin-bottom: 6px;
+  }
+  .storage-bar-fill {
+    height: 6px;
+    background: var(--yellow);
+    width: 63%;
+  }
+  .storage-text {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--text-3);
+  }
+  .storage-text strong { color: var(--text-2); font-weight: 700; }
+
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    background: var(--bg-3);
+    border: 1px solid var(--line-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .user-avatar svg { width: 16px; height: 16px; }
+  .user-name { font-size: 12px; color: var(--text-2); }
+  .user-plan { font-size: 10px; color: var(--solid); margin-top: 1px; }
+
+  /* =============================================
+     MAIN CONTENT
+     ============================================= */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-1);
+  }
+
+  .page-title {
+    font-family: var(--font-pixel);
+    font-size: 16px;
+    color: var(--yellow);
+    text-transform: uppercase;
+  }
+
+  .page-subtitle {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--text-3);
+    margin-top: 2px;
+  }
+
+  .header-spacer { flex: 1; }
+
+  .header-stats {
+    display: flex;
+    gap: 16px;
+  }
+
+  .stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    background: var(--bg-2);
+  }
+  .stat-value {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--yellow);
+  }
+  .stat-label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .add-transfer-btn {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 10px 16px;
+    border: 1px solid var(--yellow-border);
+    background: rgba(253, 206, 69, 0.04);
+    color: var(--yellow);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .add-transfer-btn:hover {
+    background: rgba(253, 206, 69, 0.10);
+  }
+  .add-transfer-btn svg { width: 12px; height: 12px; }
+
+  /* =============================================
+     TRANSFER LIST
+     ============================================= */
+  .transfer-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .transfer-card {
+    border: 1px solid var(--line);
+    background: var(--bg-1);
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .transfer-card.downloading { border-color: var(--yellow-border); }
+  .transfer-card.seeding { border-color: rgba(48, 164, 108, 0.25); }
+  .transfer-card.completed { border-color: var(--line); opacity: 0.65; }
+  .transfer-card.error { border-color: rgba(229, 72, 77, 0.25); }
+
+  .transfer-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .transfer-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .transfer-icon svg { width: 16px; height: 16px; }
+
+  .transfer-info { flex: 1; min-width: 0; }
+
+  .transfer-name {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .transfer-meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 3px;
+  }
+  .transfer-meta-item {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .transfer-status-label {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border: 1px solid;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+  .transfer-status-label.downloading {
+    color: var(--yellow);
+    border-color: var(--yellow-border);
+    background: var(--yellow-glow);
+  }
+  .transfer-status-label.seeding {
+    color: var(--green-bright);
+    border-color: rgba(48, 164, 108, 0.25);
+    background: rgba(48, 164, 108, 0.04);
+  }
+  .transfer-status-label.completed {
+    color: var(--text-3);
+    border-color: var(--line);
+    background: var(--bg-2);
+  }
+  .transfer-status-label.error {
+    color: var(--red);
+    border-color: rgba(229, 72, 77, 0.25);
+    background: rgba(229, 72, 77, 0.04);
+  }
+  .transfer-status-label.queued {
+    color: var(--orange);
+    border-color: rgba(232, 162, 48, 0.25);
+    background: rgba(232, 162, 48, 0.04);
+  }
+
+  /* Block progress bar */
+  .transfer-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .progress-bar-track {
+    flex: 1;
+    height: 8px;
+    background: var(--bg-3);
+    display: flex;
+  }
+  .progress-bar-fill {
+    height: 8px;
+    background: var(--yellow);
+    transition: width 0.3s;
+  }
+  .transfer-card.seeding .progress-bar-fill { background: var(--green-bright); }
+  .transfer-card.completed .progress-bar-fill { background: var(--text-3); }
+  .transfer-card.error .progress-bar-fill { background: var(--red); }
+
+  .progress-percent {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--yellow);
+    width: 48px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .transfer-card.seeding .progress-percent { color: var(--green-bright); }
+  .transfer-card.completed .progress-percent { color: var(--text-3); }
+  .transfer-card.error .progress-percent { color: var(--red); }
+
+  /* Transfer details row */
+  .transfer-details {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .transfer-speed {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--yellow);
+  }
+  .transfer-card.seeding .transfer-speed { color: var(--green-bright); }
+
+  .transfer-eta { margin-left: auto; }
+
+  .health-indicator {
+    display: flex;
+    gap: 1px;
+    align-items: flex-end;
+  }
+  .health-bar {
+    width: 3px;
+    background: var(--green-bright);
+  }
+  .health-bar.dim { background: var(--bg-4); }
+
+  .health-label {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--text-3);
+    margin-left: 4px;
+  }
+
+  /* Status Bar */
+  .statusbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 7px 28px;
+    border-top: 1px solid var(--line);
+    background: var(--bg-1);
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--text-3);
+  }
+  .statusbar-active {
+    font-weight: 700;
+    color: var(--yellow);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .statusbar-active .pulse {
+    width: 6px;
+    height: 6px;
+    background: var(--yellow);
+    border-radius: 50%;
+    animation: pulse-dot 1.5s ease-in-out infinite;
+  }
+  .statusbar-spacer { flex: 1; }
+  .statusbar-dot {
+    width: 5px;
+    height: 5px;
+    background: var(--green);
+    border-radius: 50%;
+  }
+
+  /* =============================================
+     RIGHT PANEL
+     ============================================= */
+  .queue-panel {
+    width: 280px;
+    background: var(--bg-1);
+    border-left: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+
+  .queue-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .queue-title {
+    font-family: var(--font-pixel);
+    font-size: 16px;
+    color: var(--yellow);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .queue-subtitle {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .queue-section {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .queue-section-label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--solid);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  .queue-stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-family: var(--font-body);
+    font-size: 12px;
+  }
+  .queue-stat-label { color: var(--text-3); }
+  .queue-stat-value { color: var(--text-2); }
+  .queue-stat-value.highlight { color: var(--yellow); font-weight: 700; }
+  .queue-stat-value.green { color: var(--green-bright); }
+
+  .queue-waveform {
+    padding: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .queue-waveform-label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--solid);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .waveform-visual {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 40px;
+  }
+  .waveform-visual .bar {
+    width: 4px;
+    background: var(--yellow);
+    opacity: 0.4;
+  }
+
+  .queue-add-url {
+    padding: 16px;
+  }
+  .queue-add-label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--solid);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .url-input {
+    width: 100%;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 12px;
+    padding: 9px 10px;
+    outline: none;
+  }
+  .url-input:focus {
+    border-color: var(--yellow-border);
+  }
+  .url-input::placeholder { color: var(--solid); }
+  .url-submit {
+    width: 100%;
+    margin-top: 6px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 9px;
+    border: 1px solid var(--yellow-border);
+    background: rgba(253, 206, 69, 0.04);
+    color: var(--yellow);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .url-submit:hover { background: rgba(253, 206, 69, 0.10); }
+</style>
+</head>
+<body>
+
+<div class="crt-overlay"></div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo">put<span>.</span>io</div>
+      <div class="logo-sub">v6.0 retro</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Navigate</div>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="3" width="6" height="2" fill="currentColor"/>
+            <rect x="7" y="4" width="2" height="1" fill="currentColor"/>
+            <rect x="1" y="5" width="14" height="1" fill="currentColor"/>
+            <rect x="1" y="6" width="1" height="7" fill="currentColor"/>
+            <rect x="14" y="6" width="1" height="7" fill="currentColor"/>
+            <rect x="1" y="13" width="14" height="1" fill="currentColor"/>
+          </svg>
+        </span>
+        Files
+        <span class="nav-badge">24</span>
+      </button>
+
+      <button class="nav-item active">
+        <span class="nav-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="4" width="10" height="2" fill="currentColor"/>
+            <rect x="8" y="2" width="2" height="2" fill="currentColor"/>
+            <rect x="10" y="4" width="2" height="2" fill="currentColor"/>
+            <rect x="1" y="10" width="10" height="2" fill="currentColor"/>
+            <rect x="4" y="12" width="2" height="2" fill="currentColor"/>
+            <rect x="2" y="10" width="2" height="2" fill="currentColor"/>
+          </svg>
+        </span>
+        Transfers
+        <span class="nav-badge">3</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="4" y="1" width="8" height="1" fill="currentColor"/>
+            <rect x="2" y="2" width="2" height="1" fill="currentColor"/>
+            <rect x="12" y="2" width="2" height="1" fill="currentColor"/>
+            <rect x="1" y="3" width="1" height="10" fill="currentColor"/>
+            <rect x="14" y="3" width="1" height="10" fill="currentColor"/>
+            <rect x="2" y="13" width="2" height="1" fill="currentColor"/>
+            <rect x="12" y="13" width="2" height="1" fill="currentColor"/>
+            <rect x="4" y="14" width="8" height="1" fill="currentColor"/>
+            <rect x="7" y="4" width="2" height="5" fill="currentColor"/>
+            <rect x="9" y="7" width="3" height="2" fill="currentColor"/>
+          </svg>
+        </span>
+        History
+      </button>
+
+      <div class="nav-sep"></div>
+      <div class="nav-section-label">System</div>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="6" y="0" width="4" height="2" fill="currentColor"/>
+            <rect x="6" y="14" width="4" height="2" fill="currentColor"/>
+            <rect x="0" y="6" width="2" height="4" fill="currentColor"/>
+            <rect x="14" y="6" width="2" height="4" fill="currentColor"/>
+            <rect x="4" y="4" width="8" height="8" fill="currentColor"/>
+            <rect x="6" y="6" width="4" height="4" fill="#19191B"/>
+          </svg>
+        </span>
+        Settings
+      </button>
+    </nav>
+
+    <div class="sidebar-storage">
+      <div class="storage-label">Storage</div>
+      <div class="storage-bar-track">
+        <div class="storage-bar-fill"></div>
+      </div>
+      <div class="storage-text"><strong>642 GB</strong> / 1 TB</div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">
+        <svg viewBox="0 0 16 16" fill="none">
+          <rect x="5" y="2" width="6" height="5" fill="#FDCE45"/>
+          <rect x="3" y="8" width="10" height="2" fill="#FDCE45"/>
+          <rect x="4" y="10" width="3" height="3" fill="#FDCE45"/>
+          <rect x="9" y="10" width="3" height="3" fill="#FDCE45"/>
+        </svg>
+      </div>
+      <div>
+        <div class="user-name">glitch</div>
+        <div class="user-plan">Pro Plan</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Transfers</div>
+        <div class="page-subtitle">Active downloads and completed transfers</div>
+      </div>
+
+      <div class="header-spacer"></div>
+
+      <div class="header-stats">
+        <div class="stat-box">
+          <div class="stat-value">3</div>
+          <div class="stat-label">Active</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value">12</div>
+          <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value">24.8</div>
+          <div class="stat-label">MB/s</div>
+        </div>
+      </div>
+
+      <button class="add-transfer-btn">
+        <svg viewBox="0 0 12 12" fill="none">
+          <rect x="5" y="0" width="2" height="12" fill="currentColor"/>
+          <rect x="0" y="5" width="12" height="2" fill="currentColor"/>
+        </svg>
+        Add Transfer
+      </button>
+    </div>
+
+    <!-- Transfer List -->
+    <div class="transfer-area">
+
+      <!-- Active Download 1 -->
+      <div class="transfer-card downloading">
+        <div class="transfer-top">
+          <div class="transfer-icon">
+            <svg viewBox="0 0 16 16" fill="none">
+              <rect x="7" y="1" width="2" height="8" fill="#FDCE45"/>
+              <rect x="5" y="7" width="2" height="2" fill="#FDCE45"/>
+              <rect x="9" y="7" width="2" height="2" fill="#FDCE45"/>
+              <rect x="3" y="9" width="2" height="2" fill="#FDCE45"/>
+              <rect x="11" y="9" width="2" height="2" fill="#FDCE45"/>
+              <rect x="1" y="13" width="14" height="2" fill="#FDCE45"/>
+            </svg>
+          </div>
+          <div class="transfer-info">
+            <div class="transfer-name">Blade.Runner.2049.2017.2160p.UHD.BluRay.x265-TERMINAL</div>
+            <div class="transfer-meta">
+              <span class="transfer-meta-item">56.8 GB</span>
+              <span class="transfer-meta-item">Seeds: 142</span>
+              <span class="transfer-meta-item">Peers: 38</span>
+            </div>
+          </div>
+          <span class="transfer-status-label downloading">Downloading</span>
+        </div>
+        <div class="transfer-progress">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" style="width: 67%;"></div>
+          </div>
+          <div class="progress-percent">67%</div>
+        </div>
+        <div class="transfer-details">
+          <span class="transfer-speed">12.4 MB/s</span>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <div class="health-indicator">
+              <div class="health-bar" style="height:8px;"></div>
+              <div class="health-bar" style="height:12px;"></div>
+              <div class="health-bar" style="height:10px;"></div>
+              <div class="health-bar" style="height:14px;"></div>
+              <div class="health-bar" style="height:12px;"></div>
+            </div>
+            <span class="health-label">Excellent</span>
+          </div>
+          <span class="transfer-eta">ETA: 42 min</span>
+        </div>
+      </div>
+
+      <!-- Active Download 2 -->
+      <div class="transfer-card downloading">
+        <div class="transfer-top">
+          <div class="transfer-icon">
+            <svg viewBox="0 0 16 16" fill="none">
+              <rect x="7" y="1" width="2" height="8" fill="#FDCE45"/>
+              <rect x="5" y="7" width="2" height="2" fill="#FDCE45"/>
+              <rect x="9" y="7" width="2" height="2" fill="#FDCE45"/>
+              <rect x="3" y="9" width="2" height="2" fill="#FDCE45"/>
+              <rect x="11" y="9" width="2" height="2" fill="#FDCE45"/>
+              <rect x="1" y="13" width="14" height="2" fill="#FDCE45"/>
+            </svg>
+          </div>
+          <div class="transfer-info">
+            <div class="transfer-name">Dune.Part.Two.2024.2160p.REMUX.AVC.TrueHD.7.1-FGT</div>
+            <div class="transfer-meta">
+              <span class="transfer-meta-item">51.2 GB</span>
+              <span class="transfer-meta-item">Seeds: 89</span>
+              <span class="transfer-meta-item">Peers: 24</span>
+            </div>
+          </div>
+          <span class="transfer-status-label downloading">Downloading</span>
+        </div>
+        <div class="transfer-progress">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" style="width: 31%;"></div>
+          </div>
+          <div class="progress-percent">31%</div>
+        </div>
+        <div class="transfer-details">
+          <span class="transfer-speed">8.2 MB/s</span>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <div class="health-indicator">
+              <div class="health-bar" style="height:6px;"></div>
+              <div class="health-bar" style="height:10px;"></div>
+              <div class="health-bar" style="height:8px;"></div>
+              <div class="health-bar" style="height:10px;"></div>
+              <div class="health-bar dim" style="height:4px;"></div>
+            </div>
+            <span class="health-label">Good</span>
+          </div>
+          <span class="transfer-eta">ETA: 1h 14min</span>
+        </div>
+      </div>
+
+      <!-- Seeding -->
+      <div class="transfer-card seeding">
+        <div class="transfer-top">
+          <div class="transfer-icon">
+            <svg viewBox="0 0 16 16" fill="none">
+              <rect x="7" y="1" width="2" height="8" fill="#3CB97C"/>
+              <rect x="5" y="3" width="2" height="2" fill="#3CB97C"/>
+              <rect x="9" y="3" width="2" height="2" fill="#3CB97C"/>
+              <rect x="3" y="5" width="2" height="2" fill="#3CB97C"/>
+              <rect x="11" y="5" width="2" height="2" fill="#3CB97C"/>
+              <rect x="1" y="13" width="14" height="2" fill="#3CB97C"/>
+            </svg>
+          </div>
+          <div class="transfer-info">
+            <div class="transfer-name">The.Matrix.1999.Remastered.1080p.BluRay.x264-GROUP</div>
+            <div class="transfer-meta">
+              <span class="transfer-meta-item">4.1 GB</span>
+              <span class="transfer-meta-item">Ratio: 2.14</span>
+              <span class="transfer-meta-item">Uploaded: 8.7 GB</span>
+            </div>
+          </div>
+          <span class="transfer-status-label seeding">Seeding</span>
+        </div>
+        <div class="transfer-progress">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" style="width: 100%;"></div>
+          </div>
+          <div class="progress-percent">100%</div>
+        </div>
+        <div class="transfer-details">
+          <span class="transfer-speed">4.2 MB/s UP</span>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <div class="health-indicator">
+              <div class="health-bar" style="height:10px;"></div>
+              <div class="health-bar" style="height:14px;"></div>
+              <div class="health-bar" style="height:12px;"></div>
+              <div class="health-bar" style="height:14px;"></div>
+              <div class="health-bar" style="height:10px;"></div>
+            </div>
+            <span class="health-label">Excellent</span>
+          </div>
+          <span class="transfer-eta">Seeding 3h 42min</span>
+        </div>
+      </div>
+
+      <!-- Queued -->
+      <div class="transfer-card">
+        <div class="transfer-top">
+          <div class="transfer-icon">
+            <svg viewBox="0 0 16 16" fill="none">
+              <rect x="2" y="1" width="12" height="2" fill="#E8A230"/>
+              <rect x="4" y="3" width="8" height="2" fill="#E8A230"/>
+              <rect x="6" y="5" width="4" height="2" fill="#E8A230"/>
+              <rect x="7" y="7" width="2" height="2" fill="#E8A230"/>
+              <rect x="6" y="9" width="4" height="2" fill="#E8A230"/>
+              <rect x="4" y="11" width="8" height="2" fill="#E8A230"/>
+              <rect x="2" y="13" width="12" height="2" fill="#E8A230"/>
+            </svg>
+          </div>
+          <div class="transfer-info">
+            <div class="transfer-name">Akira.1988.4K.Remaster.2160p.UHD.BluRay.FLAC-PIXEL</div>
+            <div class="transfer-meta">
+              <span class="transfer-meta-item">8.1 GB</span>
+              <span class="transfer-meta-item">Queued #1</span>
+            </div>
+          </div>
+          <span class="transfer-status-label queued">Queued</span>
+        </div>
+        <div class="transfer-progress">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" style="width: 0%;"></div>
+          </div>
+          <div class="progress-percent" style="color: var(--orange);">0%</div>
+        </div>
+        <div class="transfer-details">
+          <span style="color: var(--text-3);">Waiting for slot...</span>
+          <span class="transfer-eta">Position: 1 of 2</span>
+        </div>
+      </div>
+
+      <!-- Completed -->
+      <div class="transfer-card completed">
+        <div class="transfer-top">
+          <div class="transfer-icon">
+            <svg viewBox="0 0 16 16" fill="none">
+              <rect x="12" y="2" width="2" height="2" fill="#8B8B93"/>
+              <rect x="10" y="4" width="2" height="2" fill="#8B8B93"/>
+              <rect x="8" y="6" width="2" height="2" fill="#8B8B93"/>
+              <rect x="6" y="8" width="2" height="2" fill="#8B8B93"/>
+              <rect x="4" y="6" width="2" height="2" fill="#8B8B93"/>
+              <rect x="2" y="8" width="2" height="2" fill="#8B8B93"/>
+            </svg>
+          </div>
+          <div class="transfer-info">
+            <div class="transfer-name">Interstellar.OST.2014.FLAC.24bit-SOUND</div>
+            <div class="transfer-meta">
+              <span class="transfer-meta-item">890 MB</span>
+              <span class="transfer-meta-item">Completed 2h ago</span>
+            </div>
+          </div>
+          <span class="transfer-status-label completed">Done</span>
+        </div>
+        <div class="transfer-progress">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" style="width: 100%;"></div>
+          </div>
+          <div class="progress-percent">100%</div>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div class="transfer-card error">
+        <div class="transfer-top">
+          <div class="transfer-icon">
+            <svg viewBox="0 0 16 16" fill="none">
+              <rect x="2" y="2" width="2" height="2" fill="#E5484D"/>
+              <rect x="12" y="2" width="2" height="2" fill="#E5484D"/>
+              <rect x="4" y="4" width="2" height="2" fill="#E5484D"/>
+              <rect x="10" y="4" width="2" height="2" fill="#E5484D"/>
+              <rect x="6" y="6" width="4" height="4" fill="#E5484D"/>
+              <rect x="4" y="10" width="2" height="2" fill="#E5484D"/>
+              <rect x="10" y="10" width="2" height="2" fill="#E5484D"/>
+              <rect x="2" y="12" width="2" height="2" fill="#E5484D"/>
+              <rect x="12" y="12" width="2" height="2" fill="#E5484D"/>
+            </svg>
+          </div>
+          <div class="transfer-info">
+            <div class="transfer-name">corrupted_file_pack.rar</div>
+            <div class="transfer-meta">
+              <span class="transfer-meta-item">1.2 GB</span>
+              <span class="transfer-meta-item" style="color: var(--red);">Tracker unreachable</span>
+            </div>
+          </div>
+          <span class="transfer-status-label error">Error</span>
+        </div>
+        <div class="transfer-progress">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" style="width: 14%;"></div>
+          </div>
+          <div class="progress-percent">14%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="statusbar">
+      <span class="statusbar-active"><span class="pulse"></span> Downloading</span>
+      <span class="statusbar-dot"></span>
+      <span>2 active, 1 seeding, 1 queued</span>
+      <span class="statusbar-spacer"></span>
+      <span>24.8 MB/s down / 4.2 MB/s up</span>
+    </div>
+  </main>
+
+  <!-- RIGHT PANEL -->
+  <aside class="queue-panel">
+    <div class="queue-header">
+      <div class="queue-title">Queue</div>
+      <div class="queue-subtitle">6 transfers total</div>
+    </div>
+
+    <div class="queue-section">
+      <div class="queue-section-label">Bandwidth</div>
+      <div class="queue-stat-row">
+        <span class="queue-stat-label">Download</span>
+        <span class="queue-stat-value highlight">24.8 MB/s</span>
+      </div>
+      <div class="queue-stat-row">
+        <span class="queue-stat-label">Upload</span>
+        <span class="queue-stat-value green">4.2 MB/s</span>
+      </div>
+      <div class="queue-stat-row">
+        <span class="queue-stat-label">Connections</span>
+        <span class="queue-stat-value">293</span>
+      </div>
+      <div class="queue-stat-row">
+        <span class="queue-stat-label">Max Slots</span>
+        <span class="queue-stat-value">4</span>
+      </div>
+    </div>
+
+    <div class="queue-section">
+      <div class="queue-section-label">Session Stats</div>
+      <div class="queue-stat-row">
+        <span class="queue-stat-label">Downloaded</span>
+        <span class="queue-stat-value">47.1 GB</span>
+      </div>
+      <div class="queue-stat-row">
+        <span class="queue-stat-label">Uploaded</span>
+        <span class="queue-stat-value">8.7 GB</span>
+      </div>
+      <div class="queue-stat-row">
+        <span class="queue-stat-label">Ratio</span>
+        <span class="queue-stat-value green">0.18</span>
+      </div>
+      <div class="queue-stat-row">
+        <span class="queue-stat-label">Uptime</span>
+        <span class="queue-stat-value">4h 22min</span>
+      </div>
+    </div>
+
+    <div class="queue-waveform">
+      <div class="queue-waveform-label">Network Activity</div>
+      <div class="waveform-visual">
+        <div class="bar" style="height:8px;"></div>
+        <div class="bar" style="height:16px;"></div>
+        <div class="bar" style="height:12px;"></div>
+        <div class="bar" style="height:24px;"></div>
+        <div class="bar" style="height:20px;"></div>
+        <div class="bar" style="height:32px;"></div>
+        <div class="bar" style="height:28px;"></div>
+        <div class="bar" style="height:36px;"></div>
+        <div class="bar" style="height:24px;"></div>
+        <div class="bar" style="height:16px;"></div>
+        <div class="bar" style="height:20px;"></div>
+        <div class="bar" style="height:28px;"></div>
+        <div class="bar" style="height:32px;"></div>
+        <div class="bar" style="height:24px;"></div>
+        <div class="bar" style="height:12px;"></div>
+        <div class="bar" style="height:16px;"></div>
+        <div class="bar" style="height:8px;"></div>
+        <div class="bar" style="height:20px;"></div>
+        <div class="bar" style="height:24px;"></div>
+        <div class="bar" style="height:36px;"></div>
+        <div class="bar" style="height:28px;"></div>
+        <div class="bar" style="height:20px;"></div>
+        <div class="bar" style="height:12px;"></div>
+        <div class="bar" style="height:16px;"></div>
+        <div class="bar" style="height:24px;"></div>
+        <div class="bar" style="height:32px;"></div>
+        <div class="bar" style="height:20px;"></div>
+        <div class="bar" style="height:8px;"></div>
+      </div>
+    </div>
+
+    <div class="queue-add-url">
+      <div class="queue-add-label">Quick Add</div>
+      <input class="url-input" type="text" placeholder="Paste magnet or URL...">
+      <button class="url-submit">Start Transfer</button>
+    </div>
+  </aside>
+</div>
+
+</body>
+</html>

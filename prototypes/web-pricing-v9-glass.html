@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Pricing (Glass)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --bg-5: #35353A; --line: #3E3E44; --border: #4B4B52; --focus: #65656D;
+    --solid: #7C7C85; --text-2: #ABABB2; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868;
+    --yellow-subtle: rgba(253, 206, 69, 0.15);
+    --green: #30A46C; --green-light: #4CC38A;
+    --green-subtle: rgba(48, 164, 108, 0.15);
+    --red: #E5484D;
+    --glass: rgba(255, 255, 255, 0.04);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-hover: rgba(255, 255, 255, 0.07);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    width: 1440px;
+    min-height: 900px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Warm gradient background */
+  .gradient-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(253, 206, 69, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 30%, rgba(232, 168, 48, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(184, 122, 80, 0.04) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* Nav */
+  .nav {
+    display: flex; align-items: center; padding: 24px 64px;
+    position: relative; z-index: 10;
+  }
+  .logo {
+    font-size: 24px; font-weight: 700; letter-spacing: -0.02em;
+    text-decoration: none; color: var(--text);
+  }
+  .logo span { color: var(--yellow); }
+  .nav-spacer { flex: 1; }
+  .nav-links { display: flex; gap: 32px; align-items: center; }
+  .nav-link {
+    font-size: 14px; color: var(--text-2); text-decoration: none;
+    font-weight: 500; transition: color 0.15s;
+  }
+  .nav-link:hover { color: var(--text); }
+  .nav-link.active { color: var(--yellow); }
+  .nav-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--yellow); color: #111113;
+    font-size: 13px; font-weight: 600; padding: 8px 20px;
+    border-radius: 999px; border: none; cursor: pointer;
+    font-family: inherit; text-decoration: none;
+  }
+
+  /* Hero */
+  .pricing-hero {
+    text-align: center; padding: 48px 64px 44px;
+    position: relative; z-index: 2;
+  }
+  .pricing-hero h1 {
+    font-size: 52px; font-weight: 800;
+    letter-spacing: -0.03em; line-height: 1.08;
+    margin-bottom: 14px;
+  }
+  .pricing-hero h1 .yellow { color: var(--yellow); }
+  .pricing-hero .subtitle {
+    font-size: 17px; color: var(--text-2);
+    max-width: 500px; margin: 0 auto 32px; line-height: 1.6;
+  }
+
+  /* Billing Toggle */
+  .billing-toggle {
+    display: inline-flex; align-items: center; gap: 12px;
+    background: var(--glass); backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 999px; padding: 5px 6px;
+  }
+  .toggle-option {
+    padding: 8px 20px; border-radius: 999px; font-size: 14px;
+    font-weight: 500; color: var(--text-2); cursor: pointer;
+    border: none; background: none; font-family: inherit;
+    transition: all 0.15s;
+  }
+  .toggle-option.active {
+    background: rgba(255, 255, 255, 0.1); color: var(--text);
+    backdrop-filter: blur(10px);
+  }
+  .toggle-save {
+    font-size: 11px; font-weight: 600; color: var(--green-light);
+    background: var(--green-subtle); padding: 3px 8px;
+    border-radius: 999px; margin-left: -4px;
+  }
+
+  /* Pricing Grid */
+  .pricing-grid {
+    display: flex; gap: 20px; padding: 0 64px;
+    align-items: stretch; position: relative; z-index: 2;
+  }
+
+  /* Plan Card -- frosted glass */
+  .plan-card {
+    flex: 1;
+    background: var(--glass);
+    backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 32px 28px 28px;
+    display: flex; flex-direction: column;
+    position: relative;
+    transition: all 0.2s;
+  }
+  .plan-card:hover {
+    background: var(--glass-hover);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+  .plan-card.featured {
+    border-color: rgba(253, 206, 69, 0.4);
+    background: rgba(253, 206, 69, 0.04);
+    box-shadow: 0 8px 40px rgba(253, 206, 69, 0.06), inset 0 1px 0 rgba(253, 206, 69, 0.1);
+  }
+
+  .plan-badge {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--yellow); color: #111113;
+    font-size: 11px; font-weight: 700; padding: 4px 14px;
+    border-radius: 999px; text-transform: uppercase;
+    letter-spacing: 0.06em; white-space: nowrap;
+  }
+
+  .plan-persona {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--solid); margin-bottom: 8px;
+  }
+  .plan-name {
+    font-size: 24px; font-weight: 700; letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .plan-tagline {
+    font-size: 13px; color: var(--text-2); margin-bottom: 20px; line-height: 1.4;
+  }
+
+  .plan-price { display: flex; align-items: baseline; gap: 4px; margin-bottom: 4px; }
+  .plan-currency { font-size: 18px; font-weight: 600; color: var(--text-2); }
+  .plan-amount { font-size: 44px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+  .plan-period { font-size: 14px; color: var(--solid); font-weight: 500; }
+
+  .plan-storage {
+    font-size: 13px; color: var(--text-2); margin-bottom: 24px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .plan-storage .bar {
+    display: inline-block; width: 40px; height: 4px;
+    background: rgba(255, 255, 255, 0.06); border-radius: 2px;
+    overflow: hidden; position: relative;
+  }
+  .plan-storage .bar-fill {
+    position: absolute; top: 0; left: 0; height: 100%;
+    background: var(--yellow); border-radius: 2px;
+  }
+
+  .plan-cta {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 12px 20px; border-radius: 14px;
+    font-size: 14px; font-weight: 600; border: none; cursor: pointer;
+    font-family: inherit; transition: all 0.15s; margin-bottom: 24px;
+  }
+  .plan-cta.primary { background: var(--yellow); color: #111113; }
+  .plan-cta.primary:hover { background: var(--yellow-hover); }
+  .plan-cta.secondary {
+    background: rgba(255, 255, 255, 0.06); color: var(--text);
+    border: 1px solid var(--glass-border);
+  }
+  .plan-cta.secondary:hover { background: rgba(255, 255, 255, 0.1); }
+
+  .plan-divider { height: 1px; background: var(--glass-border); margin-bottom: 20px; }
+  .plan-features-title {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--solid); margin-bottom: 12px;
+  }
+  .plan-feature {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 5px 0; font-size: 13px; color: var(--text-2); line-height: 1.4;
+  }
+  .plan-feature .check { flex-shrink: 0; margin-top: 1px; color: var(--green-light); }
+  .plan-feature .highlight { color: var(--text); font-weight: 500; }
+
+  /* Guarantees */
+  .guarantees {
+    display: flex; justify-content: center; gap: 48px;
+    padding: 48px 64px 0; position: relative; z-index: 2;
+  }
+  .guarantee {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: var(--text-2);
+  }
+  .guarantee-icon {
+    width: 32px; height: 32px; border-radius: 10px;
+    background: var(--glass); backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+
+  /* Footer */
+  .pricing-footer {
+    text-align: center; padding: 56px 64px 48px; position: relative; z-index: 2;
+  }
+  .footer-cta-line {
+    font-size: 20px; font-weight: 600; margin-bottom: 16px;
+    letter-spacing: -0.01em;
+  }
+  .footer-cta-line .yellow { color: var(--yellow); }
+  .footer-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--yellow); color: #111113;
+    font-size: 16px; font-weight: 600; padding: 14px 36px;
+    border-radius: 14px; border: none; cursor: pointer;
+    font-family: inherit; margin-bottom: 12px;
+  }
+  .footer-note { font-size: 12px; color: var(--solid); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="gradient-bg"></div>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a class="logo" href="#">put<span>.</span>io</a>
+    <div class="nav-spacer"></div>
+    <div class="nav-links">
+      <a class="nav-link" href="#">Features</a>
+      <a class="nav-link active" href="#">Pricing</a>
+      <a class="nav-link" href="#">Blog</a>
+      <a class="nav-link" href="#">Help</a>
+      <a class="nav-cta" href="#">Start free trial</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="pricing-hero">
+    <h1>Pick a plan.<br><span class="yellow">Keep it simple.</span></h1>
+    <p class="subtitle">No contracts. No surprises. No loyalty tax. Just cloud storage that works the way you expect it to.</p>
+
+    <div class="billing-toggle">
+      <button class="toggle-option active">Monthly</button>
+      <button class="toggle-option">Yearly</button>
+      <span class="toggle-save">Save 17%</span>
+    </div>
+  </div>
+
+  <!-- Pricing Grid -->
+  <div class="pricing-grid">
+
+    <!-- Trial -->
+    <div class="plan-card">
+      <div class="plan-persona">Try it first</div>
+      <div class="plan-name">Trial</div>
+      <div class="plan-tagline">Take it for a spin. No credit card, no pressure.</div>
+      <div class="plan-price">
+        <span class="plan-currency">$</span>
+        <span class="plan-amount">0.99</span>
+        <span class="plan-period">/day</span>
+      </div>
+      <div class="plan-storage">
+        <span class="bar"><span class="bar-fill" style="width:10%;"></span></span>
+        100 GB for the trial
+      </div>
+      <button class="plan-cta secondary">Start trial</button>
+      <div class="plan-divider"></div>
+      <div class="plan-features-title">Includes</div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Full access to all features
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        5 simultaneous transfers
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        No credit card needed
+      </div>
+    </div>
+
+    <!-- Casual -->
+    <div class="plan-card">
+      <div class="plan-persona">For watching</div>
+      <div class="plan-name">Casual</div>
+      <div class="plan-tagline">You just want to press play. We get it.</div>
+      <div class="plan-price">
+        <span class="plan-currency">$</span>
+        <span class="plan-amount">9.99</span>
+        <span class="plan-period">/mo</span>
+      </div>
+      <div class="plan-storage">
+        <span class="bar"><span class="bar-fill" style="width:25%;"></span></span>
+        100 GB storage
+      </div>
+      <button class="plan-cta secondary">Get started</button>
+      <div class="plan-divider"></div>
+      <div class="plan-features-title">What you get</div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Stream anything, anywhere
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Offline downloads on mobile
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Chromecast, AirPlay, DLNA
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        5 simultaneous transfers
+      </div>
+    </div>
+
+    <!-- Plus (Featured) -->
+    <div class="plan-card featured">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-persona">For collecting</div>
+      <div class="plan-name">Plus</div>
+      <div class="plan-tagline">More room for the stuff you love.</div>
+      <div class="plan-price">
+        <span class="plan-currency">$</span>
+        <span class="plan-amount">14.99</span>
+        <span class="plan-period">/mo</span>
+      </div>
+      <div class="plan-storage">
+        <span class="bar"><span class="bar-fill" style="width:50%;"></span></span>
+        500 GB storage
+      </div>
+      <button class="plan-cta primary">Get started</button>
+      <div class="plan-divider"></div>
+      <div class="plan-features-title">Everything in Casual, plus</div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span><span class="highlight">500 GB</span> cloud storage</span>
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Smart folders &amp; organization
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        10 simultaneous transfers
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Subtitle search &amp; auto-fetch
+      </div>
+    </div>
+
+    <!-- Power -->
+    <div class="plan-card">
+      <div class="plan-persona">For building</div>
+      <div class="plan-name">Power</div>
+      <div class="plan-tagline">Total control. We stay out of your way.</div>
+      <div class="plan-price">
+        <span class="plan-currency">$</span>
+        <span class="plan-amount">19.99</span>
+        <span class="plan-period">/mo</span>
+      </div>
+      <div class="plan-storage">
+        <span class="bar"><span class="bar-fill" style="width:100%;"></span></span>
+        1 TB storage
+      </div>
+      <button class="plan-cta secondary">Get started</button>
+      <div class="plan-divider"></div>
+      <div class="plan-features-title">Everything in Plus, plus</div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span><span class="highlight">1 TB</span> cloud storage</span>
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        RSS automation feeds
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        API access &amp; WebDAV
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Family sharing (up to 4)
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        50 simultaneous transfers
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Guarantees -->
+  <div class="guarantees">
+    <div class="guarantee">
+      <div class="guarantee-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--green-light)" stroke-width="1.5">
+          <path d="M8 1.5l5.5 2.5v4c0 3.5-2.5 5.5-5.5 7-3-1.5-5.5-3.5-5.5-7V4L8 1.5z" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5.5 8l2 2 3.5-3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      No-hassle money-back guarantee, first week
+    </div>
+    <div class="guarantee">
+      <div class="guarantee-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--yellow)" stroke-width="1.5">
+          <circle cx="8" cy="8" r="6.5"/>
+          <path d="M8 4.5V8l2.5 1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      Cancel anytime. One click. Done.
+    </div>
+    <div class="guarantee">
+      <div class="guarantee-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--text-2)" stroke-width="1.5">
+          <rect x="2" y="4" width="12" height="9" rx="1.5"/>
+          <path d="M2 7h12" stroke-linecap="round"/>
+          <path d="M5 10h3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      Stripe-powered. We never touch your card.
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="pricing-footer">
+    <div class="footer-cta-line">Still here? Just <span class="yellow">try it</span>.</div>
+    <button class="footer-btn">
+      Start with $0.99/day trial
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <div class="footer-note">No credit card required &middot; Full access &middot; Cancel in one click</div>
+  </div>
+
+</div>
+</body>
+</html>
