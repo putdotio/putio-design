@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io -- iOS Settings v9 Glass</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --glass: rgba(255,255,255,0.06);
+    --glass-border: rgba(255,255,255,0.1);
+    --glass-strong: rgba(255,255,255,0.1);
+    --text: #FFFFFF;
+    --text-2: rgba(255,255,255,0.5);
+    --text-3: rgba(255,255,255,0.3);
+    --yellow: #FDCE45;
+    --yellow-glow: rgba(253,206,69,0.15);
+    --green: #30D158;
+    --red: #FF453A;
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    background: #0A0A1A;
+  }
+  .phone {
+    width: 390px; height: 844px; overflow: hidden;
+    display: flex; flex-direction: column; position: relative;
+    background: linear-gradient(150deg, #1a0a3e 0%, #0d1b3e 30%, #0a2a2a 60%, #1a0a3e 100%);
+  }
+
+  /* Gradient orbs */
+  .orb { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(80px); }
+  .orb-1 { width: 300px; height: 300px; background: rgba(253,206,69,0.12); top: -100px; right: -80px; }
+  .orb-2 { width: 250px; height: 250px; background: rgba(120,80,255,0.15); bottom: 100px; left: -80px; }
+  .orb-3 { width: 200px; height: 200px; background: rgba(69,200,253,0.08); top: 300px; right: -50px; }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 14px 24px 8px;
+    font-size: 15px; font-weight: 600; height: 54px; flex-shrink: 0;
+    position: relative; z-index: 1;
+  }
+  .status-bar .time { flex: 1; color: var(--text); }
+  .status-bar .icons { display: flex; align-items: center; gap: 6px; }
+
+  /* Nav Bar */
+  .nav-bar {
+    display: flex; align-items: center; padding: 8px 20px 16px; flex-shrink: 0;
+    position: relative; z-index: 1;
+  }
+  .nav-title {
+    font-size: 34px; font-weight: 700; flex: 1;
+    letter-spacing: -0.03em;
+  }
+
+  /* Profile Card */
+  .profile-card {
+    margin: 0 20px 16px; padding: 18px;
+    background: var(--glass); backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    display: flex; align-items: center; gap: 14px;
+    position: relative; z-index: 1;
+  }
+  .profile-avatar {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--glass-strong); border: 1px solid var(--glass-border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .profile-info { flex: 1; min-width: 0; }
+  .profile-name { font-size: 18px; font-weight: 600; }
+  .profile-email { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+  .profile-chevron { color: var(--text-3); }
+
+  /* Storage */
+  .storage-card {
+    margin: 0 20px 16px; padding: 16px;
+    background: var(--yellow-glow); backdrop-filter: blur(20px);
+    border: 1px solid rgba(253,206,69,0.2);
+    border-radius: 16px;
+    position: relative; z-index: 1;
+  }
+  .storage-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .storage-label { font-size: 13px; font-weight: 500; color: var(--text-2); }
+  .storage-value { font-size: 13px; font-weight: 600; color: var(--yellow); }
+  .storage-track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+  .storage-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--yellow), rgba(253,206,69,0.6)); }
+  .storage-meta { font-size: 12px; color: var(--text-3); margin-top: 6px; }
+
+  /* Settings List */
+  .settings-scroll { flex: 1; overflow-y: auto; padding: 0 20px 8px; position: relative; z-index: 1; }
+
+  .section-label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--text-2);
+    padding: 12px 0 10px;
+  }
+
+  .glass-group {
+    background: var(--glass); backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px; overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .list-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 13px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .list-item:last-child { border-bottom: none; }
+
+  .item-icon {
+    width: 36px; height: 36px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--glass-strong); border-radius: 10px;
+    border: 1px solid var(--glass-border);
+  }
+  .item-icon.purple { background: rgba(191,90,242,0.15); border-color: rgba(191,90,242,0.2); }
+  .item-icon.blue { background: rgba(10,132,255,0.15); border-color: rgba(10,132,255,0.2); }
+  .item-icon.green { background: rgba(48,209,88,0.15); border-color: rgba(48,209,88,0.2); }
+  .item-icon.orange { background: rgba(255,159,10,0.15); border-color: rgba(255,159,10,0.2); }
+  .item-icon.red { background: rgba(255,69,58,0.15); border-color: rgba(255,69,58,0.2); }
+  .item-icon.yellow { background: rgba(253,206,69,0.15); border-color: rgba(253,206,69,0.2); }
+  .item-icon.indigo { background: rgba(94,92,230,0.15); border-color: rgba(94,92,230,0.2); }
+
+  .item-info { flex: 1; min-width: 0; }
+  .item-name { font-size: 16px; font-weight: 500; color: var(--text); }
+  .item-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .item-detail { font-size: 14px; color: var(--text-3); }
+  .item-chevron { color: var(--text-3); }
+
+  /* Glass Toggle */
+  .glass-toggle {
+    width: 48px; height: 28px; border-radius: 14px;
+    background: rgba(255,255,255,0.1); position: relative; flex-shrink: 0;
+    border: 1px solid var(--glass-border);
+  }
+  .glass-toggle.on { background: rgba(48,209,88,0.4); border-color: rgba(48,209,88,0.5); }
+  .glass-toggle .knob {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--text); position: absolute; top: 1px; left: 1px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+  .glass-toggle.on .knob { left: 21px; }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex;
+    background: rgba(10,10,26,0.7); backdrop-filter: blur(30px);
+    border-top: 1px solid var(--glass-border);
+    padding: 6px 0 34px; flex-shrink: 0;
+    position: relative; z-index: 1;
+  }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 500; color: var(--text-2); padding: 4px 0;
+  }
+  .tab-item.active { color: var(--yellow); }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+        <rect x="0" y="8" width="3" height="4" fill="white"/>
+        <rect x="4.5" y="5" width="3" height="7" fill="white"/>
+        <rect x="9" y="2" width="3" height="10" fill="white"/>
+        <rect x="13.5" y="0" width="3" height="12" fill="white"/>
+      </svg>
+      <svg width="27" height="13" viewBox="0 0 27 13" fill="none">
+        <rect x="0.5" y="0.5" width="23" height="12" rx="2" stroke="white" stroke-opacity="0.35"/>
+        <rect x="2" y="2" width="18" height="9" rx="1" fill="white"/>
+        <rect x="25" y="4" width="2" height="5" fill="white" fill-opacity="0.4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav-bar">
+    <h1 class="nav-title">Settings</h1>
+  </div>
+
+  <!-- Profile Card -->
+  <div class="profile-card">
+    <div class="profile-avatar">
+      <svg viewBox="0 0 24 24" width="32" height="32" fill="none">
+        <rect x="4" y="4" width="2" height="2" fill="#FDCE45"/>
+        <rect x="18" y="4" width="2" height="2" fill="#FDCE45"/>
+        <rect x="6" y="6" width="2" height="2" fill="#FDCE45"/>
+        <rect x="16" y="6" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="8" width="16" height="2" fill="#FDCE45"/>
+        <rect x="4" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="8" y="10" width="8" height="2" fill="#FDCE45"/>
+        <rect x="18" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="12" width="2" height="2" fill="#FDCE45"/>
+        <rect x="8" y="12" width="2" height="2" fill="rgba(10,10,26,0.8)"/>
+        <rect x="14" y="12" width="2" height="2" fill="rgba(10,10,26,0.8)"/>
+        <rect x="10" y="12" width="4" height="2" fill="#FDCE45"/>
+        <rect x="18" y="12" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="14" width="16" height="2" fill="#FDCE45"/>
+        <rect x="6" y="16" width="4" height="2" fill="#FDCE45"/>
+        <rect x="14" y="16" width="4" height="2" fill="#FDCE45"/>
+      </svg>
+    </div>
+    <div class="profile-info">
+      <div class="profile-name">altay</div>
+      <div class="profile-email">altay@put.io</div>
+    </div>
+    <div class="profile-chevron">
+      <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+
+  <!-- Storage -->
+  <div class="storage-card">
+    <div class="storage-header">
+      <span class="storage-label">Storage</span>
+      <span class="storage-value">78% used</span>
+    </div>
+    <div class="storage-track">
+      <div class="storage-fill" style="width:78%;"></div>
+    </div>
+    <div class="storage-meta">780 GB of 1 TB used</div>
+  </div>
+
+  <!-- Settings -->
+  <div class="settings-scroll">
+    <div class="section-label">Playback</div>
+    <div class="glass-group">
+      <div class="list-item">
+        <div class="item-icon purple">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#BF5AF2" stroke-width="1.3"/><path d="M5 8l2 2 4-4" stroke="#BF5AF2" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Proxy</div></div>
+        <div class="item-right">
+          <span class="item-detail">Amsterdam</span>
+          <svg class="item-chevron" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="item-icon blue">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="2" stroke="#0A84FF" stroke-width="1.3"/><polygon points="6,6 11,8 6,10" fill="#0A84FF"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Video Type</div></div>
+        <div class="item-right">
+          <span class="item-detail">HLS</span>
+          <svg class="item-chevron" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="item-icon green">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="2" stroke="#30D158" stroke-width="1.3"/><path d="M3 9h10M3 11h6" stroke="#30D158" stroke-width="1" stroke-linecap="round"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Subtitles</div></div>
+        <div class="item-right">
+          <div class="glass-toggle on"><div class="knob"></div></div>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="item-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><polygon points="5,3 13,8 5,13" stroke="rgba(255,255,255,0.4)" stroke-width="1.3" fill="none" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Playback Speed</div></div>
+        <div class="item-right">
+          <span class="item-detail">1.0x</span>
+          <svg class="item-chevron" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Downloads</div>
+    <div class="glass-group">
+      <div class="list-item">
+        <div class="item-icon orange">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M4 6l4 4 4-4" stroke="#FF9F0A" stroke-width="1.3" stroke-linecap="round"/><path d="M2 12h12" stroke="#FF9F0A" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Auto-Cleanup</div></div>
+        <div class="item-right">
+          <div class="glass-toggle on"><div class="knob"></div></div>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="item-icon orange">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="4" rx="1" stroke="#FF9F0A" stroke-width="1"/><rect x="2" y="6" width="12" height="4" rx="1" stroke="#FF9F0A" stroke-width="1"/><rect x="2" y="10" width="12" height="4" rx="1" stroke="#FF9F0A" stroke-width="1"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Download Quality</div></div>
+        <div class="item-right">
+          <span class="item-detail">Original</span>
+          <svg class="item-chevron" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Account</div>
+    <div class="glass-group">
+      <div class="list-item">
+        <div class="item-icon yellow">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="5.5" cy="6" r="2.5" fill="#FDCE45" fill-opacity="0.8"/><circle cx="10.5" cy="6" r="2.5" fill="#FDCE45" fill-opacity="0.8"/><path d="M1 14c0-3 2-4 4.5-4s3 1 2.5 1c-.5 0-1-1 2.5-1s4.5 1 4.5 4" fill="#FDCE45" fill-opacity="0.5"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Family Management</div></div>
+        <div class="item-right">
+          <svg class="item-chevron" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="item-icon indigo">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="1" width="10" height="14" rx="2" stroke="#5E5CE6" stroke-width="1.3"/><path d="M6 8h4" stroke="#5E5CE6" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Active Sessions</div></div>
+        <div class="item-right">
+          <span class="item-detail">3 devices</span>
+          <svg class="item-chevron" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="item-icon green">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="6" width="10" height="8" rx="2" stroke="#30D158" stroke-width="1.3"/><path d="M5 6V4a3 3 0 016 0v2" stroke="#30D158" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="10.5" r="1" fill="#30D158"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Two-Factor Auth</div></div>
+        <div class="item-right">
+          <span class="item-detail" style="color:#30D158;">Enabled</span>
+          <svg class="item-chevron" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Storage</div>
+    <div class="glass-group">
+      <div class="list-item">
+        <div class="item-icon red">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 5h10M6 5V4a2 2 0 014 0v1M5 5v8a1 1 0 001 1h4a1 1 0 001-1V5" stroke="#FF453A" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Clear Cache</div></div>
+        <div class="item-right">
+          <span class="item-detail">248 MB</span>
+          <svg class="item-chevron" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="item-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(255,255,255,0.3)" stroke-width="1.3"/><path d="M8 5v4M8 11v0" stroke="rgba(255,255,255,0.3)" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Version</div></div>
+        <div class="item-right">
+          <span class="item-detail">4.8.2 (1247)</span>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="item-icon yellow">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 4L8 10.7 4.4 12.5l.7-4L2.2 5.7l4-.6L8 1.5z" fill="#FDCE45" fill-opacity="0.8"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Rate put.io</div></div>
+        <div class="item-right">
+          <svg class="item-chevron" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M3 7h7l2 2h9v11H3z" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" fill="none"/>
+      </svg>
+      Files
+    </div>
+    <div class="tab-item">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M13 2l-2 8h6l-4 12 2-8H9l4-12z" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" fill="none"/>
+      </svg>
+      Transfers
+    </div>
+    <div class="tab-item">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 4v12M8 12l4 4 4-4" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M5 18h14" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Downloads
+    </div>
+    <div class="tab-item active">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="3" stroke="#FDCE45" stroke-width="1.5"/>
+        <path d="M12 3v2M12 19v2M3 12h2M19 12h2" stroke="#FDCE45" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Settings
+    </div>
+  </div>
+</div>
+</body>
+</html>
