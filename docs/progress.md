@@ -1,87 +1,97 @@
-# Design System Progress
+# put.io Design System — Progress
 
-## Status: Active — 50+ frames in Figma, 66 HTML files, 4 design variants
+## Final Status: 94 HTML files, 74+ Figma frames, 4 variants, 9 platforms
 
-## Figma File
-https://www.figma.com/design/fSGN6KSI5USS2GdTRBha4L/design-system
-
-## Summary
-- **66 HTML design files** in `figma-pages/`
-- **50+ frames captured** to Figma
-- **4 design variants**: Clean Modern, Monospace/Terminal, Brutalist, Editorial
-- **8 platforms**: Web, iOS, tvOS, Android, Android TV, watchOS, visionOS, CLI
-- **Dark + Light mode** for web Files screens
-- **All icons are SVG** — no emoji
+Figma: https://www.figma.com/design/fSGN6KSI5USS2GdTRBha4L/design-system
 
 ## Design Variants
 
-### Clean Modern (v2)
-Inter. Linear/Vercel inspired. Polished, every pixel considered. Yellow accent sparingly.
+1. **Clean Modern** — Inter. Linear/Vercel inspired. Production-ready polish.
+2. **Monospace/Terminal** — JetBrains Mono. Vim status bar, command palette, ASCII progress. For the Pipeline Builder.
+3. **Brutalist** — Inter Black 900 + JetBrains Mono. Mission control aesthetic. Oxide meets arcade.
+4. **Editorial** — DM Serif Display + Inter. "Your Library." Candlelight yellow. Private cinema. Made with love.
 
-### Monospace/Terminal (v2-mono)
-JetBrains Mono. Vim-style status bar. Command palette. ASCII progress. Premium dev tool.
-
-### Brutalist (v3)
-Inter Black 900 + JetBrains Mono. MASSIVE headings. Exposed metadata. Oxide meets arcade.
-
-### Editorial (v4)
-DM Serif Display + Inter. Warm whitespace. Serif headings. Candlelight yellow. Lived-in.
-
-## Web Screens by Variant
+## Web Screens (dark + light)
 
 | Screen | Clean | Mono | Brutalist | Editorial |
 |--------|-------|------|-----------|-----------|
-| Files (dark) | 18:2 | 17:2 | 16:2 | 15:2 |
-| Files (light) | 47:2 | 80:2 | 69:2 | 70:2 |
-| Transfers | 32:2 | 26:2 | 31:2 | 25:2 |
-| Player | 40:2 | 37:2 | 36:2 | 30:2 |
-| Storage | 77:2 | — | 41:2 | 38:2 |
-| RSS | 54:2 | — | — | 67:2 |
-| History | 60:2 | — | — | 68:2 |
-| Sharing | 73:2 | — | — | 74:2 |
-| Onboarding | 24:2 | | | |
-| Pricing | 29:2 | | | |
-| Storage (orig) | 14:2 | | | |
+| Files | v1 + light | v1 + light | v1 + v2 + light | v1 + v2 + light |
+| Transfers | v1 | v1 | v1 + v2 | v1 + v2 |
+| Player | v1 | v1 | v1 + v2 | v1 + v2 |
+| Storage | v1 | v1 | v1 | v1 + v2 |
+| RSS | v1 | v1 | v1 | v1 |
+| History | v1 | v1 | v1 | v1 |
+| Sharing | v1 | v1 | v1 | v1 |
+| Onboarding | v1 | — | — | v1 |
+| Pricing | v1 | — | v1 | — |
 
-## iOS Screens
+## iOS
 
 | Screen | Clean | Mono | Brutalist | Editorial |
 |--------|-------|------|-----------|-----------|
-| Files | 50:2 | 64:2 | 71:2 | 72:2 |
-| Transfers | 51:2 | — | — | — |
-| Player | 66:2 | — | — | 76:2 |
-| Downloads | pending | | | |
-| Widgets | 52:2 | | | |
+| Files | v1 + light | v1 | v1 | v1 |
+| Transfers | v1 | v1 | v1 | v1 |
+| Player | v1 | v1 | — | v1 |
+| Downloads | v1 |
+| Widgets | v1 |
 
-## TV Screens
-
-| Screen | Node |
-|--------|------|
-| tvOS Home v2 (file-browsing) | 58:2 |
-| tvOS Files v2 (list-based) | 59:2 |
-| tvOS Player | 19:2 |
-| tvOS Search | 75:2 |
-| Android TV Home | 62:2 |
-| Android TV Player | 63:2 |
-
-## Android Screens
+## Android (Material 3)
 
 | Screen | Clean | Mono | Brutalist | Editorial |
 |--------|-------|------|-----------|-----------|
-| Files | 22:2 | 78:2 | 79:2 | pending |
-| Transfers | 20:2 | — | — | pending |
+| Files | v1 | v1 | v1 | v1 |
+| Transfers | v1 | v1 | v1 | v1 |
+
+## TV (list-based file browsing)
+
+| Platform | Screens |
+|----------|---------|
+| tvOS | Home v2, Files v2, Player, Search, Transfers, Settings |
+| Android TV | Home, Player, Files |
+| Roku | Files (720p, extreme simplicity) |
 
 ## Other Platforms
 
-| Platform | Screen | Node |
-|----------|--------|------|
-| watchOS | Complications + Notifications | 23:2 |
-| visionOS | Immersive Player | 27:2 |
-| CLI | Terminal mockup | 53:2 |
+| Platform | Screens |
+|----------|---------|
+| watchOS | Complications + Notifications (4 faces) |
+| visionOS | Immersive spatial player (starfield theater) |
+| CLI | Terminal mockup with command examples |
 
-## Landing & About Pages
+## Marketing Pages
 
 | Page | Clean | Mono | Brutalist | Editorial |
 |------|-------|------|-----------|-----------|
-| Landing | 48:2 | 56:2 | 49:2 | 57:2 |
-| About | — | — | 55:2 | 44:2 |
+| Landing | v1 | v1 | v1 | v1 |
+| About | — | — | v1 | v1 |
+
+## Key Design Decisions
+
+- **All icons SVG** (Phosphor-style), no emoji
+- **TV apps are file browsers** — list views, not media cards. No metadata/posters to depend on
+- **Yellow #FDCE45 sacred** throughout every platform
+- **Brand signatures**: kaomoji ᕦ(ò_óˇ)ᕤ, space invader avatars, put.io voice in microcopy
+- **Icon disambiguation**: cloud+upload / device+arrow / play triangle — three distinct metaphors
+- **Filename parsing**: "The.Wire.S03E04.1080p.BluRay.x264-DEMAND.mkv" → "The Wire · S03E04" + badges
+- **Transfer health**: green/yellow/red dots replace torrent jargon
+- **Storage dashboard**: invented new screen — file type donut, insights, largest files, never-opened
+- **Pricing restructured**: 4 persona-based tiers (Trial/Casual/Plus/Power), no jargon
+
+## v2 Iterations (second-pass with more craft)
+
+### Brutalist v2
+- Top rail replaces sidebar — file list gets full width
+- "Your" (light) / "Files" (black yellow glow) typographic tension
+- Spotlight search as command palette with glow border
+- Mission Control transfers with pulse visualizations on health dots
+- Per-transfer speed as hero metric
+- Failed transfers visually urgent with red glow rings
+
+### Editorial v2
+- "Your Library" framing — folders have personality subtitles
+- Transfer ticker: "Inception is almost ready — 63%, about 23 minutes to go"
+- Player as private cinema — film title card overlay, programme/playbill right panel
+- Helen Stead quote as pullquote: "put.io does everything I need, and it's mine"
+- Failed transfers empathetic: "We couldn't find sources. It happens sometimes."
+- Storage as "Your Digital Attic" — warm colors, conversational insights
+- Footer quotes the 10th birthday email: "Can you frakking believe this?"
