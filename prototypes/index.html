@@ -133,10 +133,10 @@
   }
   .modal-close:hover { color: var(--text); }
 
-  /* Frame: fixed native size, scaled via JS to fit viewport */
+  /* Frame: sized to fit viewport, iframe scaled inside */
   .modal-frame {
-    overflow: hidden; position: relative;
-    transform-origin: center center;
+    position: relative;
+    overflow: hidden;
     background: #000;
   }
   .modal-frame iframe {
@@ -491,7 +491,12 @@ function scaleFrame() {
   if (frame.classList.contains('frame-extension')) maxScale = 0.85;
   if (frame.classList.contains('frame-watch') || frame.classList.contains('frame-wearos')) maxScale = 0.9;
   const scale = Math.min(availW / (iw + bw), availH / (ih + bh), maxScale);
-  frame.style.transform = `scale(${scale})`;
+
+  // Scale iframe inside the frame, size frame to match
+  iframe.style.transform = `scale(${scale})`;
+  iframe.style.transformOrigin = '0 0';
+  frame.style.width = (iw * scale) + 'px';
+  frame.style.height = (ih * scale) + 'px';
 }
 
 function openModal(file) {
