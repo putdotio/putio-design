@@ -125,71 +125,64 @@
   }
   .modal-close:hover { color: var(--text); }
 
-  /* Frame container — adapts to content type */
+  /* Frame: fixed native size, scaled via JS to fit viewport */
   .modal-frame {
-    border-radius: 12px; overflow: hidden; position: relative;
+    overflow: hidden; position: relative;
+    transform-origin: center center;
+    background: #000;
+  }
+  .modal-frame iframe {
+    border: none; display: block; background: #09090B;
+    opacity: 0; transition: opacity 0.2s ease;
+    scrollbar-width: none;
+  }
+  .modal-frame iframe::-webkit-scrollbar { display: none; }
+  .modal-frame iframe.ready { opacity: 1; }
+
+  /* Web */
+  .modal-frame.frame-web {
+    border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);
     box-shadow: 0 24px 80px rgba(0,0,0,0.5);
-    background: var(--bg-2); border: 1px solid rgba(255,255,255,0.08);
   }
+  .modal-frame.frame-web iframe { width: 1440px; height: 900px; }
 
-  /* Web: full width */
-  .modal-frame.frame-web { width: 100%; max-width: 1480px; height: calc(100vh - 120px); }
-
-  /* Mobile: phone-shaped, scaled to fill viewport */
+  /* iOS */
   .modal-frame.frame-mobile {
-    width: auto; height: calc(100vh - 120px);
-    aspect-ratio: 390/844;
-    border-radius: 44px; border: 5px solid #2A2A2E;
-    box-shadow: 0 24px 80px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.06);
+    border-radius: 44px; border: 6px solid #2A2A2E;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.05);
   }
-  .modal-frame.frame-mobile.frame-android {
-    aspect-ratio: 412/915; border-radius: 28px; border-width: 4px;
-  }
+  .modal-frame.frame-mobile iframe { width: 390px; height: 844px; }
 
-  /* TV: 1080p native, scaled to fit viewport */
-  .modal-frame.frame-tv {
-    width: calc(100vw - 80px); max-width: 1600px; aspect-ratio: 16/9;
-    max-height: calc(100vh - 140px);
-    border-radius: 6px; border: 8px solid #1A1A1A;
-    box-shadow: 0 32px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
-    background: #000; overflow: hidden;
+  /* Android */
+  .modal-frame.frame-android {
+    border-radius: 28px; border: 5px solid #2A2A2E;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.05);
   }
+  .modal-frame.frame-android iframe { width: 412px; height: 915px; }
+
+  /* TV */
+  .modal-frame.frame-tv {
+    border-radius: 4px; border: 10px solid #1A1A1A;
+    box-shadow: 0 32px 100px rgba(0,0,0,0.6);
+  }
+  .modal-frame.frame-tv iframe { width: 1920px; height: 1080px; }
+
+  /* Roku 720p */
+  .modal-frame.frame-roku iframe { width: 1280px; height: 720px; }
 
   /* Watch */
   .modal-frame.frame-watch {
-    width: auto; max-width: 900px; height: calc(100vh - 140px); max-height: 520px;
     border-radius: 16px; border: 4px solid #2A2A2E;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
   }
+  .modal-frame.frame-watch iframe { width: 900px; height: 500px; }
 
-  /* Other: medium */
+  /* Other (CLI, visionOS) */
   .modal-frame.frame-other {
-    width: 100%; max-width: 1200px; height: calc(100vh - 120px);
+    border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
   }
-
-  .modal-frame iframe { border: none; width: 100%; height: 100%; background: var(--bg); display: block; opacity: 0; transition: opacity 0.15s ease; }
-  .modal-frame iframe.ready { opacity: 1; }
-
-  /* Scale mobile iframe content to fit the frame */
-  .modal-frame.frame-mobile iframe {
-    width: 390px; height: 844px;
-    transform-origin: 0 0;
-  }
-  .modal-frame.frame-mobile.frame-android iframe {
-    width: 412px; height: 915px;
-  }
-  /* TV iframe: render at 1080p native, scale down to fit */
-  .modal-frame.frame-tv iframe {
-    width: 1920px; height: 1080px;
-    transform-origin: 0 0;
-  }
-  .modal-frame.frame-tv.frame-roku iframe {
-    width: 1280px; height: 720px;
-  }
-  /* Watch */
-  .modal-frame.frame-watch iframe {
-    width: 900px; height: 500px;
-    transform-origin: 0 0;
-  }
+  .modal-frame.frame-other iframe { width: 1200px; height: 800px; }
 </style>
 </head>
 <body>
@@ -380,12 +373,38 @@ document.getElementById('nav').addEventListener('click', e => {
 render('all', '');
 
 // Modal
+let currentFile = null;
+let currentList = [];
+
 function getFrameType(file) {
-  if (file.startsWith('ios-') || (file.startsWith('android-') && !file.startsWith('androidtv-'))) return 'mobile';
-  if (file.startsWith('tvos-') || file.startsWith('androidtv-') || file.startsWith('roku-')) return 'tv';
+  if (file.startsWith('ios-')) return 'mobile';
+  if (file.startsWith('android-') && !file.startsWith('androidtv-')) return 'android';
+  if (file.startsWith('tvos-') || file.startsWith('androidtv-')) return 'tv';
+  if (file.startsWith('roku-')) return 'roku';
   if (file.startsWith('watchos-')) return 'watch';
   if (file.startsWith('visionos-') || file.startsWith('cli-')) return 'other';
   return 'web';
+}
+
+function scaleFrame() {
+  const frame = document.getElementById('modal-frame');
+  const iframe = document.getElementById('modal-iframe');
+  const iw = iframe.offsetWidth;
+  const ih = iframe.offsetHeight;
+  if (!iw || !ih) return;
+
+  const pad = 80;
+  const headerH = 48;
+  const availW = window.innerWidth - pad * 2;
+  const availH = window.innerHeight - pad - headerH;
+
+  // Include border in calculations
+  const style = getComputedStyle(frame);
+  const bw = parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth);
+  const bh = parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
+
+  const scale = Math.min(availW / (iw + bw), availH / (ih + bh), 1);
+  frame.style.transform = `scale(${scale})`;
 }
 
 function openModal(file) {
@@ -395,58 +414,78 @@ function openModal(file) {
   const title = document.getElementById('modal-title');
   const newtab = document.getElementById('modal-newtab');
 
+  currentFile = file;
+  // Build current visible list for arrow nav
+  currentList = Array.from(document.querySelectorAll('.item[data-file]')).map(el => el.dataset.file);
+
   title.textContent = file.replace('.html','').replace(/-/g, ' ');
   newtab.href = file;
 
-  // Reset frame classes
+  // Set frame type
   frame.className = 'modal-frame';
   const type = getFrameType(file);
-  frame.classList.add('frame-' + type);
-  if (file.startsWith('android-') && !file.startsWith('androidtv-')) frame.classList.add('frame-android');
-  if (file.startsWith('roku-')) frame.classList.add('frame-roku');
+  if (type === 'android') {
+    frame.classList.add('frame-android');
+  } else if (type === 'roku') {
+    frame.classList.add('frame-tv', 'frame-roku');
+  } else {
+    frame.classList.add('frame-' + type);
+  }
 
   iframe.classList.remove('ready');
+  frame.style.transform = 'scale(0)';
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
 
-  // Scale iframe to fit frame, then reveal
   iframe.onload = () => {
-    const fw = frame.clientWidth;
-    const fh = frame.clientHeight;
-    const iw = parseInt(getComputedStyle(iframe).width);
-    const ih = parseInt(getComputedStyle(iframe).height);
-    if (type !== 'web' && type !== 'other' && iw > 0 && ih > 0) {
-      const scale = Math.min(fw / iw, fh / ih);
-      iframe.style.transform = `scale(${scale})`;
-      iframe.style.width = iw + 'px';
-      iframe.style.height = ih + 'px';
-    } else {
-      iframe.style.transform = '';
-      iframe.style.width = '100%';
-      iframe.style.height = '100%';
-    }
+    // Hide scrollbars inside iframe
+    try {
+      const doc = iframe.contentDocument;
+      const style = doc.createElement('style');
+      style.textContent = '::-webkit-scrollbar{display:none}html{scrollbar-width:none;overflow:hidden}';
+      doc.head.appendChild(style);
+    } catch(e) {}
+    scaleFrame();
     iframe.classList.add('ready');
   };
   iframe.src = file;
 }
 
-document.getElementById('modal-close').addEventListener('click', () => {
+function closeModal() {
   const modal = document.getElementById('modal');
   const iframe = document.getElementById('modal-iframe');
   iframe.classList.remove('ready');
+  iframe.onload = null;
   iframe.src = '';
   modal.classList.remove('open');
   document.body.style.overflow = '';
-});
+  currentFile = null;
+}
+
+function navigateModal(dir) {
+  if (!currentFile || !currentList.length) return;
+  const idx = currentList.indexOf(currentFile);
+  if (idx === -1) return;
+  const next = idx + dir;
+  if (next < 0 || next >= currentList.length) return;
+  openModal(currentList[next]);
+}
+
+document.getElementById('modal-close').addEventListener('click', closeModal);
 
 document.getElementById('modal').addEventListener('click', e => {
-  if (e.target === e.currentTarget) {
-    document.getElementById('modal-close').click();
-  }
+  if (e.target === e.currentTarget) closeModal();
 });
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.getElementById('modal-close').click();
+  if (!document.getElementById('modal').classList.contains('open')) return;
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); navigateModal(1); }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); navigateModal(-1); }
+});
+
+window.addEventListener('resize', () => {
+  if (currentFile) scaleFrame();
 });
 </script>
 </body>
