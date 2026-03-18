@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Cross-Platform Flow (Editorial)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #111113;
+    --bg-2: #141416;
+    --bg-3: #1C1C1F;
+    --bg-4: #242428;
+    --bg-5: #2E2E33;
+    --line: #2A2A2F;
+    --border: #3A3A40;
+    --solid: #6E6E78;
+    --text-2: #9E9EA8;
+    --text-3: #B8B8C0;
+    --text: #EEEEF0;
+
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.08);
+    --yellow-glow: rgba(253, 206, 69, 0.15);
+    --yellow-hover: #FDD868;
+    --amber: #F0A030;
+
+    --green: #30A46C;
+    --green-dim: rgba(48, 164, 108, 0.12);
+    --red: #E5484D;
+
+    --serif: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .page {
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+  }
+
+  /* ===== HEADER ===== */
+  .flow-header {
+    padding: 40px 56px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .flow-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--yellow);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: var(--sans);
+  }
+
+  .flow-title {
+    font-family: var(--serif);
+    font-size: 36px;
+    font-weight: 400;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .flow-subtitle {
+    font-size: 15px;
+    color: var(--solid);
+    font-weight: 400;
+    margin-top: 4px;
+    letter-spacing: -0.01em;
+    max-width: 700px;
+    line-height: 1.5;
+  }
+
+  /* ===== FLOW CANVAS ===== */
+  .flow-canvas {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 20px 48px 36px;
+    gap: 0;
+    position: relative;
+  }
+
+  /* Step container */
+  .flow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+  }
+
+  /* Step number */
+  .step-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--yellow);
+    color: var(--bg);
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 20px rgba(253, 206, 69, 0.2);
+  }
+
+  .step-label {
+    text-align: center;
+    max-width: 220px;
+  }
+
+  .step-label-title {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .step-label-desc {
+    font-size: 11px;
+    color: var(--solid);
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+
+  /* Arrow connector */
+  .flow-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    z-index: 2;
+    padding: 0 6px;
+  }
+
+  .arrow-line {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .arrow-dash {
+    width: 44px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--yellow), var(--amber));
+    border-radius: 1px;
+  }
+
+  .arrow-head {
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 8px solid var(--amber);
+  }
+
+  .arrow-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--yellow);
+    text-align: center;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+    font-style: italic;
+    font-family: var(--serif);
+  }
+
+  /* ===== DEVICE FRAMES ===== */
+
+  /* Phone frame */
+  .device-phone {
+    width: 200px;
+    height: 400px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(253,206,69,0.05);
+  }
+
+  .phone-notch {
+    width: 60px;
+    height: 4px;
+    background: var(--bg-4);
+    border-radius: 2px;
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .phone-status-bar {
+    height: 28px;
+    padding: 6px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-2);
+    flex-shrink: 0;
+  }
+
+  .phone-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Share sheet */
+  .share-sheet {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+  }
+
+  .share-sheet-overlay {
+    flex: 1;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .share-panel {
+    width: 100%;
+    background: var(--bg-3);
+    border-radius: 14px 14px 0 0;
+    padding: 12px 0 0;
+  }
+
+  .share-handle {
+    width: 32px;
+    height: 4px;
+    background: var(--bg-5);
+    border-radius: 2px;
+    margin: 0 auto 12px;
+  }
+
+  .share-url {
+    padding: 8px 14px;
+    font-size: 9px;
+    color: var(--solid);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: var(--bg-4);
+    margin: 0 12px;
+    border-radius: 6px;
+    font-family: var(--mono);
+  }
+
+  .share-apps {
+    display: flex;
+    gap: 6px;
+    padding: 14px 14px 8px;
+    overflow: hidden;
+  }
+
+  .share-app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 48px;
+    flex-shrink: 0;
+  }
+
+  .share-app-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-4);
+  }
+
+  .share-app-label {
+    font-size: 8px;
+    color: var(--solid);
+    text-align: center;
+  }
+
+  .share-actions {
+    padding: 6px 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .share-action-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--text-2);
+  }
+
+  .share-action-row.highlight {
+    background: var(--yellow-dim);
+    color: var(--yellow);
+    font-weight: 600;
+  }
+
+  /* Web frame */
+  .device-web {
+    width: 380px;
+    height: 400px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(253,206,69,0.05);
+  }
+
+  .web-chrome {
+    height: 30px;
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .web-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .web-dot.r { background: var(--red); }
+  .web-dot.y { background: var(--yellow); }
+  .web-dot.g { background: var(--green); }
+
+  .web-address {
+    flex: 1;
+    background: var(--bg-4);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 9px;
+    color: var(--solid);
+    margin-left: 8px;
+    font-family: var(--mono);
+  }
+
+  .web-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Notification toast */
+  .notification-toast {
+    margin: 8px 10px;
+    background: var(--bg-3);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .toast-title {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .toast-desc {
+    font-size: 9px;
+    color: var(--solid);
+    margin-top: 1px;
+  }
+
+  /* Mini player in web frame */
+  .web-mini-player {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .web-player-art {
+    width: 180px;
+    height: 110px;
+    background: linear-gradient(135deg, var(--bg-3) 0%, var(--bg-4) 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .web-player-title {
+    font-family: var(--serif);
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text);
+    text-align: center;
+  }
+
+  .web-player-meta {
+    font-size: 10px;
+    color: var(--solid);
+    text-align: center;
+  }
+
+  .web-player-progress {
+    width: 200px;
+    height: 3px;
+    background: var(--bg-4);
+    border-radius: 2px;
+    margin-top: 4px;
+  }
+
+  .web-player-progress-fill {
+    height: 100%;
+    width: 12%;
+    background: linear-gradient(90deg, var(--yellow), var(--amber));
+    border-radius: 2px;
+  }
+
+  .web-player-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 2px;
+  }
+
+  .web-ctrl {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--solid);
+  }
+
+  .web-ctrl-play {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg);
+    box-shadow: 0 0 16px rgba(253, 206, 69, 0.2);
+  }
+
+  /* Cloud transfer */
+  .device-transfer {
+    width: 200px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .transfer-card {
+    width: 180px;
+    background: var(--bg-3);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .transfer-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .transfer-card-icon {
+    width: 24px;
+    height: 24px;
+    background: var(--yellow-dim);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .transfer-card-title {
+    font-family: var(--serif);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text);
+  }
+
+  .transfer-card-file {
+    font-size: 10px;
+    color: var(--text-2);
+    font-weight: 450;
+  }
+
+  .transfer-mini-progress {
+    width: 100%;
+    height: 4px;
+    background: var(--bg-4);
+    border-radius: 2px;
+  }
+
+  .transfer-mini-fill {
+    height: 100%;
+    border-radius: 2px;
+  }
+
+  .transfer-mini-fill.in-progress {
+    width: 67%;
+    background: linear-gradient(90deg, var(--yellow), var(--amber));
+  }
+
+  .transfer-mini-fill.done {
+    width: 100%;
+    background: var(--green);
+  }
+
+  .transfer-card-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--solid);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .transfer-done-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--green);
+    text-align: center;
+    font-style: italic;
+    font-family: var(--serif);
+  }
+
+  /* TV frame */
+  .device-tv {
+    width: 420px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tv-screen {
+    width: 420px;
+    height: 260px;
+    background: var(--bg-2);
+    border: 2px solid var(--bg-5);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  .tv-stand {
+    width: 120px;
+    height: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tv-neck {
+    width: 2px;
+    height: 10px;
+    background: var(--bg-5);
+  }
+
+  .tv-base {
+    width: 80px;
+    height: 3px;
+    background: var(--bg-5);
+    border-radius: 2px;
+  }
+
+  .tv-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    overflow: hidden;
+  }
+
+  .tv-section-label {
+    font-family: var(--serif);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-2);
+    margin-bottom: 10px;
+  }
+
+  .tv-cards {
+    display: flex;
+    gap: 10px;
+    overflow: hidden;
+  }
+
+  .tv-card {
+    width: 120px;
+    flex-shrink: 0;
+  }
+
+  .tv-card-art {
+    width: 120px;
+    height: 72px;
+    background: var(--bg-3);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tv-card.active .tv-card-art {
+    border: 2px solid var(--yellow);
+    box-shadow: 0 0 16px rgba(253, 206, 69, 0.2);
+  }
+
+  .tv-card-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(0,0,0,0.5);
+  }
+
+  .tv-card-progress-fill {
+    height: 100%;
+    background: var(--yellow);
+  }
+
+  .tv-card-title {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--text-2);
+    margin-top: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .tv-card-meta {
+    font-size: 8px;
+    color: var(--solid);
+    margin-top: 1px;
+  }
+
+  .tv-card.active .tv-card-title {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .tv-remote-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 10px;
+  }
+
+  .remote-key {
+    width: 24px;
+    height: 18px;
+    background: var(--bg-4);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: var(--solid);
+  }
+
+  .remote-hint-text {
+    font-size: 9px;
+    color: var(--solid);
+    font-style: italic;
+    font-family: var(--serif);
+  }
+
+  /* Device label */
+  .device-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .device-label-icon {
+    color: var(--solid);
+    display: flex;
+    align-items: center;
+  }
+
+  .device-label-text {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--solid);
+    font-style: italic;
+    font-family: var(--serif);
+  }
+
+  /* Footer accent */
+  .flow-footer {
+    padding: 0 56px 24px;
+    display: flex;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .flow-footer-text {
+    font-family: var(--serif);
+    font-size: 13px;
+    color: var(--solid);
+    font-style: italic;
+    letter-spacing: -0.01em;
+  }
+
+  .flow-footer-text span {
+    color: var(--yellow);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="flow-header">
+    <div class="flow-badge">Cross-Platform Flow</div>
+    <div class="flow-title">"I want to watch something"</div>
+    <div class="flow-subtitle">A single user journey across phone, cloud, web, and TV -- showing how put.io connects the dots.</div>
+  </div>
+
+  <!-- Flow canvas -->
+  <div class="flow-canvas">
+
+    <!-- STEP 1: Phone -->
+    <div class="flow-step">
+      <div class="step-number">1</div>
+      <div class="device-phone">
+        <div class="phone-notch"></div>
+        <div class="phone-status-bar">
+          <span>9:41</span>
+          <span></span>
+        </div>
+        <div class="phone-content">
+          <div class="share-sheet">
+            <div class="share-sheet-overlay">
+              <div class="share-panel">
+                <div class="share-handle"></div>
+                <div class="share-url">magnet:?xt=urn:btih:a3f2...</div>
+                <div class="share-apps">
+                  <div class="share-app">
+                    <div class="share-app-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--solid)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </div>
+                    <span class="share-app-label">Copy</span>
+                  </div>
+                  <div class="share-app">
+                    <div class="share-app-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--solid)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    </div>
+                    <span class="share-app-label">Share</span>
+                  </div>
+                  <div class="share-app">
+                    <div class="share-app-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--solid)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    </div>
+                    <span class="share-app-label">Safari</span>
+                  </div>
+                </div>
+                <div class="share-actions">
+                  <div class="share-action-row highlight">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    Send to put.io
+                  </div>
+                  <div class="share-action-row">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    Save to Files
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="step-label">
+        <div class="step-label-title">Find & Share</div>
+        <div class="step-label-desc">Share a magnet link via the iOS share sheet to put.io</div>
+      </div>
+    </div>
+
+    <!-- Arrow 1-2 -->
+    <div class="flow-arrow">
+      <div class="arrow-line">
+        <div class="arrow-dash"></div>
+        <div class="arrow-head"></div>
+      </div>
+      <div class="arrow-label">magnet link</div>
+    </div>
+
+    <!-- STEP 2: Cloud Transfer -->
+    <div class="flow-step">
+      <div class="step-number">2</div>
+      <div class="device-transfer">
+        <div class="transfer-card">
+          <div class="transfer-card-header">
+            <div class="transfer-card-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div class="transfer-card-title">Transferring</div>
+          </div>
+          <div class="transfer-card-file">Inception.2010.1080p.BluRay.mkv</div>
+          <div class="transfer-mini-progress">
+            <div class="transfer-mini-fill in-progress"></div>
+          </div>
+          <div class="transfer-card-meta">
+            <span>67% -- 3.1 / 4.7 GB</span>
+            <span>~2 min</span>
+          </div>
+        </div>
+
+        <div class="transfer-card">
+          <div class="transfer-card-header">
+            <div class="transfer-card-icon" style="background: var(--green-dim);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="transfer-card-title">Complete</div>
+          </div>
+          <div class="transfer-card-file">Inception.2010.1080p.BluRay.mkv</div>
+          <div class="transfer-mini-progress">
+            <div class="transfer-mini-fill done"></div>
+          </div>
+          <div class="transfer-done-label">Ready to play</div>
+        </div>
+      </div>
+      <div class="step-label">
+        <div class="step-label-title">Cloud Transfer</div>
+        <div class="step-label-desc">put.io downloads at server speed -- no waiting at home</div>
+      </div>
+    </div>
+
+    <!-- Arrow 2-3 -->
+    <div class="flow-arrow">
+      <div class="arrow-line">
+        <div class="arrow-dash"></div>
+        <div class="arrow-head"></div>
+      </div>
+      <div class="arrow-label">notification</div>
+    </div>
+
+    <!-- STEP 3: Web Player -->
+    <div class="flow-step">
+      <div class="step-number">3</div>
+      <div class="device-web">
+        <div class="web-chrome">
+          <div class="web-dot r"></div>
+          <div class="web-dot y"></div>
+          <div class="web-dot g"></div>
+          <div class="web-address">app.put.io/files/812739102</div>
+        </div>
+        <div class="web-content">
+          <div class="notification-toast">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <div>
+              <div class="toast-title">Transfer complete</div>
+              <div class="toast-desc">Inception is ready to play</div>
+            </div>
+          </div>
+          <div class="web-mini-player">
+            <div class="web-player-art">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--solid)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <div class="web-player-title">Inception</div>
+            <div class="web-player-meta">2010 -- 2h 28m -- 1080p BluRay</div>
+            <div class="web-player-progress">
+              <div class="web-player-progress-fill"></div>
+            </div>
+            <div class="web-player-controls">
+              <div class="web-ctrl">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+              </div>
+              <div class="web-ctrl-play">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </div>
+              <div class="web-ctrl">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="device-label">
+        <span class="device-label-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </span>
+        <span class="device-label-text">Web</span>
+      </div>
+      <div class="step-label">
+        <div class="step-label-title">Play on Web</div>
+        <div class="step-label-desc">Click the notification to open the built-in player</div>
+      </div>
+    </div>
+
+    <!-- Arrow 3-4 -->
+    <div class="flow-arrow">
+      <div class="arrow-line">
+        <div class="arrow-dash"></div>
+        <div class="arrow-head"></div>
+      </div>
+      <div class="arrow-label">continue</div>
+    </div>
+
+    <!-- STEP 4: TV -->
+    <div class="flow-step">
+      <div class="step-number">4</div>
+      <div class="device-tv">
+        <div class="tv-screen">
+          <div class="tv-content">
+            <div class="tv-section-label">Continue Watching</div>
+            <div class="tv-cards">
+              <div class="tv-card active">
+                <div class="tv-card-art">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--solid)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <div class="tv-card-progress">
+                    <div class="tv-card-progress-fill" style="width: 12%;"></div>
+                  </div>
+                </div>
+                <div class="tv-card-title">Inception</div>
+                <div class="tv-card-meta">1080p -- 18:42 in</div>
+              </div>
+              <div class="tv-card">
+                <div class="tv-card-art">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--solid)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <div class="tv-card-progress">
+                    <div class="tv-card-progress-fill" style="width: 45%;"></div>
+                  </div>
+                </div>
+                <div class="tv-card-title">Oppenheimer</div>
+                <div class="tv-card-meta">2160p -- 1:21:05 in</div>
+              </div>
+              <div class="tv-card">
+                <div class="tv-card-art">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--solid)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <div class="tv-card-progress">
+                    <div class="tv-card-progress-fill" style="width: 78%;"></div>
+                  </div>
+                </div>
+                <div class="tv-card-title">The Bear S03E04</div>
+                <div class="tv-card-meta">1080p -- 28:10 in</div>
+              </div>
+            </div>
+            <div class="tv-remote-hint">
+              <div class="remote-key">
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </div>
+              <span class="remote-hint-text">Press to resume playback</span>
+            </div>
+          </div>
+        </div>
+        <div class="tv-stand">
+          <div class="tv-neck"></div>
+          <div class="tv-base"></div>
+        </div>
+      </div>
+      <div class="step-label">
+        <div class="step-label-title">Watch on TV</div>
+        <div class="step-label-desc">"Continue Watching" picks up right where you left off</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="flow-footer">
+    <div class="flow-footer-text">One file. Every screen. <span>put.io</span> connects the dots.</div>
+  </div>
+
+</div>
+</body>
+</html>

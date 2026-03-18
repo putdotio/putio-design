@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Security (Monospace)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg-0: #0A0A0C;
+    --bg: #101012;
+    --bg-2: #141416;
+    --bg-3: #1A1A1E;
+    --bg-4: #222226;
+    --bg-5: #2A2A30;
+    --line: #2E2E36;
+    --border: #38383F;
+    --focus: #4A4A54;
+    --solid: #6A6A76;
+    --text-3: #8A8A96;
+    --text-2: #A8A8B4;
+    --text: #E4E4EA;
+    --yellow: #FDCE45;
+    --yellow-dim: #FDCE4520;
+    --yellow-low: #FDCE4512;
+    --yellow-mid: #FDCE4540;
+    --green: #30A46C;
+    --green-dim: #30A46C20;
+    --red: #E5484D;
+    --red-dim: #E5484D20;
+    --blue: #6EB0FF;
+    --blue-dim: #6EB0FF15;
+    --cyan: #56D7C3;
+  }
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg-0);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; background: var(--bg); }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 232px;
+    background: var(--bg-2);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+  .sidebar-brand {
+    padding: 20px 16px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .logo span { color: var(--yellow); }
+  .logo-tag {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--bg);
+    background: var(--yellow);
+    padding: 1px 5px;
+    border-radius: 2px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .sidebar-nav { flex: 1; padding: 4px 0; overflow-y: auto; }
+  .nav-section-label {
+    padding: 16px 16px 6px;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--solid);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 16px;
+    margin: 1px 8px;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-2);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.1s;
+  }
+  .nav-item:hover { background: var(--bg-3); color: var(--text); }
+  .nav-item.active {
+    background: var(--yellow-low);
+    color: var(--yellow);
+    font-weight: 500;
+  }
+  .nav-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .nav-icon svg { display: block; }
+
+  .sidebar-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .storage-bar {
+    width: 100%;
+    height: 3px;
+    background: var(--bg-4);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  .storage-fill { height: 100%; background: var(--yellow); border-radius: 1px; }
+  .storage-label { font-size: 10px; color: var(--solid); margin-top: 6px; }
+
+  /* CONTENT */
+  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--line);
+    min-height: 48px;
+    gap: 8px;
+  }
+  .prompt-path {
+    font-size: 11px;
+    color: var(--solid);
+  }
+  .prompt-path span { color: var(--yellow); }
+  .topbar-spacer { flex: 1; }
+  .topbar-btn {
+    font-size: 10px;
+    color: var(--text-3);
+    background: var(--bg-3);
+    border: 1px solid var(--line);
+    padding: 4px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .topbar-btn:hover { border-color: var(--border); color: var(--text); }
+
+  .main-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+  }
+  .main-scroll::-webkit-scrollbar { width: 5px; }
+  .main-scroll::-webkit-scrollbar-track { background: transparent; }
+  .main-scroll::-webkit-scrollbar-thumb { background: var(--bg-5); border-radius: 2px; }
+
+  /* SECURITY SCORE */
+  .security-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .sec-score-box {
+    width: 72px;
+    height: 72px;
+    border: 2px solid var(--green);
+    background: var(--green-dim);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .sec-score-val { font-size: 28px; font-weight: 700; color: var(--green); line-height: 1; }
+  .sec-score-label { font-size: 8px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+  .sec-header-info { flex: 1; }
+  .sec-header-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .sec-header-desc { font-size: 11px; color: var(--solid); line-height: 1.5; }
+
+  /* SECTION */
+  .section { margin-bottom: 28px; }
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .section-marker {
+    font-size: 10px;
+    color: var(--yellow);
+    font-weight: 600;
+  }
+  .section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .section-line { flex: 1; height: 1px; background: var(--line); }
+
+  /* 2FA STATUS */
+  .twofa-status {
+    background: var(--bg-3);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 12px;
+  }
+  .twofa-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--green-dim);
+    border: 1px solid var(--green);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .twofa-info { flex: 1; }
+  .twofa-label { font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .twofa-desc { font-size: 10px; color: var(--solid); }
+  .twofa-badge {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--bg);
+    background: var(--green);
+    padding: 3px 8px;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .twofa-btn {
+    font-size: 10px;
+    font-family: inherit;
+    color: var(--yellow);
+    background: var(--yellow-low);
+    border: 1px solid var(--yellow-mid);
+    padding: 5px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  /* TERMINAL TABLE */
+  .term-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+  .term-table thead th {
+    text-align: left;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--solid);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-3);
+  }
+  .term-table tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    color: var(--text-2);
+    vertical-align: middle;
+  }
+  .term-table tbody tr:hover { background: var(--bg-3); }
+  .term-table tbody tr:last-child td { border-bottom: none; }
+
+  .device-name { color: var(--text); font-weight: 500; }
+  .current-tag {
+    font-size: 8px;
+    color: var(--green);
+    background: var(--green-dim);
+    padding: 2px 5px;
+    border-radius: 2px;
+    margin-left: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+  .revoke-btn {
+    font-size: 10px;
+    font-family: inherit;
+    color: var(--red);
+    background: var(--red-dim);
+    border: 1px solid transparent;
+    padding: 3px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .revoke-btn:hover { border-color: var(--red); }
+
+  /* ACTIVITY LOG */
+  .log-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px dotted var(--line);
+    font-size: 11px;
+  }
+  .log-entry:last-child { border-bottom: none; }
+  .log-time {
+    font-size: 10px;
+    color: var(--solid);
+    white-space: nowrap;
+    min-width: 130px;
+    flex-shrink: 0;
+  }
+  .log-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .log-msg { color: var(--text-2); flex: 1; }
+  .log-msg strong { color: var(--text); font-weight: 500; }
+
+  .table-wrapper {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">put<span>.</span>io</div>
+      <div class="logo-tag">PRO</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <div class="nav-item">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg></span>
+        Files
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7l-112,120a8,8,0,0,0,3,13l57.63,21.61L88.16,238.43a8,8,0,0,0,13.69,7l112-120A8,8,0,0,0,215.79,118.17Z"/></svg></span>
+        Transfers
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"/></svg></span>
+        History
+      </div>
+      <div class="nav-section-label">Account</div>
+      <div class="nav-item">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.16,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.16-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,74,34.5a8,8,0,0,0-3.93,6L67.43,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.16,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.16,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.16,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.16-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.16,8,8,0,0,0-1.49-7.06Z"/></svg></span>
+        Settings
+      </div>
+      <div class="nav-item active">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Zm-68-56a12,12,0,1,1-12-12A12,12,0,0,1,140,152Z"/></svg></span>
+        Security
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="storage-bar"><div class="storage-fill" style="width:72%"></div></div>
+      <div class="storage-label">36 TB / 50 TB</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="topbar">
+      <div class="prompt-path"><span>~</span>/account/<span>security</span> $</div>
+      <div class="topbar-spacer"></div>
+      <button class="topbar-btn">export log</button>
+    </div>
+
+    <div class="main-scroll">
+
+      <!-- SECURITY SCORE -->
+      <div class="security-header">
+        <div class="sec-score-box">
+          <div class="sec-score-val">85</div>
+          <div class="sec-score-label">Score</div>
+        </div>
+        <div class="sec-header-info">
+          <div class="sec-header-title">// security_status: GOOD</div>
+          <div class="sec-header-desc">2FA enabled. 4 active sessions. Last login: 2h ago from Istanbul, TR. Consider reviewing old sessions below.</div>
+        </div>
+      </div>
+
+      <!-- 2FA STATUS -->
+      <div class="section">
+        <div class="section-head">
+          <span class="section-marker">#</span>
+          <span class="section-title">Two-Factor Auth</span>
+          <div class="section-line"></div>
+        </div>
+        <div class="twofa-status">
+          <div class="twofa-icon">
+            <svg width="20" height="20" viewBox="0 0 256 256" fill="#30A46C"><path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Zm-68-56a12,12,0,1,1-12-12A12,12,0,0,1,140,152Z"/></svg>
+          </div>
+          <div class="twofa-info">
+            <div class="twofa-label">TOTP Authenticator</div>
+            <div class="twofa-desc">Enabled since 2024-09-14. App: Google Authenticator</div>
+          </div>
+          <span class="twofa-badge">Active</span>
+          <button class="twofa-btn">Manage</button>
+        </div>
+      </div>
+
+      <!-- SESSIONS TABLE -->
+      <div class="section">
+        <div class="section-head">
+          <span class="section-marker">#</span>
+          <span class="section-title">Active Sessions</span>
+          <div class="section-line"></div>
+        </div>
+        <div class="table-wrapper">
+          <table class="term-table">
+            <thead>
+              <tr>
+                <th>PID</th>
+                <th>Device</th>
+                <th>IP Address</th>
+                <th>Location</th>
+                <th>Last Active</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color:var(--solid)">0x01</td>
+                <td><span class="device-name">Chrome / macOS</span><span class="current-tag">current</span></td>
+                <td>85.102.11.42</td>
+                <td>Istanbul, TR</td>
+                <td style="color:var(--green)">now</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td style="color:var(--solid)">0x02</td>
+                <td><span class="device-name">put.io iOS App</span></td>
+                <td>85.102.11.42</td>
+                <td>Istanbul, TR</td>
+                <td>2h ago</td>
+                <td><button class="revoke-btn">revoke</button></td>
+              </tr>
+              <tr>
+                <td style="color:var(--solid)">0x03</td>
+                <td><span class="device-name">Firefox / Ubuntu</span></td>
+                <td>192.168.1.105</td>
+                <td>Ankara, TR</td>
+                <td>1d ago</td>
+                <td><button class="revoke-btn">revoke</button></td>
+              </tr>
+              <tr>
+                <td style="color:var(--solid)">0x04</td>
+                <td><span class="device-name">Apple TV</span></td>
+                <td>85.102.11.42</td>
+                <td>Istanbul, TR</td>
+                <td>3d ago</td>
+                <td><button class="revoke-btn">revoke</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ACTIVITY LOG -->
+      <div class="section">
+        <div class="section-head">
+          <span class="section-marker">#</span>
+          <span class="section-title">Activity Log</span>
+          <div class="section-line"></div>
+        </div>
+        <div class="log-entry">
+          <span class="log-time">2026-03-18 14:22</span>
+          <span class="log-icon"><svg width="14" height="14" viewBox="0 0 256 256" fill="#30A46C"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg></span>
+          <span class="log-msg"><strong>login.success</strong> -- Chrome/macOS from 85.102.11.42</span>
+        </div>
+        <div class="log-entry">
+          <span class="log-time">2026-03-18 14:22</span>
+          <span class="log-icon"><svg width="14" height="14" viewBox="0 0 256 256" fill="#30A46C"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg></span>
+          <span class="log-msg"><strong>2fa.verified</strong> -- TOTP code accepted</span>
+        </div>
+        <div class="log-entry">
+          <span class="log-time">2026-03-17 09:15</span>
+          <span class="log-icon"><svg width="14" height="14" viewBox="0 0 256 256" fill="#6EB0FF"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,172Z"/></svg></span>
+          <span class="log-msg"><strong>password.changed</strong> -- via settings page</span>
+        </div>
+        <div class="log-entry">
+          <span class="log-time">2026-03-16 21:30</span>
+          <span class="log-icon"><svg width="14" height="14" viewBox="0 0 256 256" fill="#E5484D"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg></span>
+          <span class="log-msg"><strong>session.revoked</strong> -- "Safari / iPhone" terminated</span>
+        </div>
+        <div class="log-entry">
+          <span class="log-time">2026-03-15 18:44</span>
+          <span class="log-icon"><svg width="14" height="14" viewBox="0 0 256 256" fill="#30A46C"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg></span>
+          <span class="log-msg"><strong>login.success</strong> -- Firefox/Ubuntu from 192.168.1.105</span>
+        </div>
+        <div class="log-entry">
+          <span class="log-time">2026-03-14 11:02</span>
+          <span class="log-icon"><svg width="14" height="14" viewBox="0 0 256 256" fill="#FDCE45"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM120,104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm8,88a12,12,0,1,1,12-12A12,12,0,0,1,128,192Z"/></svg></span>
+          <span class="log-msg"><strong>login.failed</strong> -- wrong password from 45.67.89.12 (blocked)</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

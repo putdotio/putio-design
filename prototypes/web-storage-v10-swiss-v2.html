@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Storage (v10 Swiss v2)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #0A0A0A;
+    --bg-1: #0F0F0F;
+    --bg-2: #161616;
+    --bg-3: #1C1C1C;
+    --bg-4: #242424;
+    --bg-5: #2C2C2C;
+
+    --border-subtle: rgba(255,255,255,0.06);
+    --border-default: rgba(255,255,255,0.10);
+
+    --text-primary: #EDEDED;
+    --text-secondary: #999999;
+    --text-tertiary: #666666;
+    --text-quaternary: #444444;
+
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --green: #30A46C;
+    --red: #E5484D;
+    --blue: #60A5FA;
+    --purple: #A78BFA;
+  }
+
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: var(--bg-0);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 240px;
+    background: var(--bg-1);
+    border-right: 1px solid var(--border-subtle);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .sidebar-header { padding: 28px 24px 24px; }
+  .logo { font-size: 20px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.04em; }
+  .logo .dot { color: var(--yellow); }
+
+  .sidebar-nav { flex: 1; padding: 0 12px; display: flex; flex-direction: column; gap: 0; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px; padding: 8px 12px;
+    font-size: 13px; font-weight: 400; color: var(--text-secondary);
+    cursor: pointer; border: none; background: none; width: 100%; text-align: left;
+    font-family: inherit; border-radius: 0; line-height: 1; transition: color 0.1s;
+  }
+  .nav-item:hover { color: var(--text-primary); }
+  .nav-item.active { color: var(--text-primary); font-weight: 500; border-left: 2px solid var(--yellow); padding-left: 10px; }
+  .nav-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .nav-icon svg { display: block; }
+  .nav-item .badge { margin-left: auto; font-size: 11px; font-weight: 500; color: var(--text-tertiary); }
+  .nav-item .badge-live { margin-left: auto; font-size: 11px; font-weight: 500; color: var(--yellow); background: var(--yellow-dim); padding: 1px 6px; }
+  .nav-sep { height: 1px; background: var(--border-subtle); margin: 8px 12px; }
+
+  .sidebar-footer { padding: 16px 24px; border-top: 1px solid var(--border-subtle); }
+  .storage-track { width: 100%; height: 2px; background: var(--bg-4); }
+  .storage-fill { height: 100%; background: var(--yellow); }
+  .storage-label { font-size: 11px; color: var(--text-tertiary); margin-top: 8px; }
+
+  .user-row { display: flex; align-items: center; gap: 10px; padding: 12px 24px; cursor: pointer; }
+  .user-row:hover { background: var(--bg-3); }
+  .user-avatar { width: 28px; height: 28px; background: var(--bg-4); display: flex; align-items: center; justify-content: center; }
+  .user-name { font-size: 13px; font-weight: 500; color: var(--text-secondary); flex: 1; }
+  .user-dots { color: var(--text-quaternary); font-size: 14px; letter-spacing: 1px; }
+
+  /* ===== CONTENT ===== */
+  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { display: flex; align-items: center; padding: 16px 48px; border-bottom: 1px solid var(--border-subtle); min-height: 52px; }
+  .breadcrumb { font-size: 13px; color: var(--text-secondary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+  .content-body { flex: 1; overflow-y: auto; padding: 48px; }
+
+  /* 12-column grid */
+  .grid-12 { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+  .col-2 { grid-column: span 2; }
+  .col-3 { grid-column: span 3; }
+  .col-4 { grid-column: span 4; }
+  .col-6 { grid-column: span 6; }
+  .col-8 { grid-column: span 8; }
+  .col-12 { grid-column: span 12; }
+
+  /* Hero stat */
+  .hero-stat { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+  .hero-number { font-size: 96px; font-weight: 700; letter-spacing: -0.06em; line-height: 1; }
+  .hero-unit { font-size: 32px; font-weight: 300; color: var(--text-tertiary); letter-spacing: -0.02em; }
+  .hero-sub { font-size: 13px; color: var(--text-tertiary); }
+
+  /* Section title */
+  .section-title {
+    font-size: 11px; font-weight: 700; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 16px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  /* Data grid viz */
+  .data-grid-viz { display: grid; grid-template-columns: repeat(20, 1fr); gap: 3px; margin-bottom: 32px; }
+  .data-cell { aspect-ratio: 1; }
+
+  /* Breakdown table */
+  .breakdown-row {
+    display: flex; align-items: center; padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle); cursor: pointer;
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-row:hover .br-type { color: var(--yellow); }
+
+  .br-dot { width: 8px; height: 8px; flex-shrink: 0; margin-right: 12px; }
+  .br-type { font-size: 13px; color: var(--text-primary); width: 100px; flex-shrink: 0; transition: color 0.1s; }
+  .br-size { font-size: 13px; color: var(--text-primary); width: 80px; font-variant-numeric: tabular-nums; }
+  .br-count { font-size: 13px; color: var(--text-tertiary); width: 100px; font-variant-numeric: tabular-nums; }
+  .br-bar-track { flex: 1; height: 4px; background: var(--bg-3); margin: 0 16px; }
+  .br-bar-fill { height: 100%; }
+  .br-pct { font-size: 13px; color: var(--text-tertiary); width: 40px; text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* Stat blocks */
+  .stat-block { padding: 20px; background: var(--bg-2); border: 1px solid var(--border-subtle); }
+  .stat-value { font-size: 32px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; margin-bottom: 6px; }
+  .stat-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* Treemap viz */
+  .treemap { display: grid; gap: 2px; height: 180px; grid-template-columns: 62fr 15fr 8fr 6fr 5fr 4fr; }
+  .treemap-cell { display: flex; align-items: flex-end; padding: 8px; font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* Daily chart */
+  .daily-chart { display: flex; align-items: flex-end; gap: 6px; height: 120px; padding-top: 8px; }
+  .day-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .day-bar { width: 100%; background: var(--bg-4); position: relative; }
+  .day-bar-fill { position: absolute; bottom: 0; left: 0; right: 0; background: var(--yellow); }
+  .day-label { font-size: 10px; color: var(--text-quaternary); text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .content-body::-webkit-scrollbar { width: 4px; }
+  .content-body::-webkit-scrollbar-track { background: transparent; }
+  .content-body::-webkit-scrollbar-thumb { background: var(--bg-5); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="dot">.</span>io</div>
+    </div>
+    <div class="sidebar-nav">
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="#FDCE45"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg></span>
+        Files
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7l-112,120a8,8,0,0,0,3,13l57.63,21.61L88.16,238.43a8,8,0,0,0,13.69,7l112-120A8,8,0,0,0,215.79,118.17Z"/></svg></span>
+        Transfers
+        <span class="badge-live">3</span>
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M98.91,157.09A71.53,71.53,0,0,1,120,208a8,8,0,0,1-16,0,56,56,0,0,0-56-56,8,8,0,0,1,0-16A71.53,71.53,0,0,1,98.91,157.09ZM48,88a8,8,0,0,0,0,16,104,104,0,0,1,104,104,8,8,0,0,0,16,0A120,120,0,0,0,48,88Zm0-40a8,8,0,0,0,0,16,144,144,0,0,1,144,144,8,8,0,0,0,16,0A160,160,0,0,0,48,48Zm12,160a12,12,0,1,0-12-12A12,12,0,0,0,60,208Z"/></svg></span>
+        RSS Feeds
+      </button>
+      <div class="nav-sep"></div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"/></svg></span>
+        History
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"/></svg></span>
+        Trash
+        <span class="badge">19.5 GB</span>
+      </button>
+      <div class="nav-sep"></div>
+      <button class="nav-item active">
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,144H32V64H224V192ZM48,136a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H56A8,8,0,0,1,48,136Zm0-32a8,8,0,0,1,8-8H208a8,8,0,0,1,0,16H56A8,8,0,0,1,48,104Zm0,64a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H56A8,8,0,0,1,48,168Z"/></svg></span>
+        Storage
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="storage-track"><div class="storage-fill" style="width: 78%;"></div></div>
+      <div class="storage-label">39 TB of 50 TB used</div>
+    </div>
+
+    <div class="user-row">
+      <div class="user-avatar">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="var(--text-secondary)">
+          <rect x="3" y="2" width="2" height="2"/><rect x="11" y="2" width="2" height="2"/>
+          <rect x="5" y="4" width="2" height="2"/><rect x="9" y="4" width="2" height="2"/>
+          <rect x="3" y="6" width="10" height="2"/>
+          <rect x="1" y="8" width="2" height="2"/><rect x="3" y="8" width="2" height="2"/>
+          <rect x="5" y="8" width="6" height="2"/><rect x="11" y="8" width="2" height="2"/><rect x="13" y="8" width="2" height="2"/>
+          <rect x="1" y="10" width="2" height="2"/><rect x="5" y="10" width="2" height="2"/>
+          <rect x="9" y="10" width="2" height="2"/><rect x="13" y="10" width="2" height="2"/>
+          <rect x="3" y="12" width="2" height="2"/><rect x="5" y="12" width="2" height="2"/>
+          <rect x="9" y="12" width="2" height="2"/><rect x="11" y="12" width="2" height="2"/>
+        </svg>
+      </div>
+      <span class="user-name">altay</span>
+      <span class="user-dots">...</span>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="topbar">
+      <span class="breadcrumb">Storage</span>
+    </div>
+
+    <div class="content-body">
+      <div class="grid-12">
+
+        <!-- Hero -->
+        <div class="col-6">
+          <div class="hero-stat">
+            <span class="hero-number">39</span>
+            <span class="hero-unit">TB</span>
+          </div>
+          <div class="hero-sub">of 100 TB -- 61 TB remaining</div>
+        </div>
+
+        <!-- Stat blocks -->
+        <div class="col-2">
+          <div class="stat-block">
+            <div class="stat-value" style="color:var(--yellow);">78%</div>
+            <div class="stat-label">Capacity</div>
+          </div>
+        </div>
+        <div class="col-2">
+          <div class="stat-block">
+            <div class="stat-value">21,512</div>
+            <div class="stat-label">Files</div>
+          </div>
+        </div>
+        <div class="col-2">
+          <div class="stat-block">
+            <div class="stat-value">247</div>
+            <div class="stat-label">Folders</div>
+          </div>
+        </div>
+
+        <!-- Data grid visualization: full width treemap -->
+        <div class="col-12">
+          <div class="section-title">Storage Allocation</div>
+          <div class="treemap">
+            <div class="treemap-cell" style="background:var(--yellow); color:var(--bg-0);">Video 62%</div>
+            <div class="treemap-cell" style="background:var(--blue); color:var(--bg-0);">Audio 15%</div>
+            <div class="treemap-cell" style="background:var(--green); color:var(--bg-0);">Docs 8%</div>
+            <div class="treemap-cell" style="background:var(--purple); color:var(--bg-0);">Img 6%</div>
+            <div class="treemap-cell" style="background:var(--red); color:var(--bg-0);">Zip 5%</div>
+            <div class="treemap-cell" style="background:var(--bg-5); color:var(--text-tertiary);">Other 4%</div>
+          </div>
+        </div>
+
+        <!-- Breakdown: 8 cols -->
+        <div class="col-8">
+          <div class="section-title">By File Type</div>
+          <div class="breakdown-row">
+            <div class="br-dot" style="background:var(--yellow)"></div>
+            <span class="br-type">Video</span>
+            <span class="br-size">24.2 TB</span>
+            <span class="br-count">1,247 files</span>
+            <div class="br-bar-track"><div class="br-bar-fill" style="width:62%;background:var(--yellow)"></div></div>
+            <span class="br-pct">62%</span>
+          </div>
+          <div class="breakdown-row">
+            <div class="br-dot" style="background:var(--blue)"></div>
+            <span class="br-type">Audio</span>
+            <span class="br-size">5.9 TB</span>
+            <span class="br-count">12,483 files</span>
+            <div class="br-bar-track"><div class="br-bar-fill" style="width:15%;background:var(--blue)"></div></div>
+            <span class="br-pct">15%</span>
+          </div>
+          <div class="breakdown-row">
+            <div class="br-dot" style="background:var(--green)"></div>
+            <span class="br-type">Documents</span>
+            <span class="br-size">3.1 TB</span>
+            <span class="br-count">841 files</span>
+            <div class="br-bar-track"><div class="br-bar-fill" style="width:8%;background:var(--green)"></div></div>
+            <span class="br-pct">8%</span>
+          </div>
+          <div class="breakdown-row">
+            <div class="br-dot" style="background:var(--purple)"></div>
+            <span class="br-type">Images</span>
+            <span class="br-size">2.4 TB</span>
+            <span class="br-count">6,219 files</span>
+            <div class="br-bar-track"><div class="br-bar-fill" style="width:6%;background:var(--purple)"></div></div>
+            <span class="br-pct">6%</span>
+          </div>
+          <div class="breakdown-row">
+            <div class="br-dot" style="background:var(--red)"></div>
+            <span class="br-type">Archives</span>
+            <span class="br-size">1.8 TB</span>
+            <span class="br-count">394 files</span>
+            <div class="br-bar-track"><div class="br-bar-fill" style="width:5%;background:var(--red)"></div></div>
+            <span class="br-pct">5%</span>
+          </div>
+          <div class="breakdown-row">
+            <div class="br-dot" style="background:var(--bg-5)"></div>
+            <span class="br-type">Other</span>
+            <span class="br-size">1.6 TB</span>
+            <span class="br-count">328 files</span>
+            <div class="br-bar-track"><div class="br-bar-fill" style="width:4%;background:var(--bg-5)"></div></div>
+            <span class="br-pct">4%</span>
+          </div>
+        </div>
+
+        <!-- 7-day transfer chart: 4 cols -->
+        <div class="col-4">
+          <div class="section-title">7-Day Ingest</div>
+          <div class="daily-chart">
+            <div class="day-col"><div class="day-bar" style="height:100px;"><div class="day-bar-fill" style="height:62%;"></div></div><span class="day-label">Mon</span></div>
+            <div class="day-col"><div class="day-bar" style="height:100px;"><div class="day-bar-fill" style="height:45%;"></div></div><span class="day-label">Tue</span></div>
+            <div class="day-col"><div class="day-bar" style="height:100px;"><div class="day-bar-fill" style="height:78%;"></div></div><span class="day-label">Wed</span></div>
+            <div class="day-col"><div class="day-bar" style="height:100px;"><div class="day-bar-fill" style="height:33%;"></div></div><span class="day-label">Thu</span></div>
+            <div class="day-col"><div class="day-bar" style="height:100px;"><div class="day-bar-fill" style="height:92%;"></div></div><span class="day-label">Fri</span></div>
+            <div class="day-col"><div class="day-bar" style="height:100px;"><div class="day-bar-fill" style="height:85%;"></div></div><span class="day-label">Sat</span></div>
+            <div class="day-col"><div class="day-bar" style="height:100px;"><div class="day-bar-fill" style="height:100%;"></div></div><span class="day-label">Sun</span></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:11px; color:var(--text-quaternary);">
+            <span>Total this week</span>
+            <span style="color:var(--text-primary); font-weight:700;">385.5 GB</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

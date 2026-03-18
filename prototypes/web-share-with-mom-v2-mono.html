@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Shared File (Mono)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #111113;
+    --bg-2: #19191B;
+    --bg-3: #222225;
+    --bg-4: #2C2C30;
+    --border: rgba(238, 238, 240, 0.08);
+    --border-strong: rgba(238, 238, 240, 0.15);
+    --text: #EEEEF0;
+    --text-2: #A0A0A8;
+    --text-3: #6C6C76;
+    --text-4: #4A4A52;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.08);
+    --green: #30A46C;
+    --green-dim: rgba(48, 164, 108, 0.12);
+    --red: #E5484D;
+    --amber: #F0A030;
+    --font: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* NAV */
+  .nav {
+    width: 800px;
+    padding: 40px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-shrink: 0;
+  }
+
+  .nav-brand {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    margin-right: auto;
+  }
+
+  .nav-brand .dot { color: var(--yellow); }
+
+  .nav-link {
+    font-size: 12px;
+    color: var(--text-3);
+    text-decoration: none;
+    font-weight: 400;
+  }
+  .nav-link:hover { color: var(--yellow); }
+
+  .nav-sep { color: var(--text-4); font-size: 12px; }
+
+  /* CONTENT */
+  .content {
+    width: 800px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-top: 48px;
+  }
+
+  /* Terminal-style header */
+  .terminal-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .prompt {
+    color: var(--green);
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  .cmd {
+    color: var(--text-2);
+    font-size: 12px;
+  }
+
+  .shared-line {
+    font-size: 12px;
+    color: var(--text-3);
+    margin-bottom: 32px;
+    padding-left: 20px;
+  }
+
+  .shared-line .name {
+    color: var(--yellow);
+    font-weight: 500;
+  }
+
+  /* Video preview */
+  .video-frame {
+    width: 100%;
+    height: 340px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-strong);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .video-frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(253, 206, 69, 0.02) 0%, transparent 50%, rgba(48, 164, 108, 0.02) 100%);
+  }
+
+  .play-btn {
+    width: 64px;
+    height: 64px;
+    border: 2px solid var(--yellow);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  .duration-tag {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    background: rgba(0, 0, 0, 0.7);
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+  }
+
+  /* File info as key:value */
+  .file-block {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 32px;
+    padding: 16px 20px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+  }
+
+  .kv-row {
+    display: flex;
+    font-size: 13px;
+  }
+
+  .kv-key {
+    width: 140px;
+    color: var(--text-3);
+    flex-shrink: 0;
+  }
+
+  .kv-value {
+    color: var(--text);
+  }
+
+  .kv-value.highlight {
+    color: var(--yellow);
+    font-weight: 600;
+  }
+
+  /* Actions */
+  .actions {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .action-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--yellow);
+    color: var(--bg);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 24px;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+  }
+
+  .action-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: var(--text-2);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 400;
+    padding: 10px 24px;
+    border: 1px solid var(--border-strong);
+    cursor: pointer;
+  }
+
+  .action-secondary:hover {
+    color: var(--text);
+    border-color: var(--text-3);
+  }
+
+  /* Expiry */
+  .expiry-line {
+    font-size: 12px;
+    color: var(--text-3);
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+
+  .expiry-line .time {
+    color: var(--amber);
+    font-weight: 600;
+  }
+
+  /* Separator */
+  .sep {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 24px;
+  }
+
+  /* Pitch */
+  .pitch {
+    margin-bottom: 32px;
+  }
+
+  .pitch-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .pitch-desc {
+    font-size: 12px;
+    color: var(--text-3);
+    line-height: 1.7;
+    margin-bottom: 10px;
+  }
+
+  .pitch-link {
+    color: var(--yellow);
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .pitch-link:hover { text-decoration: underline; }
+
+  /* Footer */
+  .footer {
+    width: 800px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 32px 0;
+    font-size: 11px;
+    color: var(--text-4);
+    flex-shrink: 0;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 16px;
+  }
+
+  .footer-links a {
+    color: var(--text-3);
+    text-decoration: none;
+    font-size: 11px;
+  }
+
+  .footer-links a:hover { color: var(--yellow); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a class="nav-brand" href="#">put<span class="dot">.</span>io</a>
+    <a class="nav-link" href="#">what is put.io?</a>
+    <span class="nav-sep">/</span>
+    <a class="nav-link" href="#">pricing</a>
+    <span class="nav-sep">/</span>
+    <a class="nav-link" href="#">sign up</a>
+  </nav>
+
+  <!-- Content -->
+  <main class="content">
+
+    <div class="terminal-header">
+      <span class="prompt">$</span>
+      <span class="cmd">putio share --view</span>
+    </div>
+    <div class="shared-line">
+      shared by <span class="name">altay</span> -- received just now
+    </div>
+
+    <!-- Video preview -->
+    <div class="video-frame">
+      <div class="play-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FDCE45" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="6,3 20,12 6,21"/>
+        </svg>
+      </div>
+      <span class="duration-tag">02:46:33</span>
+    </div>
+
+    <!-- File info key:value -->
+    <div class="file-block">
+      <div class="kv-row">
+        <span class="kv-key">title</span>
+        <span class="kv-value">Dune: Part Two (2024)</span>
+      </div>
+      <div class="kv-row">
+        <span class="kv-key">filename</span>
+        <span class="kv-value">Dune.Part.Two.2024.2160p.WEB-DL.x265.mkv</span>
+      </div>
+      <div class="kv-row">
+        <span class="kv-key">size</span>
+        <span class="kv-value">36.2 GB</span>
+      </div>
+      <div class="kv-row">
+        <span class="kv-key">format</span>
+        <span class="kv-value highlight">4K UHD -- x265 HEVC</span>
+      </div>
+      <div class="kv-row">
+        <span class="kv-key">duration</span>
+        <span class="kv-value">2h 46m 33s</span>
+      </div>
+      <div class="kv-row">
+        <span class="kv-key">audio</span>
+        <span class="kv-value">DTS-HD MA 7.1</span>
+      </div>
+      <div class="kv-row">
+        <span class="kv-key">subtitles</span>
+        <span class="kv-value">EN, TR, FR, DE</span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="action-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        DOWNLOAD
+      </button>
+      <button class="action-secondary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        stream
+      </button>
+    </div>
+
+    <!-- Expiry -->
+    <div class="expiry-line">
+      expires_in: <span class="time">47h 23m</span> -- link will be invalidated after expiry
+    </div>
+
+    <div class="sep"></div>
+
+    <!-- Pitch -->
+    <div class="pitch">
+      <div class="pitch-title">// want instant access?</div>
+      <div class="pitch-desc">put.io fetches, stores, and streams any file from the cloud. no waiting, no limits. your personal cloud download folder.</div>
+      <a class="pitch-link" href="#">sign up free --></a>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <span>put.io -- istanbul -- since 2011</span>
+    <div class="footer-links">
+      <a href="#">privacy</a>
+      <a href="#">terms</a>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io -- iOS Onboarding (Clean)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --line: #3E3E44; --border: #4B4B52; --focus: #65656D;
+    --solid: #7C7C85; --text-2: #ABABB2; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868;
+    --green: #30A46C; --red: #E5484D;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .phone {
+    width: 390px;
+    height: 844px;
+    display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
+  }
+
+  /* Status bar */
+  .status-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px 8px;
+    font-size: 14px; font-weight: 600;
+  }
+  .status-bar .time { letter-spacing: 0.01em; }
+  .status-icons { display: flex; align-items: center; gap: 5px; }
+
+  /* Swipeable card area */
+  .card-viewport {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 8px 24px 0;
+    overflow: hidden;
+  }
+
+  .card {
+    flex: 1;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 32px 24px 24px;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+
+  .card-step {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-bottom: 20px;
+  }
+  .card-step .num {
+    width: 28px; height: 28px; border-radius: 999px;
+    background: var(--yellow); color: #111113;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+  }
+  .card-step .label {
+    font-size: 12px; color: var(--solid); font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+
+  .card h2 {
+    font-size: 28px; font-weight: 800;
+    letter-spacing: -0.03em; line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .card h2 .yellow { color: var(--yellow); }
+
+  .card .desc {
+    font-size: 15px; color: var(--text-2); line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  /* Visual content */
+  .card-visual {
+    flex: 1; display: flex; flex-direction: column; gap: 12px;
+  }
+
+  /* Input mock */
+  .ios-input {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg-3); border-radius: 14px;
+    padding: 14px 16px;
+  }
+  .ios-input .placeholder {
+    font-size: 14px; color: var(--solid); flex: 1;
+  }
+  .ios-input .go {
+    background: var(--yellow); color: #111113;
+    border: none; border-radius: 10px;
+    padding: 6px 16px; font-size: 13px; font-weight: 600;
+    font-family: inherit; cursor: pointer;
+  }
+
+  /* Feature rows */
+  .feature-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    background: var(--bg-3); border-radius: 14px;
+  }
+  .feature-row .fi {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .feature-row .fi.y { background: rgba(253, 206, 69, 0.1); color: var(--yellow); }
+  .feature-row .fi.g { background: rgba(48, 164, 108, 0.1); color: var(--green); }
+  .feature-row .fi.w { background: rgba(238, 238, 240, 0.06); color: var(--text-2); }
+  .feature-row .ft { flex: 1; }
+  .feature-row .ft-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .feature-row .ft-sub { font-size: 12px; color: var(--solid); line-height: 1.4; }
+  .feature-row .chevron { color: var(--border); }
+
+  /* Mini player */
+  .mini-player {
+    background: var(--bg-3); border-radius: 14px; overflow: hidden;
+  }
+  .mp-screen {
+    height: 160px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mp-play {
+    width: 52px; height: 52px; border-radius: 999px;
+    background: var(--yellow);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 20px rgba(253, 206, 69, 0.3);
+  }
+  .mp-info {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px;
+  }
+  .mp-title { font-size: 14px; font-weight: 600; flex: 1; }
+  .mp-sub { font-size: 12px; color: var(--solid); }
+  .mp-progress { height: 3px; background: var(--bg-4); margin: 0 16px 12px; border-radius: 2px; overflow: hidden; }
+  .mp-progress-fill { height: 100%; width: 55%; background: var(--yellow); border-radius: 2px; }
+
+  /* Platforms */
+  .platform-pills {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .pill {
+    padding: 8px 14px; border-radius: 999px;
+    background: var(--bg-3); font-size: 13px;
+    color: var(--text-2); font-weight: 500;
+  }
+
+  /* Bottom area */
+  .bottom-area {
+    padding: 16px 24px 16px;
+  }
+
+  /* Page dots */
+  .page-dots {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; padding: 16px 0 12px;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 999px;
+    background: var(--border);
+    transition: all 0.2s;
+  }
+  .dot.active {
+    width: 24px;
+    background: var(--yellow);
+  }
+
+  .btn-primary {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%;
+    background: var(--yellow); color: #111113;
+    font-size: 16px; font-weight: 700; padding: 16px;
+    border-radius: 14px; border: none; cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary:hover { background: var(--yellow-hover); }
+
+  .bottom-skip {
+    text-align: center; padding-top: 12px;
+    font-size: 14px; color: var(--solid); cursor: pointer;
+  }
+
+  /* Home indicator */
+  .home-indicator {
+    display: flex; justify-content: center; padding: 8px 0 8px;
+  }
+  .home-indicator .bar {
+    width: 134px; height: 5px; border-radius: 999px;
+    background: var(--text);
+    opacity: 0.2;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="var(--text)">
+        <rect x="0" y="5" width="3" height="7" rx="0.5" opacity="0.4"/>
+        <rect x="4.5" y="3.5" width="3" height="8.5" rx="0.5" opacity="0.6"/>
+        <rect x="9" y="1.5" width="3" height="10.5" rx="0.5" opacity="0.8"/>
+        <rect x="13" y="0" width="3" height="12" rx="0.5"/>
+      </svg>
+      <svg width="15" height="12" viewBox="0 0 15 12" fill="none" stroke="var(--text)" stroke-width="1.2">
+        <path d="M0.5 4C3.5 1 11.5 1 14.5 4" stroke-linecap="round"/>
+        <path d="M2.5 6.5C4.5 4.5 10.5 4.5 12.5 6.5" stroke-linecap="round"/>
+        <path d="M5 9C6 8 9 8 10 9" stroke-linecap="round"/>
+        <circle cx="7.5" cy="11" r="1" fill="var(--text)"/>
+      </svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
+        <rect x="0.5" y="0.5" width="21" height="11" rx="2" stroke="var(--text)" stroke-opacity="0.3"/>
+        <rect x="22" y="3.5" width="2" height="5" rx="0.5" fill="var(--text)" opacity="0.3"/>
+        <rect x="1.5" y="1.5" width="16" height="9" rx="1.5" fill="var(--yellow)"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Card -->
+  <div class="card-viewport">
+    <div class="card">
+      <div class="card-step">
+        <div class="num">1</div>
+        <div class="label">Step 1 of 3</div>
+      </div>
+
+      <h2><span class="yellow">(=^-^=)</span><br>Add your stuff</h2>
+      <p class="desc">Paste a magnet link, URL, or .torrent file. We'll handle it.</p>
+
+      <div class="card-visual">
+        <div class="ios-input">
+          <span class="placeholder">Paste magnet link or URL...</span>
+          <button class="go">Go</button>
+        </div>
+
+        <div class="feature-row">
+          <div class="fi y">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 3v8M6 8l3 3 3-3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 12v2a1.5 1.5 0 001.5 1.5h9A1.5 1.5 0 0015 12v-2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="ft">
+            <div class="ft-title">Drop .torrent files</div>
+            <div class="ft-sub">or use the browser extension</div>
+          </div>
+          <svg class="chevron" width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+
+        <div class="feature-row">
+          <div class="fi g">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M8 14L5 11C3.6 9.6 3.6 7.4 5 6C6.4 4.6 8.6 4.6 10 6L10.5 6.5" stroke-linecap="round"/>
+              <path d="M10 4L13 7C14.4 8.4 14.4 10.6 13 12C11.6 13.4 9.4 13.4 8 12L7.5 11.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="ft">
+            <div class="ft-title">Paste anything</div>
+            <div class="ft-sub">magnet links, URLs -- we're not picky</div>
+          </div>
+          <svg class="chevron" width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom -->
+  <div class="bottom-area">
+    <div class="page-dots">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <button class="btn-primary">Next</button>
+    <div class="bottom-skip">Skip</div>
+  </div>
+
+  <div class="home-indicator"><div class="bar"></div></div>
+
+</div>
+</body>
+</html>

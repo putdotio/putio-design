@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Welcome (Mono)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --bg-5: #35353A; --line: #3E3E44; --border: #4B4B52; --focus: #65656D;
+    --solid: #7C7C85; --text-2: #ABABB2; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868;
+    --yellow-subtle: rgba(253, 206, 69, 0.15);
+    --green: #30A46C; --green-light: #4CC38A;
+    --green-subtle: rgba(48, 164, 108, 0.15);
+    --red: #E5484D;
+  }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    width: 1440px;
+    height: 900px;
+    display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
+  }
+
+  /* Scanline effect */
+  .scanlines {
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+    );
+    pointer-events: none; z-index: 100;
+  }
+
+  /* Top Bar */
+  .topbar {
+    display: flex; align-items: center; padding: 24px 64px;
+    position: relative; z-index: 10;
+  }
+  .logo { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+  .logo span { color: var(--yellow); }
+  .topbar-spacer { flex: 1; }
+  .skip-link {
+    font-size: 12px; color: var(--solid); text-decoration: none;
+    cursor: pointer; transition: color 0.15s;
+  }
+  .skip-link:hover { color: var(--text-2); }
+  .skip-link::before { content: '// '; color: var(--border); }
+
+  /* Hero */
+  .hero {
+    padding: 24px 64px 32px;
+    position: relative;
+  }
+  .prompt-line {
+    font-size: 14px; color: var(--solid); margin-bottom: 8px;
+  }
+  .prompt-line .cmd { color: var(--green); }
+  .hero h1 {
+    font-size: 36px; font-weight: 800;
+    letter-spacing: -0.03em; line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .hero h1 .yellow { color: var(--yellow); }
+  .hero .subtitle {
+    font-size: 13px; color: var(--text-2);
+    max-width: 600px; line-height: 1.6;
+  }
+  .hero .subtitle .comment { color: var(--solid); }
+
+  /* Terminal window */
+  .steps {
+    display: flex; gap: 24px; padding: 0 64px 24px;
+    flex: 1; align-items: stretch;
+    position: relative; z-index: 2;
+  }
+
+  .step-card {
+    flex: 1;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
+  }
+
+  .terminal-bar {
+    display: flex; align-items: center; gap: 6px;
+    padding: 10px 14px;
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--line);
+  }
+  .terminal-dot {
+    width: 10px; height: 10px; border-radius: 999px;
+    border: 1px solid var(--border);
+  }
+  .terminal-dot.r { border-color: var(--red); background: rgba(229, 72, 77, 0.3); }
+  .terminal-dot.y { border-color: var(--yellow); background: rgba(253, 206, 69, 0.3); }
+  .terminal-dot.g { border-color: var(--green); background: rgba(48, 164, 108, 0.3); }
+  .terminal-title {
+    flex: 1; text-align: center;
+    font-size: 11px; color: var(--solid);
+  }
+
+  .terminal-body {
+    padding: 16px 18px;
+    flex: 1; display: flex; flex-direction: column; gap: 10px;
+    font-size: 12px; line-height: 1.7;
+  }
+
+  .line { display: flex; gap: 8px; align-items: flex-start; }
+  .line .prompt { color: var(--green); flex-shrink: 0; font-weight: 600; }
+  .line .cmd { color: var(--yellow); font-weight: 600; }
+  .line .arg { color: var(--text); }
+  .line .flag { color: var(--text-2); }
+  .line .comment { color: var(--solid); font-style: italic; }
+
+  .output {
+    color: var(--text-2); padding-left: 16px;
+    border-left: 2px solid var(--line);
+    margin: 4px 0;
+    font-size: 11px; line-height: 1.7;
+  }
+  .output .ok { color: var(--green); }
+  .output .warn { color: var(--yellow); }
+  .output .val { color: var(--text); }
+  .output .dim { color: var(--solid); }
+
+  .step-label {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--solid); margin-bottom: 8px;
+    text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .step-label .num { color: var(--yellow); font-weight: 700; }
+
+  .divider {
+    border: none; border-top: 1px dashed var(--line);
+    margin: 6px 0;
+  }
+
+  .hint-block {
+    margin-top: auto; padding: 10px 14px;
+    background: rgba(253, 206, 69, 0.04);
+    border: 1px solid rgba(253, 206, 69, 0.1);
+    border-radius: 6px; font-size: 11px;
+    color: var(--text-2); line-height: 1.6;
+  }
+  .hint-block .label { color: var(--yellow); font-weight: 600; }
+
+  /* Bottom */
+  .bottom-bar {
+    display: flex; align-items: center; justify-content: center;
+    gap: 16px; padding: 16px 64px 20px;
+    position: relative; z-index: 2;
+  }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--yellow); color: #111113;
+    font-size: 13px; font-weight: 700; padding: 12px 36px;
+    border-radius: 6px; border: none; cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    transition: background 0.15s;
+  }
+  .btn-primary:hover { background: var(--yellow-hover); }
+  .bottom-note {
+    font-size: 11px; color: var(--solid); text-align: center;
+    padding-bottom: 16px; margin-top: -4px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="scanlines"></div>
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="logo">put<span>.</span>io</div>
+    <div class="topbar-spacer"></div>
+    <a class="skip-link">skip --force</a>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="prompt-line"><span class="cmd">$</span> putio init</div>
+    <h1><span class="yellow">(=^-^=)</span> welcome!</h1>
+    <p class="subtitle"><span class="comment">// three things. no quiz. no slideshow. just the essentials.</span></p>
+  </div>
+
+  <!-- Steps -->
+  <div class="steps">
+
+    <!-- Step 1: Add stuff -->
+    <div class="step-card">
+      <div class="terminal-bar">
+        <div class="terminal-dot r"></div>
+        <div class="terminal-dot y"></div>
+        <div class="terminal-dot g"></div>
+        <div class="terminal-title">step-1 -- add-stuff</div>
+      </div>
+      <div class="terminal-body">
+        <div class="step-label"><span class="num">01</span> add stuff</div>
+
+        <div class="line">
+          <span class="prompt">$</span>
+          <span class="cmd">putio</span>
+          <span class="arg">add</span>
+          <span class="flag">"magnet:?xt=urn:btih:c12fe..."</span>
+        </div>
+        <div class="output">
+          <span class="ok">+</span> transfer queued<br>
+          <span class="ok">+</span> downloading at <span class="val">42 MB/s</span><br>
+          <span class="dim">eta: 3 minutes</span>
+        </div>
+
+        <hr class="divider">
+
+        <div class="line">
+          <span class="prompt">$</span>
+          <span class="cmd">putio</span>
+          <span class="arg">add</span>
+          <span class="flag">~/Downloads/sintel.torrent</span>
+        </div>
+        <div class="output">
+          <span class="ok">+</span> file received, <span class="val">1.2 GB</span><br>
+          <span class="dim">seeding from 847 peers</span>
+        </div>
+
+        <hr class="divider">
+
+        <div class="line">
+          <span class="prompt">$</span>
+          <span class="cmd">putio</span>
+          <span class="arg">add</span>
+          <span class="flag">https://example.com/file.zip</span>
+        </div>
+        <div class="output">
+          <span class="ok">+</span> direct URL accepted
+        </div>
+
+        <div class="hint-block">
+          <span class="label">TIP:</span> paste anything. magnet link, URL, .torrent file. we'll handle it.
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Watch it -->
+    <div class="step-card">
+      <div class="terminal-bar">
+        <div class="terminal-dot r"></div>
+        <div class="terminal-dot y"></div>
+        <div class="terminal-dot g"></div>
+        <div class="terminal-title">step-2 -- watch-it</div>
+      </div>
+      <div class="terminal-body">
+        <div class="step-label"><span class="num">02</span> watch it</div>
+
+        <div class="line">
+          <span class="prompt">$</span>
+          <span class="cmd">putio</span>
+          <span class="arg">stream</span>
+          <span class="flag">"Cosmos Laundromat.mkv"</span>
+        </div>
+        <div class="output">
+          <span class="ok">></span> opening in browser player<br>
+          <span class="dim">codec: h264 | res: 1080p | subs: en, tr</span>
+        </div>
+
+        <hr class="divider">
+
+        <div class="line">
+          <span class="prompt">$</span>
+          <span class="cmd">putio</span>
+          <span class="arg">download</span>
+          <span class="flag">--offline "Cosmos Laundromat.mkv"</span>
+        </div>
+        <div class="output">
+          <span class="ok">></span> saved for the plane <span class="dim">(1.4 GB)</span>
+        </div>
+
+        <hr class="divider">
+
+        <div class="line">
+          <span class="prompt">$</span>
+          <span class="cmd">putio</span>
+          <span class="arg">cast</span>
+          <span class="flag">--device "Living Room TV"</span>
+        </div>
+        <div class="output">
+          <span class="ok">></span> casting via Chromecast<br>
+          <span class="dim">also: AirPlay, DLNA, Roku</span>
+        </div>
+
+        <div class="hint-block">
+          <span class="label">TIP:</span> works on web, iOS, Android, Apple TV, Android TV. your stuff follows you.
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Stuff you didn't know -->
+    <div class="step-card">
+      <div class="terminal-bar">
+        <div class="terminal-dot r"></div>
+        <div class="terminal-dot y"></div>
+        <div class="terminal-dot g"></div>
+        <div class="terminal-title">step-3 -- hidden-powers</div>
+      </div>
+      <div class="terminal-body">
+        <div class="step-label"><span class="num">03</span> stuff you didn't know</div>
+
+        <div class="line">
+          <span class="prompt">$</span>
+          <span class="cmd">putio</span>
+          <span class="arg">rss</span>
+          <span class="flag">add "https://feed.example/shows"</span>
+        </div>
+        <div class="output">
+          <span class="ok">+</span> feed added, checking every 30m<br>
+          <span class="dim">new episodes arrive while you sleep.</span><br>
+          <span class="dim">just google 'RSS torrents'. you'll see the light.</span>
+        </div>
+
+        <hr class="divider">
+
+        <div class="line">
+          <span class="prompt">$</span>
+          <span class="cmd">putio</span>
+          <span class="arg">extension</span>
+          <span class="flag">install --chrome</span>
+        </div>
+        <div class="output">
+          <span class="ok">+</span> right-click any link to send it to put.io<br>
+          <span class="dim">that's the whole workflow.</span>
+        </div>
+
+        <hr class="divider">
+
+        <div class="line">
+          <span class="prompt">$</span>
+          <span class="cmd">putio</span>
+          <span class="arg">family</span>
+          <span class="flag">invite partner@hey.com</span>
+        </div>
+        <div class="output">
+          <span class="ok">+</span> invite sent. <span class="val">up to 4 people.</span><br>
+          <span class="dim">everyone gets their own view.</span>
+        </div>
+
+        <div class="hint-block">
+          <span class="label">VLC TRICK:</span> open VLC > Media > Open Network Stream > paste your put.io file URL. boom. local player, cloud files.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom -->
+  <div class="bottom-bar">
+    <button class="btn-primary">
+      $ putio start
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+  <div class="bottom-note">// revisit anytime: settings > onboarding</div>
+
+</div>
+</body>
+</html>

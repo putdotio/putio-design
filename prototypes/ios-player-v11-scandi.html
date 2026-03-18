@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io -- iOS Player (v11 Scandinavian)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #12110F;
+    --surface: #1C1A17;
+    --surface-2: #252320;
+    --text: #F0EBE3;
+    --text-2: #B0A898;
+    --text-3: #7A7268;
+    --text-4: #524C44;
+    --line: rgba(255,245,220,0.08);
+    --yellow: #FDCE45;
+    --yellow-soft: rgba(253,206,69,0.10);
+    --green: #7EBF8E;
+    --red: #D4746A;
+  }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .phone {
+    width: 390px; height: 844px; overflow: hidden;
+    display: flex; flex-direction: column; position: relative;
+    background: var(--bg);
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 14px 24px 8px;
+    font-size: 15px; font-weight: 600; height: 54px; flex-shrink: 0;
+  }
+  .status-bar .time { flex: 1; }
+  .status-bar .icons { display: flex; align-items: center; gap: 6px; }
+
+  /* Video area */
+  .video-area {
+    width: 100%; height: 220px; background: #0A0908;
+    position: relative; flex-shrink: 0; overflow: hidden;
+  }
+  .video-poster {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #1A1814 0%, #0A0908 100%);
+  }
+  .play-btn {
+    width: 64px; height: 64px; border-radius: 24px;
+    background: var(--yellow); display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 32px rgba(253,206,69,0.25);
+  }
+  .video-time {
+    position: absolute; bottom: 12px; right: 16px;
+    font-size: 12px; font-weight: 600; color: var(--text-2);
+    background: rgba(18,17,15,0.7); padding: 4px 10px; border-radius: 8px;
+  }
+
+  /* Scrubber */
+  .scrubber { padding: 16px 24px 8px; flex-shrink: 0; }
+  .scrub-track { width: 100%; height: 4px; background: var(--surface-2); border-radius: 2px; position: relative; }
+  .scrub-fill { height: 100%; width: 35%; background: var(--yellow); border-radius: 2px; }
+  .scrub-knob {
+    width: 14px; height: 14px; background: var(--yellow); border-radius: 50%;
+    position: absolute; top: -5px; left: 35%; transform: translateX(-50%);
+    box-shadow: 0 2px 8px rgba(253,206,69,0.3);
+  }
+  .scrub-times { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--text-3); font-weight: 500; }
+
+  /* Title area */
+  .title-area { padding: 20px 24px 16px; flex-shrink: 0; }
+  .video-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .video-meta { font-size: 13px; color: var(--text-3); font-weight: 500; }
+
+  /* Controls */
+  .controls {
+    display: flex; align-items: center; justify-content: center; gap: 32px;
+    padding: 16px 24px; flex-shrink: 0;
+  }
+  .ctrl-btn {
+    width: 48px; height: 48px; border-radius: 18px;
+    background: var(--surface); display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15); cursor: pointer;
+  }
+  .ctrl-btn.main {
+    width: 64px; height: 64px; border-radius: 24px;
+    background: var(--yellow); box-shadow: 0 4px 20px rgba(253,206,69,0.25);
+  }
+
+  /* Info cards */
+  .info-section { flex: 1; overflow-y: auto; padding: 0 24px; }
+  .info-card {
+    background: var(--surface); border-radius: 20px; padding: 18px;
+    margin-bottom: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  }
+  .info-card-title { font-size: 12px; font-weight: 600; color: var(--text-3); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .info-row { display: flex; justify-content: space-between; padding: 6px 0; }
+  .info-row-label { font-size: 13px; color: var(--text-2); }
+  .info-row-value { font-size: 13px; color: var(--text); font-weight: 600; }
+
+  /* Subtitle track row */
+  .sub-row {
+    display: flex; align-items: center; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .sub-row:last-child { border-bottom: none; }
+  .sub-lang { font-size: 13px; color: var(--text); font-weight: 600; flex: 1; }
+  .sub-active { font-size: 11px; color: var(--yellow); font-weight: 600; }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex; background: var(--surface);
+    border-top: 1px solid var(--line);
+    padding: 8px 0 34px; flex-shrink: 0;
+  }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 600; color: var(--text-4); padding: 4px 0;
+  }
+  .tab-item.active { color: var(--text); }
+  .tab-dot { width: 4px; height: 4px; background: var(--yellow); border-radius: 50%; margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+        <rect x="0" y="8" width="3" height="4" fill="#F0EBE3"/><rect x="4.5" y="5" width="3" height="7" fill="#F0EBE3"/>
+        <rect x="9" y="2" width="3" height="10" fill="#F0EBE3"/><rect x="13.5" y="0" width="3" height="12" fill="#F0EBE3"/>
+      </svg>
+      <svg width="27" height="13" viewBox="0 0 27 13" fill="none">
+        <rect x="0.5" y="0.5" width="23" height="12" rx="2" stroke="#F0EBE3" stroke-opacity="0.35"/>
+        <rect x="2" y="2" width="18" height="9" rx="1" fill="#F0EBE3"/>
+        <rect x="25" y="4" width="2" height="5" fill="#F0EBE3" fill-opacity="0.4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Video -->
+  <div class="video-area">
+    <div class="video-poster">
+      <div class="play-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#12110F">
+          <path d="M6 4l14 8-14 8V4z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="video-time">1:24:38</div>
+  </div>
+
+  <!-- Scrubber -->
+  <div class="scrubber">
+    <div class="scrub-track">
+      <div class="scrub-fill"></div>
+      <div class="scrub-knob"></div>
+    </div>
+    <div class="scrub-times">
+      <span>0:31:22</span>
+      <span>-0:53:16</span>
+    </div>
+  </div>
+
+  <!-- Title -->
+  <div class="title-area">
+    <div class="video-title">Blade Runner 2049</div>
+    <div class="video-meta">2017 -- 2h 44m -- Denis Villeneuve</div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="ctrl-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-2)" stroke-width="2" stroke-linecap="round">
+        <polyline points="11 19 2 12 11 5"/><polyline points="22 19 13 12 22 5"/>
+      </svg>
+    </div>
+    <div class="ctrl-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-2)" stroke-width="2" stroke-linecap="round">
+        <path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+        <text x="9" y="16" fill="var(--text-2)" font-size="7" font-weight="700" font-family="Plus Jakarta Sans" stroke="none">10</text>
+      </svg>
+    </div>
+    <div class="ctrl-btn main">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="#12110F">
+        <rect x="5" y="4" width="5" height="16" rx="1"/>
+        <rect x="14" y="4" width="5" height="16" rx="1"/>
+      </svg>
+    </div>
+    <div class="ctrl-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-2)" stroke-width="2" stroke-linecap="round">
+        <path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/>
+        <text x="9" y="16" fill="var(--text-2)" font-size="7" font-weight="700" font-family="Plus Jakarta Sans" stroke="none">10</text>
+      </svg>
+    </div>
+    <div class="ctrl-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-2)" stroke-width="2" stroke-linecap="round">
+        <polyline points="13 19 22 12 13 5"/><polyline points="2 19 11 12 2 5"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Info -->
+  <div class="info-section">
+    <div class="info-card">
+      <div class="info-card-title">Now Playing</div>
+      <div class="info-row"><span class="info-row-label">Quality</span><span class="info-row-value">2160p HDR</span></div>
+      <div class="info-row"><span class="info-row-label">Size</span><span class="info-row-value">4.2 GB</span></div>
+      <div class="info-row"><span class="info-row-label">Audio</span><span class="info-row-value">DTS-HD 5.1</span></div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-title">Subtitles</div>
+      <div class="sub-row"><span class="sub-lang">English</span><span class="sub-active">Active</span></div>
+      <div class="sub-row"><span class="sub-lang">Turkish</span></div>
+      <div class="sub-row"><span class="sub-lang">Spanish</span></div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h6l2 2h10v10H3z"/></svg>
+      Files
+    </div>
+    <div class="tab-item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 4v12M8 12l4 4 4-4"/><path d="M5 18h14"/></svg>
+      Transfers
+    </div>
+    <div class="tab-item active">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>
+      Player
+      <div class="tab-dot"></div>
+    </div>
+    <div class="tab-item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>
+      Settings
+    </div>
+  </div>
+</div>
+</body>
+</html>

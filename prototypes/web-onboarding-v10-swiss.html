@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Welcome (Swiss)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225;
+    --line: #3E3E44; --border: #4B4B52; --focus: #65656D;
+    --solid: #7C7C85; --text-2: #ABABB2; --text: #EEEEF0;
+    --yellow: #FDCE45; --green: #30A46C; --red: #E5484D;
+  }
+
+  body {
+    font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    width: 1440px;
+    height: 900px;
+    display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
+  }
+
+  /* Grid lines */
+  .grid-overlay {
+    position: absolute; inset: 0;
+    pointer-events: none; z-index: 0;
+  }
+  .grid-v {
+    position: absolute; top: 0; bottom: 0;
+    width: 1px; background: rgba(255, 255, 255, 0.02);
+  }
+  .grid-h {
+    position: absolute; left: 0; right: 0;
+    height: 1px; background: rgba(255, 255, 255, 0.02);
+  }
+
+  /* Top Bar */
+  .topbar {
+    display: flex; align-items: baseline; padding: 32px 80px;
+    position: relative; z-index: 10;
+  }
+  .logo { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+  .logo span { color: var(--yellow); }
+  .topbar-spacer { flex: 1; }
+  .skip-link {
+    font-size: 11px; color: var(--solid); text-decoration: none;
+    cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .skip-link:hover { color: var(--text-2); }
+
+  /* Content area: strict grid */
+  .content {
+    flex: 1; display: grid;
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: auto 1fr;
+    padding: 0 80px 32px;
+    gap: 0;
+    position: relative; z-index: 2;
+  }
+
+  /* Left column: hero */
+  .hero {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    padding-right: 48px;
+    border-right: 1px solid var(--line);
+  }
+  .hero-kaomoji {
+    font-size: 32px; font-weight: 700; margin-bottom: 16px;
+    color: var(--yellow);
+  }
+  .hero h1 {
+    font-size: 48px; font-weight: 700;
+    letter-spacing: -0.04em; line-height: 1.05;
+    margin-bottom: 16px;
+  }
+  .hero .subtitle {
+    font-size: 13px; color: var(--text-2);
+    line-height: 1.7; margin-bottom: 40px;
+  }
+  .hero .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--yellow); color: #111113;
+    font-size: 13px; font-weight: 600; padding: 12px 32px;
+    border-radius: 0; border: none; cursor: pointer;
+    font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    transition: background 0.15s;
+  }
+  .hero .btn-primary:hover { background: #FDD868; }
+  .hero-note {
+    font-size: 10px; color: var(--solid); margin-top: 12px;
+    text-transform: uppercase; letter-spacing: 0.1em;
+  }
+
+  /* Right column: steps */
+  .steps-area {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    padding-left: 48px;
+    display: flex; flex-direction: column;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 0;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .step:first-child { padding-top: 0; }
+  .step:last-child { border-bottom: none; }
+
+  .step-num {
+    font-size: 64px; font-weight: 700;
+    letter-spacing: -0.04em; line-height: 1;
+    color: var(--yellow);
+    grid-row: 1 / 3;
+    padding-top: 2px;
+  }
+
+  .step-header {
+    padding-left: 24px;
+  }
+  .step-title {
+    font-size: 20px; font-weight: 700;
+    letter-spacing: -0.03em; margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .step-body {
+    padding-left: 24px;
+  }
+  .step-text {
+    font-size: 13px; color: var(--text-2); line-height: 1.7;
+  }
+  .step-text .val { color: var(--text); font-weight: 500; }
+
+  .step-details {
+    margin-top: 12px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .detail-item {
+    display: flex; align-items: baseline; gap: 8px;
+    font-size: 12px;
+  }
+  .detail-item .marker {
+    color: var(--yellow); font-weight: 700; flex-shrink: 0;
+    font-size: 10px;
+  }
+  .detail-item .label { color: var(--text); font-weight: 600; }
+  .detail-item .desc { color: var(--solid); }
+
+  .step-meta {
+    font-size: 11px; color: var(--solid);
+    margin-top: 10px; font-style: italic;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <!-- Grid overlay -->
+  <div class="grid-overlay">
+    <div class="grid-v" style="left: 80px;"></div>
+    <div class="grid-v" style="left: 360px;"></div>
+    <div class="grid-v" style="left: 408px;"></div>
+    <div class="grid-v" style="right: 80px;"></div>
+    <div class="grid-h" style="top: 80px;"></div>
+    <div class="grid-h" style="top: 50%;"></div>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="logo">put<span>.</span>io</div>
+    <div class="topbar-spacer"></div>
+    <a class="skip-link">Skip</a>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Left: Hero -->
+    <div class="hero">
+      <div class="hero-kaomoji">(=^-^=)</div>
+      <h1>Welcome.</h1>
+      <p class="subtitle">Three steps. No decoration. No quiz. No corporate theater. Just what you need to know.</p>
+      <button class="btn-primary">
+        Begin
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="hero-note">Revisit from Settings</div>
+    </div>
+
+    <!-- Right: Steps -->
+    <div class="steps-area">
+
+      <!-- Step 1 -->
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-header">
+          <div class="step-title">Add Stuff</div>
+        </div>
+        <div class="step-body">
+          <div class="step-text">
+            Paste anything. Magnet link, URL, .torrent file. We'll handle it.
+          </div>
+          <div class="step-details">
+            <div class="detail-item">
+              <span class="marker">//</span>
+              <span class="label">Magnet links</span>
+              <span class="desc">-- paste and go</span>
+            </div>
+            <div class="detail-item">
+              <span class="marker">//</span>
+              <span class="label">Direct URLs</span>
+              <span class="desc">-- any file, any host</span>
+            </div>
+            <div class="detail-item">
+              <span class="marker">//</span>
+              <span class="label">.torrent files</span>
+              <span class="desc">-- drag and drop</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-header">
+          <div class="step-title">Watch It</div>
+        </div>
+        <div class="step-body">
+          <div class="step-text">
+            Stream in-browser. Download for offline. Cast to any screen.
+          </div>
+          <div class="step-details">
+            <div class="detail-item">
+              <span class="marker">//</span>
+              <span class="label">Stream</span>
+              <span class="desc">-- web, iOS, Android, TV</span>
+            </div>
+            <div class="detail-item">
+              <span class="marker">//</span>
+              <span class="label">Download</span>
+              <span class="desc">-- save for the plane</span>
+            </div>
+            <div class="detail-item">
+              <span class="marker">//</span>
+              <span class="label">Cast</span>
+              <span class="desc">-- Chromecast, AirPlay, DLNA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-header">
+          <div class="step-title">Features You Didn't Know</div>
+        </div>
+        <div class="step-body">
+          <div class="step-text">
+            All included. No upsells.
+          </div>
+          <div class="step-details">
+            <div class="detail-item">
+              <span class="marker">//</span>
+              <span class="label">RSS Feeds</span>
+              <span class="desc">-- new episodes arrive while you sleep</span>
+            </div>
+            <div class="detail-item">
+              <span class="marker">//</span>
+              <span class="label">Browser Extension</span>
+              <span class="desc">-- right-click any link. done.</span>
+            </div>
+            <div class="detail-item">
+              <span class="marker">//</span>
+              <span class="label">Family Sharing</span>
+              <span class="desc">-- up to 4 people, one account</span>
+            </div>
+            <div class="detail-item">
+              <span class="marker">//</span>
+              <span class="label">VLC Trick</span>
+              <span class="desc">-- Open Network Stream with your put.io URL</span>
+            </div>
+          </div>
+          <div class="step-meta">just google 'RSS torrents'. you'll see the light.</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

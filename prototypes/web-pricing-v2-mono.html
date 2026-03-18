@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Pricing (Mono)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0C0C0E; --bg-2: #141416; --bg-3: #1C1C20; --bg-4: #262628;
+    --bg-5: #36363C; --line: #2A2A30; --border: #36363C; --focus: #4A4A54;
+    --solid: #7A7A86; --text-2: #B0B0BA; --text: #E4E4EA;
+    --yellow: #FDCE45; --yellow-dim: rgba(253,206,69,0.15);
+    --green: #4CC38A; --red: #FF6369;
+  }
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { width: 1440px; min-height: 900px; position: relative; }
+
+  /* Nav */
+  .nav { display: flex; align-items: center; padding: 24px 64px; }
+  .logo { font-size: 20px; font-weight: 700; color: var(--yellow); text-decoration: none; letter-spacing: -0.02em; }
+  .logo .dim { color: var(--solid); }
+  .nav-spacer { flex: 1; }
+  .nav-links { display: flex; gap: 24px; align-items: center; }
+  .nav-link { font-size: 13px; color: var(--solid); text-decoration: none; font-weight: 500; }
+  .nav-link:hover { color: var(--text); }
+  .nav-link.active { color: var(--yellow); }
+  .nav-link.active::before { content: '> '; }
+  .nav-cta {
+    font-size: 12px; font-weight: 600; color: #0C0C0E; background: var(--yellow);
+    padding: 8px 16px; border: none; cursor: pointer; font-family: inherit; text-decoration: none;
+  }
+
+  /* Hero */
+  .hero { text-align: center; padding: 48px 64px 40px; }
+  .hero h1 { font-size: 14px; font-weight: 400; color: var(--solid); letter-spacing: 0.02em; margin-bottom: 12px; }
+  .hero .command { font-size: 32px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; margin-bottom: 8px; }
+  .hero .command .prompt { color: var(--yellow); }
+  .hero .command .flag { color: var(--green); }
+  .hero .desc { font-size: 14px; color: var(--solid); max-width: 500px; margin: 0 auto 32px; }
+
+  /* Billing Toggle */
+  .billing-toggle {
+    display: inline-flex; align-items: center; gap: 0;
+    border: 1px solid var(--border); font-size: 13px;
+  }
+  .toggle-option {
+    padding: 8px 20px; font-size: 13px; font-weight: 500; color: var(--solid);
+    cursor: pointer; border: none; background: none; font-family: inherit;
+  }
+  .toggle-option.active { background: var(--bg-4); color: var(--yellow); }
+  .toggle-save {
+    font-size: 11px; font-weight: 600; color: var(--green);
+    padding: 8px 12px; border-left: 1px solid var(--border);
+  }
+
+  /* Terminal Table */
+  .terminal-section { padding: 32px 64px 0; }
+  .terminal-window {
+    background: var(--bg-2); border: 1px solid var(--border);
+    max-width: 1200px; margin: 0 auto;
+  }
+  .terminal-bar {
+    display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+    border-bottom: 1px solid var(--border); font-size: 12px; color: var(--solid);
+  }
+  .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .terminal-dot.r { background: var(--red); }
+  .terminal-dot.y { background: var(--yellow); }
+  .terminal-dot.g { background: var(--green); }
+  .terminal-body { padding: 20px 24px; font-size: 13px; line-height: 2; }
+
+  .line { display: flex; }
+  .line .comment { color: var(--solid); font-style: italic; }
+  .line .prompt { color: var(--yellow); margin-right: 8px; white-space: pre; }
+  .line .cmd { color: var(--text); }
+  .line .flag { color: var(--green); }
+  .line .val { color: var(--yellow); }
+  .line .dim { color: var(--solid); }
+  .line .err { color: var(--red); }
+
+  /* Plan Table */
+  .plan-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  .plan-table th, .plan-table td {
+    text-align: left; padding: 10px 16px; font-size: 13px; font-weight: 400;
+    border-bottom: 1px solid var(--line);
+  }
+  .plan-table th { color: var(--solid); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; }
+  .plan-table td { color: var(--text-2); }
+  .plan-table tr.featured td { color: var(--text); background: rgba(253,206,69,0.04); }
+  .plan-table tr.featured td:first-child { color: var(--yellow); font-weight: 600; }
+  .plan-table .plan-badge { font-size: 10px; color: #0C0C0E; background: var(--yellow); padding: 2px 6px; margin-left: 8px; font-weight: 700; }
+  .plan-table .price { color: var(--yellow); font-weight: 600; }
+  .plan-table .check-mark { color: var(--green); }
+  .plan-table .dash { color: var(--bg-5); }
+  .plan-table .action-btn {
+    font-size: 12px; font-weight: 600; padding: 6px 14px; border: 1px solid var(--border);
+    background: none; color: var(--text-2); cursor: pointer; font-family: inherit;
+  }
+  .plan-table .action-btn.primary { background: var(--yellow); color: #0C0C0E; border-color: var(--yellow); }
+  .plan-table tr:last-child td { border-bottom: none; }
+
+  /* Features as CLI */
+  .features-section { padding: 48px 64px 0; }
+  .features-terminal {
+    background: var(--bg-2); border: 1px solid var(--border);
+    max-width: 1200px; margin: 0 auto;
+  }
+  .features-body { padding: 20px 24px; font-size: 13px; line-height: 2.2; }
+  .flag-line { display: flex; gap: 16px; align-items: baseline; }
+  .flag-line .flag-name { color: var(--green); min-width: 200px; }
+  .flag-line .flag-desc { color: var(--text-2); }
+  .flag-line .flag-plans { color: var(--solid); font-size: 11px; margin-left: auto; }
+
+  /* Guarantees */
+  .guarantees { display: flex; justify-content: center; gap: 40px; padding: 48px 64px 0; }
+  .guarantee { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--solid); }
+  .guarantee .icon { color: var(--green); }
+
+  /* Footer */
+  .pricing-footer { text-align: center; padding: 48px 64px; }
+  .footer-line { font-size: 14px; color: var(--solid); margin-bottom: 16px; }
+  .footer-line .hl { color: var(--yellow); }
+  .footer-btn {
+    font-size: 14px; font-weight: 600; background: var(--yellow); color: #0C0C0E;
+    padding: 12px 32px; border: none; cursor: pointer; font-family: inherit;
+  }
+  .footer-note { font-size: 11px; color: var(--solid); margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a class="logo" href="#">put<span class="dim">.</span>io</a>
+    <div class="nav-spacer"></div>
+    <div class="nav-links">
+      <a class="nav-link" href="#">features</a>
+      <a class="nav-link active" href="#">pricing</a>
+      <a class="nav-link" href="#">blog</a>
+      <a class="nav-link" href="#">help</a>
+      <a class="nav-cta" href="#">start trial</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>// select your plan</h1>
+    <div class="command"><span class="prompt">$</span> putio <span class="flag">--plan</span></div>
+    <p class="desc">No contracts. No jargon. Cancel anytime. Prices that make sense.</p>
+
+    <div class="billing-toggle">
+      <button class="toggle-option active">--monthly</button>
+      <button class="toggle-option">--yearly</button>
+      <span class="toggle-save">-17%</span>
+    </div>
+  </div>
+
+  <!-- Plan Table Terminal -->
+  <div class="terminal-section">
+    <div class="terminal-window">
+      <div class="terminal-bar">
+        <span class="terminal-dot r"></span>
+        <span class="terminal-dot y"></span>
+        <span class="terminal-dot g"></span>
+        putio plans --compare
+      </div>
+      <div class="terminal-body">
+        <div class="line"><span class="comment"># Available plans</span></div>
+        <div class="line"><span class="prompt">$ </span><span class="cmd">putio plans list --format table</span></div>
+        <br>
+        <table class="plan-table">
+          <thead>
+            <tr>
+              <th>Plan</th>
+              <th>Price</th>
+              <th>Storage</th>
+              <th>Transfers</th>
+              <th>Availability</th>
+              <th>Streaming</th>
+              <th>Smart Folders</th>
+              <th>RSS / API</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Trial</td>
+              <td class="price">$0.99/day</td>
+              <td>100 GB</td>
+              <td>5</td>
+              <td>3 days</td>
+              <td class="check-mark">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </td>
+              <td class="dash">--</td>
+              <td class="dash">--</td>
+              <td><button class="action-btn">select</button></td>
+            </tr>
+            <tr>
+              <td>Casual</td>
+              <td class="price">$9.99/mo</td>
+              <td>100 GB</td>
+              <td>5</td>
+              <td>10 days</td>
+              <td class="check-mark">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </td>
+              <td class="dash">--</td>
+              <td class="dash">--</td>
+              <td><button class="action-btn">select</button></td>
+            </tr>
+            <tr class="featured">
+              <td>Plus <span class="plan-badge">POPULAR</span></td>
+              <td class="price">$14.99/mo</td>
+              <td>500 GB</td>
+              <td>10</td>
+              <td>30 days</td>
+              <td class="check-mark">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </td>
+              <td class="check-mark">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </td>
+              <td class="dash">--</td>
+              <td><button class="action-btn primary">select</button></td>
+            </tr>
+            <tr>
+              <td>Power</td>
+              <td class="price">$19.99/mo</td>
+              <td>1 TB</td>
+              <td>50</td>
+              <td>60 days</td>
+              <td class="check-mark">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </td>
+              <td class="check-mark">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </td>
+              <td class="check-mark">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </td>
+              <td><button class="action-btn">select</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features as CLI flags -->
+  <div class="features-section">
+    <div class="features-terminal">
+      <div class="terminal-bar">
+        <span class="terminal-dot r"></span>
+        <span class="terminal-dot y"></span>
+        <span class="terminal-dot g"></span>
+        putio features --list
+      </div>
+      <div class="features-body">
+        <div class="line"><span class="comment"># All plans include</span></div>
+        <div class="flag-line"><span class="flag-name">--stream</span><span class="flag-desc">Stream anything, anywhere. Chromecast, AirPlay, DLNA.</span></div>
+        <div class="flag-line"><span class="flag-name">--mobile</span><span class="flag-desc">Offline downloads on iOS and Android</span></div>
+        <div class="flag-line"><span class="flag-name">--no-throttle</span><span class="flag-desc">Full speed downloads, always</span></div>
+        <br>
+        <div class="line"><span class="comment"># Plus and above</span></div>
+        <div class="flag-line"><span class="flag-name">--smart-folders</span><span class="flag-desc">Auto-organize your files by type, date, or custom rules</span><span class="flag-plans">[Plus, Power]</span></div>
+        <div class="flag-line"><span class="flag-name">--subtitles=auto</span><span class="flag-desc">Subtitle search and auto-fetch for video files</span><span class="flag-plans">[Plus, Power]</span></div>
+        <br>
+        <div class="line"><span class="comment"># Power only</span></div>
+        <div class="flag-line"><span class="flag-name">--rss</span><span class="flag-desc">RSS automation feeds for hands-free downloads</span><span class="flag-plans">[Power]</span></div>
+        <div class="flag-line"><span class="flag-name">--api --webdav</span><span class="flag-desc">Mount as a drive on your computer</span><span class="flag-plans">[Power]</span></div>
+        <div class="flag-line"><span class="flag-name">--family=4</span><span class="flag-desc">Share your account with up to 4 people</span><span class="flag-plans">[Power]</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Guarantees -->
+  <div class="guarantees">
+    <div class="guarantee">
+      <span class="icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      Money-back guarantee, first week
+    </div>
+    <div class="guarantee">
+      <span class="icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      Cancel anytime -- one click
+    </div>
+    <div class="guarantee">
+      <span class="icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      Stripe-powered -- we never see your card
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="pricing-footer">
+    <div class="footer-line">Still reading? <span class="hl">Just try it.</span></div>
+    <button class="footer-btn">$ putio --trial --start</button>
+    <div class="footer-note">No credit card required. Full access. Cancel in one click.</div>
+  </div>
+
+</div>
+</body>
+</html>
