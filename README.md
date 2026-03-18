@@ -11,7 +11,7 @@ cd prototypes && python3 -m http.server 8765
 # → http://localhost:8765
 ```
 
-Or visit the deployed gallery on Vercel.
+Or visit the deployed gallery on Vercel
 
 ## Structure
 
