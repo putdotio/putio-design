@@ -43,6 +43,7 @@ docs/
 | v2-mono | JetBrains Mono |
 | v3-brutalist | Inter Black + JetBrains Mono |
 | v4-editorial | DM Serif Display + Inter |
+| v5-geometric | Space Grotesk |
 | native / m3-v3 | Platform default |
 
 ## Viewports
