@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>put.io — Android TV / Google TV Home</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0E0E0E;
+    --surface-1: #1A1A1A;
+    --surface-2: #242424;
+    --surface-3: #2E2E2E;
+    --surface-4: #383838;
+    --rail-bg: #141414;
+    --outline: rgba(255,255,255,0.06);
+    --on-surface: #E6E1E5;
+    --on-surface-variant: #CAC4D0;
+    --on-surface-dim: #938F99;
+    --on-surface-muted: #6B6770;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.10);
+    --yellow-subtle: rgba(253,206,69,0.18);
+    --green: #4CAF50;
+    --green-dim: rgba(76,175,80,0.15);
+    --blue: #5B9EF4;
+    --blue-dim: rgba(91,158,244,0.15);
+    --red: #F44336;
+    --red-dim: rgba(244,67,54,0.15);
+    --safe-h: 96px;
+    --safe-v: 54px;
+  }
+  body {
+    font-family: 'Inter', 'Google Sans', 'Roboto', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--on-surface);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── Left Navigation Rail ── */
+  .nav-rail {
+    width: 96px;
+    flex-shrink: 0;
+    background: var(--rail-bg);
+    border-right: 1px solid var(--outline);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 0 24px;
+    gap: 0;
+    z-index: 20;
+    transition: width 0.3s cubic-bezier(0.2, 0, 0, 1);
+  }
+  .nav-rail:hover {
+    width: 240px;
+    background: rgba(20,20,20,0.95);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+  .nav-rail:hover .nav-item-label {
+    opacity: 1;
+    max-width: 120px;
+  }
+  .nav-rail:hover .nav-item {
+    flex-direction: row;
+    gap: 16px;
+    padding: 14px 20px;
+    width: 200px;
+    justify-content: flex-start;
+    border-radius: 12px;
+  }
+  .nav-rail:hover .nav-item .nav-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  /* Logo */
+  .nav-logo {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 36px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-logo-dot {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--yellow);
+    position: relative;
+  }
+  .nav-logo-dot::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--rail-bg);
+  }
+
+  /* Nav Items */
+  .nav-items {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 0 12px;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 0;
+    width: 72px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease-out;
+    position: relative;
+  }
+  .nav-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: rgba(255,255,255,0.4);
+    transition: fill 0.2s;
+  }
+  .nav-item-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: all 0.2s;
+    max-width: 0;
+  }
+  .nav-item:not(.active) .nav-item-label {
+    opacity: 0.5;
+    font-size: 10px;
+  }
+
+  /* Active nav item */
+  .nav-item.active .nav-icon svg {
+    fill: var(--yellow);
+  }
+  .nav-item.active .nav-item-label {
+    color: #FFFFFF;
+    opacity: 1;
+    font-weight: 500;
+  }
+
+  /* Hover state */
+  .nav-item:hover {
+    background: var(--surface-2);
+  }
+  .nav-item:hover .nav-icon svg {
+    fill: rgba(255,255,255,0.7);
+  }
+  .nav-item.active:hover .nav-icon svg {
+    fill: var(--yellow);
+  }
+
+  .nav-spacer { flex: 1; }
+
+  .nav-rail:not(:hover) .nav-item {
+    flex-direction: column;
+  }
+  .nav-rail:not(:hover) .nav-item-label {
+    max-width: 72px;
+    font-size: 10px;
+    text-align: center;
+  }
+  .nav-rail:not(:hover) .nav-item.active .nav-item-label {
+    opacity: 1;
+  }
+
+  /* ── Main Content Area ── */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-top: var(--safe-v);
+  }
+
+  /* ── Header Row ── */
+  .header-row {
+    display: flex;
+    align-items: center;
+    padding: 0 56px 0 48px;
+    margin-bottom: 28px;
+    flex-shrink: 0;
+  }
+  .greeting {
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--on-surface);
+    letter-spacing: -0.02em;
+  }
+  .header-spacer { flex: 1; }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .storage-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .storage-text {
+    font-size: 14px;
+    color: var(--on-surface-dim);
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+  }
+  .storage-bar {
+    width: 100px;
+    height: 4px;
+    background: var(--surface-3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .storage-bar-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+  .user-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--surface-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .user-avatar svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--on-surface-dim);
+  }
+  .user-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+  }
+
+  /* ── Content Shelves ── */
+  .shelves {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  .shelf {
+    flex-shrink: 0;
+  }
+  .shelf-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 48px;
+    margin-bottom: 20px;
+  }
+  .shelf-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--on-surface);
+    letter-spacing: -0.01em;
+  }
+  .shelf-action {
+    margin-left: auto;
+    font-size: 14px;
+    color: var(--yellow);
+    font-weight: 500;
+    cursor: pointer;
+    opacity: 0.8;
+  }
+
+  .shelf-cards {
+    display: flex;
+    gap: 16px;
+    padding: 8px 48px 12px;
+    overflow: hidden;
+  }
+
+  /* ── Material 3 Card Base ── */
+  .m3-card {
+    flex-shrink: 0;
+    background: var(--surface-1);
+    border-radius: 12px;
+    border: 1px solid var(--outline);
+    cursor: pointer;
+    transition: all 0.2s ease-out;
+    position: relative;
+    opacity: 0.75;
+  }
+  .m3-card:hover {
+    opacity: 1;
+    transform: scale(1.04);
+    border: 2px solid rgba(255,255,255,0.3);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  }
+  .m3-card.focused {
+    opacity: 1;
+    transform: scale(1.06);
+    border: 2px solid #FFFFFF;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    z-index: 10;
+    background: var(--surface-2);
+  }
+
+  /* ── Badge / Chip system ── */
+  .badge-chip {
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    color: var(--on-surface-dim);
+    white-space: nowrap;
+    line-height: 1;
+  }
+  .m3-card.focused .badge-chip {
+    background: var(--surface-3);
+    color: var(--on-surface-variant);
+  }
+  .badge-chip.yellow {
+    background: var(--yellow-dim);
+    color: var(--yellow);
+  }
+  .badge-chip.blue {
+    background: var(--blue-dim);
+    color: var(--blue);
+  }
+  .badge-chip.green {
+    background: var(--green-dim);
+    color: var(--green);
+  }
+  .badge-chip.red {
+    background: var(--red-dim);
+    color: var(--red);
+  }
+  .badge-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  /* ── Continue Watching Cards ── */
+  .cw-card {
+    width: 280px;
+    height: auto;
+  }
+  .cw-thumb {
+    width: 280px;
+    height: 158px;
+    border-radius: 12px 12px 0 0;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cw-thumb-gradient {
+    position: absolute;
+    inset: 0;
+  }
+  .cw-thumb-gradient.g1 {
+    background: linear-gradient(135deg, #1a2a3a 0%, #0d1825 50%, #162030 100%);
+  }
+  .cw-thumb-gradient.g2 {
+    background: linear-gradient(135deg, #2a1a2a 0%, #180d20 50%, #201630 100%);
+  }
+  .cw-thumb-gradient.g3 {
+    background: linear-gradient(135deg, #1a2a2a 0%, #0d1818 50%, #162028 100%);
+  }
+  .cw-thumb-gradient.g4 {
+    background: linear-gradient(135deg, #2a2a1a 0%, #18180d 50%, #202016 100%);
+  }
+  .cw-thumb-icon {
+    position: relative;
+    z-index: 2;
+  }
+  .cw-thumb-icon svg {
+    width: 48px;
+    height: 48px;
+    fill: rgba(255,255,255,0.15);
+  }
+  /* Title overlay at bottom of thumb */
+  .cw-title-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 40px 14px 12px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    z-index: 3;
+  }
+  .cw-title-text {
+    font-size: 20px;
+    font-weight: 600;
+    color: #FFFFFF;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 6px;
+  }
+  /* Progress bar at bottom of thumb */
+  .cw-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    z-index: 4;
+  }
+  .cw-progress-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 0 1px 0 0;
+  }
+  /* Play overlay on focused */
+  .cw-play-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 5;
+    border-radius: 12px 12px 0 0;
+  }
+  .m3-card.focused .cw-play-overlay {
+    opacity: 1;
+  }
+  .cw-play-overlay svg {
+    width: 52px;
+    height: 52px;
+    fill: rgba(255,255,255,0.9);
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+  }
+  .cw-info {
+    padding: 10px 14px 14px;
+  }
+  .cw-meta {
+    font-size: 14px;
+    color: var(--on-surface-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .m3-card.focused .cw-meta {
+    color: var(--on-surface-dim);
+  }
+
+  /* ── Folder Cards ── */
+  .folder-card {
+    width: 200px;
+    height: auto;
+  }
+  .folder-thumb {
+    width: 200px;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(253,206,69,0.06), rgba(253,206,69,0.02));
+    border-radius: 12px 12px 0 0;
+  }
+  .folder-thumb svg {
+    width: 56px;
+    height: 56px;
+    fill: var(--yellow);
+    opacity: 0.6;
+  }
+  .folder-info {
+    padding: 12px 14px 14px;
+  }
+  .folder-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--on-surface);
+    margin-bottom: 4px;
+  }
+  .m3-card.focused .folder-name {
+    color: #FFFFFF;
+  }
+  .folder-meta {
+    font-size: 14px;
+    color: var(--on-surface-muted);
+  }
+  .m3-card.focused .folder-meta {
+    color: var(--on-surface-dim);
+  }
+
+  /* ── Transfer Cards ── */
+  .transfer-card {
+    width: 340px;
+  }
+  .transfer-body {
+    padding: 18px 16px 16px;
+  }
+  .transfer-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .transfer-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .transfer-dot.downloading {
+    background: var(--yellow);
+    box-shadow: 0 0 6px rgba(253,206,69,0.5);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(253,206,69,0.5); }
+    50% { opacity: 0.5; box-shadow: 0 0 12px rgba(253,206,69,0.8); }
+  }
+  .transfer-dot.ready {
+    background: var(--green);
+    box-shadow: 0 0 6px rgba(76,175,80,0.5);
+  }
+  .transfer-dot.sharing {
+    background: var(--blue);
+    box-shadow: 0 0 6px rgba(91,158,244,0.5);
+  }
+  .transfer-dot.error {
+    background: var(--red);
+    box-shadow: 0 0 6px rgba(244,67,54,0.5);
+  }
+  .transfer-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+  .m3-card.focused .transfer-title {
+    color: #FFFFFF;
+  }
+  .transfer-badges {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+    padding-left: 18px;
+  }
+  .transfer-status-label {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--on-surface-dim);
+    margin-bottom: 10px;
+    padding-left: 18px;
+  }
+  .transfer-pct {
+    font-size: 24px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .transfer-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--surface-4);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .transfer-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+  }
+  .transfer-detail {
+    font-size: 14px;
+    color: var(--on-surface-muted);
+  }
+
+  /* ── Recently Added ── */
+  .recent-card {
+    width: 280px;
+  }
+  .recent-body {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .recent-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .recent-icon svg {
+    width: 22px;
+    height: 22px;
+    fill: var(--on-surface-muted);
+  }
+  .recent-icon.video-icon {
+    background: rgba(91,158,244,0.1);
+  }
+  .recent-icon.video-icon svg {
+    fill: var(--blue);
+  }
+  .recent-icon.audio-icon {
+    background: rgba(76,175,80,0.1);
+  }
+  .recent-icon.audio-icon svg {
+    fill: var(--green);
+  }
+  .recent-icon.doc-icon {
+    background: rgba(253,206,69,0.1);
+  }
+  .recent-icon.doc-icon svg {
+    fill: var(--yellow);
+  }
+  .recent-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .recent-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 6px;
+  }
+  .m3-card.focused .recent-name {
+    color: #FFFFFF;
+  }
+  .recent-meta {
+    font-size: 14px;
+    color: var(--on-surface-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .m3-card.focused .recent-meta {
+    color: var(--on-surface-dim);
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- ── Left Navigation Rail (Leanback) ── -->
+  <div class="nav-rail">
+    <div class="nav-logo">
+      <div class="nav-logo-dot"></div>
+    </div>
+
+    <div class="nav-items">
+      <!-- Home (Active) -->
+      <div class="nav-item active">
+        <div class="nav-icon">
+          <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        </div>
+        <span class="nav-item-label">Home</span>
+      </div>
+
+      <!-- Browse -->
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <span class="nav-item-label">Browse</span>
+      </div>
+
+      <!-- Transfers -->
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+        </div>
+        <span class="nav-item-label">Transfers</span>
+      </div>
+
+      <!-- Search -->
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        </div>
+        <span class="nav-item-label">Search</span>
+      </div>
+
+      <!-- Settings -->
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        </div>
+        <span class="nav-item-label">Settings</span>
+      </div>
+    </div>
+
+    <div class="nav-spacer"></div>
+  </div>
+
+  <!-- ── Main Content ── -->
+  <div class="main-content">
+
+    <!-- Header Row -->
+    <div class="header-row">
+      <span class="greeting">Good evening</span>
+      <div class="header-spacer"></div>
+      <div class="header-right">
+        <div class="storage-info">
+          <span class="storage-text">39.2 / 50 TB</span>
+          <div class="storage-bar"><div class="storage-bar-fill" style="width:78.4%;"></div></div>
+        </div>
+        <div class="user-pill">
+          <div class="user-avatar">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </div>
+          <span class="user-name">Altay</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Shelves -->
+    <div class="shelves">
+
+      <!-- ── Continue Watching ── -->
+      <div class="shelf">
+        <div class="shelf-header">
+          <span class="shelf-title">Continue Watching</span>
+          <span class="shelf-action">View all</span>
+        </div>
+        <div class="shelf-cards">
+          <!-- Card 1: Big Buck Bunny — 65%, FOCUSED -->
+          <div class="m3-card cw-card focused">
+            <div class="cw-thumb">
+              <div class="cw-thumb-gradient g1"></div>
+              <div class="cw-thumb-icon">
+                <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+              </div>
+              <div class="cw-title-overlay">
+                <div class="cw-title-text">Big Buck Bunny</div>
+                <div class="badge-row">
+                  <span class="badge-chip">1080P</span>
+                </div>
+              </div>
+              <div class="cw-progress"><div class="cw-progress-fill" style="width:65%;"></div></div>
+              <div class="cw-play-overlay">
+                <svg viewBox="0 0 48 48"><path d="M16 10v28l22-14z"/></svg>
+              </div>
+            </div>
+            <div class="cw-info">
+              <div class="cw-meta">
+                <span>65% watched</span>
+                <span style="opacity:0.4;">|</span>
+                <span>3:42 left</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Sintel — 35% -->
+          <div class="m3-card cw-card">
+            <div class="cw-thumb">
+              <div class="cw-thumb-gradient g2"></div>
+              <div class="cw-thumb-icon">
+                <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+              </div>
+              <div class="cw-title-overlay">
+                <div class="cw-title-text">Sintel</div>
+                <div class="badge-row">
+                  <span class="badge-chip">4K</span>
+                </div>
+              </div>
+              <div class="cw-progress"><div class="cw-progress-fill" style="width:35%;"></div></div>
+              <div class="cw-play-overlay">
+                <svg viewBox="0 0 48 48"><path d="M16 10v28l22-14z"/></svg>
+              </div>
+            </div>
+            <div class="cw-info">
+              <div class="cw-meta">
+                <span>35% watched</span>
+                <span style="opacity:0.4;">|</span>
+                <span>9:15 left</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: The Wire S3 · E4 — 12% -->
+          <div class="m3-card cw-card">
+            <div class="cw-thumb">
+              <div class="cw-thumb-gradient g3"></div>
+              <div class="cw-thumb-icon">
+                <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+              </div>
+              <div class="cw-title-overlay">
+                <div class="cw-title-text">The Wire</div>
+                <div class="badge-row">
+                  <span class="badge-chip">S3 &middot; E4</span>
+                  <span class="badge-chip">1080P</span>
+                </div>
+              </div>
+              <div class="cw-progress"><div class="cw-progress-fill" style="width:12%;"></div></div>
+              <div class="cw-play-overlay">
+                <svg viewBox="0 0 48 48"><path d="M16 10v28l22-14z"/></svg>
+              </div>
+            </div>
+            <div class="cw-info">
+              <div class="cw-meta">
+                <span>12% watched</span>
+                <span style="opacity:0.4;">|</span>
+                <span>48:22 left</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Cosmos E2 — 88% -->
+          <div class="m3-card cw-card">
+            <div class="cw-thumb">
+              <div class="cw-thumb-gradient g4"></div>
+              <div class="cw-thumb-icon">
+                <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+              </div>
+              <div class="cw-title-overlay">
+                <div class="cw-title-text">Cosmos</div>
+                <div class="badge-row">
+                  <span class="badge-chip">E2</span>
+                </div>
+              </div>
+              <div class="cw-progress"><div class="cw-progress-fill" style="width:88%;"></div></div>
+              <div class="cw-play-overlay">
+                <svg viewBox="0 0 48 48"><path d="M16 10v28l22-14z"/></svg>
+              </div>
+            </div>
+            <div class="cw-info">
+              <div class="cw-meta">
+                <span>88% watched</span>
+                <span style="opacity:0.4;">|</span>
+                <span>6:10 left</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Your Files ── -->
+      <div class="shelf">
+        <div class="shelf-header">
+          <span class="shelf-title">Your Files</span>
+          <span class="shelf-action">Browse all</span>
+        </div>
+        <div class="shelf-cards">
+          <!-- Downloads -->
+          <div class="m3-card folder-card">
+            <div class="folder-thumb">
+              <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+            </div>
+            <div class="folder-info">
+              <div class="folder-name">Downloads</div>
+              <div class="folder-meta">8 items &middot; 21.8 GB</div>
+            </div>
+          </div>
+
+          <!-- TV Shows -->
+          <div class="m3-card folder-card">
+            <div class="folder-thumb">
+              <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+            </div>
+            <div class="folder-info">
+              <div class="folder-name">TV Shows</div>
+              <div class="folder-meta">15 items &middot; 42.6 GB</div>
+            </div>
+          </div>
+
+          <!-- Movies -->
+          <div class="m3-card folder-card">
+            <div class="folder-thumb">
+              <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+            </div>
+            <div class="folder-info">
+              <div class="folder-name">Movies</div>
+              <div class="folder-meta">12 items &middot; 38.2 GB</div>
+            </div>
+          </div>
+
+          <!-- Music -->
+          <div class="m3-card folder-card">
+            <div class="folder-thumb">
+              <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+            </div>
+            <div class="folder-info">
+              <div class="folder-name">Music</div>
+              <div class="folder-meta">34 items &middot; 18.4 GB</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Active Transfers ── -->
+      <div class="shelf">
+        <div class="shelf-header">
+          <span class="shelf-title">Active Transfers</span>
+          <span class="shelf-action">Manage</span>
+        </div>
+        <div class="shelf-cards">
+          <!-- Ubuntu 24.04 — 73% downloading -->
+          <div class="m3-card transfer-card">
+            <div class="transfer-body">
+              <div class="transfer-top">
+                <div class="transfer-dot downloading"></div>
+                <span class="transfer-title">Ubuntu 24.04</span>
+              </div>
+              <div class="transfer-badges">
+                <span class="badge-chip">ISO</span>
+                <span class="badge-chip">4.7 GB</span>
+              </div>
+              <div class="transfer-status-label" style="color:var(--yellow);">Downloading &middot; 18.2 MB/s</div>
+              <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px;">
+                <span class="transfer-pct" style="color:var(--yellow);">73%</span>
+                <span class="transfer-detail">3.5 GB / 4.8 GB</span>
+              </div>
+              <div class="transfer-bar"><div class="transfer-bar-fill" style="width:73%; background:var(--yellow);"></div></div>
+              <div style="display:flex; justify-content:space-between; margin-top:6px;">
+                <span class="transfer-detail">ETA 4 min</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Podcast Feed — Ready -->
+          <div class="m3-card transfer-card">
+            <div class="transfer-body">
+              <div class="transfer-top">
+                <div class="transfer-dot ready"></div>
+                <span class="transfer-title">Podcast Feed</span>
+              </div>
+              <div class="transfer-badges">
+                <span class="badge-chip green">COMPLETE</span>
+              </div>
+              <div class="transfer-status-label" style="color:var(--green);">Ready</div>
+              <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px;">
+                <span class="transfer-pct" style="color:var(--green);">Done</span>
+                <span class="transfer-detail">128 MB</span>
+              </div>
+              <div class="transfer-bar"><div class="transfer-bar-fill" style="width:100%; background:var(--green);"></div></div>
+              <div style="display:flex; justify-content:space-between; margin-top:6px;">
+                <span class="transfer-detail" style="color:var(--green);">Saved to Downloads</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Game of Thrones — Sharing -->
+          <div class="m3-card transfer-card">
+            <div class="transfer-body">
+              <div class="transfer-top">
+                <div class="transfer-dot sharing"></div>
+                <span class="transfer-title">Game of Thrones</span>
+              </div>
+              <div class="transfer-badges">
+                <span class="badge-chip">S1</span>
+                <span class="badge-chip">ZIP</span>
+              </div>
+              <div class="transfer-status-label" style="color:var(--blue);">Sharing &middot; 4.1 MB/s</div>
+              <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px;">
+                <span class="transfer-pct" style="color:var(--blue);">Sharing</span>
+                <span class="transfer-detail">12.4 GB</span>
+              </div>
+              <div class="transfer-bar"><div class="transfer-bar-fill" style="width:100%; background:var(--blue);"></div></div>
+              <div style="display:flex; justify-content:space-between; margin-top:6px;">
+                <span class="transfer-detail" style="color:var(--blue);">Available to stream</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Recently Added ── -->
+      <div class="shelf">
+        <div class="shelf-header">
+          <span class="shelf-title">Recently Added</span>
+          <span class="shelf-action">View all</span>
+        </div>
+        <div class="shelf-cards">
+          <!-- Movie (2024) -->
+          <div class="m3-card recent-card">
+            <div class="recent-body">
+              <div class="recent-icon video-icon">
+                <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+              </div>
+              <div class="recent-text">
+                <div class="recent-name">Movie</div>
+                <div class="recent-meta">
+                  <span>2.1 GB</span>
+                  <span class="badge-chip">2024</span>
+                  <span class="badge-chip">4K</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Album -->
+          <div class="m3-card recent-card">
+            <div class="recent-body">
+              <div class="recent-icon audio-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+              </div>
+              <div class="recent-text">
+                <div class="recent-name">Album</div>
+                <div class="recent-meta">
+                  <span>890 MB</span>
+                  <span class="badge-chip green">FLAC</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Document -->
+          <div class="m3-card recent-card">
+            <div class="recent-body">
+              <div class="recent-icon doc-icon">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+              </div>
+              <div class="recent-text">
+                <div class="recent-name">Document</div>
+                <div class="recent-meta">
+                  <span>12 MB</span>
+                  <span class="badge-chip yellow">PDF</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Soundtrack -->
+          <div class="m3-card recent-card">
+            <div class="recent-body">
+              <div class="recent-icon audio-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+              </div>
+              <div class="recent-text">
+                <div class="recent-name">Soundtrack</div>
+                <div class="recent-meta">
+                  <span>450 MB</span>
+                  <span class="badge-chip green">FLAC</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Subtitles (English) -->
+          <div class="m3-card recent-card">
+            <div class="recent-body">
+              <div class="recent-icon" style="background:var(--surface-3);">
+                <svg viewBox="0 0 24 24" style="fill:var(--on-surface-muted);"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6v-2zm0 4h8v2H6v-2zm10 0h2v2h-2v-2zm-6-4h8v2h-8v-2z"/></svg>
+              </div>
+              <div class="recent-text">
+                <div class="recent-name">Subtitles (English)</div>
+                <div class="recent-meta">
+                  <span>82 KB</span>
+                  <span class="badge-chip">SRT</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>put.io — tvOS 26 File Browser</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.15);
+    --green: #30D158;
+    --blue: #0A84FF;
+    --glass: rgba(255,255,255,0.06);
+    --glass-border: rgba(255,255,255,0.1);
+    --glass-hover: rgba(255,255,255,0.08);
+    --glass-active: rgba(255,255,255,0.12);
+    --text-primary: #FFFFFF;
+    --text-secondary: rgba(255,255,255,0.6);
+    --text-tertiary: rgba(255,255,255,0.4);
+  }
+  body {
+    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── Ambient glow ── */
+  .ambient-glow {
+    position: absolute;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1200px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(253,206,69,0.03) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Top Tab Bar (140px zone, translucent glass) ── */
+  .tab-bar {
+    height: 140px;
+    display: flex;
+    align-items: center;
+    padding: 0 80px;
+    position: relative;
+    z-index: 10;
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+
+  .tab-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.08) 50%, transparent 90%);
+  }
+
+  .logo {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-right: 56px;
+    color: rgba(255,255,255,0.6);
+    flex-shrink: 0;
+  }
+  .logo span { color: var(--yellow); }
+
+  .tabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    padding: 10px 28px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    position: relative;
+  }
+  .tab:hover {
+    color: rgba(255,255,255,0.7);
+  }
+  .tab.active {
+    color: var(--text-primary);
+    font-weight: 600;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  /* Specular highlight on active tab */
+  .tab.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    border-radius: 1px;
+  }
+
+  .tab-spacer { flex: 1; }
+
+  .user-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+  .user-name {
+    font-size: 20px;
+    color: var(--text-tertiary);
+  }
+  .user-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* ── Breadcrumb Path ── */
+  .breadcrumb {
+    padding: 20px 80px 0;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-shrink: 0;
+  }
+  .bc-segment {
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .bc-segment:hover {
+    color: rgba(255,255,255,0.7);
+  }
+  .bc-segment.current {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .bc-separator {
+    font-size: 18px;
+    color: var(--text-tertiary);
+    margin: 0 10px;
+    user-select: none;
+  }
+
+  /* ── Sort/Filter Bar ── */
+  .sort-bar {
+    padding: 20px 80px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .sort-pill {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    padding: 6px 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    position: relative;
+  }
+  .sort-pill:hover {
+    color: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.04);
+  }
+  .sort-pill.active {
+    color: var(--yellow);
+    font-weight: 600;
+    background: var(--glass);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid var(--glass-border);
+  }
+  /* Specular on active sort pill */
+  .sort-pill.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 15%;
+    right: 15%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  }
+  .sort-arrow {
+    font-size: 14px;
+    margin-left: 2px;
+  }
+
+  /* ── File List ── */
+  .file-list-container {
+    flex: 1;
+    padding: 16px 80px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+  }
+
+  .file-row {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    gap: 16px;
+    flex-shrink: 0;
+    opacity: 0.70;
+  }
+  .file-row:hover {
+    background: rgba(255,255,255,0.04);
+    opacity: 1;
+  }
+
+  /* Focus state */
+  .file-row.focused {
+    background: var(--glass-hover);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid var(--glass-border);
+    transform: scale(1.02);
+    transform-origin: left center;
+    opacity: 1;
+  }
+  /* Yellow accent bar on focused row */
+  .file-row.focused::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 60px;
+    background: var(--yellow);
+    border-radius: 0 2px 2px 0;
+  }
+  .file-row.focused .file-name {
+    color: var(--text-primary);
+  }
+  .file-row.focused .file-meta {
+    color: rgba(255,255,255,0.6);
+  }
+  /* Specular highlight on focused row */
+  .file-row.focused::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 5%;
+    right: 5%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    border-radius: 1px;
+  }
+
+  /* Non-focused rows need border: transparent to prevent layout shift */
+  .file-row:not(.focused) {
+    border: 1px solid transparent;
+  }
+
+  /* File type icon */
+  .file-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .file-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+  .file-icon.folder svg { fill: var(--yellow); }
+  .file-icon.video svg { fill: var(--blue); }
+  .file-icon.audio svg { fill: var(--green); }
+  .file-icon.other svg { fill: rgba(255,255,255,0.4); }
+
+  /* File name area — parsed */
+  .file-name-area {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+  }
+  .file-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .file-name-sub {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-tertiary);
+  }
+
+  /* Progress bar */
+  .progress-bar-container {
+    width: 100px;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+
+  /* Quality/type badge (glass pill) */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    color: rgba(255,255,255,0.6);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .badge-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  /* Duration */
+  .file-duration {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* File size */
+  .file-meta {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    min-width: 70px;
+    text-align: right;
+  }
+
+  /* Folder item count */
+  .file-item-count {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  /* Chevron for folders */
+  .chevron {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+  .chevron svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--text-tertiary);
+  }
+
+  /* ── Section divider between folders and files ── */
+  .section-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin: 12px 24px;
+    flex-shrink: 0;
+  }
+
+  /* ── Bottom Info Bar ── */
+  .bottom-bar {
+    flex-shrink: 0;
+    padding: 16px 80px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .bottom-info {
+    font-size: 14px;
+    color: var(--text-tertiary);
+  }
+  .bottom-info-dot {
+    margin: 0 8px;
+    color: rgba(255,255,255,0.2);
+  }
+
+  .storage-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .storage-label {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+  }
+  .storage-bar {
+    width: 160px;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .storage-fill {
+    height: 100%;
+    border-radius: 2px;
+    /* 39.2 / 50 = 78.4% */
+    width: 78.4%;
+    background: linear-gradient(90deg, var(--yellow), #F0A830);
+    box-shadow: 0 0 8px rgba(253, 206, 69, 0.12);
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <div class="ambient-glow"></div>
+
+  <!-- ── Top Tab Bar (140px, translucent glass) ── -->
+  <div class="tab-bar">
+    <div class="logo">put<span>.</span>io</div>
+    <div class="tabs">
+      <div class="tab">Home</div>
+      <div class="tab active">Browse</div>
+      <div class="tab">Transfers</div>
+      <div class="tab">Search</div>
+      <div class="tab">Settings</div>
+    </div>
+    <div class="tab-spacer"></div>
+    <div class="user-area">
+      <span class="user-name">altay</span>
+      <div class="user-avatar">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none">
+          <rect x="4" y="4" width="2" height="2" fill="#FDCE45"/>
+          <rect x="18" y="4" width="2" height="2" fill="#FDCE45"/>
+          <rect x="6" y="6" width="2" height="2" fill="#FDCE45"/>
+          <rect x="16" y="6" width="2" height="2" fill="#FDCE45"/>
+          <rect x="4" y="8" width="16" height="2" fill="#FDCE45"/>
+          <rect x="4" y="10" width="2" height="2" fill="#FDCE45"/>
+          <rect x="8" y="10" width="8" height="2" fill="#FDCE45"/>
+          <rect x="18" y="10" width="2" height="2" fill="#FDCE45"/>
+          <rect x="4" y="12" width="16" height="2" fill="#FDCE45"/>
+          <rect x="6" y="14" width="4" height="2" fill="#FDCE45"/>
+          <rect x="14" y="14" width="4" height="2" fill="#FDCE45"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Breadcrumb Path ── -->
+  <div class="breadcrumb">
+    <span class="bc-segment">Your Files</span>
+    <span class="bc-separator">&rsaquo;</span>
+    <span class="bc-segment">Downloads</span>
+    <span class="bc-separator">&rsaquo;</span>
+    <span class="bc-segment">TV Shows</span>
+    <span class="bc-separator">&rsaquo;</span>
+    <span class="bc-segment current">The Wire</span>
+  </div>
+
+  <!-- ── Sort/Filter Bar ── -->
+  <div class="sort-bar">
+    <div class="sort-pill active">Name <span class="sort-arrow">&#9662;</span></div>
+    <div class="sort-pill">Size</div>
+    <div class="sort-pill">Date</div>
+    <div class="sort-pill">Type</div>
+  </div>
+
+  <!-- ── File List ── -->
+  <div class="file-list-container">
+
+    <!-- Folder: Season 1 -->
+    <div class="file-row">
+      <div class="file-icon folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="file-name-area">
+        <span class="file-name">Season 1</span>
+      </div>
+      <span class="file-item-count">12 items</span>
+      <span class="file-meta">18.4 GB</span>
+      <div class="chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+    </div>
+
+    <!-- Folder: Season 2 -->
+    <div class="file-row">
+      <div class="file-icon folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="file-name-area">
+        <span class="file-name">Season 2</span>
+      </div>
+      <span class="file-item-count">10 items</span>
+      <span class="file-meta">16.2 GB</span>
+      <div class="chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+    </div>
+
+    <!-- Folder: Season 3 (FOCUSED) -->
+    <div class="file-row focused">
+      <div class="file-icon folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="file-name-area">
+        <span class="file-name">Season 3</span>
+      </div>
+      <span class="file-item-count">8 items</span>
+      <span class="file-meta">14.8 GB</span>
+      <div class="chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+    </div>
+
+    <!-- Folder: Extras -->
+    <div class="file-row">
+      <div class="file-icon folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="file-name-area">
+        <span class="file-name">Extras</span>
+      </div>
+      <span class="file-item-count">3 items</span>
+      <span class="file-meta">2.1 GB</span>
+      <div class="chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+    </div>
+
+    <!-- Divider between folders and files -->
+    <div class="section-divider"></div>
+
+    <!-- File: The.Wire.S03E01.mkv → The Wire -->
+    <div class="file-row">
+      <div class="file-icon video">
+        <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+      </div>
+      <div class="file-name-area">
+        <span class="file-name">The Wire</span>
+        <span class="file-name-sub">S3 · E1</span>
+      </div>
+      <div class="badge-row">
+        <span class="badge">1080p</span>
+      </div>
+      <span class="file-duration">52 min</span>
+      <span class="file-meta">1.8 GB</span>
+    </div>
+
+    <!-- File: The.Wire.S03E02.mkv → The Wire (35% progress) -->
+    <div class="file-row">
+      <div class="file-icon video">
+        <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+      </div>
+      <div class="file-name-area">
+        <span class="file-name">The Wire</span>
+        <span class="file-name-sub">S3 · E2</span>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" style="width: 35%"></div>
+      </div>
+      <div class="badge-row">
+        <span class="badge">1080p</span>
+      </div>
+      <span class="file-duration">55 min</span>
+      <span class="file-meta">1.9 GB</span>
+    </div>
+
+    <!-- File: The.Wire.S03E03.mkv → The Wire -->
+    <div class="file-row">
+      <div class="file-icon video">
+        <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+      </div>
+      <div class="file-name-area">
+        <span class="file-name">The Wire</span>
+        <span class="file-name-sub">S3 · E3</span>
+      </div>
+      <div class="badge-row">
+        <span class="badge">1080p</span>
+      </div>
+      <span class="file-duration">48 min</span>
+      <span class="file-meta">1.7 GB</span>
+    </div>
+
+    <!-- File: The.Wire.S03E04.mkv → The Wire -->
+    <div class="file-row">
+      <div class="file-icon video">
+        <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+      </div>
+      <div class="file-name-area">
+        <span class="file-name">The Wire</span>
+        <span class="file-name-sub">S3 · E4</span>
+      </div>
+      <div class="badge-row">
+        <span class="badge">1080p</span>
+      </div>
+      <span class="file-duration">51 min</span>
+      <span class="file-meta">1.8 GB</span>
+    </div>
+
+    <!-- File: soundtrack.flac → Soundtrack -->
+    <div class="file-row">
+      <div class="file-icon audio">
+        <svg viewBox="0 0 24 24"><path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z"/></svg>
+      </div>
+      <div class="file-name-area">
+        <span class="file-name">Soundtrack</span>
+      </div>
+      <div class="badge-row">
+        <span class="badge">FLAC</span>
+      </div>
+      <span class="file-meta">450 MB</span>
+    </div>
+
+    <!-- File: subtitles.srt → Subtitles (English) -->
+    <div class="file-row">
+      <div class="file-icon other">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+      </div>
+      <div class="file-name-area">
+        <span class="file-name">Subtitles (English)</span>
+      </div>
+      <div class="badge-row">
+        <span class="badge">SRT</span>
+      </div>
+      <span class="file-meta">82 KB</span>
+    </div>
+
+  </div>
+
+  <!-- ── Bottom Info Bar ── -->
+  <div class="bottom-bar">
+    <div class="bottom-info">
+      12 items<span class="bottom-info-dot">&middot;</span>52.3 GB<span class="bottom-info-dot">&middot;</span>Last modified 2 hours ago
+    </div>
+    <div class="storage-area">
+      <span class="storage-label">39.2 TB of 50 TB</span>
+      <div class="storage-bar">
+        <div class="storage-fill"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

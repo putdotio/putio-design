@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>put.io — Web TV File Browser</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A0C;
+    --text: #EEEEF0;
+    --text-2: #9C9CA8;
+    --solid: #6C6C78;
+    --line: rgba(255,255,255,0.04);
+    --accent: #FDCE45;
+    --accent-subtle: rgba(253, 206, 69, 0.15);
+    --bg-row-focus: rgba(255,255,255,0.06);
+    --badge-bg: rgba(255,255,255,0.08);
+    --icon-folder: #FDCE45;
+    --icon-video: #5B9EF5;
+    --icon-audio: #30A46C;
+    --icon-other: #6C6C78;
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .tv-frame {
+    width: 1280px;
+    height: 720px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Top Bar ── */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    padding: 0 48px;
+    height: 56px;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .logo {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+  }
+  .logo span { color: var(--accent); }
+
+  .nav-pills {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0 auto;
+  }
+  .nav-pill {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-2);
+    padding: 6px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+  .nav-pill.active {
+    color: #0A0A0C;
+    background: var(--accent);
+    font-weight: 600;
+  }
+
+  .storage-indicator {
+    font-size: 11px;
+    color: var(--text-2);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .storage-bar-wrap {
+    width: 60px;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .storage-bar-fill {
+    width: 78%;
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* ── Breadcrumb ── */
+  .breadcrumb {
+    padding: 14px 48px 0;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .breadcrumb .parent { color: var(--text-2); cursor: pointer; }
+  .breadcrumb .sep { color: var(--solid); margin: 0 6px; }
+  .breadcrumb .current { color: var(--text); font-weight: 600; }
+
+  /* ── Sort Controls ── */
+  .sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 10px 48px 0;
+    flex-shrink: 0;
+  }
+  .sort-pill {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-2);
+    padding: 4px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+    background: none;
+    border: none;
+  }
+  .sort-pill.active {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ── File List ── */
+  .file-list {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 48px 0;
+  }
+
+  /* ── Folder / File Separator ── */
+  .list-divider {
+    height: 16px;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 4px;
+  }
+
+  .file-row {
+    display: flex;
+    align-items: center;
+    height: 52px;
+    padding: 0 12px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    margin-bottom: 2px;
+  }
+  .file-row.focused {
+    border-color: var(--accent);
+    background: var(--bg-row-focus);
+  }
+  .file-row.focused .f-name { color: #fff; }
+
+  /* Icon */
+  .f-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .f-icon svg { width: 20px; height: 20px; }
+  .f-icon.folder svg { fill: var(--icon-folder); }
+  .f-icon.video svg { fill: var(--icon-video); }
+  .f-icon.audio svg { fill: var(--icon-audio); }
+  .f-icon.other svg { fill: var(--icon-other); }
+
+  /* Name */
+  .f-name {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Badge */
+  .f-badge {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: var(--badge-bg);
+    color: var(--text-2);
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 10px;
+    flex-shrink: 0;
+    line-height: 1.4;
+  }
+
+  /* Item count (for folders) */
+  .f-items {
+    font-size: 12px;
+    color: var(--solid);
+    margin-left: 12px;
+    flex-shrink: 0;
+    min-width: 64px;
+  }
+
+  /* Size */
+  .f-size {
+    font-size: 12px;
+    color: var(--solid);
+    margin-left: 12px;
+    flex-shrink: 0;
+    min-width: 64px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Duration */
+  .f-duration {
+    font-size: 12px;
+    color: var(--solid);
+    margin-left: 12px;
+    flex-shrink: 0;
+    min-width: 48px;
+    text-align: right;
+  }
+
+  /* Progress bar */
+  .f-progress {
+    width: 80px;
+    height: 3px;
+    background: #333;
+    border-radius: 2px;
+    margin-left: 12px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .f-progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* Chevron (folders) */
+  .f-chevron {
+    font-size: 13px;
+    color: var(--solid);
+    margin-left: 12px;
+    flex-shrink: 0;
+  }
+
+  /* ── Bottom Bar ── */
+  .bottom-bar {
+    display: flex;
+    align-items: center;
+    padding: 0 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 11px;
+    color: var(--solid);
+  }
+  .bottom-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .bottom-center {
+    flex: 1;
+    text-align: center;
+    color: var(--text-2);
+    font-size: 11px;
+  }
+  .bottom-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    font-size: 11px;
+  }
+  .bottom-storage-bar {
+    width: 60px;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .bottom-storage-fill {
+    width: 78%;
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">put<span>.</span>io</div>
+    <div class="nav-pills">
+      <div class="nav-pill">Home</div>
+      <div class="nav-pill active">Browse</div>
+      <div class="nav-pill">Transfers</div>
+      <div class="nav-pill">Search</div>
+      <div class="nav-pill">Settings</div>
+    </div>
+    <div class="storage-indicator">
+      <div class="storage-bar-wrap"><div class="storage-bar-fill"></div></div>
+      39.2 / 50 TB
+    </div>
+  </div>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <span class="parent">Your Files</span><span class="sep">&#x203A;</span><span class="parent">Downloads</span><span class="sep">&#x203A;</span><span class="parent">TV Shows</span><span class="sep">&#x203A;</span><span class="current">The Wire</span>
+  </div>
+
+  <!-- Sort Controls -->
+  <div class="sort-controls">
+    <div class="sort-pill active">Name &#x25BE;</div>
+    <div class="sort-pill">Size</div>
+    <div class="sort-pill">Date</div>
+    <div class="sort-pill">Type</div>
+  </div>
+
+  <!-- File List -->
+  <div class="file-list">
+
+    <!-- Folders -->
+    <div class="file-row focused">
+      <div class="f-icon folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="f-name">Season 1</div>
+      <div class="f-items">12 items</div>
+      <div class="f-size">18.4 GB</div>
+      <div class="f-chevron">&#x203A;</div>
+    </div>
+
+    <div class="file-row">
+      <div class="f-icon folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="f-name">Season 2</div>
+      <div class="f-items">10 items</div>
+      <div class="f-size">16.2 GB</div>
+      <div class="f-chevron">&#x203A;</div>
+    </div>
+
+    <div class="file-row">
+      <div class="f-icon folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="f-name">Season 3</div>
+      <div class="f-items">8 items</div>
+      <div class="f-size">14.8 GB</div>
+      <div class="f-chevron">&#x203A;</div>
+    </div>
+
+    <div class="file-row">
+      <div class="f-icon folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="f-name">Extras</div>
+      <div class="f-items">3 items</div>
+      <div class="f-size">2.1 GB</div>
+      <div class="f-chevron">&#x203A;</div>
+    </div>
+
+    <!-- Divider between folders and files -->
+    <div class="list-divider"></div>
+
+    <!-- Files (parsed names + badges) -->
+    <div class="file-row">
+      <div class="f-icon video">
+        <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+      </div>
+      <div class="f-name">The Wire</div>
+      <div class="f-badge">S3 &middot; E1</div>
+      <div class="f-badge">1080p</div>
+      <div class="f-size">1.8 GB</div>
+      <div class="f-duration">52 min</div>
+    </div>
+
+    <div class="file-row">
+      <div class="f-icon video">
+        <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+      </div>
+      <div class="f-name">The Wire</div>
+      <div class="f-badge">S3 &middot; E2</div>
+      <div class="f-badge">1080p</div>
+      <div class="f-size">1.9 GB</div>
+      <div class="f-duration">55 min</div>
+      <div class="f-progress"><div class="f-progress-fill" style="width: 35%"></div></div>
+    </div>
+
+    <div class="file-row">
+      <div class="f-icon video">
+        <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+      </div>
+      <div class="f-name">The Wire</div>
+      <div class="f-badge">S3 &middot; E3</div>
+      <div class="f-badge">1080p</div>
+      <div class="f-size">1.7 GB</div>
+      <div class="f-duration">48 min</div>
+    </div>
+
+    <div class="file-row">
+      <div class="f-icon video">
+        <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+      </div>
+      <div class="f-name">The Wire</div>
+      <div class="f-badge">S3 &middot; E4</div>
+      <div class="f-badge">1080p</div>
+      <div class="f-size">1.8 GB</div>
+      <div class="f-duration">51 min</div>
+    </div>
+
+    <div class="file-row">
+      <div class="f-icon audio">
+        <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+      </div>
+      <div class="f-name">Soundtrack</div>
+      <div class="f-badge">FLAC</div>
+      <div class="f-size">450 MB</div>
+    </div>
+
+    <div class="file-row">
+      <div class="f-icon other">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+      </div>
+      <div class="f-name">Subtitles (English)</div>
+      <div class="f-badge">SRT</div>
+      <div class="f-size">82 KB</div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="bottom-bar">
+    <div class="bottom-left">
+      <span>&#x25B2;&#x25BC; Navigate</span>
+      <span>OK Open</span>
+      <span>&#x25C0; Back</span>
+    </div>
+    <div class="bottom-center">8 items &middot; 52.3 GB</div>
+    <div class="bottom-right">
+      <span>39.2 / 50 TB</span>
+      <div class="bottom-storage-bar"><div class="bottom-storage-fill"></div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

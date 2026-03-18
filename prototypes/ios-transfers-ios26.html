@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io — iOS 26 Transfers</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000;
+    --bg-grouped: #000000;
+    --bg-secondary: #1C1C1E;
+    --bg-tertiary: #2C2C2E;
+    --bg-quaternary: #3A3A3C;
+    --separator: rgba(84,84,88,0.65);
+    --label: #FFFFFF;
+    --label-secondary: #AEAEB2;
+    --label-tertiary: #8E8E93;
+    --label-quaternary: #636366;
+    --fill: rgba(120,120,128,0.36);
+    --yellow: #FDCE45;
+    --green: #30D158;
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --orange: #FF9F0A;
+    --yellow-tint: rgba(253,206,69,0.16);
+    --blue-tint: rgba(10,132,255,0.16);
+    --green-tint: rgba(48,209,88,0.16);
+  }
+  body {
+    font-family: -apple-system, 'SF Pro Display', system-ui, sans-serif;
+    background: var(--bg-grouped);
+    color: var(--label);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .phone {
+    width: 390px;
+    height: 844px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: var(--bg-grouped);
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    padding: 14px 24px 0;
+    height: 54px;
+    flex-shrink: 0;
+  }
+  .status-bar .time {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    flex: 1;
+  }
+  .status-bar .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* Navigation Bar — Large Title */
+  .nav-bar {
+    display: flex;
+    align-items: baseline;
+    padding: 6px 20px 0;
+    flex-shrink: 0;
+  }
+  .nav-bar h1 {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: 0.37px;
+    line-height: 41px;
+    flex: 1;
+  }
+  .nav-clear {
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--label-tertiary);
+    letter-spacing: -0.4px;
+  }
+
+  /* Segmented Control */
+  .segmented-control {
+    margin: 14px 20px 0;
+    height: 32px;
+    background: rgba(118,118,128,0.24);
+    border-radius: 8px;
+    display: flex;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+  .seg-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--label-secondary);
+    border-radius: 7px;
+    letter-spacing: -0.08px;
+    position: relative;
+  }
+  .seg-option.active {
+    color: var(--label);
+  }
+  .seg-option.active::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 7px;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    box-shadow:
+      0 0.5px 0 0 rgba(255,255,255,0.12) inset,
+      0 1px 3px rgba(0,0,0,0.3),
+      0 1px 2px rgba(0,0,0,0.2);
+  }
+  .seg-option.active span {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Scroll Content */
+  .scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 80px;
+  }
+
+  /* Section Header */
+  .section-header {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--label-tertiary);
+    text-transform: uppercase;
+    letter-spacing: -0.08px;
+    padding: 20px 20px 7px;
+  }
+  .section-header:first-child {
+    padding-top: 16px;
+  }
+
+  /* Grouped Card */
+  .grouped-card {
+    margin: 0 20px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  /* Transfer Row */
+  .transfer-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 16px;
+    position: relative;
+    gap: 12px;
+    min-height: 76px;
+  }
+  .transfer-row + .transfer-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 64px;
+    right: 0;
+    height: 0.333px;
+    background: var(--separator);
+  }
+
+  /* Icon */
+  .transfer-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .transfer-icon.downloading {
+    background: var(--yellow-tint);
+  }
+  .transfer-icon.sharing {
+    background: var(--blue-tint);
+  }
+  .transfer-icon.completed {
+    background: var(--green-tint);
+  }
+
+  /* Content */
+  .transfer-content {
+    flex: 1;
+    min-width: 0;
+  }
+  .transfer-title {
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--label);
+    letter-spacing: -0.4px;
+    line-height: 22px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .transfer-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: -0.06px;
+    background: rgba(120,120,128,0.24);
+    color: var(--label-secondary);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .transfer-subtitle {
+    font-size: 13px;
+    color: var(--label-secondary);
+    letter-spacing: -0.08px;
+    line-height: 18px;
+    margin-top: 1px;
+    font-variant-numeric: tabular-nums;
+  }
+  .transfer-status {
+    font-size: 13px;
+    letter-spacing: -0.08px;
+    line-height: 18px;
+    margin-top: 1px;
+    font-variant-numeric: tabular-nums;
+  }
+  .transfer-status.blue { color: var(--blue); }
+
+  /* Progress Bar */
+  .transfer-progress {
+    height: 4px;
+    background: var(--bg-quaternary);
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .transfer-progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+  .fill-yellow { background: var(--yellow); }
+  .fill-blue { background: var(--blue); }
+  .fill-green { background: var(--green); }
+
+  .transfer-remaining {
+    font-size: 12px;
+    color: var(--label-tertiary);
+    letter-spacing: -0.06px;
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Right side */
+  .transfer-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+    margin-top: 2px;
+    gap: 2px;
+  }
+  .transfer-speed {
+    font-size: 13px;
+    color: var(--label-secondary);
+    letter-spacing: -0.08px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* Transfer Summary */
+  .transfer-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 20px 8px;
+    gap: 8px;
+  }
+  .summary-label {
+    font-size: 12px;
+    color: var(--label-tertiary);
+    letter-spacing: -0.06px;
+  }
+  .summary-storage {
+    width: 100%;
+    height: 2px;
+    background: var(--bg-tertiary);
+    border-radius: 1px;
+    overflow: hidden;
+    margin: 0 40px;
+  }
+  .summary-storage-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 1px;
+    width: 38%;
+  }
+
+  /* Floating Tab Bar — iOS 26 Liquid Glass */
+  .tab-bar-container {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+  }
+  .tab-bar {
+    width: 340px;
+    height: 52px;
+    border-radius: 26px;
+    background: rgba(30,30,30,0.7);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 8px;
+    box-shadow:
+      0 0 0 0.5px rgba(255,255,255,0.08) inset,
+      0 0.5px 0 0 rgba(255,255,255,0.06) inset,
+      0 8px 32px rgba(0,0,0,0.4),
+      0 2px 8px rgba(0,0,0,0.3);
+  }
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    padding: 4px 0;
+    width: 56px;
+  }
+  .tab-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--label-tertiary);
+    letter-spacing: -0.01px;
+  }
+  .tab-item.active .tab-label {
+    color: var(--yellow);
+  }
+  .tab-item.active svg {
+    filter: drop-shadow(0 0 4px rgba(253,206,69,0.3));
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="status-icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+        <rect x="0" y="9" width="3" height="3" rx="0.5" fill="white"/>
+        <rect x="4.5" y="6" width="3" height="6" rx="0.5" fill="white"/>
+        <rect x="9" y="3" width="3" height="9" rx="0.5" fill="white"/>
+        <rect x="13.5" y="0" width="3" height="12" rx="0.5" fill="white"/>
+      </svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white">
+        <path d="M8 3.6c2.1 0 4 .8 5.4 2.1l1.2-1.4C12.8 2.6 10.5 1.6 8 1.6S3.2 2.6 1.4 4.3l1.2 1.4C4 4.4 5.9 3.6 8 3.6zm0 3.4c1.3 0 2.4.5 3.3 1.3l1.2-1.4C11.2 5.8 9.7 5.2 8 5.2s-3.2.6-4.5 1.7l1.2 1.4C5.6 7.5 6.7 7 8 7zm0 3.4c.7 0 1.3.3 1.8.7L8 13l-1.8-1.9c.5-.4 1.1-.7 1.8-.7z"/>
+      </svg>
+      <svg width="27" height="12" viewBox="0 0 27 12" fill="none">
+        <rect x="0.5" y="0.5" width="23" height="11" rx="2.5" stroke="rgba(255,255,255,0.35)"/>
+        <rect x="2" y="2" width="20" height="8" rx="1.5" fill="white"/>
+        <path d="M25 4v4a2 2 0 0 0 0-4z" fill="rgba(255,255,255,0.35)"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Large Title Navigation -->
+  <div class="nav-bar">
+    <h1>Transfers</h1>
+    <span class="nav-clear">Clear</span>
+  </div>
+
+  <!-- Segmented Control -->
+  <div class="segmented-control">
+    <div class="seg-option active"><span>All</span></div>
+    <div class="seg-option"><span>Active</span></div>
+    <div class="seg-option"><span>Completed</span></div>
+  </div>
+
+  <!-- Scroll Content -->
+  <div class="scroll-content">
+
+    <!-- Downloading Section -->
+    <div class="section-header" style="padding-top: 16px;">Downloading</div>
+    <div class="grouped-card">
+
+      <!-- 1. Ubuntu 24.04 -->
+      <div class="transfer-row">
+        <div class="transfer-icon downloading">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="var(--yellow)" stroke-width="1.5" fill="none"/>
+            <path d="M12 7v7m0 0l-3-3m3 3l3-3" stroke="var(--yellow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="transfer-content">
+          <div class="transfer-title">Ubuntu 24.04</div>
+          <div class="transfer-subtitle">ISO &middot; 3.4 GB of 4.7 GB</div>
+          <div class="transfer-progress">
+            <div class="transfer-progress-fill fill-yellow" style="width: 73%;"></div>
+          </div>
+          <div class="transfer-remaining">~4 min remaining</div>
+        </div>
+        <div class="transfer-right">
+          <span class="transfer-speed">847 MB/s</span>
+        </div>
+      </div>
+
+      <!-- 2. Cosmos -->
+      <div class="transfer-row">
+        <div class="transfer-icon downloading">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="var(--yellow)" stroke-width="1.5" fill="none"/>
+            <path d="M12 7v7m0 0l-3-3m3 3l3-3" stroke="var(--yellow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="transfer-content">
+          <div class="transfer-title">
+            <span>Cosmos</span>
+            <span class="transfer-badge">E3 &middot; 4K</span>
+          </div>
+          <div class="transfer-subtitle">1.2 GB of 6.8 GB</div>
+          <div class="transfer-progress">
+            <div class="transfer-progress-fill fill-yellow" style="width: 18%;"></div>
+          </div>
+          <div class="transfer-remaining">~12 min remaining</div>
+        </div>
+        <div class="transfer-right">
+          <span class="transfer-speed">234 MB/s</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sharing Section -->
+    <div class="section-header">Sharing</div>
+    <div class="grouped-card">
+
+      <!-- 3. Game of Thrones -->
+      <div class="transfer-row">
+        <div class="transfer-icon sharing">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M8 7l-4 4 4 4" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16 7l4 4-4 4" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="4" y1="11" x2="20" y2="11" stroke="var(--blue)" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="transfer-content">
+          <div class="transfer-title">Game of Thrones</div>
+          <div class="transfer-subtitle">S1 &middot; ZIP &middot; 18.4 GB</div>
+          <div class="transfer-status blue">Sharing &middot; 2.1 MB/s</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Completed Section -->
+    <div class="section-header">Completed</div>
+    <div class="grouped-card">
+
+      <!-- 4. Podcast Feed -->
+      <div class="transfer-row">
+        <div class="transfer-icon completed">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" fill="var(--green)"/>
+            <path d="M7.5 12.5l3 3 6-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="transfer-content">
+          <div class="transfer-title">Podcast Feed</div>
+          <div class="transfer-subtitle">245 KB &middot; Completed 5 min ago</div>
+        </div>
+        <div class="transfer-right">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M4.5 9.5l3 3 6-6" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 5. Big Buck Bunny -->
+      <div class="transfer-row">
+        <div class="transfer-icon completed">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" fill="var(--green)"/>
+            <path d="M7.5 12.5l3 3 6-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="transfer-content">
+          <div class="transfer-title">Big Buck Bunny</div>
+          <div class="transfer-subtitle">1080p &middot; 4.7 GB &middot; Completed yesterday</div>
+        </div>
+        <div class="transfer-right">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M4.5 9.5l3 3 6-6" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Transfer Summary -->
+    <div class="transfer-summary">
+      <span class="summary-label">5 transfers &middot; 2 active &middot; 3 completed</span>
+      <div class="summary-storage">
+        <div class="summary-storage-fill"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Floating Tab Bar — iOS 26 Liquid Glass -->
+  <div class="tab-bar-container">
+    <div class="tab-bar">
+      <!-- Files -->
+      <div class="tab-item">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <path d="M3 5a2 2 0 012-2h4.5l2 2H17a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" fill="var(--label-tertiary)"/>
+        </svg>
+        <span class="tab-label">Files</span>
+      </div>
+      <!-- Transfers (active) -->
+      <div class="tab-item active">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <path d="M11 3v12m0 0l-4.5-4.5M11 15l4.5-4.5" stroke="var(--yellow)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 18h14" stroke="var(--yellow)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="tab-label">Transfers</span>
+      </div>
+      <!-- Search -->
+      <div class="tab-item">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <circle cx="10" cy="10" r="6.5" stroke="var(--label-tertiary)" stroke-width="2"/>
+          <path d="M15 15l3.5 3.5" stroke="var(--label-tertiary)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="tab-label">Search</span>
+      </div>
+      <!-- RSS -->
+      <div class="tab-item">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <circle cx="5.5" cy="16.5" r="2" fill="var(--label-tertiary)"/>
+          <path d="M3.5 10.5a7 7 0 017 7" stroke="var(--label-tertiary)" stroke-width="2" stroke-linecap="round"/>
+          <path d="M3.5 5a12.5 12.5 0 0112.5 12.5" stroke="var(--label-tertiary)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="tab-label">RSS</span>
+      </div>
+      <!-- Settings -->
+      <div class="tab-item">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <circle cx="11" cy="11" r="3" stroke="var(--label-tertiary)" stroke-width="1.8"/>
+          <path d="M11 2v2.5m0 13V20m-9-9h2.5m13 0H20M4.2 4.2l1.8 1.8m10 10l1.8 1.8M4.2 17.8l1.8-1.8m10-10l1.8-1.8" stroke="var(--label-tertiary)" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <span class="tab-label">Settings</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

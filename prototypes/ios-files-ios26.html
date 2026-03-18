@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io — iOS 26 Files (Liquid Glass)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #000000;
+    --bg-secondary: #1C1C1E;
+    --bg-tertiary: #2C2C2E;
+    --bg-quaternary: #3A3A3C;
+    --separator: rgba(84,84,88,0.65);
+    --label: #FFFFFF;
+    --label-secondary: rgba(235,235,245,0.6);
+    --label-tertiary: rgba(235,235,245,0.3);
+    --label-quaternary: rgba(235,235,245,0.18);
+    --system-yellow: #FFD60A;
+    --system-blue: #0A84FF;
+    --system-green: #30D158;
+    --system-red: #FF453A;
+    --system-orange: #FF9F0A;
+    --system-purple: #BF5AF2;
+    --tint: #FDCE45;
+    --fill: rgba(120,120,128,0.24);
+    --glass-bg: rgba(30,30,30,0.72);
+    --glass-border: rgba(255,255,255,0.15);
+  }
+  body {
+    font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--label);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .phone {
+    width: 390px;
+    height: 844px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: var(--bg);
+  }
+
+  /* ========== STATUS BAR ========== */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    padding: 14px 26px 0 28px;
+    height: 54px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 20;
+  }
+  .status-bar .time {
+    font-size: 15.5px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    flex: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .status-bar .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ========== NAVIGATION BAR (Large Title) ========== */
+  .nav-bar {
+    padding: 4px 20px 0;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-bar h1 {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: 0.37px;
+    line-height: 41px;
+  }
+  .nav-add-btn {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  /* ========== SEARCH BAR ========== */
+  .search-bar {
+    margin: 12px 20px 0;
+    height: 36px;
+    background: rgba(118,118,128,0.24);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .search-bar svg {
+    flex-shrink: 0;
+  }
+  .search-bar .search-placeholder {
+    font-size: 17px;
+    color: var(--label-tertiary);
+    letter-spacing: -0.4px;
+    flex: 1;
+    line-height: 22px;
+  }
+
+  /* ========== SEGMENTED CONTROL ========== */
+  .segmented-control {
+    margin: 14px 20px 0;
+    height: 32px;
+    background: rgba(118,118,128,0.24);
+    border-radius: 9px;
+    display: flex;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+  .seg-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--label-secondary);
+    border-radius: 7px;
+    letter-spacing: -0.08px;
+    position: relative;
+  }
+  .seg-item.active {
+    color: var(--label);
+    background: rgba(99,99,102,0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow:
+      0 1px 4px rgba(0,0,0,0.25),
+      0 0.5px 0 rgba(255,255,255,0.06) inset;
+  }
+
+  /* ========== SCROLL CONTENT ========== */
+  .scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-top: 18px;
+    padding-bottom: 100px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ========== SECTION HEADER ========== */
+  .section-header {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--label-tertiary);
+    text-transform: uppercase;
+    letter-spacing: -0.08px;
+    padding: 0 36px 6px;
+    margin-top: 24px;
+  }
+  .section-header:first-child {
+    margin-top: 0;
+  }
+
+  /* ========== GROUPED LIST ========== */
+  .grouped-list {
+    margin: 0 20px;
+    background: rgba(28,28,30,0.85);
+    border-radius: 12px;
+    overflow: hidden;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  /* ========== FILE ROW ========== */
+  .file-row {
+    display: flex;
+    align-items: center;
+    height: 56px;
+    padding: 0 16px;
+    position: relative;
+  }
+  .file-row:active {
+    background: rgba(120,120,128,0.16);
+  }
+  /* Inset separator — starts at text position (icon 36px + 12px gap = left 64px) */
+  .file-row + .file-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 64px;
+    right: 0;
+    height: 0.33px;
+    background: var(--separator);
+  }
+
+  /* Icon container */
+  .file-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: 12px;
+  }
+  .file-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Icon tinted backgrounds */
+  .icon-yellow  { background: rgba(255,214,10,0.18); }
+  .icon-blue    { background: rgba(10,132,255,0.18); }
+  .icon-purple  { background: rgba(191,90,242,0.18); }
+  .icon-orange  { background: rgba(255,159,10,0.18); }
+  .icon-green   { background: rgba(48,209,88,0.18); }
+  .icon-red     { background: rgba(255,69,58,0.18); }
+
+  /* Row text */
+  .file-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .file-name {
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: -0.4px;
+    line-height: 22px;
+    color: var(--label);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .file-meta {
+    font-size: 13px;
+    letter-spacing: -0.08px;
+    line-height: 18px;
+    color: var(--label-secondary);
+    margin-top: 1px;
+  }
+
+  /* Badge / tag */
+  .file-badge {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    color: var(--label-tertiary);
+    background: var(--label-quaternary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+
+  /* Chevron */
+  .file-chevron {
+    flex-shrink: 0;
+    margin-left: 4px;
+  }
+
+  /* ========== STORAGE INDICATOR ========== */
+  .storage-bar {
+    margin: 0 20px;
+    padding: 16px 0 4px;
+  }
+  .storage-track {
+    height: 2px;
+    background: rgba(120,120,128,0.24);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  .storage-fill {
+    height: 100%;
+    width: 78.4%;
+    background: var(--tint);
+    border-radius: 1px;
+  }
+  .storage-label {
+    font-size: 12px;
+    color: var(--label-tertiary);
+    text-align: center;
+    margin-top: 6px;
+    letter-spacing: -0.08px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ========== FLOATING TAB BAR (iOS 26 Liquid Glass) ========== */
+  .tab-bar {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 340px;
+    height: 52px;
+    border-radius: 26px;
+    background: rgba(30,30,30,0.70);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 0.5px solid rgba(255,255,255,0.15);
+    box-shadow:
+      0 4px 20px rgba(0,0,0,0.3),
+      0 0.5px 0 rgba(255,255,255,0.06) inset;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 8px;
+    z-index: 100;
+  }
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    width: 56px;
+    height: 44px;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  .tab-item:active {
+    background: rgba(120,120,128,0.12);
+  }
+  .tab-item svg {
+    width: 22px;
+    height: 22px;
+  }
+  .tab-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: -0.01px;
+    line-height: 12px;
+  }
+  .tab-item.active .tab-label {
+    color: var(--tint);
+  }
+  .tab-item:not(.active) .tab-label {
+    display: none;
+  }
+  .tab-item:not(.active) svg {
+    opacity: 0.4;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- ===== STATUS BAR ===== -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="status-icons">
+      <!-- Cellular signal -->
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+        <rect x="0" y="9" width="3" height="3" rx="0.5" fill="white"/>
+        <rect x="4.5" y="6" width="3" height="6" rx="0.5" fill="white"/>
+        <rect x="9" y="3" width="3" height="9" rx="0.5" fill="white"/>
+        <rect x="13.5" y="0" width="3" height="12" rx="0.5" fill="white"/>
+      </svg>
+      <!-- WiFi -->
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+        <path d="M8.05 10.66a1.18 1.18 0 100-2.36 1.18 1.18 0 000 2.36z" fill="white"/>
+        <path d="M5.17 7.8a4.1 4.1 0 015.76 0" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M2.87 5.46a7.23 7.23 0 0110.36 0" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M.77 3.1A10.28 10.28 0 0115.33 3.1" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <!-- Battery -->
+      <svg width="27.33" height="13" viewBox="0 0 27.33 13" fill="none">
+        <rect opacity="0.35" x="0.67" y="0.83" width="22" height="11.33" rx="2.17" stroke="white"/>
+        <path opacity="0.4" d="M23.67 4.67v3.67a2.17 2.17 0 000-3.67z" fill="white"/>
+        <rect x="2" y="2.17" width="19.33" height="8.67" rx="1.33" fill="white"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ===== NAVIGATION BAR (Large Title) ===== -->
+  <div class="nav-bar">
+    <h1>Files</h1>
+    <div class="nav-add-btn">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <path d="M11 3v16M3 11h16" stroke="var(--tint)" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ===== SEARCH BAR ===== -->
+  <div class="search-bar">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+      <path d="M6.5 1.75a4.75 4.75 0 103.31 8.17l3.38 3.38a.62.62 0 00.88-.88l-3.38-3.38A4.75 4.75 0 006.5 1.75zm-3.5 4.75a3.5 3.5 0 117 0 3.5 3.5 0 01-7 0z" fill="var(--label-tertiary)"/>
+    </svg>
+    <span class="search-placeholder">Search files</span>
+  </div>
+
+  <!-- ===== SEGMENTED CONTROL ===== -->
+  <div class="segmented-control">
+    <div class="seg-item active">All</div>
+    <div class="seg-item">Videos</div>
+    <div class="seg-item">Audio</div>
+    <div class="seg-item">Documents</div>
+  </div>
+
+  <!-- ===== SCROLL CONTENT ===== -->
+  <div class="scroll-content">
+
+    <!-- Your Files section -->
+    <div class="section-header">Your Files</div>
+    <div class="grouped-list">
+
+      <!-- Downloads -->
+      <div class="file-row">
+        <div class="file-icon icon-yellow">
+          <svg viewBox="0 0 20 20" fill="var(--system-yellow)">
+            <path d="M2 4.5A2.5 2.5 0 014.5 2h3.88a1.5 1.5 0 011.06.44l1.12 1.12A1.5 1.5 0 0011.62 4H15.5A2.5 2.5 0 0118 6.5v8a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 012 14.5v-10z"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Downloads</div>
+          <div class="file-meta">8 items · 21.8 GB</div>
+        </div>
+        <div class="file-chevron">
+          <svg width="7" height="12" viewBox="0 0 7 12" fill="none">
+            <path d="M1 1l5 5-5 5" stroke="var(--label-quaternary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- TV Shows -->
+      <div class="file-row">
+        <div class="file-icon icon-yellow">
+          <svg viewBox="0 0 20 20" fill="var(--system-yellow)">
+            <path d="M2 4.5A2.5 2.5 0 014.5 2h3.88a1.5 1.5 0 011.06.44l1.12 1.12A1.5 1.5 0 0011.62 4H15.5A2.5 2.5 0 0118 6.5v8a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 012 14.5v-10z"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">TV Shows</div>
+          <div class="file-meta">15 items · 42.6 GB</div>
+        </div>
+        <div class="file-chevron">
+          <svg width="7" height="12" viewBox="0 0 7 12" fill="none">
+            <path d="M1 1l5 5-5 5" stroke="var(--label-quaternary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Movies -->
+      <div class="file-row">
+        <div class="file-icon icon-yellow">
+          <svg viewBox="0 0 20 20" fill="var(--system-yellow)">
+            <path d="M2 4.5A2.5 2.5 0 014.5 2h3.88a1.5 1.5 0 011.06.44l1.12 1.12A1.5 1.5 0 0011.62 4H15.5A2.5 2.5 0 0118 6.5v8a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 012 14.5v-10z"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Movies</div>
+          <div class="file-meta">12 items · 38.2 GB</div>
+        </div>
+        <div class="file-chevron">
+          <svg width="7" height="12" viewBox="0 0 7 12" fill="none">
+            <path d="M1 1l5 5-5 5" stroke="var(--label-quaternary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Music -->
+      <div class="file-row">
+        <div class="file-icon icon-yellow">
+          <svg viewBox="0 0 20 20" fill="var(--system-yellow)">
+            <path d="M2 4.5A2.5 2.5 0 014.5 2h3.88a1.5 1.5 0 011.06.44l1.12 1.12A1.5 1.5 0 0011.62 4H15.5A2.5 2.5 0 0118 6.5v8a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 012 14.5v-10z"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Music</div>
+          <div class="file-meta">34 items · 18.4 GB</div>
+        </div>
+        <div class="file-chevron">
+          <svg width="7" height="12" viewBox="0 0 7 12" fill="none">
+            <path d="M1 1l5 5-5 5" stroke="var(--label-quaternary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Recently Added section -->
+    <div class="section-header">Recently Added</div>
+    <div class="grouped-list">
+
+      <!-- The Wire -->
+      <div class="file-row">
+        <div class="file-icon icon-blue">
+          <svg viewBox="0 0 20 20" fill="var(--system-blue)">
+            <rect x="2" y="4" width="16" height="12" rx="2.5"/>
+            <path d="M8.5 7.5v5l4.5-2.5-4.5-2.5z" fill="rgba(28,28,30,0.85)"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">The Wire</div>
+          <div class="file-meta">S3 · E4 · 1080p · 1.8 GB</div>
+        </div>
+        <div class="file-badge">1080p</div>
+        <div class="file-chevron">
+          <svg width="7" height="12" viewBox="0 0 7 12" fill="none">
+            <path d="M1 1l5 5-5 5" stroke="var(--label-quaternary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Cosmos -->
+      <div class="file-row">
+        <div class="file-icon icon-blue">
+          <svg viewBox="0 0 20 20" fill="var(--system-blue)">
+            <rect x="2" y="4" width="16" height="12" rx="2.5"/>
+            <path d="M8.5 7.5v5l4.5-2.5-4.5-2.5z" fill="rgba(28,28,30,0.85)"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Cosmos</div>
+          <div class="file-meta">E2 · 4K · 6.2 GB</div>
+        </div>
+        <div class="file-badge">4K</div>
+        <div class="file-chevron">
+          <svg width="7" height="12" viewBox="0 0 7 12" fill="none">
+            <path d="M1 1l5 5-5 5" stroke="var(--label-quaternary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Soundtrack -->
+      <div class="file-row">
+        <div class="file-icon icon-purple">
+          <svg viewBox="0 0 20 20" fill="var(--system-purple)">
+            <rect x="4" y="6" width="1.8" height="8" rx="0.9"/>
+            <rect x="7.4" y="3" width="1.8" height="14" rx="0.9"/>
+            <rect x="10.8" y="5" width="1.8" height="10" rx="0.9"/>
+            <rect x="14.2" y="7" width="1.8" height="6" rx="0.9"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Soundtrack</div>
+          <div class="file-meta">FLAC · 450 MB</div>
+        </div>
+        <div class="file-badge">FLAC</div>
+        <div class="file-chevron">
+          <svg width="7" height="12" viewBox="0 0 7 12" fill="none">
+            <path d="M1 1l5 5-5 5" stroke="var(--label-quaternary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Storage indicator -->
+    <div class="storage-bar">
+      <div class="storage-track">
+        <div class="storage-fill"></div>
+      </div>
+      <div class="storage-label">39.2 TB of 50 TB</div>
+    </div>
+
+  </div>
+
+  <!-- ===== FLOATING TAB BAR (iOS 26 Liquid Glass) ===== -->
+  <div class="tab-bar">
+
+    <!-- Files (active) -->
+    <div class="tab-item active">
+      <svg viewBox="0 0 24 24" fill="var(--tint)">
+        <path d="M3 5.5A2.5 2.5 0 015.5 3h4.13a1.5 1.5 0 011.06.44l1.37 1.37a1.5 1.5 0 001.06.44H18.5A2.5 2.5 0 0121 7.75V18a2.5 2.5 0 01-2.5 2.5h-13A2.5 2.5 0 013 18V5.5z"/>
+      </svg>
+      <span class="tab-label" style="color: var(--tint);">Files</span>
+    </div>
+
+    <!-- Transfers -->
+    <div class="tab-item">
+      <svg viewBox="0 0 24 24" fill="white">
+        <path d="M12 4a8 8 0 11-6.93 4 .75.75 0 011.3.75A6.5 6.5 0 1012 5.5V8L8.5 5.25 12 2.5V4z"/>
+      </svg>
+      <span class="tab-label">Transfers</span>
+    </div>
+
+    <!-- Search -->
+    <div class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none">
+        <circle cx="10.5" cy="10.5" r="6" stroke="white" stroke-width="2"/>
+        <path d="M15 15l5 5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="tab-label">Search</span>
+    </div>
+
+    <!-- RSS -->
+    <div class="tab-item">
+      <svg viewBox="0 0 24 24" fill="white">
+        <circle cx="5" cy="19" r="2.5"/>
+        <path d="M3 3a18 18 0 0118 18h-3A15 15 0 003 6V3z"/>
+        <path d="M3 9a12 12 0 0112 12h-3A9 9 0 003 12V9z"/>
+      </svg>
+      <span class="tab-label">RSS</span>
+    </div>
+
+    <!-- Settings -->
+    <div class="tab-item">
+      <svg viewBox="0 0 24 24" fill="white">
+        <path d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"/>
+        <path d="M19.43 12.98c.04-.32.07-.64.07-.98 0-.34-.03-.66-.07-.98l2.11-1.65a.5.5 0 00.12-.64l-2-3.46a.5.5 0 00-.61-.22l-2.49 1a7.04 7.04 0 00-1.69-.98l-.38-2.65A.49.49 0 0014 2h-4a.49.49 0 00-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1a.5.5 0 00-.61.22l-2 3.46a.49.49 0 00.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65a.5.5 0 00-.12.64l2 3.46a.5.5 0 00.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.05.24.26.42.49.42h4c.24 0 .44-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1a.5.5 0 00.61-.22l2-3.46a.49.49 0 00-.12-.64l-2.11-1.65z"/>
+      </svg>
+      <span class="tab-label">Settings</span>
+    </div>
+
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io — iOS 26 Player</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.15);
+    --label: #FFFFFF;
+    --label-secondary: rgba(255,255,255,0.7);
+    --label-tertiary: rgba(255,255,255,0.5);
+    --label-quaternary: rgba(255,255,255,0.35);
+    --bg: #000000;
+    --bg-secondary: #1C1C1E;
+    --bg-tertiary: #2C2C2E;
+    --separator: rgba(84,84,88,0.65);
+    --glass-bg: rgba(255,255,255,0.08);
+    --glass-border: rgba(255,255,255,0.15);
+    --glass-sheen: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 50%, transparent 100%);
+  }
+  body {
+    font-family: -apple-system, 'SF Pro Display', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--label);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .phone {
+    width: 390px;
+    height: 844px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: #0A0A0A;
+  }
+
+  /* Cinematic ambient background */
+  .ambient-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 140% 50% at 50% 20%, rgba(50,42,18,0.5) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 40% at 30% 30%, rgba(45,35,15,0.3) 0%, transparent 50%),
+      linear-gradient(180deg, #0A0A0A 0%, #080808 100%);
+    z-index: 0;
+  }
+
+  /* Status Bar */
+  .status-bar {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    padding: 14px 24px 0;
+    height: 54px;
+    flex-shrink: 0;
+  }
+  .status-bar .time {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    flex: 1;
+  }
+  .status-bar .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* Video Area */
+  .video-area {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%);
+  }
+  .video-frame {
+    width: 350px;
+    height: 197px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1a1714 0%, #0f0e0c 40%, #131110 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  }
+  .video-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 0.5px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    pointer-events: none;
+  }
+  .video-placeholder {
+    font-size: 12px;
+    color: rgba(255,255,255,0.1);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* Glass Navigation Bar */
+  .glass-nav {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    padding: 12px 16px 8px;
+    flex-shrink: 0;
+  }
+  .nav-glass-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 0.5px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .nav-glass-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--glass-sheen);
+    pointer-events: none;
+  }
+  .nav-title-group {
+    flex: 1;
+    text-align: center;
+    padding: 0 12px;
+    min-width: 0;
+  }
+  .nav-show-title {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    color: var(--label);
+    line-height: 1.2;
+  }
+  .nav-episode-label {
+    font-size: 13px;
+    color: var(--label-secondary);
+    letter-spacing: -0.1px;
+    margin-top: 1px;
+  }
+
+  /* Transport Controls Section */
+  .transport {
+    position: relative;
+    z-index: 2;
+    padding: 0 20px;
+    flex-shrink: 0;
+  }
+
+  /* Scrubber */
+  .scrubber {
+    padding: 8px 0 0;
+  }
+  .scrubber-track {
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    position: relative;
+    overflow: visible;
+  }
+  .scrubber-fill {
+    position: absolute;
+    left: 0; top: 0;
+    height: 100%;
+    width: 42%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+  .scrubber-handle {
+    position: absolute;
+    top: 50%;
+    left: 42%;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.5);
+  }
+  .scrubber-times {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 6px;
+  }
+  .scrubber-time {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--label-tertiary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.1px;
+  }
+
+  /* Playback Controls Row */
+  .playback-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 48px;
+    padding: 16px 0 8px;
+  }
+  .skip-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .skip-num {
+    position: absolute;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--label);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-top: 1px;
+  }
+  .play-btn-main {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(253,206,69,0.3);
+  }
+
+  /* Volume Slider */
+  .volume-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 20px 12px;
+    position: relative;
+    z-index: 2;
+  }
+  .volume-track {
+    flex: 1;
+    height: 3px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 1.5px;
+    position: relative;
+  }
+  .volume-fill {
+    position: absolute;
+    left: 0; top: 0;
+    height: 100%;
+    width: 65%;
+    background: rgba(255,255,255,0.5);
+    border-radius: 1.5px;
+  }
+
+  /* Scrollable Content */
+  .scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    position: relative;
+    z-index: 2;
+    padding-bottom: 80px;
+  }
+
+  /* Now Playing Glass Card */
+  .now-playing-card {
+    margin: 4px 16px 0;
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 0.5px solid var(--glass-border);
+    position: relative;
+    overflow: hidden;
+  }
+  .now-playing-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: var(--glass-sheen);
+    pointer-events: none;
+  }
+  .np-title {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    color: var(--label);
+    line-height: 1.2;
+  }
+  .np-episode {
+    font-size: 15px;
+    color: var(--label-secondary);
+    margin-top: 3px;
+    letter-spacing: -0.2px;
+  }
+  .np-badges {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .np-badge {
+    height: 22px;
+    padding: 0 8px;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.08);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--label-secondary);
+    display: flex;
+    align-items: center;
+    letter-spacing: 0.2px;
+  }
+  .np-progress {
+    font-size: 13px;
+    color: var(--label-tertiary);
+    margin-top: 10px;
+    letter-spacing: -0.1px;
+  }
+
+  /* Action Buttons Row */
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    -webkit-overflow-scrolling: touch;
+  }
+  .action-buttons::-webkit-scrollbar { display: none; }
+  .action-btn {
+    height: 44px;
+    padding: 0 14px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 0.5px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .action-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: var(--glass-sheen);
+    pointer-events: none;
+  }
+  .action-btn-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--label-secondary);
+    letter-spacing: -0.15px;
+    white-space: nowrap;
+  }
+  .action-btn-sub {
+    font-size: 12px;
+    color: var(--label-tertiary);
+    margin-left: -3px;
+  }
+
+  /* Track Picker Sections */
+  .track-section {
+    padding: 0 20px;
+    margin-top: 16px;
+  }
+  .track-section-header {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--label-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding-bottom: 8px;
+  }
+  .track-list {
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 0.5px solid rgba(255,255,255,0.08);
+  }
+  .track-row {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 16px;
+    position: relative;
+  }
+  .track-row + .track-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 16px;
+    right: 16px;
+    height: 0.5px;
+    background: var(--separator);
+  }
+  .track-check {
+    width: 24px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+  .track-label {
+    flex: 1;
+    font-size: 16px;
+    color: var(--label);
+    letter-spacing: -0.3px;
+  }
+  .track-row.active .track-label {
+    color: var(--yellow);
+  }
+  .track-detail {
+    font-size: 14px;
+    color: var(--label-tertiary);
+    letter-spacing: -0.15px;
+  }
+
+  /* Floating Tab Bar - iOS 26 Signature */
+  .floating-tab-bar {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    height: 52px;
+    border-radius: 26px;
+    background: rgba(40,40,42,0.55);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 0.5px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    gap: 0;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.06) inset;
+    overflow: hidden;
+  }
+  .floating-tab-bar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 26px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 40%, transparent 100%);
+    pointer-events: none;
+  }
+  .ftab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 44px;
+    border-radius: 22px;
+    gap: 2px;
+    position: relative;
+    z-index: 1;
+  }
+  .ftab.active {
+    background: rgba(253,206,69,0.12);
+  }
+  .ftab-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--label-tertiary);
+    letter-spacing: -0.01px;
+  }
+  .ftab.active .ftab-label {
+    color: var(--yellow);
+  }
+  .ftab.active svg {
+    fill: var(--yellow);
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Ambient cinematic background -->
+  <div class="ambient-bg"></div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="status-icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+        <rect x="0" y="9" width="3" height="3" rx="0.5" fill="white"/>
+        <rect x="4.5" y="6" width="3" height="6" rx="0.5" fill="white"/>
+        <rect x="9" y="3" width="3" height="9" rx="0.5" fill="white"/>
+        <rect x="13.5" y="0" width="3" height="12" rx="0.5" fill="white"/>
+      </svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white">
+        <path d="M8 3.6c2.1 0 4 .8 5.4 2.1l1.2-1.4C12.8 2.6 10.5 1.6 8 1.6S3.2 2.6 1.4 4.3l1.2 1.4C4 4.4 5.9 3.6 8 3.6zm0 3.4c1.3 0 2.4.5 3.3 1.3l1.2-1.4C11.2 5.8 9.7 5.2 8 5.2s-3.2.6-4.5 1.7l1.2 1.4C5.6 7.5 6.7 7 8 7zm0 3.4c.7 0 1.3.3 1.8.7L8 13l-1.8-1.9c.5-.4 1.1-.7 1.8-.7z"/>
+      </svg>
+      <svg width="27" height="12" viewBox="0 0 27 12" fill="none">
+        <rect x="0.5" y="0.5" width="23" height="11" rx="2.5" stroke="rgba(255,255,255,0.35)"/>
+        <rect x="2" y="2" width="20" height="8" rx="1.5" fill="white"/>
+        <path d="M25 4v4a2 2 0 0 0 0-4z" fill="rgba(255,255,255,0.35)"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Video Area -->
+  <div class="video-area">
+    <div class="video-frame">
+      <span class="video-placeholder">16 : 9</span>
+    </div>
+  </div>
+
+  <!-- Glass Navigation -->
+  <div class="glass-nav">
+    <!-- Close Button -->
+    <div class="nav-glass-btn">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+        <path d="M1 1l8 8M9 1L1 9" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <!-- Title -->
+    <div class="nav-title-group">
+      <div class="nav-show-title">The Wire</div>
+      <div class="nav-episode-label">S3 &middot; E2</div>
+    </div>
+    <!-- AirPlay Button -->
+    <div class="nav-glass-btn">
+      <svg width="16" height="14" viewBox="0 0 16 14" fill="none">
+        <rect x="1" y="0.5" width="14" height="10" rx="1.5" stroke="white" stroke-width="1.3" fill="none"/>
+        <path d="M4.5 13l3.5-3.5L11.5 13H4.5z" fill="white"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Transport Controls -->
+  <div class="transport">
+    <!-- Scrubber -->
+    <div class="scrubber">
+      <div class="scrubber-track">
+        <div class="scrubber-fill"></div>
+        <div class="scrubber-handle"></div>
+      </div>
+      <div class="scrubber-times">
+        <span class="scrubber-time">23:14</span>
+        <span class="scrubber-time" style="color: var(--label-tertiary);">-31:46</span>
+      </div>
+    </div>
+
+    <!-- Playback Controls -->
+    <div class="playback-row">
+      <!-- Skip Back 15 -->
+      <div class="skip-btn">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <path d="M14 4V1L8.5 4.5 14 8V5c4.97 0 9 4.03 9 9s-4.03 9-9 9-9-4.03-9-9H3c0 6.07 4.93 11 11 11s11-4.93 11-11S20.07 4 14 4z" fill="white"/>
+        </svg>
+        <span class="skip-num">15</span>
+      </div>
+
+      <!-- Play Button (Yellow filled) -->
+      <div class="play-btn-main">
+        <svg width="22" height="24" viewBox="0 0 22 24" fill="#000">
+          <path d="M4 1.5v21L20 12 4 1.5z"/>
+        </svg>
+      </div>
+
+      <!-- Skip Forward 15 -->
+      <div class="skip-btn">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <path d="M14 4V1l5.5 3.5L14 8V5C9.03 5 5 9.03 5 14s4.03 9 9 9 9-4.03 9-9h2c0 6.07-4.93 11-11 11S3 20.07 3 14 7.93 3 14 3v1z" fill="white"/>
+        </svg>
+        <span class="skip-num">15</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Volume Slider -->
+  <div class="volume-row">
+    <svg width="12" height="10" viewBox="0 0 12 10" fill="rgba(255,255,255,0.4)">
+      <path d="M0 3.5h2L5 1v8L2 6.5H0v-3zM7 3.5c.5.3.8.9.8 1.5s-.3 1.2-.8 1.5"/>
+    </svg>
+    <div class="volume-track">
+      <div class="volume-fill"></div>
+    </div>
+    <svg width="16" height="12" viewBox="0 0 16 12" fill="rgba(255,255,255,0.4)">
+      <path d="M0 3.5h2L5.5 0v12L2 8.5H0v-5zM8 3c.8.5 1.3 1.4 1.3 2.5S8.8 7.5 8 8M10 1.5c1.3.8 2 2.3 2 4s-.7 3.2-2 4"/>
+    </svg>
+  </div>
+
+  <!-- Scrollable Content Area -->
+  <div class="scroll-content">
+
+    <!-- Now Playing Glass Card -->
+    <div class="now-playing-card">
+      <div class="np-title">The Wire</div>
+      <div class="np-episode">S3 &middot; E2 &mdash; All Due Respect</div>
+      <div class="np-badges">
+        <div class="np-badge">1080p</div>
+        <div class="np-badge">MKV</div>
+        <div class="np-badge">1.9 GB</div>
+      </div>
+      <div class="np-progress">42% watched &middot; 31:46 remaining</div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <!-- Download -->
+      <div class="action-btn">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="9" r="7.5" stroke="rgba(255,255,255,0.7)" stroke-width="1.3"/>
+          <path d="M9 5v6M6.5 9L9 11.5 11.5 9" stroke="rgba(255,255,255,0.7)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="action-btn-label">Download</span>
+      </div>
+      <!-- Subtitles -->
+      <div class="action-btn">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <rect x="1" y="3" width="16" height="12" rx="3" stroke="rgba(255,255,255,0.7)" stroke-width="1.3"/>
+          <circle cx="5.5" cy="9" r="1" fill="rgba(255,255,255,0.7)"/>
+          <path d="M8 8h5M8 10.5h3.5" stroke="rgba(255,255,255,0.7)" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        <span class="action-btn-label">Subtitles</span>
+        <span class="action-btn-sub">English</span>
+      </div>
+      <!-- Audio -->
+      <div class="action-btn">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M2 7h2.5L8 4v10L4.5 11H2V7z" fill="rgba(255,255,255,0.7)"/>
+          <path d="M11 6.5c.8.6 1.2 1.5 1.2 2.5s-.4 1.9-1.2 2.5M13 4.5c1.3 1 2 2.5 2 4.5s-.7 3.5-2 4.5" stroke="rgba(255,255,255,0.7)" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        <span class="action-btn-label">Audio</span>
+        <span class="action-btn-sub">5.1</span>
+      </div>
+      <!-- Cast -->
+      <div class="action-btn">
+        <svg width="18" height="16" viewBox="0 0 18 16" fill="none">
+          <rect x="1" y="1" width="16" height="12" rx="2" stroke="rgba(255,255,255,0.7)" stroke-width="1.3"/>
+          <path d="M5 15l4-4 4 4H5z" fill="rgba(255,255,255,0.7)"/>
+        </svg>
+        <span class="action-btn-label">Cast</span>
+      </div>
+    </div>
+
+    <!-- Subtitle Track Picker -->
+    <div class="track-section">
+      <div class="track-section-header">Subtitles</div>
+      <div class="track-list">
+        <div class="track-row active">
+          <div class="track-check">
+            <svg width="14" height="11" viewBox="0 0 14 11" fill="none">
+              <path d="M1 5.5L5 9.5L13 1.5" stroke="var(--yellow)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="track-label">English</span>
+        </div>
+        <div class="track-row">
+          <div class="track-check"></div>
+          <span class="track-label">Turkish</span>
+        </div>
+        <div class="track-row">
+          <div class="track-check"></div>
+          <span class="track-label">Spanish</span>
+        </div>
+        <div class="track-row">
+          <div class="track-check"></div>
+          <span class="track-label">French</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audio Track Picker -->
+    <div class="track-section" style="margin-bottom: 24px;">
+      <div class="track-section-header">Audio</div>
+      <div class="track-list">
+        <div class="track-row active">
+          <div class="track-check">
+            <svg width="14" height="11" viewBox="0 0 14 11" fill="none">
+              <path d="M1 5.5L5 9.5L13 1.5" stroke="var(--yellow)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="track-label">English 5.1</span>
+        </div>
+        <div class="track-row">
+          <div class="track-check"></div>
+          <span class="track-label">English Stereo</span>
+        </div>
+        <div class="track-row">
+          <div class="track-check"></div>
+          <span class="track-label">Commentary</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Floating Tab Bar - iOS 26 Liquid Glass -->
+  <div class="floating-tab-bar">
+    <!-- Files -->
+    <div class="ftab active">
+      <svg width="20" height="18" viewBox="0 0 20 18" fill="var(--yellow)">
+        <path d="M2 2a2 2 0 012-2h4.5l2 2H16a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V2z"/>
+      </svg>
+      <span class="ftab-label">Files</span>
+    </div>
+    <!-- Transfers -->
+    <div class="ftab">
+      <svg width="20" height="18" viewBox="0 0 20 18" fill="var(--label-tertiary)">
+        <path d="M2 4h16v2H2zM5 8h10l-2 2H7zM8 12h4l-2 2z"/>
+        <path d="M10 0v5M7.5 2.5L10 0l2.5 2.5" stroke="var(--label-tertiary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <span class="ftab-label">Transfers</span>
+    </div>
+    <!-- Search -->
+    <div class="ftab">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <circle cx="7.5" cy="7.5" r="5.5" stroke="var(--label-tertiary)" stroke-width="2"/>
+        <path d="M11.5 11.5L16 16" stroke="var(--label-tertiary)" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="ftab-label">Search</span>
+    </div>
+    <!-- RSS -->
+    <div class="ftab">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="var(--label-tertiary)">
+        <circle cx="3.5" cy="14.5" r="2"/>
+        <path d="M1.5 9c4.1 0 7.5 3.4 7.5 7.5M1.5 4c6.9 0 12.5 5.6 12.5 12.5" stroke="var(--label-tertiary)" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+      </svg>
+      <span class="ftab-label">RSS</span>
+    </div>
+    <!-- Settings -->
+    <div class="ftab">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="var(--label-tertiary)">
+        <path d="M9 11.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/>
+        <path d="M16.2 10.7l-1.4-.8c.1-.6.1-1.2 0-1.8l1.4-.8c.2-.1.3-.4.2-.6l-1.4-2.4c-.1-.2-.4-.3-.6-.2l-1.4.8c-.5-.4-1-.7-1.6-.9V2.6c0-.2-.2-.4-.4-.4h-2.8c-.2 0-.4.2-.4.4V4c-.6.2-1.1.5-1.6.9l-1.4-.8c-.2-.1-.5 0-.6.2L2.8 6.7c-.1.2 0 .5.2.6l1.4.8c-.1.6-.1 1.2 0 1.8L3 10.7c-.2.1-.3.4-.2.6l1.4 2.4c.1.2.4.3.6.2l1.4-.8c.5.4 1 .7 1.6.9v1.4c0 .2.2.4.4.4h2.8c.2 0 .4-.2.4-.4V14c.6-.2 1.1-.5 1.6-.9l1.4.8c.2.1.5 0 .6-.2l1.4-2.4c.1-.2 0-.5-.2-.6z"/>
+      </svg>
+      <span class="ftab-label">Settings</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
