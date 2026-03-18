@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Storage Dashboard (Editorial v2)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0E0E10;
+    --bg-2: #131315;
+    --bg-3: #1A1A1D;
+    --bg-4: #222226;
+    --bg-5: #2C2C31;
+    --line: #28282D;
+    --border: #38383E;
+    --focus: #50505A;
+    --solid: #6E6E78;
+    --text-2: #9E9EA8;
+    --text-3: #B8B8C0;
+    --text: #E8E8EC;
+
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.08);
+    --yellow-glow: rgba(253, 206, 69, 0.15);
+    --amber: #E8A830;
+    --terracotta: #C87040;
+    --rose: #D4726A;
+    --sage: #6B9B6B;
+    --slate: #7088A0;
+    --copper: #B87A50;
+    --warm-cream: #D4B88C;
+
+    --green: #30A46C;
+    --green-dim: rgba(48, 164, 108, 0.10);
+    --red: #E5484D;
+    --red-dim: rgba(229, 72, 77, 0.10);
+
+    --serif: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; }
+
+  /* ================================================================
+     SIDEBAR
+     ================================================================ */
+  .sidebar {
+    width: 260px;
+    background: var(--bg-2);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-brand { padding: 28px 28px 24px; }
+  .logo {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 400;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .logo span { color: var(--yellow); }
+
+  .sidebar-nav { flex: 1; padding: 0; }
+  .nav-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--solid);
+    padding: 20px 28px 8px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 28px;
+    font-size: 14px;
+    color: var(--text-2);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--sans);
+    transition: all 0.15s ease;
+    position: relative;
+    letter-spacing: -0.01em;
+  }
+  .nav-item:hover { color: var(--text); background: var(--bg-3); }
+  .nav-item.active { color: var(--text); font-weight: 500; }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 6px; bottom: 6px;
+    width: 2px;
+    background: var(--yellow);
+    border-radius: 0 1px 1px 0;
+  }
+  .nav-icon {
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--solid); flex-shrink: 0;
+  }
+  .nav-item.active .nav-icon { color: var(--yellow); }
+  .nav-item:hover .nav-icon { color: var(--text-3); }
+  .nav-badge { margin-left: auto; font-size: 11px; color: var(--solid); font-family: var(--mono); }
+  .nav-badge-count {
+    margin-left: auto; font-size: 11px; font-weight: 600;
+    color: var(--bg); background: var(--yellow);
+    padding: 1px 7px; border-radius: 10px; font-family: var(--mono);
+  }
+  .nav-divider { height: 1px; background: var(--line); margin: 12px 28px; }
+
+  .sidebar-footer { padding: 20px 28px; border-top: 1px solid var(--line); }
+  .storage-track { width: 100%; height: 4px; background: var(--bg-5); border-radius: 2px; overflow: hidden; }
+  .storage-fill { height: 100%; background: linear-gradient(90deg, var(--copper), var(--yellow), var(--amber)); border-radius: 2px; }
+  .storage-label { font-size: 12px; color: var(--solid); margin-top: 8px; letter-spacing: -0.01em; }
+  .storage-label strong { color: var(--text-3); font-weight: 500; }
+
+  .user-row { display: flex; align-items: center; gap: 12px; padding: 16px 28px 20px; }
+  .user-avatar {
+    width: 30px; height: 30px; background: var(--bg-5); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .user-avatar svg { color: var(--text-2); }
+  .user-name { font-size: 13px; color: var(--text-2); font-weight: 500; letter-spacing: -0.01em; }
+  .user-menu {
+    margin-left: auto; background: none; border: none; color: var(--solid);
+    cursor: pointer; padding: 4px; display: flex; align-items: center;
+  }
+
+  /* ================================================================
+     CONTENT AREA
+     ================================================================ */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px 48px 40px;
+  }
+  .content::-webkit-scrollbar { width: 6px; }
+  .content::-webkit-scrollbar-track { background: transparent; }
+  .content::-webkit-scrollbar-thumb { background: var(--bg-5); border-radius: 3px; }
+
+  /* Page header */
+  .page-header { margin-bottom: 40px; }
+  .page-heading {
+    font-family: var(--serif);
+    font-size: 38px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .page-subtitle {
+    font-size: 16px;
+    color: var(--text-2);
+    letter-spacing: -0.01em;
+    font-family: var(--serif);
+    font-style: italic;
+  }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .stat-card {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 24px;
+  }
+  .stat-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--solid); margin-bottom: 10px;
+  }
+  .stat-value {
+    font-family: var(--serif); font-size: 30px; font-weight: 400;
+    letter-spacing: -0.02em; color: var(--text);
+  }
+  .stat-value .unit { font-size: 16px; color: var(--text-2); margin-left: 2px; }
+  .stat-sub { font-size: 12px; color: var(--solid); margin-top: 4px; font-family: var(--mono); }
+  .stat-note {
+    font-size: 12px; color: var(--text-2); margin-top: 6px;
+    font-family: var(--serif); font-style: italic; line-height: 1.4;
+  }
+
+  /* ================================================================
+     DASHBOARD GRID -- donut + attic
+     ================================================================ */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+
+  /* Donut card */
+  .donut-card {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 32px 28px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .donut-container { position: relative; width: 200px; height: 200px; margin-bottom: 24px; }
+  .donut-center {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%); text-align: center;
+  }
+  .donut-used { font-family: var(--serif); font-size: 34px; font-weight: 400; color: var(--text); }
+  .donut-total { font-size: 12px; color: var(--solid); font-family: var(--mono); margin-top: 2px; }
+
+  .donut-legend { width: 100%; }
+  .legend-item { display: flex; align-items: center; gap: 10px; padding: 5px 0; font-size: 12px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .legend-label { flex: 1; color: var(--text-2); letter-spacing: -0.01em; }
+  .legend-value { font-family: var(--mono); font-size: 11px; color: var(--text); }
+
+  /* Attic card */
+  .attic-card {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 32px 32px;
+  }
+  .attic-heading {
+    font-family: var(--serif); font-size: 22px; font-weight: 400;
+    letter-spacing: -0.01em; margin-bottom: 8px;
+  }
+  .attic-intro {
+    font-size: 14px; color: var(--text-2); line-height: 1.6;
+    margin-bottom: 24px; max-width: 480px;
+  }
+  .attic-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 0; border-bottom: 1px solid var(--line);
+  }
+  .attic-row:last-child { border-bottom: none; }
+  .attic-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .attic-info { flex: 1; }
+  .attic-name { font-size: 13px; font-weight: 500; color: var(--text); letter-spacing: -0.01em; }
+  .attic-desc {
+    font-size: 12px; color: var(--text-2); margin-top: 2px;
+    font-family: var(--serif); font-style: italic;
+  }
+  .attic-size { font-family: var(--mono); font-size: 12px; color: var(--text-3); }
+  .attic-action {
+    font-size: 12px; color: var(--yellow); cursor: pointer;
+    font-weight: 500; white-space: nowrap;
+  }
+
+  /* ================================================================
+     INSIGHTS
+     ================================================================ */
+  .insights-heading {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+  .insights-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .insight-card {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px 24px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .insight-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .insight-card.warm::before { background: linear-gradient(90deg, var(--copper), var(--yellow)); }
+  .insight-card.alert::before { background: linear-gradient(90deg, var(--rose), var(--red)); }
+  .insight-card.calm::before { background: linear-gradient(90deg, var(--sage), var(--green)); }
+
+  .insight-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px;
+  }
+  .insight-card.warm .insight-icon { background: var(--yellow-dim); color: var(--yellow); }
+  .insight-card.alert .insight-icon { background: var(--red-dim); color: var(--red); }
+  .insight-card.calm .insight-icon { background: var(--green-dim); color: var(--green); }
+
+  .insight-title {
+    font-family: var(--serif); font-size: 17px; font-weight: 400;
+    margin-bottom: 8px; letter-spacing: -0.01em;
+  }
+  .insight-desc {
+    font-size: 13px; color: var(--text-2); line-height: 1.6;
+    margin-bottom: 16px; letter-spacing: -0.01em;
+  }
+  .insight-action {
+    font-size: 13px; font-weight: 500; color: var(--yellow);
+    cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+  }
+
+  /* ================================================================
+     FOOTER
+     ================================================================ */
+  .app-footer {
+    text-align: center;
+    padding: 24px 0 8px;
+    font-size: 13px;
+    color: var(--solid);
+    letter-spacing: -0.01em;
+  }
+  .footer-quote {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--text-2);
+    margin-bottom: 8px;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+  }
+  .footer-author {
+    font-size: 12px;
+    color: var(--solid);
+    margin-bottom: 16px;
+  }
+  .footer-main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .footer-dot {
+    width: 3px; height: 3px;
+    border-radius: 50%; background: var(--border);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============================================================
+       SIDEBAR
+       ============================================================ -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">put<span>.</span>io</div>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Library</div>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7V5a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v2"/>
+            <rect x="2" y="9" width="20" height="11" rx="2"/>
+          </svg>
+        </span>
+        Files
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+        </span>
+        Transfers
+        <span class="nav-badge-count">3</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 11a9 9 0 0 1 9 9"/>
+            <path d="M4 4a16 16 0 0 1 16 16"/>
+            <circle cx="5" cy="19" r="1.5" fill="currentColor" stroke="none"/>
+          </svg>
+        </span>
+        RSS Feeds
+      </button>
+
+      <div class="nav-divider"></div>
+      <div class="nav-section-label">Manage</div>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+        </span>
+        Shared
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </span>
+        History
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </span>
+        Trash
+        <span class="nav-badge">19.5 GB</span>
+      </button>
+
+      <div class="nav-divider"></div>
+
+      <button class="nav-item active">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M9 14v-4"/>
+            <path d="M12 14v-6"/>
+            <path d="M15 14v-2"/>
+          </svg>
+        </span>
+        Storage
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="storage-meter">
+        <div class="storage-track">
+          <div class="storage-fill" style="width: 78%;"></div>
+        </div>
+      </div>
+      <div class="storage-label"><strong>39 TB</strong> used of 50 TB</div>
+    </div>
+
+    <div class="user-row">
+      <div class="user-avatar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <span class="user-name">altay</span>
+      <button class="user-menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <circle cx="12" cy="5" r="1" fill="currentColor"/>
+          <circle cx="12" cy="12" r="1" fill="currentColor"/>
+          <circle cx="12" cy="19" r="1" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       CONTENT
+       ============================================================ -->
+  <div class="content">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <h1 class="page-heading">Your Digital Attic</h1>
+      <p class="page-subtitle">Everything you've been hoarding, lovingly catalogued. No judgment.</p>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Used</div>
+        <div class="stat-value">39<span class="unit"> TB</span></div>
+        <div class="stat-note">That's roughly 7,800 Blu-rays.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Files</div>
+        <div class="stat-value">14,847</div>
+        <div class="stat-note">You've been busy.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Gathering Dust</div>
+        <div class="stat-value" style="color: var(--copper);">2.8<span class="unit"> TB</span></div>
+        <div class="stat-note">Downloaded, then promptly forgotten.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Breathing Room</div>
+        <div class="stat-value" style="color: var(--sage);">11<span class="unit"> TB</span></div>
+        <div class="stat-note">Still plenty of space to fill.</div>
+      </div>
+    </div>
+
+    <!-- Dashboard grid: donut + attic -->
+    <div class="dashboard-grid">
+
+      <!-- Donut chart with warmer colors -->
+      <div class="donut-card">
+        <div class="donut-container">
+          <svg viewBox="0 0 200 200" width="200" height="200">
+            <!-- Background ring -->
+            <circle cx="100" cy="100" r="75" fill="none" stroke="var(--bg-5)" stroke-width="22"/>
+            <!-- Video (warm cream/yellow) -->
+            <circle cx="100" cy="100" r="75" fill="none" stroke="var(--yellow)" stroke-width="22"
+              stroke-dasharray="230 241" stroke-dashoffset="0"
+              transform="rotate(-90 100 100)" stroke-linecap="round"/>
+            <!-- Audio (copper) -->
+            <circle cx="100" cy="100" r="75" fill="none" stroke="var(--copper)" stroke-width="22"
+              stroke-dasharray="55 416" stroke-dashoffset="-234"
+              transform="rotate(-90 100 100)" stroke-linecap="round"/>
+            <!-- Documents (terracotta) -->
+            <circle cx="100" cy="100" r="75" fill="none" stroke="var(--terracotta)" stroke-width="22"
+              stroke-dasharray="30 441" stroke-dashoffset="-293"
+              transform="rotate(-90 100 100)" stroke-linecap="round"/>
+            <!-- Archives (rose) -->
+            <circle cx="100" cy="100" r="75" fill="none" stroke="var(--rose)" stroke-width="22"
+              stroke-dasharray="20 451" stroke-dashoffset="-327"
+              transform="rotate(-90 100 100)" stroke-linecap="round"/>
+            <!-- Other (warm cream) -->
+            <circle cx="100" cy="100" r="75" fill="none" stroke="var(--warm-cream)" stroke-width="22"
+              stroke-dasharray="35 436" stroke-dashoffset="-351"
+              transform="rotate(-90 100 100)" stroke-linecap="round"/>
+          </svg>
+          <div class="donut-center">
+            <div class="donut-used">78%</div>
+            <div class="donut-total">39 of 50 TB</div>
+          </div>
+        </div>
+
+        <div class="donut-legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background: var(--yellow);"></div>
+            <span class="legend-label">Video</span>
+            <span class="legend-value">24.2 TB</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: var(--copper);"></div>
+            <span class="legend-label">Audio</span>
+            <span class="legend-value">5.9 TB</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: var(--terracotta);"></div>
+            <span class="legend-label">Documents</span>
+            <span class="legend-value">3.1 TB</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: var(--rose);"></div>
+            <span class="legend-label">Archives</span>
+            <span class="legend-value">2.0 TB</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: var(--warm-cream);"></div>
+            <span class="legend-label">Other</span>
+            <span class="legend-value">3.8 TB</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- "Your digital attic" breakdown -->
+      <div class="attic-card">
+        <h2 class="attic-heading">What's in the attic?</h2>
+        <p class="attic-intro">Here's a peek at what's taking up space. Some of it's precious. Some of it... well, you downloaded it at 3 AM for a reason you've since forgotten.</p>
+
+        <div class="attic-row">
+          <div class="attic-icon" style="background: var(--yellow-dim); color: var(--yellow);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+          </div>
+          <div class="attic-info">
+            <div class="attic-name">Movies & Shows</div>
+            <div class="attic-desc">Your personal cinema. 8,421 titles and counting.</div>
+          </div>
+          <div class="attic-size">24.2 TB</div>
+          <div class="attic-action">Browse</div>
+        </div>
+
+        <div class="attic-row">
+          <div class="attic-icon" style="background: rgba(184, 122, 80, 0.12); color: var(--copper);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18V5l12-2v13"/>
+              <circle cx="6" cy="18" r="3"/>
+              <circle cx="18" cy="16" r="3"/>
+            </svg>
+          </div>
+          <div class="attic-info">
+            <div class="attic-name">Music Collection</div>
+            <div class="attic-desc">Albums, podcasts, and that one FLAC discography.</div>
+          </div>
+          <div class="attic-size">5.9 TB</div>
+          <div class="attic-action">Browse</div>
+        </div>
+
+        <div class="attic-row">
+          <div class="attic-icon" style="background: rgba(200, 112, 64, 0.12); color: var(--terracotta);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="8" y1="13" x2="16" y2="13"/>
+              <line x1="8" y1="17" x2="13" y2="17"/>
+            </svg>
+          </div>
+          <div class="attic-info">
+            <div class="attic-name">Documents & Books</div>
+            <div class="attic-desc">Every ebook you swore you'd read. Some day.</div>
+          </div>
+          <div class="attic-size">3.1 TB</div>
+          <div class="attic-action">Browse</div>
+        </div>
+
+        <div class="attic-row">
+          <div class="attic-icon" style="background: rgba(212, 114, 106, 0.12); color: var(--rose);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 8v13H3V8"/>
+              <path d="M1 3h22v5H1z"/>
+              <path d="M10 12h4"/>
+            </svg>
+          </div>
+          <div class="attic-info">
+            <div class="attic-name">Archives & Backups</div>
+            <div class="attic-desc">Zip files that might contain something important.</div>
+          </div>
+          <div class="attic-size">2.0 TB</div>
+          <div class="attic-action">Browse</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Insights -->
+    <h2 class="insights-heading">Honest observations</h2>
+    <div class="insights-row">
+
+      <div class="insight-card warm">
+        <div class="insight-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="insight-title">Getting cozy up there</div>
+        <div class="insight-desc">At this pace, you'll be full in about 4 months. That's not a warning -- just a heads-up from someone who cares about your storage hygiene.</div>
+        <span class="insight-action">
+          Consider an upgrade
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </span>
+      </div>
+
+      <div class="insight-card alert">
+        <div class="insight-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+        <div class="insight-title">1,204 files you never opened</div>
+        <div class="insight-desc">We're not judging. We've all downloaded things with the best of intentions. But 2.8 TB of "I'll watch that later" adds up, friend.</div>
+        <span class="insight-action">
+          Face the truth
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </span>
+      </div>
+
+      <div class="insight-card calm">
+        <div class="insight-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            <line x1="10" y1="11" x2="10" y2="17"/>
+            <line x1="14" y1="11" x2="14" y2="17"/>
+          </svg>
+        </div>
+        <div class="insight-title">19.5 GB in the bin</div>
+        <div class="insight-desc">Your trash is like a junk drawer -- easy to ignore until someone points it out. Files expire after 14 days anyway, but why wait?</div>
+        <span class="insight-action">
+          Take out the trash
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="app-footer">
+      <div class="footer-quote">"I don't have a hoarding problem. I have a curating talent. put.io just makes it look more intentional."</div>
+      <div class="footer-author">-- Marcus, Berlin. put.io user since 2020</div>
+      <div class="footer-main">
+        <span>put.io</span>
+        <span class="footer-dot"></span>
+        <span>istanbul</span>
+        <span class="footer-dot"></span>
+        <span>since 2011</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

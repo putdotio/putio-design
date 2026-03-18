@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io -- iOS Transfers v4 Editorial</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0E0E10; --bg-2: #141416; --bg-3: #1A1A1D; --bg-4: #222226;
+    --line: #28282D; --border: #38383E; --solid: #6E6E78;
+    --text-2: #9E9EA8; --text-3: #B8B8C0; --text: #E8E8EC;
+    --yellow: #FDCE45; --yellow-dim: rgba(253, 206, 69, 0.08);
+    --yellow-glow: rgba(253, 206, 69, 0.15);
+    --amber: #F0A030;
+    --green: #30A46C; --green-dim: rgba(48,164,108,0.08);
+    --red: #E5484D; --red-dim: rgba(229,72,77,0.08);
+    --orange: #FF9F0A;
+    --warm-bg: #161412;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'Inter', -apple-system, sans-serif;
+  }
+  body {
+    font-family: var(--sans); background: var(--bg); color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .phone { width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 14px 24px 0;
+    font-size: 15px; font-weight: 600; height: 54px; flex-shrink: 0;
+  }
+  .status-time { flex: 1; }
+  .status-icons { display: flex; gap: 5px; align-items: center; }
+
+  /* Nav */
+  .nav-bar {
+    display: flex; align-items: center; padding: 8px 20px 6px;
+    flex-shrink: 0;
+  }
+  .nav-title {
+    font-family: var(--serif); font-size: 38px; font-weight: 400;
+    flex: 1; letter-spacing: -0.01em;
+  }
+  .nav-btn {
+    width: 40px; height: 40px; background: var(--bg-3); border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    border: none; color: var(--yellow); cursor: pointer;
+  }
+
+  /* Subheading */
+  .header-sub {
+    padding: 0 20px 14px;
+    font-family: var(--serif); font-style: italic;
+    font-size: 16px; color: var(--text-2);
+    letter-spacing: 0.01em;
+  }
+
+  /* Health Banner */
+  .health-banner {
+    margin: 0 20px 16px; padding: 14px 18px;
+    background: var(--warm-bg); border-radius: 20px;
+    border: 1px solid rgba(253,206,69,0.08);
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0;
+  }
+  .health-dots { display: flex; gap: 6px; align-items: center; }
+  .health-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .health-dot.green { background: var(--green); box-shadow: 0 0 10px rgba(48,164,108,0.5); }
+  .health-dot.yellow { background: var(--yellow); box-shadow: 0 0 10px rgba(253,206,69,0.5); }
+  .health-dot.red { background: var(--red); box-shadow: 0 0 10px rgba(229,72,77,0.5); }
+  .health-text { font-size: 13px; color: var(--text-2); flex: 1; }
+  .health-count { font-size: 13px; font-weight: 600; color: var(--text); }
+
+  /* Transfer List */
+  .transfer-list { flex: 1; overflow-y: auto; padding: 0 20px; }
+
+  .transfer-section-header {
+    font-family: var(--serif); font-size: 18px; font-weight: 400;
+    color: var(--text-2); padding: 6px 0 10px; letter-spacing: 0.01em;
+  }
+
+  /* Card-based transfers */
+  .transfer-card {
+    background: var(--bg-2); border-radius: 20px;
+    padding: 16px 18px; margin-bottom: 12px;
+    border: 1px solid var(--line);
+  }
+  .tc-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .tc-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .tc-dot.downloading { background: var(--yellow); box-shadow: 0 0 10px rgba(253,206,69,0.4); }
+  .tc-dot.slow { background: var(--orange); box-shadow: 0 0 10px rgba(255,159,10,0.4); }
+  .tc-dot.seeding { background: var(--green); box-shadow: 0 0 10px rgba(48,164,108,0.4); }
+  .tc-dot.error { background: var(--red); box-shadow: 0 0 10px rgba(229,72,77,0.4); }
+  .tc-dot.completed { background: var(--green); }
+
+  .tc-info { flex: 1; min-width: 0; }
+  .tc-name {
+    font-family: var(--serif); font-size: 17px; font-weight: 400;
+    color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .tc-meta {
+    font-size: 13px; color: var(--solid); margin-top: 2px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .tc-badge {
+    font-size: 10px; background: var(--yellow-dim); color: var(--yellow);
+    padding: 2px 8px; border-radius: 100px; font-weight: 600;
+  }
+  .tc-badge.green { background: var(--green-dim); color: var(--green); }
+  .tc-badge.red { background: var(--red-dim); color: var(--red); }
+
+  .tc-percent {
+    font-size: 15px; font-weight: 600; color: var(--yellow);
+    font-variant-numeric: tabular-nums; flex-shrink: 0;
+  }
+
+  /* Warm gradient progress */
+  .tc-progress {
+    height: 5px; background: var(--bg-4); border-radius: 3px;
+    overflow: hidden; margin-top: 4px;
+  }
+  .tc-progress .fill {
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, var(--amber), var(--yellow));
+  }
+  .tc-progress .fill-green {
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, #20845C, var(--green));
+  }
+  .tc-progress .fill-red {
+    height: 100%; border-radius: 3px;
+    background: var(--red);
+  }
+
+  .tc-detail {
+    font-size: 12px; color: var(--solid); margin-top: 6px;
+    font-style: italic;
+  }
+
+  /* Action buttons */
+  .tc-action {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+  .tc-action-btn {
+    flex: 1; padding: 10px; border-radius: 12px;
+    font-size: 13px; font-weight: 600; border: none;
+    cursor: pointer; display: flex; align-items: center;
+    justify-content: center; gap: 6px;
+    font-family: inherit;
+  }
+  .tc-action-btn.primary { background: var(--yellow); color: #000; }
+  .tc-action-btn.secondary { background: var(--bg-4); color: var(--text-2); }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex; background: rgba(20,20,22,0.95); backdrop-filter: blur(20px);
+    border-top: 1px solid var(--line); padding: 6px 0 34px; flex-shrink: 0;
+  }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-size: 10px; color: var(--solid); padding: 4px 0; position: relative;
+    border: none; background: none; cursor: pointer;
+  }
+  .tab-item.active { color: var(--yellow); }
+  .tab-item .t-icon { width: 24px; height: 24px; }
+  .tab-badge {
+    position: absolute; top: -2px; right: 50%; transform: translateX(16px);
+    background: var(--yellow); color: #000; font-size: 10px; font-weight: 700;
+    min-width: 18px; height: 18px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 4px;
+  }
+
+  /* Space Invader */
+  .space-invader {
+    position: absolute; bottom: 102px; left: 22px; opacity: 0.04;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="white"><rect x="0" y="9" width="3" height="3" rx="0.5"/><rect x="4.5" y="6" width="3" height="6" rx="0.5"/><rect x="9" y="3" width="3" height="9" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><path d="M8,11.5a1.5,1.5,0,1,0,0-3,1.5,1.5,0,0,0,0,3Z"/><path d="M4.93,7.56a4.5,4.5,0,0,1,6.14,0" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/><path d="M2.1,4.73a8,8,0,0,1,11.8,0" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x="0.5" y="0.5" width="23" height="12" rx="3" stroke="white" stroke-opacity="0.35"/><rect x="2" y="2" width="18" height="9" rx="1.5" fill="white"/><path d="M25,4.5v4a2,2,0,0,0,0-4Z" fill="white" fill-opacity="0.4"/></svg>
+    </div>
+  </div>
+
+  <!-- Nav Bar -->
+  <div class="nav-bar">
+    <h1 class="nav-title">Transfers</h1>
+    <button class="nav-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Subheading -->
+  <div class="header-sub">Your downloads are cooking</div>
+
+  <!-- Health Banner -->
+  <div class="health-banner">
+    <div class="health-dots">
+      <div class="health-dot green"></div>
+      <div class="health-dot green"></div>
+      <div class="health-dot yellow"></div>
+      <div class="health-dot red"></div>
+    </div>
+    <span class="health-text">2 healthy, 1 slow, 1 error</span>
+    <span class="health-count">4 active</span>
+  </div>
+
+  <!-- Transfer List -->
+  <div class="transfer-list">
+    <div class="transfer-section-header">Active</div>
+
+    <!-- Transfer 1: Downloading -->
+    <div class="transfer-card">
+      <div class="tc-top">
+        <div class="tc-dot downloading"></div>
+        <div class="tc-info">
+          <div class="tc-name">Inception</div>
+          <div class="tc-meta">
+            <span>12.4 GB</span>
+            <span class="tc-badge">2160p</span>
+          </div>
+        </div>
+        <span class="tc-percent">63%</span>
+      </div>
+      <div class="tc-progress"><div class="fill" style="width:63%;"></div></div>
+      <div class="tc-detail">Downloading at 18.6 MB/s -- about 23 minutes remaining</div>
+    </div>
+
+    <!-- Transfer 2: Slow -->
+    <div class="transfer-card">
+      <div class="tc-top">
+        <div class="tc-dot slow"></div>
+        <div class="tc-info">
+          <div class="tc-name">The Wire, Season 3</div>
+          <div class="tc-meta">
+            <span>38.7 GB</span>
+            <span class="tc-badge">1080p</span>
+          </div>
+        </div>
+        <span class="tc-percent" style="color:var(--orange);">21%</span>
+      </div>
+      <div class="tc-progress"><div class="fill" style="width:21%; background: linear-gradient(90deg, #c07020, var(--orange));"></div></div>
+      <div class="tc-detail">Slow peers -- patience is a virtue, darling</div>
+    </div>
+
+    <!-- Transfer 3: Seeding -->
+    <div class="transfer-card">
+      <div class="tc-top">
+        <div class="tc-dot seeding"></div>
+        <div class="tc-info">
+          <div class="tc-name">Cosmos Laundromat</div>
+          <div class="tc-meta">
+            <span>209.89 MB</span>
+            <span class="tc-badge green">720p</span>
+          </div>
+        </div>
+        <span class="tc-percent" style="color:var(--green);">Seeding</span>
+      </div>
+      <div class="tc-detail">Ratio 2.4 -- giving back to the community</div>
+    </div>
+
+    <!-- Transfer 4: Error -->
+    <div class="transfer-card">
+      <div class="tc-top">
+        <div class="tc-dot error"></div>
+        <div class="tc-info">
+          <div class="tc-name">ubuntu-22.04-desktop.iso</div>
+          <div class="tc-meta">
+            <span>4.7 GB</span>
+            <span class="tc-badge red">Error</span>
+          </div>
+        </div>
+        <span class="tc-percent" style="color:var(--red);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </span>
+      </div>
+      <div class="tc-detail" style="color: var(--red); font-style: normal;">Tracker unreachable</div>
+    </div>
+
+    <!-- Completed Section -->
+    <div class="transfer-section-header" style="margin-top:4px;">Completed</div>
+
+    <div class="transfer-card">
+      <div class="tc-top">
+        <div class="tc-dot completed"></div>
+        <div class="tc-info">
+          <div class="tc-name">Sintel</div>
+          <div class="tc-meta">
+            <span>892.45 MB</span>
+            <span class="tc-badge green">1080p</span>
+          </div>
+        </div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+      </div>
+      <div class="tc-action">
+        <button class="tc-action-btn primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14,2H6A2,2,0,0,0,4,4V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V8Z"/><polyline points="14,2 14,8 20,8"/></svg>
+          Go to File
+        </button>
+        <button class="tc-action-btn secondary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19,6V20a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6M8,6V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="transfer-card">
+      <div class="tc-top">
+        <div class="tc-dot completed"></div>
+        <div class="tc-info">
+          <div class="tc-name">Big Buck Bunny</div>
+          <div class="tc-meta">
+            <span>276.13 MB</span>
+            <span class="tc-badge green">720p</span>
+          </div>
+        </div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+      </div>
+      <div class="tc-action">
+        <button class="tc-action-btn primary">Go to File</button>
+        <button class="tc-action-btn secondary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19,6V20a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6M8,6V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div style="height:16px;"></div>
+  </div>
+
+  <!-- Space Invader -->
+  <div class="space-invader">
+    <svg width="33" height="24" viewBox="0 0 11 8" fill="none">
+      <rect x="2" y="0" width="1" height="1" fill="white"/>
+      <rect x="8" y="0" width="1" height="1" fill="white"/>
+      <rect x="3" y="1" width="1" height="1" fill="white"/>
+      <rect x="7" y="1" width="1" height="1" fill="white"/>
+      <rect x="2" y="2" width="7" height="1" fill="white"/>
+      <rect x="1" y="3" width="2" height="1" fill="white"/>
+      <rect x="4" y="3" width="3" height="1" fill="white"/>
+      <rect x="8" y="3" width="2" height="1" fill="white"/>
+      <rect x="0" y="4" width="11" height="1" fill="white"/>
+      <rect x="0" y="5" width="1" height="1" fill="white"/>
+      <rect x="2" y="5" width="7" height="1" fill="white"/>
+      <rect x="10" y="5" width="1" height="1" fill="white"/>
+      <rect x="0" y="6" width="1" height="1" fill="white"/>
+      <rect x="2" y="6" width="1" height="1" fill="white"/>
+      <rect x="8" y="6" width="1" height="1" fill="white"/>
+      <rect x="10" y="6" width="1" height="1" fill="white"/>
+      <rect x="3" y="7" width="2" height="1" fill="white"/>
+      <rect x="6" y="7" width="2" height="1" fill="white"/>
+    </svg>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <svg class="t-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M3 7a2 2 0 012-2h5l2 2h7a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="#6E6E78" stroke-width="1.5"/>
+      </svg>
+      Files
+    </div>
+    <div class="tab-item active" style="position:relative;">
+      <svg class="t-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#FDCE45"/>
+      </svg>
+      <span class="tab-badge">4</span>
+      Transfers
+    </div>
+    <div class="tab-item">
+      <svg class="t-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 3v12m0 0l-4-4m4 4l4-4" stroke="#6E6E78" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M5 17v2a2 2 0 002 2h10a2 2 0 002-2v-2" stroke="#6E6E78" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Downloads
+    </div>
+    <div class="tab-item">
+      <svg class="t-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="3" stroke="#6E6E78" stroke-width="1.5"/>
+        <path d="M12 1v2m0 18v2m11-11h-2M3 12H1m18.07-7.07l-1.41 1.41M6.34 17.66l-1.41 1.41m14.14 0l-1.41-1.41M6.34 6.34L4.93 4.93" stroke="#6E6E78" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Settings
+    </div>
+  </div>
+</div>
+</body>
+</html>

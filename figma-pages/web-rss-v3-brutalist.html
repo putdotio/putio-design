@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- RSS Automation (Brutalist)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #0A0A0C; --bg-1: #0E0E11; --bg-2: #141418; --bg-3: #1A1A1F; --bg-4: #222228;
+    --bg-5: #2A2A32; --line: #2E2E38; --line-strong: #3A3A46; --border: #444450; --solid: #66667A;
+    --text-3: #8888A0; --text-2: #AAAAC0; --text: #E8E8F0; --white: #F4F4FA;
+    --yellow: #FDCE45; --yellow-dim: #C9A530; --yellow-glow: rgba(253,206,69,0.08);
+    --yellow-border: rgba(253,206,69,0.25); --yellow-strong: #FFD96A;
+    --green: #30A46C; --green-bright: #4CC38A;
+    --red: #E5484D; --red-bright: #FF6369;
+    --blue: #3B82F6; --cyan: #22D3EE; --purple: #A78BFA;
+    --orange: #F59E0B; --orange-dim: rgba(245,158,11,0.08);
+    --font-display: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+    --radius: 2px;
+  }
+
+  body { font-family: var(--font-mono); background: var(--bg-0); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+  .app {
+    position: relative; display: flex; width: 1440px; height: 900px; overflow: hidden;
+    background: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0);
+    background-size: 24px 24px; background-position: 12px 12px;
+  }
+  .app::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(1px 1px at 120px 80px, rgba(253,206,69,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 800px 120px, rgba(253,206,69,0.15) 0%, transparent 100%),
+      radial-gradient(1px 1px at 1100px 300px, rgba(253,206,69,0.25) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 600px 150px, rgba(255,255,255,0.12) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 1000px 700px, rgba(255,255,255,0.1) 0%, transparent 100%);
+    pointer-events: none; z-index: 0;
+  }
+  .app > * { position: relative; z-index: 1; }
+
+  /* SIDEBAR */
+  .sidebar { width: 220px; background: var(--bg-1); border-right: 2px solid var(--yellow-border); display: flex; flex-direction: column; flex-shrink: 0; }
+  .sidebar-logo { padding: 20px 16px 16px; border-bottom: 1px solid var(--line); }
+  .logo { font-family: var(--font-display); font-size: 26px; font-weight: 900; color: var(--white); letter-spacing: -0.04em; line-height: 1; }
+  .logo span { color: var(--yellow); }
+  .logo-sub { font-family: var(--font-mono); font-size: 9px; color: var(--solid); letter-spacing: 0.15em; text-transform: uppercase; margin-top: 4px; }
+  .sidebar-nav { flex: 1; padding: 8px 0; overflow-y: auto; }
+  .nav-section-label { font-size: 9px; font-weight: 600; color: var(--solid); letter-spacing: 0.2em; text-transform: uppercase; padding: 12px 16px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 16px; font-family: var(--font-mono); font-size: 12px; color: var(--text-2); cursor: pointer; border: none; background: none; width: 100%; text-align: left; border-left: 2px solid transparent; transition: all 0.1s; }
+  .nav-item:hover { background: var(--bg-3); color: var(--text); border-left-color: var(--line-strong); }
+  .nav-item.active { background: var(--yellow-glow); color: var(--yellow); border-left-color: var(--yellow); font-weight: 600; }
+  .nav-icon { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .nav-icon svg { width: 14px; height: 14px; }
+  .nav-shortcut { margin-left: auto; font-size: 9px; color: var(--solid); background: var(--bg-3); padding: 1px 4px; border-radius: var(--radius); border: 1px solid var(--line); }
+  .nav-badge { margin-left: auto; font-size: 10px; color: var(--yellow); font-weight: 600; }
+  .nav-sep { height: 1px; background: var(--line); margin: 6px 16px; }
+
+  .sidebar-storage { padding: 12px 16px; border-top: 1px solid var(--line); }
+  .storage-label-top { font-size: 9px; color: var(--solid); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px; }
+  .storage-bar { width: 100%; height: 4px; background: var(--bg-4); overflow: hidden; margin-bottom: 4px; }
+  .storage-fill { height: 100%; background: var(--yellow); }
+  .storage-text { font-size: 10px; color: var(--text-3); }
+  .storage-text strong { color: var(--text-2); font-weight: 600; }
+
+  .sidebar-user { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--line); }
+  .user-avatar { width: 28px; height: 28px; background: var(--bg-4); border: 1px solid var(--line-strong); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--yellow); }
+  .user-avatar svg { width: 16px; height: 16px; }
+  .user-name { font-size: 11px; color: var(--text-2); }
+  .user-status { font-size: 9px; color: var(--green-bright); }
+
+  /* CONTENT */
+  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+  .topbar { display: flex; align-items: center; gap: 12px; padding: 10px 28px; border-bottom: 1px solid var(--line); background: var(--bg-1); }
+  .breadcrumb { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 11px; color: var(--solid); }
+  .breadcrumb a { color: var(--text-3); text-decoration: none; }
+  .breadcrumb a:hover { color: var(--yellow); }
+  .breadcrumb .sep { color: var(--line-strong); }
+  .breadcrumb .current { color: var(--text); font-weight: 600; }
+  .topbar-spacer { flex: 1; }
+
+  .search-bar { display: flex; align-items: center; gap: 8px; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 12px; width: 320px; }
+  .search-bar .search-icon { color: var(--solid); display: flex; }
+  .search-bar .search-icon svg { width: 14px; height: 14px; }
+  .search-bar input { background: none; border: none; color: var(--text); font-size: 12px; outline: none; flex: 1; font-family: var(--font-mono); }
+  .search-bar input::placeholder { color: var(--solid); font-style: italic; }
+
+  .btn-cta {
+    display: inline-flex; align-items: center; gap: 6px; background: var(--yellow); color: var(--bg-0);
+    font-size: 11px; font-weight: 700; padding: 7px 14px; border-radius: var(--radius); border: none;
+    cursor: pointer; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .btn-cta svg { width: 12px; height: 12px; }
+
+  /* Content header */
+  .content-header { padding: 28px 28px 20px; border-bottom: 2px solid var(--yellow-border); }
+  .page-heading {
+    font-family: var(--font-display); font-size: 72px; font-weight: 900; line-height: 0.9;
+    letter-spacing: -0.04em; color: var(--white);
+  }
+  .page-heading .accent { color: var(--yellow); }
+  .page-sub { font-family: var(--font-mono); font-size: 12px; color: var(--solid); margin-top: 8px; letter-spacing: 0.04em; }
+
+  .content-body { flex: 1; overflow-y: auto; padding: 0; }
+  .content-body::-webkit-scrollbar { width: 6px; }
+  .content-body::-webkit-scrollbar-track { background: var(--bg-1); }
+  .content-body::-webkit-scrollbar-thumb { background: var(--bg-5); }
+
+  /* Feed rows */
+  .feed-row {
+    display: grid; grid-template-columns: 20px 1fr 80px 110px 80px 36px;
+    align-items: center; padding: 16px 28px; border-bottom: 1px solid var(--line);
+    cursor: pointer; position: relative; transition: background 0.1s;
+  }
+  .feed-row::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: transparent; transition: background 0.1s; }
+  .feed-row:hover { background: var(--bg-3); }
+  .feed-row:hover::before { background: var(--yellow); }
+  .feed-row.paused { opacity: 0.45; }
+
+  .feed-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .feed-dot.ok { background: var(--green-bright); box-shadow: 0 0 8px rgba(76,195,138,0.4); }
+  .feed-dot.warn { background: var(--orange); box-shadow: 0 0 8px rgba(245,158,11,0.4); }
+  .feed-dot.err { background: var(--red-bright); box-shadow: 0 0 8px rgba(255,99,105,0.4); }
+
+  .feed-info { min-width: 0; padding-right: 16px; }
+  .feed-name { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .feed-sub { font-size: 10px; color: var(--solid); margin-top: 2px; }
+
+  .feed-eps { font-size: 12px; color: var(--text-2); text-align: right; font-variant-numeric: tabular-nums; }
+  .feed-checked { font-size: 10px; color: var(--text-3); text-align: right; }
+  .feed-status { text-align: center; }
+  .feed-status-tag { font-size: 9px; font-weight: 700; padding: 2px 6px; border: 1px solid; text-transform: uppercase; letter-spacing: 0.05em; }
+  .feed-status-tag.ok { color: var(--green-bright); border-color: rgba(76,195,138,0.3); background: rgba(76,195,138,0.06); }
+  .feed-status-tag.warn { color: var(--orange); border-color: rgba(245,158,11,0.3); background: var(--orange-dim); }
+  .feed-status-tag.err { color: var(--red-bright); border-color: rgba(255,99,105,0.3); background: rgba(255,99,105,0.06); }
+
+  .feed-actions { display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.1s; }
+  .feed-row:hover .feed-actions { opacity: 1; }
+  .action-btn { background: none; border: none; color: var(--text-3); cursor: pointer; padding: 2px; display: flex; }
+  .action-btn svg { width: 14px; height: 14px; }
+
+  /* Expanded episodes */
+  .feed-expanded { background: var(--bg-2); border-bottom: 1px solid var(--line); padding: 10px 28px 10px 48px; }
+  .episode-row {
+    display: flex; align-items: center; gap: 10px; padding: 6px 12px; font-size: 12px;
+    color: var(--text-2); border-radius: var(--radius); transition: background 0.1s;
+  }
+  .episode-row:hover { background: var(--bg-3); color: var(--text); }
+  .ep-icon { color: var(--text-3); display: flex; flex-shrink: 0; }
+  .ep-icon svg { width: 12px; height: 12px; }
+  .ep-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ep-meta { font-size: 10px; color: var(--solid); display: flex; gap: 12px; flex-shrink: 0; }
+
+  /* Hint bar */
+  .hint-bar {
+    display: flex; align-items: center; gap: 10px; padding: 14px 28px;
+    background: var(--yellow-glow); border-bottom: 2px solid var(--yellow-border);
+    font-size: 12px; color: var(--text-2);
+  }
+  .hint-bar strong { color: var(--yellow); font-weight: 700; }
+
+  /* STATUS BAR */
+  .status-bar {
+    display: flex; align-items: center; gap: 0; background: var(--bg-1);
+    border-top: 2px solid var(--yellow-border); font-family: var(--font-mono);
+    font-size: 10px; height: 32px; flex-shrink: 0;
+  }
+  .status-section { display: flex; align-items: center; gap: 6px; padding: 0 14px; height: 100%; border-right: 1px solid var(--line); white-space: nowrap; }
+  .status-section:last-child { border-right: none; }
+  .status-label { color: var(--solid); text-transform: uppercase; letter-spacing: 0.1em; font-size: 9px; }
+  .status-value { color: var(--text-2); }
+  .status-value.good { color: var(--green-bright); }
+  .status-value.warn { color: var(--yellow); }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-bright); box-shadow: 0 0 6px rgba(76,195,138,0.5); }
+  .status-spacer { flex: 1; border-right: none !important; }
+  .kaomoji { font-family: var(--font-mono); color: var(--yellow); font-size: 11px; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo">put<span>.</span>io</div>
+      <div class="logo-sub">cloud storage v3.0</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Navigate</div>
+      <button class="nav-item"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="10" rx="1"/><path d="M2 6h5l1.5-2H14"/></svg></span>Files<span class="nav-shortcut">F</span></button>
+      <button class="nav-item"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M2 8l6-6 6 6"/><path d="M4 12h8"/></svg></span>Transfers<span class="nav-badge">3</span></button>
+      <button class="nav-item active"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2M3.8 3.8l1.4 1.4M10.8 10.8l1.4 1.4M3.8 12.2l1.4-1.4M10.8 5.2l1.4-1.4"/></svg></span>RSS Feeds<span class="nav-shortcut">R</span></button>
+      <div class="nav-sep"></div>
+      <div class="nav-section-label">Library</div>
+      <button class="nav-item"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3H3v10h10v-3"/><path d="M8 2h6v6"/><path d="M14 2L7 9"/></svg></span>Shared<span class="nav-shortcut">S</span></button>
+      <button class="nav-item"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l3 2"/></svg></span>History<span class="nav-shortcut">H</span></button>
+      <button class="nav-item"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h10M5 4V3h6v1M4 4v9a1 1 0 001 1h6a1 1 0 001-1V4"/><path d="M7 7v4M9 7v4"/></svg></span>Trash<span class="nav-badge" style="color:var(--text-3);">19.5G</span></button>
+    </div>
+    <div class="sidebar-storage">
+      <div class="storage-label-top">Storage</div>
+      <div class="storage-bar"><div class="storage-fill" style="width:78%;"></div></div>
+      <div class="storage-text"><strong>39 TB</strong> / 50 TB used</div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-avatar"><svg viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="3" width="2" height="2"/><rect x="11" y="3" width="2" height="2"/><rect x="5" y="5" width="6" height="2"/><rect x="3" y="7" width="10" height="2"/><rect x="2" y="9" width="3" height="2"/><rect x="6" y="9" width="4" height="2"/><rect x="11" y="9" width="3" height="2"/><rect x="3" y="11" width="2" height="2"/><rect x="11" y="11" width="2" height="2"/></svg></div>
+      <div><div class="user-name">altay</div><div class="user-status">online</div></div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="topbar">
+      <div class="breadcrumb"><a href="#">~</a><span class="sep">/</span><span class="current">rss</span></div>
+      <div class="topbar-spacer"></div>
+      <div class="search-bar">
+        <span class="search-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg></span>
+        <input placeholder="search feeds..." />
+      </div>
+      <button class="btn-cta">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>
+        Add Feed
+      </button>
+    </div>
+
+    <div class="content-header">
+      <h1 class="page-heading">AUTO<br><span class="accent">MATION</span></h1>
+      <div class="page-sub">5 feeds -- 526 episodes tracked -- auto-download on arrival</div>
+    </div>
+
+    <div class="content-body">
+
+      <!-- Feed 1 -->
+      <div class="feed-row">
+        <div class="feed-dot ok"></div>
+        <div class="feed-info"><div class="feed-name">ShowRSS - My Shows</div><div class="feed-sub">showrss.info/user/personal-feed</div></div>
+        <div class="feed-eps">247 eps</div>
+        <div class="feed-checked">12 min ago</div>
+        <div class="feed-status"><span class="feed-status-tag ok">OK</span></div>
+        <div class="feed-actions"><button class="action-btn"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg></button></div>
+      </div>
+
+      <!-- Expanded -->
+      <div class="feed-expanded">
+        <div class="episode-row"><span class="ep-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="5,3 13,8 5,13"/></svg></span><span class="ep-title">Severance S02E10 1080p WEB-DL</span><span class="ep-meta"><span>1.2 GB</span><span>2h ago</span></span></div>
+        <div class="episode-row"><span class="ep-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="5,3 13,8 5,13"/></svg></span><span class="ep-title">The White Lotus S03E06 720p WEB-DL</span><span class="ep-meta"><span>890 MB</span><span>1d ago</span></span></div>
+        <div class="episode-row"><span class="ep-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="5,3 13,8 5,13"/></svg></span><span class="ep-title">Andor S02E04 2160p WEB-DL</span><span class="ep-meta"><span>4.1 GB</span><span>3d ago</span></span></div>
+      </div>
+
+      <!-- Feed 2 -->
+      <div class="feed-row">
+        <div class="feed-dot ok"></div>
+        <div class="feed-info"><div class="feed-name">Linux ISOs - Weekly</div><div class="feed-sub">linuxtracker.org/rss_feeds</div></div>
+        <div class="feed-eps">89 eps</div>
+        <div class="feed-checked">1 hour ago</div>
+        <div class="feed-status"><span class="feed-status-tag ok">OK</span></div>
+        <div class="feed-actions"><button class="action-btn"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg></button></div>
+      </div>
+
+      <!-- Feed 3 -->
+      <div class="feed-row">
+        <div class="feed-dot ok"></div>
+        <div class="feed-info"><div class="feed-name">Hardcore History Archive</div><div class="feed-sub">feeds.feedburner.com/dancarlin</div></div>
+        <div class="feed-eps">34 eps</div>
+        <div class="feed-checked">6 hours ago</div>
+        <div class="feed-status"><span class="feed-status-tag ok">OK</span></div>
+        <div class="feed-actions"><button class="action-btn"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg></button></div>
+      </div>
+
+      <!-- Feed 4 (paused) -->
+      <div class="feed-row paused">
+        <div class="feed-dot warn"></div>
+        <div class="feed-info"><div class="feed-name">Documentaries Collection</div><div class="feed-sub">Paused by user</div></div>
+        <div class="feed-eps">156 eps</div>
+        <div class="feed-checked">2 weeks ago</div>
+        <div class="feed-status"><span class="feed-status-tag warn">PAUSED</span></div>
+        <div class="feed-actions"><button class="action-btn"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg></button></div>
+      </div>
+
+      <!-- Feed 5 (error) -->
+      <div class="feed-row">
+        <div class="feed-dot err"></div>
+        <div class="feed-info"><div class="feed-name">Old Music Tracker</div><div class="feed-sub">Feed URL returned 404 for 3 days</div></div>
+        <div class="feed-eps">0 eps</div>
+        <div class="feed-checked">3 days ago</div>
+        <div class="feed-status"><span class="feed-status-tag err">ERROR</span></div>
+        <div class="feed-actions"><button class="action-btn"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg></button></div>
+      </div>
+
+      <!-- Hint -->
+      <div class="hint-bar">
+        <strong>TIP</strong> -- just google "RSS torrents" -- use ShowRSS to track TV shows, paste the feed URL, episodes download themselves.
+      </div>
+
+    </div>
+
+    <!-- STATUS BAR -->
+    <div class="status-bar">
+      <div class="status-section"><div class="status-dot"></div><span class="status-label">Conn</span><span class="status-value good">Istanbul-EU</span></div>
+      <div class="status-section"><span class="status-label">Feeds</span><span class="status-value warn">5 total</span></div>
+      <div class="status-section"><span class="status-label">Active</span><span class="status-value good">4</span></div>
+      <div class="status-section"><span class="status-label">Episodes</span><span class="status-value">526</span></div>
+      <div class="status-section"><span class="status-label">Last Check</span><span class="status-value">12m ago</span></div>
+      <div class="status-section status-spacer"></div>
+      <div class="status-section" style="border-right:none;"><span class="kaomoji">(o_o)</span></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

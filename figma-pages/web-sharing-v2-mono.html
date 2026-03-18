@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Sharing (Monospace Variant)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg-0: #0A0A0C;
+    --bg: #101012;
+    --bg-2: #141416;
+    --bg-3: #1A1A1E;
+    --bg-4: #222226;
+    --bg-5: #2A2A30;
+    --line: #2E2E36;
+    --border: #38383F;
+    --focus: #4A4A54;
+    --solid: #6A6A76;
+    --text-3: #8A8A96;
+    --text-2: #A8A8B4;
+    --text: #E4E4EA;
+    --yellow: #FDCE45;
+    --yellow-dim: #FDCE4520;
+    --yellow-low: #FDCE4512;
+    --yellow-mid: #FDCE4540;
+    --green: #4CC38A;
+    --green-dim: #4CC38A20;
+    --red: #FF6369;
+    --red-dim: #FF636920;
+    --blue: #6EB0FF;
+    --blue-dim: #6EB0FF15;
+    --purple: #A78BFA;
+    --purple-dim: #A78BFA18;
+    --cyan: #56D7C3;
+  }
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg-0);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; background: var(--bg); }
+
+  /* ======== SIDEBAR ======== */
+  .sidebar {
+    width: 232px;
+    background: var(--bg-2);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+  .sidebar-brand {
+    padding: 20px 16px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .logo span { color: var(--yellow); }
+  .logo-tag {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--bg);
+    background: var(--yellow);
+    padding: 1px 5px;
+    border-radius: 2px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .sidebar-nav { flex: 1; padding: 4px 0; overflow-y: auto; }
+  .nav-section-label {
+    padding: 16px 16px 6px;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--solid);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 16px;
+    margin: 1px 8px;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-2);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: calc(100% - 16px);
+    text-align: left;
+    font-family: inherit;
+    border-radius: 4px;
+    transition: all 0.1s;
+  }
+  .nav-item:hover { background: var(--bg-4); color: var(--text); }
+  .nav-item.active {
+    background: var(--yellow-dim);
+    color: var(--yellow);
+    font-weight: 500;
+  }
+  .nav-item .nav-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .nav-item .nav-icon svg { width: 16px; height: 16px; }
+  .nav-item.active .nav-icon svg { stroke: var(--yellow); }
+  .nav-item .badge {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--solid);
+    font-weight: 400;
+  }
+  .nav-item.active .badge { color: var(--yellow-mid); }
+  .nav-shortcut {
+    margin-left: auto;
+    font-size: 9px;
+    color: var(--focus);
+    background: var(--bg-3);
+    padding: 1px 4px;
+    border-radius: 2px;
+    border: 1px solid var(--line);
+  }
+
+  .sidebar-footer { padding: 12px 16px; border-top: 1px solid var(--line); }
+  .storage-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .storage-label { font-size: 10px; color: var(--text-3); }
+  .storage-pct { font-size: 10px; color: var(--yellow); font-weight: 500; }
+  .storage-track {
+    width: 100%;
+    height: 3px;
+    background: var(--bg-5);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  .storage-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 1px;
+  }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    background: var(--bg-5);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .user-avatar svg { width: 20px; height: 20px; }
+  .user-name { font-size: 11px; color: var(--text-2); }
+  .user-status {
+    font-size: 9px;
+    color: var(--green);
+    background: var(--green-dim);
+    padding: 1px 5px;
+    border-radius: 2px;
+  }
+
+  /* ======== MAIN CONTENT ======== */
+  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ---- Top Bar ---- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+    height: 48px;
+  }
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    font-size: 12px;
+    color: var(--text-3);
+  }
+  .breadcrumb-item { color: var(--text-3); cursor: pointer; }
+  .breadcrumb-item:hover { color: var(--text); }
+  .breadcrumb-item.current { color: var(--text); font-weight: 500; }
+  .breadcrumb-sep { margin: 0 6px; color: var(--focus); }
+  .topbar-spacer { flex: 1; }
+
+  .cmd-palette {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 12px;
+    width: 320px;
+    cursor: pointer;
+  }
+  .cmd-palette svg { width: 14px; height: 14px; stroke: var(--solid); flex-shrink: 0; }
+  .cmd-palette-text { font-size: 11px; color: var(--solid); flex: 1; font-family: inherit; }
+  .cmd-palette-shortcut {
+    font-size: 9px;
+    color: var(--focus);
+    background: var(--bg-5);
+    padding: 2px 5px;
+    border-radius: 2px;
+    border: 1px solid var(--line);
+    font-family: inherit;
+  }
+
+  .btn-transfer {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--yellow);
+    color: var(--bg);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.02em;
+  }
+
+  /* ---- Content Header ---- */
+  .content-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  .page-heading {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .item-count {
+    font-size: 10px;
+    color: var(--solid);
+    background: var(--bg-4);
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+  .header-spacer { flex: 1; }
+
+  /* ---- Tab bar ---- */
+  .share-tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-2);
+  }
+  .share-tab {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-3);
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: all 0.1s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .share-tab:hover { color: var(--text-2); }
+  .share-tab.active {
+    color: var(--yellow);
+    font-weight: 500;
+    border-bottom-color: var(--yellow);
+  }
+  .tab-count {
+    margin-left: 6px;
+    font-size: 9px;
+    color: var(--focus);
+  }
+  .share-tab.active .tab-count { color: var(--yellow-mid); }
+
+  /* ---- Share with Mom command ---- */
+  .share-mom-cmd {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px;
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--line);
+    font-size: 11px;
+  }
+  .cmd-prompt { color: var(--green); font-weight: 600; flex-shrink: 0; }
+  .cmd-text { color: var(--text-2); flex: 1; }
+  .cmd-text .cmd-highlight { color: var(--yellow); font-weight: 500; }
+  .cmd-text .cmd-flag { color: var(--purple); }
+  .cmd-text .cmd-arg { color: var(--blue); }
+  .cmd-hint { color: var(--focus); font-size: 9px; }
+  .cmd-run {
+    background: var(--yellow);
+    color: var(--bg);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 2px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* ---- Share List ---- */
+  .share-list-header {
+    display: flex;
+    align-items: center;
+    padding: 6px 24px;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--line);
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--solid);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .sh-col-icon { width: 28px; flex-shrink: 0; }
+  .sh-col-name { flex: 1; min-width: 0; padding-left: 8px; }
+  .sh-col-url { width: 220px; flex-shrink: 0; }
+  .sh-col-expiry { width: 120px; flex-shrink: 0; text-align: right; }
+  .sh-col-status { width: 80px; flex-shrink: 0; text-align: right; }
+  .sh-col-users { width: 100px; flex-shrink: 0; text-align: right; }
+
+  .share-list-body { flex: 1; overflow-y: auto; }
+  .share-list-body::-webkit-scrollbar { width: 6px; }
+  .share-list-body::-webkit-scrollbar-track { background: transparent; }
+  .share-list-body::-webkit-scrollbar-thumb { background: var(--bg-5); border-radius: 1px; }
+
+  .section-label {
+    padding: 12px 24px 6px;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--solid);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label .section-count { color: var(--focus); font-weight: 400; }
+
+  .share-row {
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    height: 36px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    transition: background 0.08s;
+  }
+  .share-row:hover { background: var(--bg-3); }
+
+  .sh-icon { width: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .sh-name {
+    flex: 1;
+    min-width: 0;
+    padding-left: 8px;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .share-row:hover .sh-name { color: #fff; }
+  .sh-url {
+    width: 220px;
+    flex-shrink: 0;
+    font-size: 10px;
+    color: var(--blue);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sh-expiry {
+    width: 120px;
+    flex-shrink: 0;
+    text-align: right;
+    font-size: 10px;
+    color: var(--text-3);
+  }
+  .sh-expiry.warn { color: var(--yellow); }
+  .sh-expiry.expired { color: var(--red); }
+  .sh-status {
+    width: 80px;
+    flex-shrink: 0;
+    text-align: right;
+    font-size: 9px;
+    font-weight: 500;
+  }
+  .sh-status.active { color: var(--green); }
+  .sh-status.expired { color: var(--focus); }
+  .sh-status.following { color: var(--blue); }
+  .sh-status.collab { color: var(--purple); }
+  .sh-users {
+    width: 100px;
+    flex-shrink: 0;
+    text-align: right;
+    font-size: 10px;
+    color: var(--text-3);
+  }
+
+  .collab-users {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2px;
+    font-size: 10px;
+  }
+  .collab-user { color: var(--text-3); }
+  .collab-user.you { color: var(--yellow); font-weight: 500; }
+
+  .row-dimmed { opacity: 0.4; }
+
+  /* ======== STATUS BAR ======== */
+  .statusbar {
+    display: flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 24px;
+    background: var(--bg-2);
+    border-top: 1px solid var(--line);
+    font-size: 10px;
+    color: var(--solid);
+    gap: 0;
+    flex-shrink: 0;
+  }
+  .status-section {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    height: 100%;
+    border-right: 1px solid var(--line);
+  }
+  .status-section:first-child { padding-left: 0; }
+  .status-section:last-child { border-right: none; margin-left: auto; padding-right: 0; }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+  }
+  .status-mode {
+    background: var(--yellow);
+    color: var(--bg);
+    padding: 1px 6px;
+    font-weight: 700;
+    font-size: 9px;
+    letter-spacing: 0.05em;
+  }
+  .status-yellow { color: var(--yellow); }
+  .status-kaomoji { color: var(--focus); font-size: 10px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ======== SIDEBAR ======== -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">put<span>.</span>io</div>
+      <span class="logo-tag">mono</span>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Navigate</div>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M216,88V200a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H93.33a8,8,0,0,1,4.8,1.6L128,80h80A8,8,0,0,1,216,88Z"/>
+          </svg>
+        </span>
+        Files
+        <span class="nav-shortcut">1</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="96 48 176 128 96 208"/>
+            <line x1="40" y1="128" x2="176" y2="128"/>
+            <line x1="216" y1="40" x2="216" y2="216"/>
+          </svg>
+        </span>
+        Transfers
+        <span class="badge">3</span>
+        <span class="nav-shortcut">2</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M32,128A96,96,0,0,0,224,128"/>
+            <path d="M32,56A96,96,0,0,0,224,56"/>
+            <path d="M32,200A96,96,0,0,0,224,200"/>
+          </svg>
+        </span>
+        RSS
+        <span class="nav-shortcut">3</span>
+      </button>
+
+      <div class="nav-section-label" style="margin-top: 8px;">Library</div>
+
+      <button class="nav-item active">
+        <span class="nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M64,105V40a8,8,0,0,1,8-8H184a8,8,0,0,1,8,8v65"/>
+            <line x1="128" y1="152" x2="128" y2="224"/>
+            <polyline points="96 184 128 152 160 184"/>
+            <path d="M24,105H232v55a8,8,0,0,1-8,8H176"/>
+            <path d="M80,168H32a8,8,0,0,1-8-8V105"/>
+          </svg>
+        </span>
+        Sharing
+        <span class="nav-shortcut">4</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="128" cy="128" r="96"/>
+            <polyline points="128 72 128 128 184 128"/>
+          </svg>
+        </span>
+        History
+        <span class="nav-shortcut">5</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="216" y1="56" x2="40" y2="56"/>
+            <line x1="200" y1="104" x2="56" y2="104"/>
+            <line x1="184" y1="152" x2="72" y2="152"/>
+            <line x1="168" y1="200" x2="88" y2="200"/>
+          </svg>
+        </span>
+        Trash
+        <span class="badge">19.5G</span>
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="storage-row">
+        <span class="storage-label">storage</span>
+        <span class="storage-pct">78%</span>
+      </div>
+      <div class="storage-track"><div class="storage-fill" style="width:78%;"></div></div>
+      <div style="display:flex; justify-content:space-between; margin-top:4px;">
+        <span class="storage-label">39T used</span>
+        <span class="storage-label">50T total</span>
+      </div>
+    </div>
+
+    <div class="user-row">
+      <div class="user-avatar">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="var(--yellow)">
+          <rect x="3" y="2" width="2" height="2"/>
+          <rect x="11" y="2" width="2" height="2"/>
+          <rect x="5" y="4" width="2" height="2"/>
+          <rect x="9" y="4" width="2" height="2"/>
+          <rect x="3" y="6" width="10" height="2"/>
+          <rect x="1" y="8" width="2" height="2"/>
+          <rect x="3" y="8" width="2" height="2"/>
+          <rect x="5" y="8" width="6" height="2"/>
+          <rect x="11" y="8" width="2" height="2"/>
+          <rect x="13" y="8" width="2" height="2"/>
+          <rect x="1" y="10" width="2" height="2"/>
+          <rect x="5" y="10" width="2" height="2"/>
+          <rect x="9" y="10" width="2" height="2"/>
+          <rect x="13" y="10" width="2" height="2"/>
+          <rect x="3" y="12" width="2" height="2"/>
+          <rect x="5" y="12" width="2" height="2"/>
+          <rect x="9" y="12" width="2" height="2"/>
+          <rect x="11" y="12" width="2" height="2"/>
+        </svg>
+      </div>
+      <div>
+        <div class="user-name">altay</div>
+      </div>
+      <span class="user-status">pro</span>
+      <span style="margin-left:auto; color:var(--solid); cursor:pointer; font-size: 12px;">...</span>
+    </div>
+  </div>
+
+  <!-- ======== CONTENT ======== -->
+  <div class="content">
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="breadcrumb">
+        <span class="breadcrumb-item">~</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item current">sharing</span>
+      </div>
+      <div class="topbar-spacer"></div>
+      <div class="cmd-palette">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="116" cy="116" r="84"/>
+          <line x1="175.4" y1="175.4" x2="224" y2="224"/>
+        </svg>
+        <span class="cmd-palette-text">search or run command...</span>
+        <span class="cmd-palette-shortcut">/</span>
+      </div>
+      <button class="btn-transfer">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="128" y1="40" x2="128" y2="216"/>
+          <line x1="56" y1="112" x2="200" y2="112" transform="rotate(90 128 128)"/>
+        </svg>
+        new transfer
+      </button>
+    </div>
+
+    <!-- Content Header -->
+    <div class="content-header">
+      <h1 class="page-heading">~/sharing</h1>
+      <span class="item-count">13 items</span>
+      <div class="header-spacer"></div>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="share-tabs">
+      <button class="share-tab active">following<span class="tab-count">4</span></button>
+      <button class="share-tab">collab<span class="tab-count">2</span></button>
+      <button class="share-tab">links<span class="tab-count">7</span></button>
+    </div>
+
+    <!-- Share with Mom command -->
+    <div class="share-mom-cmd">
+      <span class="cmd-prompt">$</span>
+      <span class="cmd-text">
+        <span class="cmd-highlight">putio share</span>
+        <span class="cmd-flag"> --mom</span>
+        <span class="cmd-arg"> &lt;file&gt;</span>
+      </span>
+      <span class="cmd-hint">generates a simple link anyone can use</span>
+      <button class="cmd-run">Run</button>
+    </div>
+
+    <!-- Share list header -->
+    <div class="share-list-header">
+      <div class="sh-col-icon"></div>
+      <div class="sh-col-name">name</div>
+      <div class="sh-col-url">url / from</div>
+      <div class="sh-col-expiry">expiry</div>
+      <div class="sh-col-status">status</div>
+    </div>
+
+    <!-- Share list body -->
+    <div class="share-list-body">
+
+      <!-- FOLLOWING SECTION -->
+      <div class="section-label">
+        Following
+        <span class="section-count">4 subscriptions</span>
+      </div>
+
+      <div class="share-row">
+        <div class="sh-icon">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--blue)" stroke-width="1.5">
+            <rect x="2" y="4" width="12" height="10" rx="1"/>
+            <path d="M2 6h5l1.5-2H14"/>
+          </svg>
+        </div>
+        <div class="sh-name">Movie Night Picks</div>
+        <div class="sh-url">from deniz</div>
+        <div class="sh-expiry">2h ago</div>
+        <div class="sh-status following">FOLLOW</div>
+      </div>
+
+      <div class="share-row">
+        <div class="sh-icon">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--blue)" stroke-width="1.5">
+            <rect x="2" y="4" width="12" height="10" rx="1"/>
+            <path d="M2 6h5l1.5-2H14"/>
+          </svg>
+        </div>
+        <div class="sh-name">Documentary Archive</div>
+        <div class="sh-url">from kerem</div>
+        <div class="sh-expiry">1d ago</div>
+        <div class="sh-status following">FOLLOW</div>
+      </div>
+
+      <div class="share-row">
+        <div class="sh-icon">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--blue)" stroke-width="1.5">
+            <rect x="2" y="4" width="12" height="10" rx="1"/>
+            <path d="M2 6h5l1.5-2H14"/>
+          </svg>
+        </div>
+        <div class="sh-name">Music Discovery</div>
+        <div class="sh-url">from ece</div>
+        <div class="sh-expiry">3d ago</div>
+        <div class="sh-status following">FOLLOW</div>
+      </div>
+
+      <div class="share-row">
+        <div class="sh-icon">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--blue)" stroke-width="1.5">
+            <rect x="2" y="4" width="12" height="10" rx="1"/>
+            <path d="M2 6h5l1.5-2H14"/>
+          </svg>
+        </div>
+        <div class="sh-name">Podcast Backlog</div>
+        <div class="sh-url">from baris</div>
+        <div class="sh-expiry">1w ago</div>
+        <div class="sh-status following">FOLLOW</div>
+      </div>
+
+      <!-- COLLAB SECTION -->
+      <div class="section-label" style="margin-top: 4px;">
+        Collaborative
+        <span class="section-count">2 folders</span>
+      </div>
+
+      <div class="share-row">
+        <div class="sh-icon">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--purple)" stroke-width="1.5">
+            <rect x="2" y="4" width="12" height="10" rx="1"/>
+            <path d="M2 6h5l1.5-2H14"/>
+          </svg>
+        </div>
+        <div class="sh-name">Chill Institute</div>
+        <div class="sh-url">
+          <div class="collab-users">
+            <span class="collab-user you">you</span>,
+            <span class="collab-user">deniz</span>,
+            <span class="collab-user">kerem</span>
+          </div>
+        </div>
+        <div class="sh-expiry">16h ago</div>
+        <div class="sh-status collab">COLLAB</div>
+      </div>
+
+      <div class="share-row">
+        <div class="sh-icon">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--purple)" stroke-width="1.5">
+            <rect x="2" y="4" width="12" height="10" rx="1"/>
+            <path d="M2 6h5l1.5-2H14"/>
+          </svg>
+        </div>
+        <div class="sh-name">Family Photos 2025</div>
+        <div class="sh-url">
+          <div class="collab-users">
+            <span class="collab-user you">you</span>,
+            <span class="collab-user">mom</span>
+          </div>
+        </div>
+        <div class="sh-expiry">2d ago</div>
+        <div class="sh-status collab">COLLAB</div>
+      </div>
+
+      <!-- LINKS SECTION -->
+      <div class="section-label" style="margin-top: 4px;">
+        Shared Links
+        <span class="section-count">7 links, 3 active</span>
+      </div>
+
+      <div class="share-row">
+        <div class="sh-icon">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--green)" stroke-width="1.5">
+            <path d="M6.5 9.5l3-3"/>
+            <path d="M9 7l2-2a2.12 2.12 0 013 3l-2 2"/>
+            <path d="M7 9l-2 2a2.12 2.12 0 003 3l2-2"/>
+          </svg>
+        </div>
+        <div class="sh-name">Cosmos Laundromat.mp4</div>
+        <div class="sh-url">put.io/s/f3k9x2m</div>
+        <div class="sh-expiry warn">exp: 5d</div>
+        <div class="sh-status active">ACTIVE</div>
+      </div>
+
+      <div class="share-row">
+        <div class="sh-icon">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--green)" stroke-width="1.5">
+            <path d="M6.5 9.5l3-3"/>
+            <path d="M9 7l2-2a2.12 2.12 0 013 3l-2 2"/>
+            <path d="M7 9l-2 2a2.12 2.12 0 003 3l2-2"/>
+          </svg>
+        </div>
+        <div class="sh-name">Big Buck Bunny (2008).mkv</div>
+        <div class="sh-url">put.io/s/a7q1w8p</div>
+        <div class="sh-expiry">exp: 12d</div>
+        <div class="sh-status active">ACTIVE</div>
+      </div>
+
+      <div class="share-row">
+        <div class="sh-icon">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--green)" stroke-width="1.5">
+            <path d="M6.5 9.5l3-3"/>
+            <path d="M9 7l2-2a2.12 2.12 0 013 3l-2 2"/>
+            <path d="M7 9l-2 2a2.12 2.12 0 003 3l2-2"/>
+          </svg>
+        </div>
+        <div class="sh-name">Sintel.mp4</div>
+        <div class="sh-url">put.io/s/h2n5b4d</div>
+        <div class="sh-expiry">exp: 28d</div>
+        <div class="sh-status active">ACTIVE</div>
+      </div>
+
+      <div class="share-row row-dimmed">
+        <div class="sh-icon">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--focus)" stroke-width="1.5">
+            <path d="M6.5 9.5l3-3"/>
+            <path d="M9 7l2-2a2.12 2.12 0 013 3l-2 2"/>
+            <path d="M7 9l-2 2a2.12 2.12 0 003 3l2-2"/>
+          </svg>
+        </div>
+        <div class="sh-name">podcast-episode-127.mp3</div>
+        <div class="sh-url" style="color: var(--focus);">put.io/s/z9e3r1t</div>
+        <div class="sh-expiry expired">exp: -3d</div>
+        <div class="sh-status expired">EXPIRED</div>
+      </div>
+
+      <div class="share-row row-dimmed">
+        <div class="sh-icon">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--focus)" stroke-width="1.5">
+            <path d="M6.5 9.5l3-3"/>
+            <path d="M9 7l2-2a2.12 2.12 0 013 3l-2 2"/>
+            <path d="M7 9l-2 2a2.12 2.12 0 003 3l2-2"/>
+          </svg>
+        </div>
+        <div class="sh-name">ebook-design-systems.epub</div>
+        <div class="sh-url" style="color: var(--focus);">put.io/s/m4c7v0k</div>
+        <div class="sh-expiry expired">exp: -10d</div>
+        <div class="sh-status expired">EXPIRED</div>
+      </div>
+
+      <div class="share-row row-dimmed">
+        <div class="sh-icon">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--focus)" stroke-width="1.5">
+            <path d="M6.5 9.5l3-3"/>
+            <path d="M9 7l2-2a2.12 2.12 0 013 3l-2 2"/>
+            <path d="M7 9l-2 2a2.12 2.12 0 003 3l2-2"/>
+          </svg>
+        </div>
+        <div class="sh-name">family-vacation-2024.zip</div>
+        <div class="sh-url" style="color: var(--focus);">put.io/s/p1j8u6y</div>
+        <div class="sh-expiry expired">exp: -22d</div>
+        <div class="sh-status expired">EXPIRED</div>
+      </div>
+
+      <div class="share-row row-dimmed">
+        <div class="sh-icon">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--focus)" stroke-width="1.5">
+            <path d="M6.5 9.5l3-3"/>
+            <path d="M9 7l2-2a2.12 2.12 0 013 3l-2 2"/>
+            <path d="M7 9l-2 2a2.12 2.12 0 003 3l2-2"/>
+          </svg>
+        </div>
+        <div class="sh-name">mixtape-spring-2025.zip</div>
+        <div class="sh-url" style="color: var(--focus);">put.io/s/x5g2l9n</div>
+        <div class="sh-expiry expired">exp: -45d</div>
+        <div class="sh-status expired">EXPIRED</div>
+      </div>
+
+    </div>
+
+    <!-- ======== STATUS BAR ======== -->
+    <div class="statusbar">
+      <div class="status-section">
+        <span class="status-mode">SHARING</span>
+      </div>
+      <div class="status-section">
+        <span class="status-dot"></span>
+        <span>connected</span>
+      </div>
+      <div class="status-section">
+        <span>~/sharing</span>
+      </div>
+      <div class="status-section">
+        <span>4 following</span>
+        <span style="color:var(--purple);">2 collab</span>
+        <span style="color:var(--green);">3 active links</span>
+      </div>
+      <div class="status-section">
+        <span>39T / 50T</span>
+      </div>
+      <div class="status-section" style="border-right: none;">
+        <span style="color: var(--text-3);">s:share</span>
+        <span style="color: var(--text-3);">m:mom</span>
+        <span style="color: var(--text-3);">n:new</span>
+      </div>
+      <div class="status-section" style="border-right: none;">
+        <span class="status-kaomoji">(^_^)/</span>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
