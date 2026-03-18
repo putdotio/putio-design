@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Fetch anything. Stream everywhere.</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0C0C0E;
+    --bg-2: #111114;
+    --bg-3: #161619;
+    --bg-4: #1C1C20;
+    --bg-5: #232328;
+    --bg-6: #2A2A30;
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-default: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.12);
+    --text-primary: #EDEDEF;
+    --text-secondary: #A0A0A8;
+    --text-tertiary: #6C6C76;
+    --text-quaternary: #4A4A52;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.12);
+    --yellow-hover: #FDD85C;
+    --yellow-dark: #1A1806;
+    --green: #3ECF8E;
+    --green-dim: rgba(62, 207, 142, 0.12);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' 1, 'ss01' 1;
+  }
+
+  .page {
+    width: 1440px;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ===== AMBIENT GLOW ===== */
+  .hero-glow {
+    position: absolute;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1000px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(253, 206, 69, 0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== NAV ===== */
+  .nav {
+    display: flex;
+    align-items: center;
+    padding: 28px 64px;
+    position: relative;
+    z-index: 10;
+  }
+  .logo {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+    color: var(--text-primary);
+  }
+  .logo .dot { color: var(--yellow); }
+  .nav-spacer { flex: 1; }
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    align-items: center;
+  }
+  .nav-link {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--yellow);
+    color: #0C0C0E;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 24px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    text-align: center;
+    padding: 64px 64px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===== STARRY CANVAS CONTAINER ===== */
+  .starry-container {
+    width: 945px;
+    height: 427px;
+    margin: 0 auto 48px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg);
+  }
+  .starry-container canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--yellow-dim);
+    border: 1px solid rgba(253, 206, 69, 0.15);
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--yellow);
+    margin-bottom: 32px;
+  }
+  .hero h1 {
+    font-size: 64px;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    margin-bottom: 24px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hero h1 .yellow { color: var(--yellow); }
+  .hero .subtitle {
+    font-size: 20px;
+    color: var(--text-secondary);
+    max-width: 560px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--yellow);
+    color: #0C0C0E;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 14px 32px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+  }
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-3);
+    color: var(--text-primary);
+    font-size: 16px;
+    font-weight: 500;
+    padding: 14px 32px;
+    border-radius: 12px;
+    border: 1px solid var(--border-default);
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+  }
+
+  /* ===== SECTION SHARED ===== */
+  .section {
+    padding: 100px 64px;
+    position: relative;
+    z-index: 1;
+  }
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--yellow);
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 44px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .section-subtitle {
+    font-size: 18px;
+    color: var(--text-secondary);
+    max-width: 560px;
+    line-height: 1.6;
+  }
+  .section-center {
+    text-align: center;
+  }
+  .section-center .section-subtitle {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ===== WHAT WE ARE ===== */
+  .what-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    margin-top: 64px;
+  }
+  .what-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 40px;
+  }
+  .what-card-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--yellow-dim);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .what-card-icon svg {
+    width: 24px;
+    height: 24px;
+    color: var(--yellow);
+  }
+  .what-card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .what-card p {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  /* ===== HOW IT WORKS ===== */
+  .steps-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 32px;
+    margin-top: 64px;
+  }
+  .step {
+    text-align: center;
+    padding: 40px 32px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    position: relative;
+  }
+  .step-number {
+    width: 40px;
+    height: 40px;
+    background: var(--yellow);
+    color: #0C0C0E;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .step-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--bg-3);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .step-icon svg {
+    width: 28px;
+    height: 28px;
+    color: var(--yellow);
+  }
+  .step h3 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+  }
+  .step p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  .step-connector {
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-quaternary);
+    font-size: 20px;
+  }
+
+  /* ===== FEATURES GRID ===== */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 64px;
+  }
+  .feature-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 32px;
+  }
+  .feature-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--bg-3);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .feature-icon svg {
+    width: 22px;
+    height: 22px;
+    color: var(--yellow);
+  }
+  .feature-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .feature-card p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* ===== PLATFORMS ===== */
+  .platforms-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-top: 64px;
+  }
+  .platform-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .platform-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .platform-icon svg {
+    width: 32px;
+    height: 32px;
+    color: var(--text-secondary);
+  }
+  .platform-card span {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .platform-card.highlight {
+    border-color: rgba(253, 206, 69, 0.2);
+    background: rgba(253, 206, 69, 0.04);
+  }
+  .platform-card.highlight span {
+    color: var(--yellow);
+  }
+  .platform-card.highlight svg {
+    color: var(--yellow);
+  }
+
+  /* ===== TESTIMONIALS ===== */
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 64px;
+  }
+  .testimonial {
+    background: var(--bg-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 32px;
+  }
+  .testimonial-stars {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+  .testimonial-stars svg {
+    width: 16px;
+    height: 16px;
+    color: var(--yellow);
+    fill: var(--yellow);
+  }
+  .testimonial blockquote {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    font-style: normal;
+  }
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .testimonial-avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--bg-4);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .testimonial-avatar svg {
+    width: 24px;
+    height: 24px;
+    color: var(--text-tertiary);
+  }
+  .testimonial-name {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .testimonial-handle {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  /* ===== PRICING TEASER ===== */
+  .pricing-teaser {
+    text-align: center;
+    padding: 80px 64px;
+    background: var(--bg-2);
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .pricing-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: 960px;
+    margin: 48px auto 0;
+  }
+  .pricing-card {
+    background: var(--bg-3);
+    border: 1px solid var(--border-default);
+    border-radius: 16px;
+    padding: 32px;
+    text-align: left;
+  }
+  .pricing-card.featured {
+    border-color: var(--yellow);
+    background: rgba(253, 206, 69, 0.04);
+    position: relative;
+  }
+  .pricing-card.featured::before {
+    content: 'Most Popular';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--yellow);
+    color: #0C0C0E;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 4px 12px;
+    border-radius: 999px;
+  }
+  .pricing-tier {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+  .pricing-price {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 4px;
+  }
+  .pricing-price span {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .pricing-desc {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    margin-bottom: 24px;
+  }
+  .pricing-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .pricing-features li {
+    font-size: 14px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .pricing-features li svg {
+    width: 16px;
+    height: 16px;
+    color: var(--green);
+    flex-shrink: 0;
+  }
+  .pricing-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: center;
+    border: none;
+  }
+  .pricing-btn-primary {
+    background: var(--yellow);
+    color: #0C0C0E;
+  }
+  .pricing-btn-secondary {
+    background: var(--bg-4);
+    color: var(--text-primary);
+    border: 1px solid var(--border-default);
+  }
+
+  /* ===== BOTTOM CTA ===== */
+  .bottom-cta {
+    text-align: center;
+    padding: 100px 64px;
+    position: relative;
+    z-index: 1;
+  }
+  .bottom-cta h2 {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+  }
+  .bottom-cta p {
+    font-size: 18px;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+  }
+  .bottom-glow {
+    position: absolute;
+    bottom: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 500px;
+    background: radial-gradient(ellipse, rgba(253, 206, 69, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    padding: 48px 64px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-left {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .footer-logo {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .footer-logo .dot { color: var(--yellow); }
+  .footer-tagline {
+    font-size: 13px;
+    color: var(--text-tertiary);
+  }
+  .footer-links {
+    display: flex;
+    gap: 32px;
+  }
+  .footer-link {
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+  .footer-right {
+    font-size: 13px;
+    color: var(--text-quaternary);
+  }
+
+  /* ===== DIVIDER ===== */
+  .section-divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border-subtle);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hero-glow"></div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="logo">put<span class="dot">.</span>io</div>
+    <div class="nav-spacer"></div>
+    <div class="nav-links">
+      <a class="nav-link" href="#">Features</a>
+      <a class="nav-link" href="#">Pricing</a>
+      <a class="nav-link" href="#">Apps</a>
+      <a class="nav-link" href="#">Blog</a>
+      <a class="nav-cta" href="#">
+        Go to app
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <!-- Starry Night Animation -->
+    <div class="starry-container">
+      <canvas id="starry-canvas"></canvas>
+    </div>
+
+    <div class="hero-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Cloud storage with a certain gravity
+    </div>
+    <h1>Fetch anything.<br><span class="yellow">Stream everywhere.</span></h1>
+    <p class="subtitle">put.io grabs your content at maximum speed, stores it in the cloud, and lets you stream or download instantly on any device.</p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="#">
+        Start free trial
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+      <a class="btn-secondary" href="#">
+        See how it works
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- WHAT WE ARE -->
+  <section class="section">
+    <div class="section-label">What we are</div>
+    <h2 class="section-title">Cloud storage that<br>actually fetches for you</h2>
+    <p class="section-subtitle">Other cloud storage makes you upload. put.io fetches content from the internet at datacenter speed -- then stores, converts, and streams it for you.</p>
+
+    <div class="what-grid">
+      <div class="what-card">
+        <div class="what-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <h3>Lightning-fast fetching</h3>
+        <p>Paste a link. We download it to our servers at datacenter speed. Up to 1 Gbps. No waiting on your home connection.</p>
+      </div>
+      <div class="what-card">
+        <div class="what-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3>Stream anywhere</h3>
+        <p>Watch on web, iOS, Android, Apple TV, Android TV, Roku, or even Vision Pro. Subtitles auto-detected. Chromecast ready.</p>
+      </div>
+      <div class="what-card">
+        <div class="what-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <h3>Download later</h3>
+        <p>Not everything needs streaming. Download files to any device whenever you want. Your content, your terms.</p>
+      </div>
+      <div class="what-card">
+        <div class="what-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h3>Private by default</h3>
+        <p>Your files are yours. Encrypted transfers, no tracking, no data mining. We make money from subscriptions, not your data.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- HOW IT WORKS -->
+  <section class="section section-center">
+    <div class="section-label">How it works</div>
+    <h2 class="section-title">Three steps. That's it.</h2>
+    <p class="section-subtitle">No complicated setup. No software to install. Just paste, wait, stream.</p>
+
+    <div class="steps-row">
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </div>
+        <h3>Add a link</h3>
+        <p>Paste any download link, torrent, or magnet URI into put.io</p>
+        <span class="step-connector">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </span>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+        <h3>We fetch it</h3>
+        <p>Our servers download at datacenter speed. Often faster than you can blink.</p>
+        <span class="step-connector">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </span>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <h3>You stream</h3>
+        <p>Watch, listen, or download from any device. Instant playback, no re-encoding wait.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- FEATURES -->
+  <section class="section">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything you'd expect,<br>and a few surprises</h2>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <h3>Auto-convert</h3>
+        <p>MP4 conversion for any video format. Stream anything without worrying about codecs.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <h3>Subtitles</h3>
+        <p>Automatic subtitle detection. Search OpenSubtitles directly from the player.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </div>
+        <h3>Share links</h3>
+        <p>Generate shareable links for files or folders. Let friends stream without an account.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h3>RSS Automation</h3>
+        <p>Subscribe to RSS feeds. New content downloads automatically. Set it and forget it.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </div>
+        <h3>Integrations</h3>
+        <p>Works with Plex, Infuse, VLC, Kodi, nPlayer, and more. Connect your favorite player.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <h3>Notifications</h3>
+        <p>Get notified when downloads complete. Push notifications on every platform.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- PLATFORMS -->
+  <section class="section section-center">
+    <div class="section-label">Available everywhere</div>
+    <h2 class="section-title">Your content follows you</h2>
+    <p class="section-subtitle">Native apps for every screen you own. Start on your phone, finish on your TV.</p>
+
+    <div class="platforms-grid">
+      <div class="platform-card highlight">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <span>Web</span>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <span>iOS</span>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <span>Android</span>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <span>tvOS</span>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <span>Android TV</span>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <span>Roku</span>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="1" width="12" height="22" rx="6"/><circle cx="12" cy="12" r="4"/></svg>
+        </div>
+        <span>watchOS</span>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <span>visionOS</span>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+        </div>
+        <span>CLI</span>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        </div>
+        <span>+ More</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- TESTIMONIALS -->
+  <section class="section">
+    <div class="section-label">What users say</div>
+    <h2 class="section-title">People seem to like us</h2>
+    <p class="section-subtitle">We don't say "instant torrents" -- our users do.</p>
+
+    <div class="testimonials-grid">
+      <div class="testimonial">
+        <div class="testimonial-stars">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <blockquote>"I cancelled Netflix. Between put.io and a good RSS feed, I have everything I need. The streaming quality is unreal."</blockquote>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">
+            <svg viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="2" width="2" height="2"/><rect x="12" y="2" width="2" height="2"/><rect x="4" y="4" width="2" height="2"/><rect x="10" y="4" width="2" height="2"/><rect x="2" y="6" width="12" height="2"/><rect x="1" y="8" width="2" height="2"/><rect x="5" y="8" width="2" height="2"/><rect x="9" y="8" width="2" height="2"/><rect x="13" y="8" width="2" height="2"/><rect x="2" y="10" width="12" height="2"/><rect x="2" y="12" width="2" height="2"/><rect x="6" y="12" width="2" height="2"/><rect x="12" y="12" width="2" height="2"/></svg>
+          </div>
+          <div>
+            <div class="testimonial-name">Helen</div>
+            <div class="testimonial-handle">put.io user since 2019</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <div class="testimonial-stars">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <blockquote>"It just works! I paste a magnet link, and 30 seconds later I'm watching it on my Apple TV. Magic."</blockquote>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">
+            <svg viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="1" width="2" height="2"/><rect x="11" y="1" width="2" height="2"/><rect x="2" y="3" width="12" height="2"/><rect x="1" y="5" width="14" height="2"/><rect x="1" y="7" width="2" height="2"/><rect x="4" y="7" width="2" height="2"/><rect x="10" y="7" width="2" height="2"/><rect x="13" y="7" width="2" height="2"/><rect x="1" y="9" width="14" height="2"/><rect x="3" y="11" width="4" height="2"/><rect x="9" y="11" width="4" height="2"/><rect x="1" y="13" width="2" height="2"/><rect x="13" y="13" width="2" height="2"/></svg>
+          </div>
+          <div>
+            <div class="testimonial-name">Luc</div>
+            <div class="testimonial-handle">put.io user since 2021</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <div class="testimonial-stars">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <blockquote>"Instant torrents. That's the best way to describe it. I add something and it's ready before I can switch tabs."</blockquote>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">
+            <svg viewBox="0 0 16 16" fill="currentColor"><rect x="5" y="1" width="6" height="2"/><rect x="3" y="3" width="10" height="2"/><rect x="2" y="5" width="3" height="2"/><rect x="7" y="5" width="2" height="2"/><rect x="11" y="5" width="3" height="2"/><rect x="1" y="7" width="14" height="2"/><rect x="1" y="9" width="2" height="2"/><rect x="5" y="9" width="6" height="2"/><rect x="13" y="9" width="2" height="2"/><rect x="3" y="11" width="2" height="2"/><rect x="11" y="11" width="2" height="2"/></svg>
+          </div>
+          <div>
+            <div class="testimonial-name">Marcus</div>
+            <div class="testimonial-handle">put.io user since 2017</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING TEASER -->
+  <div class="pricing-teaser">
+    <div class="section-label">Simple pricing</div>
+    <h2 class="section-title">No surprises. No hidden fees.</h2>
+    <p class="section-subtitle" style="margin-left: auto; margin-right: auto;">Pick a plan, start fetching. Upgrade or cancel anytime.</p>
+
+    <div class="pricing-cards">
+      <div class="pricing-card">
+        <div class="pricing-tier">Starter</div>
+        <div class="pricing-price">$9.99 <span>/mo</span></div>
+        <div class="pricing-desc">For casual use</div>
+        <ul class="pricing-features">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            100 GB storage
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            All apps included
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Streaming + downloads
+          </li>
+        </ul>
+        <button class="pricing-btn pricing-btn-secondary">Get started</button>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-tier">Pro</div>
+        <div class="pricing-price">$19.99 <span>/mo</span></div>
+        <div class="pricing-desc">For power users</div>
+        <ul class="pricing-features">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            1 TB storage
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            RSS automation
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Priority speed
+          </li>
+        </ul>
+        <button class="pricing-btn pricing-btn-primary">Get started</button>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-tier">Ultra</div>
+        <div class="pricing-price">$49.99 <span>/mo</span></div>
+        <div class="pricing-desc">For the insatiable</div>
+        <ul class="pricing-features">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            10 TB storage
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Everything in Pro
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Maximum speed
+          </li>
+        </ul>
+        <button class="pricing-btn pricing-btn-secondary">Get started</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM CTA -->
+  <section class="bottom-cta">
+    <div class="bottom-glow"></div>
+    <h2>Ready to <span style="color: var(--yellow)">put</span> it all together?</h2>
+    <p>Join thousands of happy users who stopped waiting for downloads.</p>
+    <a class="btn-primary" href="#">
+      Go to app
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-left">
+      <div class="footer-logo">put<span class="dot">.</span>io</div>
+      <div class="footer-tagline">The cloud storage service with a certain gravity. Since 2011, Istanbul.</div>
+    </div>
+    <div class="footer-links">
+      <a class="footer-link" href="#">Privacy</a>
+      <a class="footer-link" href="#">Terms</a>
+      <a class="footer-link" href="#">Blog</a>
+      <a class="footer-link" href="#">API</a>
+      <a class="footer-link" href="#">Status</a>
+    </div>
+    <div class="footer-right">
+      Made with a certain gravity
+    </div>
+  </footer>
+</div>
+
+<!-- ===== STARRY NIGHT ANIMATION ===== -->
+<script>
+// starryNightConfig.js
+function StarryNightConfig() {
+  return {
+    "pixelRatio": 0, "fps": { "throttle": true, "target": 30 },
+    "logo": { "scale": 0.6681539682539683 },
+    "sparkles": { "enabled": true, "frequency": 4, "age": 500, "width": 3.1746031746031744, "height": 5.291005291005291, "thickness": 0.1, "minDistance": 0.2, "maxDistance": 0.95 },
+    "meteors": { "enabled": true, "frequency": 0.5, "angle": 0.44, "age": 500, "length": 0.75, "thickness": 0.7407407407407408 },
+    "radialDots": { "minRadius": 0.26455026455026454, "maxRadius": 0.5291005291005291 },
+    "waveDots": { "minRadius": 0.26455026455026454, "maxRadius": 0.5291005291005291 },
+    "radial": { "enabled": true, "perspective": 1.5999999999999996, "speed": -0.1749095295536791, "dotCount": 100, "minDistance": 0.5890056867137687, "maxDistance": 0.95, "tapering": 0.14785455798724798 },
+    "waves": [
+      { "enabled": true, "speed": 1.6176183350000002, "horizPos": 0.05962433224194382, "vertPos": 0.3353437876960193, "length": 0.5779769084956057, "phase": 0.7985524728588661, "period": 0.9308978114768224, "amplitude": 0.15, "amplitudeJitter": 0.25, "spacingJitter": 0.1, "tapering": 0.2 },
+      { "enabled": true, "speed": -1.6176183350000002, "horizPos": 0.5118042391866277, "vertPos": 0.6441495778045838, "length": 0.5, "phase": 0, "period": 1, "amplitude": 0.15, "amplitudeJitter": 0.25, "spacingJitter": 0.1, "tapering": 0.2 },
+      { "enabled": true, "speed": 2.1837847519999998, "horizPos": 0.13, "vertPos": 0.5448905738411166, "length": 0.41254523522316044, "phase": 0.158883336205411, "period": 0.3463725659141823, "amplitude": 0.23608478373255212, "amplitudeJitter": 0.22505600551438912, "spacingJitter": 0.12, "tapering": 0.2 }
+    ]
+  };
+}
+</script>
+<script>
+// starryNightModel.js
+function StarryNightModel(config) {
+  this.waveDots = []; this.radialDots = []; this.sparkles = []; this.meteors = [];
+  this.getTotalObjects = function () { return this.waveDots.reduce(function (total, dots) { return total + dots.length; }, 0) + this.radialDots.length + this.sparkles.length + this.meteors.length; };
+  this.createRadialDots = function () { var dots = []; for (var i = 0; i < config.radial.dotCount; i++) { dots.push({ a: Math.random(), d: Math.random(), r: Math.random() * 2 - 1 }); } this.radialDots = dots; };
+  this.createWaveDots = function (idx) { var waveConfig = config.waves[idx]; var dots = []; var x = 0; while (x < waveConfig.length) { var dot = { a: Math.random() * 2 - 1, r: Math.random() * 2 - 1 }; var radius = (config.waveDots.minRadius + (1 + dot.r) * (config.waveDots.maxRadius - config.waveDots.minRadius) / 2) / 100; dot.p = (x + radius) / waveConfig.length; dots.push(dot); x += radius * 2 + Math.random() * waveConfig.spacingJitter * waveConfig.spacingJitter; } this.waveDots[idx] = dots; };
+  this.createAllWaveDots = function () { for (var idx = 0; idx < config.waves.length; idx++) { if (config.waves[idx].enabled) { this.createWaveDots(idx); } else { this.waveDots[idx] = []; } } };
+  this.createMeteor = function (t) { this.meteors.push({ p: Math.random(), t: t }); };
+  this.createSparkle = function (t) { var a = Math.random() * Math.PI * 2; var d = config.sparkles.minDistance + Math.random() * (config.sparkles.maxDistance - config.sparkles.minDistance); this.sparkles.push({ x: Math.cos(a) * d, y: Math.sin(a) * d, t: t }); };
+  this.cullMeteors = function (t) { this.meteors = this.meteors.filter(function (meteor) { return t - meteor.t <= config.meteors.age * (1 + config.meteors.length); }); };
+  this.cullSparkles = function (t) { this.sparkles = this.sparkles.filter(function (sparkle) { return t - sparkle.t <= config.sparkles.age; }); };
+  this.deleteRadialDots = function () { this.radialDots = []; };
+  this.deleteWaveDots = function (idx) { this.waveDots[idx] = []; };
+  this.deleteAllWaveDots = function () { for (var i = 0; i < this.waveDots.length; i++) { this.deleteWaveDots(i); } };
+  this.deleteSparkles = function () { this.sparkles = []; };
+  this.deleteMeteors = function () { this.meteors = []; };
+}
+</script>
+<script>
+// starryNightView.js
+function StarryNightView(model, canvas, logo, config) {
+  this.resize = function () { var pixelRatio = config.pixelRatio || window.devicePixelRatio || 1; canvas.width = canvas.offsetWidth * pixelRatio; canvas.height = canvas.offsetHeight * pixelRatio; };
+  this.repaint = function (t) {
+    var ctx = canvas.getContext('2d'); var normH = canvas.height / canvas.width;
+    ctx.fillStyle = '#fff'; ctx.globalCompositeOperation = 'source-over'; ctx.scale(canvas.width, canvas.width); ctx.clearRect(0, 0, 1, normH);
+    for (var i = 0; i < model.radialDots.length; i++) { var dot = model.radialDots[i]; var a = dot.a * Math.PI * 2; var pos = t / 100 * Math.pow(config.radial.speed, 3) % 1; if (pos < 0) { pos += 1; } var dotD = (pos + dot.d) % 1; var dotD2 = 1 - dotD; var scale = dotD < config.radial.tapering ? dotD / config.radial.tapering : dotD2 < config.radial.tapering ? dotD2 / config.radial.tapering : 1; dotD = config.radial.minDistance + dotD * (config.radial.maxDistance - config.radial.minDistance); var dotR = (config.radialDots.minRadius + (1 + dot.r) * (config.radialDots.maxRadius - config.radialDots.minRadius) / 2) / 100; if (config.radial.perspective) { dotD = Math.pow(dotD, config.radial.perspective); dotR *= dotD; } var dx = Math.cos(a) * dotD; var dy = Math.sin(a) * dotD; var x = (dx + 1) / 2; var y = (dy + 1) * normH / 2; ctx.beginPath(); ctx.arc(x, y, dotR * scale, 0, Math.PI * 2); ctx.fill(); }
+    for (var i = 0; i < config.waves.length; i++) { var waveConfig = config.waves[i]; var dots = model.waveDots[i] || []; var maxX = waveConfig.length; var pos = (t * Math.pow(waveConfig.speed / 100, 3)) % maxX; if (pos < 0) { pos += maxX; } for (var j = 0; j < dots.length; j++) { var dot = dots[j]; var dotX = (pos + dot.p * maxX) % maxX; var dotP = dotX / maxX; var x = waveConfig.horizPos + dotX; var y = ((Math.sin((dotP * waveConfig.period + waveConfig.phase) * Math.PI * 2)) * waveConfig.amplitude + dot.a * waveConfig.amplitudeJitter * waveConfig.amplitudeJitter + waveConfig.vertPos) * normH; var dotP2 = 1 - dotP; var scale = dotP < waveConfig.tapering ? dotP / waveConfig.tapering : dotP2 < waveConfig.tapering ? dotP2 / waveConfig.tapering : 1; var radius = (config.waveDots.minRadius + (1 + dot.r) * (config.waveDots.maxRadius - config.waveDots.minRadius) / 2) / 100; ctx.beginPath(); ctx.arc(x, y, radius * scale, 0, Math.PI * 2); ctx.fill(); } }
+    var logoAspectRatio = logo.width / logo.height; var logoW = config.logo.scale; var logoH = logoW / logoAspectRatio;
+    ctx.globalCompositeOperation = 'xor'; ctx.drawImage(logo, 0, 0, logo.width, logo.height, (1 - logoW) / 2, (normH - logoH) / 2, logoW, logoH); ctx.globalCompositeOperation = 'source-over';
+    var halfW = config.sparkles.width / 100 / 2; var halfH = config.sparkles.height / 100 / 2; var aspectRatio = config.sparkles.width / config.sparkles.height; var foldW = halfW * config.sparkles.thickness; var foldH = halfH * config.sparkles.thickness * aspectRatio;
+    for (var i = model.sparkles.length; i--;) { var sparkle = model.sparkles[i]; var age = t - sparkle.t; if (age > config.sparkles.age) { continue; } var scale = age / config.sparkles.age; scale = 1 - Math.abs(0.5 - scale) * 2; var x = (sparkle.x + 1) / 2; var y = (sparkle.y + 1) * normH / 2; ctx.beginPath(); ctx.moveTo(x, y - halfH * scale); ctx.lineTo(x + foldW * scale, y - foldH * scale); ctx.lineTo(x + halfW * scale, y); ctx.lineTo(x + foldW * scale, y + foldH * scale); ctx.lineTo(x, y + halfH * scale); ctx.lineTo(x - foldW * scale, y + foldH * scale); ctx.lineTo(x - halfW * scale, y); ctx.lineTo(x - foldW * scale, y - foldH * scale); ctx.fill(); }
+    var r = Math.sqrt(1 + normH * normH) / 2; ctx.translate(1 / 2, normH / 2); ctx.rotate(config.meteors.angle * Math.PI * 2);
+    for (var i = model.meteors.length; i--;) { var meteor = model.meteors[i]; var age = t - meteor.t; if (age > config.meteors.age * (1 + config.meteors.length)) { continue; } var x = (age / config.meteors.age - 0.5) * r * 2; var y = (meteor.p - 0.5) * normH; ctx.beginPath(); ctx.arc(x, y, config.meteors.thickness / 100 / 2, Math.PI / 2, -Math.PI / 2, true); ctx.lineTo(x - config.meteors.length * 2 * r, y); ctx.fill(); }
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+  };
+}
+</script>
+<script>
+// starryNightController.js
+function StarryNightController(model, view, config) {
+  var listeners = this; view.resize(); model.createRadialDots(); model.createAllWaveDots();
+  function repaint(t) { listeners.onBeginRender && listeners.onBeginRender(); if (config.fps.throttle) { setTimeout(function () { requestAnimationFrame(repaint); }, 1000 / config.fps.target); } else { requestAnimationFrame(repaint); } view.repaint(t); if (config.meteors.enabled) { model.cullMeteors(t); if (Math.random() < config.meteors.frequency / 100) { model.createMeteor(t); } } if (config.sparkles.enabled) { model.cullSparkles(t); if (Math.random() < config.sparkles.frequency / 100) { model.createSparkle(t); } } listeners.onEndRender && listeners.onEndRender(); }
+  requestAnimationFrame(repaint);
+}
+</script>
+<script>
+// Initialize Starry Night
+(function () {
+  var canvas = document.getElementById('starry-canvas');
+  var logo = new Image();
+  logo.crossOrigin = 'anonymous';
+  logo.src = 'https://raw.githubusercontent.com/atesgoral/put.io.starry.night/master/logo.png';
+  logo.onload = function () {
+    var config = StarryNightConfig();
+    var model = new StarryNightModel(config);
+    var view = new StarryNightView(model, canvas, logo, config);
+    var controller = new StarryNightController(model, view, config);
+    window.addEventListener('resize', function () { view.resize(); });
+  };
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Cloud Storage That Fetches For You</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0C0C0E;
+    --surface: #111113;
+    --border: #1E1E22;
+    --text: #E8E8E8;
+    --text-2: #999999;
+    --text-3: #555555;
+    --yellow: #FDCE45;
+    --red: #FF3B30;
+    --font: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  html { background: var(--bg); }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    width: 1440px;
+    margin: 0 auto;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+
+  /* ================================================================
+     NAV — strict horizontal rule below
+     ================================================================ */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 80px;
+    height: 64px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(12, 12, 14, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .nav-logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.03em;
+  }
+
+  .nav-logo span { color: var(--yellow); }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .nav-links a {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-2);
+    text-decoration: none;
+    padding: 20px 20px;
+    transition: color 0.15s;
+    letter-spacing: -0.01em;
+  }
+
+  .nav-links a:hover { color: var(--text); }
+
+  .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    background: var(--yellow);
+    color: var(--bg);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 24px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    letter-spacing: -0.01em;
+  }
+
+  .nav-cta:hover { background: #FDD85A; }
+
+  /* ================================================================
+     HERO — canvas + headline in strict grid
+     ================================================================ */
+  .hero {
+    padding: 80px 80px 0;
+    display: grid;
+    grid-template-columns: 945px 1fr;
+    gap: 0;
+    align-items: start;
+  }
+
+  .hero-canvas-container {
+    width: 945px;
+    height: 427px;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .hero-canvas-container canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .hero-right {
+    padding: 0 0 0 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 427px;
+  }
+
+  .hero-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: 16px;
+  }
+
+  .hero-headline {
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 24px;
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    color: var(--text-2);
+    line-height: 1.6;
+    margin-bottom: 40px;
+    max-width: 320px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    background: var(--yellow);
+    color: var(--bg);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 32px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    letter-spacing: -0.01em;
+    font-family: var(--font);
+  }
+
+  .btn-primary:hover { background: #FDD85A; }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    background: transparent;
+    color: var(--text-2);
+    font-size: 14px;
+    font-weight: 400;
+    padding: 12px 24px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    text-decoration: none;
+    letter-spacing: -0.01em;
+    font-family: var(--font);
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--text-3);
+    color: var(--text);
+  }
+
+  /* ================================================================
+     SECTION DIVIDER — strong horizontal rule
+     ================================================================ */
+  .section-rule {
+    border: none;
+    height: 1px;
+    background: var(--border);
+    margin: 0 80px;
+  }
+
+  .section-rule--wide {
+    margin: 0;
+  }
+
+  /* ================================================================
+     STATS BAR — oversized numbers
+     ================================================================ */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 0 80px;
+  }
+
+  .stat-item {
+    padding: 48px 0;
+    border-right: 1px solid var(--border);
+  }
+
+  .stat-item:last-child { border-right: none; }
+
+  .stat-item:first-child { padding-left: 0; }
+  .stat-item:not(:first-child) { padding-left: 48px; }
+
+  .stat-number {
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .stat-number span {
+    color: var(--yellow);
+  }
+
+  .stat-label {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-3);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* ================================================================
+     FEATURES — 4-column grid with numbered items
+     ================================================================ */
+  .features {
+    padding: 80px 80px;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 0 80px;
+    align-items: start;
+  }
+
+  .features-header {
+    padding-right: 40px;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    color: var(--text);
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .feature-item {
+    padding: 32px 32px 32px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .feature-item:nth-child(even) {
+    padding-left: 32px;
+    border-left: 1px solid var(--border);
+  }
+
+  .feature-num {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: var(--text-3);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 40px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .feature-content {}
+
+  .feature-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+
+  .feature-desc {
+    font-size: 14px;
+    color: var(--text-3);
+    line-height: 1.5;
+  }
+
+  /* ================================================================
+     HOW IT WORKS — 3 numbered steps
+     ================================================================ */
+  .how-it-works {
+    padding: 80px 80px;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 0 80px;
+    align-items: start;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+  }
+
+  .step {
+    padding: 0 32px 0 0;
+    border-right: 1px solid var(--border);
+  }
+
+  .step:last-child { border-right: none; }
+  .step:not(:first-child) { padding-left: 32px; }
+
+  .step-num {
+    font-size: 72px;
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    color: var(--border);
+    margin-bottom: 16px;
+  }
+
+  .step-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  .step-desc {
+    font-size: 14px;
+    color: var(--text-3);
+    line-height: 1.5;
+  }
+
+  /* ================================================================
+     PLATFORMS — typographic list
+     ================================================================ */
+  .platforms {
+    padding: 80px 80px;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 0 80px;
+    align-items: start;
+  }
+
+  .platform-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+  }
+
+  .platform-item {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-2);
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    width: calc(33.333% - 1px);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .platform-item::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--yellow);
+    flex-shrink: 0;
+  }
+
+  /* ================================================================
+     TESTIMONIALS — clean grid
+     ================================================================ */
+  .testimonials {
+    padding: 80px 80px;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 0 80px;
+    align-items: start;
+  }
+
+  .testimonial-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+  }
+
+  .testimonial {
+    padding: 0 32px 0 0;
+    border-right: 1px solid var(--border);
+  }
+
+  .testimonial:last-child { border-right: none; }
+  .testimonial:not(:first-child) { padding-left: 32px; }
+
+  .testimonial-quote {
+    font-size: 15px;
+    color: var(--text-2);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  .testimonial-rule {
+    width: 24px;
+    height: 2px;
+    background: var(--yellow);
+    margin-bottom: 12px;
+  }
+
+  .testimonial-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .testimonial-role {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  /* ================================================================
+     CTA — bold bottom section
+     ================================================================ */
+  .cta-section {
+    padding: 80px 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .cta-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .cta-rule {
+    width: 3px;
+    height: 64px;
+    background: var(--yellow);
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .cta-headline {
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.15;
+    color: var(--text);
+  }
+
+  .cta-headline span {
+    color: var(--yellow);
+  }
+
+  .cta-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  /* ================================================================
+     FOOTER — minimal, strict
+     ================================================================ */
+  footer {
+    padding: 32px 80px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .footer-logo {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.03em;
+  }
+
+  .footer-logo span { color: var(--yellow); }
+
+  .footer-sep {
+    width: 1px;
+    height: 14px;
+    background: var(--border);
+  }
+
+  .footer-text {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+  }
+
+  .footer-links a {
+    font-size: 12px;
+    color: var(--text-3);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .footer-links a:hover { color: var(--text-2); }
+</style>
+</head>
+<body>
+
+<!-- ==================== NAV ==================== -->
+<nav>
+  <div class="nav-logo">put<span>.</span>io</div>
+  <div class="nav-links">
+    <a href="#">Features</a>
+    <a href="#">Pricing</a>
+    <a href="#">Apps</a>
+    <a href="#">Blog</a>
+    <a class="nav-cta" href="#">Go to app</a>
+  </div>
+</nav>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero">
+  <div class="hero-canvas-container">
+    <canvas id="starry-canvas"></canvas>
+  </div>
+  <div class="hero-right">
+    <div class="hero-eyebrow">Cloud Storage</div>
+    <h1 class="hero-headline">Cloud storage<br>that fetches<br>for you</h1>
+    <p class="hero-sub">Paste a link. We fetch it at 1 Gbps, store it in the cloud, and let you stream from any device. No ads, no tracking.</p>
+    <div class="hero-actions">
+      <a href="#" class="btn-primary">Start free trial</a>
+      <a href="#" class="btn-secondary">Learn more</a>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== STATS BAR ==================== -->
+<hr class="section-rule">
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-number">2011</div>
+    <div class="stat-label">Founded</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">9</div>
+    <div class="stat-label">Native apps</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">1<span> Gbps</span></div>
+    <div class="stat-label">Fetch speed</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">0</div>
+    <div class="stat-label">Ads &middot; ever</div>
+  </div>
+</div>
+<hr class="section-rule">
+
+<!-- ==================== FEATURES ==================== -->
+<section class="features">
+  <div class="features-header">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything you need, nothing you don't</h2>
+  </div>
+  <div class="features-grid">
+    <div class="feature-item">
+      <div class="feature-num">01</div>
+      <div class="feature-content">
+        <div class="feature-title">Lightning fetch</div>
+        <div class="feature-desc">Paste any link — torrent, HTTP, RSS — and we download it at datacenter speed. Up to 1 Gbps, 24/7.</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">02</div>
+      <div class="feature-content">
+        <div class="feature-title">Stream anywhere</div>
+        <div class="feature-desc">Watch on any device with our native players. Subtitles, codec conversion, and Chromecast built in.</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">03</div>
+      <div class="feature-content">
+        <div class="feature-title">Private by default</div>
+        <div class="feature-desc">Your files, your business. Encrypted transfers, no tracking, no data selling. Based in Istanbul.</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">04</div>
+      <div class="feature-content">
+        <div class="feature-title">Download anytime</div>
+        <div class="feature-desc">Fetch once, download anywhere. Direct HTTPS links, ZIP bundles, or sync to your local drive.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ==================== HOW IT WORKS ==================== -->
+<section class="how-it-works">
+  <div class="features-header">
+    <div class="section-label">How it works</div>
+    <h2 class="section-title">Three steps. That's it.</h2>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Add a link</div>
+      <div class="step-desc">Paste a torrent magnet, HTTP URL, or RSS feed into put.io. One click.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">We fetch it</div>
+      <div class="step-desc">Our servers download at up to 1 Gbps — even while you sleep. Files land in your cloud storage.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">You stream</div>
+      <div class="step-desc">Play instantly from any device. Or download to keep. Your files, everywhere.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ==================== PLATFORMS ==================== -->
+<section class="platforms">
+  <div class="features-header">
+    <div class="section-label">Platforms</div>
+    <h2 class="section-title">Every screen you own</h2>
+  </div>
+  <div class="platform-list">
+    <div class="platform-item">Web</div>
+    <div class="platform-item">iOS</div>
+    <div class="platform-item">Android</div>
+    <div class="platform-item">tvOS</div>
+    <div class="platform-item">Android TV</div>
+    <div class="platform-item">Roku</div>
+    <div class="platform-item">watchOS</div>
+    <div class="platform-item">visionOS</div>
+    <div class="platform-item">CLI</div>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ==================== TESTIMONIALS ==================== -->
+<section class="testimonials">
+  <div class="features-header">
+    <div class="section-label">Testimonials</div>
+    <h2 class="section-title">What people say</h2>
+  </div>
+  <div class="testimonial-grid">
+    <div class="testimonial">
+      <div class="testimonial-quote">"I ditched three subscriptions after switching to put.io. One cloud to rule them all."</div>
+      <div class="testimonial-rule"></div>
+      <div class="testimonial-name">Helen</div>
+      <div class="testimonial-role">Designer, Berlin</div>
+    </div>
+    <div class="testimonial">
+      <div class="testimonial-quote">"The fetching speed is unreal. I paste a link, grab a coffee, and it's already streaming on my TV."</div>
+      <div class="testimonial-rule"></div>
+      <div class="testimonial-name">Luc</div>
+      <div class="testimonial-role">Developer, Lyon</div>
+    </div>
+    <div class="testimonial">
+      <div class="testimonial-quote">"Privacy-first, fast, and works on every device I own. put.io just gets out of the way."</div>
+      <div class="testimonial-rule"></div>
+      <div class="testimonial-name">Marcus</div>
+      <div class="testimonial-role">Filmmaker, Stockholm</div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ==================== CTA ==================== -->
+<section class="cta-section">
+  <div class="cta-left">
+    <div class="cta-rule"></div>
+    <div class="cta-headline">Ready to fetch<span>?</span></div>
+  </div>
+  <div class="cta-actions">
+    <a href="#" class="btn-primary">Start free trial</a>
+    <a href="#" class="btn-secondary">Go to app</a>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <div class="footer-left">
+    <div class="footer-logo">put<span>.</span>io</div>
+    <div class="footer-sep"></div>
+    <div class="footer-text">Istanbul, since 2011</div>
+  </div>
+  <div class="footer-links">
+    <a href="#">Terms</a>
+    <a href="#">Privacy</a>
+    <a href="#">Status</a>
+    <a href="#">Blog</a>
+    <a href="#">Twitter</a>
+    <a href="#">GitHub</a>
+  </div>
+</footer>
+
+<!-- ==================== STARRY NIGHT SCRIPTS ==================== -->
+<script>
+// starryNightConfig.js
+function StarryNightConfig() {
+  return {
+    "pixelRatio": 0, "fps": { "throttle": true, "target": 30 },
+    "logo": { "scale": 0.6681539682539683 },
+    "sparkles": { "enabled": true, "frequency": 4, "age": 500, "width": 3.1746031746031744, "height": 5.291005291005291, "thickness": 0.1, "minDistance": 0.2, "maxDistance": 0.95 },
+    "meteors": { "enabled": true, "frequency": 0.5, "angle": 0.44, "age": 500, "length": 0.75, "thickness": 0.7407407407407408 },
+    "radialDots": { "minRadius": 0.26455026455026454, "maxRadius": 0.5291005291005291 },
+    "waveDots": { "minRadius": 0.26455026455026454, "maxRadius": 0.5291005291005291 },
+    "radial": { "enabled": true, "perspective": 1.5999999999999996, "speed": -0.1749095295536791, "dotCount": 100, "minDistance": 0.5890056867137687, "maxDistance": 0.95, "tapering": 0.14785455798724798 },
+    "waves": [
+      { "enabled": true, "speed": 1.6176183350000002, "horizPos": 0.05962433224194382, "vertPos": 0.3353437876960193, "length": 0.5779769084956057, "phase": 0.7985524728588661, "period": 0.9308978114768224, "amplitude": 0.15, "amplitudeJitter": 0.25, "spacingJitter": 0.1, "tapering": 0.2 },
+      { "enabled": true, "speed": -1.6176183350000002, "horizPos": 0.5118042391866277, "vertPos": 0.6441495778045838, "length": 0.5, "phase": 0, "period": 1, "amplitude": 0.15, "amplitudeJitter": 0.25, "spacingJitter": 0.1, "tapering": 0.2 },
+      { "enabled": true, "speed": 2.1837847519999998, "horizPos": 0.13, "vertPos": 0.5448905738411166, "length": 0.41254523522316044, "phase": 0.158883336205411, "period": 0.3463725659141823, "amplitude": 0.23608478373255212, "amplitudeJitter": 0.22505600551438912, "spacingJitter": 0.12, "tapering": 0.2 }
+    ]
+  };
+}
+</script>
+<script>
+// starryNightModel.js
+function StarryNightModel(config) {
+  this.waveDots = []; this.radialDots = []; this.sparkles = []; this.meteors = [];
+  this.getTotalObjects = function () { return this.waveDots.reduce(function (total, dots) { return total + dots.length; }, 0) + this.radialDots.length + this.sparkles.length + this.meteors.length; };
+  this.createRadialDots = function () { var dots = []; for (var i = 0; i < config.radial.dotCount; i++) { dots.push({ a: Math.random(), d: Math.random(), r: Math.random() * 2 - 1 }); } this.radialDots = dots; };
+  this.createWaveDots = function (idx) { var waveConfig = config.waves[idx]; var dots = []; var x = 0; while (x < waveConfig.length) { var dot = { a: Math.random() * 2 - 1, r: Math.random() * 2 - 1 }; var radius = (config.waveDots.minRadius + (1 + dot.r) * (config.waveDots.maxRadius - config.waveDots.minRadius) / 2) / 100; dot.p = (x + radius) / waveConfig.length; dots.push(dot); x += radius * 2 + Math.random() * waveConfig.spacingJitter * waveConfig.spacingJitter; } this.waveDots[idx] = dots; };
+  this.createAllWaveDots = function () { for (var idx = 0; idx < config.waves.length; idx++) { if (config.waves[idx].enabled) { this.createWaveDots(idx); } else { this.waveDots[idx] = []; } } };
+  this.createMeteor = function (t) { this.meteors.push({ p: Math.random(), t: t }); };
+  this.createSparkle = function (t) { var a = Math.random() * Math.PI * 2; var d = config.sparkles.minDistance + Math.random() * (config.sparkles.maxDistance - config.sparkles.minDistance); this.sparkles.push({ x: Math.cos(a) * d, y: Math.sin(a) * d, t: t }); };
+  this.cullMeteors = function (t) { this.meteors = this.meteors.filter(function (meteor) { return t - meteor.t <= config.meteors.age * (1 + config.meteors.length); }); };
+  this.cullSparkles = function (t) { this.sparkles = this.sparkles.filter(function (sparkle) { return t - sparkle.t <= config.sparkles.age; }); };
+  this.deleteRadialDots = function () { this.radialDots = []; };
+  this.deleteWaveDots = function (idx) { this.waveDots[idx] = []; };
+  this.deleteAllWaveDots = function () { for (var i = 0; i < this.waveDots.length; i++) { this.deleteWaveDots(i); } };
+  this.deleteSparkles = function () { this.sparkles = []; };
+  this.deleteMeteors = function () { this.meteors = []; };
+}
+</script>
+<script>
+// starryNightView.js
+function StarryNightView(model, canvas, logo, config) {
+  this.resize = function () { var pixelRatio = config.pixelRatio || window.devicePixelRatio || 1; canvas.width = canvas.offsetWidth * pixelRatio; canvas.height = canvas.offsetHeight * pixelRatio; };
+  this.repaint = function (t) {
+    var ctx = canvas.getContext('2d'); var normH = canvas.height / canvas.width;
+    ctx.fillStyle = '#fff'; ctx.globalCompositeOperation = 'source-over'; ctx.scale(canvas.width, canvas.width); ctx.clearRect(0, 0, 1, normH);
+    for (var i = 0; i < model.radialDots.length; i++) { var dot = model.radialDots[i]; var a = dot.a * Math.PI * 2; var pos = t / 100 * Math.pow(config.radial.speed, 3) % 1; if (pos < 0) { pos += 1; } var dotD = (pos + dot.d) % 1; var dotD2 = 1 - dotD; var scale = dotD < config.radial.tapering ? dotD / config.radial.tapering : dotD2 < config.radial.tapering ? dotD2 / config.radial.tapering : 1; dotD = config.radial.minDistance + dotD * (config.radial.maxDistance - config.radial.minDistance); var dotR = (config.radialDots.minRadius + (1 + dot.r) * (config.radialDots.maxRadius - config.radialDots.minRadius) / 2) / 100; if (config.radial.perspective) { dotD = Math.pow(dotD, config.radial.perspective); dotR *= dotD; } var dx = Math.cos(a) * dotD; var dy = Math.sin(a) * dotD; var x = (dx + 1) / 2; var y = (dy + 1) * normH / 2; ctx.beginPath(); ctx.arc(x, y, dotR * scale, 0, Math.PI * 2); ctx.fill(); }
+    for (var i = 0; i < config.waves.length; i++) { var waveConfig = config.waves[i]; var dots = model.waveDots[i] || []; var maxX = waveConfig.length; var pos = (t * Math.pow(waveConfig.speed / 100, 3)) % maxX; if (pos < 0) { pos += maxX; } for (var j = 0; j < dots.length; j++) { var dot = dots[j]; var dotX = (pos + dot.p * maxX) % maxX; var dotP = dotX / maxX; var x = waveConfig.horizPos + dotX; var y = ((Math.sin((dotP * waveConfig.period + waveConfig.phase) * Math.PI * 2)) * waveConfig.amplitude + dot.a * waveConfig.amplitudeJitter * waveConfig.amplitudeJitter + waveConfig.vertPos) * normH; var dotP2 = 1 - dotP; var scale = dotP < waveConfig.tapering ? dotP / waveConfig.tapering : dotP2 < waveConfig.tapering ? dotP2 / waveConfig.tapering : 1; var radius = (config.waveDots.minRadius + (1 + dot.r) * (config.waveDots.maxRadius - config.waveDots.minRadius) / 2) / 100; ctx.beginPath(); ctx.arc(x, y, radius * scale, 0, Math.PI * 2); ctx.fill(); } }
+    var logoAspectRatio = logo.width / logo.height; var logoW = config.logo.scale; var logoH = logoW / logoAspectRatio;
+    ctx.globalCompositeOperation = 'xor'; ctx.drawImage(logo, 0, 0, logo.width, logo.height, (1 - logoW) / 2, (normH - logoH) / 2, logoW, logoH); ctx.globalCompositeOperation = 'source-over';
+    var halfW = config.sparkles.width / 100 / 2; var halfH = config.sparkles.height / 100 / 2; var aspectRatio = config.sparkles.width / config.sparkles.height; var foldW = halfW * config.sparkles.thickness; var foldH = halfH * config.sparkles.thickness * aspectRatio;
+    for (var i = model.sparkles.length; i--;) { var sparkle = model.sparkles[i]; var age = t - sparkle.t; if (age > config.sparkles.age) { continue; } var scale = age / config.sparkles.age; scale = 1 - Math.abs(0.5 - scale) * 2; var x = (sparkle.x + 1) / 2; var y = (sparkle.y + 1) * normH / 2; ctx.beginPath(); ctx.moveTo(x, y - halfH * scale); ctx.lineTo(x + foldW * scale, y - foldH * scale); ctx.lineTo(x + halfW * scale, y); ctx.lineTo(x + foldW * scale, y + foldH * scale); ctx.lineTo(x, y + halfH * scale); ctx.lineTo(x - foldW * scale, y + foldH * scale); ctx.lineTo(x - halfW * scale, y); ctx.lineTo(x - foldW * scale, y - foldH * scale); ctx.fill(); }
+    var r = Math.sqrt(1 + normH * normH) / 2; ctx.translate(1 / 2, normH / 2); ctx.rotate(config.meteors.angle * Math.PI * 2);
+    for (var i = model.meteors.length; i--;) { var meteor = model.meteors[i]; var age = t - meteor.t; if (age > config.meteors.age * (1 + config.meteors.length)) { continue; } var x = (age / config.meteors.age - 0.5) * r * 2; var y = (meteor.p - 0.5) * normH; ctx.beginPath(); ctx.arc(x, y, config.meteors.thickness / 100 / 2, Math.PI / 2, -Math.PI / 2, true); ctx.lineTo(x - config.meteors.length * 2 * r, y); ctx.fill(); }
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+  };
+}
+</script>
+<script>
+// starryNightController.js
+function StarryNightController(model, view, config) {
+  var listeners = this; view.resize(); model.createRadialDots(); model.createAllWaveDots();
+  function repaint(t) { listeners.onBeginRender && listeners.onBeginRender(); if (config.fps.throttle) { setTimeout(function () { requestAnimationFrame(repaint); }, 1000 / config.fps.target); } else { requestAnimationFrame(repaint); } view.repaint(t); if (config.meteors.enabled) { model.cullMeteors(t); if (Math.random() < config.meteors.frequency / 100) { model.createMeteor(t); } } if (config.sparkles.enabled) { model.cullSparkles(t); if (Math.random() < config.sparkles.frequency / 100) { model.createSparkle(t); } } listeners.onEndRender && listeners.onEndRender(); }
+  requestAnimationFrame(repaint);
+}
+</script>
+<script>
+// Initialize Starry Night
+(function () {
+  var canvas = document.getElementById('starry-canvas');
+  var logo = new Image();
+  logo.crossOrigin = 'anonymous';
+  logo.src = 'https://raw.githubusercontent.com/atesgoral/put.io.starry.night/master/logo.png';
+  logo.onload = function () {
+    var config = StarryNightConfig();
+    var model = new StarryNightModel(config);
+    var view = new StarryNightView(model, canvas, logo, config);
+    var controller = new StarryNightController(model, view, config);
+    window.addEventListener('resize', function () { view.resize(); });
+  };
+})();
+</script>
+
+</body>
+</html>

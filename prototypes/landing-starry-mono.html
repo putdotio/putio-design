@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --yellow: #FDCE45;
+    --green: #30A46C;
+    --dark-bg: #0A0A0C;
+    --terminal-bg: #111114;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+    --text-primary: #E8E8ED;
+    --text-secondary: #8B8B9E;
+    --text-dim: #55556A;
+    --border: #1E1E26;
+    --amber: #F5A623;
+    --red-dot: #FF5F57;
+    --yellow-dot: #FEBC2E;
+    --green-dot: #28C840;
+  }
+
+  html { background: var(--dark-bg); }
+
+  body {
+    font-family: var(--sans);
+    background: var(--dark-bg);
+    color: var(--text-primary);
+    width: 1440px;
+    margin: 0 auto;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ========== NAV ========== */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 80px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10, 10, 12, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--yellow);
+    letter-spacing: -0.5px;
+  }
+
+  .nav-logo .cursor {
+    display: inline-block;
+    width: 10px;
+    height: 20px;
+    background: var(--yellow);
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+
+  .nav-links a:hover {
+    color: var(--text-primary);
+    background: var(--terminal-bg);
+    border-color: var(--border);
+  }
+
+  .nav-links a.active {
+    color: var(--green);
+    background: rgba(48, 164, 108, 0.08);
+    border-color: rgba(48, 164, 108, 0.2);
+  }
+
+  .nav-cta {
+    font-family: var(--mono) !important;
+    font-size: 13px !important;
+    color: var(--dark-bg) !important;
+    background: var(--yellow) !important;
+    border-color: var(--yellow) !important;
+    font-weight: 600 !important;
+    padding: 8px 20px !important;
+  }
+
+  .nav-cta:hover {
+    background: #ffe278 !important;
+    color: var(--dark-bg) !important;
+  }
+
+  /* ========== HERO ========== */
+  .hero {
+    padding: 80px 80px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Terminal Window */
+  .terminal-window {
+    width: 980px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--terminal-bg);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.03),
+      0 20px 60px rgba(0,0,0,0.5),
+      0 0 120px rgba(253, 206, 69, 0.03);
+  }
+
+  .terminal-titlebar {
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    background: #18181C;
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+  }
+
+  .terminal-dots {
+    display: flex;
+    gap: 8px;
+  }
+
+  .terminal-dots span {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .terminal-dots span:nth-child(1) { background: var(--red-dot); }
+  .terminal-dots span:nth-child(2) { background: var(--yellow-dot); }
+  .terminal-dots span:nth-child(3) { background: var(--green-dot); }
+
+  .terminal-title {
+    flex: 1;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-right: 52px;
+  }
+
+  .terminal-canvas-wrap {
+    position: relative;
+    width: 100%;
+    height: 440px;
+    background: var(--dark-bg);
+    overflow: hidden;
+  }
+
+  .terminal-canvas-wrap canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Scanline overlay for extra terminal feel */
+  .terminal-canvas-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none;
+  }
+
+  .hero-content {
+    text-align: center;
+    margin-top: 56px;
+    max-width: 700px;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--green);
+    background: rgba(48, 164, 108, 0.08);
+    border: 1px solid rgba(48, 164, 108, 0.2);
+    border-radius: 20px;
+    padding: 6px 16px;
+    margin-bottom: 24px;
+  }
+
+  .hero-badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .hero h1 {
+    font-family: var(--sans);
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -2px;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--yellow);
+  }
+
+  .hero-sub {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 36px;
+  }
+
+  .hero-sub .comment {
+    color: var(--text-dim);
+  }
+
+  .hero-cta-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .btn-primary {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dark-bg);
+    background: var(--yellow);
+    border: none;
+    padding: 14px 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary:hover {
+    background: #ffe278;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(253, 206, 69, 0.25);
+  }
+
+  .btn-secondary {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 14px 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-secondary:hover {
+    color: var(--text-primary);
+    border-color: var(--text-dim);
+    background: var(--terminal-bg);
+  }
+
+  /* ========== SECTIONS ========== */
+  section {
+    padding: 100px 80px;
+    border-top: 1px solid var(--border);
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--green);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label .prompt {
+    color: var(--text-dim);
+  }
+
+  .section-title {
+    font-family: var(--sans);
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    margin-bottom: 16px;
+    line-height: 1.15;
+  }
+
+  .section-desc {
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 560px;
+    margin-bottom: 56px;
+  }
+
+  /* ========== HELP SECTION ========== */
+  .help-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .help-item {
+    background: var(--terminal-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 32px;
+    transition: all 0.25s;
+  }
+
+  .help-item:hover {
+    border-color: rgba(253, 206, 69, 0.2);
+    background: #141418;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  }
+
+  .help-flag {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--yellow);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .help-flag .icon {
+    font-size: 18px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(253, 206, 69, 0.08);
+    border-radius: 8px;
+  }
+
+  .help-type {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .help-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  /* ========== HOW IT WORKS ========== */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .step {
+    background: var(--terminal-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.25s;
+  }
+
+  .step:hover {
+    border-color: rgba(48, 164, 108, 0.3);
+  }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 18px;
+    background: #18181C;
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+  }
+
+  .step-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .step-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .step-dots span:nth-child(1) { background: var(--red-dot); }
+  .step-dots span:nth-child(2) { background: var(--yellow-dot); }
+  .step-dots span:nth-child(3) { background: var(--green-dot); }
+
+  .step-tab {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+
+  .step-body {
+    padding: 24px 28px;
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+  }
+
+  .step-code {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .step-prompt {
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  .step-prompt .dollar {
+    color: var(--green);
+    user-select: none;
+  }
+
+  .step-prompt .cmd {
+    color: var(--yellow);
+    font-weight: 600;
+  }
+
+  .step-prompt .arg {
+    color: var(--text-primary);
+  }
+
+  .step-prompt .flag {
+    color: #7B93DB;
+  }
+
+  .step-prompt .string {
+    color: #E5A07A;
+  }
+
+  .step-prompt .output {
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  .step-prompt .success {
+    color: var(--green);
+  }
+
+  .step-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    background: rgba(48, 164, 108, 0.08);
+    border: 1px solid rgba(48, 164, 108, 0.15);
+    border-radius: 6px;
+    padding: 4px 10px;
+    white-space: nowrap;
+  }
+
+  .step-info {
+    width: 280px;
+    flex-shrink: 0;
+  }
+
+  .step-info h3 {
+    font-family: var(--sans);
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+
+  .step-info p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  /* ========== SYSTEM SPECS ========== */
+  .specs-container {
+    display: flex;
+    gap: 48px;
+    align-items: flex-start;
+  }
+
+  .neofetch {
+    flex: 1;
+    background: var(--terminal-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .neofetch-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 18px;
+    background: #18181C;
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+  }
+
+  .neofetch-header .dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .neofetch-header .dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .neofetch-header .dots span:nth-child(1) { background: var(--red-dot); }
+  .neofetch-header .dots span:nth-child(2) { background: var(--yellow-dot); }
+  .neofetch-header .dots span:nth-child(3) { background: var(--green-dot); }
+
+  .neofetch-header .title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-left: auto;
+    margin-right: auto;
+    transform: translateX(-15px);
+  }
+
+  .neofetch-body {
+    padding: 32px;
+    display: flex;
+    gap: 48px;
+  }
+
+  .neofetch-ascii {
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.3;
+    color: var(--yellow);
+    white-space: pre;
+    flex-shrink: 0;
+    opacity: 0.8;
+  }
+
+  .neofetch-info {
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 2.2;
+  }
+
+  .neofetch-info .label {
+    color: var(--yellow);
+    font-weight: 600;
+  }
+
+  .neofetch-info .value {
+    color: var(--text-secondary);
+  }
+
+  .neofetch-info .sep {
+    color: var(--text-dim);
+    margin: 0 4px;
+  }
+
+  .neofetch-info .header-line {
+    color: var(--green);
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .neofetch-info .divider {
+    display: block;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+
+  .neofetch-colors {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .neofetch-colors span {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+  }
+
+  .specs-side {
+    width: 380px;
+    flex-shrink: 0;
+  }
+
+  .specs-side h2 {
+    font-family: var(--sans);
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+
+  .specs-side p {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+
+  .specs-side .stat-highlight {
+    display: flex;
+    gap: 32px;
+  }
+
+  .stat-highlight .stat {
+    text-align: left;
+  }
+
+  .stat-highlight .stat-value {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--yellow);
+  }
+
+  .stat-highlight .stat-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+
+  /* ========== PLATFORMS ========== */
+  .platforms-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .platform-card {
+    background: var(--terminal-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .platform-card:hover {
+    border-color: rgba(48, 164, 108, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .platform-cmd {
+    font-family: var(--mono);
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  .platform-cmd .pm {
+    color: var(--green);
+  }
+
+  .platform-cmd .action {
+    color: var(--text-primary);
+  }
+
+  .platform-cmd .pkg {
+    color: var(--yellow);
+  }
+
+  .platform-name {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  /* ========== BOTTOM CTA ========== */
+  .bottom-cta {
+    text-align: center;
+    padding: 120px 80px;
+    position: relative;
+  }
+
+  .bottom-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(253, 206, 69, 0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-terminal {
+    display: inline-block;
+    background: var(--terminal-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 36px;
+    margin-bottom: 32px;
+    font-family: var(--mono);
+    font-size: 16px;
+  }
+
+  .cta-terminal .dollar {
+    color: var(--green);
+  }
+
+  .cta-terminal .cmd {
+    color: var(--yellow);
+    font-weight: 600;
+  }
+
+  .cta-terminal .flag {
+    color: #7B93DB;
+  }
+
+  .cta-terminal .arg {
+    color: var(--text-primary);
+  }
+
+  .cta-terminal .blink-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 18px;
+    background: var(--green);
+    margin-left: 4px;
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+  }
+
+  .bottom-cta h2 {
+    font-family: var(--sans);
+    font-size: 44px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    margin-bottom: 16px;
+    line-height: 1.15;
+  }
+
+  .bottom-cta h2 em {
+    font-style: normal;
+    color: var(--yellow);
+  }
+
+  .bottom-cta .sub {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 36px;
+    line-height: 1.6;
+  }
+
+  /* ========== FOOTER ========== */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+  }
+
+  .footer-links a {
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover {
+    color: var(--text-secondary);
+  }
+
+  .footer-brand {
+    color: var(--text-dim);
+  }
+
+  .footer-brand span {
+    color: var(--yellow);
+    font-weight: 600;
+  }
+
+  /* ========== TYPING ANIMATIONS ========== */
+  .typing-line {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  @keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  /* ========== SCROLLBAR ========== */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--dark-bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+</style>
+</head>
+<body>
+
+<!-- ==================== NAV ==================== -->
+<nav>
+  <div class="nav-logo">put.io<span class="cursor"></span></div>
+  <div class="nav-links">
+    <a href="#" class="active">~/home</a>
+    <a href="#">~/features</a>
+    <a href="#">~/pricing</a>
+    <a href="#">~/docs</a>
+    <a href="#">~/blog</a>
+    <a href="#" class="nav-cta">Log in &rarr;</a>
+  </div>
+</nav>
+
+<!-- ==================== HERO ==================== -->
+<div class="hero">
+  <div class="terminal-window">
+    <div class="terminal-titlebar">
+      <div class="terminal-dots">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="terminal-title">put.io &mdash; starry-night</div>
+    </div>
+    <div class="terminal-canvas-wrap">
+      <canvas id="starry-canvas"></canvas>
+    </div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      system operational &mdash; all services running
+    </div>
+    <h1>Cloud storage with a<br>certain <em>gravity</em></h1>
+    <p class="hero-sub">
+      <span class="comment">// </span>Fetch anything from the internet at 1 Gbps.<br>
+      <span class="comment">// </span>Stream it anywhere. No ads. No tracking. Just files.
+    </p>
+    <div class="hero-cta-group">
+      <a href="#" class="btn-primary">$ try --plan starter &rarr;</a>
+      <a href="#" class="btn-secondary">$ cat docs.md</a>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== HELP SECTION ==================== -->
+<section>
+  <div class="section-label">
+    <span class="prompt">$</span> putio --help
+  </div>
+  <div class="section-title">Everything you need.<br>Nothing you don't.</div>
+  <p class="section-desc">A cloud storage service that fetches files from the internet at blazing speed, then lets you stream them anywhere.</p>
+
+  <div class="help-grid">
+    <div class="help-item">
+      <div class="help-flag">
+        <span class="icon">&#8615;</span>
+        --fetch &lt;url&gt;
+      </div>
+      <div class="help-type">Transfer Engine</div>
+      <p class="help-desc">Drop a link &mdash; any link. Torrents, magnet links, direct URLs. We fetch it to your cloud storage at up to 1 Gbps. No client software needed.</p>
+    </div>
+    <div class="help-item">
+      <div class="help-flag">
+        <span class="icon">&#9654;</span>
+        --stream
+      </div>
+      <div class="help-type">Media Player</div>
+      <p class="help-desc">Stream any video format instantly. Subtitles auto-detected. Chromecast, AirPlay, Apple TV, Android TV, Roku &mdash; pick your screen.</p>
+    </div>
+    <div class="help-item">
+      <div class="help-flag">
+        <span class="icon">&#128274;</span>
+        --private
+      </div>
+      <div class="help-type">Security</div>
+      <p class="help-desc">Your files are yours. End-to-end encryption, no data selling, no ads, no tracking. We've been privacy-first since 2011.</p>
+    </div>
+    <div class="help-item">
+      <div class="help-flag">
+        <span class="icon">&#127760;</span>
+        --everywhere
+      </div>
+      <div class="help-type">Cross-Platform</div>
+      <p class="help-desc">iOS, Android, Apple TV, Android TV, Roku, web, desktop, CLI. Access your files from literally anywhere on any device.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== HOW IT WORKS ==================== -->
+<section>
+  <div class="section-label">
+    <span class="prompt">$</span> putio workflow
+  </div>
+  <div class="section-title">Three commands. That's it.</div>
+  <p class="section-desc">No bloated clients, no configuration wizards. Just a simple flow from URL to your screen.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-header">
+        <div class="step-dots"><span></span><span></span><span></span></div>
+        <div class="step-num">step 1 of 3</div>
+        <div class="step-tab">transfer.sh</div>
+      </div>
+      <div class="step-body">
+        <div class="step-code">
+          <div class="step-prompt">
+            <span class="dollar">$ </span><span class="cmd">putio</span> <span class="arg">fetch</span> <span class="string">"https://example.com/file.torrent"</span><br>
+            <br>
+            <span class="output">Resolving peers... done (142 seeds found)</span><br>
+            <span class="output">Fetching at <span class="success" style="font-style:normal; font-weight:600;">1.2 Gbps</span>... ████████████████████░░ 89%</span><br>
+            <span class="success">&#10003; Transfer complete. 4.7 GB saved to ~/Downloads/</span>
+          </div>
+        </div>
+        <div class="step-info">
+          <h3>Fetch anything</h3>
+          <p>Paste any link &mdash; torrent, magnet, or direct URL. Our servers grab it at datacenter speeds while you do something else.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-dots"><span></span><span></span><span></span></div>
+        <div class="step-num">step 2 of 3</div>
+        <div class="step-tab">browse.sh</div>
+      </div>
+      <div class="step-body">
+        <div class="step-code">
+          <div class="step-prompt">
+            <span class="dollar">$ </span><span class="cmd">putio</span> <span class="arg">ls</span> <span class="string">~/Downloads/</span><br>
+            <br>
+            <span class="output">drwxr-xr-x  Movies/         &mdash;     2 items</span><br>
+            <span class="output">drwxr-xr-x  Music/          &mdash;    47 items</span><br>
+            <span class="output">-rw-r--r--  movie.mkv       &mdash;   4.7 GB</span><br>
+            <span class="output">-rw-r--r--  subtitles.srt   &mdash;    82 KB</span><br>
+            <br>
+            <span class="success">4 entries, 12.3 GB total</span>
+          </div>
+        </div>
+        <div class="step-info">
+          <h3>Browse your files</h3>
+          <p>Everything organized and accessible. Browse from web, mobile, TV, or CLI. Your cloud, your rules.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-dots"><span></span><span></span><span></span></div>
+        <div class="step-num">step 3 of 3</div>
+        <div class="step-tab">stream.sh</div>
+      </div>
+      <div class="step-body">
+        <div class="step-code">
+          <div class="step-prompt">
+            <span class="dollar">$ </span><span class="cmd">putio</span> <span class="arg">stream</span> <span class="string">movie.mkv</span> <span class="flag">--device</span> <span class="arg">appletv</span><br>
+            <br>
+            <span class="output">Scanning network... found 3 devices</span><br>
+            <span class="output">Connecting to "Living Room Apple TV"...</span><br>
+            <span class="output">Subtitles: English (auto-detected)</span><br>
+            <span class="success">&#9654; Now streaming &mdash; 4K HDR &mdash; Living Room</span>
+          </div>
+        </div>
+        <div class="step-info">
+          <h3>Stream anywhere</h3>
+          <p>Cast to any device on your network. Automatic subtitle detection, format conversion, and adaptive quality.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SYSTEM SPECS ==================== -->
+<section>
+  <div class="specs-container">
+    <div class="neofetch">
+      <div class="neofetch-header">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <div class="title">putio@cloud ~ $ neofetch</div>
+      </div>
+      <div class="neofetch-body">
+        <div class="neofetch-ascii">
+    ██████╗ ██╗   ██╗████████╗  ██╗ ██████╗
+    ██╔══██╗██║   ██║╚══██╔══╝  ██║██╔═══██╗
+    ██████╔╝██║   ██║   ██║     ██║██║   ██║
+    ██╔═══╝ ██║   ██║   ██║     ██║██║   ██║
+    ██║     ╚██████╔╝   ██║ ██╗ ██║╚██████╔╝
+    ╚═╝      ╚═════╝    ╚═╝ ╚═╝ ╚═╝ ╚═════╝</div>
+        <div class="neofetch-info">
+          <span class="header-line">putio@cloud</span>
+          <span class="divider">--------------</span>
+          <span class="label">OS</span><span class="sep">:</span> <span class="value">put.io Cloud v15.3.1</span><br>
+          <span class="label">Founded</span><span class="sep">:</span> <span class="value">2011, Istanbul</span><br>
+          <span class="label">Uptime</span><span class="sep">:</span> <span class="value">15 years</span><br>
+          <span class="label">Speed</span><span class="sep">:</span> <span class="value">1 Gbps (peak 10 Gbps)</span><br>
+          <span class="label">Storage</span><span class="sep">:</span> <span class="value">100 GB &ndash; 10 TB plans</span><br>
+          <span class="label">Clients</span><span class="sep">:</span> <span class="value">9 platforms</span><br>
+          <span class="label">Formats</span><span class="sep">:</span> <span class="value">MKV, MP4, AVI, MOV...</span><br>
+          <span class="label">Ads</span><span class="sep">:</span> <span class="value">0 (zero, zilch, nada)</span><br>
+          <span class="label">Tracking</span><span class="sep">:</span> <span class="value">none</span><br>
+          <span class="label">Encryption</span><span class="sep">:</span> <span class="value">AES-256 at rest</span><br>
+          <div class="neofetch-colors">
+            <span style="background: var(--yellow);"></span>
+            <span style="background: var(--green);"></span>
+            <span style="background: #7B93DB;"></span>
+            <span style="background: #E5A07A;"></span>
+            <span style="background: var(--text-primary);"></span>
+            <span style="background: var(--text-dim);"></span>
+            <span style="background: var(--red-dot);"></span>
+            <span style="background: #9B59B6;"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="specs-side">
+      <div class="section-label">
+        <span class="prompt">$</span> putio sysinfo
+      </div>
+      <h2>Built different.<br>Since 2011.</h2>
+      <p>From a small team in Istanbul to millions of users worldwide. We've been doing cloud storage before it was cool &mdash; and we're still doing it better.</p>
+      <div class="stat-highlight">
+        <div class="stat">
+          <div class="stat-value">15</div>
+          <div class="stat-label">Years running</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">1 Gbps</div>
+          <div class="stat-label">Fetch speed</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">0</div>
+          <div class="stat-label">Ads served</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PLATFORMS ==================== -->
+<section>
+  <div class="section-label">
+    <span class="prompt">$</span> putio platforms --list
+  </div>
+  <div class="section-title">Available everywhere.</div>
+  <p class="section-desc">Install put.io on your favorite platform. Or just use the web. We don't judge.</p>
+
+  <div class="platforms-grid">
+    <div class="platform-card">
+      <div class="platform-cmd">
+        <span class="pm">brew</span> <span class="action">install</span> <span class="pkg">putio-macos</span>
+      </div>
+      <div class="platform-name">macOS</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-cmd">
+        <span class="pm">winget</span> <span class="action">install</span> <span class="pkg">putio-desktop</span>
+      </div>
+      <div class="platform-name">Windows</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-cmd">
+        <span class="pm">snap</span> <span class="action">install</span> <span class="pkg">putio-linux</span>
+      </div>
+      <div class="platform-name">Linux</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-cmd">
+        <span class="pm">appstore</span> <span class="action">get</span> <span class="pkg">putio-ios</span>
+      </div>
+      <div class="platform-name">iPhone &amp; iPad</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-cmd">
+        <span class="pm">playstore</span> <span class="action">get</span> <span class="pkg">putio-android</span>
+      </div>
+      <div class="platform-name">Android</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-cmd">
+        <span class="pm">appstore</span> <span class="action">get</span> <span class="pkg">putio-tv</span>
+      </div>
+      <div class="platform-name">Apple TV</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-cmd">
+        <span class="pm">playstore</span> <span class="action">get</span> <span class="pkg">putio-androidtv</span>
+      </div>
+      <div class="platform-name">Android TV</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-cmd">
+        <span class="pm">roku</span> <span class="action">add</span> <span class="pkg">putio-channel</span>
+      </div>
+      <div class="platform-name">Roku</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-cmd">
+        <span class="pm">curl</span> <span class="action">-O</span> <span class="pkg">app.put.io</span>
+      </div>
+      <div class="platform-name">Web App</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== BOTTOM CTA ==================== -->
+<section class="bottom-cta">
+  <div class="cta-terminal">
+    <span class="dollar">$ </span><span class="cmd">putio</span> <span class="arg">signup</span> <span class="flag">--plan</span> <span class="arg">starter</span><span class="blink-cursor"></span>
+  </div>
+  <h2>Ready to<br>take <em>flight</em>?</h2>
+  <p class="sub">Start with our $0.99 trial. No commitments, no tricks.<br>Just fast, private cloud storage that actually works.</p>
+  <div class="hero-cta-group">
+    <a href="#" class="btn-primary">Start for $0.99 &rarr;</a>
+    <a href="#" class="btn-secondary">View pricing</a>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <div class="footer-brand"><span>put.io</span> &copy; 2011&ndash;2026. All rights reserved.</div>
+  <div class="footer-links">
+    <a href="#">Terms</a>
+    <a href="#">Privacy</a>
+    <a href="#">Status</a>
+    <a href="#">Blog</a>
+    <a href="#">Twitter</a>
+    <a href="#">GitHub</a>
+  </div>
+</footer>
+
+<!-- ==================== STARRY NIGHT SCRIPTS ==================== -->
+<script>
+// starryNightConfig.js
+function StarryNightConfig() {
+  return {
+    "pixelRatio": 0, "fps": { "throttle": true, "target": 30 },
+    "logo": { "scale": 0.6681539682539683 },
+    "sparkles": { "enabled": true, "frequency": 4, "age": 500, "width": 3.1746031746031744, "height": 5.291005291005291, "thickness": 0.1, "minDistance": 0.2, "maxDistance": 0.95 },
+    "meteors": { "enabled": true, "frequency": 0.5, "angle": 0.44, "age": 500, "length": 0.75, "thickness": 0.7407407407407408 },
+    "radialDots": { "minRadius": 0.26455026455026454, "maxRadius": 0.5291005291005291 },
+    "waveDots": { "minRadius": 0.26455026455026454, "maxRadius": 0.5291005291005291 },
+    "radial": { "enabled": true, "perspective": 1.5999999999999996, "speed": -0.1749095295536791, "dotCount": 100, "minDistance": 0.5890056867137687, "maxDistance": 0.95, "tapering": 0.14785455798724798 },
+    "waves": [
+      { "enabled": true, "speed": 1.6176183350000002, "horizPos": 0.05962433224194382, "vertPos": 0.3353437876960193, "length": 0.5779769084956057, "phase": 0.7985524728588661, "period": 0.9308978114768224, "amplitude": 0.15, "amplitudeJitter": 0.25, "spacingJitter": 0.1, "tapering": 0.2 },
+      { "enabled": true, "speed": -1.6176183350000002, "horizPos": 0.5118042391866277, "vertPos": 0.6441495778045838, "length": 0.5, "phase": 0, "period": 1, "amplitude": 0.15, "amplitudeJitter": 0.25, "spacingJitter": 0.1, "tapering": 0.2 },
+      { "enabled": true, "speed": 2.1837847519999998, "horizPos": 0.13, "vertPos": 0.5448905738411166, "length": 0.41254523522316044, "phase": 0.158883336205411, "period": 0.3463725659141823, "amplitude": 0.23608478373255212, "amplitudeJitter": 0.22505600551438912, "spacingJitter": 0.12, "tapering": 0.2 }
+    ]
+  };
+}
+</script>
+<script>
+// starryNightModel.js
+function StarryNightModel(config) {
+  this.waveDots = []; this.radialDots = []; this.sparkles = []; this.meteors = [];
+  this.getTotalObjects = function () { return this.waveDots.reduce(function (total, dots) { return total + dots.length; }, 0) + this.radialDots.length + this.sparkles.length + this.meteors.length; };
+  this.createRadialDots = function () { var dots = []; for (var i = 0; i < config.radial.dotCount; i++) { dots.push({ a: Math.random(), d: Math.random(), r: Math.random() * 2 - 1 }); } this.radialDots = dots; };
+  this.createWaveDots = function (idx) { var waveConfig = config.waves[idx]; var dots = []; var x = 0; while (x < waveConfig.length) { var dot = { a: Math.random() * 2 - 1, r: Math.random() * 2 - 1 }; var radius = (config.waveDots.minRadius + (1 + dot.r) * (config.waveDots.maxRadius - config.waveDots.minRadius) / 2) / 100; dot.p = (x + radius) / waveConfig.length; dots.push(dot); x += radius * 2 + Math.random() * waveConfig.spacingJitter * waveConfig.spacingJitter; } this.waveDots[idx] = dots; };
+  this.createAllWaveDots = function () { for (var idx = 0; idx < config.waves.length; idx++) { if (config.waves[idx].enabled) { this.createWaveDots(idx); } else { this.waveDots[idx] = []; } } };
+  this.createMeteor = function (t) { this.meteors.push({ p: Math.random(), t: t }); };
+  this.createSparkle = function (t) { var a = Math.random() * Math.PI * 2; var d = config.sparkles.minDistance + Math.random() * (config.sparkles.maxDistance - config.sparkles.minDistance); this.sparkles.push({ x: Math.cos(a) * d, y: Math.sin(a) * d, t: t }); };
+  this.cullMeteors = function (t) { this.meteors = this.meteors.filter(function (meteor) { return t - meteor.t <= config.meteors.age * (1 + config.meteors.length); }); };
+  this.cullSparkles = function (t) { this.sparkles = this.sparkles.filter(function (sparkle) { return t - sparkle.t <= config.sparkles.age; }); };
+  this.deleteRadialDots = function () { this.radialDots = []; };
+  this.deleteWaveDots = function (idx) { this.waveDots[idx] = []; };
+  this.deleteAllWaveDots = function () { for (var i = 0; i < this.waveDots.length; i++) { this.deleteWaveDots(i); } };
+  this.deleteSparkles = function () { this.sparkles = []; };
+  this.deleteMeteors = function () { this.meteors = []; };
+}
+</script>
+<script>
+// starryNightView.js
+function StarryNightView(model, canvas, logo, config) {
+  this.resize = function () { var pixelRatio = config.pixelRatio || window.devicePixelRatio || 1; canvas.width = canvas.offsetWidth * pixelRatio; canvas.height = canvas.offsetHeight * pixelRatio; };
+  this.repaint = function (t) {
+    var ctx = canvas.getContext('2d'); var normH = canvas.height / canvas.width;
+    ctx.fillStyle = '#fff'; ctx.globalCompositeOperation = 'source-over'; ctx.scale(canvas.width, canvas.width); ctx.clearRect(0, 0, 1, normH);
+    for (var i = 0; i < model.radialDots.length; i++) { var dot = model.radialDots[i]; var a = dot.a * Math.PI * 2; var pos = t / 100 * Math.pow(config.radial.speed, 3) % 1; if (pos < 0) { pos += 1; } var dotD = (pos + dot.d) % 1; var dotD2 = 1 - dotD; var scale = dotD < config.radial.tapering ? dotD / config.radial.tapering : dotD2 < config.radial.tapering ? dotD2 / config.radial.tapering : 1; dotD = config.radial.minDistance + dotD * (config.radial.maxDistance - config.radial.minDistance); var dotR = (config.radialDots.minRadius + (1 + dot.r) * (config.radialDots.maxRadius - config.radialDots.minRadius) / 2) / 100; if (config.radial.perspective) { dotD = Math.pow(dotD, config.radial.perspective); dotR *= dotD; } var dx = Math.cos(a) * dotD; var dy = Math.sin(a) * dotD; var x = (dx + 1) / 2; var y = (dy + 1) * normH / 2; ctx.beginPath(); ctx.arc(x, y, dotR * scale, 0, Math.PI * 2); ctx.fill(); }
+    for (var i = 0; i < config.waves.length; i++) { var waveConfig = config.waves[i]; var dots = model.waveDots[i] || []; var maxX = waveConfig.length; var pos = (t * Math.pow(waveConfig.speed / 100, 3)) % maxX; if (pos < 0) { pos += maxX; } for (var j = 0; j < dots.length; j++) { var dot = dots[j]; var dotX = (pos + dot.p * maxX) % maxX; var dotP = dotX / maxX; var x = waveConfig.horizPos + dotX; var y = ((Math.sin((dotP * waveConfig.period + waveConfig.phase) * Math.PI * 2)) * waveConfig.amplitude + dot.a * waveConfig.amplitudeJitter * waveConfig.amplitudeJitter + waveConfig.vertPos) * normH; var dotP2 = 1 - dotP; var scale = dotP < waveConfig.tapering ? dotP / waveConfig.tapering : dotP2 < waveConfig.tapering ? dotP2 / waveConfig.tapering : 1; var radius = (config.waveDots.minRadius + (1 + dot.r) * (config.waveDots.maxRadius - config.waveDots.minRadius) / 2) / 100; ctx.beginPath(); ctx.arc(x, y, radius * scale, 0, Math.PI * 2); ctx.fill(); } }
+    var logoAspectRatio = logo.width / logo.height; var logoW = config.logo.scale; var logoH = logoW / logoAspectRatio;
+    ctx.globalCompositeOperation = 'xor'; ctx.drawImage(logo, 0, 0, logo.width, logo.height, (1 - logoW) / 2, (normH - logoH) / 2, logoW, logoH); ctx.globalCompositeOperation = 'source-over';
+    var halfW = config.sparkles.width / 100 / 2; var halfH = config.sparkles.height / 100 / 2; var aspectRatio = config.sparkles.width / config.sparkles.height; var foldW = halfW * config.sparkles.thickness; var foldH = halfH * config.sparkles.thickness * aspectRatio;
+    for (var i = model.sparkles.length; i--;) { var sparkle = model.sparkles[i]; var age = t - sparkle.t; if (age > config.sparkles.age) { continue; } var scale = age / config.sparkles.age; scale = 1 - Math.abs(0.5 - scale) * 2; var x = (sparkle.x + 1) / 2; var y = (sparkle.y + 1) * normH / 2; ctx.beginPath(); ctx.moveTo(x, y - halfH * scale); ctx.lineTo(x + foldW * scale, y - foldH * scale); ctx.lineTo(x + halfW * scale, y); ctx.lineTo(x + foldW * scale, y + foldH * scale); ctx.lineTo(x, y + halfH * scale); ctx.lineTo(x - foldW * scale, y + foldH * scale); ctx.lineTo(x - halfW * scale, y); ctx.lineTo(x - foldW * scale, y - foldH * scale); ctx.fill(); }
+    var r = Math.sqrt(1 + normH * normH) / 2; ctx.translate(1 / 2, normH / 2); ctx.rotate(config.meteors.angle * Math.PI * 2);
+    for (var i = model.meteors.length; i--;) { var meteor = model.meteors[i]; var age = t - meteor.t; if (age > config.meteors.age * (1 + config.meteors.length)) { continue; } var x = (age / config.meteors.age - 0.5) * r * 2; var y = (meteor.p - 0.5) * normH; ctx.beginPath(); ctx.arc(x, y, config.meteors.thickness / 100 / 2, Math.PI / 2, -Math.PI / 2, true); ctx.lineTo(x - config.meteors.length * 2 * r, y); ctx.fill(); }
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+  };
+}
+</script>
+<script>
+// starryNightController.js
+function StarryNightController(model, view, config) {
+  var listeners = this; view.resize(); model.createRadialDots(); model.createAllWaveDots();
+  function repaint(t) { listeners.onBeginRender && listeners.onBeginRender(); if (config.fps.throttle) { setTimeout(function () { requestAnimationFrame(repaint); }, 1000 / config.fps.target); } else { requestAnimationFrame(repaint); } view.repaint(t); if (config.meteors.enabled) { model.cullMeteors(t); if (Math.random() < config.meteors.frequency / 100) { model.createMeteor(t); } } if (config.sparkles.enabled) { model.cullSparkles(t); if (Math.random() < config.sparkles.frequency / 100) { model.createSparkle(t); } } listeners.onEndRender && listeners.onEndRender(); }
+  requestAnimationFrame(repaint);
+}
+</script>
+<script>
+// Initialize Starry Night
+(function () {
+  var canvas = document.getElementById('starry-canvas');
+  var logo = new Image();
+  logo.crossOrigin = 'anonymous';
+  logo.src = 'https://raw.githubusercontent.com/atesgoral/put.io.starry.night/master/logo.png';
+  logo.onload = function () {
+    var config = StarryNightConfig();
+    var model = new StarryNightModel(config);
+    var view = new StarryNightView(model, canvas, logo, config);
+    var controller = new StarryNightController(model, view, config);
+    window.addEventListener('resize', function () { view.resize(); });
+  };
+})();
+</script>
+
+</body>
+</html>
