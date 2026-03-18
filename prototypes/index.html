@@ -165,8 +165,7 @@
   }
   .modal-frame.frame-tv iframe { width: 1920px; height: 1080px; }
 
-  /* Roku 720p */
-  .modal-frame.frame-roku iframe { width: 1280px; height: 720px; }
+  /* Roku uses same 1080p frame as other TV */
 
   /* Watch */
   .modal-frame.frame-watch {
@@ -417,7 +416,11 @@ function scaleFrame() {
   const bw = parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth);
   const bh = parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
 
-  const scale = Math.min(availW / (iw + bw), availH / (ih + bh), 1);
+  let maxScale = 1;
+  // Mobile frames look best at ~0.85 on desktop — not blown up
+  if (frame.classList.contains('frame-mobile') || frame.classList.contains('frame-android')) maxScale = 0.85;
+  if (frame.classList.contains('frame-watch')) maxScale = 0.9;
+  const scale = Math.min(availW / (iw + bw), availH / (ih + bh), maxScale);
   frame.style.transform = `scale(${scale})`;
 }
 
