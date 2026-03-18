@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>put.io — Android TV Home (Leanback Native)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    /* Material Dark theme surface colors */
+    --bg: #0E0E0E;
+    --surface-1: #1A1A1A;
+    --surface-2: #242424;
+    --surface-3: #2E2E2E;
+    --surface-4: #383838;
+    --outline: #444444;
+    --outline-variant: #333333;
+    --on-surface: #E6E1E5;
+    --on-surface-variant: #CAC4D0;
+    --on-surface-dim: #938F99;
+    --on-surface-muted: #6B6770;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.10);
+    --yellow-subtle: rgba(253, 206, 69, 0.18);
+    --yellow-container: rgba(253, 206, 69, 0.08);
+    --green: #4CAF50;
+    --green-dim: rgba(76, 175, 80, 0.15);
+    --red: #F44336;
+    --red-dim: rgba(244, 67, 54, 0.15);
+  }
+  body {
+    font-family: 'Inter', 'Google Sans', 'Roboto', sans-serif;
+    background: var(--bg);
+    color: var(--on-surface);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── Left Navigation Rail (Leanback style) ── */
+  .nav-rail {
+    width: 96px;
+    flex-shrink: 0;
+    background: var(--surface-1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 0;
+    gap: 4px;
+  }
+
+  .nav-rail-logo {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+    flex-shrink: 0;
+  }
+  .nav-rail-logo svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .nav-rail-item {
+    width: 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 0 8px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .nav-rail-item .rail-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-rail-item .rail-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--on-surface-dim);
+  }
+  .nav-rail-item .rail-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--on-surface-dim);
+    letter-spacing: 0.02em;
+  }
+
+  .nav-rail-item:hover {
+    background: var(--surface-2);
+  }
+  .nav-rail-item:hover .rail-icon svg { fill: var(--on-surface-variant); }
+  .nav-rail-item:hover .rail-label { color: var(--on-surface-variant); }
+
+  /* Active item: pill-shaped highlight */
+  .nav-rail-item.active .rail-icon {
+    background: var(--yellow-subtle);
+    border-radius: 16px;
+    width: 56px;
+    height: 32px;
+  }
+  .nav-rail-item.active .rail-icon svg {
+    fill: var(--yellow);
+  }
+  .nav-rail-item.active .rail-label {
+    color: var(--yellow);
+    font-weight: 600;
+  }
+
+  .nav-rail-spacer { flex: 1; }
+
+  .nav-rail-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: var(--surface-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-top: 12px;
+  }
+
+  /* ── Main Content Area ── */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Recommend Banner (Google TV style) ── */
+  .recommend-banner {
+    flex-shrink: 0;
+    padding: 32px 56px 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .banner-greeting {
+    font-size: 20px;
+    color: var(--on-surface-dim);
+    font-weight: 400;
+  }
+  .banner-spacer { flex: 1; }
+  .banner-time {
+    font-size: 18px;
+    color: var(--on-surface-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .banner-storage {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    color: var(--on-surface-muted);
+  }
+  .banner-storage-bar {
+    width: 80px;
+    height: 4px;
+    background: var(--surface-3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .banner-storage-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+
+  /* ── Channel Rows Area ── */
+  .channel-rows {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+    padding-bottom: 16px;
+  }
+
+  /* ── Channel Row ── */
+  .channel-row {
+    flex-shrink: 0;
+  }
+  .channel-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 56px;
+    margin-bottom: 14px;
+  }
+  .channel-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--on-surface-variant);
+    letter-spacing: -0.01em;
+  }
+  .channel-count {
+    font-size: 15px;
+    color: var(--on-surface-muted);
+  }
+  .channel-action {
+    margin-left: auto;
+    font-size: 15px;
+    color: var(--yellow);
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* ── Focus Cards (Leanback pattern) ── */
+  .channel-cards {
+    display: flex;
+    gap: 16px;
+    padding: 8px 56px;
+    overflow: hidden;
+  }
+
+  .focus-card {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--surface-2);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+    border: 2px solid transparent;
+    position: relative;
+  }
+  .focus-card:hover {
+    background: var(--surface-3);
+    transform: scale(1.03);
+  }
+  /* Focused card: GROWS with white border + elevation */
+  .focus-card.focused {
+    transform: scale(1.1);
+    border-color: #FFFFFF;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.4);
+    z-index: 10;
+    background: var(--surface-3);
+  }
+
+  /* Card: thumb area with icon */
+  .card-thumb {
+    height: 100px;
+    background: var(--surface-1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .card-thumb svg.card-type-icon {
+    width: 40px;
+    height: 40px;
+    fill: var(--on-surface-muted);
+    opacity: 0.5;
+  }
+  .card-thumb.folder-bg {
+    background: linear-gradient(135deg, rgba(253,206,69,0.06), rgba(253,206,69,0.02));
+  }
+  .card-thumb.folder-bg svg.card-type-icon {
+    fill: var(--yellow);
+    opacity: 0.6;
+  }
+
+  /* Progress bar on card thumb */
+  .card-progress {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+  }
+  .card-progress-fill {
+    height: 100%;
+    background: var(--yellow);
+  }
+
+  /* Play overlay on focused card */
+  .card-play-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .focus-card.focused .card-play-overlay { opacity: 1; }
+  .card-play-overlay svg {
+    width: 44px;
+    height: 44px;
+    fill: rgba(255,255,255,0.9);
+  }
+
+  /* Card info */
+  .card-info {
+    padding: 12px 14px;
+  }
+  .card-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+  }
+  .card-meta {
+    font-size: 13px;
+    color: var(--on-surface-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Non-focused cards dimmer */
+  .focus-card:not(.focused) {
+    opacity: 0.85;
+  }
+
+  /* Badge */
+  .card-badge {
+    display: inline-flex;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--yellow-subtle);
+    color: var(--yellow);
+    flex-shrink: 0;
+  }
+
+  /* Health dots */
+  .health-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+  .health-dot.green {
+    background: var(--green);
+    box-shadow: 0 0 6px rgba(76,175,80,0.5);
+  }
+  .health-dot.yellow {
+    background: var(--yellow);
+    box-shadow: 0 0 6px rgba(253,206,69,0.5);
+  }
+  .health-dot.red {
+    background: var(--red);
+    box-shadow: 0 0 6px rgba(244,67,54,0.4);
+  }
+
+  /* Transfer card variant */
+  .focus-card.transfer .card-thumb {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 8px;
+    height: 110px;
+  }
+  .t-top-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+  .t-name {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .t-pct {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--on-surface);
+    font-variant-numeric: tabular-nums;
+  }
+  .t-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--surface-4);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .t-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+  }
+  .t-detail {
+    font-size: 13px;
+    color: var(--on-surface-muted);
+  }
+
+  /* More card (fade-out) */
+  .focus-card.more-card {
+    opacity: 0.35;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 160px;
+  }
+  .more-card-label {
+    font-size: 16px;
+    color: var(--on-surface-muted);
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- ── Left Navigation Rail ── -->
+  <div class="nav-rail">
+    <!-- put.io logo as icon -->
+    <div class="nav-rail-logo">
+      <svg viewBox="0 0 40 40" fill="none">
+        <rect width="40" height="40" rx="10" fill="var(--surface-2)"/>
+        <text x="20" y="26" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="14" fill="var(--on-surface)">put</text>
+        <circle cx="32" cy="14" r="3" fill="#FDCE45"/>
+      </svg>
+    </div>
+
+    <div class="nav-rail-item active">
+      <div class="rail-icon">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      </div>
+      <span class="rail-label">Home</span>
+    </div>
+
+    <div class="nav-rail-item">
+      <div class="rail-icon">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <span class="rail-label">Browse</span>
+    </div>
+
+    <div class="nav-rail-item">
+      <div class="rail-icon">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      </div>
+      <span class="rail-label">Search</span>
+    </div>
+
+    <div class="nav-rail-item">
+      <div class="rail-icon">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      </div>
+      <span class="rail-label">Settings</span>
+    </div>
+
+    <div class="nav-rail-spacer"></div>
+
+    <div class="nav-rail-avatar">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none">
+        <rect x="4" y="4" width="2" height="2" fill="#FDCE45"/>
+        <rect x="18" y="4" width="2" height="2" fill="#FDCE45"/>
+        <rect x="6" y="6" width="2" height="2" fill="#FDCE45"/>
+        <rect x="16" y="6" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="8" width="16" height="2" fill="#FDCE45"/>
+        <rect x="4" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="8" y="10" width="8" height="2" fill="#FDCE45"/>
+        <rect x="18" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="12" width="16" height="2" fill="#FDCE45"/>
+        <rect x="6" y="14" width="4" height="2" fill="#FDCE45"/>
+        <rect x="14" y="14" width="4" height="2" fill="#FDCE45"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ── Main Content ── -->
+  <div class="main-content">
+
+    <!-- Recommend Banner -->
+    <div class="recommend-banner">
+      <span class="banner-greeting">Good evening, altay</span>
+      <div class="banner-spacer"></div>
+      <div class="banner-storage">
+        39 / 50 TB
+        <div class="banner-storage-bar"><div class="banner-storage-fill" style="width:78%;"></div></div>
+      </div>
+    </div>
+
+    <!-- Channel Rows -->
+    <div class="channel-rows">
+
+      <!-- Continue Watching -->
+      <div class="channel-row">
+        <div class="channel-header">
+          <span class="channel-title">Continue Watching</span>
+          <span class="channel-count">4 items</span>
+          <span class="channel-action">See all</span>
+        </div>
+        <div class="channel-cards">
+          <!-- Card 1 - FOCUSED -->
+          <div class="focus-card focused">
+            <div class="card-thumb">
+              <svg class="card-type-icon" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+              <div class="card-play-overlay">
+                <svg viewBox="0 0 48 48"><path d="M16 10v28l22-14z"/></svg>
+              </div>
+              <div class="card-progress"><div class="card-progress-fill" style="width:55%;"></div></div>
+            </div>
+            <div class="card-info">
+              <div class="card-title">Cosmos Laundromat</div>
+              <div class="card-meta">
+                <span class="card-badge">720p</span>
+                <span>55% -- 6:50 left</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="focus-card">
+            <div class="card-thumb">
+              <svg class="card-type-icon" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+              <div class="card-play-overlay">
+                <svg viewBox="0 0 48 48"><path d="M16 10v28l22-14z"/></svg>
+              </div>
+              <div class="card-progress"><div class="card-progress-fill" style="width:35%;"></div></div>
+            </div>
+            <div class="card-info">
+              <div class="card-title">Sintel</div>
+              <div class="card-meta">
+                <span class="card-badge">1080p</span>
+                <span>35% -- 12:30 left</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="focus-card">
+            <div class="card-thumb">
+              <svg class="card-type-icon" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+              <div class="card-play-overlay">
+                <svg viewBox="0 0 48 48"><path d="M16 10v28l22-14z"/></svg>
+              </div>
+              <div class="card-progress"><div class="card-progress-fill" style="width:12%;"></div></div>
+            </div>
+            <div class="card-info">
+              <div class="card-title">The Wire S03E04</div>
+              <div class="card-meta">
+                <span class="card-badge">1080p</span>
+                <span>12% -- 48:22 left</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="focus-card">
+            <div class="card-thumb">
+              <svg class="card-type-icon" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+              <div class="card-play-overlay">
+                <svg viewBox="0 0 48 48"><path d="M16 10v28l22-14z"/></svg>
+              </div>
+            </div>
+            <div class="card-info">
+              <div class="card-title">Big Buck Bunny</div>
+              <div class="card-meta">
+                <span class="card-badge">4K</span>
+                <span>Not started</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="focus-card">
+            <div class="card-thumb">
+              <svg class="card-type-icon" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+              <div class="card-play-overlay">
+                <svg viewBox="0 0 48 48"><path d="M16 10v28l22-14z"/></svg>
+              </div>
+              <div class="card-progress"><div class="card-progress-fill" style="width:78%;"></div></div>
+            </div>
+            <div class="card-info">
+              <div class="card-title">Tears of Steel</div>
+              <div class="card-meta">
+                <span class="card-badge">1080p</span>
+                <span>78% -- 18:22 left</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="focus-card more-card">
+            <span class="more-card-label">View all</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Your Files -->
+      <div class="channel-row">
+        <div class="channel-header">
+          <span class="channel-title">Your Files</span>
+          <span class="channel-action">Browse all</span>
+        </div>
+        <div class="channel-cards">
+          <!-- Folder cards -->
+          <div class="focus-card">
+            <div class="card-thumb folder-bg">
+              <svg class="card-type-icon" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+            </div>
+            <div class="card-info">
+              <div class="card-title">downloads</div>
+              <div class="card-meta">21.78 GB -- 8 items</div>
+            </div>
+          </div>
+
+          <div class="focus-card">
+            <div class="card-thumb folder-bg">
+              <svg class="card-type-icon" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+            </div>
+            <div class="card-info">
+              <div class="card-title">chill institute</div>
+              <div class="card-meta">0 B -- Empty</div>
+            </div>
+          </div>
+
+          <div class="focus-card">
+            <div class="card-thumb folder-bg">
+              <svg class="card-type-icon" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+            </div>
+            <div class="card-info">
+              <div class="card-title">stuff</div>
+              <div class="card-meta">4.16 GB -- 12 items</div>
+            </div>
+          </div>
+
+          <div class="focus-card">
+            <div class="card-thumb">
+              <svg class="card-type-icon" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+            </div>
+            <div class="card-info">
+              <div class="card-title">Breaking Bad S05E16</div>
+              <div class="card-meta">
+                <span class="card-badge">4K</span>
+                <span>8.72 GB</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="focus-card">
+            <div class="card-thumb">
+              <svg class="card-type-icon" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+            </div>
+            <div class="card-info">
+              <div class="card-title">Marty Supreme</div>
+              <div class="card-meta">
+                <span class="card-badge">1080p</span>
+                <span>15.38 GB</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="focus-card more-card">
+            <span class="more-card-label">View all</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Transfers -->
+      <div class="channel-row">
+        <div class="channel-header">
+          <span class="channel-title">Active Transfers</span>
+          <span class="channel-count">3 active</span>
+          <span class="channel-action">Manage</span>
+        </div>
+        <div class="channel-cards">
+          <!-- Transfer: Inception -->
+          <div class="focus-card transfer">
+            <div class="card-thumb">
+              <div class="t-top-row">
+                <div class="health-dot yellow"></div>
+                <span class="t-name">Inception</span>
+                <span class="card-badge">2160p</span>
+              </div>
+              <span class="t-pct" style="color:var(--yellow);">63%</span>
+              <div class="t-bar"><div class="t-bar-fill" style="width:63%; background:var(--yellow);"></div></div>
+              <span class="t-detail">4.2 GB of 6.7 GB -- 23 min left</span>
+            </div>
+            <div class="card-info">
+              <div class="card-meta">12.4 MB/s -- 42 sources</div>
+            </div>
+          </div>
+
+          <!-- Transfer: Wolf of Wall Street -->
+          <div class="focus-card transfer">
+            <div class="card-thumb">
+              <div class="t-top-row">
+                <div class="health-dot yellow"></div>
+                <span class="t-name">Wolf of Wall Street</span>
+                <span class="card-badge">1080p</span>
+              </div>
+              <span class="t-pct" style="color:var(--yellow);">65%</span>
+              <div class="t-bar"><div class="t-bar-fill" style="width:65%; background:var(--yellow);"></div></div>
+              <span class="t-detail">1.45 GB of 2.22 GB -- 8 min left</span>
+            </div>
+            <div class="card-info">
+              <div class="card-meta">8.7 MB/s -- 87 sources</div>
+            </div>
+          </div>
+
+          <!-- Transfer: Pose (Complete) -->
+          <div class="focus-card transfer">
+            <div class="card-thumb">
+              <div class="t-top-row">
+                <div class="health-dot green"></div>
+                <span class="t-name">Pose S01</span>
+                <span class="card-badge">720p</span>
+              </div>
+              <span class="t-pct" style="color:var(--green);">Done</span>
+              <div class="t-bar"><div class="t-bar-fill" style="width:100%; background:var(--green);"></div></div>
+              <span class="t-detail">763 MB -- Completed</span>
+            </div>
+            <div class="card-info">
+              <div class="card-meta">Ratio: 1.03</div>
+            </div>
+          </div>
+
+          <!-- Transfer: Stalled -->
+          <div class="focus-card transfer">
+            <div class="card-thumb">
+              <div class="t-top-row">
+                <div class="health-dot red"></div>
+                <span class="t-name">Rare Documentary</span>
+              </div>
+              <span class="t-pct" style="color:var(--red);">8%</span>
+              <div class="t-bar"><div class="t-bar-fill" style="width:8%; background:var(--red);"></div></div>
+              <span class="t-detail">Stalled -- No sources</span>
+            </div>
+            <div class="card-info">
+              <div class="card-meta" style="color:var(--red);">No peers available</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

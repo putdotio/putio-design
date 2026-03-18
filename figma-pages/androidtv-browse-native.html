@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>put.io — Android TV Browse/Files (Leanback Native)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0E0E0E;
+    --surface-1: #1A1A1A;
+    --surface-2: #242424;
+    --surface-3: #2E2E2E;
+    --surface-4: #383838;
+    --outline: #444444;
+    --outline-variant: #333333;
+    --on-surface: #E6E1E5;
+    --on-surface-variant: #CAC4D0;
+    --on-surface-dim: #938F99;
+    --on-surface-muted: #6B6770;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.10);
+    --yellow-subtle: rgba(253, 206, 69, 0.18);
+    --green: #4CAF50;
+    --green-dim: rgba(76, 175, 80, 0.15);
+    --red: #F44336;
+  }
+  body {
+    font-family: 'Inter', 'Google Sans', 'Roboto', sans-serif;
+    background: var(--bg);
+    color: var(--on-surface);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── Left Sidebar (BrowseFragment pattern) ── */
+  .browse-sidebar {
+    width: 380px;
+    flex-shrink: 0;
+    background: linear-gradient(90deg, var(--surface-1) 0%, rgba(26,26,26,0.95) 85%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    padding: 40px 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Sidebar header */
+  .sidebar-header {
+    padding: 0 32px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .sidebar-logo {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--on-surface);
+  }
+  .sidebar-logo span { color: var(--yellow); }
+
+  .sidebar-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    color: var(--on-surface-dim);
+    cursor: pointer;
+    padding: 0 32px;
+    margin-bottom: 20px;
+  }
+  .sidebar-back svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--on-surface-dim);
+  }
+  .sidebar-back:hover { color: var(--on-surface-variant); }
+  .sidebar-back:hover svg { fill: var(--on-surface-variant); }
+
+  .sidebar-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--on-surface-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0 32px;
+    margin-bottom: 16px;
+  }
+
+  /* Folder list in sidebar */
+  .sidebar-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 16px;
+    overflow: hidden;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+  }
+  .sidebar-item:hover {
+    background: var(--surface-2);
+  }
+  /* Focused item: grows slightly, white border */
+  .sidebar-item.focused {
+    background: var(--surface-3);
+    border-color: rgba(255,255,255,0.25);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    transform: scale(1.02);
+  }
+  .sidebar-item.focused .sidebar-item-name {
+    color: var(--on-surface);
+    font-weight: 600;
+  }
+  .sidebar-item.focused .sidebar-item-icon svg {
+    fill: var(--yellow);
+  }
+
+  .sidebar-item-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .sidebar-item-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--yellow);
+    opacity: 0.7;
+  }
+
+  .sidebar-item-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .sidebar-item-name {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sidebar-item-count {
+    font-size: 14px;
+    color: var(--on-surface-muted);
+  }
+
+  .sidebar-item-size {
+    font-size: 15px;
+    color: var(--on-surface-muted);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+
+  /* Sidebar footer */
+  .sidebar-footer {
+    padding: 20px 32px 0;
+    border-top: 1px solid var(--outline-variant);
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sidebar-storage-label {
+    font-size: 13px;
+    color: var(--on-surface-muted);
+    font-weight: 500;
+  }
+  .sidebar-storage-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--surface-4);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .sidebar-storage-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+  .sidebar-storage-text {
+    font-size: 14px;
+    color: var(--on-surface-muted);
+  }
+
+  /* ── Right Content Panel ── */
+  .browse-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 56px 40px 40px;
+    overflow: hidden;
+  }
+
+  /* Content header */
+  .content-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+  .content-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--on-surface);
+    letter-spacing: -0.02em;
+  }
+  .content-count {
+    font-size: 18px;
+    color: var(--on-surface-muted);
+  }
+
+  /* Sort/filter bar */
+  .content-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--outline-variant);
+  }
+  .toolbar-spacer { flex: 1; }
+  .sort-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--on-surface-dim);
+    background: var(--surface-2);
+    border: 1px solid transparent;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .sort-chip svg { width: 18px; height: 18px; fill: currentColor; }
+  .sort-chip:hover { background: var(--surface-3); }
+  .sort-chip.active {
+    border-color: var(--yellow);
+    color: var(--yellow);
+    background: var(--yellow-dim);
+  }
+
+  /* ── File Grid (list layout) ── */
+  .file-grid {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: hidden;
+  }
+
+  .file-card {
+    display: grid;
+    grid-template-columns: 48px 1fr 100px 48px;
+    gap: 16px;
+    align-items: center;
+    padding: 14px 20px;
+    background: var(--surface-1);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+    border: 2px solid transparent;
+  }
+  .file-card:hover {
+    background: var(--surface-2);
+  }
+  /* Focused: grows with white border */
+  .file-card.focused {
+    background: var(--surface-3);
+    border-color: #FFFFFF;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    transform: scale(1.02);
+    z-index: 5;
+  }
+
+  .file-card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .file-card-icon.folder {
+    background: var(--yellow-dim);
+  }
+  .file-card-icon.folder svg {
+    width: 26px; height: 26px; fill: var(--yellow);
+  }
+  .file-card-icon.video {
+    background: var(--surface-3);
+  }
+  .file-card-icon.video svg {
+    width: 24px; height: 24px; fill: var(--on-surface-dim);
+  }
+  .file-card-icon.audio {
+    background: var(--green-dim);
+  }
+  .file-card-icon.audio svg {
+    width: 24px; height: 24px; fill: var(--green);
+  }
+  .file-card-icon.archive {
+    background: var(--surface-3);
+  }
+  .file-card-icon.archive svg {
+    width: 24px; height: 24px; fill: var(--on-surface-muted);
+  }
+
+  .file-card-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .file-card-name {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .file-card-meta {
+    font-size: 14px;
+    color: var(--on-surface-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .file-card-size {
+    font-size: 17px;
+    color: var(--on-surface-dim);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .file-card-chevron {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .file-card-chevron svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--on-surface-muted);
+  }
+  .file-card.focused .file-card-chevron svg {
+    fill: var(--on-surface);
+  }
+
+  /* Badge */
+  .q-badge {
+    display: inline-flex;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--yellow-subtle);
+    color: var(--yellow);
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- ── Left Sidebar (BrowseFragment) ── -->
+  <div class="browse-sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-logo">put<span>.</span>io</span>
+    </div>
+
+    <div class="sidebar-back">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      Back to root
+    </div>
+
+    <div class="sidebar-title">Folders in /downloads</div>
+
+    <div class="sidebar-list">
+      <div class="sidebar-item">
+        <div class="sidebar-item-icon">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="sidebar-item-info">
+          <div class="sidebar-item-name">TV Shows</div>
+          <div class="sidebar-item-count">8 items</div>
+        </div>
+        <span class="sidebar-item-size">42.6 GB</span>
+      </div>
+
+      <!-- Music - FOCUSED -->
+      <div class="sidebar-item focused">
+        <div class="sidebar-item-icon">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="sidebar-item-info">
+          <div class="sidebar-item-name">Music</div>
+          <div class="sidebar-item-count">156 items</div>
+        </div>
+        <span class="sidebar-item-size">18.4 GB</span>
+      </div>
+
+      <div class="sidebar-item">
+        <div class="sidebar-item-icon">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="sidebar-item-info">
+          <div class="sidebar-item-name">Documents</div>
+          <div class="sidebar-item-count">24 items</div>
+        </div>
+        <span class="sidebar-item-size">1.2 GB</span>
+      </div>
+
+      <div class="sidebar-item">
+        <div class="sidebar-item-icon">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="sidebar-item-info">
+          <div class="sidebar-item-name">chill institute</div>
+          <div class="sidebar-item-count">3 items</div>
+        </div>
+        <span class="sidebar-item-size">6.8 GB</span>
+      </div>
+
+      <div class="sidebar-item">
+        <div class="sidebar-item-icon">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="sidebar-item-info">
+          <div class="sidebar-item-name">stuff</div>
+          <div class="sidebar-item-count">12 items</div>
+        </div>
+        <span class="sidebar-item-size">4.16 GB</span>
+      </div>
+
+      <div class="sidebar-item">
+        <div class="sidebar-item-icon">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="sidebar-item-info">
+          <div class="sidebar-item-name">Podcasts</div>
+          <div class="sidebar-item-count">47 items</div>
+        </div>
+        <span class="sidebar-item-size">9.3 GB</span>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <span class="sidebar-storage-label">Storage</span>
+      <div class="sidebar-storage-bar"><div class="sidebar-storage-fill" style="width:78%;"></div></div>
+      <span class="sidebar-storage-text">39 TB of 50 TB used</span>
+    </div>
+  </div>
+
+  <!-- ── Right Content Panel ── -->
+  <div class="browse-content">
+    <div class="content-header">
+      <span class="content-title">Music</span>
+      <span class="content-count">156 items</span>
+    </div>
+
+    <div class="content-toolbar">
+      <div class="toolbar-spacer"></div>
+      <button class="sort-chip active">
+        <svg viewBox="0 0 24 24"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>
+        Name
+      </button>
+      <button class="sort-chip">
+        <svg viewBox="0 0 24 24"><path d="M2 20h20V4H2v16zm2-2V6h16v12H4z"/><path d="M11 8H7v2h4V8zm6 0h-4v2h4V8zm-6 4H7v2h4v-2zm6 0h-4v2h4v-2z"/></svg>
+        Size
+      </button>
+      <button class="sort-chip">
+        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+        Date
+      </button>
+    </div>
+
+    <div class="file-grid">
+      <!-- Subfolder -->
+      <div class="file-card">
+        <div class="file-card-icon folder">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="file-card-info">
+          <div class="file-card-name">Albums</div>
+          <div class="file-card-meta">42 items</div>
+        </div>
+        <span class="file-card-size">12.8 GB</span>
+        <div class="file-card-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+
+      <!-- Subfolder -->
+      <div class="file-card">
+        <div class="file-card-icon folder">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="file-card-info">
+          <div class="file-card-name">Playlists</div>
+          <div class="file-card-meta">8 items</div>
+        </div>
+        <span class="file-card-size">3.2 GB</span>
+        <div class="file-card-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+
+      <!-- Audio file - FOCUSED -->
+      <div class="file-card focused">
+        <div class="file-card-icon audio">
+          <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        </div>
+        <div class="file-card-info">
+          <div class="file-card-name">Nils Frahm -- Says</div>
+          <div class="file-card-meta">FLAC -- Added 2 hours ago</div>
+        </div>
+        <span class="file-card-size">48.2 MB</span>
+        <div class="file-card-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+
+      <!-- Audio file -->
+      <div class="file-card">
+        <div class="file-card-icon audio">
+          <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        </div>
+        <div class="file-card-info">
+          <div class="file-card-name">Bonobo -- Kerala</div>
+          <div class="file-card-meta">FLAC -- Added yesterday</div>
+        </div>
+        <span class="file-card-size">52.1 MB</span>
+        <div class="file-card-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+
+      <!-- Video file -->
+      <div class="file-card">
+        <div class="file-card-icon video">
+          <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+        </div>
+        <div class="file-card-info">
+          <div class="file-card-name">
+            Concert Recording 2025
+            <span class="q-badge">1080p</span>
+          </div>
+          <div class="file-card-meta">MKV -- Added 3 days ago</div>
+        </div>
+        <span class="file-card-size">4.72 GB</span>
+        <div class="file-card-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+
+      <!-- Audio file -->
+      <div class="file-card">
+        <div class="file-card-icon audio">
+          <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        </div>
+        <div class="file-card-info">
+          <div class="file-card-name">Tycho -- Awake</div>
+          <div class="file-card-meta">FLAC -- Added last week</div>
+        </div>
+        <span class="file-card-size">38.9 MB</span>
+        <div class="file-card-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+
+      <!-- Audio file -->
+      <div class="file-card">
+        <div class="file-card-icon audio">
+          <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        </div>
+        <div class="file-card-info">
+          <div class="file-card-name">Floating Points -- Cascade</div>
+          <div class="file-card-meta">FLAC -- Added last week</div>
+        </div>
+        <span class="file-card-size">44.7 MB</span>
+        <div class="file-card-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+
+      <!-- Archive file -->
+      <div class="file-card">
+        <div class="file-card-icon archive">
+          <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 10H6v-2h8v2zm4-4H6v-2h12v2z"/></svg>
+        </div>
+        <div class="file-card-info">
+          <div class="file-card-name">music-backup-2026.zip</div>
+          <div class="file-card-meta">ZIP -- Added 2 weeks ago</div>
+        </div>
+        <span class="file-card-size">1.84 GB</span>
+        <div class="file-card-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+
+      <!-- Audio file -->
+      <div class="file-card">
+        <div class="file-card-icon audio">
+          <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        </div>
+        <div class="file-card-info">
+          <div class="file-card-name">Jamie xx -- Idontknow</div>
+          <div class="file-card-meta">FLAC -- Added 3 weeks ago</div>
+        </div>
+        <span class="file-card-size">31.4 MB</span>
+        <div class="file-card-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
