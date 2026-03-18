@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Files Light v3 (Clean Modern)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    /* Light surface scale */
+    --bg-page: #FCFCFD;
+    --bg-sidebar: #F9F9FB;
+    --bg-input: #F0F0F3;
+    --bg-hover: rgba(0, 0, 0, 0.03);
+    --bg-hover-strong: rgba(0, 0, 0, 0.05);
+    --bg-active: #EDEDF0;
+    --bg-elevated: #FFFFFF;
+
+    /* Borders — subtle shadows preferred over hard lines */
+    --border-line: rgba(0, 0, 0, 0.06);
+    --border-default: rgba(0, 0, 0, 0.08);
+    --border-strong: rgba(0, 0, 0, 0.12);
+
+    /* Text scale */
+    --text-primary: #1C1C22;
+    --text-secondary: #52525B;
+    --text-tertiary: #71717A;
+    --text-muted: #8B8B97;
+    --text-faint: #A1A1AA;
+    --text-ghost: #CDCDD5;
+
+    /* Brand */
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.12);
+    --yellow-hover: #FDD85C;
+    --yellow-text: #8C5E00;
+
+    /* Semantic */
+    --green: #30A46C;
+    --red: #E5484D;
+    --blue: #3B82F6;
+
+    /* Shadows for elevation */
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.03);
+    --shadow-md: 0 2px 8px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-lg: 0 4px 16px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' 1, 'ss01' 1, 'cv01' 1;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+  }
+
+  /* ===== 56px ICON SIDEBAR ===== */
+  .sidebar {
+    width: 56px;
+    background: var(--bg-sidebar);
+    border-right: none;
+    box-shadow: 1px 0 0 var(--border-line);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 16px 0 12px;
+    gap: 2px;
+  }
+
+  .sidebar-logo {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    cursor: pointer;
+  }
+
+  .sidebar-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    color: var(--text-faint);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: color 0.15s ease, background 0.15s ease;
+    position: relative;
+  }
+  .sidebar-icon:hover {
+    color: var(--text-secondary);
+    background: var(--bg-hover-strong);
+  }
+  .sidebar-icon.active {
+    color: var(--text-primary);
+    background: var(--bg-active);
+  }
+  .sidebar-icon.active::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 16px;
+    background: var(--yellow);
+    border-radius: 0 2px 2px 0;
+  }
+  .sidebar-icon svg { display: block; }
+
+  .sidebar-icon .notif {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 8px;
+    height: 8px;
+    background: var(--yellow);
+    border-radius: 50%;
+    border: 2px solid var(--bg-sidebar);
+  }
+
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--bg-input);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .sidebar-avatar:hover { background: var(--bg-active); }
+
+  /* ===== MAIN CONTENT ===== */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg-page);
+  }
+
+  /* Command bar trigger */
+  .command-bar-area {
+    display: flex;
+    align-items: center;
+    padding: 12px 24px;
+    background: var(--bg-elevated);
+    box-shadow: 0 1px 0 var(--border-line);
+  }
+
+  .command-trigger {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    max-width: 560px;
+  }
+  .command-trigger:hover {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-sm);
+  }
+  .command-trigger-icon {
+    color: var(--text-faint);
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .command-trigger-text {
+    font-size: 13px;
+    color: var(--text-faint);
+    flex: 1;
+    font-family: inherit;
+    letter-spacing: -0.01em;
+  }
+  .command-trigger-keys {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .key-badge {
+    font-size: 10px;
+    color: var(--text-muted);
+    background: var(--bg-elevated);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+    line-height: 1.4;
+    font-weight: 500;
+    border: 1px solid var(--border-line);
+    box-shadow: 0 1px 0 var(--border-line);
+  }
+
+  .command-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    padding-left: 16px;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--yellow);
+    color: var(--text-primary);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: -0.01em;
+    transition: all 0.12s ease;
+    line-height: 1;
+    box-shadow: var(--shadow-sm);
+  }
+  .btn-primary:hover {
+    background: var(--yellow-hover);
+    box-shadow: var(--shadow-md);
+  }
+  .btn-primary svg { display: block; }
+
+  /* Content header */
+  .content-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 24px 12px;
+  }
+
+  .breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .bc-item {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: 4px;
+    letter-spacing: -0.01em;
+    transition: color 0.1s ease, background 0.1s ease;
+  }
+  .bc-item:hover {
+    color: var(--text-secondary);
+    background: var(--bg-hover-strong);
+  }
+  .bc-item.current {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+  .bc-sep {
+    color: var(--text-ghost);
+    display: flex;
+    align-items: center;
+  }
+
+  .header-spacer { flex: 1; }
+
+  .view-controls {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    background: var(--bg-input);
+    border-radius: 8px;
+    padding: 2px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .view-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 26px;
+    border: none;
+    background: none;
+    color: var(--text-faint);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.1s ease;
+  }
+  .view-btn:hover { color: var(--text-secondary); }
+  .view-btn.active {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+  }
+  .view-btn svg { display: block; }
+
+  .sort-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 5px 8px;
+    border-radius: 6px;
+    transition: all 0.1s ease;
+    margin-right: 4px;
+  }
+  .sort-btn:hover {
+    color: var(--text-secondary);
+    background: var(--bg-hover-strong);
+  }
+  .sort-btn svg { display: block; }
+
+  /* ===== DATA TABLE ===== */
+  .table-header {
+    display: grid;
+    grid-template-columns: 40px 1fr 100px 120px 100px;
+    align-items: center;
+    padding: 0 24px;
+    height: 36px;
+    box-shadow: 0 1px 0 var(--border-line);
+    background: var(--bg-sidebar);
+  }
+  .col-head {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-ghost);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.1s ease;
+    user-select: none;
+  }
+  .col-head:hover { color: var(--text-muted); }
+  .col-head.sorted { color: var(--text-secondary); }
+  .col-head.right { justify-content: flex-end; }
+  .col-head svg { display: block; }
+
+  .table-body {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .file-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 100px 120px 100px;
+    align-items: center;
+    padding: 0 24px;
+    height: 44px;
+    box-shadow: 0 1px 0 var(--border-line);
+    cursor: pointer;
+    transition: background 0.08s ease;
+    position: relative;
+  }
+  .file-row:hover {
+    background: var(--bg-hover);
+  }
+
+  .file-check {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--text-ghost);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+  }
+  .file-row:hover .file-check { opacity: 1; }
+
+  .file-icon-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+  }
+  .file-row .file-icon-cell { display: flex; }
+  .file-row:hover .file-icon-cell { display: none; }
+  .file-row:hover .file-check { display: flex; opacity: 1; }
+
+  .file-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    padding-right: 24px;
+  }
+  .file-icon-wrap {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .file-icon-wrap svg { display: block; }
+
+  .file-name {
+    font-size: 13px;
+    font-weight: 450;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+  }
+  .file-row:hover .file-name { color: #000; }
+
+  .file-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 400;
+  }
+  .file-date {
+    font-size: 12px;
+    color: var(--text-faint);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Hover actions */
+  .file-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2px;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+  }
+  .file-row:hover .file-actions { opacity: 1; }
+  .file-row:hover .file-date-cell { display: none; }
+  .file-row .file-actions-cell { display: none; }
+  .file-row:hover .file-actions-cell { display: flex; justify-content: flex-end; }
+
+  .action-icon-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s ease;
+  }
+  .action-icon-btn:hover {
+    background: var(--bg-input);
+    color: var(--text-primary);
+  }
+  .action-icon-btn svg { display: block; }
+
+  /* ===== STATUS BAR ===== */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 24px;
+    box-shadow: 0 -1px 0 var(--border-line);
+    background: var(--bg-sidebar);
+    min-height: 32px;
+  }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-text {
+    font-size: 11px;
+    color: var(--text-faint);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .status-sep {
+    width: 1px;
+    height: 10px;
+    background: var(--border-line);
+  }
+
+  /* Scrollbar */
+  .table-body::-webkit-scrollbar { width: 6px; }
+  .table-body::-webkit-scrollbar-track { background: transparent; }
+  .table-body::-webkit-scrollbar-thumb { background: var(--bg-input); border-radius: 3px; }
+  .table-body::-webkit-scrollbar-thumb:hover { background: var(--text-ghost); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== 56px ICON SIDEBAR ===== -->
+  <nav class="sidebar">
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" fill="var(--bg-input)" stroke="var(--border-strong)" stroke-width="1"/>
+        <circle cx="12" cy="12" r="4" fill="#FDCE45"/>
+      </svg>
+    </div>
+
+    <!-- Files - active -->
+    <button class="sidebar-icon active" title="Files">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg>
+    </button>
+
+    <!-- Transfers -->
+    <button class="sidebar-icon" title="Transfers">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7l-112,120a8,8,0,0,0,3,13l57.63,21.61L88.16,238.43a8,8,0,0,0,13.69,7l112-120A8,8,0,0,0,215.79,118.17Z"/></svg>
+      <span class="notif"></span>
+    </button>
+
+    <!-- RSS -->
+    <button class="sidebar-icon" title="RSS Feeds">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M98.91,157.09A71.53,71.53,0,0,1,120,208a8,8,0,0,1-16,0,56,56,0,0,0-56-56,8,8,0,0,1,0-16A71.53,71.53,0,0,1,98.91,157.09ZM48,88a8,8,0,0,0,0,16,104,104,0,0,1,104,104,8,8,0,0,0,16,0A120,120,0,0,0,48,88Zm0-40a8,8,0,0,0,0,16,144,144,0,0,1,144,144,8,8,0,0,0,16,0A160,160,0,0,0,48,48Zm12,160a12,12,0,1,0-12-12A12,12,0,0,0,60,208Z"/></svg>
+    </button>
+
+    <!-- Storage -->
+    <button class="sidebar-icon" title="Storage">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM112,152H48V104h64Zm96,0H128V104h80Zm-160,16h64v40H48Zm80,0h80v40H128ZM208,88H48V48H208Z"/></svg>
+    </button>
+
+    <!-- Settings -->
+    <button class="sidebar-icon" title="Settings">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.16,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.16-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,74,34.5a8,8,0,0,0-3.93,6L67.43,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.16,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.16,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.16,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.16-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.16,8,8,0,0,0-1.49-7.06Z"/></svg>
+    </button>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-avatar">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="var(--text-muted)">
+        <rect x="3" y="2" width="2" height="2"/>
+        <rect x="11" y="2" width="2" height="2"/>
+        <rect x="5" y="4" width="2" height="2"/>
+        <rect x="9" y="4" width="2" height="2"/>
+        <rect x="3" y="6" width="10" height="2"/>
+        <rect x="1" y="8" width="2" height="2"/>
+        <rect x="3" y="8" width="2" height="2"/>
+        <rect x="5" y="8" width="6" height="2"/>
+        <rect x="11" y="8" width="2" height="2"/>
+        <rect x="13" y="8" width="2" height="2"/>
+        <rect x="1" y="10" width="2" height="2"/>
+        <rect x="5" y="10" width="2" height="2"/>
+        <rect x="9" y="10" width="2" height="2"/>
+        <rect x="13" y="10" width="2" height="2"/>
+        <rect x="3" y="12" width="2" height="2"/>
+        <rect x="5" y="12" width="2" height="2"/>
+        <rect x="9" y="12" width="2" height="2"/>
+        <rect x="11" y="12" width="2" height="2"/>
+      </svg>
+    </div>
+  </nav>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="main">
+
+    <!-- Command bar trigger -->
+    <div class="command-bar-area">
+      <div class="command-trigger">
+        <span class="command-trigger-icon">
+          <svg width="15" height="15" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,218.34l-50.07-50.07a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.31ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>
+        </span>
+        <span class="command-trigger-text">Search, navigate, or start a transfer...</span>
+        <span class="command-trigger-keys">
+          <span class="key-badge">&#8984;K</span>
+        </span>
+      </div>
+      <div class="command-bar-right">
+        <button class="btn-primary">
+          <svg width="13" height="13" viewBox="0 0 256 256" fill="currentColor"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/></svg>
+          New Transfer
+        </button>
+      </div>
+    </div>
+
+    <!-- Content header with breadcrumbs -->
+    <div class="content-header">
+      <div class="breadcrumbs">
+        <span class="bc-item current">Your Files</span>
+      </div>
+      <div class="header-spacer"></div>
+      <button class="sort-btn">
+        <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M128,128a8,8,0,0,1-8,8H48a8,8,0,0,1,0-16h72A8,8,0,0,1,128,128ZM48,72H208a8,8,0,0,0,0-16H48a8,8,0,0,0,0,16Zm56,112H48a8,8,0,0,0,0,16h56a8,8,0,0,0,0-16Z"/></svg>
+        Sort
+      </button>
+      <div class="view-controls">
+        <button class="view-btn active" title="List view">
+          <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"/></svg>
+        </button>
+        <button class="view-btn" title="Grid view">
+          <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M104,40H56A16,16,0,0,0,40,56v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,104,40Zm0,64H56V56h48v48Zm96-64H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,200,40Zm0,64H152V56h48v48Zm-96,32H56a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,104,136Zm0,64H56V152h48v48Zm96-64H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,200,136Zm0,64H152V152h48v48Z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Table header -->
+    <div class="table-header">
+      <div class="col-head">&nbsp;</div>
+      <div class="col-head sorted">
+        Name
+        <svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg>
+      </div>
+      <div class="col-head right">Size</div>
+      <div class="col-head right">Modified</div>
+      <div class="col-head right">&nbsp;</div>
+    </div>
+
+    <!-- Table body -->
+    <div class="table-body">
+
+      <!-- Folder rows -->
+      <div class="file-row">
+        <div>
+          <div class="file-check"><svg width="12" height="12" viewBox="0 0 256 256" fill="none"></svg></div>
+        </div>
+        <div class="file-name-cell">
+          <div class="file-icon-wrap">
+            <svg width="18" height="18" viewBox="0 0 256 256" fill="#FDCE45"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg>
+          </div>
+          <span class="file-name">chill institute</span>
+        </div>
+        <div class="file-meta">&mdash;</div>
+        <div class="file-date">16 hours ago</div>
+        <div style="display: flex; justify-content: flex-end; gap: 2px; opacity: 0;" class="file-actions">
+          <button class="action-icon-btn" title="Download"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0v56H208V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,132.69V40a8,8,0,0,0-16,0v92.69L93.66,106.34a8,8,0,0,0-11.32,11.32Z"/></svg></button>
+          <button class="action-icon-btn" title="Share"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg></button>
+          <button class="action-icon-btn" title="More"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg></button>
+        </div>
+      </div>
+
+      <div class="file-row">
+        <div><div class="file-check"><svg width="12" height="12" viewBox="0 0 256 256" fill="none"></svg></div></div>
+        <div class="file-name-cell">
+          <div class="file-icon-wrap"><svg width="18" height="18" viewBox="0 0 256 256" fill="#FDCE45"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg></div>
+          <span class="file-name">downloads</span>
+        </div>
+        <div class="file-meta">21.78 GB</div>
+        <div class="file-date">1 day ago</div>
+        <div style="display: flex; justify-content: flex-end; gap: 2px; opacity: 0;" class="file-actions">
+          <button class="action-icon-btn" title="Download"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0v56H208V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,132.69V40a8,8,0,0,0-16,0v92.69L93.66,106.34a8,8,0,0,0-11.32,11.32Z"/></svg></button>
+          <button class="action-icon-btn" title="Share"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg></button>
+          <button class="action-icon-btn" title="More"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg></button>
+        </div>
+      </div>
+
+      <div class="file-row">
+        <div><div class="file-check"><svg width="12" height="12" viewBox="0 0 256 256" fill="none"></svg></div></div>
+        <div class="file-name-cell">
+          <div class="file-icon-wrap"><svg width="18" height="18" viewBox="0 0 256 256" fill="#FDCE45"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg></div>
+          <span class="file-name">rss</span>
+        </div>
+        <div class="file-meta">&mdash;</div>
+        <div class="file-date">1 year ago</div>
+        <div style="display: flex; justify-content: flex-end; gap: 2px; opacity: 0;" class="file-actions">
+          <button class="action-icon-btn" title="Download"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0v56H208V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,132.69V40a8,8,0,0,0-16,0v92.69L93.66,106.34a8,8,0,0,0-11.32,11.32Z"/></svg></button>
+          <button class="action-icon-btn" title="Share"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg></button>
+          <button class="action-icon-btn" title="More"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg></button>
+        </div>
+      </div>
+
+      <div class="file-row">
+        <div><div class="file-check"><svg width="12" height="12" viewBox="0 0 256 256" fill="none"></svg></div></div>
+        <div class="file-name-cell">
+          <div class="file-icon-wrap"><svg width="18" height="18" viewBox="0 0 256 256" fill="#FDCE45"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg></div>
+          <span class="file-name">stuff</span>
+        </div>
+        <div class="file-meta">4.16 GB</div>
+        <div class="file-date">1 year ago</div>
+        <div style="display: flex; justify-content: flex-end; gap: 2px; opacity: 0;" class="file-actions">
+          <button class="action-icon-btn" title="Download"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0v56H208V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,132.69V40a8,8,0,0,0-16,0v92.69L93.66,106.34a8,8,0,0,0-11.32,11.32Z"/></svg></button>
+          <button class="action-icon-btn" title="Share"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg></button>
+          <button class="action-icon-btn" title="More"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg></button>
+        </div>
+      </div>
+
+      <div class="file-row">
+        <div><div class="file-check"><svg width="12" height="12" viewBox="0 0 256 256" fill="none"></svg></div></div>
+        <div class="file-name-cell">
+          <div class="file-icon-wrap"><svg width="18" height="18" viewBox="0 0 256 256" fill="#FDCE45"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg></div>
+          <span class="file-name">__o-o__</span>
+        </div>
+        <div class="file-meta">1.74 TB</div>
+        <div class="file-date">2 years ago</div>
+        <div style="display: flex; justify-content: flex-end; gap: 2px; opacity: 0;" class="file-actions">
+          <button class="action-icon-btn" title="Download"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0v56H208V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,132.69V40a8,8,0,0,0-16,0v92.69L93.66,106.34a8,8,0,0,0-11.32,11.32Z"/></svg></button>
+          <button class="action-icon-btn" title="Share"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg></button>
+          <button class="action-icon-btn" title="More"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg></button>
+        </div>
+      </div>
+
+      <div class="file-row">
+        <div><div class="file-check"><svg width="12" height="12" viewBox="0 0 256 256" fill="none"></svg></div></div>
+        <div class="file-name-cell">
+          <div class="file-icon-wrap"><svg width="18" height="18" viewBox="0 0 256 256" fill="#FDCE45"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg></div>
+          <span class="file-name">Items shared with you</span>
+        </div>
+        <div class="file-meta">102.3 TB</div>
+        <div class="file-date">6 years ago</div>
+        <div style="display: flex; justify-content: flex-end; gap: 2px; opacity: 0;" class="file-actions">
+          <button class="action-icon-btn" title="Download"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0v56H208V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,132.69V40a8,8,0,0,0-16,0v92.69L93.66,106.34a8,8,0,0,0-11.32,11.32Z"/></svg></button>
+          <button class="action-icon-btn" title="Share"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg></button>
+          <button class="action-icon-btn" title="More"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg></button>
+        </div>
+      </div>
+
+      <!-- File rows -->
+      <div class="file-row">
+        <div><div class="file-check"><svg width="12" height="12" viewBox="0 0 256 256" fill="none"></svg></div></div>
+        <div class="file-name-cell">
+          <div class="file-icon-wrap"><svg width="18" height="18" viewBox="0 0 256 256" fill="var(--text-muted)"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-36-84a8,8,0,0,1-3.71,6.74l-44,28A8,8,0,0,1,104,160V104a8,8,0,0,1,12.29-6.74l44,28A8,8,0,0,1,164,132Z"/></svg></div>
+          <span class="file-name">Cosmos Laundromat.mp4</span>
+        </div>
+        <div class="file-meta">209.89 MB</div>
+        <div class="file-date">2 days ago</div>
+        <div style="display: flex; justify-content: flex-end; gap: 2px; opacity: 0;" class="file-actions">
+          <button class="action-icon-btn" title="Play"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg></button>
+          <button class="action-icon-btn" title="Download"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0v56H208V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,132.69V40a8,8,0,0,0-16,0v92.69L93.66,106.34a8,8,0,0,0-11.32,11.32Z"/></svg></button>
+          <button class="action-icon-btn" title="More"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg></button>
+        </div>
+      </div>
+
+      <div class="file-row">
+        <div><div class="file-check"><svg width="12" height="12" viewBox="0 0 256 256" fill="none"></svg></div></div>
+        <div class="file-name-cell">
+          <div class="file-icon-wrap"><svg width="18" height="18" viewBox="0 0 256 256" fill="var(--text-muted)"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-36-84a8,8,0,0,1-3.71,6.74l-44,28A8,8,0,0,1,104,160V104a8,8,0,0,1,12.29-6.74l44,28A8,8,0,0,1,164,132Z"/></svg></div>
+          <span class="file-name">Sintel.mp4</span>
+        </div>
+        <div class="file-meta">892.45 MB</div>
+        <div class="file-date">3 days ago</div>
+        <div style="display: flex; justify-content: flex-end; gap: 2px; opacity: 0;" class="file-actions">
+          <button class="action-icon-btn" title="Play"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg></button>
+          <button class="action-icon-btn" title="Download"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0v56H208V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,132.69V40a8,8,0,0,0-16,0v92.69L93.66,106.34a8,8,0,0,0-11.32,11.32Z"/></svg></button>
+          <button class="action-icon-btn" title="More"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg></button>
+        </div>
+      </div>
+
+      <div class="file-row">
+        <div><div class="file-check"><svg width="12" height="12" viewBox="0 0 256 256" fill="none"></svg></div></div>
+        <div class="file-name-cell">
+          <div class="file-icon-wrap"><svg width="18" height="18" viewBox="0 0 256 256" fill="var(--text-muted)"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Z"/></svg></div>
+          <span class="file-name">podcast-episode-127.mp3</span>
+        </div>
+        <div class="file-meta">45.20 MB</div>
+        <div class="file-date">5 days ago</div>
+        <div style="display: flex; justify-content: flex-end; gap: 2px; opacity: 0;" class="file-actions">
+          <button class="action-icon-btn" title="Download"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0v56H208V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,132.69V40a8,8,0,0,0-16,0v92.69L93.66,106.34a8,8,0,0,0-11.32,11.32Z"/></svg></button>
+          <button class="action-icon-btn" title="Share"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg></button>
+          <button class="action-icon-btn" title="More"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg></button>
+        </div>
+      </div>
+
+      <div class="file-row">
+        <div><div class="file-check"><svg width="12" height="12" viewBox="0 0 256 256" fill="none"></svg></div></div>
+        <div class="file-name-cell">
+          <div class="file-icon-wrap"><svg width="18" height="18" viewBox="0 0 256 256" fill="var(--text-muted)"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Z"/></svg></div>
+          <span class="file-name">ebook-design-systems.epub</span>
+        </div>
+        <div class="file-meta">12.30 MB</div>
+        <div class="file-date">1 week ago</div>
+        <div style="display: flex; justify-content: flex-end; gap: 2px; opacity: 0;" class="file-actions">
+          <button class="action-icon-btn" title="Download"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0v56H208V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,132.69V40a8,8,0,0,0-16,0v92.69L93.66,106.34a8,8,0,0,0-11.32,11.32Z"/></svg></button>
+          <button class="action-icon-btn" title="Share"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg></button>
+          <button class="action-icon-btn" title="More"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg></button>
+        </div>
+      </div>
+
+      <div class="file-row">
+        <div><div class="file-check"><svg width="12" height="12" viewBox="0 0 256 256" fill="none"></svg></div></div>
+        <div class="file-name-cell">
+          <div class="file-icon-wrap"><svg width="18" height="18" viewBox="0 0 256 256" fill="var(--text-muted)"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-36-84a8,8,0,0,1-3.71,6.74l-44,28A8,8,0,0,1,104,160V104a8,8,0,0,1,12.29-6.74l44,28A8,8,0,0,1,164,132Z"/></svg></div>
+          <span class="file-name">Big Buck Bunny (2008).mkv</span>
+        </div>
+        <div class="file-meta">1.42 GB</div>
+        <div class="file-date">2 weeks ago</div>
+        <div style="display: flex; justify-content: flex-end; gap: 2px; opacity: 0;" class="file-actions">
+          <button class="action-icon-btn" title="Play"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg></button>
+          <button class="action-icon-btn" title="Download"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0v56H208V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,132.69V40a8,8,0,0,0-16,0v92.69L93.66,106.34a8,8,0,0,0-11.32,11.32Z"/></svg></button>
+          <button class="action-icon-btn" title="More"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg></button>
+        </div>
+      </div>
+
+      <div class="file-row">
+        <div><div class="file-check"><svg width="12" height="12" viewBox="0 0 256 256" fill="none"></svg></div></div>
+        <div class="file-name-cell">
+          <div class="file-icon-wrap"><svg width="18" height="18" viewBox="0 0 256 256" fill="var(--text-muted)"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-36-84a8,8,0,0,1-3.71,6.74l-44,28A8,8,0,0,1,104,160V104a8,8,0,0,1,12.29-6.74l44,28A8,8,0,0,1,164,132Z"/></svg></div>
+          <span class="file-name">Dune Part Two (2024) 2160p HDR.mkv</span>
+        </div>
+        <div class="file-meta">18.4 GB</div>
+        <div class="file-date">3 hours ago</div>
+        <div style="display: flex; justify-content: flex-end; gap: 2px; opacity: 0;" class="file-actions">
+          <button class="action-icon-btn" title="Play"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg></button>
+          <button class="action-icon-btn" title="Download"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0v56H208V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,132.69V40a8,8,0,0,0-16,0v92.69L93.66,106.34a8,8,0,0,0-11.32,11.32Z"/></svg></button>
+          <button class="action-icon-btn" title="More"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg></button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Status bar -->
+    <div class="status-bar">
+      <span class="status-dot"></span>
+      <span class="status-text">Connected</span>
+      <span class="status-sep"></span>
+      <span class="status-text">12 items</span>
+      <span class="status-sep"></span>
+      <span class="status-text">39 TB of 50 TB</span>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
