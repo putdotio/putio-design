@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Family Dashboard (Swiss)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #111113;
+    --bg-2: #19191B;
+    --bg-3: #222225;
+    --bg-4: #2C2C30;
+    --border: #4B4B52;
+    --border-light: rgba(238, 238, 240, 0.08);
+    --text: #EEEEF0;
+    --text-2: #ABABB2;
+    --text-3: #6E6E76;
+    --text-4: #4A4A52;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.08);
+    --green: #30A46C;
+    --green-dim: rgba(48, 164, 108, 0.10);
+    --red: #E5484D;
+    --blue: #60A5FA;
+    --purple: #A78BFA;
+    --font: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    background: var(--bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .logo-dot { color: var(--yellow); }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 8px 0;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 20px;
+    font-size: 13px;
+    color: var(--text-2);
+    cursor: pointer;
+  }
+
+  .nav-item:hover { color: var(--text); background: var(--bg-2); }
+
+  .nav-item.active {
+    color: var(--text);
+    font-weight: 600;
+    border-left: 2px solid var(--yellow);
+    padding-left: 18px;
+  }
+
+  .nav-icon {
+    width: 18px; height: 18px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .nav-label { font-size: 11px; font-weight: 700; color: var(--text-4); text-transform: uppercase; letter-spacing: 0.08em; padding: 16px 20px 6px; }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .storage-track {
+    width: 100%; height: 3px; background: var(--bg-4); margin-bottom: 6px;
+  }
+
+  .storage-fill { height: 100%; background: var(--yellow); }
+
+  .storage-text { font-size: 11px; color: var(--text-3); }
+  .storage-text strong { color: var(--text-2); font-weight: 600; }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    padding: 16px 48px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .topbar-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    flex: 1;
+  }
+
+  .topbar-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .topbar-btn {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    cursor: pointer;
+    font-family: var(--font);
+  }
+
+  .topbar-btn:hover { color: var(--text); border-color: var(--text-3); }
+
+  .topbar-btn.primary {
+    background: var(--yellow);
+    color: var(--bg);
+    border-color: var(--yellow);
+  }
+
+  .content-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 48px;
+  }
+
+  /* Plan row */
+  .plan-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+
+  .plan-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .plan-value {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+  }
+
+  .plan-value span { color: var(--yellow); }
+
+  .plan-stat {
+    font-size: 13px;
+    color: var(--text-2);
+    margin-left: auto;
+  }
+
+  /* Grid layout: strict Swiss grid */
+  .grid-section {
+    margin-bottom: 32px;
+  }
+
+  .grid-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Members as strict grid blocks */
+  .members-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 0;
+  }
+
+  .member-block {
+    background: var(--bg);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .member-block.invite-block {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .member-block.invite-block:hover {
+    background: var(--bg-2);
+  }
+
+  .mb-avatar {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--bg);
+  }
+
+  .mb-avatar.yellow { background: var(--yellow); }
+  .mb-avatar.blue { background: var(--blue); }
+  .mb-avatar.purple { background: var(--purple); }
+  .mb-avatar.green { background: var(--green); }
+
+  .mb-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .mb-email {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .mb-role {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--yellow);
+  }
+
+  .mb-status {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--green);
+  }
+
+  .mb-status.idle { color: var(--text-3); }
+
+  .invite-plus {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-3);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* Storage data table */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border);
+  }
+
+  .data-table th {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    text-align: left;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-2);
+  }
+
+  .data-table td {
+    font-size: 13px;
+    color: var(--text);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-light);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+
+  .data-table .num {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .data-table .bar-cell {
+    width: 200px;
+  }
+
+  .usage-bar {
+    height: 6px;
+    background: var(--bg-4);
+    width: 100%;
+  }
+
+  .usage-fill {
+    height: 100%;
+  }
+
+  .usage-fill.yellow { background: var(--yellow); }
+  .usage-fill.blue { background: var(--blue); }
+  .usage-fill.purple { background: var(--purple); }
+
+  /* Bottom two-column */
+  .bottom-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .bottom-panel {
+    background: var(--bg);
+    padding: 0;
+  }
+
+  .bp-header {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .bp-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 13px;
+  }
+
+  .bp-row:last-child { border-bottom: none; }
+
+  .bp-name { flex: 1; color: var(--text); font-weight: 500; }
+  .bp-detail { color: var(--text-3); font-size: 12px; }
+  .bp-size { color: var(--text-2); font-size: 12px; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+
+  .bp-time { color: var(--text-4); font-size: 11px; flex-shrink: 0; }
+
+  .act-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  .act-dot.green { background: var(--green); }
+  .act-dot.yellow { background: var(--yellow); }
+  .act-dot.blue { background: var(--blue); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="logo-dot">.</span>io</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item">
+        <div class="nav-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M2 5a1.5 1.5 0 011.5-1.5h4L9 5h5.5A1.5 1.5 0 0116 6.5V13a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 012 13V5z" fill="#6C6C76"/></svg></div>
+        Files
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M10 2L3 11h6l-1 6 7-9h-6l1-6z" stroke="#6C6C76" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        Transfers
+      </div>
+      <div class="nav-label">Account</div>
+      <div class="nav-item">
+        <div class="nav-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="5" cy="9" r="2" stroke="#6C6C76" stroke-width="1.3"/><circle cx="13" cy="5" r="2" stroke="#6C6C76" stroke-width="1.3"/><circle cx="13" cy="13" r="2" stroke="#6C6C76" stroke-width="1.3"/><line x1="7" y1="8" x2="11" y2="6" stroke="#6C6C76" stroke-width="1"/><line x1="7" y1="10" x2="11" y2="12" stroke="#6C6C76" stroke-width="1"/></svg></div>
+        Sharing
+      </div>
+      <div class="nav-item active">
+        <div class="nav-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M14 15.5v-1a3 3 0 00-3-3H7a3 3 0 00-3 3v1" stroke="#FDCE45" stroke-width="1.3" stroke-linecap="round"/><circle cx="9" cy="6" r="2.5" stroke="#FDCE45" stroke-width="1.3"/><path d="M16 15.5v-1a2.5 2.5 0 00-2-2.45" stroke="#FDCE45" stroke-width="1.3" stroke-linecap="round"/><circle cx="13.5" cy="6.5" r="2" stroke="#FDCE45" stroke-width="1.3"/></svg></div>
+        Family
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="2" stroke="#6C6C76" stroke-width="1.3"/><path d="M14.5 11a1.2 1.2 0 00.24 1.32l.04.04a1.45 1.45 0 01-2.05 2.05l-.04-.04a1.2 1.2 0 00-1.32-.24 1.2 1.2 0 00-.73 1.1v.12a1.45 1.45 0 01-2.9 0v-.07a1.2 1.2 0 00-.79-1.1 1.2 1.2 0 00-1.32.24l-.04.04a1.45 1.45 0 01-2.05-2.05l.04-.04A1.2 1.2 0 003.82 11a1.2 1.2 0 00-1.1-.73H2.6a1.45 1.45 0 010-2.9h.07a1.2 1.2 0 001.1-.79 1.2 1.2 0 00-.24-1.32l-.04-.04a1.45 1.45 0 012.05-2.05l.04.04A1.2 1.2 0 007 3.82a1.2 1.2 0 00.73-1.1V2.6a1.45 1.45 0 012.9 0v.07a1.2 1.2 0 00.73 1.1 1.2 1.2 0 001.32-.24l.04-.04a1.45 1.45 0 012.05 2.05l-.04.04a1.2 1.2 0 00-.24 1.32 1.2 1.2 0 001.1.73h.12a1.45 1.45 0 010 2.9h-.07a1.2 1.2 0 00-1.1.73z" stroke="#6C6C76" stroke-width="1.3"/></svg></div>
+        Settings
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="storage-track">
+        <div class="storage-fill" style="width: 78%;"></div>
+      </div>
+      <div class="storage-text"><strong>39 TB</strong> of 50 TB</div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title">Family / Members</span>
+      <div class="topbar-actions">
+        <button class="topbar-btn">Manage Plan</button>
+        <button class="topbar-btn primary">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Invite
+        </button>
+      </div>
+    </div>
+
+    <div class="content-area">
+
+      <!-- Plan row -->
+      <div class="plan-row">
+        <span class="plan-label">Plan</span>
+        <span class="plan-value">Family <span>50 TB</span></span>
+        <span class="plan-stat">3 / 4 members</span>
+      </div>
+
+      <!-- Members grid -->
+      <div class="grid-section">
+        <div class="grid-label">Members</div>
+        <div class="members-grid">
+          <div class="member-block">
+            <div class="mb-avatar yellow">A</div>
+            <div class="mb-role">Owner</div>
+            <div class="mb-name">Altay Aydemir</div>
+            <div class="mb-email">altay@put.io</div>
+            <div class="mb-status">Active</div>
+          </div>
+          <div class="member-block">
+            <div class="mb-avatar blue">H</div>
+            <div class="mb-name">Hasan Huseyin</div>
+            <div class="mb-email">hasan@put.io</div>
+            <div class="mb-status">Active</div>
+          </div>
+          <div class="member-block">
+            <div class="mb-avatar purple">E</div>
+            <div class="mb-name">Elif Aydemir</div>
+            <div class="mb-email">elif.aydemir@gmail.com</div>
+            <div class="mb-status idle">Idle</div>
+          </div>
+          <div class="member-block invite-block">
+            <div class="invite-plus">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Invite member
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Storage data table -->
+      <div class="grid-section">
+        <div class="grid-label">Storage Usage</div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>Used</th>
+              <th>% of Total</th>
+              <th class="bar-cell">Usage</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Altay Aydemir</td>
+              <td class="num">28.4 TB</td>
+              <td>56.8%</td>
+              <td class="bar-cell"><div class="usage-bar"><div class="usage-fill yellow" style="width: 56.8%;"></div></div></td>
+              <td style="color: var(--green); font-weight: 600;">Active</td>
+            </tr>
+            <tr>
+              <td>Hasan Huseyin</td>
+              <td class="num">7.2 TB</td>
+              <td>14.4%</td>
+              <td class="bar-cell"><div class="usage-bar"><div class="usage-fill blue" style="width: 14.4%;"></div></div></td>
+              <td style="color: var(--green); font-weight: 600;">Active</td>
+            </tr>
+            <tr>
+              <td>Elif Aydemir</td>
+              <td class="num">3.4 TB</td>
+              <td>6.8%</td>
+              <td class="bar-cell"><div class="usage-bar"><div class="usage-fill purple" style="width: 6.8%;"></div></div></td>
+              <td style="color: var(--text-3);">Idle</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Bottom panels -->
+      <div class="grid-section">
+        <div class="bottom-row">
+          <div class="bottom-panel">
+            <div class="bp-header">Shared Folders</div>
+            <div class="bp-row">
+              <svg width="16" height="16" viewBox="0 0 24 20" fill="none"><path d="M1 3.5A1.5 1.5 0 012.5 2H8l2.5 2.5H21.5A1.5 1.5 0 0123 6v11.5a1.5 1.5 0 01-1.5 1.5h-19A1.5 1.5 0 011 17.5V3.5z" fill="#FDCE45"/></svg>
+              <span class="bp-name">Family Movies</span>
+              <span class="bp-detail">Everyone</span>
+              <span class="bp-size">2.4 TB</span>
+            </div>
+            <div class="bp-row">
+              <svg width="16" height="16" viewBox="0 0 24 20" fill="none"><path d="M1 3.5A1.5 1.5 0 012.5 2H8l2.5 2.5H21.5A1.5 1.5 0 0123 6v11.5a1.5 1.5 0 01-1.5 1.5h-19A1.5 1.5 0 011 17.5V3.5z" fill="#FDCE45"/></svg>
+              <span class="bp-name">Music Collection</span>
+              <span class="bp-detail">Altay, Hasan</span>
+              <span class="bp-size">180 GB</span>
+            </div>
+            <div class="bp-row">
+              <svg width="16" height="16" viewBox="0 0 24 20" fill="none"><path d="M1 3.5A1.5 1.5 0 012.5 2H8l2.5 2.5H21.5A1.5 1.5 0 0123 6v11.5a1.5 1.5 0 01-1.5 1.5h-19A1.5 1.5 0 011 17.5V3.5z" fill="#FDCE45"/></svg>
+              <span class="bp-name">Vacation Photos</span>
+              <span class="bp-detail">Altay, Elif</span>
+              <span class="bp-size">48 GB</span>
+            </div>
+            <div class="bp-row">
+              <svg width="16" height="16" viewBox="0 0 24 20" fill="none"><path d="M1 3.5A1.5 1.5 0 012.5 2H8l2.5 2.5H21.5A1.5 1.5 0 0123 6v11.5a1.5 1.5 0 01-1.5 1.5h-19A1.5 1.5 0 011 17.5V3.5z" fill="#FDCE45"/></svg>
+              <span class="bp-name">Documentaries</span>
+              <span class="bp-detail">Everyone</span>
+              <span class="bp-size">320 GB</span>
+            </div>
+          </div>
+          <div class="bottom-panel">
+            <div class="bp-header">Recent Activity</div>
+            <div class="bp-row">
+              <div class="act-dot green"></div>
+              <span class="bp-name">Hasan is watching Severance S02E10</span>
+              <span class="bp-time">Now</span>
+            </div>
+            <div class="bp-row">
+              <div class="act-dot yellow"></div>
+              <span class="bp-name">Altay added The Brutalist (2024)</span>
+              <span class="bp-time">2h</span>
+            </div>
+            <div class="bp-row">
+              <div class="act-dot blue"></div>
+              <span class="bp-name">Elif downloaded Vacation-istanbul.zip</span>
+              <span class="bp-time">1d</span>
+            </div>
+            <div class="bp-row">
+              <div class="act-dot yellow"></div>
+              <span class="bp-name">Hasan shared Music Collection</span>
+              <span class="bp-time">2d</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

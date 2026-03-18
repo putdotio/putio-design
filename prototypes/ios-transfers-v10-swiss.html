@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io -- iOS Transfers (v10 Swiss)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A0A;
+    --bg-2: #111111;
+    --bg-3: #1A1A1A;
+    --bg-4: #222222;
+    --text: #EDEDED;
+    --text-2: #999999;
+    --text-3: #666666;
+    --text-4: #444444;
+    --line: rgba(255,255,255,0.06);
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --green: #30A46C;
+    --red: #E5484D;
+  }
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .phone {
+    width: 390px; height: 844px; overflow: hidden;
+    display: flex; flex-direction: column; background: var(--bg);
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 14px 24px 8px;
+    font-size: 15px; font-weight: 600; height: 54px; flex-shrink: 0;
+  }
+  .time { flex: 1; }
+  .icons { display: flex; align-items: center; gap: 6px; }
+
+  /* Header */
+  .page-header {
+    padding: 8px 24px 16px; flex-shrink: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .page-title {
+    font-size: 28px; font-weight: 700; letter-spacing: -0.04em;
+  }
+  .page-sub {
+    font-size: 11px; color: var(--text-3); text-transform: uppercase;
+    letter-spacing: 0.06em; margin-top: 4px;
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+    background: var(--line); flex-shrink: 0;
+  }
+  .stat-cell {
+    background: var(--bg); padding: 12px 24px; text-align: center;
+  }
+  .stat-num { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+  .stat-num.yellow { color: var(--yellow); }
+  .stat-num.green { color: var(--green); }
+  .stat-num.red { color: var(--red); }
+  .stat-lbl { font-size: 9px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+
+  /* Transfer list */
+  .transfer-list { flex: 1; overflow-y: auto; }
+
+  .section-header {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text-3);
+    padding: 16px 24px 8px;
+  }
+
+  .transfer-row {
+    display: flex; flex-direction: column;
+    padding: 14px 24px; border-bottom: 1px solid var(--line);
+  }
+
+  .tr-top { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .tr-status {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; width: 48px; flex-shrink: 0;
+  }
+  .tr-status.downloading { color: var(--yellow); }
+  .tr-status.seeding { color: var(--green); }
+  .tr-status.done { color: var(--green); }
+  .tr-status.error { color: var(--red); }
+
+  .tr-name {
+    font-size: 14px; font-weight: 500; color: var(--text); flex: 1;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .tr-pct {
+    font-size: 14px; font-weight: 700; color: var(--yellow);
+    font-variant-numeric: tabular-nums; flex-shrink: 0;
+  }
+
+  /* Progress bar -- no rounded corners */
+  .tr-progress { height: 2px; background: var(--bg-4); margin-bottom: 6px; }
+  .tr-progress .fill { height: 100%; background: var(--yellow); }
+  .tr-progress .fill.green { background: var(--green); }
+
+  .tr-meta {
+    display: flex; gap: 16px;
+    font-size: 11px; color: var(--text-3); font-variant-numeric: tabular-nums;
+  }
+
+  /* Actions row */
+  .tr-actions {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+    margin-top: 10px; background: var(--line);
+  }
+  .tr-action {
+    background: var(--bg-2); padding: 10px;
+    font-size: 12px; font-weight: 500; color: var(--text-2);
+    text-align: center; cursor: pointer; border: none; font-family: inherit;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .tr-action:hover { color: var(--yellow); }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex; border-top: 1px solid var(--line);
+    padding: 8px 0 34px; flex-shrink: 0; background: var(--bg);
+  }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 500; color: var(--text-3); padding: 4px 0;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .tab-item.active { color: var(--text); }
+  .tab-indicator { width: 16px; height: 2px; background: var(--yellow); margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+        <rect x="0" y="8" width="3" height="4" fill="#EDEDED"/><rect x="4.5" y="5" width="3" height="7" fill="#EDEDED"/>
+        <rect x="9" y="2" width="3" height="10" fill="#EDEDED"/><rect x="13.5" y="0" width="3" height="12" fill="#EDEDED"/>
+      </svg>
+      <svg width="27" height="13" viewBox="0 0 27 13" fill="none">
+        <rect x="0.5" y="0.5" width="23" height="12" rx="2" stroke="#EDEDED" stroke-opacity="0.35"/>
+        <rect x="2" y="2" width="18" height="9" rx="1" fill="#EDEDED"/>
+        <rect x="25" y="4" width="2" height="5" fill="#EDEDED" fill-opacity="0.4"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="page-header">
+    <div class="page-title">Transfers</div>
+    <div class="page-sub">6 total -- 2 active</div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-cell"><div class="stat-num yellow">2</div><div class="stat-lbl">Active</div></div>
+    <div class="stat-cell"><div class="stat-num green">3</div><div class="stat-lbl">Done</div></div>
+    <div class="stat-cell"><div class="stat-num red">1</div><div class="stat-lbl">Error</div></div>
+  </div>
+
+  <div class="transfer-list">
+    <div class="section-header">Active</div>
+
+    <div class="transfer-row">
+      <div class="tr-top">
+        <span class="tr-status downloading">DL</span>
+        <span class="tr-name">Inception.2010.2160p.mkv</span>
+        <span class="tr-pct">63%</span>
+      </div>
+      <div class="tr-progress"><div class="fill" style="width:63%;"></div></div>
+      <div class="tr-meta"><span>12.4 GB</span><span>18.6 MB/s</span><span>23 min left</span></div>
+    </div>
+
+    <div class="transfer-row">
+      <div class="tr-top">
+        <span class="tr-status downloading">DL</span>
+        <span class="tr-name">The.Wire.S03.Complete</span>
+        <span class="tr-pct" style="color:var(--text-2);">21%</span>
+      </div>
+      <div class="tr-progress"><div class="fill" style="width:21%;background:var(--text-3);"></div></div>
+      <div class="tr-meta"><span>38.7 GB</span><span>340 KB/s</span><span>slow peers</span></div>
+    </div>
+
+    <div class="transfer-row">
+      <div class="tr-top">
+        <span class="tr-status seeding">UP</span>
+        <span class="tr-name">Cosmos.Laundromat.720p</span>
+        <span class="tr-pct" style="color:var(--green);">2.4x</span>
+      </div>
+      <div class="tr-meta"><span>210 MB</span><span>1.8 MB/s up</span><span>seeding</span></div>
+    </div>
+
+    <div class="section-header">Completed</div>
+
+    <div class="transfer-row">
+      <div class="tr-top">
+        <span class="tr-status done">OK</span>
+        <span class="tr-name">Sintel.1080p.mkv</span>
+        <span class="tr-pct" style="color:var(--green);">100%</span>
+      </div>
+      <div class="tr-progress"><div class="fill green" style="width:100%;"></div></div>
+      <div class="tr-meta"><span>892 MB</span><span>2 hours ago</span></div>
+      <div class="tr-actions">
+        <button class="tr-action">Go to File</button>
+        <button class="tr-action">Remove</button>
+      </div>
+    </div>
+
+    <div class="transfer-row">
+      <div class="tr-top">
+        <span class="tr-status done">OK</span>
+        <span class="tr-name">Big.Buck.Bunny.720p</span>
+        <span class="tr-pct" style="color:var(--green);">100%</span>
+      </div>
+      <div class="tr-progress"><div class="fill green" style="width:100%;"></div></div>
+      <div class="tr-meta"><span>276 MB</span><span>5 hours ago</span></div>
+      <div class="tr-actions">
+        <button class="tr-action">Go to File</button>
+        <button class="tr-action">Remove</button>
+      </div>
+    </div>
+
+    <div class="transfer-row">
+      <div class="tr-top">
+        <span class="tr-status error">ERR</span>
+        <span class="tr-name">ubuntu-22.04-desktop.iso</span>
+        <span class="tr-pct" style="color:var(--red);">--</span>
+      </div>
+      <div class="tr-meta" style="color:var(--red);"><span>Tracker unreachable</span></div>
+      <div class="tr-actions">
+        <button class="tr-action">Retry</button>
+        <button class="tr-action">Remove</button>
+      </div>
+    </div>
+
+    <div style="height:16px;"></div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h6l2 2h10v10H3z"/></svg>
+      Files
+    </div>
+    <div class="tab-item active">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 4v12M8 12l4 4 4-4"/><path d="M5 18h14"/></svg>
+      Xfers
+      <div class="tab-indicator"></div>
+    </div>
+    <div class="tab-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>
+      Player
+    </div>
+    <div class="tab-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>
+      Settings
+    </div>
+  </div>
+</div>
+</body>
+</html>

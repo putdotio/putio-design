@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Pricing (Retro)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0a0a; --bg-2: #111111; --bg-3: #1a1a1a; --bg-4: #222222;
+    --line: #333333; --text: #e0e0e0; --text-2: #888888; --yellow: #FDCE45;
+    --green: #33ff33; --red: #ff3333; --cyan: #00ffff; --magenta: #ff00ff;
+    --pixel-font: 'Press Start 2P', monospace;
+    --mono-font: 'Space Mono', monospace;
+  }
+  body {
+    font-family: var(--mono-font);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: none;
+    image-rendering: pixelated;
+  }
+  .page { width: 1440px; min-height: 900px; position: relative; overflow: hidden; }
+
+  /* CRT Overlay */
+  .crt-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 9999;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0, 0, 0, 0.1) 2px, rgba(0, 0, 0, 0.1) 4px
+    );
+  }
+  .crt-overlay::after {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.3) 100%);
+  }
+
+  /* Nav */
+  .nav {
+    display: flex; align-items: center; padding: 24px 64px;
+    border-bottom: 2px solid var(--yellow);
+  }
+  .logo {
+    font-family: var(--pixel-font); font-size: 16px; color: var(--yellow);
+    text-decoration: none; text-shadow: 2px 2px 0 rgba(253,206,69,0.3);
+  }
+  .nav-spacer { flex: 1; }
+  .nav-links { display: flex; gap: 24px; align-items: center; }
+  .nav-link {
+    font-family: var(--pixel-font); font-size: 8px; color: var(--text-2);
+    text-decoration: none; text-transform: uppercase;
+  }
+  .nav-link:hover { color: var(--yellow); }
+  .nav-link.active { color: var(--yellow); text-shadow: 0 0 8px rgba(253,206,69,0.5); }
+  .nav-cta {
+    font-family: var(--pixel-font); font-size: 8px; color: var(--bg);
+    background: var(--yellow); padding: 8px 16px; border: 2px solid var(--yellow);
+    cursor: pointer; text-decoration: none; text-transform: uppercase;
+  }
+
+  /* Hero */
+  .hero { text-align: center; padding: 56px 64px 40px; }
+  .hero-title {
+    font-family: var(--pixel-font); font-size: 28px; color: var(--yellow);
+    text-shadow: 3px 3px 0 rgba(253,206,69,0.2); margin-bottom: 16px;
+    letter-spacing: 2px;
+  }
+  .hero-subtitle {
+    font-size: 14px; color: var(--text-2); margin-bottom: 32px; line-height: 1.6;
+  }
+
+  /* Billing Toggle */
+  .billing-toggle {
+    display: inline-flex; align-items: center; gap: 0;
+    border: 2px solid var(--yellow);
+  }
+  .toggle-option {
+    font-family: var(--pixel-font); font-size: 8px; padding: 10px 20px;
+    color: var(--text-2); cursor: pointer; border: none; background: var(--bg-2);
+    text-transform: uppercase;
+  }
+  .toggle-option.active { background: var(--yellow); color: var(--bg); }
+  .toggle-option + .toggle-option { border-left: 2px solid var(--yellow); }
+  .toggle-save {
+    font-family: var(--pixel-font); font-size: 7px; color: var(--green);
+    padding: 10px 12px; border-left: 2px solid var(--yellow);
+    background: var(--bg-2);
+  }
+
+  /* Pricing Grid */
+  .pricing-grid {
+    display: flex; gap: 20px; padding: 40px 64px 0; align-items: stretch;
+  }
+
+  /* Pixel Card */
+  .pixel-card {
+    flex: 1; background: var(--bg-2); border: 2px solid var(--line);
+    padding: 24px 20px 20px; display: flex; flex-direction: column;
+    position: relative;
+  }
+  .pixel-card::before {
+    content: ''; position: absolute; top: -2px; left: -2px; right: -2px;
+    height: 4px; background: var(--line);
+  }
+  .pixel-card:hover { border-color: var(--yellow); }
+  .pixel-card:hover::before { background: var(--yellow); }
+  .pixel-card.featured {
+    border-color: var(--yellow);
+    box-shadow: 0 0 20px rgba(253,206,69,0.15), inset 0 0 30px rgba(253,206,69,0.03);
+  }
+  .pixel-card.featured::before { background: var(--yellow); }
+
+  .card-badge {
+    position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+    font-family: var(--pixel-font); font-size: 7px; background: var(--yellow);
+    color: var(--bg); padding: 4px 10px; white-space: nowrap;
+    text-transform: uppercase; border: 2px solid var(--yellow);
+  }
+
+  .card-persona {
+    font-family: var(--pixel-font); font-size: 7px; color: var(--text-2);
+    text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;
+  }
+  .card-name {
+    font-family: var(--pixel-font); font-size: 16px; color: var(--yellow);
+    text-shadow: 2px 2px 0 rgba(253,206,69,0.2); margin-bottom: 6px;
+  }
+  .card-tagline {
+    font-size: 12px; color: var(--text-2); margin-bottom: 16px; line-height: 1.5;
+  }
+
+  .card-price { display: flex; align-items: baseline; gap: 4px; margin-bottom: 4px; }
+  .card-currency { font-size: 14px; color: var(--text-2); }
+  .card-amount {
+    font-family: var(--pixel-font); font-size: 24px; color: var(--text);
+    text-shadow: 2px 2px 0 rgba(255,255,255,0.1);
+  }
+  .card-period { font-size: 12px; color: var(--text-2); }
+  .card-storage {
+    font-size: 11px; color: var(--text-2); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .storage-bar {
+    display: inline-block; width: 40px; height: 6px; background: var(--bg-4);
+    position: relative;
+  }
+  .storage-bar-fill {
+    position: absolute; top: 0; left: 0; height: 100%;
+    background: var(--yellow);
+  }
+
+  .card-cta {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; padding: 12px; border: 2px solid var(--line);
+    font-family: var(--pixel-font); font-size: 8px;
+    cursor: pointer; margin-bottom: 16px; text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .card-cta.primary { background: var(--yellow); color: var(--bg); border-color: var(--yellow); }
+  .card-cta.secondary { background: var(--bg-3); color: var(--text-2); }
+  .card-cta.secondary:hover { border-color: var(--yellow); color: var(--yellow); }
+  .card-cta.coin { background: var(--bg-3); color: var(--cyan); border-color: var(--cyan); }
+
+  .card-divider { height: 2px; background: var(--line); margin-bottom: 14px; }
+  .pixel-card.featured .card-divider { background: rgba(253,206,69,0.3); }
+
+  .card-features-title {
+    font-family: var(--pixel-font); font-size: 7px; color: var(--text-2);
+    text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;
+  }
+  .card-feature {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 4px 0; font-size: 11px; color: var(--text-2); line-height: 1.5;
+  }
+  .card-feature .dot { color: var(--green); flex-shrink: 0; font-family: var(--pixel-font); font-size: 6px; margin-top: 3px; }
+  .card-feature .highlight { color: var(--text); font-weight: 700; }
+
+  /* Lives Display */
+  .lives-section {
+    display: flex; justify-content: center; gap: 48px; padding: 40px 64px 0;
+  }
+  .lives-item { display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--text-2); }
+  .lives-icon {
+    width: 32px; height: 32px; background: var(--bg-2); border: 2px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Footer */
+  .pricing-footer { text-align: center; padding: 48px 64px; }
+  .footer-text {
+    font-family: var(--pixel-font); font-size: 10px; color: var(--text-2);
+    margin-bottom: 16px;
+  }
+  .footer-text .hl { color: var(--yellow); }
+  .footer-btn {
+    font-family: var(--pixel-font); font-size: 10px; background: var(--yellow);
+    color: var(--bg); padding: 14px 32px; border: 2px solid var(--yellow);
+    cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .footer-note { font-size: 11px; color: var(--text-2); }
+
+  /* Pixel art decorations */
+  .pixel-stars {
+    position: absolute; top: 80px; left: 40px; right: 40px; height: 200px;
+    pointer-events: none; overflow: hidden;
+  }
+  .star {
+    position: absolute; width: 2px; height: 2px; background: var(--yellow); opacity: 0.3;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="crt-overlay"></div>
+
+  <!-- Pixel Stars -->
+  <div class="pixel-stars">
+    <div class="star" style="top:20px;left:5%"></div>
+    <div class="star" style="top:60px;left:15%"></div>
+    <div class="star" style="top:30px;left:28%"></div>
+    <div class="star" style="top:80px;left:42%"></div>
+    <div class="star" style="top:15px;left:55%"></div>
+    <div class="star" style="top:50px;left:68%"></div>
+    <div class="star" style="top:70px;left:78%"></div>
+    <div class="star" style="top:25px;left:88%"></div>
+    <div class="star" style="top:90px;left:95%"></div>
+  </div>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a class="logo" href="#">PUT.IO</a>
+    <div class="nav-spacer"></div>
+    <div class="nav-links">
+      <a class="nav-link" href="#">Features</a>
+      <a class="nav-link active" href="#">Pricing</a>
+      <a class="nav-link" href="#">Blog</a>
+      <a class="nav-link" href="#">Help</a>
+      <a class="nav-cta" href="#">Start</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-title">SELECT YOUR PLAN</div>
+    <div class="hero-subtitle">No contracts. No fine print. Press start to begin.</div>
+
+    <div class="billing-toggle">
+      <button class="toggle-option active">Monthly</button>
+      <button class="toggle-option">Yearly</button>
+      <span class="toggle-save">-17%</span>
+    </div>
+  </div>
+
+  <!-- Pricing Grid -->
+  <div class="pricing-grid">
+
+    <!-- Trial -->
+    <div class="pixel-card">
+      <div class="card-persona">Player 0</div>
+      <div class="card-name">TRIAL</div>
+      <div class="card-tagline">Kick the tires. No commitment needed.</div>
+      <div class="card-price">
+        <span class="card-currency">$</span>
+        <span class="card-amount">0.99</span>
+        <span class="card-period">/day</span>
+      </div>
+      <div class="card-storage">
+        <span class="storage-bar"><span class="storage-bar-fill" style="width:10%"></span></span>
+        100 GB for the trial
+      </div>
+      <button class="card-cta coin">INSERT COIN</button>
+      <div class="card-divider"></div>
+      <div class="card-features-title">Power-ups</div>
+      <div class="card-feature"><span class="dot">></span> Full access to all features</div>
+      <div class="card-feature"><span class="dot">></span> 5 simultaneous transfers</div>
+      <div class="card-feature"><span class="dot">></span> No credit card needed</div>
+    </div>
+
+    <!-- Casual -->
+    <div class="pixel-card">
+      <div class="card-persona">Player 1</div>
+      <div class="card-name">CASUAL</div>
+      <div class="card-tagline">You just want to press play. We get it.</div>
+      <div class="card-price">
+        <span class="card-currency">$</span>
+        <span class="card-amount">9.99</span>
+        <span class="card-period">/mo</span>
+      </div>
+      <div class="card-storage">
+        <span class="storage-bar"><span class="storage-bar-fill" style="width:25%"></span></span>
+        100 GB storage
+      </div>
+      <button class="card-cta secondary">Start Game</button>
+      <div class="card-divider"></div>
+      <div class="card-features-title">Power-ups</div>
+      <div class="card-feature"><span class="dot">></span> Stream anything, anywhere</div>
+      <div class="card-feature"><span class="dot">></span> Offline downloads on mobile</div>
+      <div class="card-feature"><span class="dot">></span> Chromecast, AirPlay, DLNA</div>
+      <div class="card-feature"><span class="dot">></span> 5 simultaneous transfers</div>
+      <div class="card-feature"><span class="dot">></span> Downloads stay available for 10 days</div>
+    </div>
+
+    <!-- Plus (Featured) -->
+    <div class="pixel-card featured">
+      <div class="card-badge">High Score</div>
+      <div class="card-persona">Player 2</div>
+      <div class="card-name">PLUS</div>
+      <div class="card-tagline">More room. More power. More everything.</div>
+      <div class="card-price">
+        <span class="card-currency">$</span>
+        <span class="card-amount">14.99</span>
+        <span class="card-period">/mo</span>
+      </div>
+      <div class="card-storage">
+        <span class="storage-bar"><span class="storage-bar-fill" style="width:50%"></span></span>
+        500 GB storage
+      </div>
+      <button class="card-cta primary">Start Game</button>
+      <div class="card-divider"></div>
+      <div class="card-features-title">All casual +</div>
+      <div class="card-feature"><span class="dot">></span> <span class="highlight">500 GB</span> cloud storage</div>
+      <div class="card-feature"><span class="dot">></span> Smart folders &amp; organization</div>
+      <div class="card-feature"><span class="dot">></span> 10 simultaneous transfers</div>
+      <div class="card-feature"><span class="dot">></span> Subtitle search &amp; auto-fetch</div>
+      <div class="card-feature"><span class="dot">></span> Downloads stay available for 30 days</div>
+    </div>
+
+    <!-- Power -->
+    <div class="pixel-card">
+      <div class="card-persona">Player 3</div>
+      <div class="card-name">POWER</div>
+      <div class="card-tagline">Boss mode. Total control over everything.</div>
+      <div class="card-price">
+        <span class="card-currency">$</span>
+        <span class="card-amount">19.99</span>
+        <span class="card-period">/mo</span>
+      </div>
+      <div class="card-storage">
+        <span class="storage-bar"><span class="storage-bar-fill" style="width:100%"></span></span>
+        1 TB storage
+      </div>
+      <button class="card-cta secondary">Start Game</button>
+      <div class="card-divider"></div>
+      <div class="card-features-title">All plus +</div>
+      <div class="card-feature"><span class="dot">></span> <span class="highlight">1 TB</span> cloud storage</div>
+      <div class="card-feature"><span class="dot">></span> RSS automation feeds</div>
+      <div class="card-feature"><span class="dot">></span> API access &amp; WebDAV</div>
+      <div class="card-feature"><span class="dot">></span> Family sharing (up to 4)</div>
+      <div class="card-feature"><span class="dot">></span> 50 simultaneous transfers</div>
+      <div class="card-feature"><span class="dot">></span> Downloads stay available for 60 days</div>
+    </div>
+
+  </div>
+
+  <!-- Lives / Guarantees -->
+  <div class="lives-section">
+    <div class="lives-item">
+      <div class="lives-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--green)" stroke-width="1.5">
+          <path d="M8 1.5l5.5 2.5v4c0 3.5-2.5 5.5-5.5 7-3-1.5-5.5-3.5-5.5-7V4L8 1.5z" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      Money-back guarantee, first week
+    </div>
+    <div class="lives-item">
+      <div class="lives-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--yellow)" stroke-width="1.5">
+          <circle cx="8" cy="8" r="6.5"/>
+          <path d="M8 4.5V8l2.5 1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      Cancel anytime. One click.
+    </div>
+    <div class="lives-item">
+      <div class="lives-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--text-2)" stroke-width="1.5">
+          <rect x="2" y="4" width="12" height="9" rx="1.5"/>
+          <path d="M2 7h12" stroke-linecap="round"/>
+        </svg>
+      </div>
+      Stripe-powered. We never see your card.
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="pricing-footer">
+    <div class="footer-text">GAME OVER? <span class="hl">CONTINUE?</span></div>
+    <button class="footer-btn">INSERT COIN -- $0.99/DAY</button>
+    <div class="footer-note">No credit card required. Full access. Cancel in one click.</div>
+  </div>
+
+</div>
+</body>
+</html>

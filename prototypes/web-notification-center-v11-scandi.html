@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Notification Center (Scandi)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #111113;
+    --surface: #1C1A17;
+    --surface-2: #232019;
+    --border: #2A2723;
+    --text: #EEEEF0;
+    --text-2: #C8C4BE;
+    --text-3: #8A857D;
+    --text-4: #5C5850;
+    --yellow: #FDCE45;
+    --yellow-soft: rgba(253, 206, 69, 0.08);
+    --green: #30A46C;
+    --green-soft: rgba(48, 164, 108, 0.1);
+    --red: #E5484D;
+    --red-soft: rgba(229, 72, 77, 0.1);
+    --orange: #F0A030;
+    --orange-soft: rgba(240, 160, 48, 0.1);
+    --font: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    --radius: 16px;
+    --radius-sm: 12px;
+    --radius-xs: 8px;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; position: relative; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 260px;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    padding: 24px 16px;
+    gap: 8px;
+  }
+
+  .sidebar-brand { padding: 8px 12px 24px; }
+  .logo { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.03em; }
+  .logo-dot { color: var(--yellow); }
+
+  .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .nav-group-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-4); padding: 16px 12px 6px;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; font-size: 14px; font-weight: 500;
+    color: var(--text-3); cursor: pointer; border: none;
+    background: none; width: 100%; text-align: left;
+    font-family: var(--font); border-radius: var(--radius-sm);
+  }
+  .nav-item:hover { color: var(--text-2); background: rgba(255,255,255,0.03); }
+  .nav-item.active { color: var(--text); font-weight: 600; background: var(--surface-2); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; color: var(--text-4); flex-shrink: 0; }
+  .nav-item.active .nav-icon { color: var(--yellow); }
+
+  .sidebar-footer { padding: 16px 12px 8px; }
+  .storage-card {
+    background: var(--surface-2); border-radius: var(--radius-sm);
+    padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .storage-bar { width: 100%; height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 10px; overflow: hidden; }
+  .storage-fill { height: 100%; width: 78%; background: linear-gradient(90deg, var(--yellow), #F0B830); border-radius: 3px; }
+  .storage-label { font-size: 12px; color: var(--text-3); font-weight: 500; }
+  .storage-label strong { color: var(--text-2); font-weight: 700; }
+
+  .user-row { display: flex; align-items: center; gap: 10px; padding: 12px 12px 4px; }
+  .user-avatar {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--yellow), #F0A030);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: var(--bg);
+  }
+  .user-name { font-size: 13px; color: var(--text-2); font-weight: 500; }
+
+  /* MAIN */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  .topbar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 20px 24px; flex-shrink: 0;
+  }
+  .topbar-spacer { flex: 1; }
+  .topbar-left { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-3); }
+  .topbar-left span { color: var(--text); font-weight: 600; }
+
+  .topbar-btn {
+    width: 36px; height: 36px; border-radius: var(--radius-xs);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: none; background: none; color: var(--text-3);
+    position: relative;
+  }
+  .topbar-btn:hover { background: var(--surface); color: var(--text); }
+  .topbar-btn.active { background: var(--yellow-soft); color: var(--yellow); }
+
+  .notif-dot {
+    position: absolute; top: 6px; right: 6px;
+    width: 8px; height: 8px; background: var(--yellow);
+    border-radius: 50%; border: 2px solid var(--bg);
+  }
+
+  .content-area { flex: 1; padding: 0 24px 24px; opacity: 0.3; pointer-events: none; }
+  .content-area h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 20px; }
+
+  .file-list { display: flex; flex-direction: column; gap: 4px; }
+  .file-row {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 20px; border-radius: var(--radius-sm); font-size: 14px;
+  }
+  .file-row:hover { background: var(--surface); }
+  .file-name { flex: 1; color: var(--text); font-weight: 500; }
+  .file-size { color: var(--text-3); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .file-date { color: var(--text-4); font-size: 13px; }
+
+  /* NOTIFICATION PANEL */
+  .notif-panel {
+    position: absolute; top: 0; right: 0; bottom: 0;
+    width: 380px; background: var(--surface);
+    display: flex; flex-direction: column; z-index: 100;
+    box-shadow: -16px 0 48px rgba(0, 0, 0, 0.4);
+    border-radius: var(--radius) 0 0 var(--radius);
+  }
+
+  .notif-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px 24px 20px; flex-shrink: 0;
+  }
+  .notif-header-left { display: flex; align-items: center; gap: 10px; }
+  .notif-title { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+  .notif-count {
+    font-size: 11px; font-weight: 700;
+    background: var(--yellow); color: var(--bg);
+    border-radius: 10px; padding: 2px 8px;
+  }
+  .notif-action {
+    font-size: 12px; font-weight: 500; color: var(--yellow);
+    cursor: pointer; border: none; background: none; font-family: var(--font);
+  }
+
+  .notif-tabs {
+    display: flex; gap: 2px; padding: 0 16px 16px; flex-shrink: 0;
+  }
+  .notif-tab {
+    flex: 1; padding: 8px 12px; font-size: 12px; font-weight: 500;
+    color: var(--text-3); cursor: pointer; border: none;
+    background: var(--surface-2); font-family: var(--font);
+    text-align: center; border-radius: var(--radius-xs);
+  }
+  .notif-tab.active { color: var(--text); background: var(--border); font-weight: 600; }
+  .tab-count { margin-left: 4px; font-size: 10px; color: var(--text-4); }
+
+  .notif-body { flex: 1; overflow-y: auto; padding: 0 12px; }
+
+  .notif-group-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--text-4); padding: 16px 12px 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .notif-item {
+    display: flex; gap: 12px; padding: 14px 12px;
+    cursor: pointer; position: relative;
+    border-radius: var(--radius-sm);
+    margin-bottom: 4px;
+  }
+  .notif-item:hover { background: var(--surface-2); }
+  .notif-item.unread::before {
+    content: ''; position: absolute; left: 4px; top: 22px;
+    width: 6px; height: 6px; background: var(--yellow); border-radius: 50%;
+  }
+
+  .notif-item-icon {
+    width: 38px; height: 38px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .notif-item-icon.transfer { background: var(--green-soft); }
+  .notif-item-icon.security { background: var(--red-soft); }
+  .notif-item-icon.feature { background: var(--yellow-soft); }
+  .notif-item-icon.system { background: var(--orange-soft); }
+
+  .notif-item-content { flex: 1; min-width: 0; }
+  .notif-item-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; letter-spacing: -0.01em; }
+  .notif-item-desc { font-size: 12px; color: var(--text-3); line-height: 1.4; margin-bottom: 6px; }
+  .notif-item-meta { display: flex; align-items: center; gap: 10px; }
+  .notif-item-time { font-size: 11px; color: var(--text-4); }
+  .notif-item-action {
+    font-size: 11px; font-weight: 600; color: var(--yellow);
+    cursor: pointer; border: none; background: none; font-family: var(--font);
+  }
+
+  .notif-item-dismiss {
+    position: absolute; top: 14px; right: 12px;
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--text-4); opacity: 0;
+    border: none; background: none;
+  }
+  .notif-item:hover .notif-item-dismiss { opacity: 1; }
+
+  /* Feature discovery */
+  .notif-item.discovery {
+    padding: 16px; margin: 4px 0;
+    background: var(--yellow-soft);
+    border: 1px solid rgba(253, 206, 69, 0.08);
+    border-radius: var(--radius-sm);
+  }
+  .notif-item.discovery:hover { background: rgba(253, 206, 69, 0.1); }
+  .notif-item.discovery .notif-item-title { color: var(--yellow); }
+  .discovery-label {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--yellow); opacity: 0.7; margin-bottom: 4px;
+  }
+  .discovery-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 8px; padding: 7px 14px;
+    background: var(--yellow); color: var(--bg);
+    border-radius: var(--radius-xs); font-size: 11px; font-weight: 700;
+    font-family: var(--font); border: none; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(253, 206, 69, 0.15);
+  }
+
+  .notif-footer {
+    padding: 16px 24px; text-align: center; flex-shrink: 0;
+    border-top: 1px solid var(--border);
+  }
+  .notif-footer a {
+    font-size: 12px; color: var(--text-3); text-decoration: none;
+    font-weight: 500; font-family: var(--font);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">put<span class="logo-dot">.</span>io</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-group-label">Library</div>
+      <button class="nav-item active">
+        <span class="nav-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="16" height="12" rx="2"/><path d="M2 7V5a2 2 0 0 1 2-2h4l2 2"/></svg></span>
+        Files
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="10,3 10,14"/><polyline points="6,10 10,14 14,10"/><line x1="4" y1="17" x2="16" y2="17"/></svg></span>
+        Transfers
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 14a4 4 0 0 1 4-4"/><path d="M3 10a8 8 0 0 1 8-8"/><circle cx="4" cy="16" r="2" fill="currentColor" stroke="none"/></svg></span>
+        RSS Feeds
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="3"/><path d="M16 12.5a1.5 1.5 0 0 0 .27 1.46l.05.05a1.65 1.65 0 1 1-2.33 2.33l-.05-.05A1.5 1.5 0 0 0 12.5 16H12a1.5 1.5 0 0 0-1.5 1.5v.5a1.65 1.65 0 0 1-3.3 0V17.5A1.5 1.5 0 0 0 5.5 16a1.5 1.5 0 0 0-1.46.27l-.05.05a1.65 1.65 0 1 1-2.33-2.33l.05-.05A1.5 1.5 0 0 0 2 12.5V12a1.5 1.5 0 0 0-1.5-1.5H0a1.65 1.65 0 1 1 0-3.3h.5A1.5 1.5 0 0 0 2 5.5"/></svg></span>
+        Settings
+      </button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="storage-card">
+        <div class="storage-bar"><div class="storage-fill"></div></div>
+        <div class="storage-label"><strong>39 TB</strong> / 50 TB</div>
+      </div>
+    </div>
+    <div class="user-row">
+      <div class="user-avatar">A</div>
+      <span class="user-name">altay</span>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="16" height="12" rx="2"/><path d="M2 7V5a2 2 0 0 1 2-2h4l2 2"/></svg>
+        <span>Your Files</span>
+      </div>
+      <div class="topbar-spacer"></div>
+      <button class="topbar-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="topbar-btn active">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+    </div>
+
+    <div class="content-area">
+      <h2>Your Files</h2>
+      <div class="file-list">
+        <div class="file-row">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--text-4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="8,5 16,10 8,15"/></svg>
+          <span class="file-name">Inception.2010.1080p.BluRay.mkv</span>
+          <span class="file-size">4.7 GB</span>
+          <span class="file-date">18 min ago</span>
+        </div>
+        <div class="file-row">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--text-4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="16" height="12" rx="2"/><path d="M2 7V5a2 2 0 0 1 2-2h4l2 2"/></svg>
+          <span class="file-name">The Wire S03</span>
+          <span class="file-size">14.2 GB</span>
+          <span class="file-date">2 min ago</span>
+        </div>
+        <div class="file-row">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--text-4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="16" height="12" rx="2"/><path d="M2 7V5a2 2 0 0 1 2-2h4l2 2"/></svg>
+          <span class="file-name">Music</span>
+          <span class="file-size">8.1 GB</span>
+          <span class="file-date">Yesterday</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION PANEL -->
+  <div class="notif-panel">
+    <div class="notif-header">
+      <div class="notif-header-left">
+        <span class="notif-title">Notifications</span>
+        <span class="notif-count">7</span>
+      </div>
+      <button class="notif-action">Mark all read</button>
+    </div>
+
+    <div class="notif-tabs">
+      <button class="notif-tab active">All <span class="tab-count">7</span></button>
+      <button class="notif-tab">Transfers <span class="tab-count">3</span></button>
+      <button class="notif-tab">Security <span class="tab-count">1</span></button>
+      <button class="notif-tab">System <span class="tab-count">1</span></button>
+    </div>
+
+    <div class="notif-body">
+      <div class="notif-group-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Transfers
+      </div>
+
+      <div class="notif-item unread">
+        <div class="notif-item-icon transfer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="notif-item-content">
+          <div class="notif-item-title">Inception is ready</div>
+          <div class="notif-item-desc">1080p BluRay -- 4.7 GB -- ready to stream</div>
+          <div class="notif-item-meta">
+            <span class="notif-item-time">18m ago</span>
+            <button class="notif-item-action">Play now</button>
+          </div>
+        </div>
+        <button class="notif-item-dismiss"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+
+      <div class="notif-item unread">
+        <div class="notif-item-icon transfer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="notif-item-content">
+          <div class="notif-item-title">The Wire S03 downloaded</div>
+          <div class="notif-item-desc">13 episodes -- 14.2 GB -- all ready</div>
+          <div class="notif-item-meta">
+            <span class="notif-item-time">2m ago</span>
+            <button class="notif-item-action">Browse</button>
+          </div>
+        </div>
+        <button class="notif-item-dismiss"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+
+      <div class="notif-item">
+        <div class="notif-item-icon transfer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="notif-item-content">
+          <div class="notif-item-title">Pose S03E01 complete</div>
+          <div class="notif-item-desc">720p -- 1.4 GB -- via RSS</div>
+          <div class="notif-item-meta">
+            <span class="notif-item-time">4d ago</span>
+            <button class="notif-item-action">Play</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="notif-group-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Security
+      </div>
+
+      <div class="notif-item unread">
+        <div class="notif-item-icon security">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="notif-item-content">
+          <div class="notif-item-title">New login from Berlin</div>
+          <div class="notif-item-desc">Chrome on macOS -- IP 192.168.x.x -- Was this you?</div>
+          <div class="notif-item-meta">
+            <span class="notif-item-time">1h ago</span>
+            <button class="notif-item-action">Review</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="notif-group-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Discover
+      </div>
+
+      <div class="notif-item discovery unread">
+        <div class="notif-item-icon feature">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+        </div>
+        <div class="notif-item-content">
+          <div class="discovery-label">Did you know?</div>
+          <div class="notif-item-title">RSS auto-downloads new episodes</div>
+          <div class="notif-item-desc">Connect ShowRSS and new episodes download automatically.</div>
+          <button class="discovery-cta">
+            Set up RSS
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="notif-group-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        System
+      </div>
+
+      <div class="notif-item unread">
+        <div class="notif-item-icon system">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        </div>
+        <div class="notif-item-content">
+          <div class="notif-item-title">Storage 78% full</div>
+          <div class="notif-item-desc">780 GB of 1 TB used. About 220 GB remaining.</div>
+          <div class="notif-item-meta">
+            <span class="notif-item-time">Today</span>
+            <button class="notif-item-action">Manage</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notif-footer">
+      <a href="#">Notification preferences</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>
