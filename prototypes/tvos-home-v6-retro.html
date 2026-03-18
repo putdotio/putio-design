@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>put.io — tvOS Home v6 Retro</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #050508; --bg-2: #0c0c10; --bg-3: #141418; --bg-4: #1c1c22;
+    --line: #2a2a33; --text: #d0d0d0; --text-2: #666670; --yellow: #FDCE45;
+    --green: #33ff33; --red: #ff3333; --cyan: #00ffff; --magenta: #ff00ff;
+    --pixel-font: 'Press Start 2P', monospace;
+    --mono-font: 'Space Mono', monospace;
+  }
+  body { font-family: var(--mono-font); background: var(--bg); color: var(--text); -webkit-font-smoothing: none; image-rendering: pixelated; overflow: hidden; }
+
+  .tv-frame { width: 1920px; height: 1080px; overflow: hidden; display: flex; flex-direction: column; position: relative; background: var(--bg); }
+
+  /* CRT Scanline Overlay */
+  .crt-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 9999;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 3px,
+      rgba(0, 0, 0, 0.08) 3px, rgba(0, 0, 0, 0.08) 6px
+    );
+  }
+  .crt-overlay::after {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.5) 100%);
+  }
+
+  /* CRT glow effect for text */
+  .glow { text-shadow: 0 0 8px currentColor, 0 0 16px currentColor; }
+  .glow-yellow { text-shadow: 0 0 8px rgba(253,206,69,0.5), 0 0 20px rgba(253,206,69,0.3); }
+  .glow-green { text-shadow: 0 0 8px rgba(51,255,51,0.5), 0 0 20px rgba(51,255,51,0.3); }
+  .glow-cyan { text-shadow: 0 0 8px rgba(0,255,255,0.5), 0 0 20px rgba(0,255,255,0.3); }
+
+  /* Top Bar */
+  .top-bar {
+    display: flex; align-items: center; padding: 40px 80px 24px; flex-shrink: 0;
+  }
+  .logo-area {
+    display: flex; align-items: center; gap: 24px; flex: 1;
+  }
+  .logo-text {
+    font-family: var(--pixel-font); font-size: 28px; color: var(--yellow);
+  }
+  .top-right {
+    display: flex; align-items: center; gap: 32px;
+    font-family: var(--mono-font); font-size: 14px; color: var(--text-2);
+  }
+  .top-time { color: var(--yellow); font-weight: 700; }
+
+  /* Insert Coin banner */
+  .insert-coin-banner {
+    display: flex; align-items: center; justify-content: center;
+    padding: 12px 80px; background: var(--bg-2); border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line); flex-shrink: 0; gap: 32px;
+  }
+  .coin-text {
+    font-family: var(--pixel-font); font-size: 12px; color: var(--cyan);
+    letter-spacing: 4px;
+  }
+
+  .blink { animation: blink 1s step-end infinite; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* Main Content */
+  .main-content {
+    display: flex; flex: 1; overflow: hidden;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 320px; padding: 32px 0; border-right: 1px solid var(--line);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 40px; font-family: var(--pixel-font); font-size: 11px;
+    color: var(--text-2); cursor: pointer; border-left: 3px solid transparent;
+  }
+  .sidebar-item.active {
+    color: var(--yellow); border-left-color: var(--yellow); background: rgba(253,206,69,0.05);
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.03); }
+  .sidebar-icon { width: 28px; height: 28px; }
+
+  /* Content Area */
+  .content-area {
+    flex: 1; padding: 32px 48px; overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+
+  /* Section headers */
+  .section-header {
+    font-family: var(--pixel-font); font-size: 14px; color: var(--yellow);
+    padding-bottom: 16px; border-bottom: 1px solid var(--line);
+    margin-bottom: 8px; letter-spacing: 2px;
+  }
+
+  /* List-based file items */
+  .list-view { margin-bottom: 32px; }
+  .list-item {
+    display: flex; align-items: center; gap: 20px;
+    padding: 16px 24px; border-bottom: 1px solid rgba(42,42,51,0.5);
+    font-family: var(--mono-font);
+  }
+  .list-item:hover { background: rgba(253,206,69,0.03); }
+  .list-item.focused {
+    background: rgba(253,206,69,0.08); border: 1px solid var(--yellow);
+    border-bottom: 1px solid var(--yellow);
+  }
+  .list-rank {
+    font-family: var(--pixel-font); font-size: 12px; color: var(--text-2);
+    width: 40px; text-align: center;
+  }
+  .list-icon { width: 44px; height: 44px; flex-shrink: 0; }
+  .list-info { flex: 1; }
+  .list-name { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .list-meta { font-size: 12px; color: var(--text-2); }
+  .list-size {
+    font-family: var(--pixel-font); font-size: 10px; color: var(--cyan);
+    width: 100px; text-align: right;
+  }
+  .list-action {
+    font-family: var(--pixel-font); font-size: 9px; color: var(--green);
+    padding: 8px 16px; border: 1px solid var(--green);
+  }
+
+  /* Transfer progress in list */
+  .list-progress {
+    display: flex; align-items: center; gap: 12px; margin-top: 6px;
+  }
+  .progress-bar { font-family: var(--mono-font); font-size: 13px; color: var(--green); letter-spacing: 1px; }
+  .progress-pct { font-family: var(--pixel-font); font-size: 10px; color: var(--yellow); }
+  .progress-speed { font-size: 11px; color: var(--text-2); }
+
+  /* Stats bar at bottom */
+  .stats-bar {
+    display: flex; align-items: center; padding: 16px 80px;
+    border-top: 1px solid var(--line); background: var(--bg-2); flex-shrink: 0;
+    gap: 48px;
+  }
+  .stat-item {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .stat-label { font-family: var(--pixel-font); font-size: 8px; color: var(--text-2); letter-spacing: 1px; }
+  .stat-value { font-family: var(--mono-font); font-size: 14px; font-weight: 700; }
+  .stat-bar-row { display: flex; align-items: center; gap: 8px; }
+
+  /* Kaomoji footer */
+  .footer-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 80px; background: var(--bg); border-top: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+  .footer-left { font-family: var(--mono-font); font-size: 12px; color: var(--text-2); }
+  .footer-right { font-family: var(--pixel-font); font-size: 10px; color: var(--green); }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <div class="crt-overlay"></div>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo-area">
+      <!-- Space Invader Logo -->
+      <svg width="56" height="44" viewBox="0 0 56 44">
+        <rect x="8" y="0" width="4" height="4" fill="#FDCE45"/>
+        <rect x="44" y="0" width="4" height="4" fill="#FDCE45"/>
+        <rect x="12" y="4" width="4" height="4" fill="#FDCE45"/>
+        <rect x="40" y="4" width="4" height="4" fill="#FDCE45"/>
+        <rect x="8" y="8" width="40" height="4" fill="#FDCE45"/>
+        <rect x="4" y="12" width="8" height="4" fill="#FDCE45"/>
+        <rect x="16" y="12" width="24" height="4" fill="#FDCE45"/>
+        <rect x="44" y="12" width="8" height="4" fill="#FDCE45"/>
+        <rect x="0" y="16" width="56" height="4" fill="#FDCE45"/>
+        <rect x="0" y="20" width="4" height="4" fill="#FDCE45"/>
+        <rect x="8" y="20" width="40" height="4" fill="#FDCE45"/>
+        <rect x="52" y="20" width="4" height="4" fill="#FDCE45"/>
+        <rect x="0" y="24" width="4" height="4" fill="#FDCE45"/>
+        <rect x="8" y="24" width="4" height="4" fill="#FDCE45"/>
+        <rect x="44" y="24" width="4" height="4" fill="#FDCE45"/>
+        <rect x="52" y="24" width="4" height="4" fill="#FDCE45"/>
+        <rect x="12" y="28" width="12" height="4" fill="#FDCE45"/>
+        <rect x="32" y="28" width="12" height="4" fill="#FDCE45"/>
+        <!-- Eyes -->
+        <rect x="16" y="16" width="8" height="4" fill="#050508"/>
+        <rect x="32" y="16" width="8" height="4" fill="#050508"/>
+      </svg>
+      <span class="logo-text glow-yellow">PUT.IO</span>
+      <span style="font-family:var(--pixel-font);font-size:10px;color:var(--text-2);margin-left:8px;">ARCADE EDITION</span>
+    </div>
+    <div class="top-right">
+      <!-- Pixel wifi -->
+      <svg width="20" height="16" viewBox="0 0 20 16">
+        <rect x="0" y="0" width="20" height="2" fill="#33ff33"/>
+        <rect x="2" y="4" width="16" height="2" fill="#33ff33"/>
+        <rect x="4" y="8" width="12" height="2" fill="#33ff33"/>
+        <rect x="8" y="12" width="4" height="4" fill="#33ff33"/>
+      </svg>
+      <span>CONNECTED</span>
+      <span class="top-time">19:85:00</span>
+    </div>
+  </div>
+
+  <!-- INSERT COIN Banner -->
+  <div class="insert-coin-banner">
+    <span style="font-family:var(--pixel-font);font-size:10px;color:var(--magenta);">*</span>
+    <span class="coin-text glow-cyan blink">INSERT COIN TO CONTINUE</span>
+    <span style="font-family:var(--pixel-font);font-size:10px;color:var(--magenta);">*</span>
+    <span style="font-family:var(--mono-font);font-size:12px;color:var(--text-2);margin-left:32px;">CREDIT: 1TB STORAGE</span>
+  </div>
+
+  <div class="main-content">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-item active">
+        <svg class="sidebar-icon" width="28" height="28" viewBox="0 0 28 28">
+          <rect x="4" y="4" width="8" height="8" fill="#FDCE45"/>
+          <rect x="16" y="4" width="8" height="8" fill="#FDCE45"/>
+          <rect x="4" y="16" width="8" height="8" fill="#FDCE45"/>
+          <rect x="16" y="16" width="8" height="8" fill="#FDCE45"/>
+        </svg>
+        HOME
+      </div>
+      <div class="sidebar-item">
+        <svg class="sidebar-icon" width="28" height="28" viewBox="0 0 28 28">
+          <rect x="2" y="6" width="10" height="3" fill="#888"/>
+          <rect x="2" y="9" width="24" height="16" fill="#888"/>
+          <rect x="4" y="11" width="20" height="12" fill="#555"/>
+        </svg>
+        FILES
+      </div>
+      <div class="sidebar-item">
+        <svg class="sidebar-icon" width="28" height="28" viewBox="0 0 28 28">
+          <rect x="13" y="4" width="2" height="14" fill="#888"/>
+          <rect x="7" y="16" width="14" height="2" fill="#888"/>
+          <rect x="9" y="18" width="10" height="2" fill="#888"/>
+          <rect x="11" y="20" width="6" height="2" fill="#888"/>
+          <rect x="13" y="22" width="2" height="2" fill="#888"/>
+        </svg>
+        TRANSFERS
+      </div>
+      <div class="sidebar-item">
+        <svg class="sidebar-icon" width="28" height="28" viewBox="0 0 28 28">
+          <rect x="8" y="4" width="2" height="20" fill="#888"/>
+          <rect x="10" y="6" width="2" height="16" fill="#888"/>
+          <rect x="12" y="8" width="2" height="12" fill="#888"/>
+          <rect x="14" y="10" width="2" height="8" fill="#888"/>
+          <rect x="16" y="12" width="2" height="4" fill="#888"/>
+        </svg>
+        PLAYER
+      </div>
+      <div class="sidebar-item">
+        <svg class="sidebar-icon" width="28" height="28" viewBox="0 0 28 28">
+          <rect x="4" y="4" width="20" height="20" fill="#888"/>
+          <rect x="8" y="8" width="4" height="4" fill="#050508"/>
+          <rect x="16" y="8" width="4" height="4" fill="#050508"/>
+          <rect x="8" y="16" width="12" height="4" fill="#050508"/>
+        </svg>
+        HISTORY
+      </div>
+      <div class="sidebar-item">
+        <svg class="sidebar-icon" width="28" height="28" viewBox="0 0 28 28">
+          <rect x="12" y="2" width="4" height="4" fill="#888"/>
+          <rect x="12" y="22" width="4" height="4" fill="#888"/>
+          <rect x="2" y="12" width="4" height="4" fill="#888"/>
+          <rect x="22" y="12" width="4" height="4" fill="#888"/>
+          <rect x="8" y="8" width="12" height="12" fill="#888"/>
+          <rect x="11" y="11" width="6" height="6" fill="#050508"/>
+        </svg>
+        SETTINGS
+      </div>
+
+      <!-- Space invader at bottom of sidebar -->
+      <div style="margin-top:auto;padding:24px 40px;">
+        <svg width="48" height="36" viewBox="0 0 48 36">
+          <rect x="8" y="0" width="4" height="4" fill="#333"/>
+          <rect x="36" y="0" width="4" height="4" fill="#333"/>
+          <rect x="12" y="4" width="4" height="4" fill="#333"/>
+          <rect x="32" y="4" width="4" height="4" fill="#333"/>
+          <rect x="8" y="8" width="32" height="4" fill="#333"/>
+          <rect x="4" y="12" width="8" height="4" fill="#333"/>
+          <rect x="16" y="12" width="16" height="4" fill="#333"/>
+          <rect x="36" y="12" width="8" height="4" fill="#333"/>
+          <rect x="0" y="16" width="48" height="4" fill="#333"/>
+          <rect x="0" y="20" width="4" height="4" fill="#333"/>
+          <rect x="8" y="20" width="32" height="4" fill="#333"/>
+          <rect x="44" y="20" width="4" height="4" fill="#333"/>
+          <rect x="12" y="24" width="8" height="4" fill="#333"/>
+          <rect x="28" y="24" width="8" height="4" fill="#333"/>
+          <rect x="16" y="16" width="4" height="4" fill="#050508"/>
+          <rect x="28" y="16" width="4" height="4" fill="#050508"/>
+        </svg>
+        <div style="font-family:var(--pixel-font);font-size:7px;color:#333;margin-top:8px;">v6.0 RETRO</div>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+      <!-- Continue Watching -->
+      <div class="section-header glow-yellow">CONTINUE WATCHING</div>
+      <div class="list-view">
+        <div class="list-item focused">
+          <span class="list-rank">01</span>
+          <svg class="list-icon" width="44" height="44" viewBox="0 0 44 44">
+            <rect x="4" y="4" width="36" height="36" fill="#222"/>
+            <rect x="4" y="8" width="4" height="4" fill="#FDCE45"/>
+            <rect x="4" y="16" width="4" height="4" fill="#FDCE45"/>
+            <rect x="4" y="24" width="4" height="4" fill="#FDCE45"/>
+            <rect x="36" y="8" width="4" height="4" fill="#FDCE45"/>
+            <rect x="36" y="16" width="4" height="4" fill="#FDCE45"/>
+            <rect x="36" y="24" width="4" height="4" fill="#FDCE45"/>
+            <rect x="16" y="14" width="4" height="16" fill="#FDCE45"/>
+            <rect x="20" y="18" width="4" height="8" fill="#FDCE45"/>
+            <rect x="24" y="20" width="4" height="4" fill="#FDCE45"/>
+          </svg>
+          <div class="list-info">
+            <div class="list-name">Blade Runner 2049</div>
+            <div class="list-meta">01:24:33 remaining - Last played 2h ago</div>
+            <div class="list-progress">
+              <span class="progress-bar">████████████████░░░░░░░░░░</span>
+              <span class="progress-pct">62%</span>
+            </div>
+          </div>
+          <span class="list-action glow-green">PLAY</span>
+        </div>
+
+        <div class="list-item">
+          <span class="list-rank">02</span>
+          <svg class="list-icon" width="44" height="44" viewBox="0 0 44 44">
+            <rect x="4" y="4" width="36" height="36" fill="#222"/>
+            <rect x="4" y="8" width="4" height="4" fill="#00ffff"/>
+            <rect x="4" y="16" width="4" height="4" fill="#00ffff"/>
+            <rect x="4" y="24" width="4" height="4" fill="#00ffff"/>
+            <rect x="36" y="8" width="4" height="4" fill="#00ffff"/>
+            <rect x="36" y="16" width="4" height="4" fill="#00ffff"/>
+            <rect x="36" y="24" width="4" height="4" fill="#00ffff"/>
+            <rect x="16" y="14" width="4" height="16" fill="#00ffff"/>
+            <rect x="20" y="18" width="4" height="8" fill="#00ffff"/>
+            <rect x="24" y="20" width="4" height="4" fill="#00ffff"/>
+          </svg>
+          <div class="list-info">
+            <div class="list-name">Tron: Legacy</div>
+            <div class="list-meta">00:45:12 remaining - Last played yesterday</div>
+            <div class="list-progress">
+              <span class="progress-bar">█████████████████████░░░░░</span>
+              <span class="progress-pct">81%</span>
+            </div>
+          </div>
+          <span class="list-action">PLAY</span>
+        </div>
+
+        <div class="list-item">
+          <span class="list-rank">03</span>
+          <svg class="list-icon" width="44" height="44" viewBox="0 0 44 44">
+            <rect x="4" y="4" width="36" height="36" fill="#222"/>
+            <rect x="4" y="8" width="4" height="4" fill="#ff00ff"/>
+            <rect x="4" y="16" width="4" height="4" fill="#ff00ff"/>
+            <rect x="4" y="24" width="4" height="4" fill="#ff00ff"/>
+            <rect x="36" y="8" width="4" height="4" fill="#ff00ff"/>
+            <rect x="36" y="16" width="4" height="4" fill="#ff00ff"/>
+            <rect x="36" y="24" width="4" height="4" fill="#ff00ff"/>
+            <rect x="16" y="14" width="4" height="16" fill="#ff00ff"/>
+            <rect x="20" y="18" width="4" height="8" fill="#ff00ff"/>
+            <rect x="24" y="20" width="4" height="4" fill="#ff00ff"/>
+          </svg>
+          <div class="list-info">
+            <div class="list-name">Akira (1988 Remastered)</div>
+            <div class="list-meta">Not started - Added 3d ago</div>
+          </div>
+          <span class="list-action">PLAY</span>
+        </div>
+      </div>
+
+      <!-- Active Transfers -->
+      <div class="section-header glow-yellow">ACTIVE TRANSFERS</div>
+      <div class="list-view">
+        <div class="list-item">
+          <span class="list-rank" style="color:var(--green);">
+            <svg width="16" height="16" viewBox="0 0 16 16">
+              <rect x="7" y="2" width="2" height="8" fill="#33ff33"/>
+              <rect x="3" y="8" width="10" height="2" fill="#33ff33"/>
+              <rect x="5" y="10" width="6" height="2" fill="#33ff33"/>
+              <rect x="7" y="12" width="2" height="2" fill="#33ff33"/>
+            </svg>
+          </span>
+          <svg class="list-icon" width="44" height="44" viewBox="0 0 44 44">
+            <rect x="2" y="8" width="14" height="3" fill="#33ff33"/>
+            <rect x="2" y="11" width="40" height="26" fill="#33ff33"/>
+            <rect x="4" y="13" width="36" height="22" fill="#1a881a"/>
+          </svg>
+          <div class="list-info">
+            <div class="list-name">Ghost.In.The.Shell.1995.Remastered.mkv</div>
+            <div class="list-meta">2.1 GB / 3.2 GB</div>
+            <div class="list-progress">
+              <span class="progress-bar">█████████████████░░░░░░░░░</span>
+              <span class="progress-pct">66%</span>
+              <span class="progress-speed">18 MB/s</span>
+            </div>
+          </div>
+          <span class="list-size glow-cyan">3.2 GB</span>
+        </div>
+
+        <div class="list-item">
+          <span class="list-rank" style="color:var(--yellow);">
+            <svg width="16" height="16" viewBox="0 0 16 16">
+              <rect x="7" y="2" width="2" height="8" fill="#FDCE45"/>
+              <rect x="3" y="8" width="10" height="2" fill="#FDCE45"/>
+              <rect x="5" y="10" width="6" height="2" fill="#FDCE45"/>
+              <rect x="7" y="12" width="2" height="2" fill="#FDCE45"/>
+            </svg>
+          </span>
+          <svg class="list-icon" width="44" height="44" viewBox="0 0 44 44">
+            <rect x="2" y="8" width="14" height="3" fill="#FDCE45"/>
+            <rect x="2" y="11" width="40" height="26" fill="#FDCE45"/>
+            <rect x="4" y="13" width="36" height="22" fill="#b8941f"/>
+          </svg>
+          <div class="list-info">
+            <div class="list-name">Cowboy.Bebop.Complete.Series.zip</div>
+            <div class="list-meta">8.4 GB / 24.6 GB</div>
+            <div class="list-progress">
+              <span class="progress-bar">████████░░░░░░░░░░░░░░░░░░</span>
+              <span class="progress-pct">34%</span>
+              <span class="progress-speed">12 MB/s</span>
+            </div>
+          </div>
+          <span class="list-size glow-cyan">24.6 GB</span>
+        </div>
+      </div>
+
+      <!-- Recent Files -->
+      <div class="section-header glow-yellow">RECENT FILES</div>
+      <div class="list-view">
+        <div class="list-item">
+          <span class="list-rank">01</span>
+          <svg class="list-icon" width="44" height="44" viewBox="0 0 44 44">
+            <rect x="2" y="8" width="14" height="3" fill="#FDCE45"/>
+            <rect x="2" y="11" width="40" height="26" fill="#FDCE45"/>
+            <rect x="4" y="13" width="36" height="22" fill="#b8941f"/>
+          </svg>
+          <div class="list-info">
+            <div class="list-name">Movies</div>
+            <div class="list-meta">24 items - Last modified 2h ago</div>
+          </div>
+          <span class="list-size">142.3 GB</span>
+        </div>
+        <div class="list-item">
+          <span class="list-rank">02</span>
+          <svg class="list-icon" width="44" height="44" viewBox="0 0 44 44">
+            <rect x="2" y="8" width="14" height="3" fill="#00ffff"/>
+            <rect x="2" y="11" width="40" height="26" fill="#00ffff"/>
+            <rect x="4" y="13" width="36" height="22" fill="#008888"/>
+          </svg>
+          <div class="list-info">
+            <div class="list-name">TV Shows</div>
+            <div class="list-meta">156 items - Last modified 6h ago</div>
+          </div>
+          <span class="list-size">89.7 GB</span>
+        </div>
+        <div class="list-item">
+          <span class="list-rank">03</span>
+          <svg class="list-icon" width="44" height="44" viewBox="0 0 44 44">
+            <rect x="2" y="8" width="14" height="3" fill="#ff00ff"/>
+            <rect x="2" y="11" width="40" height="26" fill="#ff00ff"/>
+            <rect x="4" y="13" width="36" height="22" fill="#880088"/>
+          </svg>
+          <div class="list-info">
+            <div class="list-name">Music</div>
+            <div class="list-meta">312 items - Last modified 1d ago</div>
+          </div>
+          <span class="list-size">18.4 GB</span>
+        </div>
+        <div class="list-item">
+          <span class="list-rank">04</span>
+          <svg class="list-icon" width="44" height="44" viewBox="0 0 44 44">
+            <rect x="2" y="8" width="14" height="3" fill="#33ff33"/>
+            <rect x="2" y="11" width="40" height="26" fill="#33ff33"/>
+            <rect x="4" y="13" width="36" height="22" fill="#1a881a"/>
+          </svg>
+          <div class="list-info">
+            <div class="list-name">Downloads</div>
+            <div class="list-meta">8 items - Last modified 3d ago</div>
+          </div>
+          <span class="list-size">4.2 GB</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-label">DISK USAGE</span>
+      <div class="stat-bar-row">
+        <span class="progress-bar" style="font-size:12px;color:var(--cyan);">██████████████████████████░░░░░░░░░░░░░░</span>
+        <span style="font-family:var(--pixel-font);font-size:10px;color:var(--yellow);">65%</span>
+      </div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">USED</span>
+      <span class="stat-value" style="color:var(--cyan);">654.2 GB</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">FREE</span>
+      <span class="stat-value" style="color:var(--green);">345.8 GB</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">TRANSFERS</span>
+      <span class="stat-value" style="color:var(--yellow);">2 ACTIVE</span>
+    </div>
+    <div style="margin-left:auto;">
+      <span style="font-family:var(--pixel-font);font-size:9px;color:var(--green);">READY.<span class="blink">_</span></span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-bar">
+    <span class="footer-left">C:\PUT.IO\HOME&gt; <span style="color:var(--green);">READY.</span><span class="blink" style="color:var(--green);">_</span></span>
+    <span style="font-family:var(--mono-font);font-size:12px;color:var(--text-2);">(^_^)v</span>
+    <span class="footer-right">HIGH SCORE: 1 TB</span>
+  </div>
+</div>
+</body>
+</html>

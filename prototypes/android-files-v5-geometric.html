@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=412">
+<title>put.io — Android Files v5 Geometric</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --md-surface: #0A0A0C;
+    --md-surface-container: #111114;
+    --md-surface-container-high: #18181C;
+    --md-surface-container-highest: #222228;
+    --md-surface-variant: #2E2E36;
+    --md-on-surface: #EEEEF0;
+    --md-on-surface-variant: #A0A0AE;
+    --md-outline: #6C6C78;
+    --md-outline-variant: #3A3A44;
+    --md-primary: #FDCE45;
+    --md-on-primary: #1A1600;
+    --md-primary-container: rgba(253,206,69,0.12);
+    --md-on-primary-container: #FDCE45;
+    --green: #30D158;
+    --red: #FF453A;
+    --yellow: #FDCE45;
+    --amber: #F0A030;
+  }
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--md-surface);
+    color: var(--md-on-surface);
+    -webkit-font-smoothing: antialiased;
+  }
+  .phone {
+    width: 412px; height: 915px; overflow: hidden;
+    display: flex; flex-direction: column; position: relative;
+    background:
+      linear-gradient(rgba(253,206,69,0.012) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(253,206,69,0.012) 1px, transparent 1px);
+    background-size: 8px 8px;
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 12px 24px 0;
+    font-size: 14px; font-weight: 500; height: 48px;
+  }
+  .status-bar .time { flex: 1; letter-spacing: -0.02em; }
+  .status-bar .icons { display: flex; gap: 8px; align-items: center; }
+  .status-bar .icons svg { width: 16px; height: 16px; fill: var(--md-on-surface); }
+
+  /* Top App Bar */
+  .top-bar {
+    display: flex; align-items: center; padding: 4px 8px; gap: 4px;
+  }
+  .icon-btn {
+    width: 48px; height: 48px; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: none; cursor: pointer;
+  }
+  .icon-btn svg { width: 24px; height: 24px; fill: var(--md-on-surface-variant); }
+  .top-bar .spacer { flex: 1; }
+
+  .avatar-btn {
+    width: 36px; height: 36px; border-radius: 4px;
+    background: var(--md-surface-container-highest);
+    display: flex; align-items: center; justify-content: center;
+    border: none; cursor: pointer; margin-right: 4px;
+    border: 1px solid var(--md-outline-variant);
+  }
+  .avatar-btn svg { width: 24px; height: 24px; }
+
+  /* Large title */
+  .top-bar-title {
+    padding: 16px 20px 8px;
+    font-size: 32px; font-weight: 700;
+    color: var(--md-on-surface);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  .top-bar-title .subtitle {
+    display: block;
+    font-size: 13px; font-weight: 400;
+    color: var(--md-outline);
+    margin-top: 4px;
+    letter-spacing: 0;
+  }
+
+  /* Search Bar - sharp */
+  .search-bar {
+    margin: 8px 16px 12px; padding: 12px 16px;
+    background: var(--md-surface-container-high);
+    border-radius: 4px;
+    border: 1px solid var(--md-outline-variant);
+    display: flex; align-items: center; gap: 12px;
+    font-size: 15px; color: var(--md-outline);
+  }
+  .search-bar svg { width: 20px; height: 20px; fill: var(--md-outline); flex-shrink: 0; }
+
+  /* Sharp-cornered chips */
+  .chip-row {
+    display: flex; gap: 8px; padding: 0 16px 14px;
+    overflow-x: auto;
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 16px; border-radius: 4px;
+    background: var(--md-surface-container-high);
+    border: 1px solid var(--md-outline-variant);
+    font-size: 13px; font-weight: 500; color: var(--md-on-surface-variant);
+    white-space: nowrap; cursor: pointer;
+    letter-spacing: -0.01em;
+  }
+  .chip.active {
+    background: var(--md-primary-container);
+    border-color: rgba(253,206,69,0.25);
+    color: var(--md-on-primary-container);
+  }
+
+  /* File list */
+  .file-list { flex: 1; overflow-y: auto; padding-bottom: 80px; }
+
+  .list-section-header {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--md-outline);
+    padding: 20px 20px 8px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .list-section-header::after {
+    content: ''; flex: 1; height: 1px;
+    background: var(--md-outline-variant);
+  }
+
+  .list-item {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 20px;
+    min-height: 68px;
+    cursor: pointer;
+  }
+  .list-item:hover { background: rgba(255,255,255,0.02); }
+
+  /* Angular icon containers */
+  .l-icon-wrap {
+    width: 48px; height: 48px; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; position: relative;
+    border: 1px solid transparent;
+  }
+  .l-icon-wrap.folder {
+    background: rgba(253,206,69,0.08);
+    border-color: rgba(253,206,69,0.12);
+  }
+  .l-icon-wrap.video {
+    background: rgba(48,209,88,0.06);
+    border-color: rgba(48,209,88,0.10);
+  }
+  .l-icon-wrap.audio {
+    background: rgba(138,130,255,0.06);
+    border-color: rgba(138,130,255,0.10);
+  }
+  .l-icon-wrap.doc {
+    background: rgba(160,160,174,0.06);
+    border-color: rgba(160,160,174,0.10);
+  }
+  .l-icon-wrap svg { width: 24px; height: 24px; }
+  .l-icon-wrap.folder svg { fill: var(--yellow); }
+  .l-icon-wrap.video svg { fill: var(--green); }
+  .l-icon-wrap.audio svg { fill: #8A82FF; }
+  .l-icon-wrap.doc svg { fill: var(--md-on-surface-variant); }
+
+  /* Diamond indicator on folders */
+  .l-icon-wrap .diamond-dot {
+    position: absolute; top: -3px; right: -3px;
+    width: 8px; height: 8px;
+    background: var(--yellow);
+    transform: rotate(45deg);
+  }
+
+  .l-info { flex: 1; min-width: 0; }
+  .l-headline {
+    font-size: 16px; font-weight: 500;
+    color: var(--md-on-surface);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+  }
+  .l-supporting {
+    font-size: 13px; color: var(--md-on-surface-variant);
+    margin-top: 3px;
+  }
+
+  .l-trailing {
+    display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+    flex-shrink: 0;
+  }
+  .l-badge {
+    font-size: 11px; font-weight: 600;
+    background: rgba(253,206,69,0.12); color: var(--yellow);
+    padding: 2px 10px; border-radius: 2px;
+    letter-spacing: 0.02em;
+  }
+  .l-chevron { color: var(--md-outline); }
+  .l-chevron svg { width: 20px; height: 20px; fill: var(--md-outline); }
+
+  /* Transfer card */
+  .transfer-card {
+    margin: 8px 16px;
+    padding: 16px 20px;
+    background: var(--md-surface-container);
+    border-radius: 4px;
+    border: 1px solid rgba(253,206,69,0.12);
+  }
+  .transfer-card-title {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--md-outline);
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .transfer-card-title .t-diamond {
+    width: 8px; height: 8px;
+    background: var(--yellow);
+    transform: rotate(45deg);
+    display: inline-block;
+  }
+  .transfer-card-body {
+    font-size: 14px; font-weight: 500; color: var(--md-on-surface);
+    margin-bottom: 10px;
+  }
+  .transfer-card-progress {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .tc-bar {
+    flex: 1; display: flex; gap: 2px; height: 4px;
+  }
+  .tc-seg {
+    flex: 1; background: var(--md-surface-variant);
+  }
+  .tc-seg.filled { background: var(--yellow); }
+  .tc-seg.partial { background: linear-gradient(90deg, var(--yellow) 50%, var(--md-surface-variant) 50%); }
+  .tc-pct {
+    font-size: 14px; font-weight: 700; color: var(--yellow);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px; margin: 0 20px;
+    background: repeating-linear-gradient(90deg, var(--md-outline-variant) 0, var(--md-outline-variant) 4px, transparent 4px, transparent 8px);
+  }
+
+  /* Geometric FAB - diamond shape */
+  .fab {
+    position: absolute;
+    bottom: 96px; right: 20px;
+    width: 56px; height: 56px;
+    background: var(--md-primary);
+    color: var(--md-on-primary);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(253,206,69,0.25), 0 8px 24px rgba(0,0,0,0.3);
+    border: none; cursor: pointer;
+    z-index: 10;
+    transform: rotate(45deg);
+    border-radius: 4px;
+  }
+  .fab svg {
+    width: 28px; height: 28px; fill: var(--md-on-primary);
+    transform: rotate(-45deg);
+  }
+
+  /* Bottom Navigation */
+  .bottom-nav {
+    display: flex; background: var(--md-surface-container);
+    height: 80px; flex-shrink: 0;
+    z-index: 10;
+    border-top: 1px solid var(--md-outline-variant);
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 4px; cursor: pointer;
+    position: relative;
+  }
+  .nav-indicator {
+    width: 56px; height: 32px; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-item.active .nav-indicator {
+    background: var(--md-primary-container);
+  }
+  .nav-indicator svg { width: 24px; height: 24px; fill: var(--md-on-surface-variant); }
+  .nav-item.active .nav-indicator svg { fill: var(--md-on-primary-container); }
+  .nav-label {
+    font-size: 12px; font-weight: 500;
+    color: var(--md-on-surface-variant);
+    letter-spacing: -0.01em;
+  }
+  .nav-item.active .nav-label {
+    color: var(--md-on-surface); font-weight: 600;
+  }
+  .nav-badge {
+    position: absolute; top: 6px; right: calc(50% - 26px);
+    background: var(--yellow); color: var(--md-on-primary);
+    font-size: 10px; font-weight: 700;
+    width: 18px; height: 18px; border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Gradient mesh accent */
+  .mesh-accent {
+    position: absolute; top: 0; left: 0; right: 0; height: 240px;
+    background: radial-gradient(ellipse at 80% 0%, rgba(253,206,69,0.03) 0%, transparent 60%);
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="mesh-accent"></div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">12:34</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M2 22h4V12H2v10zm6 0h4V7H8v15zm6 0h4V2h-4v20z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4zM16 20H8V6h8v14z"/></svg>
+    </div>
+  </div>
+
+  <!-- Top App Bar -->
+  <div class="top-bar">
+    <div class="spacer"></div>
+    <div class="icon-btn">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    </div>
+    <!-- Space invader avatar - angular version -->
+    <div class="avatar-btn">
+      <svg viewBox="0 0 24 24" fill="none">
+        <rect x="4" y="4" width="2" height="2" fill="#FDCE45"/>
+        <rect x="18" y="4" width="2" height="2" fill="#FDCE45"/>
+        <rect x="6" y="6" width="2" height="2" fill="#FDCE45"/>
+        <rect x="16" y="6" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="8" width="16" height="2" fill="#FDCE45"/>
+        <rect x="4" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="8" y="10" width="8" height="2" fill="#FDCE45"/>
+        <rect x="18" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="12" width="16" height="2" fill="#FDCE45"/>
+        <rect x="6" y="14" width="4" height="2" fill="#FDCE45"/>
+        <rect x="14" y="14" width="4" height="2" fill="#FDCE45"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Large title -->
+  <div class="top-bar-title">
+    Your Files
+    <span class="subtitle">11 items -- 39 TB of 50 TB used</span>
+  </div>
+
+  <!-- Search bar -->
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="13" height="13" stroke="currentColor" stroke-width="2" fill="none" rx="2"/><path d="M16 16l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></svg>
+    Search your files
+  </div>
+
+  <!-- Filter chips -->
+  <div class="chip-row">
+    <div class="chip active">All</div>
+    <div class="chip">Videos</div>
+    <div class="chip">Audio</div>
+    <div class="chip">Documents</div>
+  </div>
+
+  <!-- File List -->
+  <div class="file-list">
+    <!-- Active transfer card -->
+    <div class="transfer-card">
+      <div class="transfer-card-title">
+        <span class="t-diamond"></span>
+        Now Transferring
+      </div>
+      <div class="transfer-card-body">Inception (2160p BluRay) -- 4.2 GB of 6.7 GB</div>
+      <div class="transfer-card-progress">
+        <div class="tc-bar">
+          <div class="tc-seg filled"></div>
+          <div class="tc-seg filled"></div>
+          <div class="tc-seg filled"></div>
+          <div class="tc-seg filled"></div>
+          <div class="tc-seg filled"></div>
+          <div class="tc-seg filled"></div>
+          <div class="tc-seg partial"></div>
+          <div class="tc-seg"></div>
+          <div class="tc-seg"></div>
+          <div class="tc-seg"></div>
+        </div>
+        <span class="tc-pct">63%</span>
+      </div>
+    </div>
+
+    <!-- Folders section -->
+    <div class="list-section-header">Folders</div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap folder">
+        <div class="diamond-dot"></div>
+        <svg viewBox="0 0 24 24"><path d="M2 4h8l2 2h10v14H2z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">downloads</div>
+        <div class="l-supporting">21.78 GB -- 8 items</div>
+      </div>
+      <div class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6l6 6-6 6" stroke="#6C6C78" stroke-width="2" fill="none" stroke-linecap="square"/></svg></div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap folder">
+        <div class="diamond-dot"></div>
+        <svg viewBox="0 0 24 24"><path d="M2 4h8l2 2h10v14H2z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">stuff</div>
+        <div class="l-supporting">4.16 GB -- a year ago</div>
+      </div>
+      <div class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6l6 6-6 6" stroke="#6C6C78" stroke-width="2" fill="none" stroke-linecap="square"/></svg></div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap folder">
+        <div class="diamond-dot"></div>
+        <svg viewBox="0 0 24 24"><path d="M2 4h8l2 2h10v14H2z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">chill institute</div>
+        <div class="l-supporting">0 B -- 16 hours ago</div>
+      </div>
+      <div class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6l6 6-6 6" stroke="#6C6C78" stroke-width="2" fill="none" stroke-linecap="square"/></svg></div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap folder">
+        <div class="diamond-dot"></div>
+        <svg viewBox="0 0 24 24"><path d="M2 4h8l2 2h10v14H2z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">__dev__</div>
+        <div class="l-supporting">6.6 GB -- 2 years ago</div>
+      </div>
+      <div class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6l6 6-6 6" stroke="#6C6C78" stroke-width="2" fill="none" stroke-linecap="square"/></svg></div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap folder">
+        <div class="diamond-dot"></div>
+        <svg viewBox="0 0 24 24"><path d="M2 4h8l2 2h10v14H2z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">Items shared with you</div>
+        <div class="l-supporting">102.3 TB</div>
+      </div>
+      <div class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6l6 6-6 6" stroke="#6C6C78" stroke-width="2" fill="none" stroke-linecap="square"/></svg></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Recent Files section -->
+    <div class="list-section-header">Recent Files</div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap video">
+        <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="1" fill="currentColor"/><polygon points="9,8 17,12 9,16" fill="#0A0A0C"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">Cosmos Laundromat</div>
+        <div class="l-supporting">209.89 MB -- 2 days ago</div>
+      </div>
+      <div class="l-trailing"><span class="l-badge">720p</span></div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap video">
+        <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="1" fill="currentColor"/><polygon points="9,8 17,12 9,16" fill="#0A0A0C"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">Sintel</div>
+        <div class="l-supporting">892.45 MB -- 3 days ago</div>
+      </div>
+      <div class="l-trailing"><span class="l-badge">1080p</span></div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap video">
+        <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="1" fill="currentColor"/><polygon points="9,8 17,12 9,16" fill="#0A0A0C"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">Big Buck Bunny</div>
+        <div class="l-supporting">1.22 GB -- 5 days ago</div>
+      </div>
+      <div class="l-trailing"><span class="l-badge">4K</span></div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap audio">
+        <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">podcast-episode-127.mp3</div>
+        <div class="l-supporting">45.2 MB -- 5 days ago</div>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap doc">
+        <svg viewBox="0 0 24 24"><path d="M4 2h10l6 6v14H4z"/><path d="M14 2l6 6h-6z" fill="#3A3A3C"/><rect x="7" y="13" width="10" height="1.5" fill="#6C6C78"/><rect x="7" y="16" width="7" height="1.5" fill="#6C6C78"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">ebook-design-systems.epub</div>
+        <div class="l-supporting">12.3 MB -- a week ago</div>
+      </div>
+    </div>
+
+    <!-- Subtle personality -->
+    <div style="text-align: center; padding: 20px 0 8px; font-size: 12px; color: var(--md-outline); letter-spacing: 0.04em;">
+      your cloud, mathematically precise
+    </div>
+  </div>
+
+  <!-- Geometric FAB (diamond shape) -->
+  <button class="fab">
+    <svg viewBox="0 0 24 24"><polygon points="13,2 4,14 11,14 10,22 20,10 13,10"/></svg>
+  </button>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <div class="nav-item active">
+      <div class="nav-indicator">
+        <svg viewBox="0 0 24 24"><path d="M2 6h8l2 2h10v12H2z"/></svg>
+      </div>
+      <span class="nav-label">Files</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-indicator">
+        <svg viewBox="0 0 24 24"><polygon points="13,2 4,14 11,14 10,22 20,10 13,10"/></svg>
+      </div>
+      <span class="nav-label">Transfers</span>
+      <div class="nav-badge">3</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-indicator">
+        <svg viewBox="0 0 24 24"><path d="M5 18v2h14v-2H5zM12 3l-7 7h4v4h6v-4h4l-7-7z"/></svg>
+      </div>
+      <span class="nav-label">Downloads</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-indicator">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      </div>
+      <span class="nav-label">Settings</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

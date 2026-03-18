@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Landing (Retro)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0A0A14;
+    --bg-2: #0E0E1A;
+    --bg-3: #141422;
+    --bg-4: #1A1A2C;
+    --bg-5: #222236;
+    --line: #1E1E32;
+    --border: #2A2A44;
+    --solid: #4A4A6E;
+    --text-3: #6A6A8E;
+    --text-2: #9898B8;
+    --text: #D0D0E8;
+    --white: #E8E8F8;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.08);
+    --yellow-border: rgba(253, 206, 69, 0.3);
+    --green: #44FF88;
+    --red: #FF4444;
+    --cyan: #44FFEE;
+    --magenta: #FF44CC;
+    --font-pixel: 'Press Start 2P', monospace;
+    --font-mono: 'Space Mono', 'Courier New', monospace;
+  }
+
+  body {
+    font-family: var(--font-mono);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    width: 1440px;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* CRT scanline overlay */
+  .scanlines {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.08) 2px,
+      rgba(0, 0, 0, 0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* CRT vignette */
+  .crt-vignette {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);
+    pointer-events: none;
+    z-index: 99;
+  }
+
+  /* Blinking cursor animation */
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  .cursor {
+    display: inline-block;
+    width: 10px;
+    height: 18px;
+    background: var(--yellow);
+    animation: blink 1s steps(1) infinite;
+    vertical-align: text-bottom;
+    margin-left: 4px;
+  }
+  .cursor-small {
+    width: 8px;
+    height: 14px;
+  }
+
+  /* Pixel glow */
+  @keyframes glow-pulse {
+    0%, 100% { text-shadow: 0 0 8px rgba(253, 206, 69, 0.6); }
+    50% { text-shadow: 0 0 20px rgba(253, 206, 69, 0.9), 0 0 40px rgba(253, 206, 69, 0.3); }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  /* ===== NAV ===== */
+  .nav {
+    display: flex;
+    align-items: center;
+    padding: 20px 48px;
+    border-bottom: 4px solid var(--yellow);
+    position: relative;
+    z-index: 10;
+  }
+  .nav::after {
+    content: 'SCORE: 000000  HI-SCORE: 999999';
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--text-3);
+    position: absolute;
+    right: 48px;
+    top: 8px;
+  }
+  .logo {
+    font-family: var(--font-pixel);
+    font-size: 20px;
+    color: var(--yellow);
+    text-decoration: none;
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+  .nav-spacer { flex: 1; }
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+  }
+  .nav-link {
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--text-2);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .nav-cta {
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--bg);
+    background: var(--yellow);
+    padding: 10px 16px;
+    text-decoration: none;
+    text-transform: uppercase;
+    border: none;
+    image-rendering: pixelated;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    padding: 100px 48px 120px;
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  /* Starfield background */
+  .starfield {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+  }
+  .star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: var(--white);
+    opacity: 0.4;
+  }
+  .star:nth-child(1) { top: 10%; left: 15%; opacity: 0.3; }
+  .star:nth-child(2) { top: 20%; left: 45%; opacity: 0.6; width: 3px; height: 3px; }
+  .star:nth-child(3) { top: 35%; left: 75%; opacity: 0.2; }
+  .star:nth-child(4) { top: 55%; left: 25%; opacity: 0.5; }
+  .star:nth-child(5) { top: 15%; left: 85%; opacity: 0.4; width: 3px; height: 3px; }
+  .star:nth-child(6) { top: 70%; left: 55%; opacity: 0.3; }
+  .star:nth-child(7) { top: 45%; left: 10%; opacity: 0.5; }
+  .star:nth-child(8) { top: 80%; left: 90%; opacity: 0.2; }
+  .star:nth-child(9) { top: 65%; left: 40%; opacity: 0.4; }
+  .star:nth-child(10) { top: 25%; left: 60%; opacity: 0.6; }
+  .star:nth-child(11) { top: 50%; left: 92%; opacity: 0.3; }
+  .star:nth-child(12) { top: 85%; left: 18%; opacity: 0.5; }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Space invader SVG illustration */
+  .invader {
+    margin: 0 auto 48px;
+    display: block;
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .hero-insert {
+    font-family: var(--font-pixel);
+    font-size: 10px;
+    color: var(--cyan);
+    letter-spacing: 0.1em;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+
+  .hero h1 {
+    font-family: var(--font-pixel);
+    font-size: 36px;
+    color: var(--yellow);
+    line-height: 1.6;
+    margin-bottom: 16px;
+    animation: glow-pulse 3s ease-in-out infinite;
+    text-transform: uppercase;
+  }
+  .hero-sub-pixel {
+    font-family: var(--font-pixel);
+    font-size: 10px;
+    color: var(--text-2);
+    line-height: 2.2;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+  .hero-sub {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    color: var(--text-2);
+    line-height: 1.7;
+    max-width: 600px;
+    margin: 0 auto 48px;
+  }
+  .hero-prompt {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--green);
+    margin-bottom: 48px;
+  }
+
+  .press-start {
+    display: inline-block;
+    font-family: var(--font-pixel);
+    font-size: 14px;
+    color: var(--bg);
+    background: var(--yellow);
+    padding: 20px 48px;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    animation: glow-pulse 2s ease-in-out infinite;
+    position: relative;
+  }
+  .press-start::before {
+    content: '>>>';
+    position: absolute;
+    left: -48px;
+    color: var(--yellow);
+    animation: blink 0.8s steps(1) infinite;
+  }
+  .press-start::after {
+    content: '<<<';
+    position: absolute;
+    right: -48px;
+    color: var(--yellow);
+    animation: blink 0.8s steps(1) infinite;
+  }
+
+  /* ===== DIVIDER ===== */
+  .pixel-divider {
+    padding: 12px 48px;
+    background: var(--bg-3);
+    border-top: 4px solid var(--yellow);
+    border-bottom: 4px solid var(--yellow);
+    text-align: center;
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--text-3);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    overflow: hidden;
+  }
+
+  /* ===== HOW IT WORKS (LEVELS) ===== */
+  .levels {
+    background: var(--bg-2);
+    padding: 100px 48px;
+    position: relative;
+    z-index: 2;
+  }
+  .levels-header {
+    text-align: center;
+    margin-bottom: 72px;
+  }
+  .levels-header h2 {
+    font-family: var(--font-pixel);
+    font-size: 18px;
+    color: var(--yellow);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }
+  .levels-header p {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--text-3);
+  }
+
+  .level-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+  }
+  .level-card {
+    background: var(--bg);
+    border: 2px solid var(--border);
+    padding: 36px 32px;
+    position: relative;
+  }
+  .level-card::before {
+    content: '';
+    position: absolute;
+    top: -2px; left: -2px; right: -2px;
+    height: 4px;
+    background: var(--yellow);
+  }
+  .level-badge {
+    font-family: var(--font-pixel);
+    font-size: 10px;
+    color: var(--yellow);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .level-title {
+    font-family: var(--font-pixel);
+    font-size: 12px;
+    color: var(--white);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    line-height: 1.8;
+  }
+  .level-desc {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.7;
+  }
+  .level-progress {
+    margin-top: 20px;
+    display: flex;
+    gap: 4px;
+  }
+  .level-pip {
+    width: 16px;
+    height: 12px;
+    background: var(--yellow);
+  }
+  .level-pip-empty {
+    background: var(--border);
+  }
+
+  /* ===== PLATFORM SHOWCASE ===== */
+  .platform-section {
+    background: var(--bg);
+    padding: 100px 48px;
+    position: relative;
+    z-index: 2;
+  }
+  .platform-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .platform-header h2 {
+    font-family: var(--font-pixel);
+    font-size: 16px;
+    color: var(--yellow);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+  .platform-header p {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-3);
+  }
+
+  .platform-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .platform-card {
+    background: var(--bg-2);
+    border: 2px solid var(--border);
+    padding: 32px 28px;
+    text-align: center;
+    position: relative;
+  }
+  .platform-card:hover {
+    border-color: var(--yellow-border);
+  }
+
+  /* Pixel art platform icons */
+  .pixel-icon {
+    margin: 0 auto 20px;
+    display: block;
+    image-rendering: pixelated;
+  }
+
+  .platform-card h3 {
+    font-family: var(--font-pixel);
+    font-size: 9px;
+    color: var(--white);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    letter-spacing: 0.03em;
+    line-height: 1.8;
+  }
+  .platform-card p {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.6;
+  }
+  .platform-status {
+    margin-top: 16px;
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ===== QUOTE ===== */
+  .quote-section {
+    background: var(--bg-3);
+    border-top: 4px solid var(--yellow);
+    border-bottom: 4px solid var(--yellow);
+    padding: 80px 48px;
+    position: relative;
+    z-index: 2;
+  }
+  .quote-container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .quote-header {
+    font-family: var(--font-pixel);
+    font-size: 10px;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    letter-spacing: 0.1em;
+  }
+  .quote-text {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    color: var(--text);
+    line-height: 1.8;
+    margin-bottom: 28px;
+  }
+  .quote-text em {
+    font-style: normal;
+    color: var(--yellow);
+  }
+  .quote-attr-name {
+    font-family: var(--font-pixel);
+    font-size: 9px;
+    color: var(--yellow);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .quote-attr-role {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-3);
+  }
+  .quote-hp {
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
+  .quote-hp-label {
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--text-3);
+    text-transform: uppercase;
+  }
+  .quote-hp-bar {
+    width: 120px;
+    height: 10px;
+    background: var(--border);
+    position: relative;
+  }
+  .quote-hp-fill {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 95%;
+    background: var(--green);
+  }
+
+  /* ===== CTA ===== */
+  .cta-section {
+    background: var(--bg);
+    padding: 100px 48px;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse 600px 400px at 50% 50%, rgba(253, 206, 69, 0.04), transparent);
+    z-index: 0;
+  }
+  .cta-content {
+    position: relative;
+    z-index: 1;
+  }
+  .cta-title {
+    font-family: var(--font-pixel);
+    font-size: 20px;
+    color: var(--yellow);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    line-height: 2;
+    letter-spacing: 0.04em;
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+  .cta-sub {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    color: var(--text-2);
+    margin-bottom: 16px;
+    line-height: 1.7;
+  }
+  .cta-prompt {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--green);
+    margin-bottom: 40px;
+  }
+  .insert-coin {
+    display: inline-block;
+    font-family: var(--font-pixel);
+    font-size: 12px;
+    color: var(--bg);
+    background: var(--yellow);
+    padding: 18px 40px;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    position: relative;
+  }
+  .cta-lives {
+    margin-top: 32px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    align-items: center;
+  }
+  .cta-lives-label {
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--text-3);
+    text-transform: uppercase;
+  }
+  .cta-life {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    padding: 24px 48px;
+    border-top: 4px solid var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 2;
+  }
+  .footer-left {
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--text-3);
+    text-transform: uppercase;
+  }
+  .footer-right {
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--text-3);
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="scanlines"></div>
+  <div class="crt-vignette"></div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="#" class="logo">PUT.IO</a>
+    <div class="nav-spacer"></div>
+    <div class="nav-links">
+      <a href="#" class="nav-link">Arcade</a>
+      <a href="#" class="nav-link">Scores</a>
+      <a href="#" class="nav-link">Manual</a>
+      <a href="#" class="nav-cta">Insert Coin</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="starfield">
+      <div class="star"></div><div class="star"></div><div class="star"></div>
+      <div class="star"></div><div class="star"></div><div class="star"></div>
+      <div class="star"></div><div class="star"></div><div class="star"></div>
+      <div class="star"></div><div class="star"></div><div class="star"></div>
+    </div>
+    <div class="hero-content">
+      <!-- Space Invader SVG -->
+      <svg class="invader" width="120" height="100" viewBox="0 0 24 20" fill="none" style="image-rendering: pixelated;">
+        <!-- Classic space invader shape -->
+        <rect x="4" y="0" width="2" height="2" fill="#FDCE45"/>
+        <rect x="18" y="0" width="2" height="2" fill="#FDCE45"/>
+        <rect x="6" y="2" width="2" height="2" fill="#FDCE45"/>
+        <rect x="16" y="2" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="4" width="16" height="2" fill="#FDCE45"/>
+        <rect x="2" y="6" width="4" height="2" fill="#FDCE45"/>
+        <rect x="8" y="6" width="8" height="2" fill="#FDCE45"/>
+        <rect x="18" y="6" width="4" height="2" fill="#FDCE45"/>
+        <rect x="0" y="8" width="24" height="2" fill="#FDCE45"/>
+        <rect x="0" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="10" width="16" height="2" fill="#FDCE45"/>
+        <rect x="22" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="0" y="12" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="12" width="2" height="2" fill="#FDCE45"/>
+        <rect x="18" y="12" width="2" height="2" fill="#FDCE45"/>
+        <rect x="22" y="12" width="2" height="2" fill="#FDCE45"/>
+        <rect x="6" y="14" width="4" height="2" fill="#FDCE45"/>
+        <rect x="14" y="14" width="4" height="2" fill="#FDCE45"/>
+      </svg>
+
+      <div class="hero-insert">// Player 1 Ready</div>
+      <h1>PUT.IO</h1>
+      <div class="hero-sub-pixel">Cloud storage that fetches anything</div>
+      <p class="hero-sub">Drop a link. We download it. Stream it anywhere. Your cloud, your rules. No quarters needed (well, maybe a subscription).</p>
+      <p class="hero-prompt">&gt; initializing put.io transfer engine...<span class="cursor"></span></p>
+      <a href="#" class="press-start">Press Start</a>
+    </div>
+  </section>
+
+  <!-- DIVIDER -->
+  <div class="pixel-divider">
+    ---- select your level ---- select your level ---- select your level ----
+  </div>
+
+  <!-- LEVELS (How It Works) -->
+  <section class="levels">
+    <div class="levels-header">
+      <h2>Select Your Level</h2>
+      <p>// Three stages to cloud domination</p>
+    </div>
+    <div class="level-grid">
+      <div class="level-card">
+        <div class="level-badge">Level 1</div>
+        <div class="level-title">Add Stuff</div>
+        <p class="level-desc">Paste a link, drop a magnet, set up an RSS feed. Any URL works. We're not picky about file types.</p>
+        <div class="level-progress">
+          <div class="level-pip"></div>
+          <div class="level-pip"></div>
+          <div class="level-pip"></div>
+          <div class="level-pip level-pip-empty"></div>
+          <div class="level-pip level-pip-empty"></div>
+          <div class="level-pip level-pip-empty"></div>
+          <div class="level-pip level-pip-empty"></div>
+          <div class="level-pip level-pip-empty"></div>
+        </div>
+      </div>
+      <div class="level-card">
+        <div class="level-badge">Level 2</div>
+        <div class="level-title">We Fetch It</div>
+        <p class="level-desc">Our servers blast through the download at 10Gbps. Files appear in your cloud drive in seconds, not hours.</p>
+        <div class="level-progress">
+          <div class="level-pip"></div>
+          <div class="level-pip"></div>
+          <div class="level-pip"></div>
+          <div class="level-pip"></div>
+          <div class="level-pip"></div>
+          <div class="level-pip level-pip-empty"></div>
+          <div class="level-pip level-pip-empty"></div>
+          <div class="level-pip level-pip-empty"></div>
+        </div>
+      </div>
+      <div class="level-card">
+        <div class="level-badge">Level 3</div>
+        <div class="level-title">Play Anywhere</div>
+        <p class="level-desc">Stream on your phone, TV, laptop -- anywhere. Download for offline. Share with friends. You win.</p>
+        <div class="level-progress">
+          <div class="level-pip"></div>
+          <div class="level-pip"></div>
+          <div class="level-pip"></div>
+          <div class="level-pip"></div>
+          <div class="level-pip"></div>
+          <div class="level-pip"></div>
+          <div class="level-pip"></div>
+          <div class="level-pip"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIVIDER -->
+  <div class="pixel-divider">
+    ---- choose your character ---- choose your character ----
+  </div>
+
+  <!-- PLATFORMS -->
+  <section class="platform-section">
+    <div class="platform-header">
+      <h2>Choose Your Fighter</h2>
+      <p>// Available on all platforms. No cheat codes needed.</p>
+    </div>
+    <div class="platform-grid">
+      <div class="platform-card">
+        <!-- Pixel art monitor -->
+        <svg class="pixel-icon" width="48" height="48" viewBox="0 0 16 16" style="image-rendering: pixelated;">
+          <rect x="2" y="1" width="12" height="9" fill="none" stroke="#FDCE45" stroke-width="1"/>
+          <rect x="4" y="3" width="8" height="5" fill="rgba(253,206,69,0.15)"/>
+          <rect x="6" y="11" width="4" height="2" fill="#FDCE45"/>
+          <rect x="4" y="13" width="8" height="1" fill="#FDCE45"/>
+        </svg>
+        <h3>Web Browser</h3>
+        <p>Full file manager. Built-in player. Real-time stats. No install needed.</p>
+        <div class="platform-status">* Online *</div>
+      </div>
+      <div class="platform-card">
+        <!-- Pixel art phone -->
+        <svg class="pixel-icon" width="48" height="48" viewBox="0 0 16 16" style="image-rendering: pixelated;">
+          <rect x="4" y="1" width="8" height="14" fill="none" stroke="#FDCE45" stroke-width="1"/>
+          <rect x="5" y="3" width="6" height="9" fill="rgba(253,206,69,0.15)"/>
+          <rect x="7" y="13" width="2" height="1" fill="#FDCE45"/>
+        </svg>
+        <h3>iOS + Android</h3>
+        <p>Native apps. Offline mode. Background downloads. Pocket-sized power.</p>
+        <div class="platform-status">* Online *</div>
+      </div>
+      <div class="platform-card">
+        <!-- Pixel art TV -->
+        <svg class="pixel-icon" width="48" height="48" viewBox="0 0 16 16" style="image-rendering: pixelated;">
+          <rect x="1" y="3" width="14" height="10" fill="none" stroke="#FDCE45" stroke-width="1"/>
+          <rect x="3" y="5" width="10" height="6" fill="rgba(253,206,69,0.15)"/>
+          <rect x="5" y="14" width="2" height="1" fill="#FDCE45"/>
+          <rect x="9" y="14" width="2" height="1" fill="#FDCE45"/>
+          <rect x="6" y="1" width="1" height="2" fill="#FDCE45" transform="rotate(-20 6.5 2)"/>
+          <rect x="9" y="1" width="1" height="2" fill="#FDCE45" transform="rotate(20 9.5 2)"/>
+        </svg>
+        <h3>Apple TV + Android TV</h3>
+        <p>Big screen streaming. 4K playback. Couch-optimized. Living room boss fight.</p>
+        <div class="platform-status">* Online *</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUOTE -->
+  <section class="quote-section">
+    <div class="quote-container">
+      <div class="quote-header">// Transmission Received</div>
+      <p class="quote-text">"I used to spend hours wrestling with downloads. put.io turned a multi-step nightmare into <em>one click and done</em>. It's like a cheat code for the internet."</p>
+      <div class="quote-attr-name">Player_1_Sarah</div>
+      <div class="quote-attr-role">// Power User since 2019</div>
+      <div class="quote-hp">
+        <span class="quote-hp-label">Satisfaction:</span>
+        <div class="quote-hp-bar">
+          <div class="quote-hp-fill"></div>
+        </div>
+        <span class="quote-hp-label">95%</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-content">
+      <h2 class="cta-title">Game Over?<br>Nah, Game On.</h2>
+      <p class="cta-sub">Free trial. No credit card. No game over screen. Just files, streaming, and freedom.</p>
+      <p class="cta-prompt">&gt; ready to begin? (Y/n)_<span class="cursor cursor-small"></span></p>
+      <a href="#" class="insert-coin">Insert Coin</a>
+      <div class="cta-lives">
+        <span class="cta-lives-label">Lives:</span>
+        <!-- Pixel heart icons -->
+        <svg class="cta-life" viewBox="0 0 16 16" style="image-rendering: pixelated;">
+          <rect x="2" y="2" width="4" height="4" fill="#FDCE45"/>
+          <rect x="10" y="2" width="4" height="4" fill="#FDCE45"/>
+          <rect x="1" y="4" width="14" height="4" fill="#FDCE45"/>
+          <rect x="2" y="8" width="12" height="2" fill="#FDCE45"/>
+          <rect x="4" y="10" width="8" height="2" fill="#FDCE45"/>
+          <rect x="6" y="12" width="4" height="2" fill="#FDCE45"/>
+        </svg>
+        <svg class="cta-life" viewBox="0 0 16 16" style="image-rendering: pixelated;">
+          <rect x="2" y="2" width="4" height="4" fill="#FDCE45"/>
+          <rect x="10" y="2" width="4" height="4" fill="#FDCE45"/>
+          <rect x="1" y="4" width="14" height="4" fill="#FDCE45"/>
+          <rect x="2" y="8" width="12" height="2" fill="#FDCE45"/>
+          <rect x="4" y="10" width="8" height="2" fill="#FDCE45"/>
+          <rect x="6" y="12" width="4" height="2" fill="#FDCE45"/>
+        </svg>
+        <svg class="cta-life" viewBox="0 0 16 16" style="image-rendering: pixelated;">
+          <rect x="2" y="2" width="4" height="4" fill="#FDCE45"/>
+          <rect x="10" y="2" width="4" height="4" fill="#FDCE45"/>
+          <rect x="1" y="4" width="14" height="4" fill="#FDCE45"/>
+          <rect x="2" y="8" width="12" height="2" fill="#FDCE45"/>
+          <rect x="4" y="10" width="8" height="2" fill="#FDCE45"/>
+          <rect x="6" y="12" width="4" height="2" fill="#FDCE45"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-left">Put.io (c) 2024 -- All Rights Reserved -- Made in Istanbul</div>
+    <div class="footer-right">Credits: 03</div>
+  </footer>
+</div>
+</body>
+</html>
