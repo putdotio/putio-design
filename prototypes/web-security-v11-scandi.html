@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Security (Scandinavian)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #12110F;
+    --bg-1: #181614;
+    --bg-2: #1E1C19;
+    --bg-3: #252320;
+    --bg-4: #2E2B27;
+    --bg-5: #383430;
+    --border-subtle: rgba(255,245,220,0.06);
+    --border-default: rgba(255,245,220,0.10);
+    --border-warm: rgba(255,245,220,0.14);
+    --text-primary: #F0EBE3;
+    --text-secondary: #B0A898;
+    --text-tertiary: #7A7268;
+    --text-quaternary: #524C44;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.10);
+    --yellow-glow: rgba(253,206,69,0.06);
+    --green: #30A46C;
+    --green-dim: rgba(48,164,108,0.12);
+    --red: #E5484D;
+    --red-dim: rgba(229,72,77,0.12);
+    --blue: #8AAFE0;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    background: var(--bg-0);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 248px;
+    background: var(--bg-1);
+    border-right: 1px solid var(--border-subtle);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .sidebar-header { padding: 28px 24px 24px; }
+  .logo { font-size: 20px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.03em; }
+  .logo .dot { color: var(--yellow); }
+
+  .sidebar-nav { flex: 1; padding: 0 12px; display: flex; flex-direction: column; gap: 2px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px; padding: 9px 14px;
+    font-size: 13.5px; font-weight: 400; color: var(--text-secondary);
+    cursor: pointer; border: none; background: none; width: 100%; text-align: left;
+    font-family: inherit; border-radius: 16px; line-height: 1; transition: all 0.15s;
+  }
+  .nav-item:hover { background: var(--bg-3); color: var(--text-primary); }
+  .nav-item.active {
+    background: var(--bg-3); color: var(--text-primary); font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .nav-icon svg { display: block; }
+  .nav-sep { height: 1px; background: var(--border-subtle); margin: 8px 14px; }
+  .nav-group-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-quaternary); padding: 16px 12px 6px;
+  }
+
+  .sidebar-footer { padding: 16px 24px; border-top: 1px solid var(--border-subtle); }
+  .storage-track { width: 100%; height: 4px; background: var(--bg-4); border-radius: 2px; overflow: hidden; }
+  .storage-fill { height: 100%; background: var(--yellow); border-radius: 2px; }
+  .storage-label { font-size: 11px; color: var(--text-tertiary); margin-top: 8px; }
+
+  .user-row { display: flex; align-items: center; gap: 10px; padding: 12px 24px; cursor: pointer; border-radius: 16px; margin: 0 12px 12px; }
+  .user-row:hover { background: var(--bg-3); }
+  .user-avatar { width: 32px; height: 32px; background: var(--bg-4); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+  .user-name { font-size: 13px; font-weight: 500; color: var(--text-secondary); flex: 1; }
+
+  /* CONTENT */
+  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar {
+    display: flex; align-items: center; padding: 18px 32px;
+    border-bottom: 1px solid var(--border-subtle); min-height: 56px;
+  }
+  .breadcrumb { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
+  .topbar-spacer { flex: 1; }
+
+  .content-header { padding: 28px 32px 20px; }
+  .page-heading { font-size: 24px; font-weight: 700; letter-spacing: -0.03em; }
+
+  .security-body { flex: 1; overflow-y: auto; padding: 0 32px 48px; }
+  .security-body::-webkit-scrollbar { width: 5px; }
+  .security-body::-webkit-scrollbar-track { background: transparent; }
+  .security-body::-webkit-scrollbar-thumb { background: var(--bg-5); border-radius: 3px; }
+
+  /* SCORE PILL */
+  .score-strip {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+  .score-circle {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    border: 3px solid var(--green);
+    background: var(--green-dim);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .score-num { font-size: 26px; font-weight: 700; color: var(--green); line-height: 1; }
+  .score-denom { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
+  .score-info { flex: 1; }
+  .score-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .score-desc { font-size: 12px; color: var(--text-tertiary); line-height: 1.5; }
+
+  /* SECTIONS */
+  .sec-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 900px;
+  }
+  .sec-grid .full { grid-column: 1 / -1; }
+
+  .warm-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+  .warm-card-header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .warm-card-title { font-size: 14px; font-weight: 600; }
+  .warm-card-spacer { flex: 1; }
+  .warm-card-body { padding: 16px 20px; }
+
+  /* 2FA */
+  .twofa-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .twofa-icon-wrap {
+    width: 44px; height: 44px;
+    background: var(--green-dim);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .twofa-info { flex: 1; }
+  .twofa-name { font-size: 14px; font-weight: 600; }
+  .twofa-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+  .badge-enabled {
+    font-size: 10px; font-weight: 600;
+    color: var(--green); background: var(--green-dim);
+    padding: 4px 10px; border-radius: 10px;
+  }
+  .btn-warm {
+    font-size: 12px; font-weight: 600; font-family: inherit;
+    color: var(--bg-0); background: var(--yellow);
+    border: none; padding: 7px 16px; border-radius: 12px;
+    cursor: pointer;
+  }
+  .btn-warm:hover { opacity: 0.9; }
+
+  /* SESSIONS */
+  .session-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .session-row:last-child { border-bottom: none; }
+  .session-avatar {
+    width: 36px; height: 36px;
+    background: var(--bg-4);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .session-info { flex: 1; min-width: 0; }
+  .session-name { font-size: 13px; font-weight: 600; }
+  .session-meta { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; }
+  .session-current {
+    font-size: 9px; font-weight: 600;
+    color: var(--green); background: var(--green-dim);
+    padding: 2px 8px; border-radius: 8px;
+    margin-left: 6px;
+  }
+  .session-time { font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
+  .btn-revoke {
+    font-size: 11px; font-weight: 600; font-family: inherit;
+    color: var(--red); background: var(--red-dim);
+    border: none; padding: 5px 12px; border-radius: 10px;
+    cursor: pointer;
+  }
+  .btn-revoke:hover { background: rgba(229,72,77,0.2); }
+
+  /* ACTIVITY */
+  .activity-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 12px;
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    margin-top: 5px; flex-shrink: 0;
+  }
+  .activity-dot.ok { background: var(--green); }
+  .activity-dot.warn { background: var(--yellow); }
+  .activity-dot.bad { background: var(--red); }
+  .activity-dot.info { background: var(--blue); }
+  .activity-body { flex: 1; }
+  .activity-action { font-weight: 600; font-size: 13px; }
+  .activity-detail { color: var(--text-tertiary); margin-top: 1px; font-size: 11px; }
+  .activity-time { font-size: 11px; color: var(--text-tertiary); white-space: nowrap; margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="dot">.</span>io</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-group-label">Library</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="#FDCE45"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg></span>
+        Files
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7l-112,120a8,8,0,0,0,3,13l57.63,21.61L88.16,238.43a8,8,0,0,0,13.69,7l112-120A8,8,0,0,0,215.79,118.17Z"/></svg></span>
+        Transfers
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"/></svg></span>
+        History
+      </button>
+      <div class="nav-sep"></div>
+      <div class="nav-group-label">Account</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.16,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.16-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,74,34.5a8,8,0,0,0-3.93,6L67.43,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.16,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.16,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.16,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.16-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.16,8,8,0,0,0-1.49-7.06Z"/></svg></span>
+        Settings
+      </button>
+      <button class="nav-item active">
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Zm-68-56a12,12,0,1,1-12-12A12,12,0,0,1,140,152Z"/></svg></span>
+        Security
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="storage-track"><div class="storage-fill" style="width:72%"></div></div>
+      <div class="storage-label">36 TB of 50 TB used</div>
+    </div>
+
+    <div class="user-row">
+      <div class="user-avatar"><svg width="16" height="16" viewBox="0 0 256 256" fill="#7A7268"><path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8C55.71,190.36,89,168,128,168s72.29,22.36,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"/></svg></div>
+      <span class="user-name">altay</span>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="topbar">
+      <span class="breadcrumb">Security</span>
+      <div class="topbar-spacer"></div>
+    </div>
+
+    <div class="content-header">
+      <div class="page-heading">Security</div>
+    </div>
+
+    <div class="security-body">
+
+      <!-- SCORE -->
+      <div class="score-strip">
+        <div class="score-circle">
+          <div class="score-num">85</div>
+          <div class="score-denom">/100</div>
+        </div>
+        <div class="score-info">
+          <div class="score-title">Your account is well protected</div>
+          <div class="score-desc">Two-factor authentication is active. You have 4 active sessions. Consider reviewing older sessions for best security.</div>
+        </div>
+      </div>
+
+      <div class="sec-grid">
+
+        <!-- 2FA -->
+        <div class="warm-card">
+          <div class="warm-card-header">
+            <svg width="16" height="16" viewBox="0 0 256 256" fill="#30A46C"><path d="M208,40H48A16,16,0,0,0,32,56v58.77c0,89.61,75.82,119.34,91,124.39a15.53,15.53,0,0,0,10,0c15.2-5.05,91-34.78,91-124.39V56A16,16,0,0,0,208,40Zm0,74.79c0,78.42-66.35,104.62-80,109.18-13.53-4.51-80-30.69-80-109.18V56H208ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></svg>
+            <span class="warm-card-title">Two-Factor Auth</span>
+            <div class="warm-card-spacer"></div>
+            <span class="badge-enabled">Enabled</span>
+          </div>
+          <div class="warm-card-body">
+            <div class="twofa-row">
+              <div class="twofa-icon-wrap">
+                <svg width="22" height="22" viewBox="0 0 256 256" fill="#30A46C"><path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Zm-68-56a12,12,0,1,1-12-12A12,12,0,0,1,140,152Z"/></svg>
+              </div>
+              <div class="twofa-info">
+                <div class="twofa-name">TOTP Authenticator</div>
+                <div class="twofa-sub">Active since Sep 14, 2024</div>
+              </div>
+              <button class="btn-warm">Manage</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCORE DETAILS -->
+        <div class="warm-card">
+          <div class="warm-card-header">
+            <svg width="16" height="16" viewBox="0 0 256 256" fill="#FDCE45"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM120,104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm8,88a12,12,0,1,1,12-12A12,12,0,0,1,128,192Z"/></svg>
+            <span class="warm-card-title">Score Breakdown</span>
+          </div>
+          <div class="warm-card-body" style="font-size:13px;">
+            <div style="display:flex;align-items:center;gap:8px;padding:5px 0;">
+              <svg width="14" height="14" viewBox="0 0 256 256" fill="#30A46C"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg>
+              <span style="flex:1">Two-factor enabled</span>
+              <span style="font-weight:600;color:var(--green)">+25</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:5px 0;">
+              <svg width="14" height="14" viewBox="0 0 256 256" fill="#30A46C"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg>
+              <span style="flex:1">Strong password</span>
+              <span style="font-weight:600;color:var(--green)">+25</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:5px 0;">
+              <svg width="14" height="14" viewBox="0 0 256 256" fill="#30A46C"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg>
+              <span style="flex:1">Recent password change</span>
+              <span style="font-weight:600;color:var(--green)">+20</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:5px 0;">
+              <svg width="14" height="14" viewBox="0 0 256 256" fill="#FDCE45"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM120,104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm8,88a12,12,0,1,1,12-12A12,12,0,0,1,128,192Z"/></svg>
+              <span style="flex:1">Old sessions present</span>
+              <span style="font-weight:600;color:var(--yellow)">-5</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SESSIONS -->
+        <div class="warm-card full">
+          <div class="warm-card-header">
+            <svg width="16" height="16" viewBox="0 0 256 256" fill="#8AAFE0"><path d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24H108v16H88a8,8,0,0,0,0,16h80a8,8,0,0,0,0-16H148V200h60a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40ZM48,56H208a8,8,0,0,1,8,8V160H40V64A8,8,0,0,1,48,56ZM208,184H48a8,8,0,0,1-8-8h176A8,8,0,0,1,208,184Z"/></svg>
+            <span class="warm-card-title">Active Sessions</span>
+            <div class="warm-card-spacer"></div>
+            <span style="font-size:12px;color:var(--text-tertiary)">4 devices</span>
+          </div>
+          <div class="warm-card-body" style="padding:8px 20px 16px;">
+            <div class="session-row">
+              <div class="session-avatar">
+                <svg width="16" height="16" viewBox="0 0 256 256" fill="#F0EBE3"><path d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24H108v16H88a8,8,0,0,0,0,16h80a8,8,0,0,0,0-16H148V200h60a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40ZM48,56H208a8,8,0,0,1,8,8V160H40V64A8,8,0,0,1,48,56ZM208,184H48a8,8,0,0,1-8-8h176A8,8,0,0,1,208,184Z"/></svg>
+              </div>
+              <div class="session-info">
+                <div class="session-name">Chrome / macOS <span class="session-current">Current</span></div>
+                <div class="session-meta">Istanbul, TR -- 85.102.11.42</div>
+              </div>
+              <div class="session-time" style="color:var(--green)">Active now</div>
+            </div>
+            <div class="session-row">
+              <div class="session-avatar">
+                <svg width="16" height="16" viewBox="0 0 256 256" fill="#7A7268"><path d="M176,16H80A24,24,0,0,0,56,40V216a24,24,0,0,0,24,24h96a24,24,0,0,0,24-24V40A24,24,0,0,0,176,16ZM72,64H184V192H72Zm8-32h96a8,8,0,0,1,8,8v8H72V40A8,8,0,0,1,80,32ZM176,224H80a8,8,0,0,1-8-8v-8H184v8A8,8,0,0,1,176,224Z"/></svg>
+              </div>
+              <div class="session-info">
+                <div class="session-name">put.io iOS App</div>
+                <div class="session-meta">Istanbul, TR -- 85.102.11.42</div>
+              </div>
+              <div class="session-time">2 hours ago</div>
+              <button class="btn-revoke">Revoke</button>
+            </div>
+            <div class="session-row">
+              <div class="session-avatar">
+                <svg width="16" height="16" viewBox="0 0 256 256" fill="#7A7268"><path d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24H108v16H88a8,8,0,0,0,0,16h80a8,8,0,0,0,0-16H148V200h60a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40ZM48,56H208a8,8,0,0,1,8,8V160H40V64A8,8,0,0,1,48,56ZM208,184H48a8,8,0,0,1-8-8h176A8,8,0,0,1,208,184Z"/></svg>
+              </div>
+              <div class="session-info">
+                <div class="session-name">Firefox / Ubuntu</div>
+                <div class="session-meta">Ankara, TR -- 192.168.1.105</div>
+              </div>
+              <div class="session-time">1 day ago</div>
+              <button class="btn-revoke">Revoke</button>
+            </div>
+            <div class="session-row">
+              <div class="session-avatar">
+                <svg width="16" height="16" viewBox="0 0 256 256" fill="#7A7268"><path d="M224,72H208V48a8,8,0,0,0-16,0V72H176a8,8,0,0,0,0,16h16v24a8,8,0,0,0,16,0V88h16a8,8,0,0,0,0-16ZM208,136a8,8,0,0,0-8,8v56H48V64H168a8,8,0,0,0,0-16H48A16,16,0,0,0,32,64V200a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V144A8,8,0,0,0,208,136Z"/></svg>
+              </div>
+              <div class="session-info">
+                <div class="session-name">Apple TV</div>
+                <div class="session-meta">Istanbul, TR -- 85.102.11.42</div>
+              </div>
+              <div class="session-time">3 days ago</div>
+              <button class="btn-revoke">Revoke</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTIVITY -->
+        <div class="warm-card full">
+          <div class="warm-card-header">
+            <svg width="16" height="16" viewBox="0 0 256 256" fill="#FDCE45"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"/></svg>
+            <span class="warm-card-title">Recent Activity</span>
+          </div>
+          <div class="warm-card-body" style="padding:8px 20px 16px;">
+            <div class="activity-item">
+              <div class="activity-dot ok"></div>
+              <div class="activity-body">
+                <div class="activity-action">Successful login</div>
+                <div class="activity-detail">Chrome/macOS from Istanbul, TR</div>
+              </div>
+              <div class="activity-time">Mar 18, 14:22</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot ok"></div>
+              <div class="activity-body">
+                <div class="activity-action">2FA code verified</div>
+                <div class="activity-detail">TOTP authenticator accepted</div>
+              </div>
+              <div class="activity-time">Mar 18, 14:22</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot info"></div>
+              <div class="activity-body">
+                <div class="activity-action">Password changed</div>
+                <div class="activity-detail">Updated via settings page</div>
+              </div>
+              <div class="activity-time">Mar 17, 09:15</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot bad"></div>
+              <div class="activity-body">
+                <div class="activity-action">Session revoked</div>
+                <div class="activity-detail">"Safari / iPhone" terminated remotely</div>
+              </div>
+              <div class="activity-time">Mar 16, 21:30</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot warn"></div>
+              <div class="activity-body">
+                <div class="activity-action">Failed login attempt</div>
+                <div class="activity-detail">Wrong password from 45.67.89.12 (blocked)</div>
+              </div>
+              <div class="activity-time">Mar 14, 11:02</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
