@@ -22,4 +22,4 @@ Start with [`docs/design.md`](docs/design.md).
 
 ## Foo
 
-Bar
+aBar
