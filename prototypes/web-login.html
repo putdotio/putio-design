@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Login</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --bg-5: #35353A; --line: #3E3E44; --border: #4B4B52; --focus: #65656D;
+    --solid: #7C7C85; --text-2: #ABABB2; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868; --yellow-subtle: rgba(253,206,69,0.15);
+    --green-9: #30A46C; --green-11: #4CC38A; --green-subtle: rgba(48,164,108,0.15);
+  }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+  .page { width: 1440px; height: 900px; display: flex; overflow: hidden; }
+
+  /* Left Panel - Branding */
+  .left-panel {
+    width: 600px; background: var(--bg-2); display: flex; flex-direction: column;
+    justify-content: center; align-items: center; padding: 60px;
+    position: relative; overflow: hidden; flex-shrink: 0;
+  }
+  /* Decorative grid pattern */
+  .grid-pattern {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    opacity: 0.04; pointer-events: none;
+  }
+  .grid-pattern svg { width: 100%; height: 100%; }
+
+  /* Yellow glow */
+  .glow {
+    position: absolute; width: 400px; height: 400px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(253,206,69,0.12) 0%, transparent 70%);
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .brand-content { position: relative; z-index: 1; text-align: center; max-width: 400px; }
+  .brand-logo { margin-bottom: 40px; }
+  .brand-logo .logo-text { font-size: 56px; font-weight: 800; letter-spacing: -0.03em; }
+  .brand-logo .logo-text span { color: var(--yellow); }
+
+  .brand-tagline { font-size: 20px; font-weight: 500; color: var(--text-2); margin-bottom: 12px; line-height: 1.4; }
+  .brand-desc { font-size: 14px; color: var(--solid); line-height: 1.6; margin-bottom: 48px; }
+
+  .trust-badge {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--bg-3); border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px 20px;
+  }
+  .trust-badge svg { width: 18px; height: 18px; fill: var(--green-11); flex-shrink: 0; }
+  .trust-text { font-size: 13px; color: var(--text-2); }
+  .trust-text strong { color: var(--text); font-weight: 600; }
+
+  .brand-footer {
+    position: absolute; bottom: 40px; left: 0; right: 0;
+    text-align: center; font-size: 12px; color: var(--solid);
+  }
+
+  /* Right Panel - Login Form */
+  .right-panel {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 60px;
+  }
+
+  .login-card { width: 400px; }
+  .login-header { margin-bottom: 32px; }
+  .login-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+  .login-subtitle { font-size: 15px; color: var(--text-2); }
+
+  /* Form */
+  .form-group { margin-bottom: 20px; }
+  .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-2); margin-bottom: 8px; }
+  .form-input {
+    width: 100%; background: var(--bg-3); border: 1px solid var(--border); border-radius: 10px;
+    padding: 13px 16px; font-size: 15px; color: var(--text); font-family: inherit; outline: none;
+  }
+  .form-input:focus { border-color: var(--yellow); box-shadow: 0 0 0 3px var(--yellow-subtle); }
+  .form-input::placeholder { color: var(--solid); }
+
+  .form-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+
+  /* Remember me toggle */
+  .remember-toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .toggle-track {
+    width: 40px; height: 22px; border-radius: 11px; background: var(--bg-5);
+    position: relative; flex-shrink: 0;
+  }
+  .toggle-track.on { background: var(--yellow); }
+  .toggle-knob {
+    width: 18px; height: 18px; border-radius: 50%; background: #fff;
+    position: absolute; top: 2px; left: 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .toggle-track.on .toggle-knob { left: 20px; }
+  .remember-label { font-size: 13px; color: var(--text-2); }
+
+  .forgot-link { font-size: 13px; color: var(--yellow); text-decoration: none; cursor: pointer; }
+  .forgot-link:hover { text-decoration: underline; }
+
+  /* Submit Button */
+  .btn-login {
+    width: 100%; padding: 14px; border-radius: 10px; border: none;
+    background: var(--yellow); color: #111113; font-size: 16px; font-weight: 600;
+    cursor: pointer; font-family: inherit; margin-bottom: 16px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-login svg { width: 18px; height: 18px; fill: #111113; }
+  .btn-login:hover { background: var(--yellow-hover); }
+
+  /* Divider */
+  .divider { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .divider-line { flex: 1; height: 1px; background: var(--line); }
+  .divider-text { font-size: 12px; color: var(--solid); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* Sign up link */
+  .signup-row { text-align: center; font-size: 14px; color: var(--text-2); }
+  .signup-link { color: var(--yellow); text-decoration: none; font-weight: 500; cursor: pointer; }
+  .signup-link:hover { text-decoration: underline; }
+
+  /* 2FA Step (second step overlay) */
+  .tfa-step {
+    margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--line);
+  }
+  .tfa-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .tfa-icon {
+    width: 40px; height: 40px; border-radius: 10px; background: var(--yellow-subtle);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .tfa-icon svg { width: 22px; height: 22px; fill: var(--yellow); }
+  .tfa-title { font-size: 16px; font-weight: 600; }
+  .tfa-desc { font-size: 13px; color: var(--solid); margin-top: 2px; }
+  .tfa-code-inputs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .tfa-code-box {
+    width: 48px; height: 56px; background: var(--bg-3); border: 1px solid var(--border);
+    border-radius: 10px; text-align: center; font-size: 24px; font-weight: 700;
+    color: var(--yellow); font-family: 'SF Mono','Menlo', monospace; outline: none;
+  }
+  .tfa-code-box:focus { border-color: var(--yellow); box-shadow: 0 0 0 3px var(--yellow-subtle); }
+  .tfa-code-box.filled { border-color: var(--yellow); color: var(--yellow); }
+  .tfa-help { font-size: 12px; color: var(--solid); }
+  .tfa-help a { color: var(--yellow); text-decoration: none; }
+
+  /* Security indicators */
+  .security-indicators {
+    display: flex; align-items: center; gap: 16px; margin-top: 32px;
+    padding: 14px 18px; background: var(--bg-3); border-radius: 10px;
+    border: 1px solid var(--line);
+  }
+  .sec-ind { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--solid); }
+  .sec-ind svg { width: 14px; height: 14px; fill: var(--green-11); }
+</style>
+</head>
+<body>
+<div class="page">
+  <!-- Left Panel - Branding -->
+  <div class="left-panel">
+    <div class="glow"></div>
+
+    <!-- Subtle grid pattern -->
+    <div class="grid-pattern">
+      <svg viewBox="0 0 600 900" fill="none">
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+        <rect width="600" height="900" fill="url(#grid)"/>
+      </svg>
+    </div>
+
+    <div class="brand-content">
+      <div class="brand-logo">
+        <div class="logo-text">put<span>.</span>io</div>
+      </div>
+      <div class="brand-tagline">Your files, everywhere.<br/>Fast, private, secure.</div>
+      <div class="brand-desc">Cloud storage that downloads and streams your content from anywhere. Blazing fast. Zero compromise on privacy.</div>
+
+      <div class="trust-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+        <div class="trust-text">Trusted by <strong>500,000+ users</strong> since 2011</div>
+      </div>
+    </div>
+
+    <div class="brand-footer">
+      put.io -- Stalled Ox Ltd. -- London, United Kingdom
+    </div>
+  </div>
+
+  <!-- Right Panel - Login Form -->
+  <div class="right-panel">
+    <div class="login-card">
+      <div class="login-header">
+        <h1 class="login-title">Welcome back</h1>
+        <p class="login-subtitle">Sign in to your put.io account</p>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <input type="email" class="form-input" placeholder="you@example.com" value="altay@put.io" />
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" placeholder="Enter your password" />
+      </div>
+
+      <!-- Remember me / Forgot -->
+      <div class="form-row">
+        <div class="remember-toggle">
+          <div class="toggle-track on">
+            <div class="toggle-knob"></div>
+          </div>
+          <span class="remember-label">Remember me</span>
+        </div>
+        <a class="forgot-link">Forgot password?</a>
+      </div>
+
+      <!-- Login Button -->
+      <button class="btn-login">
+        <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+        Sign in
+      </button>
+
+      <!-- Divider -->
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">or</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <!-- Sign Up -->
+      <div class="signup-row">
+        Don't have an account? <a class="signup-link">Create one now</a>
+      </div>
+
+      <!-- 2FA Code Entry (Second Step) -->
+      <div class="tfa-step">
+        <div class="tfa-header">
+          <div class="tfa-icon">
+            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+          </div>
+          <div>
+            <div class="tfa-title">Two-factor authentication</div>
+            <div class="tfa-desc">Enter the 6-digit code from your authenticator app</div>
+          </div>
+        </div>
+        <div class="tfa-code-inputs">
+          <input class="tfa-code-box filled" maxlength="1" value="4" />
+          <input class="tfa-code-box filled" maxlength="1" value="8" />
+          <input class="tfa-code-box filled" maxlength="1" value="2" />
+          <input class="tfa-code-box" maxlength="1" value="" />
+          <input class="tfa-code-box" maxlength="1" value="" />
+          <input class="tfa-code-box" maxlength="1" value="" />
+        </div>
+        <div class="tfa-help">
+          Lost access to your authenticator? <a href="#">Use a recovery code</a>
+        </div>
+      </div>
+
+      <!-- Security Indicators -->
+      <div class="security-indicators">
+        <div class="sec-ind">
+          <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+          Encrypted connection
+        </div>
+        <div class="sec-ind">
+          <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+          GDPR compliant
+        </div>
+        <div class="sec-ind">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          No tracking
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

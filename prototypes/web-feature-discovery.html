@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Contextual Feature Discovery</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0F0F11;
+    --bg-2: #141416;
+    --bg-3: #1C1C1F;
+    --bg-4: #242428;
+    --bg-5: #2E2E33;
+    --line: #2A2A2F;
+    --border: #3A3A40;
+    --focus: #55555D;
+    --solid: #6E6E78;
+    --text-2: #9E9EA8;
+    --text-3: #B8B8C0;
+    --text: #E8E8EC;
+
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.06);
+    --yellow-glow: rgba(253, 206, 69, 0.12);
+    --yellow-hover: #FDD868;
+
+    --green: #30A46C;
+    --green-dim: rgba(48, 164, 108, 0.10);
+    --red: #E5484D;
+    --red-dim: rgba(229, 72, 77, 0.10);
+    --blue: #3B82F6;
+    --blue-dim: rgba(59, 130, 246, 0.10);
+    --orange: #F0A030;
+    --orange-dim: rgba(240, 160, 48, 0.10);
+    --purple: #8B5CF6;
+    --purple-dim: rgba(139, 92, 246, 0.10);
+
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; }
+
+  /* ================================================================
+     SIDEBAR
+     ================================================================ */
+  .sidebar {
+    width: 240px;
+    background: var(--bg-2);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-brand { padding: 24px 24px 20px; }
+  .logo { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+  .logo span { color: var(--yellow); }
+
+  .sidebar-nav { flex: 1; padding: 0; }
+  .nav-section-label {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--solid); padding: 20px 24px 8px;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 24px; font-size: 13px; color: var(--text-2);
+    cursor: pointer; border: none; background: none;
+    width: 100%; text-align: left; font-family: var(--sans);
+    position: relative; letter-spacing: -0.01em;
+  }
+  .nav-item:hover { color: var(--text); background: var(--bg-3); }
+  .nav-item.active { color: var(--text); font-weight: 500; }
+  .nav-item.active::before {
+    content: ''; position: absolute;
+    left: 0; top: 6px; bottom: 6px;
+    width: 2px; background: var(--yellow);
+    border-radius: 0 1px 1px 0;
+  }
+  .nav-icon {
+    width: 18px; height: 18px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--solid); flex-shrink: 0;
+  }
+  .nav-item.active .nav-icon { color: var(--yellow); }
+
+  /* ================================================================
+     MAIN CONTENT — File browser with contextual cards
+     ================================================================ */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .topbar {
+    height: 56px;
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 0 24px; flex-shrink: 0;
+    background: var(--bg);
+  }
+  .topbar-left {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 14px; color: var(--text-2);
+  }
+  .topbar-left span { color: var(--text); font-weight: 500; }
+
+  .topbar-right {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .topbar-btn {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: none; background: none; color: var(--text-2);
+  }
+  .topbar-btn:hover { background: var(--bg-3); color: var(--text); }
+  .user-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--bg-4); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; color: var(--text-2); cursor: pointer;
+  }
+
+  .content-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+  }
+
+  .content-header {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .content-header h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+
+  /* ================================================================
+     FILE LIST
+     ================================================================ */
+  .file-list { display: flex; flex-direction: column; gap: 1px; margin-bottom: 0; }
+  .file-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; background: var(--bg-2);
+    font-size: 13px; cursor: pointer;
+  }
+  .file-row:first-child { border-radius: 8px 8px 0 0; }
+  .file-row:last-child { border-radius: 0 0 8px 8px; }
+  .file-row:hover { background: var(--bg-3); }
+  .file-icon { width: 18px; height: 18px; color: var(--solid); flex-shrink: 0; }
+  .file-name { flex: 1; color: var(--text); }
+  .file-meta { color: var(--text-2); font-size: 12px; }
+  .file-size { color: var(--text-2); font-family: var(--mono); font-size: 12px; min-width: 60px; text-align: right; }
+
+  /* Active file row — the one triggering a discovery card */
+  .file-row.highlighted {
+    background: var(--bg-3);
+    border-left: 2px solid var(--yellow);
+    padding-left: 14px;
+  }
+
+  /* ================================================================
+     DISCOVERY CARDS — contextual inline cards
+     ================================================================ */
+  .discovery-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 2px 0;
+    position: relative;
+  }
+
+  .discovery-card.rss {
+    background: linear-gradient(135deg, rgba(253, 206, 69, 0.06) 0%, rgba(253, 206, 69, 0.02) 100%);
+    border: 1px solid rgba(253, 206, 69, 0.1);
+  }
+  .discovery-card.extension {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.06) 0%, rgba(59, 130, 246, 0.02) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.1);
+  }
+  .discovery-card.family {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.06) 0%, rgba(139, 92, 246, 0.02) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.1);
+  }
+  .discovery-card.vlc {
+    background: linear-gradient(135deg, rgba(48, 164, 108, 0.06) 0%, rgba(48, 164, 108, 0.02) 100%);
+    border: 1px solid rgba(48, 164, 108, 0.1);
+  }
+  .discovery-card.storage {
+    background: linear-gradient(135deg, rgba(240, 160, 48, 0.06) 0%, rgba(240, 160, 48, 0.02) 100%);
+    border: 1px solid rgba(240, 160, 48, 0.1);
+  }
+
+  .discovery-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .discovery-card.rss .discovery-icon { background: var(--yellow-dim); color: var(--yellow); }
+  .discovery-card.extension .discovery-icon { background: var(--blue-dim); color: var(--blue); }
+  .discovery-card.family .discovery-icon { background: var(--purple-dim); color: var(--purple); }
+  .discovery-card.vlc .discovery-icon { background: var(--green-dim); color: var(--green); }
+  .discovery-card.storage .discovery-icon { background: var(--orange-dim); color: var(--orange); }
+
+  .discovery-content { flex: 1; min-width: 0; }
+
+  .discovery-tag {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .discovery-card.rss .discovery-tag { color: var(--yellow); }
+  .discovery-card.extension .discovery-tag { color: var(--blue); }
+  .discovery-card.family .discovery-tag { color: var(--purple); }
+  .discovery-card.vlc .discovery-tag { color: var(--green); }
+  .discovery-card.storage .discovery-tag { color: var(--orange); }
+
+  .discovery-headline {
+    font-size: 14px; font-weight: 600;
+    color: var(--text); margin-bottom: 4px;
+    letter-spacing: -0.02em; line-height: 1.3;
+  }
+
+  .discovery-desc {
+    font-size: 13px; color: var(--text-2);
+    line-height: 1.5; margin-bottom: 12px;
+  }
+
+  .discovery-actions {
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .discovery-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px; font-weight: 600;
+    font-family: var(--sans);
+    border: none; cursor: pointer;
+    letter-spacing: -0.01em;
+  }
+  .discovery-card.rss .discovery-cta { background: var(--yellow); color: #0F0F11; }
+  .discovery-card.rss .discovery-cta:hover { background: var(--yellow-hover); }
+  .discovery-card.extension .discovery-cta { background: var(--blue); color: #fff; }
+  .discovery-card.family .discovery-cta { background: var(--purple); color: #fff; }
+  .discovery-card.vlc .discovery-cta { background: var(--green); color: #fff; }
+  .discovery-card.storage .discovery-cta { background: var(--orange); color: #0F0F11; }
+
+  .discovery-dismiss {
+    font-size: 12px; color: var(--solid);
+    cursor: pointer; border: none; background: none;
+    font-family: var(--sans); letter-spacing: -0.01em;
+  }
+  .discovery-dismiss:hover { color: var(--text-2); }
+
+  .discovery-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--solid);
+    border: none; background: none; border-radius: 4px;
+  }
+  .discovery-close:hover { background: rgba(255,255,255,0.05); color: var(--text-2); }
+
+  /* Context label between file rows */
+  .context-label {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 16px 4px;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--solid);
+  }
+  .context-label svg { width: 12px; height: 12px; }
+
+  /* Section spacer */
+  .section-gap { height: 24px; }
+
+  /* Scene label */
+  .scene-label {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: var(--bg-2);
+    border-radius: 8px;
+    border-left: 3px solid var(--yellow);
+  }
+  .scene-label-text {
+    font-size: 12px; color: var(--text-2); line-height: 1.4;
+  }
+  .scene-label-text strong { color: var(--text); font-weight: 600; }
+  .scene-number {
+    font-size: 11px; font-weight: 700; font-family: var(--mono);
+    color: var(--yellow); flex-shrink: 0;
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--yellow-dim);
+    border-radius: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ================================================================
+       SIDEBAR
+       ================================================================ -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">put<span>.</span>io</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Navigate</div>
+      <button class="nav-item active">
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+        Files
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+        Transfers
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg></span>
+        RSS
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        Settings
+      </button>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       MAIN CONTENT — File browser with contextual discovery cards
+       ================================================================ -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <span>Feature Discovery Showcase</span>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+        <div class="user-avatar">AY</div>
+      </div>
+    </div>
+
+    <div class="content-scroll">
+
+      <!-- ============================================================
+           SCENE 1: User watches episode 3 of a series --> RSS
+           ============================================================ -->
+      <div class="scene-label">
+        <span class="scene-number">1</span>
+        <div class="scene-label-text">
+          <strong>Context:</strong> User just finished watching episode 3 of The Wire S03. The system detects sequential episode viewing and surfaces RSS automation.
+        </div>
+      </div>
+
+      <div class="file-list">
+        <div class="file-row">
+          <span class="file-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
+          <span class="file-name">The.Wire.S03E01.Time.After.Time.mkv</span>
+          <span class="file-meta">Watched</span>
+          <span class="file-size">1.2 GB</span>
+        </div>
+        <div class="file-row">
+          <span class="file-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
+          <span class="file-name">The.Wire.S03E02.All.Due.Respect.mkv</span>
+          <span class="file-meta">Watched</span>
+          <span class="file-size">1.1 GB</span>
+        </div>
+        <div class="file-row highlighted">
+          <span class="file-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
+          <span class="file-name">The.Wire.S03E03.Dead.Soldiers.mkv</span>
+          <span class="file-meta" style="color: var(--green);">Just watched</span>
+          <span class="file-size">1.3 GB</span>
+        </div>
+      </div>
+
+      <div class="discovery-card rss">
+        <div class="discovery-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+        </div>
+        <div class="discovery-content">
+          <div class="discovery-tag">Did you know?</div>
+          <div class="discovery-headline">Want new episodes automatically?</div>
+          <div class="discovery-desc">Connect ShowRSS and every new episode of The Wire downloads to put.io the moment it's available. No more manual searching.</div>
+          <div class="discovery-actions">
+            <button class="discovery-cta">
+              Set up RSS feeds
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+            <button class="discovery-dismiss">Not now</button>
+          </div>
+        </div>
+        <button class="discovery-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+
+      <div class="section-gap"></div>
+
+      <!-- ============================================================
+           SCENE 2: User searches for content --> Browser extension
+           ============================================================ -->
+      <div class="scene-label">
+        <span class="scene-number">2</span>
+        <div class="scene-label-text">
+          <strong>Context:</strong> User pastes a URL to add a transfer. The system detects manual URL entry and suggests the browser extension for a faster workflow.
+        </div>
+      </div>
+
+      <!-- Mock URL input area -->
+      <div style="display: flex; gap: 8px; margin-bottom: 2px;">
+        <div style="flex: 1; padding: 12px 16px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 8px; font-size: 13px; color: var(--text-2); display: flex; align-items: center; gap: 8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          magnet:?xt=urn:btih:a3f2b8c...&dn=Documentary.2026
+        </div>
+        <div style="padding: 12px 20px; background: var(--yellow); color: #0F0F11; border-radius: 8px; font-size: 13px; font-weight: 600; display: flex; align-items: center;">Transfer</div>
+      </div>
+
+      <div class="discovery-card extension">
+        <div class="discovery-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <div class="discovery-content">
+          <div class="discovery-tag">Faster workflow</div>
+          <div class="discovery-headline">Download from any page with the browser extension</div>
+          <div class="discovery-desc">Right-click any magnet link or torrent and send it straight to put.io. No more copy-pasting URLs. Works in Chrome and Firefox.</div>
+          <div class="discovery-actions">
+            <button class="discovery-cta">
+              Install for Chrome
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+            <button class="discovery-dismiss">Maybe later</button>
+          </div>
+        </div>
+        <button class="discovery-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+
+      <div class="section-gap"></div>
+
+      <!-- ============================================================
+           SCENE 3: User shares a file --> Family sharing
+           ============================================================ -->
+      <div class="scene-label">
+        <span class="scene-number">3</span>
+        <div class="scene-label-text">
+          <strong>Context:</strong> User generates a share link for a folder. The system detects sharing to someone they've shared with before and surfaces family sharing.
+        </div>
+      </div>
+
+      <!-- Mock share dialog context -->
+      <div style="display: flex; gap: 12px; margin-bottom: 2px; padding: 16px; background: var(--bg-2); border-radius: 8px 8px 0 0; border: 1px solid var(--line); border-bottom: none;">
+        <div style="flex: 1;">
+          <div style="font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; letter-spacing: -0.02em;">Share "The Wire S03"</div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="flex: 1; padding: 10px 12px; background: var(--bg-3); border-radius: 6px; font-size: 12px; color: var(--text-2); font-family: var(--mono);">https://put.io/s/abc123xyz</div>
+            <div style="padding: 10px 16px; background: var(--bg-4); border-radius: 6px; font-size: 12px; font-weight: 500; color: var(--text);">Copy link</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="discovery-card family" style="border-radius: 0 0 12px 12px; margin-top: 0;">
+        <div class="discovery-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="discovery-content">
+          <div class="discovery-tag">For your family</div>
+          <div class="discovery-headline">Share with your family -- your plan supports 4 members</div>
+          <div class="discovery-desc">Instead of sharing links, add family members to your plan. They get their own account with access to your shared folders. You've shared with this person 6 times.</div>
+          <div class="discovery-actions">
+            <button class="discovery-cta">
+              Set up family sharing
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+            <button class="discovery-dismiss">Not now</button>
+          </div>
+        </div>
+        <button class="discovery-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+
+      <div class="section-gap"></div>
+
+      <!-- ============================================================
+           SCENE 4: User streams via VLC --> VLC playlist tip
+           ============================================================ -->
+      <div class="scene-label">
+        <span class="scene-number">4</span>
+        <div class="scene-label-text">
+          <strong>Context:</strong> User clicks "Convert" on a video file. The system detects they might not know about the VLC playlist shortcut and surfaces it.
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 2px; padding: 12px 16px; background: var(--bg-2); border-radius: 8px 8px 0 0; border: 1px solid var(--line); border-bottom: none; align-items: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <span style="font-size: 13px; color: var(--text); flex: 1;">Concert.Recording.2026.4K.HEVC.mkv</span>
+        <span style="font-size: 12px; color: var(--text-2); font-family: var(--mono);">8.2 GB</span>
+        <span style="padding: 6px 12px; background: var(--bg-4); border-radius: 6px; font-size: 12px; color: var(--text);">Converting...</span>
+      </div>
+
+      <div class="discovery-card vlc" style="border-radius: 0 0 12px 12px; margin-top: 0;">
+        <div class="discovery-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <div class="discovery-content">
+          <div class="discovery-tag">Pro tip</div>
+          <div class="discovery-headline">Skip conversion -- use VLC playlist for instant playback</div>
+          <div class="discovery-desc">VLC can play this file format natively. Open the put.io VLC playlist URL and stream directly -- no waiting for conversion, no quality loss.</div>
+          <div class="discovery-actions">
+            <button class="discovery-cta">
+              Show me how
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+            <button class="discovery-dismiss">I prefer browser</button>
+          </div>
+        </div>
+        <button class="discovery-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+
+      <div class="section-gap"></div>
+
+      <!-- ============================================================
+           SCENE 5: Storage getting full --> Upgrade suggestion
+           ============================================================ -->
+      <div class="scene-label">
+        <span class="scene-number">5</span>
+        <div class="scene-label-text">
+          <strong>Context:</strong> User's storage is 78% full and they're deleting files to make room. The system detects the cleanup pattern and suggests upgrading.
+        </div>
+      </div>
+
+      <div class="file-list">
+        <div class="file-row" style="opacity: 0.5; text-decoration: line-through;">
+          <span class="file-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
+          <span class="file-name">Old.Movie.2020.1080p.mkv</span>
+          <span class="file-meta" style="color: var(--red);">Deleting</span>
+          <span class="file-size">3.4 GB</span>
+        </div>
+        <div class="file-row" style="opacity: 0.5; text-decoration: line-through;">
+          <span class="file-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
+          <span class="file-name">Random.Series.S01-S02.Complete.mkv</span>
+          <span class="file-meta" style="color: var(--red);">Deleting</span>
+          <span class="file-size">22 GB</span>
+        </div>
+      </div>
+
+      <div class="discovery-card storage">
+        <div class="discovery-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        </div>
+        <div class="discovery-content">
+          <div class="discovery-tag">Based on your usage</div>
+          <div class="discovery-headline">Upgrading to 1 TB would save you cleanup time</div>
+          <div class="discovery-desc">You've deleted 48 GB this month to free up space. With the 1 TB plan, you'd have 720 GB of headroom -- enough for 3 months of your typical usage without cleaning up.</div>
+          <div class="discovery-actions">
+            <button class="discovery-cta">
+              See plan options
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+            <button class="discovery-dismiss">I'll manage</button>
+          </div>
+        </div>
+        <button class="discovery-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

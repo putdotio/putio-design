@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Family Management</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #0C0C0E;
+    --bg-1: #111114;
+    --bg-2: #161619;
+    --bg-3: #1C1C20;
+    --bg-4: #232328;
+    --bg-5: #2A2A30;
+
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-default: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.12);
+
+    --text-primary: #EDEDEF;
+    --text-secondary: #A0A0A8;
+    --text-tertiary: #6C6C76;
+    --text-quaternary: #4A4A52;
+
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.08);
+    --yellow-subtle: rgba(253, 206, 69, 0.12);
+    --yellow-hover: #FDD85C;
+    --yellow-text: #0C0C0E;
+
+    --green: #3ECF8E;
+    --green-dim: rgba(62, 207, 142, 0.12);
+    --blue: #60A5FA;
+    --blue-dim: rgba(96, 165, 250, 0.12);
+    --purple: #A78BFA;
+    --purple-dim: rgba(167, 139, 250, 0.12);
+    --orange: #F59E0B;
+    --orange-dim: rgba(245, 158, 11, 0.12);
+    --red: #EF4444;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-0);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' 1, 'ss01' 1;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 232px;
+    background: var(--bg-1);
+    border-right: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px 20px;
+  }
+
+  .logo {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+  }
+
+  .logo-dot { color: var(--yellow); }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 0 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .nav-section-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-quaternary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 20px 12px 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 12px;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.1s;
+  }
+
+  .nav-item:hover {
+    background: var(--bg-3);
+    color: var(--text-primary);
+  }
+
+  .nav-item.active {
+    background: var(--bg-3);
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .nav-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .nav-item.active .nav-icon { color: var(--yellow); }
+
+  .nav-badge {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--bg-0);
+    background: var(--yellow);
+    padding: 1px 7px;
+    border-radius: 10px;
+  }
+
+  /* Sidebar footer */
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .storage-track {
+    width: 100%;
+    height: 4px;
+    background: var(--bg-5);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .storage-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--yellow), #F0A030);
+    border-radius: 2px;
+  }
+
+  .storage-text {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  .storage-text strong {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px 16px;
+  }
+
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    background: var(--bg-4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .user-name {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    flex: 1;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg-0);
+  }
+
+  /* Top bar */
+  .topbar {
+    display: flex;
+    align-items: center;
+    padding: 16px 40px;
+    border-bottom: 1px solid var(--border-subtle);
+    gap: 16px;
+    flex-shrink: 0;
+  }
+
+  .topbar-title {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    flex: 1;
+  }
+
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 7px 14px;
+    width: 260px;
+  }
+
+  .search-bar input {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    flex: 1;
+    font-family: inherit;
+  }
+
+  .search-bar input::placeholder { color: var(--text-quaternary); }
+
+  /* ===== CONTENT GRID ===== */
+  .content-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 40px;
+  }
+
+  /* Plan info banner */
+  .plan-banner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--bg-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+  }
+
+  .plan-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 11px;
+    background: var(--yellow-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .plan-info {
+    flex: 1;
+  }
+
+  .plan-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+    letter-spacing: -0.01em;
+  }
+
+  .plan-desc {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  .plan-slots {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .slot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--yellow);
+  }
+
+  .slot-empty {
+    background: var(--bg-5);
+    border: 1px solid var(--border-default);
+  }
+
+  .plan-manage-btn {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-3);
+    border: 1px solid var(--border-default);
+    padding: 7px 16px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .plan-manage-btn:hover {
+    background: var(--bg-4);
+    color: var(--text-primary);
+  }
+
+  /* Section titles */
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-count {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-quaternary);
+  }
+
+  /* ===== FAMILY MEMBERS ===== */
+  .members-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .member-card {
+    background: var(--bg-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: all 0.1s;
+    cursor: pointer;
+  }
+
+  .member-card:hover {
+    background: var(--bg-2);
+    border-color: var(--border-default);
+  }
+
+  .member-card.owner {
+    border-color: rgba(253, 206, 69, 0.15);
+  }
+
+  .member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--bg-0);
+  }
+
+  .avatar-yellow { background: var(--yellow); }
+  .avatar-blue { background: var(--blue); }
+  .avatar-purple { background: var(--purple); }
+  .avatar-green { background: var(--green); }
+
+  .member-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .member-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .owner-badge {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--yellow);
+    background: var(--yellow-dim);
+    padding: 1px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .member-email {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+  }
+
+  .member-storage {
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .member-storage-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  .member-storage-label {
+    font-size: 11px;
+    color: var(--text-quaternary);
+    margin-top: 1px;
+  }
+
+  .member-status {
+    flex-shrink: 0;
+  }
+
+  .status-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 5px;
+  }
+
+  .status-active {
+    color: var(--green);
+    background: var(--green-dim);
+  }
+
+  .status-idle {
+    color: var(--text-tertiary);
+    background: var(--bg-3);
+  }
+
+  /* ===== INVITE ROW ===== */
+  .invite-card {
+    background: var(--bg-1);
+    border: 1px dashed var(--border-default);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .invite-card:hover {
+    border-color: rgba(253, 206, 69, 0.3);
+    background: var(--bg-2);
+  }
+
+  .invite-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--bg-3);
+    border: 1px dashed var(--border-default);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--text-tertiary);
+  }
+
+  .invite-text {
+    flex: 1;
+  }
+
+  .invite-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  .invite-desc {
+    font-size: 12px;
+    color: var(--text-quaternary);
+    margin-top: 1px;
+  }
+
+  .invite-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--yellow);
+    color: var(--yellow-text);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  .invite-btn:hover {
+    background: var(--yellow-hover);
+  }
+
+  /* ===== BOTTOM GRID ===== */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 28px;
+  }
+
+  /* Shared folders */
+  .panel {
+    background: var(--bg-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    gap: 8px;
+  }
+
+  .panel-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    flex: 1;
+  }
+
+  .panel-action {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .panel-action:hover { color: var(--text-secondary); }
+
+  .shared-folder {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    transition: background 0.1s;
+  }
+
+  .shared-folder:last-child { border-bottom: none; }
+
+  .shared-folder:hover { background: var(--bg-2); }
+
+  .folder-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .folder-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .folder-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+
+  .folder-shared-with {
+    font-size: 11px;
+    color: var(--text-quaternary);
+    margin-top: 1px;
+  }
+
+  .folder-size {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+
+  /* Activity feed */
+  .activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .activity-item:last-child { border-bottom: none; }
+
+  .activity-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--bg-0);
+    margin-top: 1px;
+  }
+
+  .activity-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .activity-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  .activity-text strong {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .activity-time {
+    font-size: 11px;
+    color: var(--text-quaternary);
+    margin-top: 2px;
+  }
+
+  .activity-action-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="logo-dot">.</span>io</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M2 5a1.5 1.5 0 011.5-1.5h4L9 5h5.5A1.5 1.5 0 0116 6.5V13a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 012 13V5z" fill="#6C6C76"/>
+          </svg>
+        </div>
+        Files
+      </div>
+
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M10 2L3 11h6l-1 6 7-9h-6l1-6z" stroke="#6C6C76" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        Transfers
+        <span class="nav-badge">2</span>
+      </div>
+
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M3 10a6 6 0 016 6" stroke="#6C6C76" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M3 6a10 10 0 0110 10" stroke="#6C6C76" stroke-width="1.3" stroke-linecap="round"/>
+            <circle cx="4" cy="15" r="1.5" fill="#6C6C76"/>
+          </svg>
+        </div>
+        RSS
+      </div>
+
+      <div class="nav-section-label">Account</div>
+
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="9" r="7" stroke="#6C6C76" stroke-width="1.3"/>
+            <path d="M9 6v3l2 1.5" stroke="#6C6C76" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        History
+      </div>
+
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="5" cy="9" r="2" stroke="#6C6C76" stroke-width="1.3"/>
+            <circle cx="13" cy="5" r="2" stroke="#6C6C76" stroke-width="1.3"/>
+            <circle cx="13" cy="13" r="2" stroke="#6C6C76" stroke-width="1.3"/>
+            <line x1="7" y1="8" x2="11" y2="6" stroke="#6C6C76" stroke-width="1"/>
+            <line x1="7" y1="10" x2="11" y2="12" stroke="#6C6C76" stroke-width="1"/>
+          </svg>
+        </div>
+        Sharing
+      </div>
+
+      <div class="nav-item active">
+        <div class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M14 15.5v-1a3 3 0 00-3-3H7a3 3 0 00-3 3v1" stroke="#FDCE45" stroke-width="1.3" stroke-linecap="round"/>
+            <circle cx="9" cy="6" r="2.5" stroke="#FDCE45" stroke-width="1.3"/>
+            <path d="M16 15.5v-1a2.5 2.5 0 00-2-2.45" stroke="#FDCE45" stroke-width="1.3" stroke-linecap="round"/>
+            <circle cx="13.5" cy="6.5" r="2" stroke="#FDCE45" stroke-width="1.3"/>
+          </svg>
+        </div>
+        Family
+      </div>
+
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="9" r="2" stroke="#6C6C76" stroke-width="1.3"/>
+            <path d="M14.5 11a1.2 1.2 0 00.24 1.32l.04.04a1.45 1.45 0 01-2.05 2.05l-.04-.04a1.2 1.2 0 00-1.32-.24 1.2 1.2 0 00-.73 1.1v.12a1.45 1.45 0 01-2.9 0v-.07a1.2 1.2 0 00-.79-1.1 1.2 1.2 0 00-1.32.24l-.04.04a1.45 1.45 0 01-2.05-2.05l.04-.04A1.2 1.2 0 003.82 11a1.2 1.2 0 00-1.1-.73H2.6a1.45 1.45 0 010-2.9h.07a1.2 1.2 0 001.1-.79 1.2 1.2 0 00-.24-1.32l-.04-.04a1.45 1.45 0 012.05-2.05l.04.04A1.2 1.2 0 007 3.82a1.2 1.2 0 00.73-1.1V2.6a1.45 1.45 0 012.9 0v.07a1.2 1.2 0 00.73 1.1 1.2 1.2 0 001.32-.24l.04-.04a1.45 1.45 0 012.05 2.05l-.04.04a1.2 1.2 0 00-.24 1.32 1.2 1.2 0 001.1.73h.12a1.45 1.45 0 010 2.9h-.07a1.2 1.2 0 00-1.1.73z" stroke="#6C6C76" stroke-width="1.3"/>
+          </svg>
+        </div>
+        Settings
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="storage-track">
+        <div class="storage-fill" style="width: 78%;"></div>
+      </div>
+      <div class="storage-text"><strong>39 TB</strong> of 50 TB</div>
+    </div>
+
+    <div class="user-row">
+      <div class="user-avatar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A0A0A8" stroke-width="2" stroke-linecap="round">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <span class="user-name">altay</span>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main">
+
+    <!-- Top bar -->
+    <div class="topbar">
+      <span class="topbar-title">Family</span>
+      <div class="search-bar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-quaternary)" stroke-width="2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input placeholder="Search family..." readonly>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content-scroll">
+
+      <!-- Plan banner -->
+      <div class="plan-banner">
+        <div class="plan-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FDCE45" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+            <path d="M16 3.13a4 4 0 010 7.75"/>
+          </svg>
+        </div>
+        <div class="plan-info">
+          <div class="plan-title">Family Plan -- 50 TB</div>
+          <div class="plan-desc">Your plan supports up to 4 family members. 3 of 4 slots used.</div>
+        </div>
+        <div class="plan-slots">
+          <div class="slot"></div>
+          <div class="slot"></div>
+          <div class="slot"></div>
+          <div class="slot slot-empty"></div>
+        </div>
+        <button class="plan-manage-btn">Manage plan</button>
+      </div>
+
+      <!-- Family members -->
+      <div class="section-title">
+        Members
+        <span class="section-count">3 of 4</span>
+      </div>
+
+      <div class="members-grid">
+
+        <!-- Owner -->
+        <div class="member-card owner">
+          <div class="member-avatar avatar-yellow">A</div>
+          <div class="member-info">
+            <div class="member-name">
+              Altay Aydemir
+              <span class="owner-badge">Owner</span>
+            </div>
+            <div class="member-email">altay@put.io</div>
+          </div>
+          <div class="member-storage">
+            <div class="member-storage-value">28.4 TB</div>
+            <div class="member-storage-label">used</div>
+          </div>
+          <div class="member-status">
+            <span class="status-badge status-active">Active</span>
+          </div>
+        </div>
+
+        <!-- Member 2 -->
+        <div class="member-card">
+          <div class="member-avatar avatar-blue">H</div>
+          <div class="member-info">
+            <div class="member-name">Hasan Huseyin</div>
+            <div class="member-email">hasan@put.io</div>
+          </div>
+          <div class="member-storage">
+            <div class="member-storage-value">7.2 TB</div>
+            <div class="member-storage-label">used</div>
+          </div>
+          <div class="member-status">
+            <span class="status-badge status-active">Active</span>
+          </div>
+        </div>
+
+        <!-- Member 3 -->
+        <div class="member-card">
+          <div class="member-avatar avatar-purple">E</div>
+          <div class="member-info">
+            <div class="member-name">Elif Aydemir</div>
+            <div class="member-email">elif.aydemir@gmail.com</div>
+          </div>
+          <div class="member-storage">
+            <div class="member-storage-value">3.4 TB</div>
+            <div class="member-storage-label">used</div>
+          </div>
+          <div class="member-status">
+            <span class="status-badge status-idle">Idle</span>
+          </div>
+        </div>
+
+        <!-- Invite slot -->
+        <div class="invite-card">
+          <div class="invite-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </div>
+          <div class="invite-text">
+            <div class="invite-title">Invite a family member</div>
+            <div class="invite-desc">1 slot available</div>
+          </div>
+          <button class="invite-btn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            Send invite
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Bottom panels -->
+      <div class="bottom-grid">
+
+        <!-- Shared folders -->
+        <div class="panel">
+          <div class="panel-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+            </svg>
+            <span class="panel-title">Shared Folders</span>
+            <button class="panel-action">View all</button>
+          </div>
+
+          <div class="shared-folder">
+            <div class="folder-icon">
+              <svg width="22" height="18" viewBox="0 0 24 20" fill="none">
+                <path d="M1 3.5A1.5 1.5 0 012.5 2H8l2.5 2.5H21.5A1.5 1.5 0 0123 6v11.5a1.5 1.5 0 01-1.5 1.5h-19A1.5 1.5 0 011 17.5V3.5z" fill="#FDCE45"/>
+              </svg>
+            </div>
+            <div class="folder-info">
+              <div class="folder-name">Family Movies</div>
+              <div class="folder-shared-with">Shared with everyone</div>
+            </div>
+            <span class="folder-size">2.4 TB</span>
+          </div>
+
+          <div class="shared-folder">
+            <div class="folder-icon">
+              <svg width="22" height="18" viewBox="0 0 24 20" fill="none">
+                <path d="M1 3.5A1.5 1.5 0 012.5 2H8l2.5 2.5H21.5A1.5 1.5 0 0123 6v11.5a1.5 1.5 0 01-1.5 1.5h-19A1.5 1.5 0 011 17.5V3.5z" fill="#FDCE45"/>
+              </svg>
+            </div>
+            <div class="folder-info">
+              <div class="folder-name">Music Collection</div>
+              <div class="folder-shared-with">Altay, Hasan</div>
+            </div>
+            <span class="folder-size">180 GB</span>
+          </div>
+
+          <div class="shared-folder">
+            <div class="folder-icon">
+              <svg width="22" height="18" viewBox="0 0 24 20" fill="none">
+                <path d="M1 3.5A1.5 1.5 0 012.5 2H8l2.5 2.5H21.5A1.5 1.5 0 0123 6v11.5a1.5 1.5 0 01-1.5 1.5h-19A1.5 1.5 0 011 17.5V3.5z" fill="#FDCE45"/>
+              </svg>
+            </div>
+            <div class="folder-info">
+              <div class="folder-name">Vacation Photos</div>
+              <div class="folder-shared-with">Altay, Elif</div>
+            </div>
+            <span class="folder-size">48 GB</span>
+          </div>
+
+          <div class="shared-folder">
+            <div class="folder-icon">
+              <svg width="22" height="18" viewBox="0 0 24 20" fill="none">
+                <path d="M1 3.5A1.5 1.5 0 012.5 2H8l2.5 2.5H21.5A1.5 1.5 0 0123 6v11.5a1.5 1.5 0 01-1.5 1.5h-19A1.5 1.5 0 011 17.5V3.5z" fill="#FDCE45"/>
+              </svg>
+            </div>
+            <div class="folder-info">
+              <div class="folder-name">Documentaries</div>
+              <div class="folder-shared-with">Shared with everyone</div>
+            </div>
+            <span class="folder-size">320 GB</span>
+          </div>
+        </div>
+
+        <!-- Activity -->
+        <div class="panel">
+          <div class="panel-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            <span class="panel-title">Family Activity</span>
+            <button class="panel-action">View all</button>
+          </div>
+
+          <div class="activity-item">
+            <div class="activity-avatar avatar-blue">H</div>
+            <div class="activity-content">
+              <div class="activity-text"><strong>Hasan</strong> is watching <strong>Severance S02E10</strong></div>
+              <div class="activity-time">Just now</div>
+            </div>
+            <div class="activity-action-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="activity-item">
+            <div class="activity-avatar avatar-yellow">A</div>
+            <div class="activity-content">
+              <div class="activity-text"><strong>Altay</strong> added <strong>The Brutalist (2024)</strong> to Family Movies</div>
+              <div class="activity-time">2 hours ago</div>
+            </div>
+            <div class="activity-action-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="activity-item">
+            <div class="activity-avatar avatar-purple">E</div>
+            <div class="activity-content">
+              <div class="activity-text"><strong>Elif</strong> downloaded <strong>Vacation-istanbul-2024.zip</strong></div>
+              <div class="activity-time">Yesterday</div>
+            </div>
+            <div class="activity-action-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="activity-item">
+            <div class="activity-avatar avatar-blue">H</div>
+            <div class="activity-content">
+              <div class="activity-text"><strong>Hasan</strong> shared <strong>Music Collection</strong> folder</div>
+              <div class="activity-time">2 days ago</div>
+            </div>
+            <div class="activity-action-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="6" cy="12" r="3"/>
+                <circle cx="18" cy="6" r="3"/>
+                <circle cx="18" cy="18" r="3"/>
+                <line x1="9" y1="10.5" x2="15" y2="7.5"/>
+                <line x1="9" y1="13.5" x2="15" y2="16.5"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

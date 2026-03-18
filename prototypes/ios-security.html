@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io — iOS Security Settings</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000; --bg-2: #1C1C1E; --bg-3: #2C2C2E; --bg-4: #3A3A3C;
+    --line: #38383A; --solid: #8E8E93; --text-2: #AEAEB2; --text: #FFFFFF;
+    --yellow: #FDCE45; --green: #30D158; --red: #FF453A; --blue: #0A84FF;
+    --orange: #FF9F0A;
+    --green-subtle: rgba(48,209,88,0.15); --red-subtle: rgba(255,69,58,0.15);
+    --orange-subtle: rgba(255,159,10,0.15);
+  }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+  .phone { width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 12px 24px 0;
+    font-size: 15px; font-weight: 600; height: 54px; flex-shrink: 0;
+  }
+  .status-bar .time { flex: 1; }
+  .status-bar .icons { display: flex; gap: 5px; align-items: center; }
+
+  /* Nav Bar */
+  .nav-bar {
+    display: flex; align-items: center; padding: 8px 16px 12px; flex-shrink: 0;
+  }
+  .nav-back { display: flex; align-items: center; gap: 4px; color: var(--yellow); font-size: 17px; background: none; border: none; cursor: pointer; font-family: inherit; }
+  .nav-back svg { width: 22px; height: 22px; fill: var(--yellow); }
+  .nav-title { font-size: 34px; font-weight: 700; flex: 1; }
+
+  /* Scrollable content */
+  .scroll-content { flex: 1; overflow-y: auto; padding-bottom: 8px; }
+
+  /* Section */
+  .list-section { margin-bottom: 20px; }
+  .list-section-header {
+    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    color: var(--solid); padding: 8px 16px; letter-spacing: 0.04em;
+  }
+  .list-group { background: var(--bg-2); margin: 0 16px; border-radius: 12px; overflow: hidden; }
+  .list-section-footer { font-size: 12px; color: var(--solid); padding: 6px 32px; line-height: 1.4; }
+
+  .list-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-bottom: 1px solid var(--line); min-height: 48px;
+  }
+  .list-item:last-child { border-bottom: none; }
+
+  .l-icon {
+    width: 30px; height: 30px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .l-icon svg { width: 18px; height: 18px; fill: #fff; }
+  .l-icon.green { background: #30D158; }
+  .l-icon.blue { background: #0A84FF; }
+  .l-icon.red { background: #FF453A; }
+  .l-icon.orange { background: #FF9F0A; }
+  .l-icon.gray { background: #636366; }
+  .l-icon.yellow-bg { background: #FDCE45; }
+  .l-icon.yellow-bg svg { fill: #000; }
+  .l-icon.indigo { background: #5E5CE6; }
+  .l-icon.purple { background: #BF5AF2; }
+  .l-icon.teal { background: #64D2FF; }
+  .l-icon.teal svg { fill: #000; }
+
+  .l-info { flex: 1; min-width: 0; }
+  .l-name { font-size: 17px; color: var(--text); }
+  .l-desc { font-size: 13px; color: var(--solid); margin-top: 1px; }
+  .l-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .l-detail { font-size: 15px; color: var(--solid); }
+  .l-chevron svg { width: 14px; height: 14px; fill: var(--solid); }
+
+  /* iOS Toggle */
+  .ios-toggle {
+    width: 51px; height: 31px; border-radius: 16px;
+    background: var(--bg-4); position: relative; flex-shrink: 0;
+  }
+  .ios-toggle.on { background: var(--green); }
+  .ios-toggle .knob {
+    width: 27px; height: 27px; border-radius: 50%;
+    background: #fff; position: absolute; top: 2px; left: 2px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+  .ios-toggle.on .knob { left: 22px; }
+
+  /* Alert Card */
+  .alert-card {
+    margin: 0 16px 16px; padding: 14px 16px;
+    background: var(--red-subtle); border: 1px solid rgba(255,69,58,0.3); border-radius: 12px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .alert-card-icon {
+    width: 36px; height: 36px; border-radius: 8px; background: var(--red);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .alert-card-icon svg { width: 20px; height: 20px; fill: #fff; }
+  .alert-card-body { flex: 1; }
+  .alert-card-title { font-size: 15px; font-weight: 600; color: var(--red); }
+  .alert-card-desc { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+
+  /* Session Card inline */
+  .session-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-bottom: 1px solid var(--line);
+  }
+  .session-row:last-child { border-bottom: none; }
+  .session-dev-icon {
+    width: 36px; height: 36px; border-radius: 8px; background: var(--bg-4);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .session-dev-icon svg { width: 20px; height: 20px; fill: var(--text-2); }
+  .session-dev-icon.current { background: var(--green-subtle); }
+  .session-dev-icon.current svg { fill: var(--green); }
+  .session-dev-icon.suspicious { background: var(--red-subtle); }
+  .session-dev-icon.suspicious svg { fill: var(--red); }
+  .s-info { flex: 1; min-width: 0; }
+  .s-name { font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .s-current-tag { font-size: 10px; font-weight: 600; background: var(--green-subtle); color: var(--green); padding: 2px 6px; border-radius: 4px; }
+  .s-meta { font-size: 12px; color: var(--solid); margin-top: 1px; }
+
+  /* Big action button */
+  .action-button {
+    margin: 0 16px 20px; background: var(--red-subtle); border: 1px solid rgba(255,69,58,0.3);
+    border-radius: 12px; padding: 14px; text-align: center; font-size: 17px;
+    font-weight: 600; color: var(--red); font-family: inherit; cursor: pointer; width: calc(100% - 32px);
+  }
+
+  /* Activity item */
+  .activity-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 16px; border-bottom: 1px solid var(--line);
+  }
+  .activity-row:last-child { border-bottom: none; }
+  .a-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+  .a-dot.green { background: var(--green); }
+  .a-dot.red { background: var(--red); }
+  .a-dot.orange { background: var(--orange); }
+  .a-dot.yellow { background: var(--yellow); }
+  .a-body { flex: 1; }
+  .a-text { font-size: 15px; color: var(--text); }
+  .a-time { font-size: 12px; color: var(--solid); margin-top: 2px; }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex; background: rgba(28,28,30,0.95); backdrop-filter: blur(20px);
+    border-top: 1px solid var(--line); padding: 6px 0 34px; flex-shrink: 0;
+  }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 10px; color: var(--solid); padding: 4px 0;
+  }
+  .tab-item.active { color: var(--yellow); }
+  .tab-icon { display: flex; align-items: center; justify-content: center; height: 24px; }
+  .tab-icon svg { width: 22px; height: 22px; fill: currentColor; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="white"><rect x="0" y="9" width="3" height="3" rx="0.5"/><rect x="4.5" y="6" width="3" height="6" rx="0.5"/><rect x="9" y="3" width="3" height="9" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><path d="M8,11.5a1.5,1.5,0,1,0,0-3,1.5,1.5,0,0,0,0,3Z"/><path d="M4.93,7.56a4.5,4.5,0,0,1,6.14,0" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/><path d="M2.1,4.73a8,8,0,0,1,11.8,0" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x="0.5" y="0.5" width="23" height="12" rx="3" stroke="white" stroke-opacity="0.35"/><rect x="2" y="2" width="18" height="9" rx="1.5" fill="white"/><path d="M25,4.5v4a2,2,0,0,0,0-4Z" fill="white" fill-opacity="0.4"/></svg>
+    </div>
+  </div>
+
+  <!-- Nav Bar -->
+  <div class="nav-bar">
+    <button class="nav-back">
+      <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+      Settings
+    </button>
+  </div>
+  <div style="padding: 0 16px 8px;">
+    <h1 class="nav-title">Security</h1>
+  </div>
+
+  <!-- Scroll Content -->
+  <div class="scroll-content">
+
+    <!-- Alert -->
+    <div class="alert-card">
+      <div class="alert-card-icon">
+        <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+      </div>
+      <div class="alert-card-body">
+        <div class="alert-card-title">Suspicious Activity</div>
+        <div class="alert-card-desc">Login attempt from Moscow, Russia 2h ago</div>
+      </div>
+      <div class="l-chevron"><svg viewBox="0 0 24 24" fill="var(--red)"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+    </div>
+
+    <!-- Authentication Section -->
+    <div class="list-section">
+      <div class="list-section-header">Authentication</div>
+      <div class="list-group">
+        <div class="list-item">
+          <div class="l-icon green">
+            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Two-Factor Authentication</div>
+          </div>
+          <div class="l-right">
+            <span class="l-detail" style="color:var(--orange);">Off</span>
+            <span class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="l-icon blue">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/><circle cx="12" cy="12" r="10" fill="none" stroke="#0A84FF" stroke-width="0"/><path d="M17.81 4.47c-.08 0-.16-.02-.23-.06C15.66 3.42 14 3 12 3c-2 0-3.66.42-5.58 1.41a.516.516 0 01-.48-.91C8.04 2.4 9.82 2 12 2c2.18 0 3.96.4 5.96 1.5.24.13.33.43.2.67a.49.49 0 01-.35.3z" fill="none"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Face ID</div>
+            <div class="l-desc">Unlock with Face ID</div>
+          </div>
+          <div class="l-right">
+            <div class="ios-toggle on"><div class="knob"></div></div>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="l-icon purple">
+            <svg viewBox="0 0 24 24"><path d="M12 11c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6-1V8c0-3.31-2.69-6-6-6S6 4.69 6 8v2c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2zM8.9 8c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H8.9V8z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">App Lock</div>
+            <div class="l-desc">Require authentication to open</div>
+          </div>
+          <div class="l-right">
+            <div class="ios-toggle on"><div class="knob"></div></div>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="l-icon gray">
+            <svg viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Change Password</div>
+          </div>
+          <div class="l-right">
+            <span class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>
+          </div>
+        </div>
+      </div>
+      <div class="list-section-footer">Two-factor authentication adds an extra layer of security. Strongly recommended.</div>
+    </div>
+
+    <!-- Active Sessions -->
+    <div class="list-section">
+      <div class="list-section-header">Active Sessions</div>
+      <div class="list-group">
+        <div class="session-row">
+          <div class="session-dev-icon current">
+            <svg viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+          </div>
+          <div class="s-info">
+            <div class="s-name">iPhone 15 Pro <span class="s-current-tag">THIS DEVICE</span></div>
+            <div class="s-meta">Istanbul -- Active now</div>
+          </div>
+        </div>
+        <div class="session-row">
+          <div class="session-dev-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>
+          </div>
+          <div class="s-info">
+            <div class="s-name">Chrome on macOS</div>
+            <div class="s-meta">Istanbul -- 5 hours ago</div>
+          </div>
+          <div class="l-chevron"><svg viewBox="0 0 24 24" fill="var(--solid)"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+        </div>
+        <div class="session-row">
+          <div class="session-dev-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v14z"/></svg>
+          </div>
+          <div class="s-info">
+            <div class="s-name">Firefox on Windows</div>
+            <div class="s-meta">Amsterdam -- 2 days ago</div>
+          </div>
+          <div class="l-chevron"><svg viewBox="0 0 24 24" fill="var(--solid)"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+        </div>
+        <div class="session-row">
+          <div class="session-dev-icon suspicious">
+            <svg viewBox="0 0 24 24"><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>
+          </div>
+          <div class="s-info">
+            <div class="s-name" style="color: var(--red);">Chrome on Linux</div>
+            <div class="s-meta">Moscow -- 2 hours ago</div>
+          </div>
+          <div class="l-chevron"><svg viewBox="0 0 24 24" fill="var(--red)"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sign Out Everywhere -->
+    <button class="action-button">Sign Out of All Other Devices</button>
+
+    <!-- Account Activity -->
+    <div class="list-section">
+      <div class="list-section-header">Recent Activity</div>
+      <div class="list-group">
+        <div class="activity-row">
+          <div class="a-dot red"></div>
+          <div class="a-body">
+            <div class="a-text">Failed login from Moscow</div>
+            <div class="a-time">2 hours ago</div>
+          </div>
+        </div>
+        <div class="activity-row">
+          <div class="a-dot green"></div>
+          <div class="a-body">
+            <div class="a-text">Login from Istanbul (Chrome)</div>
+            <div class="a-time">5 hours ago</div>
+          </div>
+        </div>
+        <div class="activity-row">
+          <div class="a-dot yellow"></div>
+          <div class="a-body">
+            <div class="a-text">Plan upgrade blocked</div>
+            <div class="a-time">2 hours ago</div>
+          </div>
+        </div>
+        <div class="activity-row">
+          <div class="a-dot green"></div>
+          <div class="a-body">
+            <div class="a-text">Login from Istanbul (iOS)</div>
+            <div class="a-time">Yesterday</div>
+          </div>
+        </div>
+        <div class="activity-row">
+          <div class="a-dot orange"></div>
+          <div class="a-body">
+            <div class="a-text">Password change blocked</div>
+            <div class="a-time">2 hours ago</div>
+          </div>
+        </div>
+        <div class="activity-row">
+          <div class="a-dot green"></div>
+          <div class="a-body">
+            <div class="a-text">Login from Amsterdam (Firefox)</div>
+            <div class="a-time">2 days ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      Files
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+      </div>
+      Transfers
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      </div>
+      Downloads
+    </div>
+    <div class="tab-item active">
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.488.488 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      </div>
+      Settings
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io — iOS Push Notifications</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #000000;
+    --wallpaper: #0A0A12;
+    --card: rgba(30, 30, 35, 0.85);
+    --card-solid: #1E1E23;
+    --card-border: rgba(255, 255, 255, 0.06);
+    --text: #FFFFFF;
+    --text-2: rgba(255, 255, 255, 0.7);
+    --text-3: rgba(255, 255, 255, 0.45);
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.15);
+    --green: #30A46C;
+    --red: #E5484D;
+    --orange: #F0A030;
+    --blue: #3B82F6;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .device {
+    width: 390px;
+    height: 844px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ================================================================
+     WALLPAPER — dark subtle gradient
+     ================================================================ */
+  .wallpaper {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(170deg,
+      #0D0D1A 0%,
+      #0A0A14 25%,
+      #08080F 50%,
+      #0A0A12 75%,
+      #0D0A10 100%
+    );
+  }
+  .wallpaper::after {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 30%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(253, 206, 69, 0.03) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .screen {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 0 16px;
+  }
+
+  /* ================================================================
+     STATUS BAR
+     ================================================================ */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 10px 0;
+    height: 54px;
+    flex-shrink: 0;
+  }
+  .status-time {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* ================================================================
+     DYNAMIC ISLAND
+     ================================================================ */
+  .dynamic-island {
+    width: 126px;
+    height: 37px;
+    background: #000;
+    border-radius: 20px;
+    margin: 0 auto;
+    position: absolute;
+    top: 11px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+  }
+
+  /* ================================================================
+     LOCK SCREEN — Date and time
+     ================================================================ */
+  .lock-header {
+    text-align: center;
+    padding: 20px 0 28px;
+    flex-shrink: 0;
+  }
+  .lock-date {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text-2);
+    letter-spacing: -0.01em;
+    margin-bottom: 2px;
+  }
+  .lock-time {
+    font-size: 72px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  /* ================================================================
+     NOTIFICATION STACK
+     ================================================================ */
+  .notif-stack {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+  }
+
+  .notif-card {
+    background: var(--card);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .notif-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px 0;
+  }
+
+  .notif-app-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    background: var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .notif-app-icon svg { width: 12px; height: 12px; }
+
+  .notif-app-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-2);
+    flex: 1;
+    letter-spacing: -0.01em;
+  }
+
+  .notif-timestamp {
+    font-size: 12px;
+    color: var(--text-3);
+    letter-spacing: -0.01em;
+  }
+
+  .notif-card-body {
+    padding: 8px 14px 14px;
+  }
+
+  .notif-card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    margin-bottom: 3px;
+  }
+
+  .notif-card-text {
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+
+  /* ================================================================
+     EXPANDED NOTIFICATION — with action buttons
+     ================================================================ */
+  .notif-expanded .notif-card-body { padding-bottom: 0; }
+
+  .notif-actions {
+    display: flex;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 12px;
+  }
+  .notif-action-btn {
+    flex: 1;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--blue);
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: var(--sans);
+    letter-spacing: -0.01em;
+  }
+  .notif-action-btn + .notif-action-btn {
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .notif-action-btn.primary { color: var(--yellow); font-weight: 600; }
+
+  /* ================================================================
+     RICH NOTIFICATION — with thumbnail
+     ================================================================ */
+  .notif-rich {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .notif-rich-content { flex: 1; min-width: 0; }
+  .notif-thumbnail {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a1a22 0%, #252530 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .notif-thumbnail svg { width: 22px; height: 22px; color: var(--text-3); }
+
+  /* ================================================================
+     GROUPED NOTIFICATION
+     ================================================================ -->
+  .notif-group {
+    position: relative;
+  }
+  .notif-group-bg-1 {
+    position: absolute;
+    bottom: -5px; left: 6px; right: 6px;
+    height: 16px;
+    background: rgba(30, 30, 35, 0.5);
+    border-radius: 0 0 14px 14px;
+    border: 1px solid var(--card-border);
+    border-top: none;
+    z-index: -1;
+  }
+  .notif-group-bg-2 {
+    position: absolute;
+    bottom: -10px; left: 12px; right: 12px;
+    height: 16px;
+    background: rgba(30, 30, 35, 0.3);
+    border-radius: 0 0 12px 12px;
+    border: 1px solid var(--card-border);
+    border-top: none;
+    z-index: -2;
+  }
+
+  /* ================================================================
+     NOTIFICATION BADGE — category indicator
+     ================================================================ */
+  .notif-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin-bottom: 4px;
+  }
+  .notif-badge.transfer { background: rgba(48, 164, 108, 0.15); color: var(--green); }
+  .notif-badge.rss { background: var(--yellow-dim); color: var(--yellow); }
+  .notif-badge.security { background: rgba(229, 72, 77, 0.15); color: var(--red); }
+  .notif-badge.storage { background: rgba(240, 160, 48, 0.15); color: var(--orange); }
+
+  .notif-badge svg { width: 10px; height: 10px; }
+
+  /* ================================================================
+     HOME INDICATOR
+     ================================================================ */
+  .home-indicator {
+    padding: 10px 0 8px;
+    display: flex;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .home-indicator-bar {
+    width: 134px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+  }
+
+  /* Scene label for prototype */
+  .scene-sep {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+  }
+  .scene-sep-line { flex: 1; height: 1px; background: rgba(255, 255, 255, 0.06); }
+  .scene-sep-text { font-size: 9px; color: var(--text-3); letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="device">
+  <div class="wallpaper"></div>
+  <div class="dynamic-island"></div>
+  <div class="screen">
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons">
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="white"><rect x="0" y="3" width="3" height="9" rx="1" opacity="0.3"/><rect x="4.5" y="2" width="3" height="10" rx="1" opacity="0.5"/><rect x="9" y="1" width="3" height="11" rx="1" opacity="0.7"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><path d="M8 3.6C9.8 3.6 11.4 4.3 12.6 5.4L14.1 3.9C12.5 2.3 10.4 1.3 8 1.3C5.6 1.3 3.5 2.3 1.9 3.9L3.4 5.4C4.6 4.3 6.2 3.6 8 3.6Z" opacity="0.5"/><path d="M8 6.9C9 6.9 9.9 7.3 10.6 7.9L12.1 6.4C11 5.4 9.6 4.8 8 4.8C6.4 4.8 5 5.4 3.9 6.4L5.4 7.9C6.1 7.3 7 6.9 8 6.9Z" opacity="0.7"/><circle cx="8" cy="10.5" r="1.5"/></svg>
+        <svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="white" stroke-opacity="0.35"/><rect x="25" y="4" width="2" height="5" rx="1" fill="white" fill-opacity="0.4"/><rect x="2" y="2" width="18" height="9" rx="2" fill="white"/></svg>
+      </div>
+    </div>
+
+    <div class="lock-header">
+      <div class="lock-date">Tuesday, March 18</div>
+      <div class="lock-time">9:41</div>
+    </div>
+
+    <div class="notif-stack">
+
+      <!-- ============================================================
+           NOTIFICATION 1: Transfer complete (expanded with actions)
+           ============================================================ -->
+      <div class="notif-card notif-expanded">
+        <div class="notif-card-header">
+          <div class="notif-app-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#0F0F11" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </div>
+          <span class="notif-app-name">put.io</span>
+          <span class="notif-timestamp">18m ago</span>
+        </div>
+        <div class="notif-card-body">
+          <div class="notif-rich">
+            <div class="notif-rich-content">
+              <div class="notif-badge transfer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Transfer complete
+              </div>
+              <div class="notif-card-title">Pose S03E01</div>
+              <div class="notif-card-text">720p -- 1.4 GB -- Ready to stream</div>
+            </div>
+            <div class="notif-thumbnail">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="notif-actions">
+          <button class="notif-action-btn primary">Play</button>
+          <button class="notif-action-btn">Download to Device</button>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           NOTIFICATION 2: RSS new episodes (grouped)
+           ============================================================ -->
+      <div class="notif-card" style="position: relative;">
+        <div class="notif-card-header">
+          <div class="notif-app-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#0F0F11" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </div>
+          <span class="notif-app-name">put.io</span>
+          <span class="notif-timestamp">1h ago</span>
+        </div>
+        <div class="notif-card-body">
+          <div class="notif-badge rss">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+            RSS
+          </div>
+          <div class="notif-card-title">3 new episodes available</div>
+          <div class="notif-card-text">The Wire S03E04, Succession S04E02, The Bear S03E01 -- downloading now</div>
+        </div>
+        <div class="notif-group-bg-1"></div>
+        <div class="notif-group-bg-2"></div>
+      </div>
+
+      <!-- ============================================================
+           NOTIFICATION 3: Storage warning
+           ============================================================ -->
+      <div class="notif-card" style="margin-top: 6px;">
+        <div class="notif-card-header">
+          <div class="notif-app-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#0F0F11" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </div>
+          <span class="notif-app-name">put.io</span>
+          <span class="notif-timestamp">3h ago</span>
+        </div>
+        <div class="notif-card-body">
+          <div class="notif-badge storage">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            Storage
+          </div>
+          <div class="notif-card-title">Storage warning: 78% used</div>
+          <div class="notif-card-text">780 GB of 1 TB -- consider cleaning up watched content or upgrading your plan</div>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           NOTIFICATION 4: Security alert
+           ============================================================ -->
+      <div class="notif-card">
+        <div class="notif-card-header">
+          <div class="notif-app-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#0F0F11" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </div>
+          <span class="notif-app-name">put.io</span>
+          <span class="notif-timestamp">5h ago</span>
+        </div>
+        <div class="notif-card-body">
+          <div class="notif-badge security">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Security
+          </div>
+          <div class="notif-card-title">New login from a new device</div>
+          <div class="notif-card-text">Chrome on Windows -- Berlin, Germany. If this wasn't you, secure your account immediately.</div>
+        </div>
+        <div class="notif-actions">
+          <button class="notif-action-btn primary">That's me</button>
+          <button class="notif-action-btn" style="color: var(--red);">Not me</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="home-indicator">
+      <div class="home-indicator-bar"></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
