@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=400">
+<title>put.io -- Browser Extension Popup (Retro)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #111113;
+    --bg-2: #19191B;
+    --bg-3: #222225;
+    --border: #4B4B52;
+    --border-subtle: rgba(75, 75, 82, 0.5);
+    --text: #EEEEF0;
+    --text-2: #ABABB2;
+    --text-3: #6C6C76;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.1);
+    --green: #30A46C;
+    --green-dim: rgba(48, 164, 108, 0.12);
+    --red: #E5484D;
+  }
+
+  body {
+    font-family: 'IBM Plex Mono', monospace;
+    background: #0A0A0C;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .popup {
+    width: 400px;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    position: relative;
+  }
+
+  /* CRT scanline overlay */
+  .popup::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.12) 2px,
+      rgba(0, 0, 0, 0.12) 4px
+    );
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .popup > * { position: relative; z-index: 1; }
+
+  /* ===== HEADER ===== */
+  .popup-header {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 2px solid var(--yellow);
+    background: var(--bg-2);
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .popup-logo {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 14px;
+    color: var(--yellow);
+    letter-spacing: 0.02em;
+  }
+
+  .popup-header-spacer { flex: 1; }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--green);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Pixel art status square */
+  .status-pixel {
+    width: 8px;
+    height: 8px;
+    background: var(--green);
+  }
+
+  .header-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--border);
+    background: var(--bg-3);
+    color: var(--text-3);
+    cursor: pointer;
+  }
+
+  /* ===== SCAN ===== */
+  .scan-section {
+    padding: 12px 16px;
+    border-bottom: 2px solid var(--border);
+    background: var(--bg-2);
+    flex-shrink: 0;
+  }
+
+  .scan-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    color: var(--yellow);
+    margin-bottom: 6px;
+    line-height: 1.6;
+  }
+
+  .scan-url {
+    font-size: 10px;
+    color: var(--text-3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .scan-url::before {
+    content: '> ';
+    color: var(--yellow);
+  }
+
+  /* ===== ITEMS ===== */
+  .items-section {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+  }
+
+  .items-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 2px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 1;
+  }
+
+  .items-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+  }
+
+  .save-all-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 8px;
+    color: var(--bg);
+    background: var(--yellow);
+    border: 2px solid var(--yellow);
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+
+  .detected-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    gap: 10px;
+  }
+
+  /* Pixel art file icon */
+  .item-icon {
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--bg-3);
+  }
+
+  .item-info { flex: 1; min-width: 0; }
+
+  .item-title {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+  }
+
+  .item-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    color: var(--text-3);
+  }
+
+  .item-type-badge {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 7px;
+    text-transform: uppercase;
+    padding: 3px 6px;
+    border: 1px solid;
+  }
+
+  .badge-magnet {
+    color: #A78BFA;
+    border-color: #A78BFA;
+    background: rgba(167, 139, 250, 0.1);
+  }
+
+  .badge-torrent {
+    color: #60A5FA;
+    border-color: #60A5FA;
+    background: rgba(96, 165, 250, 0.1);
+  }
+
+  .item-save-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--yellow);
+    background: none;
+    color: var(--yellow);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .item-save-btn:hover {
+    background: var(--yellow);
+    color: var(--bg);
+  }
+
+  /* ===== TRANSFERS ===== */
+  .transfers-section {
+    border-top: 2px solid var(--border);
+    flex-shrink: 0;
+    background: var(--bg-2);
+    padding: 10px 16px 14px;
+  }
+
+  .transfers-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .transfers-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+    flex: 1;
+  }
+
+  .transfers-count {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-2);
+  }
+
+  .transfer-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .transfer-item:last-child { margin-bottom: 0; }
+
+  /* Pixel arrow indicator */
+  .transfer-pixel-arrow {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .transfer-pixel-arrow svg { display: block; }
+
+  .transfer-name {
+    flex: 1;
+    font-size: 10px;
+    color: var(--text-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  /* Block progress bar */
+  .transfer-progress {
+    width: 60px;
+    height: 8px;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    display: flex;
+    gap: 1px;
+    padding: 1px;
+    flex-shrink: 0;
+  }
+
+  .transfer-block {
+    flex: 1;
+    height: 100%;
+  }
+
+  .transfer-block-filled { background: var(--yellow); }
+  .transfer-block-done { background: var(--green); }
+  .transfer-block-empty { background: transparent; }
+
+  .transfer-pct {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--yellow);
+    font-variant-numeric: tabular-nums;
+    width: 32px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .transfer-pct-done { color: var(--green); }
+
+  /* ===== FOOTER ===== */
+  .popup-footer {
+    padding: 10px 16px 14px;
+    border-top: 2px solid var(--border);
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+
+  .storage-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .storage-label {
+    font-size: 10px;
+    color: var(--text-3);
+    flex-shrink: 0;
+  }
+
+  .storage-label strong {
+    color: var(--text-2);
+    font-weight: 600;
+  }
+
+  .storage-track {
+    flex: 1;
+    height: 8px;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    display: flex;
+    gap: 1px;
+    padding: 1px;
+  }
+
+  .storage-block {
+    flex: 1;
+    height: 100%;
+  }
+
+  .storage-block-filled { background: var(--yellow); }
+  .storage-block-empty { background: transparent; }
+
+  .quick-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .quick-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 0;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 7px;
+    color: var(--text-2);
+    background: var(--bg-3);
+    border: 2px solid var(--border);
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="popup">
+
+  <!-- Header -->
+  <div class="popup-header">
+    <span class="popup-logo">put.io</span>
+    <div class="popup-header-spacer"></div>
+    <div class="status-pill">
+      <span class="status-pixel"></span>
+      Online
+    </div>
+    <button class="header-btn" title="Settings">
+      <!-- Pixel gear icon -->
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--text-3)">
+        <rect x="6" y="0" width="4" height="2"/>
+        <rect x="6" y="14" width="4" height="2"/>
+        <rect x="0" y="6" width="2" height="4"/>
+        <rect x="14" y="6" width="2" height="4"/>
+        <rect x="4" y="4" width="8" height="8"/>
+        <rect x="6" y="6" width="4" height="4" fill="var(--bg-3)"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Scan -->
+  <div class="scan-section">
+    <div class="scan-title">3 ITEMS FOUND!</div>
+    <div class="scan-url">nyaa.si/view/1904832 -- Frieren</div>
+  </div>
+
+  <!-- Detected items -->
+  <div class="items-section">
+    <div class="items-header">
+      <span class="items-label">Detected</span>
+      <button class="save-all-btn">SAVE ALL</button>
+    </div>
+
+    <!-- Item 1 -->
+    <div class="detected-item">
+      <div class="item-icon">
+        <!-- Pixel magnet icon -->
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <rect x="2" y="2" width="4" height="8" fill="#A78BFA"/>
+          <rect x="10" y="2" width="4" height="8" fill="#A78BFA"/>
+          <rect x="2" y="2" width="4" height="3" fill="#E5484D"/>
+          <rect x="10" y="2" width="4" height="3" fill="#E5484D"/>
+          <rect x="4" y="10" width="8" height="2" fill="#A78BFA"/>
+        </svg>
+      </div>
+      <div class="item-info">
+        <div class="item-title">Frieren S01E24 [1080p]</div>
+        <div class="item-meta">
+          <span class="item-type-badge badge-magnet">MGN</span>
+          <span>1.4 GB</span>
+        </div>
+      </div>
+      <button class="item-save-btn" title="Save to put.io">
+        <!-- Pixel download arrow -->
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="var(--yellow)">
+          <rect x="5" y="1" width="2" height="6"/>
+          <rect x="3" y="5" width="6" height="2"/>
+          <rect x="1" y="7" width="2" height="2"/>
+          <rect x="9" y="7" width="2" height="2"/>
+          <rect x="1" y="10" width="10" height="1"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Item 2 -->
+    <div class="detected-item">
+      <div class="item-icon">
+        <!-- Pixel file icon -->
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <rect x="3" y="1" width="8" height="14" fill="#60A5FA"/>
+          <rect x="3" y="1" width="8" height="3" fill="#3B82F6"/>
+          <rect x="9" y="1" width="2" height="2" fill="var(--bg-3)"/>
+          <rect x="9" y="3" width="2" height="2" fill="#60A5FA"/>
+        </svg>
+      </div>
+      <div class="item-info">
+        <div class="item-title">Frieren S01E24 [720p]</div>
+        <div class="item-meta">
+          <span class="item-type-badge badge-torrent">TOR</span>
+          <span>680 MB</span>
+        </div>
+      </div>
+      <button class="item-save-btn" title="Save to put.io">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="var(--yellow)">
+          <rect x="5" y="1" width="2" height="6"/>
+          <rect x="3" y="5" width="6" height="2"/>
+          <rect x="1" y="7" width="2" height="2"/>
+          <rect x="9" y="7" width="2" height="2"/>
+          <rect x="1" y="10" width="10" height="1"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Item 3 -->
+    <div class="detected-item">
+      <div class="item-icon">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <rect x="2" y="2" width="4" height="8" fill="#A78BFA"/>
+          <rect x="10" y="2" width="4" height="8" fill="#A78BFA"/>
+          <rect x="2" y="2" width="4" height="3" fill="#E5484D"/>
+          <rect x="10" y="2" width="4" height="3" fill="#E5484D"/>
+          <rect x="4" y="10" width="8" height="2" fill="#A78BFA"/>
+        </svg>
+      </div>
+      <div class="item-info">
+        <div class="item-title">Frieren S01E24 [480p]</div>
+        <div class="item-meta">
+          <span class="item-type-badge badge-magnet">MGN</span>
+          <span>320 MB</span>
+        </div>
+      </div>
+      <button class="item-save-btn" title="Save to put.io">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="var(--yellow)">
+          <rect x="5" y="1" width="2" height="6"/>
+          <rect x="3" y="5" width="6" height="2"/>
+          <rect x="1" y="7" width="2" height="2"/>
+          <rect x="9" y="7" width="2" height="2"/>
+          <rect x="1" y="10" width="10" height="1"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Active transfers -->
+  <div class="transfers-section">
+    <div class="transfers-header">
+      <span class="transfers-label">Transfers</span>
+      <span class="transfers-count">3 active</span>
+    </div>
+
+    <div class="transfer-item">
+      <div class="transfer-pixel-arrow">
+        <svg width="8" height="8" viewBox="0 0 8 8" fill="var(--yellow)">
+          <rect x="3" y="0" width="2" height="5"/>
+          <rect x="1" y="4" width="6" height="2"/>
+          <rect x="3" y="6" width="2" height="2"/>
+        </svg>
+      </div>
+      <span class="transfer-name">Severance.S02E10.mkv</span>
+      <div class="transfer-progress">
+        <span class="transfer-block transfer-block-filled"></span>
+        <span class="transfer-block transfer-block-filled"></span>
+        <span class="transfer-block transfer-block-filled"></span>
+        <span class="transfer-block transfer-block-filled"></span>
+        <span class="transfer-block transfer-block-filled"></span>
+        <span class="transfer-block transfer-block-filled"></span>
+        <span class="transfer-block transfer-block-filled"></span>
+        <span class="transfer-block transfer-block-empty"></span>
+        <span class="transfer-block transfer-block-empty"></span>
+        <span class="transfer-block transfer-block-empty"></span>
+      </div>
+      <span class="transfer-pct">72%</span>
+    </div>
+
+    <div class="transfer-item">
+      <div class="transfer-pixel-arrow">
+        <svg width="8" height="8" viewBox="0 0 8 8" fill="var(--yellow)">
+          <rect x="3" y="0" width="2" height="5"/>
+          <rect x="1" y="4" width="6" height="2"/>
+          <rect x="3" y="6" width="2" height="2"/>
+        </svg>
+      </div>
+      <span class="transfer-name">The.Brutalist.4K.mkv</span>
+      <div class="transfer-progress">
+        <span class="transfer-block transfer-block-filled"></span>
+        <span class="transfer-block transfer-block-filled"></span>
+        <span class="transfer-block transfer-block-filled"></span>
+        <span class="transfer-block transfer-block-empty"></span>
+        <span class="transfer-block transfer-block-empty"></span>
+        <span class="transfer-block transfer-block-empty"></span>
+        <span class="transfer-block transfer-block-empty"></span>
+        <span class="transfer-block transfer-block-empty"></span>
+        <span class="transfer-block transfer-block-empty"></span>
+        <span class="transfer-block transfer-block-empty"></span>
+      </div>
+      <span class="transfer-pct">34%</span>
+    </div>
+
+    <div class="transfer-item">
+      <div class="transfer-pixel-arrow">
+        <svg width="8" height="8" viewBox="0 0 8 8" fill="var(--green)">
+          <rect x="1" y="3" width="2" height="2"/>
+          <rect x="3" y="5" width="2" height="2"/>
+          <rect x="5" y="1" width="2" height="4"/>
+        </svg>
+      </div>
+      <span class="transfer-name">ubuntu-24.04.iso</span>
+      <div class="transfer-progress">
+        <span class="transfer-block transfer-block-done"></span>
+        <span class="transfer-block transfer-block-done"></span>
+        <span class="transfer-block transfer-block-done"></span>
+        <span class="transfer-block transfer-block-done"></span>
+        <span class="transfer-block transfer-block-done"></span>
+        <span class="transfer-block transfer-block-done"></span>
+        <span class="transfer-block transfer-block-done"></span>
+        <span class="transfer-block transfer-block-done"></span>
+        <span class="transfer-block transfer-block-done"></span>
+        <span class="transfer-block transfer-block-done"></span>
+      </div>
+      <span class="transfer-pct transfer-pct-done">OK!</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="popup-footer">
+    <div class="storage-row">
+      <span class="storage-label"><strong>39TB</strong>/50TB</span>
+      <div class="storage-track">
+        <span class="storage-block storage-block-filled"></span>
+        <span class="storage-block storage-block-filled"></span>
+        <span class="storage-block storage-block-filled"></span>
+        <span class="storage-block storage-block-filled"></span>
+        <span class="storage-block storage-block-filled"></span>
+        <span class="storage-block storage-block-filled"></span>
+        <span class="storage-block storage-block-filled"></span>
+        <span class="storage-block storage-block-filled"></span>
+        <span class="storage-block storage-block-empty"></span>
+        <span class="storage-block storage-block-empty"></span>
+      </div>
+    </div>
+    <div class="quick-actions">
+      <button class="quick-btn">
+        <svg width="10" height="10" viewBox="0 0 12 12" fill="currentColor">
+          <rect x="3" y="0" width="6" height="2"/>
+          <rect x="1" y="2" width="10" height="8"/>
+          <rect x="3" y="4" width="6" height="4" fill="var(--bg-3)"/>
+        </svg>
+        PASTE
+      </button>
+      <button class="quick-btn">
+        <svg width="10" height="10" viewBox="0 0 12 12" fill="currentColor">
+          <rect x="0" y="0" width="5" height="2"/>
+          <rect x="0" y="2" width="2" height="5"/>
+          <rect x="10" y="0" width="2" height="7"/>
+          <rect x="7" y="0" width="5" height="2"/>
+          <rect x="5" y="5" width="7" height="2"/>
+          <rect x="5" y="7" width="2" height="5"/>
+          <rect x="0" y="10" width="7" height="2"/>
+        </svg>
+        OPEN
+      </button>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

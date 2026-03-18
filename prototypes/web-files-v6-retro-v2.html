@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io - Files (Retro v2)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #111113;
+    --bg-1: #19191B;
+    --bg-2: #222225;
+    --bg-3: #2B2B2F;
+    --bg-4: #313136;
+    --line: #2B2B2F;
+    --line-strong: #3E3E44;
+    --border: #4E4E56;
+    --solid: #6E6E76;
+    --text-3: #8B8B93;
+    --text-2: #B0B0B8;
+    --text: #DDDDE0;
+    --white: #EEEEEF;
+
+    --yellow: #FDCE45;
+    --yellow-dim: #C9A530;
+    --yellow-glow: rgba(253, 206, 69, 0.06);
+    --yellow-border: rgba(253, 206, 69, 0.25);
+    --yellow-text-shadow: 0 0 6px rgba(253, 206, 69, 0.3);
+
+    --green: #30A46C;
+    --green-bright: #3CB97C;
+    --green-glow: 0 0 4px rgba(48, 164, 108, 0.2);
+    --red: #E5484D;
+    --red-dim: #C53D42;
+    --blue: #3B82F6;
+
+    --font-pixel: 'Press Start 2P', monospace;
+    --font-body: 'Space Mono', 'Courier New', monospace;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg-0);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Subtle CRT scanline - 0.02 opacity */
+  .crt-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgba(0, 0, 0, 0.02) 1px,
+      rgba(0, 0, 0, 0.02) 2px
+    );
+  }
+
+  .app {
+    position: relative;
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    background: var(--bg-0);
+  }
+
+  /* =============================================
+     SIDEBAR
+     ============================================= */
+  .sidebar {
+    width: 232px;
+    background: var(--bg-1);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo {
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .logo {
+    font-family: var(--font-pixel);
+    font-size: 16px;
+    color: var(--white);
+    line-height: 1.4;
+  }
+  .logo span { color: var(--yellow); }
+  .logo-sub {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--solid);
+    letter-spacing: 0.05em;
+    margin-top: 6px;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 8px 0;
+    overflow-y: auto;
+  }
+
+  .nav-section-label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--solid);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 12px 16px 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--text-2);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    border-left: 2px solid transparent;
+  }
+  .nav-item:hover {
+    background: var(--bg-2);
+    color: var(--text);
+    border-left-color: var(--line-strong);
+  }
+  .nav-item.active {
+    background: var(--yellow-glow);
+    color: var(--yellow);
+    border-left-color: var(--yellow);
+    font-weight: 700;
+  }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .nav-icon svg { width: 16px; height: 16px; }
+
+  .nav-badge {
+    margin-left: auto;
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--text-3);
+    font-weight: 700;
+  }
+
+  .nav-sep { height: 1px; background: var(--line); margin: 6px 16px; }
+
+  .sidebar-storage {
+    padding: 14px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .storage-label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--solid);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .storage-bar-track {
+    width: 100%;
+    height: 6px;
+    background: var(--bg-3);
+    margin-bottom: 6px;
+    display: flex;
+  }
+  .storage-bar-fill {
+    height: 6px;
+    background: var(--yellow);
+    width: 63%;
+  }
+  .storage-text {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--text-3);
+  }
+  .storage-text strong { color: var(--text-2); font-weight: 700; }
+
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    background: var(--bg-3);
+    border: 1px solid var(--line-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .user-avatar svg { width: 16px; height: 16px; }
+  .user-name { font-size: 12px; color: var(--text-2); }
+  .user-plan {
+    font-size: 10px;
+    color: var(--solid);
+    margin-top: 1px;
+  }
+
+  /* =============================================
+     MAIN CONTENT
+     ============================================= */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-1);
+  }
+
+  .page-title {
+    font-family: var(--font-pixel);
+    font-size: 16px;
+    color: var(--yellow);
+    text-transform: uppercase;
+  }
+
+  .page-subtitle {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--text-3);
+    margin-top: 2px;
+  }
+
+  .header-spacer { flex: 1; }
+
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    min-width: 240px;
+  }
+  .search-box svg { width: 14px; height: 14px; color: var(--solid); flex-shrink: 0; }
+  .search-text {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--solid);
+  }
+
+  .view-toggle {
+    display: flex;
+    border: 1px solid var(--line);
+  }
+  .view-btn {
+    padding: 7px 10px;
+    border: none;
+    background: var(--bg-2);
+    color: var(--text-3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .view-btn + .view-btn { border-left: 1px solid var(--line); }
+  .view-btn.active {
+    background: var(--yellow-glow);
+    color: var(--yellow);
+  }
+  .view-btn svg { width: 14px; height: 14px; }
+
+  /* Toolbar / breadcrumb */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 28px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-0);
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--text-3);
+  }
+  .breadcrumb-item { color: var(--text-2); cursor: pointer; }
+  .breadcrumb-item:hover { color: var(--yellow); }
+  .breadcrumb-sep { color: var(--solid); }
+  .breadcrumb-current { color: var(--text); font-weight: 700; }
+
+  .toolbar-spacer { flex: 1; }
+
+  .sort-label {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--text-3);
+  }
+
+  /* File List */
+  .file-area {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .file-list-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 28px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-1);
+  }
+  .fh-check { width: 28px; flex-shrink: 0; }
+  .fh-icon { width: 24px; flex-shrink: 0; margin-right: 10px; }
+  .fh-name {
+    flex: 1;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .fh-size, .fh-date, .fh-type {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .fh-size { width: 100px; text-align: right; }
+  .fh-date { width: 140px; text-align: right; }
+  .fh-type { width: 80px; text-align: right; }
+
+  .file-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 28px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+  }
+  .file-row:hover { background: var(--bg-2); }
+
+  .fr-check {
+    width: 28px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+  .check-box {
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--line-strong);
+    background: var(--bg-2);
+  }
+
+  .fr-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .fr-icon svg { width: 16px; height: 16px; }
+
+  .fr-name {
+    flex: 1;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .fr-name.folder { color: var(--yellow); font-weight: 700; }
+
+  .fr-size {
+    width: 100px;
+    text-align: right;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--text-3);
+  }
+  .fr-date {
+    width: 140px;
+    text-align: right;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--text-3);
+  }
+  .fr-type {
+    width: 80px;
+    text-align: right;
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--solid);
+    text-transform: uppercase;
+  }
+
+  /* Status Bar */
+  .statusbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 7px 28px;
+    border-top: 1px solid var(--line);
+    background: var(--bg-1);
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--text-3);
+  }
+  .statusbar-dot {
+    width: 5px;
+    height: 5px;
+    background: var(--green);
+    border-radius: 50%;
+  }
+  .statusbar-spacer { flex: 1; }
+
+  /* =============================================
+     RIGHT PANEL - FILE DETAILS
+     ============================================= */
+  .details-panel {
+    width: 280px;
+    background: var(--bg-1);
+    border-left: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+
+  .dp-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .dp-title {
+    font-family: var(--font-pixel);
+    font-size: 16px;
+    color: var(--yellow);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .dp-subtitle {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .dp-preview {
+    padding: 16px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .dp-preview-box {
+    width: 248px;
+    height: 140px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .dp-preview-box svg { width: 48px; height: 48px; color: var(--solid); }
+
+  .dp-section {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .dp-section-label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--solid);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .dp-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-family: var(--font-body);
+    font-size: 12px;
+  }
+  .dp-row-label { color: var(--text-3); }
+  .dp-row-value { color: var(--text-2); }
+  .dp-row-value.yellow { color: var(--yellow); }
+
+  .dp-actions {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .dp-btn {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    background: var(--bg-2);
+    color: var(--text-2);
+    cursor: pointer;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .dp-btn:hover {
+    border-color: var(--yellow-border);
+    color: var(--yellow);
+    background: var(--yellow-glow);
+  }
+  .dp-btn.primary {
+    border-color: var(--yellow-border);
+    color: var(--yellow);
+    background: rgba(253, 206, 69, 0.04);
+  }
+</style>
+</head>
+<body>
+
+<div class="crt-overlay"></div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo">put<span>.</span>io</div>
+      <div class="logo-sub">v6.0 retro</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Navigate</div>
+
+      <button class="nav-item active">
+        <span class="nav-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="3" width="6" height="2" fill="currentColor"/>
+            <rect x="7" y="4" width="2" height="1" fill="currentColor"/>
+            <rect x="1" y="5" width="14" height="1" fill="currentColor"/>
+            <rect x="1" y="6" width="1" height="7" fill="currentColor"/>
+            <rect x="14" y="6" width="1" height="7" fill="currentColor"/>
+            <rect x="1" y="13" width="14" height="1" fill="currentColor"/>
+          </svg>
+        </span>
+        Files
+        <span class="nav-badge">24</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="4" width="10" height="2" fill="currentColor"/>
+            <rect x="8" y="2" width="2" height="2" fill="currentColor"/>
+            <rect x="10" y="4" width="2" height="2" fill="currentColor"/>
+            <rect x="1" y="10" width="10" height="2" fill="currentColor"/>
+            <rect x="4" y="12" width="2" height="2" fill="currentColor"/>
+            <rect x="2" y="10" width="2" height="2" fill="currentColor"/>
+          </svg>
+        </span>
+        Transfers
+        <span class="nav-badge">3</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="4" y="1" width="8" height="1" fill="currentColor"/>
+            <rect x="2" y="2" width="2" height="1" fill="currentColor"/>
+            <rect x="12" y="2" width="2" height="1" fill="currentColor"/>
+            <rect x="1" y="3" width="1" height="10" fill="currentColor"/>
+            <rect x="14" y="3" width="1" height="10" fill="currentColor"/>
+            <rect x="2" y="13" width="2" height="1" fill="currentColor"/>
+            <rect x="12" y="13" width="2" height="1" fill="currentColor"/>
+            <rect x="4" y="14" width="8" height="1" fill="currentColor"/>
+            <rect x="7" y="4" width="2" height="5" fill="currentColor"/>
+            <rect x="9" y="7" width="3" height="2" fill="currentColor"/>
+          </svg>
+        </span>
+        History
+      </button>
+
+      <div class="nav-sep"></div>
+      <div class="nav-section-label">System</div>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="6" y="0" width="4" height="2" fill="currentColor"/>
+            <rect x="6" y="14" width="4" height="2" fill="currentColor"/>
+            <rect x="0" y="6" width="2" height="4" fill="currentColor"/>
+            <rect x="14" y="6" width="2" height="4" fill="currentColor"/>
+            <rect x="4" y="4" width="8" height="8" fill="currentColor"/>
+            <rect x="6" y="6" width="4" height="4" fill="#19191B"/>
+          </svg>
+        </span>
+        Settings
+      </button>
+    </nav>
+
+    <div class="sidebar-storage">
+      <div class="storage-label">Storage</div>
+      <div class="storage-bar-track">
+        <div class="storage-bar-fill"></div>
+      </div>
+      <div class="storage-text"><strong>642 GB</strong> / 1 TB</div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">
+        <svg viewBox="0 0 16 16" fill="none">
+          <rect x="5" y="2" width="6" height="5" fill="#FDCE45"/>
+          <rect x="3" y="8" width="10" height="2" fill="#FDCE45"/>
+          <rect x="4" y="10" width="3" height="3" fill="#FDCE45"/>
+          <rect x="9" y="10" width="3" height="3" fill="#FDCE45"/>
+        </svg>
+      </div>
+      <div>
+        <div class="user-name">glitch</div>
+        <div class="user-plan">Pro Plan</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">Your Files</div>
+        <div class="page-subtitle">24 items, 642 GB used</div>
+      </div>
+
+      <div class="header-spacer"></div>
+
+      <div class="search-box">
+        <svg viewBox="0 0 16 16" fill="none">
+          <rect x="4" y="1" width="5" height="1" fill="currentColor"/>
+          <rect x="3" y="2" width="1" height="1" fill="currentColor"/>
+          <rect x="9" y="2" width="1" height="1" fill="currentColor"/>
+          <rect x="2" y="3" width="1" height="4" fill="currentColor"/>
+          <rect x="10" y="3" width="1" height="4" fill="currentColor"/>
+          <rect x="3" y="7" width="1" height="1" fill="currentColor"/>
+          <rect x="9" y="7" width="1" height="1" fill="currentColor"/>
+          <rect x="4" y="8" width="5" height="1" fill="currentColor"/>
+          <rect x="10" y="9" width="1" height="1" fill="currentColor"/>
+          <rect x="11" y="10" width="1" height="1" fill="currentColor"/>
+          <rect x="12" y="11" width="2" height="1" fill="currentColor"/>
+        </svg>
+        <span class="search-text">Search files...</span>
+      </div>
+
+      <div class="view-toggle">
+        <button class="view-btn active">
+          <svg viewBox="0 0 14 14" fill="none">
+            <rect x="1" y="1" width="12" height="2" fill="currentColor"/>
+            <rect x="1" y="5" width="12" height="2" fill="currentColor"/>
+            <rect x="1" y="9" width="12" height="2" fill="currentColor"/>
+          </svg>
+        </button>
+        <button class="view-btn">
+          <svg viewBox="0 0 14 14" fill="none">
+            <rect x="1" y="1" width="5" height="5" fill="currentColor"/>
+            <rect x="8" y="1" width="5" height="5" fill="currentColor"/>
+            <rect x="1" y="8" width="5" height="5" fill="currentColor"/>
+            <rect x="8" y="8" width="5" height="5" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="breadcrumb">
+        <span class="breadcrumb-item">Home</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Your Files</span>
+      </div>
+      <div class="toolbar-spacer"></div>
+      <span class="sort-label">Sort: Name</span>
+    </div>
+
+    <!-- File List -->
+    <div class="file-area">
+      <div class="file-list-header">
+        <div class="fh-check"></div>
+        <div class="fh-icon"></div>
+        <div class="fh-name">Name</div>
+        <div class="fh-size">Size</div>
+        <div class="fh-date">Modified</div>
+        <div class="fh-type">Type</div>
+      </div>
+
+      <!-- Folders -->
+      <div class="file-row">
+        <div class="fr-check"><div class="check-box"></div></div>
+        <div class="fr-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="3" width="6" height="2" fill="#FDCE45"/>
+            <rect x="7" y="4" width="2" height="1" fill="#FDCE45"/>
+            <rect x="1" y="5" width="14" height="1" fill="#FDCE45"/>
+            <rect x="1" y="6" width="1" height="7" fill="#FDCE45"/>
+            <rect x="14" y="6" width="1" height="7" fill="#FDCE45"/>
+            <rect x="1" y="13" width="14" height="1" fill="#FDCE45"/>
+            <rect x="2" y="7" width="12" height="5" fill="#C9A530"/>
+          </svg>
+        </div>
+        <div class="fr-name folder">Movies</div>
+        <div class="fr-size">142.3 GB</div>
+        <div class="fr-date">2 hours ago</div>
+        <div class="fr-type">Folder</div>
+      </div>
+
+      <div class="file-row">
+        <div class="fr-check"><div class="check-box"></div></div>
+        <div class="fr-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="3" width="6" height="2" fill="#FDCE45"/>
+            <rect x="7" y="4" width="2" height="1" fill="#FDCE45"/>
+            <rect x="1" y="5" width="14" height="1" fill="#FDCE45"/>
+            <rect x="1" y="6" width="1" height="7" fill="#FDCE45"/>
+            <rect x="14" y="6" width="1" height="7" fill="#FDCE45"/>
+            <rect x="1" y="13" width="14" height="1" fill="#FDCE45"/>
+            <rect x="2" y="7" width="12" height="5" fill="#C9A530"/>
+          </svg>
+        </div>
+        <div class="fr-name folder">TV Shows</div>
+        <div class="fr-size">89.7 GB</div>
+        <div class="fr-date">Yesterday</div>
+        <div class="fr-type">Folder</div>
+      </div>
+
+      <div class="file-row">
+        <div class="fr-check"><div class="check-box"></div></div>
+        <div class="fr-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="3" width="6" height="2" fill="#FDCE45"/>
+            <rect x="7" y="4" width="2" height="1" fill="#FDCE45"/>
+            <rect x="1" y="5" width="14" height="1" fill="#FDCE45"/>
+            <rect x="1" y="6" width="1" height="7" fill="#FDCE45"/>
+            <rect x="14" y="6" width="1" height="7" fill="#FDCE45"/>
+            <rect x="1" y="13" width="14" height="1" fill="#FDCE45"/>
+            <rect x="2" y="7" width="12" height="5" fill="#C9A530"/>
+          </svg>
+        </div>
+        <div class="fr-name folder">Music</div>
+        <div class="fr-size">18.4 GB</div>
+        <div class="fr-date">3 days ago</div>
+        <div class="fr-type">Folder</div>
+      </div>
+
+      <div class="file-row">
+        <div class="fr-check"><div class="check-box"></div></div>
+        <div class="fr-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="3" width="6" height="2" fill="#FDCE45"/>
+            <rect x="7" y="4" width="2" height="1" fill="#FDCE45"/>
+            <rect x="1" y="5" width="14" height="1" fill="#FDCE45"/>
+            <rect x="1" y="6" width="1" height="7" fill="#FDCE45"/>
+            <rect x="14" y="6" width="1" height="7" fill="#FDCE45"/>
+            <rect x="1" y="13" width="14" height="1" fill="#FDCE45"/>
+            <rect x="2" y="7" width="12" height="5" fill="#C9A530"/>
+          </svg>
+        </div>
+        <div class="fr-name folder">Downloads</div>
+        <div class="fr-size">4.2 GB</div>
+        <div class="fr-date">5 days ago</div>
+        <div class="fr-type">Folder</div>
+      </div>
+
+      <!-- Files -->
+      <div class="file-row">
+        <div class="fr-check"><div class="check-box"></div></div>
+        <div class="fr-icon">
+          <!-- Video file icon -->
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="1" width="10" height="14" fill="#313136"/>
+            <rect x="12" y="3" width="2" height="2" fill="#313136"/>
+            <rect x="10" y="1" width="2" height="2" fill="#313136"/>
+            <rect x="3" y="2" width="8" height="12" fill="#222225"/>
+            <rect x="6" y="6" width="2" height="4" fill="#FDCE45"/>
+            <rect x="8" y="7" width="2" height="2" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="fr-name">Blade.Runner.2049.2017.2160p.mkv</div>
+        <div class="fr-size">56.8 GB</div>
+        <div class="fr-date">2 hours ago</div>
+        <div class="fr-type">MKV</div>
+      </div>
+
+      <div class="file-row">
+        <div class="fr-check"><div class="check-box"></div></div>
+        <div class="fr-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="1" width="10" height="14" fill="#313136"/>
+            <rect x="12" y="3" width="2" height="2" fill="#313136"/>
+            <rect x="10" y="1" width="2" height="2" fill="#313136"/>
+            <rect x="3" y="2" width="8" height="12" fill="#222225"/>
+            <rect x="6" y="6" width="2" height="4" fill="#FDCE45"/>
+            <rect x="8" y="7" width="2" height="2" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="fr-name">Dune.Part.Two.2024.2160p.mkv</div>
+        <div class="fr-size">51.2 GB</div>
+        <div class="fr-date">Yesterday</div>
+        <div class="fr-type">MKV</div>
+      </div>
+
+      <div class="file-row">
+        <div class="fr-check"><div class="check-box"></div></div>
+        <div class="fr-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="1" width="10" height="14" fill="#313136"/>
+            <rect x="12" y="3" width="2" height="2" fill="#313136"/>
+            <rect x="10" y="1" width="2" height="2" fill="#313136"/>
+            <rect x="3" y="2" width="8" height="12" fill="#222225"/>
+            <rect x="6" y="6" width="2" height="4" fill="#FDCE45"/>
+            <rect x="8" y="7" width="2" height="2" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="fr-name">The.Matrix.1999.Remastered.1080p.mkv</div>
+        <div class="fr-size">4.1 GB</div>
+        <div class="fr-date">3 days ago</div>
+        <div class="fr-type">MKV</div>
+      </div>
+
+      <div class="file-row">
+        <div class="fr-check"><div class="check-box"></div></div>
+        <div class="fr-icon">
+          <!-- Audio file icon -->
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="1" width="10" height="14" fill="#313136"/>
+            <rect x="12" y="3" width="2" height="2" fill="#313136"/>
+            <rect x="10" y="1" width="2" height="2" fill="#313136"/>
+            <rect x="3" y="2" width="8" height="12" fill="#222225"/>
+            <rect x="8" y="4" width="1" height="7" fill="#30A46C"/>
+            <rect x="5" y="4" width="4" height="1" fill="#30A46C"/>
+            <rect x="5" y="4" width="1" height="5" fill="#30A46C"/>
+            <rect x="4" y="9" width="3" height="2" fill="#30A46C"/>
+            <rect x="7" y="10" width="3" height="2" fill="#30A46C"/>
+          </svg>
+        </div>
+        <div class="fr-name">Interstellar.OST.2014.FLAC</div>
+        <div class="fr-size">890 MB</div>
+        <div class="fr-date">1 week ago</div>
+        <div class="fr-type">FLAC</div>
+      </div>
+
+      <div class="file-row">
+        <div class="fr-check"><div class="check-box"></div></div>
+        <div class="fr-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="1" width="10" height="14" fill="#313136"/>
+            <rect x="12" y="3" width="2" height="2" fill="#313136"/>
+            <rect x="10" y="1" width="2" height="2" fill="#313136"/>
+            <rect x="3" y="2" width="8" height="12" fill="#222225"/>
+            <rect x="6" y="6" width="2" height="4" fill="#FDCE45"/>
+            <rect x="8" y="7" width="2" height="2" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="fr-name">Akira.1988.4K.Remaster.2160p.mkv</div>
+        <div class="fr-size">8.1 GB</div>
+        <div class="fr-date">1 week ago</div>
+        <div class="fr-type">MKV</div>
+      </div>
+
+      <div class="file-row">
+        <div class="fr-check"><div class="check-box"></div></div>
+        <div class="fr-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="1" width="10" height="14" fill="#313136"/>
+            <rect x="12" y="3" width="2" height="2" fill="#313136"/>
+            <rect x="10" y="1" width="2" height="2" fill="#313136"/>
+            <rect x="3" y="2" width="8" height="12" fill="#222225"/>
+            <rect x="6" y="6" width="2" height="4" fill="#FDCE45"/>
+            <rect x="8" y="7" width="2" height="2" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="fr-name">Tron.Legacy.2010.1080p.mkv</div>
+        <div class="fr-size">3.2 GB</div>
+        <div class="fr-date">2 weeks ago</div>
+        <div class="fr-type">MKV</div>
+      </div>
+
+      <div class="file-row">
+        <div class="fr-check"><div class="check-box"></div></div>
+        <div class="fr-icon">
+          <!-- Archive icon -->
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="1" width="12" height="14" fill="#313136"/>
+            <rect x="3" y="2" width="10" height="12" fill="#222225"/>
+            <rect x="6" y="3" width="4" height="2" fill="#8B8B93"/>
+            <rect x="6" y="6" width="4" height="2" fill="#8B8B93"/>
+            <rect x="6" y="9" width="4" height="4" fill="#8B8B93"/>
+            <rect x="7" y="10" width="2" height="2" fill="#222225"/>
+          </svg>
+        </div>
+        <div class="fr-name">project_assets_backup.zip</div>
+        <div class="fr-size">1.4 GB</div>
+        <div class="fr-date">3 weeks ago</div>
+        <div class="fr-type">ZIP</div>
+      </div>
+
+      <div class="file-row">
+        <div class="fr-check"><div class="check-box"></div></div>
+        <div class="fr-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="1" width="10" height="14" fill="#313136"/>
+            <rect x="12" y="3" width="2" height="2" fill="#313136"/>
+            <rect x="10" y="1" width="2" height="2" fill="#313136"/>
+            <rect x="3" y="2" width="8" height="12" fill="#222225"/>
+            <rect x="8" y="4" width="1" height="7" fill="#30A46C"/>
+            <rect x="5" y="4" width="4" height="1" fill="#30A46C"/>
+            <rect x="5" y="4" width="1" height="5" fill="#30A46C"/>
+            <rect x="4" y="9" width="3" height="2" fill="#30A46C"/>
+            <rect x="7" y="10" width="3" height="2" fill="#30A46C"/>
+          </svg>
+        </div>
+        <div class="fr-name">synthwave_mix_vol3.mp3</div>
+        <div class="fr-size">48 MB</div>
+        <div class="fr-date">1 month ago</div>
+        <div class="fr-type">MP3</div>
+      </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="statusbar">
+      <span class="statusbar-dot"></span>
+      <span>Connected</span>
+      <span style="color: var(--solid);">|</span>
+      <span>24 items</span>
+      <span class="statusbar-spacer"></span>
+      <span>642 GB / 1 TB</span>
+    </div>
+  </main>
+
+  <!-- RIGHT PANEL -->
+  <aside class="details-panel">
+    <div class="dp-header">
+      <div class="dp-title">Details</div>
+      <div class="dp-subtitle">Blade.Runner.2049.2017</div>
+    </div>
+
+    <div class="dp-preview">
+      <div class="dp-preview-box">
+        <!-- Large film play icon -->
+        <svg viewBox="0 0 48 48" fill="none">
+          <rect x="4" y="4" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2"/>
+          <rect x="4" y="8" width="4" height="4" fill="currentColor"/>
+          <rect x="4" y="16" width="4" height="4" fill="currentColor"/>
+          <rect x="4" y="24" width="4" height="4" fill="currentColor"/>
+          <rect x="4" y="32" width="4" height="4" fill="currentColor"/>
+          <rect x="40" y="8" width="4" height="4" fill="currentColor"/>
+          <rect x="40" y="16" width="4" height="4" fill="currentColor"/>
+          <rect x="40" y="24" width="4" height="4" fill="currentColor"/>
+          <rect x="40" y="32" width="4" height="4" fill="currentColor"/>
+          <rect x="18" y="14" width="4" height="20" fill="#FDCE45"/>
+          <rect x="22" y="17" width="4" height="14" fill="#FDCE45"/>
+          <rect x="26" y="20" width="4" height="8" fill="#FDCE45"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="dp-section">
+      <div class="dp-section-label">File Info</div>
+      <div class="dp-row">
+        <span class="dp-row-label">Size</span>
+        <span class="dp-row-value">56.8 GB</span>
+      </div>
+      <div class="dp-row">
+        <span class="dp-row-label">Format</span>
+        <span class="dp-row-value">MKV / x265</span>
+      </div>
+      <div class="dp-row">
+        <span class="dp-row-label">Resolution</span>
+        <span class="dp-row-value yellow">3840 x 2160</span>
+      </div>
+      <div class="dp-row">
+        <span class="dp-row-label">Audio</span>
+        <span class="dp-row-value">TrueHD 7.1</span>
+      </div>
+      <div class="dp-row">
+        <span class="dp-row-label">Added</span>
+        <span class="dp-row-value">2 hours ago</span>
+      </div>
+    </div>
+
+    <div class="dp-section">
+      <div class="dp-section-label">Sharing</div>
+      <div class="dp-row">
+        <span class="dp-row-label">Status</span>
+        <span class="dp-row-value">Private</span>
+      </div>
+      <div class="dp-row">
+        <span class="dp-row-label">Link</span>
+        <span class="dp-row-value yellow">Create Link</span>
+      </div>
+    </div>
+
+    <div class="dp-actions">
+      <button class="dp-btn primary">Play</button>
+      <button class="dp-btn">Download</button>
+      <button class="dp-btn">Share</button>
+      <button class="dp-btn" style="color: var(--red); border-color: rgba(229,72,77,0.25);">Delete</button>
+    </div>
+  </aside>
+</div>
+
+</body>
+</html>

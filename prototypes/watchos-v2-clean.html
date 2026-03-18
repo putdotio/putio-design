@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=820">
+<title>put.io -- watchOS Clean</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000;
+    --surface: #1C1C1E;
+    --surface-2: #2C2C2E;
+    --surface-3: #3A3A3C;
+    --text: #FFFFFF;
+    --text-2: #EBEBF5;
+    --text-3: #8E8E93;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.15);
+    --green: #30D158;
+    --green-dim: rgba(48, 209, 88, 0.15);
+    --red: #FF453A;
+    --blue: #0A84FF;
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #1C1C1E;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    width: 820px; height: 500px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+
+  .page-title {
+    font-size: 10px; font-weight: 600; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 20px;
+  }
+
+  .watch-row {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+  }
+
+  .watch-face {
+    width: 198px; height: 242px;
+    background: var(--bg);
+    border-radius: 48px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.06),
+      0 4px 24px rgba(0,0,0,0.5);
+  }
+
+  /* ========== FACE 1: Storage Ring ========== */
+  .face-storage {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    height: 100%; padding: 20px;
+  }
+  .storage-ring {
+    position: relative;
+    width: 120px; height: 120px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .storage-ring svg {
+    position: absolute; width: 120px; height: 120px;
+  }
+  .ring-text {
+    position: relative; z-index: 1; text-align: center;
+  }
+  .ring-main {
+    font-size: 34px; font-weight: 700; color: var(--text);
+    line-height: 1; letter-spacing: -0.03em;
+  }
+  .ring-unit {
+    font-size: 13px; font-weight: 500; color: var(--text-3);
+  }
+  .ring-sub {
+    font-size: 10px; color: var(--text-3); margin-top: 3px;
+  }
+  .app-badge {
+    display: flex; align-items: center; gap: 4px;
+    margin-top: 14px;
+  }
+  .app-icon {
+    width: 14px; height: 14px; border-radius: 4px;
+    background: var(--yellow);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .app-icon svg { width: 8px; height: 8px; }
+  .app-name {
+    font-size: 9px; font-weight: 600; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+
+  /* ========== FACE 2: Transfer Notification ========== */
+  .face-notification {
+    display: flex; flex-direction: column;
+    height: 100%; padding: 22px 16px 16px;
+  }
+  .notif-header {
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 14px;
+  }
+  .notif-icon {
+    width: 20px; height: 20px; border-radius: 6px;
+    background: var(--yellow);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .notif-icon svg { width: 11px; height: 11px; }
+  .notif-label {
+    font-size: 11px; color: var(--text-3); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .notif-body {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; gap: 6px;
+  }
+  .notif-check {
+    width: 38px; height: 38px; border-radius: 999px;
+    background: var(--green);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 16px rgba(48,209,88,0.3);
+  }
+  .notif-check svg { width: 20px; height: 20px; }
+  .notif-title {
+    font-size: 15px; font-weight: 700; color: var(--text);
+    line-height: 1.2;
+  }
+  .notif-file {
+    font-size: 12px; font-weight: 500; color: var(--text-2);
+    line-height: 1.3;
+  }
+  .notif-meta {
+    font-size: 10px; color: var(--text-3);
+  }
+  .notif-action {
+    width: 100%; background: var(--surface-2);
+    border: none; border-radius: 14px;
+    padding: 10px 0; font-size: 13px; font-weight: 600;
+    color: var(--blue); cursor: pointer;
+    font-family: inherit; margin-top: 8px;
+  }
+
+  /* ========== FACE 3: Active Transfers ========== */
+  .face-transfers {
+    display: flex; flex-direction: column;
+    height: 100%; padding: 22px 14px 16px;
+  }
+  .tf-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .tf-title {
+    font-size: 11px; font-weight: 700; color: var(--text);
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .tf-count {
+    font-size: 10px; font-weight: 600; color: var(--text-3);
+    background: var(--surface-2);
+    padding: 2px 7px; border-radius: 6px;
+  }
+  .tf-list {
+    flex: 1; display: flex; flex-direction: column;
+    gap: 8px; justify-content: center;
+  }
+  .tf-item {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .tf-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+  .tf-dot.active { background: var(--yellow); }
+  .tf-dot.done { background: var(--green); }
+  .tf-name {
+    flex: 1; font-size: 12px; font-weight: 500; color: var(--text-2);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .tf-pct {
+    font-size: 11px; font-weight: 700; color: var(--text);
+    font-variant-numeric: tabular-nums; flex-shrink: 0;
+  }
+  .tf-pct.done { color: var(--green); }
+  .tf-bar {
+    margin: 3px 0 0 14px; height: 2px;
+    background: var(--surface-3); border-radius: 1px;
+  }
+  .tf-bar-fill {
+    height: 100%; border-radius: 1px;
+    background: var(--yellow);
+  }
+  .tf-bar-fill.done { background: var(--green); }
+
+  /* ========== FACE 4: Now Playing ========== */
+  .face-nowplaying {
+    display: flex; flex-direction: column;
+    height: 100%; position: relative;
+  }
+  .np-progress-arc {
+    position: absolute; inset: 0; pointer-events: none;
+  }
+  .np-progress-arc svg { width: 100%; height: 100%; }
+  .np-content {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    height: 100%; padding: 20px 16px;
+    position: relative; z-index: 1;
+  }
+  .np-header {
+    display: flex; align-items: center; gap: 5px;
+    margin-bottom: 10px; align-self: flex-start;
+  }
+  .np-icon {
+    width: 16px; height: 16px; border-radius: 5px;
+    background: var(--yellow);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .np-icon svg { width: 9px; height: 9px; }
+  .np-label {
+    font-size: 10px; color: var(--text-3); font-weight: 600;
+  }
+  .np-artwork {
+    width: 60px; height: 60px;
+    background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface) 100%);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .np-artwork svg { width: 22px; height: 22px; }
+  .np-track {
+    font-size: 13px; font-weight: 600; color: var(--text);
+    text-align: center; line-height: 1.2;
+    max-width: 156px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .np-artist {
+    font-size: 11px; color: var(--text-3); margin-top: 2px;
+    text-align: center;
+  }
+  .np-controls {
+    display: flex; align-items: center; gap: 18px;
+    margin-top: 10px;
+  }
+  .np-btn {
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: none; cursor: pointer;
+  }
+  .np-btn.skip svg { width: 14px; height: 14px; fill: var(--text-3); }
+  .np-btn.play {
+    width: 34px; height: 34px;
+    background: var(--yellow); border-radius: 999px;
+  }
+  .np-btn.play svg { width: 14px; height: 14px; fill: #000; }
+  .np-time {
+    font-size: 11px; font-weight: 600; color: var(--text);
+    font-variant-numeric: tabular-nums; margin-top: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="page-title">watchOS -- Clean</div>
+<div class="watch-row">
+
+  <!-- FACE 1: Storage Ring -->
+  <div class="watch-face">
+    <div class="face-storage">
+      <div class="storage-ring">
+        <svg viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="#2C2C2E" stroke-width="7"
+            stroke-linecap="round" stroke-dasharray="245 327" transform="rotate(135 60 60)"/>
+          <circle cx="60" cy="60" r="52" fill="none" stroke="#FDCE45" stroke-width="7"
+            stroke-linecap="round" stroke-dasharray="191 327" transform="rotate(135 60 60)"/>
+        </svg>
+        <div class="ring-text">
+          <div class="ring-main">39<span class="ring-unit">TB</span></div>
+          <div class="ring-sub">of 50 TB</div>
+        </div>
+      </div>
+      <div class="app-badge">
+        <div class="app-icon">
+          <svg viewBox="0 0 16 16" fill="#000">
+            <rect x="3" y="3" width="3" height="10"/>
+            <rect x="6" y="3" width="4" height="3"/>
+            <rect x="10" y="3" width="3" height="6"/>
+            <rect x="6" y="6" width="4" height="3"/>
+          </svg>
+        </div>
+        <span class="app-name">put.io</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FACE 2: Transfer Notification -->
+  <div class="watch-face">
+    <div class="face-notification">
+      <div class="notif-header">
+        <div class="notif-icon">
+          <svg viewBox="0 0 16 16" fill="#000">
+            <rect x="3" y="3" width="3" height="10"/>
+            <rect x="6" y="3" width="4" height="3"/>
+            <rect x="10" y="3" width="3" height="6"/>
+            <rect x="6" y="6" width="4" height="3"/>
+          </svg>
+        </div>
+        <span class="notif-label">put.io</span>
+      </div>
+      <div class="notif-body">
+        <div class="notif-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20,6 9,17 4,12"/>
+          </svg>
+        </div>
+        <div class="notif-title">Transfer Complete</div>
+        <div class="notif-file">Pose -- 720p WEBRip</div>
+        <div class="notif-meta">763 MB -- 3 min</div>
+      </div>
+      <button class="notif-action">Open on iPhone</button>
+    </div>
+  </div>
+
+  <!-- FACE 3: Active Transfers -->
+  <div class="watch-face">
+    <div class="face-transfers">
+      <div class="tf-header">
+        <span class="tf-title">Transfers</span>
+        <span class="tf-count">3</span>
+      </div>
+      <div class="tf-list">
+        <div>
+          <div class="tf-item">
+            <div class="tf-dot active"></div>
+            <span class="tf-name">Inception</span>
+            <span class="tf-pct">63%</span>
+          </div>
+          <div class="tf-bar"><div class="tf-bar-fill" style="width:63%"></div></div>
+        </div>
+        <div>
+          <div class="tf-item">
+            <div class="tf-dot active"></div>
+            <span class="tf-name">Wolf of Wall St.</span>
+            <span class="tf-pct">65%</span>
+          </div>
+          <div class="tf-bar"><div class="tf-bar-fill" style="width:65%"></div></div>
+        </div>
+        <div>
+          <div class="tf-item">
+            <div class="tf-dot done"></div>
+            <span class="tf-name">Pose</span>
+            <span class="tf-pct done">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg>
+            </span>
+          </div>
+          <div class="tf-bar"><div class="tf-bar-fill done" style="width:100%"></div></div>
+        </div>
+      </div>
+      <div class="app-badge" style="justify-content:center; margin-top:10px;">
+        <div class="app-icon" style="width:12px;height:12px;border-radius:3px;">
+          <svg viewBox="0 0 16 16" fill="#000" style="width:7px;height:7px;">
+            <rect x="3" y="3" width="3" height="10"/>
+            <rect x="6" y="3" width="4" height="3"/>
+            <rect x="10" y="3" width="3" height="6"/>
+            <rect x="6" y="6" width="4" height="3"/>
+          </svg>
+        </div>
+        <span class="app-name">put.io</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FACE 4: Now Playing -->
+  <div class="watch-face">
+    <div class="np-progress-arc">
+      <svg viewBox="0 0 198 242" fill="none">
+        <rect x="3" y="3" width="192" height="236" rx="45" ry="45"
+          fill="none" stroke="#1C1C1E" stroke-width="3"/>
+        <rect x="3" y="3" width="192" height="236" rx="45" ry="45"
+          fill="none" stroke="#FDCE45" stroke-width="3"
+          stroke-dasharray="556 856" stroke-dashoffset="-214"
+          stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="face-nowplaying">
+      <div class="np-content">
+        <div class="np-header">
+          <div class="np-icon">
+            <svg viewBox="0 0 16 16" fill="#000">
+              <rect x="3" y="3" width="3" height="10"/>
+              <rect x="6" y="3" width="4" height="3"/>
+              <rect x="10" y="3" width="3" height="6"/>
+              <rect x="6" y="6" width="4" height="3"/>
+            </svg>
+          </div>
+          <span class="np-label">put.io</span>
+        </div>
+        <div class="np-artwork">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5">
+            <path d="M3,18V12a9,9,0,0,1,18,0v6"/>
+            <path d="M21,19a2,2,0,0,1-2,2H18a2,2,0,0,1-2-2V16a2,2,0,0,1,2-2h3Z"/>
+            <path d="M3,19a2,2,0,0,0,2,2H6a2,2,0,0,0,2-2V16a2,2,0,0,0-2-2H3Z"/>
+          </svg>
+        </div>
+        <div class="np-track">Episode 127</div>
+        <div class="np-artist">Tech's Message</div>
+        <div class="np-controls">
+          <div class="np-btn skip">
+            <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+          </div>
+          <div class="np-btn play">
+            <svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </div>
+          <div class="np-btn skip">
+            <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+          </div>
+        </div>
+        <div class="np-time">42:18</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
