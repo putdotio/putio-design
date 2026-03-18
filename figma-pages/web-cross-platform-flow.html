@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Cross-Platform Flow (Phase 9)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #0C0C0E;
+    --bg-1: #111114;
+    --bg-2: #161619;
+    --bg-3: #1C1C20;
+    --bg-4: #232328;
+    --bg-5: #2A2A30;
+
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-default: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.12);
+
+    --text-primary: #EDEDEF;
+    --text-secondary: #A0A0A8;
+    --text-tertiary: #6C6C76;
+    --text-quaternary: #4A4A52;
+
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.12);
+    --yellow-hover: #FDD85C;
+
+    --green: #3ECF8E;
+    --red: #EF4444;
+    --blue: #60A5FA;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-0);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' 1, 'ss01' 1;
+  }
+
+  .page {
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-0);
+  }
+
+  /* ===== HEADER ===== */
+  .flow-header {
+    padding: 32px 56px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .flow-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--yellow);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .flow-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+  }
+
+  .flow-subtitle {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+
+  /* ===== FLOW CANVAS ===== */
+  .flow-canvas {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 24px 40px 32px;
+    gap: 0;
+    position: relative;
+  }
+
+  /* Connection arrows (SVG overlay) */
+  .flow-arrows {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Step container */
+  .flow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+  }
+
+  /* Arrow connector */
+  .flow-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    z-index: 2;
+    padding: 0 4px;
+  }
+
+  .arrow-line {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .arrow-dash {
+    width: 40px;
+    height: 2px;
+    background: var(--yellow);
+  }
+
+  .arrow-head {
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 8px solid var(--yellow);
+  }
+
+  .arrow-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--yellow);
+    text-align: center;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+
+  /* Step number */
+  .step-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--yellow);
+    color: #0C0C0E;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step-label {
+    text-align: center;
+    max-width: 220px;
+  }
+
+  .step-label-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+
+  .step-label-desc {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    line-height: 1.4;
+  }
+
+  /* ===== DEVICE FRAMES ===== */
+
+  /* Phone frame */
+  .device-phone {
+    width: 200px;
+    height: 400px;
+    background: var(--bg-1);
+    border: 1px solid var(--border-strong);
+    border-radius: 24px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  .phone-status-bar {
+    height: 28px;
+    padding: 6px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+  }
+
+  .phone-notch {
+    width: 60px;
+    height: 4px;
+    background: var(--bg-4);
+    border-radius: 2px;
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .phone-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Share sheet */
+  .share-sheet {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-0);
+  }
+
+  .share-sheet-overlay {
+    flex: 1;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .share-panel {
+    width: 100%;
+    background: var(--bg-2);
+    border-radius: 14px 14px 0 0;
+    padding: 12px 0 0;
+  }
+
+  .share-handle {
+    width: 32px;
+    height: 4px;
+    background: var(--bg-5);
+    border-radius: 2px;
+    margin: 0 auto 12px;
+  }
+
+  .share-url {
+    padding: 8px 14px;
+    font-size: 9px;
+    color: var(--text-quaternary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: var(--bg-3);
+    margin: 0 12px;
+    border-radius: 6px;
+    font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  }
+
+  .share-apps {
+    display: flex;
+    gap: 6px;
+    padding: 14px 14px 8px;
+    overflow: hidden;
+  }
+
+  .share-app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 48px;
+    flex-shrink: 0;
+  }
+
+  .share-app-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .share-app-label {
+    font-size: 8px;
+    color: var(--text-tertiary);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .share-actions {
+    padding: 6px 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .share-action-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  .share-action-row.highlight {
+    background: var(--yellow-dim);
+    color: var(--yellow);
+    font-weight: 600;
+  }
+
+  .share-action-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Web frame */
+  .device-web {
+    width: 380px;
+    height: 400px;
+    background: var(--bg-1);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  .web-chrome {
+    height: 28px;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .web-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bg-5);
+  }
+  .web-dot.red { background: #EF4444; }
+  .web-dot.yellow { background: #FDCE45; }
+  .web-dot.green { background: #3ECF8E; }
+
+  .web-address {
+    flex: 1;
+    background: var(--bg-3);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 9px;
+    color: var(--text-quaternary);
+    margin-left: 8px;
+    font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  }
+
+  .web-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Mini notification toast */
+  .notification-toast {
+    margin: 8px 10px;
+    background: var(--bg-3);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .toast-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .toast-text {
+    flex: 1;
+  }
+
+  .toast-title {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .toast-desc {
+    font-size: 9px;
+    color: var(--text-tertiary);
+    margin-top: 1px;
+  }
+
+  /* Mini player in web frame */
+  .web-mini-player {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .web-player-art {
+    width: 180px;
+    height: 110px;
+    background: linear-gradient(135deg, var(--bg-3) 0%, var(--bg-4) 100%);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .web-player-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+  }
+
+  .web-player-meta {
+    font-size: 10px;
+    color: var(--text-quaternary);
+    text-align: center;
+  }
+
+  .web-player-progress {
+    width: 200px;
+    height: 3px;
+    background: var(--bg-4);
+    border-radius: 2px;
+    margin-top: 4px;
+  }
+
+  .web-player-progress-fill {
+    height: 100%;
+    width: 12%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+
+  .web-player-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 2px;
+  }
+
+  .web-ctrl {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+  }
+
+  .web-ctrl-play {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0C0C0E;
+  }
+
+  /* TV frame */
+  .device-tv {
+    width: 420px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tv-screen {
+    width: 420px;
+    height: 260px;
+    background: var(--bg-1);
+    border: 2px solid var(--bg-5);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  .tv-stand {
+    width: 120px;
+    height: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tv-neck {
+    width: 2px;
+    height: 10px;
+    background: var(--bg-5);
+  }
+
+  .tv-base {
+    width: 80px;
+    height: 3px;
+    background: var(--bg-5);
+    border-radius: 2px;
+  }
+
+  .tv-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    overflow: hidden;
+  }
+
+  .tv-section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+
+  .tv-cards {
+    display: flex;
+    gap: 10px;
+    overflow: hidden;
+  }
+
+  .tv-card {
+    width: 120px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .tv-card-art {
+    width: 120px;
+    height: 72px;
+    background: var(--bg-3);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tv-card.active .tv-card-art {
+    border: 2px solid var(--yellow);
+    box-shadow: 0 0 16px rgba(253, 206, 69, 0.2);
+  }
+
+  .tv-card-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(0,0,0,0.5);
+  }
+
+  .tv-card-progress-fill {
+    height: 100%;
+    background: var(--yellow);
+  }
+
+  .tv-card-title {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-top: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .tv-card-meta {
+    font-size: 8px;
+    color: var(--text-quaternary);
+    margin-top: 1px;
+  }
+
+  .tv-card.active .tv-card-title {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .tv-remote-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 10px;
+  }
+
+  .remote-key {
+    width: 24px;
+    height: 18px;
+    background: var(--bg-4);
+    border: 1px solid var(--border-default);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: var(--text-tertiary);
+    font-weight: 600;
+  }
+
+  .remote-hint-text {
+    font-size: 9px;
+    color: var(--text-quaternary);
+  }
+
+  /* Device label beneath frame */
+  .device-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .device-label-icon {
+    color: var(--text-quaternary);
+    display: flex;
+    align-items: center;
+  }
+
+  .device-label-text {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+  }
+
+  /* Transfer notification (between step 1 & 3) */
+  .device-transfer {
+    width: 200px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .transfer-card {
+    width: 180px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .transfer-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .transfer-card-icon {
+    width: 24px;
+    height: 24px;
+    background: var(--yellow-dim);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .transfer-card-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .transfer-card-file {
+    font-size: 10px;
+    color: var(--text-secondary);
+    font-weight: 450;
+  }
+
+  .transfer-mini-progress {
+    width: 100%;
+    height: 4px;
+    background: var(--bg-4);
+    border-radius: 2px;
+  }
+
+  .transfer-mini-fill {
+    height: 100%;
+    border-radius: 2px;
+  }
+
+  .transfer-mini-fill.in-progress {
+    width: 67%;
+    background: var(--yellow);
+  }
+
+  .transfer-mini-fill.done {
+    width: 100%;
+    background: var(--green);
+  }
+
+  .transfer-card-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--text-quaternary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .transfer-done-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--green);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="flow-header">
+    <div class="flow-badge">Phase 9 -- Cross-Platform Flow</div>
+    <div class="flow-title">"I want to watch something"</div>
+    <div class="flow-subtitle">A single user journey across phone, cloud, web, and TV -- showing how put.io connects the dots.</div>
+  </div>
+
+  <!-- Flow canvas -->
+  <div class="flow-canvas">
+
+    <!-- STEP 1: Phone — Find & Share -->
+    <div class="flow-step">
+      <div class="step-number">1</div>
+      <div class="device-phone">
+        <div class="phone-notch"></div>
+        <div class="phone-status-bar">
+          <span>9:41</span>
+          <span></span>
+        </div>
+        <div class="phone-content">
+          <div class="share-sheet">
+            <div class="share-sheet-overlay">
+              <div class="share-panel">
+                <div class="share-handle"></div>
+                <div class="share-url">magnet:?xt=urn:btih:a3f2...</div>
+                <div class="share-apps">
+                  <div class="share-app">
+                    <div class="share-app-icon" style="background: var(--bg-4);">
+                      <svg width="16" height="16" viewBox="0 0 256 256" fill="var(--text-tertiary)"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/></svg>
+                    </div>
+                    <span class="share-app-label">Copy</span>
+                  </div>
+                  <div class="share-app">
+                    <div class="share-app-icon" style="background: var(--bg-4);">
+                      <svg width="16" height="16" viewBox="0 0 256 256" fill="var(--text-tertiary)"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg>
+                    </div>
+                    <span class="share-app-label">Share</span>
+                  </div>
+                  <div class="share-app">
+                    <div class="share-app-icon" style="background: var(--bg-4);">
+                      <svg width="16" height="16" viewBox="0 0 256 256" fill="var(--text-tertiary)"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Z"/></svg>
+                    </div>
+                    <span class="share-app-label">Safari</span>
+                  </div>
+                </div>
+                <div class="share-actions">
+                  <div class="share-action-row highlight">
+                    <span class="share-action-icon">
+                      <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7l-112,120a8,8,0,0,0,3,13l57.63,21.61L88.16,238.43a8,8,0,0,0,13.69,7l112-120A8,8,0,0,0,215.79,118.17Z"/></svg>
+                    </span>
+                    Send to put.io
+                  </div>
+                  <div class="share-action-row">
+                    <span class="share-action-icon">
+                      <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34Z"/></svg>
+                    </span>
+                    Save to Files
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="step-label">
+        <div class="step-label-title">Find & Share</div>
+        <div class="step-label-desc">Share magnet link via iOS share sheet to put.io</div>
+      </div>
+    </div>
+
+    <!-- Arrow 1→2 -->
+    <div class="flow-arrow">
+      <div class="arrow-line">
+        <div class="arrow-dash"></div>
+        <div class="arrow-head"></div>
+      </div>
+      <div class="arrow-label">magnet link</div>
+    </div>
+
+    <!-- STEP 2: Transfer Progress -->
+    <div class="flow-step">
+      <div class="step-number">2</div>
+      <div class="device-transfer">
+        <!-- In progress card -->
+        <div class="transfer-card">
+          <div class="transfer-card-header">
+            <div class="transfer-card-icon">
+              <svg width="14" height="14" viewBox="0 0 256 256" fill="var(--yellow)"><path d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7l-112,120a8,8,0,0,0,3,13l57.63,21.61L88.16,238.43a8,8,0,0,0,13.69,7l112-120A8,8,0,0,0,215.79,118.17Z"/></svg>
+            </div>
+            <div class="transfer-card-title">Transferring</div>
+          </div>
+          <div class="transfer-card-file">Dune.Part.Two.2024.2160p.mkv</div>
+          <div class="transfer-mini-progress">
+            <div class="transfer-mini-fill in-progress"></div>
+          </div>
+          <div class="transfer-card-meta">
+            <span>67% -- 12.3 / 18.4 GB</span>
+            <span>~4 min</span>
+          </div>
+        </div>
+
+        <!-- Completed card -->
+        <div class="transfer-card">
+          <div class="transfer-card-header">
+            <div class="transfer-card-icon" style="background: rgba(62, 207, 142, 0.12);">
+              <svg width="14" height="14" viewBox="0 0 256 256" fill="var(--green)"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg>
+            </div>
+            <div class="transfer-card-title">Complete</div>
+          </div>
+          <div class="transfer-card-file">Dune.Part.Two.2024.2160p.mkv</div>
+          <div class="transfer-mini-progress">
+            <div class="transfer-mini-fill done"></div>
+          </div>
+          <div class="transfer-done-label">Ready to play</div>
+        </div>
+      </div>
+      <div class="step-label">
+        <div class="step-label-title">Cloud Transfer</div>
+        <div class="step-label-desc">put.io downloads at server speed -- no waiting at home</div>
+      </div>
+    </div>
+
+    <!-- Arrow 2→3 -->
+    <div class="flow-arrow">
+      <div class="arrow-line">
+        <div class="arrow-dash"></div>
+        <div class="arrow-head"></div>
+      </div>
+      <div class="arrow-label">notification</div>
+    </div>
+
+    <!-- STEP 3: Web Player -->
+    <div class="flow-step">
+      <div class="step-number">3</div>
+      <div class="device-web">
+        <div class="web-chrome">
+          <div class="web-dot red"></div>
+          <div class="web-dot yellow"></div>
+          <div class="web-dot green"></div>
+          <div class="web-address">app.put.io/files/812739102</div>
+        </div>
+        <div class="web-content">
+          <!-- Notification toast -->
+          <div class="notification-toast">
+            <div class="toast-icon">
+              <svg width="16" height="16" viewBox="0 0 256 256" fill="var(--green)"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg>
+            </div>
+            <div class="toast-text">
+              <div class="toast-title">Transfer complete</div>
+              <div class="toast-desc">Dune: Part Two is ready to play</div>
+            </div>
+          </div>
+
+          <!-- Mini player -->
+          <div class="web-mini-player">
+            <div class="web-player-art">
+              <svg width="28" height="28" viewBox="0 0 256 256" fill="var(--text-quaternary)"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg>
+            </div>
+            <div class="web-player-title">Dune: Part Two</div>
+            <div class="web-player-meta">2024 -- 2h 46m -- 2160p HDR</div>
+            <div class="web-player-progress">
+              <div class="web-player-progress-fill"></div>
+            </div>
+            <div class="web-player-controls">
+              <div class="web-ctrl">
+                <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M195.88,34.47a8,8,0,0,0-8.53.85L120,88.22V48a8,8,0,0,0-12.65-6.53l-80,56a8,8,0,0,0,0,13.06l80,56A8,8,0,0,0,120,160V119.78l67.35,47.1A8,8,0,0,0,200,160V48A8,8,0,0,0,195.88,34.47Z"/></svg>
+              </div>
+              <div class="web-ctrl-play">
+                <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg>
+              </div>
+              <div class="web-ctrl">
+                <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M60.12,34.47a8,8,0,0,1,8.53.85L136,88.22V48a8,8,0,0,1,12.65-6.53l80,56a8,8,0,0,1,0,13.06l-80,56A8,8,0,0,1,136,160V119.78L68.65,166.88A8,8,0,0,1,56,160V48A8,8,0,0,1,60.12,34.47Z"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="device-label">
+        <span class="device-label-icon">
+          <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M216,40H40A16,16,0,0,0,24,56V168a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,128H40V56H216V168Zm16,40a8,8,0,0,1-8,8H32a8,8,0,0,1,0-16H224A8,8,0,0,1,232,208Z"/></svg>
+        </span>
+        <span class="device-label-text">Web</span>
+      </div>
+      <div class="step-label">
+        <div class="step-label-title">Play on Web</div>
+        <div class="step-label-desc">Notification appears, click to open the built-in player</div>
+      </div>
+    </div>
+
+    <!-- Arrow 3→4 -->
+    <div class="flow-arrow">
+      <div class="arrow-line">
+        <div class="arrow-dash"></div>
+        <div class="arrow-head"></div>
+      </div>
+      <div class="arrow-label">continue</div>
+    </div>
+
+    <!-- STEP 4: TV — Continue Watching -->
+    <div class="flow-step">
+      <div class="step-number">4</div>
+      <div class="device-tv">
+        <div class="tv-screen">
+          <div class="tv-content">
+            <div class="tv-section-label">Continue Watching</div>
+            <div class="tv-cards">
+              <div class="tv-card active">
+                <div class="tv-card-art">
+                  <svg width="20" height="20" viewBox="0 0 256 256" fill="var(--text-quaternary)"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg>
+                  <div class="tv-card-progress">
+                    <div class="tv-card-progress-fill" style="width: 12%;"></div>
+                  </div>
+                </div>
+                <div class="tv-card-title">Dune: Part Two</div>
+                <div class="tv-card-meta">2160p HDR -- 18:42 in</div>
+              </div>
+              <div class="tv-card">
+                <div class="tv-card-art">
+                  <svg width="20" height="20" viewBox="0 0 256 256" fill="var(--text-quaternary)"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg>
+                  <div class="tv-card-progress">
+                    <div class="tv-card-progress-fill" style="width: 45%;"></div>
+                  </div>
+                </div>
+                <div class="tv-card-title">Oppenheimer</div>
+                <div class="tv-card-meta">2160p -- 1:21:05 in</div>
+              </div>
+              <div class="tv-card">
+                <div class="tv-card-art">
+                  <svg width="20" height="20" viewBox="0 0 256 256" fill="var(--text-quaternary)"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg>
+                  <div class="tv-card-progress">
+                    <div class="tv-card-progress-fill" style="width: 78%;"></div>
+                  </div>
+                </div>
+                <div class="tv-card-title">The Bear S03E04</div>
+                <div class="tv-card-meta">1080p -- 28:10 in</div>
+              </div>
+            </div>
+
+            <div class="tv-remote-hint">
+              <div class="remote-key">
+                <svg width="8" height="8" viewBox="0 0 256 256" fill="currentColor"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg>
+              </div>
+              <span class="remote-hint-text">Press to resume playback</span>
+            </div>
+          </div>
+        </div>
+        <div class="tv-stand">
+          <div class="tv-neck"></div>
+          <div class="tv-base"></div>
+        </div>
+      </div>
+      <div class="step-label">
+        <div class="step-label-title">Watch on TV</div>
+        <div class="step-label-desc">"Continue Watching" picks up right where you left off</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</body>
+</html>

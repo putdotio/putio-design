@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>put.io — tvOS Home (Native)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000;
+    --surface: #1C1C1E;
+    --surface-2: #2C2C2E;
+    --surface-3: #3A3A3C;
+    --separator: #38383A;
+    --label: #FFFFFF;
+    --label-2: rgba(235, 235, 245, 0.6);
+    --label-3: rgba(235, 235, 245, 0.3);
+    --label-4: rgba(235, 235, 245, 0.18);
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.12);
+    --yellow-subtle: rgba(253, 206, 69, 0.18);
+    --green: #30D158;
+    --green-dim: rgba(48, 209, 88, 0.15);
+    --red: #FF453A;
+    --blue: #0A84FF;
+  }
+  body {
+    font-family: 'Inter', -apple-system, 'SF Pro Display', sans-serif;
+    background: var(--bg);
+    color: var(--label);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── Top gradient (tvOS style) ── */
+  .top-gradient {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 200px;
+    background: linear-gradient(180deg, rgba(30,30,30,0.6) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── tvOS Top Tab Bar ── */
+  .tvos-tab-bar {
+    display: flex;
+    align-items: center;
+    padding: 44px 80px 0;
+    gap: 0;
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+  }
+
+  .tvos-logo {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-right: 60px;
+    color: var(--label-2);
+    flex-shrink: 0;
+  }
+  .tvos-logo span { color: var(--yellow); }
+
+  .tvos-tabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .tvos-tab {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--label-3);
+    padding: 10px 28px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    position: relative;
+  }
+  .tvos-tab:hover {
+    color: var(--label-2);
+  }
+  .tvos-tab.active {
+    color: var(--label);
+    font-weight: 600;
+    background: rgba(255,255,255,0.1);
+  }
+
+  .tvos-tab-spacer { flex: 1; }
+
+  .tvos-user {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-left: auto;
+  }
+  .tvos-user-name {
+    font-size: 20px;
+    color: var(--label-3);
+    font-weight: 400;
+  }
+  .tvos-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Main Content (scrollable rows) ── */
+  .tvos-content {
+    flex: 1;
+    padding: 48px 0 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Section Row ── */
+  .tvos-section {
+    margin-bottom: 36px;
+    flex-shrink: 0;
+  }
+  .tvos-section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 0 80px;
+    margin-bottom: 16px;
+  }
+  .tvos-section-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--label);
+    letter-spacing: -0.01em;
+  }
+  .tvos-section-count {
+    font-size: 18px;
+    color: var(--label-3);
+    font-weight: 400;
+  }
+  .tvos-section-action {
+    margin-left: auto;
+    font-size: 18px;
+    color: var(--yellow);
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* ── Horizontal Row Items ── */
+  .tvos-row-scroll {
+    display: flex;
+    gap: 0;
+    padding: 0 80px;
+    overflow: hidden;
+  }
+
+  /* Continue Watching item - full-width list style */
+  .cw-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 24px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+    width: 100%;
+    position: relative;
+  }
+  .cw-item:hover {
+    background: var(--surface);
+  }
+  .cw-item.focused {
+    background: var(--surface);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .cw-item.focused .cw-name { color: var(--label); }
+
+  .cw-play-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .cw-play-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: #000000;
+    margin-left: 2px;
+  }
+  .cw-item:not(.focused) .cw-play-icon {
+    background: var(--surface-2);
+  }
+  .cw-item:not(.focused) .cw-play-icon svg {
+    fill: var(--label-2);
+  }
+
+  .cw-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .cw-name-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .cw-name {
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--label-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cw-episode {
+    font-weight: 400;
+    color: var(--label-3);
+  }
+
+  .cw-progress-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .cw-progress-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--surface-3);
+    border-radius: 2px;
+    overflow: hidden;
+    max-width: 240px;
+  }
+  .cw-progress-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+  .cw-progress-text {
+    font-size: 16px;
+    color: var(--label-3);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* Badge */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 5px;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+  }
+  .badge-quality {
+    background: var(--yellow-subtle);
+    color: var(--yellow);
+  }
+
+  .cw-time {
+    font-size: 18px;
+    color: var(--label-3);
+    font-weight: 400;
+    white-space: nowrap;
+    text-align: right;
+    min-width: 100px;
+  }
+
+  .cw-chevron svg {
+    width: 22px;
+    height: 22px;
+    fill: var(--label-4);
+  }
+  .cw-item.focused .cw-chevron svg {
+    fill: var(--label-3);
+  }
+
+  /* ── Recently Added list rows ── */
+  .ra-list {
+    display: flex;
+    flex-direction: column;
+    padding: 0 80px;
+  }
+  .ra-item {
+    display: grid;
+    grid-template-columns: 44px 1fr 120px 140px 28px;
+    gap: 16px;
+    align-items: center;
+    padding: 12px 24px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+  .ra-item:hover {
+    background: var(--surface);
+  }
+  .ra-item.focused {
+    background: var(--surface);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  .ra-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ra-icon svg { width: 32px; height: 32px; }
+  .ra-icon.folder svg { fill: var(--yellow); }
+  .ra-icon.file svg { fill: var(--label-3); }
+
+  .ra-name-area {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .ra-name {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--label);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ra-sub {
+    font-size: 16px;
+    color: var(--label-3);
+  }
+  .ra-size {
+    font-size: 20px;
+    color: var(--label-2);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .ra-date {
+    font-size: 18px;
+    color: var(--label-3);
+    text-align: right;
+  }
+  .ra-chevron svg {
+    width: 22px;
+    height: 22px;
+    fill: var(--label-4);
+  }
+
+  /* ── Transfers list ── */
+  .tr-list {
+    display: flex;
+    flex-direction: column;
+    padding: 0 80px;
+  }
+  .tr-item {
+    display: grid;
+    grid-template-columns: 12px 1fr 200px 120px;
+    gap: 16px;
+    align-items: center;
+    padding: 14px 24px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+  .tr-item:hover {
+    background: var(--surface);
+  }
+
+  .tr-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+  .tr-dot.green {
+    background: var(--green);
+    box-shadow: 0 0 8px rgba(48, 209, 88, 0.5);
+  }
+  .tr-dot.yellow {
+    background: var(--yellow);
+    box-shadow: 0 0 8px rgba(253, 206, 69, 0.5);
+  }
+  .tr-dot.red {
+    background: var(--red);
+    box-shadow: 0 0 6px rgba(255, 69, 58, 0.4);
+  }
+
+  .tr-name-area {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .tr-name {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--label);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .tr-sub {
+    font-size: 16px;
+    color: var(--label-3);
+  }
+
+  .tr-progress-area {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .tr-progress-text {
+    font-size: 17px;
+    color: var(--label-2);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .tr-progress-bar {
+    width: 100%;
+    height: 3px;
+    background: var(--surface-3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .tr-progress-fill {
+    height: 100%;
+    border-radius: 2px;
+  }
+  .tr-progress-fill.green { background: var(--green); }
+  .tr-progress-fill.yellow { background: var(--yellow); }
+
+  .tr-speed {
+    font-size: 18px;
+    color: var(--label-3);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Section divider */
+  .tvos-divider {
+    height: 1px;
+    background: var(--separator);
+    margin: 4px 80px 28px;
+  }
+
+  /* ── Remote hint bar (tvOS bottom) ── */
+  .tvos-remote-hints {
+    flex-shrink: 0;
+    padding: 16px 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .hint {
+    font-size: 16px;
+    color: var(--label-4);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .hint svg {
+    width: 18px;
+    height: 18px;
+    fill: var(--label-4);
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <div class="top-gradient"></div>
+
+  <!-- ── tvOS Top Tab Bar ── -->
+  <div class="tvos-tab-bar">
+    <div class="tvos-logo">put<span>.</span>io</div>
+
+    <div class="tvos-tabs">
+      <div class="tvos-tab active">Home</div>
+      <div class="tvos-tab">Files</div>
+      <div class="tvos-tab">Search</div>
+      <div class="tvos-tab">Transfers</div>
+      <div class="tvos-tab">Settings</div>
+    </div>
+
+    <div class="tvos-user">
+      <span class="tvos-user-name">altay</span>
+      <div class="tvos-avatar">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none">
+          <rect x="4" y="4" width="2" height="2" fill="#FDCE45"/>
+          <rect x="18" y="4" width="2" height="2" fill="#FDCE45"/>
+          <rect x="6" y="6" width="2" height="2" fill="#FDCE45"/>
+          <rect x="16" y="6" width="2" height="2" fill="#FDCE45"/>
+          <rect x="4" y="8" width="16" height="2" fill="#FDCE45"/>
+          <rect x="4" y="10" width="2" height="2" fill="#FDCE45"/>
+          <rect x="8" y="10" width="8" height="2" fill="#FDCE45"/>
+          <rect x="18" y="10" width="2" height="2" fill="#FDCE45"/>
+          <rect x="4" y="12" width="16" height="2" fill="#FDCE45"/>
+          <rect x="6" y="14" width="4" height="2" fill="#FDCE45"/>
+          <rect x="14" y="14" width="4" height="2" fill="#FDCE45"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Content ── -->
+  <div class="tvos-content">
+
+    <!-- Continue Watching -->
+    <div class="tvos-section">
+      <div class="tvos-section-header">
+        <span class="tvos-section-title">Continue Watching</span>
+        <span class="tvos-section-count">4 items</span>
+        <span class="tvos-section-action">See All</span>
+      </div>
+
+      <div class="ra-list">
+        <!-- Cosmos Laundromat - FOCUSED -->
+        <div class="cw-item focused">
+          <div class="cw-play-icon">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div class="cw-info">
+            <div class="cw-name-row">
+              <span class="cw-name">Cosmos Laundromat</span>
+              <span class="badge badge-quality">720p</span>
+            </div>
+            <div class="cw-progress-row">
+              <div class="cw-progress-bar"><div class="cw-progress-fill" style="width:55%;"></div></div>
+              <span class="cw-progress-text">55% -- 6:50 left</span>
+            </div>
+          </div>
+          <span class="cw-time">12 min</span>
+          <div class="cw-chevron">
+            <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          </div>
+        </div>
+
+        <!-- Sintel -->
+        <div class="cw-item">
+          <div class="cw-play-icon">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div class="cw-info">
+            <div class="cw-name-row">
+              <span class="cw-name">Sintel</span>
+              <span class="badge badge-quality">1080p</span>
+            </div>
+            <div class="cw-progress-row">
+              <div class="cw-progress-bar"><div class="cw-progress-fill" style="width:35%;"></div></div>
+              <span class="cw-progress-text">35% -- 12:30 left</span>
+            </div>
+          </div>
+          <span class="cw-time">19 min</span>
+          <div class="cw-chevron">
+            <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          </div>
+        </div>
+
+        <!-- The Wire S03E04 -->
+        <div class="cw-item">
+          <div class="cw-play-icon">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div class="cw-info">
+            <div class="cw-name-row">
+              <span class="cw-name">The Wire <span class="cw-episode">S03E04</span></span>
+              <span class="badge badge-quality">1080p</span>
+            </div>
+            <div class="cw-progress-row">
+              <div class="cw-progress-bar"><div class="cw-progress-fill" style="width:12%;"></div></div>
+              <span class="cw-progress-text">12% -- 48:22 left</span>
+            </div>
+          </div>
+          <span class="cw-time">55 min</span>
+          <div class="cw-chevron">
+            <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          </div>
+        </div>
+
+        <!-- Big Buck Bunny -->
+        <div class="cw-item">
+          <div class="cw-play-icon">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div class="cw-info">
+            <div class="cw-name-row">
+              <span class="cw-name">Big Buck Bunny</span>
+              <span class="badge badge-quality">4K</span>
+            </div>
+            <div class="cw-progress-row">
+              <div class="cw-progress-bar"><div class="cw-progress-fill" style="width:0%;"></div></div>
+              <span class="cw-progress-text">Not started</span>
+            </div>
+          </div>
+          <span class="cw-time">10 min</span>
+          <div class="cw-chevron">
+            <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tvos-divider"></div>
+
+    <!-- Recently Added -->
+    <div class="tvos-section">
+      <div class="tvos-section-header">
+        <span class="tvos-section-title">Recently Added</span>
+        <span class="tvos-section-action">Browse All Files</span>
+      </div>
+
+      <div class="ra-list">
+        <div class="ra-item">
+          <div class="ra-icon folder">
+            <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+          </div>
+          <div class="ra-name-area">
+            <span class="ra-name">downloads</span>
+            <span class="ra-sub">8 items</span>
+          </div>
+          <span class="ra-size">21.78 GB</span>
+          <span class="ra-date">2 hours ago</span>
+          <div class="ra-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+        </div>
+
+        <div class="ra-item">
+          <div class="ra-icon folder">
+            <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+          </div>
+          <div class="ra-name-area">
+            <span class="ra-name">chill institute</span>
+            <span class="ra-sub">Empty</span>
+          </div>
+          <span class="ra-size">0 B</span>
+          <span class="ra-date">16 hours ago</span>
+          <div class="ra-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+        </div>
+
+        <div class="ra-item">
+          <div class="ra-icon folder">
+            <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+          </div>
+          <div class="ra-name-area">
+            <span class="ra-name">stuff</span>
+            <span class="ra-sub">12 items</span>
+          </div>
+          <span class="ra-size">4.16 GB</span>
+          <span class="ra-date">Yesterday</span>
+          <div class="ra-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tvos-divider"></div>
+
+    <!-- Active Transfers -->
+    <div class="tvos-section">
+      <div class="tvos-section-header">
+        <span class="tvos-section-title">Active Transfers</span>
+        <span class="tvos-section-count">3 active</span>
+        <span class="tvos-section-action">Manage</span>
+      </div>
+
+      <div class="tr-list">
+        <div class="tr-item">
+          <div class="tr-dot yellow"></div>
+          <div class="tr-name-area">
+            <span class="tr-name">Inception <span class="badge badge-quality">2160p</span></span>
+            <span class="tr-sub">4.2 GB of 6.7 GB</span>
+          </div>
+          <div class="tr-progress-area">
+            <span class="tr-progress-text">63% -- 23 min left</span>
+            <div class="tr-progress-bar"><div class="tr-progress-fill yellow" style="width:63%;"></div></div>
+          </div>
+          <span class="tr-speed">12.4 MB/s</span>
+        </div>
+
+        <div class="tr-item">
+          <div class="tr-dot green"></div>
+          <div class="tr-name-area">
+            <span class="tr-name">Pose -- Season 1 <span class="badge badge-quality">720p</span></span>
+            <span class="tr-sub">763 MB</span>
+          </div>
+          <div class="tr-progress-area">
+            <span class="tr-progress-text">Complete</span>
+            <div class="tr-progress-bar"><div class="tr-progress-fill green" style="width:100%;"></div></div>
+          </div>
+          <span class="tr-speed">Done</span>
+        </div>
+
+        <div class="tr-item">
+          <div class="tr-dot yellow"></div>
+          <div class="tr-name-area">
+            <span class="tr-name">The Wolf of Wall Street <span class="badge badge-quality">1080p</span></span>
+            <span class="tr-sub">1.45 GB of 2.22 GB</span>
+          </div>
+          <div class="tr-progress-area">
+            <span class="tr-progress-text">65% -- 8 min left</span>
+            <div class="tr-progress-bar"><div class="tr-progress-fill yellow" style="width:65%;"></div></div>
+          </div>
+          <span class="tr-speed">8.7 MB/s</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Remote Hints -->
+  <div class="tvos-remote-hints">
+    <span class="hint">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      Press to play
+    </span>
+    <span class="hint">
+      <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+      Swipe to navigate
+    </span>
+    <span class="hint">
+      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+      Hold for options
+    </span>
+  </div>
+</div>
+</body>
+</html>

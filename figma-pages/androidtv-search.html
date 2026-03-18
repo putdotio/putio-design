@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>put.io — Android TV Search (Leanback)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A0C; --bg-2: #141416; --bg-3: #1E1E22; --bg-4: #28282E;
+    --line: #333339; --border: #444450; --solid: #6C6C78;
+    --text-2: #9C9CA8; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868;
+    --yellow-subtle: rgba(253, 206, 69, 0.15);
+    --green: #30A46C; --red: #FF6369;
+  }
+  body { font-family: 'Inter', 'Roboto', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+  .tv-frame { width: 1920px; height: 1080px; overflow: hidden; display: flex; flex-direction: column; padding: 48px 80px; }
+
+  /* Top Header */
+  .atv-header {
+    display: flex; align-items: center; gap: 24px;
+    margin-bottom: 32px; flex-shrink: 0;
+  }
+  .atv-logo { font-size: 40px; font-weight: 700; letter-spacing: -0.02em; }
+  .atv-logo span { color: var(--yellow); }
+  .atv-spacer { flex: 1; }
+  .atv-header-btn {
+    width: 56px; height: 56px; border-radius: 999px;
+    background: var(--bg-3); border: 2px solid transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .atv-header-btn svg { width: 28px; height: 28px; fill: var(--text-2); }
+  .atv-avatar {
+    width: 56px; height: 56px; border-radius: 999px;
+    background: var(--bg-3); border: 2px solid transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+
+  /* Search Input Area */
+  .search-area { margin-bottom: 28px; flex-shrink: 0; }
+  .search-input-display {
+    display: flex; align-items: center; gap: 16px;
+    background: var(--bg-2); border: 2px solid var(--yellow);
+    border-radius: 16px; padding: 20px 28px;
+    box-shadow: 0 0 24px rgba(253,206,69,0.1);
+  }
+  .search-input-display svg { width: 32px; height: 32px; fill: var(--yellow); flex-shrink: 0; }
+  .search-typed {
+    font-size: 32px; font-weight: 500; color: var(--text); flex: 1;
+  }
+  .search-cursor {
+    display: inline-block; width: 3px; height: 36px; background: var(--yellow);
+    margin-left: 2px; vertical-align: middle;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .voice-hint {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 18px; color: var(--solid);
+    background: var(--bg-4); border-radius: 12px;
+    padding: 12px 20px; cursor: pointer; flex-shrink: 0;
+    border: none; font-family: inherit;
+  }
+  .voice-hint svg { width: 24px; height: 24px; fill: var(--text-2); }
+
+  /* Recent Searches */
+  .recent-section { margin-bottom: 24px; flex-shrink: 0; }
+  .recent-label {
+    font-size: 18px; font-weight: 600; color: var(--solid);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px;
+  }
+  .recent-chips { display: flex; gap: 12px; flex-wrap: wrap; }
+  .recent-chip {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg-3); border: 1px solid var(--border);
+    border-radius: 999px; padding: 12px 22px;
+    font-size: 20px; color: var(--text-2); cursor: pointer;
+  }
+  .recent-chip:hover { border-color: var(--text-2); color: var(--text); }
+  .recent-chip svg { width: 20px; height: 20px; fill: currentColor; }
+
+  /* Results Section */
+  .results-section { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .results-label {
+    font-size: 24px; font-weight: 600; color: var(--text); margin-bottom: 16px;
+    flex-shrink: 0;
+  }
+
+  /* File List (flat, NOT cards) */
+  .file-list { flex: 1; display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
+
+  .file-row {
+    display: grid;
+    grid-template-columns: 56px 1fr 160px 56px;
+    align-items: center; gap: 16px;
+    padding: 16px 24px;
+    background: var(--bg-2);
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.12s;
+  }
+  .file-row:hover { background: var(--bg-3); }
+  .file-row.focused {
+    background: var(--bg-3);
+    border-color: rgba(255,255,255,0.15);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+
+  .file-icon {
+    width: 48px; height: 48px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .file-icon.folder { background: var(--yellow-subtle); }
+  .file-icon.folder svg { fill: var(--yellow); width: 28px; height: 28px; }
+  .file-icon.video { background: var(--bg-4); }
+  .file-icon.video svg { fill: var(--text-2); width: 26px; height: 26px; }
+  .file-icon.audio { background: rgba(48,164,108,0.12); }
+  .file-icon.audio svg { fill: var(--green); width: 26px; height: 26px; }
+
+  .file-name-cell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .file-name {
+    font-size: 26px; font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .file-meta {
+    font-size: 18px; color: var(--solid);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .q-badge {
+    font-size: 14px; background: var(--yellow-subtle); color: var(--yellow);
+    padding: 2px 8px; border-radius: 5px; font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .size-cell {
+    font-size: 22px; color: var(--text-2); font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .chevron { display: flex; align-items: center; justify-content: center; }
+  .chevron svg { width: 28px; height: 28px; fill: var(--solid); }
+  .file-row.focused .chevron svg { fill: var(--text); }
+
+  /* D-pad hint */
+  .dpad-hint {
+    position: fixed; bottom: 36px; right: 80px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 16px; color: var(--solid);
+  }
+  .dpad-key {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; border-radius: 8px;
+    background: var(--bg-3); border: 1px solid var(--border);
+    font-size: 14px; font-weight: 600; color: var(--text-2);
+  }
+  .dpad-key svg { width: 18px; height: 18px; fill: currentColor; }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <!-- Header -->
+  <div class="atv-header">
+    <div class="atv-logo">put<span>.</span>io</div>
+    <div class="atv-spacer"></div>
+    <!-- Settings -->
+    <div class="atv-header-btn">
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+    </div>
+    <!-- Avatar -->
+    <div class="atv-avatar">
+      <svg viewBox="0 0 24 24" width="32" height="32" fill="none">
+        <rect x="4" y="4" width="2" height="2" fill="#FDCE45"/>
+        <rect x="18" y="4" width="2" height="2" fill="#FDCE45"/>
+        <rect x="6" y="6" width="2" height="2" fill="#FDCE45"/>
+        <rect x="16" y="6" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="8" width="16" height="2" fill="#FDCE45"/>
+        <rect x="4" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="8" y="10" width="8" height="2" fill="#FDCE45"/>
+        <rect x="18" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="12" width="16" height="2" fill="#FDCE45"/>
+        <rect x="6" y="14" width="4" height="2" fill="#FDCE45"/>
+        <rect x="14" y="14" width="4" height="2" fill="#FDCE45"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Search Input -->
+  <div class="search-area">
+    <div class="search-input-display">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <span class="search-typed">sintel<span class="search-cursor"></span></span>
+      <button class="voice-hint">
+        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+        Voice
+      </button>
+    </div>
+  </div>
+
+  <!-- Recent Searches as Chips -->
+  <div class="recent-section">
+    <div class="recent-label">Recent Searches</div>
+    <div class="recent-chips">
+      <div class="recent-chip">
+        <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+        big buck bunny
+      </div>
+      <div class="recent-chip">
+        <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+        cosmos laundromat
+      </div>
+      <div class="recent-chip">
+        <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+        podcast
+      </div>
+      <div class="recent-chip">
+        <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+        tears of steel
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Results as flat file list -->
+  <div class="results-section">
+    <div class="results-label">3 results for "sintel"</div>
+    <div class="file-list">
+      <!-- Folder -->
+      <div class="file-row">
+        <div class="file-icon folder">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="file-name-cell">
+          <div class="file-name">Sintel</div>
+          <div class="file-meta">Folder -- 3 items</div>
+        </div>
+        <div class="size-cell">5.1 GB</div>
+        <div class="chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+
+      <!-- Video file - FOCUSED -->
+      <div class="file-row focused">
+        <div class="file-icon video">
+          <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+        </div>
+        <div class="file-name-cell">
+          <div class="file-name">Sintel.2010.1080p.BluRay.mp4</div>
+          <div class="file-meta">
+            <span class="q-badge">1080p</span>
+            MP4 -- Added 5 hours ago
+          </div>
+        </div>
+        <div class="size-cell">4.21 GB</div>
+        <div class="chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+
+      <!-- Video file -->
+      <div class="file-row">
+        <div class="file-icon video">
+          <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+        </div>
+        <div class="file-name-cell">
+          <div class="file-name">Sintel.2010.720p.WEBRip.mkv</div>
+          <div class="file-meta">
+            <span class="q-badge">720p</span>
+            MKV -- Added last week
+          </div>
+        </div>
+        <div class="size-cell">892 MB</div>
+        <div class="chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- D-pad Navigation Hints -->
+  <div class="dpad-hint">
+    <div class="dpad-key">
+      <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+    </div>
+    <div class="dpad-key">
+      <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+    </div>
+    Navigate
+    <div class="dpad-key" style="width:auto; padding:0 12px;">OK</div>
+    Select
+    <div class="dpad-key">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    </div>
+    Back
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Audio Player (Clean Modern)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #0C0C0E;
+    --bg-1: #111114;
+    --bg-2: #161619;
+    --bg-3: #1C1C20;
+    --bg-4: #232328;
+    --bg-5: #2A2A30;
+    --bg-hover: #1E1E23;
+
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-default: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.12);
+
+    --text-primary: #EDEDEF;
+    --text-secondary: #A0A0A8;
+    --text-tertiary: #6C6C76;
+    --text-quaternary: #4A4A52;
+
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.12);
+    --yellow-hover: #FDD85C;
+
+    --green: #3ECF8E;
+    --red: #EF4444;
+    --blue: #60A5FA;
+    --purple: #A78BFA;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-0);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' 1, 'ss01' 1;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 232px;
+    background: var(--bg-1);
+    border-right: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+    user-select: none;
+  }
+  .logo .dot { color: var(--yellow); }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 0 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 12px;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    border-radius: 6px;
+    transition: background 0.1s ease, color 0.1s ease;
+    line-height: 1;
+  }
+  .nav-item:hover {
+    background: var(--bg-3);
+    color: var(--text-primary);
+  }
+  .nav-item.active {
+    background: var(--bg-3);
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .nav-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .nav-icon svg { display: block; }
+  .nav-item .badge {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+  }
+  .nav-item .badge-live {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--yellow);
+    background: var(--yellow-dim);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  .nav-sep {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 6px 12px;
+  }
+
+  .sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .storage-bar-wrap { margin-bottom: 8px; }
+  .storage-track {
+    width: 100%;
+    height: 3px;
+    background: var(--bg-4);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .storage-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+  .storage-label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    margin: 4px 0 0 0;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .user-row:hover { background: var(--bg-3); }
+
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    background: var(--bg-4);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .user-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    flex: 1;
+  }
+
+  .user-menu-dots {
+    color: var(--text-quaternary);
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg-0);
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-1);
+    min-height: 52px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-tertiary);
+  }
+  .breadcrumb-item {
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .breadcrumb-item:hover { color: var(--text-primary); }
+  .breadcrumb-item.current { color: var(--text-primary); }
+  .breadcrumb-sep {
+    color: var(--text-quaternary);
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+  }
+
+  .topbar-spacer { flex: 1; }
+
+  .search-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+    width: 220px;
+  }
+  .search-trigger:hover { border-color: var(--border-strong); }
+  .search-trigger .search-icon {
+    color: var(--text-quaternary);
+    display: flex;
+    align-items: center;
+  }
+  .search-trigger .search-text {
+    font-size: 12.5px;
+    color: var(--text-quaternary);
+    flex: 1;
+    font-family: inherit;
+  }
+  .search-trigger .search-shortcut {
+    font-size: 10px;
+    color: var(--text-quaternary);
+    background: var(--bg-4);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+    line-height: 1.4;
+  }
+
+  /* ===== AUDIO PLAYER MAIN ===== */
+  .player-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .player-hero {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    padding: 48px 56px 40px;
+  }
+
+  /* Album art placeholder */
+  .album-art {
+    width: 260px;
+    height: 260px;
+    border-radius: 12px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Geometric pattern in put.io colors */
+  .album-art svg { display: block; }
+
+  .player-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0;
+  }
+
+  .now-playing-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--yellow);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .now-playing-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--yellow);
+    animation: pulse 2s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .track-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+  }
+
+  .track-source {
+    font-size: 15px;
+    color: var(--text-secondary);
+    font-weight: 450;
+  }
+
+  /* Progress scrubber */
+  .audio-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .audio-progress-track {
+    width: 100%;
+    height: 5px;
+    background: var(--bg-4);
+    border-radius: 3px;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .audio-progress-fill {
+    height: 100%;
+    width: 34%;
+    background: var(--yellow);
+    border-radius: 3px;
+    position: relative;
+  }
+
+  .audio-progress-fill::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    background: var(--yellow);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(253, 206, 69, 0.4);
+  }
+
+  .audio-times {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Controls */
+  .audio-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ctrl-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s ease;
+  }
+  .ctrl-btn:hover {
+    background: var(--bg-3);
+    color: var(--text-primary);
+  }
+  .ctrl-btn svg { display: block; }
+
+  .ctrl-btn-play {
+    width: 52px;
+    height: 52px;
+    border: none;
+    background: var(--yellow);
+    color: #0C0C0E;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s ease;
+    margin: 0 8px;
+  }
+  .ctrl-btn-play:hover { background: var(--yellow-hover); transform: scale(1.04); }
+  .ctrl-btn-play svg { display: block; margin-left: 2px; }
+
+  .ctrl-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-weight: 600;
+    text-align: center;
+    margin-top: 1px;
+  }
+
+  .ctrl-with-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  /* Speed selector */
+  .speed-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: 24px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 2px;
+  }
+
+  .speed-btn {
+    padding: 5px 10px;
+    border: none;
+    background: none;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border-radius: 6px;
+    font-family: inherit;
+    transition: all 0.1s ease;
+    line-height: 1;
+  }
+  .speed-btn:hover {
+    color: var(--text-secondary);
+    background: var(--bg-3);
+  }
+  .speed-btn.active {
+    background: var(--bg-4);
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  /* Volume */
+  .volume-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 24px;
+  }
+
+  .volume-icon {
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .volume-track {
+    width: 90px;
+    height: 4px;
+    background: var(--bg-4);
+    border-radius: 2px;
+    cursor: pointer;
+  }
+
+  .volume-fill {
+    height: 100%;
+    width: 70%;
+    background: var(--text-secondary);
+    border-radius: 2px;
+  }
+
+  /* ===== QUEUE SECTION ===== */
+  .queue-section {
+    padding: 0 56px 32px;
+  }
+
+  .queue-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .queue-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+
+  .queue-count {
+    font-size: 12px;
+    color: var(--text-quaternary);
+    font-weight: 450;
+  }
+
+  .queue-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.1s ease;
+  }
+  .queue-item:hover { background: var(--bg-hover); }
+
+  .queue-num {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-quaternary);
+    width: 20px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .queue-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--bg-3);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .queue-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .queue-name {
+    font-size: 13px;
+    font-weight: 450;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .queue-meta {
+    font-size: 11.5px;
+    color: var(--text-quaternary);
+    margin-top: 2px;
+  }
+
+  .queue-duration {
+    font-size: 12px;
+    color: var(--text-quaternary);
+    font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ===== MINI PLAYER BAR ===== */
+  .mini-player {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 20px;
+    background: var(--bg-1);
+    border-top: 1px solid var(--border-subtle);
+    min-height: 64px;
+    flex-shrink: 0;
+  }
+
+  .mini-art {
+    width: 44px;
+    height: 44px;
+    background: var(--bg-3);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .mini-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    width: 200px;
+    flex-shrink: 0;
+  }
+
+  .mini-title {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mini-source {
+    font-size: 11px;
+    color: var(--text-quaternary);
+  }
+
+  .mini-progress-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mini-progress-track {
+    flex: 1;
+    height: 3px;
+    background: var(--bg-4);
+    border-radius: 2px;
+    cursor: pointer;
+  }
+
+  .mini-progress-fill {
+    height: 100%;
+    width: 34%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+
+  .mini-time {
+    font-size: 10px;
+    color: var(--text-quaternary);
+    font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+    font-variant-numeric: tabular-nums;
+    min-width: 68px;
+    text-align: center;
+  }
+
+  .mini-controls {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
+  .mini-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s ease;
+  }
+  .mini-btn:hover {
+    background: var(--bg-3);
+    color: var(--text-primary);
+  }
+  .mini-btn svg { display: block; }
+
+  .mini-btn-play {
+    width: 34px;
+    height: 34px;
+    border: none;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s ease;
+  }
+  .mini-btn-play:hover { background: rgba(255,255,255,0.14); }
+
+  /* Scrollbar */
+  .player-main::-webkit-scrollbar { width: 6px; }
+  .player-main::-webkit-scrollbar-track { background: transparent; }
+  .player-main::-webkit-scrollbar-thumb { background: var(--bg-5); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== SIDEBAR ===== -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="dot">.</span>io</div>
+    </div>
+
+    <div class="sidebar-nav">
+      <button class="nav-item active">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="#FDCE45"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg>
+        </span>
+        Files
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7l-112,120a8,8,0,0,0,3,13l57.63,21.61L88.16,238.43a8,8,0,0,0,13.69,7l112-120A8,8,0,0,0,215.79,118.17Z"/></svg>
+        </span>
+        Transfers
+        <span class="badge-live">3</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M98.91,157.09A71.53,71.53,0,0,1,120,208a8,8,0,0,1-16,0,56,56,0,0,0-56-56,8,8,0,0,1,0-16A71.53,71.53,0,0,1,98.91,157.09ZM48,88a8,8,0,0,0,0,16,104,104,0,0,1,104,104,8,8,0,0,0,16,0A120,120,0,0,0,48,88Zm0-40a8,8,0,0,0,0,16,144,144,0,0,1,144,144,8,8,0,0,0,16,0A160,160,0,0,0,48,48Zm12,160a12,12,0,1,0-12-12A12,12,0,0,0,60,208Z"/></svg>
+        </span>
+        RSS Feeds
+      </button>
+
+      <div class="nav-sep"></div>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg>
+        </span>
+        Shared
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"/></svg>
+        </span>
+        History
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"/></svg>
+        </span>
+        Trash
+        <span class="badge">19.5 GB</span>
+      </button>
+
+      <div class="nav-sep"></div>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.16,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.16-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,74,34.5a8,8,0,0,0-3.93,6L67.43,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.16,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.16,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.16,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.16-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.16,8,8,0,0,0-1.49-7.06Z"/></svg>
+        </span>
+        Settings
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="storage-bar-wrap">
+        <div class="storage-track">
+          <div class="storage-fill" style="width: 78%;"></div>
+        </div>
+      </div>
+      <div class="storage-label">39 TB of 50 TB used</div>
+    </div>
+
+    <div class="user-row">
+      <div class="user-avatar">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="var(--text-secondary)">
+          <rect x="3" y="2" width="2" height="2"/>
+          <rect x="11" y="2" width="2" height="2"/>
+          <rect x="5" y="4" width="2" height="2"/>
+          <rect x="9" y="4" width="2" height="2"/>
+          <rect x="3" y="6" width="10" height="2"/>
+          <rect x="1" y="8" width="2" height="2"/>
+          <rect x="3" y="8" width="2" height="2"/>
+          <rect x="5" y="8" width="6" height="2"/>
+          <rect x="11" y="8" width="2" height="2"/>
+          <rect x="13" y="8" width="2" height="2"/>
+          <rect x="1" y="10" width="2" height="2"/>
+          <rect x="5" y="10" width="2" height="2"/>
+          <rect x="9" y="10" width="2" height="2"/>
+          <rect x="13" y="10" width="2" height="2"/>
+          <rect x="3" y="12" width="2" height="2"/>
+          <rect x="5" y="12" width="2" height="2"/>
+          <rect x="9" y="12" width="2" height="2"/>
+          <rect x="11" y="12" width="2" height="2"/>
+        </svg>
+      </div>
+      <span class="user-name">altay</span>
+      <span class="user-menu-dots">...</span>
+    </div>
+  </div>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="content">
+
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="breadcrumb">
+        <span class="breadcrumb-item">Your Files</span>
+        <span class="breadcrumb-sep">
+          <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"/></svg>
+        </span>
+        <span class="breadcrumb-item">rss</span>
+        <span class="breadcrumb-sep">
+          <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"/></svg>
+        </span>
+        <span class="breadcrumb-item current">podcast-episode-127.mp3</span>
+      </div>
+      <div class="topbar-spacer"></div>
+
+      <div class="search-trigger">
+        <span class="search-icon">
+          <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,218.34l-50.07-50.07a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.31ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>
+        </span>
+        <span class="search-text">Search...</span>
+        <span class="search-shortcut">/</span>
+      </div>
+    </div>
+
+    <!-- Player main area -->
+    <div class="player-main">
+
+      <!-- Hero: album art + controls -->
+      <div class="player-hero">
+        <!-- Album art: geometric pattern -->
+        <div class="album-art">
+          <svg width="260" height="260" viewBox="0 0 260 260" fill="none">
+            <!-- Background gradient -->
+            <rect width="260" height="260" fill="#161619"/>
+            <!-- Geometric pattern using put.io palette -->
+            <rect x="0" y="0" width="130" height="130" fill="rgba(253, 206, 69, 0.08)"/>
+            <rect x="130" y="130" width="130" height="130" fill="rgba(253, 206, 69, 0.08)"/>
+            <circle cx="130" cy="130" r="70" fill="none" stroke="rgba(253, 206, 69, 0.15)" stroke-width="1"/>
+            <circle cx="130" cy="130" r="50" fill="none" stroke="rgba(253, 206, 69, 0.12)" stroke-width="1"/>
+            <circle cx="130" cy="130" r="30" fill="rgba(253, 206, 69, 0.06)"/>
+            <!-- Diagonal lines -->
+            <line x1="0" y1="0" x2="260" y2="260" stroke="rgba(253, 206, 69, 0.06)" stroke-width="1"/>
+            <line x1="260" y1="0" x2="0" y2="260" stroke="rgba(253, 206, 69, 0.06)" stroke-width="1"/>
+            <!-- Grid dots -->
+            <circle cx="65" cy="65" r="3" fill="rgba(253, 206, 69, 0.2)"/>
+            <circle cx="195" cy="65" r="3" fill="rgba(253, 206, 69, 0.2)"/>
+            <circle cx="65" cy="195" r="3" fill="rgba(253, 206, 69, 0.2)"/>
+            <circle cx="195" cy="195" r="3" fill="rgba(253, 206, 69, 0.2)"/>
+            <circle cx="130" cy="130" r="4" fill="rgba(253, 206, 69, 0.3)"/>
+            <!-- Waveform bars across center -->
+            <rect x="40" y="118" width="4" height="24" rx="2" fill="rgba(253, 206, 69, 0.25)"/>
+            <rect x="50" y="110" width="4" height="40" rx="2" fill="rgba(253, 206, 69, 0.3)"/>
+            <rect x="60" y="115" width="4" height="30" rx="2" fill="rgba(253, 206, 69, 0.25)"/>
+            <rect x="70" y="105" width="4" height="50" rx="2" fill="rgba(253, 206, 69, 0.35)"/>
+            <rect x="80" y="112" width="4" height="36" rx="2" fill="rgba(253, 206, 69, 0.28)"/>
+            <rect x="90" y="100" width="4" height="60" rx="2" fill="rgba(253, 206, 69, 0.4)"/>
+            <rect x="100" y="108" width="4" height="44" rx="2" fill="rgba(253, 206, 69, 0.32)"/>
+            <rect x="110" y="102" width="4" height="56" rx="2" fill="rgba(253, 206, 69, 0.38)"/>
+            <rect x="120" y="96" width="4" height="68" rx="2" fill="rgba(253, 206, 69, 0.45)"/>
+            <rect x="130" y="92" width="4" height="76" rx="2" fill="rgba(253, 206, 69, 0.5)"/>
+            <rect x="140" y="98" width="4" height="64" rx="2" fill="rgba(253, 206, 69, 0.42)"/>
+            <rect x="150" y="104" width="4" height="52" rx="2" fill="rgba(253, 206, 69, 0.36)"/>
+            <rect x="160" y="110" width="4" height="40" rx="2" fill="rgba(253, 206, 69, 0.3)"/>
+            <rect x="170" y="106" width="4" height="48" rx="2" fill="rgba(253, 206, 69, 0.34)"/>
+            <rect x="180" y="112" width="4" height="36" rx="2" fill="rgba(253, 206, 69, 0.28)"/>
+            <rect x="190" y="116" width="4" height="28" rx="2" fill="rgba(253, 206, 69, 0.24)"/>
+            <rect x="200" y="108" width="4" height="44" rx="2" fill="rgba(253, 206, 69, 0.32)"/>
+            <rect x="210" y="114" width="4" height="32" rx="2" fill="rgba(253, 206, 69, 0.26)"/>
+          </svg>
+        </div>
+
+        <!-- Player info + controls -->
+        <div class="player-info">
+          <div class="now-playing-label">
+            <span class="now-playing-dot"></span>
+            Now Playing
+          </div>
+
+          <div>
+            <div class="track-title">Episode 127 -- The Design of put.io</div>
+            <div class="track-source" style="margin-top: 8px;">Tech's Message Podcast</div>
+          </div>
+
+          <!-- Progress -->
+          <div class="audio-progress">
+            <div class="audio-progress-track">
+              <div class="audio-progress-fill"></div>
+            </div>
+            <div class="audio-times">
+              <span>28:14</span>
+              <span>1:22:45</span>
+            </div>
+          </div>
+
+          <!-- Controls row -->
+          <div class="audio-controls">
+            <!-- Previous -->
+            <button class="ctrl-btn">
+              <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M195.88,34.47a8,8,0,0,0-8.53.85L120,88.22V48a8,8,0,0,0-12.65-6.53l-80,56a8,8,0,0,0,0,13.06l80,56A8,8,0,0,0,120,160V119.78l67.35,47.1A8,8,0,0,0,200,160V48A8,8,0,0,0,195.88,34.47Z"/></svg>
+            </button>
+
+            <!-- Rewind 15s -->
+            <div class="ctrl-with-label">
+              <button class="ctrl-btn">
+                <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,0,0,36.18,176.07,8,8,0,0,0,50.09,168,88,88,0,1,1,128,216a87.29,87.29,0,0,1-41.22-10.31,8,8,0,1,0-7.56,14.1A104,104,0,1,0,128,24Z"/></svg>
+              </button>
+              <span class="ctrl-label">15s</span>
+            </div>
+
+            <!-- Play/Pause -->
+            <button class="ctrl-btn-play">
+              <!-- Pause icon (currently playing) -->
+              <svg width="22" height="22" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48V208a16,16,0,0,1-16,16H160a16,16,0,0,1-16-16V48a16,16,0,0,1,16-16h40A16,16,0,0,1,216,48ZM96,32H56A16,16,0,0,0,40,48V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V48A16,16,0,0,0,96,32Z"/></svg>
+            </button>
+
+            <!-- Forward 15s -->
+            <div class="ctrl-with-label">
+              <button class="ctrl-btn">
+                <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24a104,104,0,0,1,91.82,152.07A8,8,0,0,1,205.91,168,88,88,0,1,0,128,216a87.29,87.29,0,0,0,41.22-10.31,8,8,0,1,1,7.56,14.1A104,104,0,1,1,128,24Z"/></svg>
+              </button>
+              <span class="ctrl-label">15s</span>
+            </div>
+
+            <!-- Next -->
+            <button class="ctrl-btn">
+              <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M60.12,34.47a8,8,0,0,1,8.53.85L136,88.22V48a8,8,0,0,1,12.65-6.53l80,56a8,8,0,0,1,0,13.06l-80,56A8,8,0,0,1,136,160V119.78L68.65,166.88A8,8,0,0,1,56,160V48A8,8,0,0,1,60.12,34.47Z"/></svg>
+            </button>
+
+            <!-- Speed selector -->
+            <div class="speed-group">
+              <button class="speed-btn">0.5x</button>
+              <button class="speed-btn active">1x</button>
+              <button class="speed-btn">1.5x</button>
+              <button class="speed-btn">2x</button>
+            </div>
+
+            <!-- Volume -->
+            <div class="volume-group">
+              <span class="volume-icon">
+                <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M155.51,24.81a8,8,0,0,0-8.42.88L77.25,80H32A16,16,0,0,0,16,96v64a16,16,0,0,0,16,16H77.25l69.84,54.31A8,8,0,0,0,160,224V32A8,8,0,0,0,155.51,24.81ZM144,207.64,84.91,161.69A7.94,7.94,0,0,0,80,160H32V96H80a7.94,7.94,0,0,0,4.91-1.69L144,48.36Zm50-63.77a24,24,0,0,0,0-31.74,8,8,0,1,0-12,10.58,8,8,0,0,1,0,10.58,8,8,0,1,0,12,10.58Z"/></svg>
+              </span>
+              <div class="volume-track">
+                <div class="volume-fill"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Queue section -->
+      <div class="queue-section">
+        <div class="queue-header">
+          <span class="queue-title">Up Next</span>
+          <span class="queue-count">5 episodes</span>
+        </div>
+
+        <!-- Queue item 1 -->
+        <div class="queue-item">
+          <span class="queue-num">1</span>
+          <div class="queue-icon">
+            <svg width="16" height="16" viewBox="0 0 48 32" fill="none">
+              <rect x="6" y="10" width="3" height="12" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="12" y="6" width="3" height="20" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="18" y="12" width="3" height="8" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="24" y="4" width="3" height="24" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="30" y="8" width="3" height="16" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="36" y="11" width="3" height="10" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+            </svg>
+          </div>
+          <div class="queue-info">
+            <div class="queue-name">Episode 126 -- Why Dark Mode Wins</div>
+            <div class="queue-meta">Tech's Message Podcast</div>
+          </div>
+          <span class="queue-duration">1:15:32</span>
+        </div>
+
+        <!-- Queue item 2 -->
+        <div class="queue-item">
+          <span class="queue-num">2</span>
+          <div class="queue-icon">
+            <svg width="16" height="16" viewBox="0 0 48 32" fill="none">
+              <rect x="6" y="10" width="3" height="12" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="12" y="6" width="3" height="20" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="18" y="12" width="3" height="8" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="24" y="4" width="3" height="24" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="30" y="8" width="3" height="16" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="36" y="11" width="3" height="10" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+            </svg>
+          </div>
+          <div class="queue-info">
+            <div class="queue-name">Episode 125 -- The Future of Cloud Storage</div>
+            <div class="queue-meta">Tech's Message Podcast</div>
+          </div>
+          <span class="queue-duration">1:08:17</span>
+        </div>
+
+        <!-- Queue item 3 -->
+        <div class="queue-item">
+          <span class="queue-num">3</span>
+          <div class="queue-icon">
+            <svg width="16" height="16" viewBox="0 0 48 32" fill="none">
+              <rect x="6" y="10" width="3" height="12" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="12" y="6" width="3" height="20" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="18" y="12" width="3" height="8" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="24" y="4" width="3" height="24" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="30" y="8" width="3" height="16" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="36" y="11" width="3" height="10" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+            </svg>
+          </div>
+          <div class="queue-info">
+            <div class="queue-name">Episode 124 -- Designing for TV Interfaces</div>
+            <div class="queue-meta">Tech's Message Podcast</div>
+          </div>
+          <span class="queue-duration">58:44</span>
+        </div>
+
+        <!-- Queue item 4 -->
+        <div class="queue-item">
+          <span class="queue-num">4</span>
+          <div class="queue-icon">
+            <svg width="16" height="16" viewBox="0 0 48 32" fill="none">
+              <rect x="6" y="10" width="3" height="12" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="12" y="6" width="3" height="20" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="18" y="12" width="3" height="8" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="24" y="4" width="3" height="24" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="30" y="8" width="3" height="16" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="36" y="11" width="3" height="10" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+            </svg>
+          </div>
+          <div class="queue-info">
+            <div class="queue-name">Episode 123 -- Privacy-First File Sharing</div>
+            <div class="queue-meta">Tech's Message Podcast</div>
+          </div>
+          <span class="queue-duration">1:31:09</span>
+        </div>
+
+        <!-- Queue item 5 -->
+        <div class="queue-item">
+          <span class="queue-num">5</span>
+          <div class="queue-icon">
+            <svg width="16" height="16" viewBox="0 0 48 32" fill="none">
+              <rect x="6" y="10" width="3" height="12" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="12" y="6" width="3" height="20" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="18" y="12" width="3" height="8" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="24" y="4" width="3" height="24" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="30" y="8" width="3" height="16" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+              <rect x="36" y="11" width="3" height="10" rx="1.5" fill="var(--purple)" opacity="0.6"/>
+            </svg>
+          </div>
+          <div class="queue-info">
+            <div class="queue-name">Episode 122 -- Cross-Platform Sync Done Right</div>
+            <div class="queue-meta">Tech's Message Podcast</div>
+          </div>
+          <span class="queue-duration">1:04:52</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== MINI PLAYER BAR (persistent) ===== -->
+    <div class="mini-player">
+      <div class="mini-art">
+        <svg width="24" height="18" viewBox="0 0 48 32" fill="none">
+          <rect x="4" y="10" width="3" height="12" rx="1.5" fill="var(--yellow)" opacity="0.7"/>
+          <rect x="10" y="6" width="3" height="20" rx="1.5" fill="var(--yellow)" opacity="0.8"/>
+          <rect x="16" y="12" width="3" height="8" rx="1.5" fill="var(--yellow)" opacity="0.6"/>
+          <rect x="22" y="4" width="3" height="24" rx="1.5" fill="var(--yellow)" opacity="0.9"/>
+          <rect x="28" y="8" width="3" height="16" rx="1.5" fill="var(--yellow)" opacity="0.7"/>
+          <rect x="34" y="6" width="3" height="20" rx="1.5" fill="var(--yellow)" opacity="0.8"/>
+          <rect x="40" y="11" width="3" height="10" rx="1.5" fill="var(--yellow)" opacity="0.6"/>
+        </svg>
+      </div>
+      <div class="mini-info">
+        <div class="mini-title">Episode 127 -- The Design of put.io</div>
+        <div class="mini-source">Tech's Message Podcast</div>
+      </div>
+      <div class="mini-progress-wrap">
+        <div class="mini-progress-track">
+          <div class="mini-progress-fill"></div>
+        </div>
+        <span class="mini-time">28:14 / 1:22:45</span>
+      </div>
+      <div class="mini-controls">
+        <button class="mini-btn">
+          <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M195.88,34.47a8,8,0,0,0-8.53.85L120,88.22V48a8,8,0,0,0-12.65-6.53l-80,56a8,8,0,0,0,0,13.06l80,56A8,8,0,0,0,120,160V119.78l67.35,47.1A8,8,0,0,0,200,160V48A8,8,0,0,0,195.88,34.47Z"/></svg>
+        </button>
+        <button class="mini-btn-play">
+          <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48V208a16,16,0,0,1-16,16H160a16,16,0,0,1-16-16V48a16,16,0,0,1,16-16h40A16,16,0,0,1,216,48ZM96,32H56A16,16,0,0,0,40,48V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V48A16,16,0,0,0,96,32Z"/></svg>
+        </button>
+        <button class="mini-btn">
+          <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M60.12,34.47a8,8,0,0,1,8.53.85L136,88.22V48a8,8,0,0,1,12.65-6.53l80,56a8,8,0,0,1,0,13.06l-80,56A8,8,0,0,1,136,160V119.78L68.65,166.88A8,8,0,0,1,56,160V48A8,8,0,0,1,60.12,34.47Z"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

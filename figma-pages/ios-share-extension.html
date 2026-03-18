@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io — iOS Share Extension</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000; --bg-2: #1C1C1E; --bg-3: #2C2C2E; --bg-4: #3A3A3C;
+    --line: #38383A; --solid: #8E8E93; --text-2: #AEAEB2; --text: #FFFFFF;
+    --yellow: #FDCE45; --green: #30D158; --red: #FF453A; --blue: #0A84FF;
+    --sheet-bg: #2C2C2E;
+  }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+  .phone { width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 12px 24px 0;
+    font-size: 15px; font-weight: 600; height: 54px; flex-shrink: 0;
+  }
+  .status-bar .time { flex: 1; }
+  .status-bar .icons { display: flex; gap: 5px; align-items: center; }
+
+  /* Background: Safari page behind the sheet */
+  .safari-bg {
+    flex: 1; padding: 54px 0 0; display: flex; flex-direction: column;
+    opacity: 0.3;
+  }
+  .safari-url-bar {
+    margin: 8px 16px; padding: 10px 14px;
+    background: var(--bg-3); border-radius: 10px;
+    font-size: 14px; color: var(--solid);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .safari-url-bar svg { width: 14px; height: 14px; fill: var(--solid); flex-shrink: 0; }
+  .safari-content {
+    flex: 1; margin: 12px 16px; background: var(--bg-2); border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: var(--bg-4);
+  }
+
+  /* Share Sheet Overlay */
+  .share-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: var(--sheet-bg); border-radius: 14px 14px 0 0;
+    z-index: 100; display: flex; flex-direction: column;
+    max-height: 620px;
+  }
+
+  /* Sheet Handle & Header */
+  .sheet-handle {
+    width: 36px; height: 5px; border-radius: 3px;
+    background: var(--bg-4); margin: 8px auto 0;
+  }
+  .sheet-header {
+    display: flex; align-items: center; padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .sheet-header-title { flex: 1; font-size: 15px; font-weight: 600; text-align: center; }
+  .sheet-header-btn {
+    font-size: 17px; font-weight: 400; color: var(--blue);
+    background: none; border: none; cursor: pointer; font-family: inherit;
+  }
+
+  /* Shared URL Preview */
+  .shared-url-preview {
+    margin: 16px 16px 0; padding: 14px 16px;
+    background: var(--bg-4); border-radius: 12px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .url-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: rgba(253,206,69,0.12); display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .url-icon svg { width: 22px; height: 22px; fill: var(--yellow); }
+  .url-info { flex: 1; min-width: 0; }
+  .url-title { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .url-detail { font-size: 13px; color: var(--solid); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Share Row: Horizontal scrollable share targets */
+  .share-row {
+    display: flex; gap: 0; padding: 20px 8px 16px;
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+  }
+  .share-target {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    min-width: 76px; cursor: pointer;
+  }
+  .share-icon-wrap {
+    width: 56px; height: 56px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg-4);
+  }
+  .share-icon-wrap.putio {
+    background: var(--yellow);
+    box-shadow: 0 2px 12px rgba(253,206,69,0.35);
+  }
+  .share-icon-wrap svg { width: 28px; height: 28px; }
+  .share-target-label { font-size: 11px; color: var(--text-2); text-align: center; max-width: 70px; }
+  .share-target-label.active { color: var(--text); font-weight: 500; }
+
+  /* put.io Extension Card */
+  .extension-card {
+    margin: 16px 16px 0; padding: 0;
+    background: rgba(253,206,69,0.06);
+    border: 1px solid rgba(253,206,69,0.15);
+    border-radius: 14px; overflow: hidden;
+  }
+  .ext-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px; border-bottom: 1px solid rgba(253,206,69,0.1);
+  }
+  .ext-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: var(--yellow); display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .ext-icon span { font-size: 15px; font-weight: 800; color: #000; letter-spacing: -0.02em; }
+  .ext-title { font-size: 17px; font-weight: 600; }
+  .ext-subtitle { font-size: 13px; color: var(--solid); }
+
+  .ext-option {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px; border-bottom: 1px solid rgba(253,206,69,0.08);
+  }
+  .ext-option:last-child { border-bottom: none; }
+  .ext-option .opt-icon { width: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .ext-option .opt-icon svg { width: 20px; height: 20px; fill: var(--text-2); }
+  .ext-option .opt-info { flex: 1; }
+  .ext-option .opt-label { font-size: 15px; }
+  .ext-option .opt-value { font-size: 13px; color: var(--solid); }
+  .ext-option .opt-right { flex-shrink: 0; }
+
+  /* iOS Toggle */
+  .ios-toggle {
+    width: 51px; height: 31px; border-radius: 16px;
+    background: var(--bg-4); position: relative; flex-shrink: 0;
+  }
+  .ios-toggle.on { background: var(--green); }
+  .ios-toggle .knob {
+    width: 27px; height: 27px; border-radius: 50%;
+    background: #fff; position: absolute; top: 2px; left: 2px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+  .ios-toggle.on .knob { left: 22px; }
+
+  /* Save Button */
+  .save-btn-wrap { padding: 16px; }
+  .save-btn {
+    width: 100%; padding: 16px 0;
+    background: var(--yellow); color: #000;
+    border: none; border-radius: 14px;
+    font-size: 17px; font-weight: 700;
+    font-family: inherit; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 4px 16px rgba(253,206,69,0.25);
+  }
+  .save-btn svg { width: 20px; height: 20px; fill: #000; }
+
+  /* Success Confirmation */
+  .success-card {
+    margin: 12px 16px 0; padding: 14px 16px;
+    background: rgba(48,209,88,0.08);
+    border: 1px solid rgba(48,209,88,0.2);
+    border-radius: 12px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .success-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(48,209,88,0.15); display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .success-icon svg { width: 20px; height: 20px; fill: var(--green); }
+  .success-info { flex: 1; }
+  .success-title { font-size: 15px; font-weight: 600; color: var(--green); }
+  .success-detail { font-size: 13px; color: var(--solid); margin-top: 2px; }
+  .success-progress {
+    height: 3px; background: rgba(48,209,88,0.15); border-radius: 2px;
+    margin-top: 8px; overflow: hidden;
+  }
+  .success-progress .fill { height: 100%; background: var(--green); border-radius: 2px; width: 12%; }
+  .success-percent {
+    font-size: 14px; font-weight: 600; color: var(--green);
+    font-variant-numeric: tabular-nums; flex-shrink: 0;
+  }
+
+  /* Home indicator */
+  .home-indicator {
+    width: 134px; height: 5px; background: rgba(255,255,255,0.3);
+    border-radius: 3px; margin: 8px auto 8px;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="white"><rect x="0" y="9" width="3" height="3" rx="0.5"/><rect x="4.5" y="6" width="3" height="6" rx="0.5"/><rect x="9" y="3" width="3" height="9" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><path d="M8,11.5a1.5,1.5,0,1,0,0-3,1.5,1.5,0,0,0,0,3Z"/><path d="M4.93,7.56a4.5,4.5,0,0,1,6.14,0" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/><path d="M2.1,4.73a8,8,0,0,1,11.8,0" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x="0.5" y="0.5" width="23" height="12" rx="3" stroke="white" stroke-opacity="0.35"/><rect x="2" y="2" width="18" height="9" rx="1.5" fill="white"/><path d="M25,4.5v4a2,2,0,0,0,0-4Z" fill="white" fill-opacity="0.4"/></svg>
+    </div>
+  </div>
+
+  <!-- Dimmed Safari Background -->
+  <div class="safari-bg">
+    <div class="safari-url-bar">
+      <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2z"/></svg>
+      nyaa.si/view/1847293
+    </div>
+    <div class="safari-content">Torrent page content</div>
+  </div>
+
+  <!-- Share Sheet -->
+  <div class="share-overlay">
+    <div class="sheet-handle"></div>
+
+    <!-- Sheet Header -->
+    <div class="sheet-header">
+      <button class="sheet-header-btn">Cancel</button>
+      <span class="sheet-header-title"></span>
+      <button class="sheet-header-btn" style="visibility:hidden;">Done</button>
+    </div>
+
+    <!-- Shared URL -->
+    <div class="shared-url-preview">
+      <div class="url-icon">
+        <svg viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+      </div>
+      <div class="url-info">
+        <div class="url-title">magnet:?xt=urn:btih:a2b4c6...</div>
+        <div class="url-detail">Magnet link from Safari</div>
+      </div>
+    </div>
+
+    <!-- Share Targets Row -->
+    <div class="share-row">
+      <div class="share-target">
+        <div class="share-icon-wrap putio">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="4" y="4" width="2" height="2" fill="#000"/>
+            <rect x="18" y="4" width="2" height="2" fill="#000"/>
+            <rect x="6" y="6" width="2" height="2" fill="#000"/>
+            <rect x="16" y="6" width="2" height="2" fill="#000"/>
+            <rect x="4" y="8" width="16" height="2" fill="#000"/>
+            <rect x="4" y="10" width="2" height="2" fill="#000"/>
+            <rect x="8" y="10" width="8" height="2" fill="#000"/>
+            <rect x="18" y="10" width="2" height="2" fill="#000"/>
+            <rect x="4" y="12" width="16" height="2" fill="#000"/>
+            <rect x="6" y="14" width="4" height="2" fill="#000"/>
+            <rect x="14" y="14" width="4" height="2" fill="#000"/>
+          </svg>
+        </div>
+        <span class="share-target-label active">put.io</span>
+      </div>
+      <div class="share-target">
+        <div class="share-icon-wrap" style="background:#007AFF;">
+          <svg viewBox="0 0 24 24" fill="white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+        </div>
+        <span class="share-target-label">Messages</span>
+      </div>
+      <div class="share-target">
+        <div class="share-icon-wrap" style="background:#34C759;">
+          <svg viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        </div>
+        <span class="share-target-label">Mail</span>
+      </div>
+      <div class="share-target">
+        <div class="share-icon-wrap" style="background:#636366;">
+          <svg viewBox="0 0 24 24" fill="white"><path d="M16 1H8C6.34 1 5 2.34 5 4v16c0 1.66 1.34 3 3 3h8c1.66 0 3-1.34 3-3V4c0-1.66-1.34-3-3-3zm-2 20h-4v-1h4v1zm3.25-3H6.75V4h10.5v14z"/></svg>
+        </div>
+        <span class="share-target-label">Copy</span>
+      </div>
+      <div class="share-target">
+        <div class="share-icon-wrap" style="background:#48484A;">
+          <svg viewBox="0 0 24 24" fill="white"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        </div>
+        <span class="share-target-label">More</span>
+      </div>
+    </div>
+
+    <!-- put.io Extension Card -->
+    <div class="extension-card">
+      <div class="ext-header">
+        <div class="ext-icon"><span>p.</span></div>
+        <div>
+          <div class="ext-title">Save to put.io</div>
+          <div class="ext-subtitle">Transfer will start immediately</div>
+        </div>
+      </div>
+      <div class="ext-option">
+        <div class="opt-icon">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="opt-info">
+          <div class="opt-label">Destination</div>
+          <div class="opt-value">downloads</div>
+        </div>
+        <div class="opt-right">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#8E8E93"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </div>
+      </div>
+      <div class="ext-option">
+        <div class="opt-icon">
+          <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+        </div>
+        <div class="opt-info">
+          <div class="opt-label">Start Transfer</div>
+        </div>
+        <div class="opt-right">
+          <div class="ios-toggle on"><div class="knob"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save Button -->
+    <div class="save-btn-wrap">
+      <button class="save-btn">
+        <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+        Save to put.io
+      </button>
+    </div>
+
+    <!-- Success Confirmation -->
+    <div class="success-card">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      </div>
+      <div class="success-info">
+        <div class="success-title">Transfer started</div>
+        <div class="success-detail">magnet:?xt=urn:btih:a2b4c6...</div>
+        <div class="success-progress"><div class="fill"></div></div>
+      </div>
+      <span class="success-percent">12%</span>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+</div>
+</body>
+</html>

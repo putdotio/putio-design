@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io — iOS Settings</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000; --bg-2: #1C1C1E; --bg-3: #2C2C2E; --bg-4: #3A3A3C;
+    --line: #38383A; --solid: #8E8E93; --text-2: #AEAEB2; --text: #FFFFFF;
+    --yellow: #FDCE45; --green: #30D158; --red: #FF453A; --blue: #0A84FF;
+  }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+  .phone { width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 12px 24px 0;
+    font-size: 15px; font-weight: 600; height: 54px; flex-shrink: 0;
+  }
+  .status-bar .time { flex: 1; }
+  .status-bar .icons { display: flex; gap: 5px; align-items: center; }
+
+  /* Nav Bar */
+  .nav-bar {
+    display: flex; align-items: center; padding: 8px 16px 12px; flex-shrink: 0;
+  }
+  .nav-title { font-size: 34px; font-weight: 700; flex: 1; }
+
+  /* Profile Card */
+  .profile-card {
+    margin: 0 16px 20px; padding: 16px;
+    background: var(--bg-2); border-radius: 12px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .profile-avatar {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--bg-3); display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .profile-info { flex: 1; min-width: 0; }
+  .profile-name { font-size: 20px; font-weight: 600; }
+  .profile-email { font-size: 14px; color: var(--solid); margin-top: 2px; }
+  .profile-chevron { color: var(--solid); }
+
+  /* Storage Bar */
+  .storage-section {
+    margin: 0 16px 20px; padding: 14px 16px;
+    background: var(--bg-2); border-radius: 12px;
+  }
+  .storage-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .storage-label { font-size: 14px; color: var(--text-2); }
+  .storage-value { font-size: 14px; font-weight: 600; color: var(--yellow); font-variant-numeric: tabular-nums; }
+  .storage-track { height: 6px; background: var(--bg-4); border-radius: 3px; overflow: hidden; }
+  .storage-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--yellow), #e8a820); }
+  .storage-meta { font-size: 12px; color: var(--solid); margin-top: 6px; }
+
+  /* Settings List */
+  .settings-scroll { flex: 1; overflow-y: auto; padding-bottom: 8px; }
+
+  .list-section { margin-bottom: 20px; }
+  .list-section-header {
+    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    color: var(--solid); padding: 8px 16px; letter-spacing: 0.04em;
+  }
+  .list-group { background: var(--bg-2); margin: 0 16px; border-radius: 12px; overflow: hidden; }
+
+  .list-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-bottom: 1px solid var(--line);
+    min-height: 48px;
+  }
+  .list-item:last-child { border-bottom: none; }
+  .list-item .l-icon {
+    width: 30px; height: 30px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .list-item .l-icon svg { width: 18px; height: 18px; }
+  .l-icon.purple { background: #BF5AF2; }
+  .l-icon.purple svg { fill: #fff; }
+  .l-icon.blue { background: #0A84FF; }
+  .l-icon.blue svg { fill: #fff; }
+  .l-icon.green { background: #30D158; }
+  .l-icon.green svg { fill: #fff; }
+  .l-icon.orange { background: #FF9F0A; }
+  .l-icon.orange svg { fill: #fff; }
+  .l-icon.red { background: #FF453A; }
+  .l-icon.red svg { fill: #fff; }
+  .l-icon.gray { background: #636366; }
+  .l-icon.gray svg { fill: #fff; }
+  .l-icon.teal { background: #32D74B; }
+  .l-icon.teal svg { fill: #fff; }
+  .l-icon.yellow-bg { background: #FDCE45; }
+  .l-icon.yellow-bg svg { fill: #000; }
+  .l-icon.indigo { background: #5E5CE6; }
+  .l-icon.indigo svg { fill: #fff; }
+
+  .list-item .l-info { flex: 1; min-width: 0; }
+  .list-item .l-name { font-size: 17px; color: var(--text); }
+  .list-item .l-detail { font-size: 15px; color: var(--solid); }
+  .list-item .l-right {
+    display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+  }
+  .l-chevron svg { width: 14px; height: 14px; fill: var(--solid); }
+
+  /* iOS Toggle */
+  .ios-toggle {
+    width: 51px; height: 31px; border-radius: 16px;
+    background: var(--bg-4); position: relative; flex-shrink: 0;
+  }
+  .ios-toggle.on { background: var(--green); }
+  .ios-toggle .knob {
+    width: 27px; height: 27px; border-radius: 50%;
+    background: #fff; position: absolute; top: 2px; left: 2px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+  .ios-toggle.on .knob { left: 22px; }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex; background: rgba(28,28,30,0.95); backdrop-filter: blur(20px);
+    border-top: 1px solid var(--line); padding: 6px 0 34px; flex-shrink: 0;
+  }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 10px; color: var(--solid); padding: 4px 0;
+  }
+  .tab-item.active { color: var(--yellow); }
+  .tab-icon { display: flex; align-items: center; justify-content: center; height: 24px; }
+  .tab-icon svg { width: 22px; height: 22px; fill: currentColor; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="white"><rect x="0" y="9" width="3" height="3" rx="0.5"/><rect x="4.5" y="6" width="3" height="6" rx="0.5"/><rect x="9" y="3" width="3" height="9" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><path d="M8,11.5a1.5,1.5,0,1,0,0-3,1.5,1.5,0,0,0,0,3Z"/><path d="M4.93,7.56a4.5,4.5,0,0,1,6.14,0" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/><path d="M2.1,4.73a8,8,0,0,1,11.8,0" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x="0.5" y="0.5" width="23" height="12" rx="3" stroke="white" stroke-opacity="0.35"/><rect x="2" y="2" width="18" height="9" rx="1.5" fill="white"/><path d="M25,4.5v4a2,2,0,0,0,0-4Z" fill="white" fill-opacity="0.4"/></svg>
+    </div>
+  </div>
+
+  <!-- Nav Bar -->
+  <div class="nav-bar">
+    <h1 class="nav-title">Settings</h1>
+  </div>
+
+  <!-- Profile Card -->
+  <div class="profile-card">
+    <div class="profile-avatar">
+      <svg viewBox="0 0 24 24" width="36" height="36" fill="none">
+        <rect x="4" y="4" width="2" height="2" fill="#FDCE45"/>
+        <rect x="18" y="4" width="2" height="2" fill="#FDCE45"/>
+        <rect x="6" y="6" width="2" height="2" fill="#FDCE45"/>
+        <rect x="16" y="6" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="8" width="16" height="2" fill="#FDCE45"/>
+        <rect x="4" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="8" y="10" width="8" height="2" fill="#FDCE45"/>
+        <rect x="18" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="12" width="2" height="2" fill="#FDCE45"/>
+        <rect x="8" y="12" width="2" height="2" fill="#000"/>
+        <rect x="14" y="12" width="2" height="2" fill="#000"/>
+        <rect x="10" y="12" width="4" height="2" fill="#FDCE45"/>
+        <rect x="18" y="12" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="14" width="16" height="2" fill="#FDCE45"/>
+        <rect x="6" y="16" width="4" height="2" fill="#FDCE45"/>
+        <rect x="14" y="16" width="4" height="2" fill="#FDCE45"/>
+        <rect x="8" y="18" width="2" height="2" fill="#FDCE45"/>
+        <rect x="14" y="18" width="2" height="2" fill="#FDCE45"/>
+      </svg>
+    </div>
+    <div class="profile-info">
+      <div class="profile-name">altay</div>
+      <div class="profile-email">altay@put.io</div>
+    </div>
+    <div class="profile-chevron">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="#8E8E93"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+    </div>
+  </div>
+
+  <!-- Storage -->
+  <div class="storage-section">
+    <div class="storage-header">
+      <span class="storage-label">Storage</span>
+      <span class="storage-value">78% used</span>
+    </div>
+    <div class="storage-track">
+      <div class="storage-fill" style="width:78%;"></div>
+    </div>
+    <div class="storage-meta">780 GB of 1 TB used</div>
+  </div>
+
+  <!-- Scrollable Settings -->
+  <div class="settings-scroll">
+
+    <!-- Playback Section -->
+    <div class="list-section">
+      <div class="list-section-header">Playback</div>
+      <div class="list-group">
+        <div class="list-item">
+          <div class="l-icon purple">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Proxy</div>
+          </div>
+          <div class="l-right">
+            <span class="l-detail">Amsterdam Direct</span>
+            <span class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="l-icon blue">
+            <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Video Type</div>
+          </div>
+          <div class="l-right">
+            <span class="l-detail">HLS</span>
+            <span class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="l-icon blue">
+            <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Buffer Size</div>
+          </div>
+          <div class="l-right">
+            <span class="l-detail">Auto</span>
+            <span class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="l-icon green">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM4 12h4v2H4v-2zm10 6H4v-2h10v2zm6 0h-4v-2h4v2zm0-4H10v-2h10v2z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Subtitles</div>
+          </div>
+          <div class="l-right">
+            <div class="ios-toggle on"><div class="knob"></div></div>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="l-icon gray">
+            <svg viewBox="0 0 24 24"><path d="M10 8v8l6-4-6-4zm1-5c5 0 9.27 3.11 11 7.5-1.73 4.39-6 7.5-11 7.5S2.73 15.39 1 11c1.73-4.39 6-7.5 11-7.5z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Playback Speed</div>
+          </div>
+          <div class="l-right">
+            <span class="l-detail">1.0x</span>
+            <span class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Downloads Section -->
+    <div class="list-section">
+      <div class="list-section-header">Downloads</div>
+      <div class="list-group">
+        <div class="list-item">
+          <div class="l-icon orange">
+            <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Auto-Cleanup</div>
+          </div>
+          <div class="l-right">
+            <div class="ios-toggle on"><div class="knob"></div></div>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="l-icon orange">
+            <svg viewBox="0 0 24 24"><path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Download Quality</div>
+          </div>
+          <div class="l-right">
+            <span class="l-detail">Original</span>
+            <span class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Storage Section -->
+    <div class="list-section">
+      <div class="list-section-header">Storage</div>
+      <div class="list-group">
+        <div class="list-item">
+          <div class="l-icon red">
+            <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Clear Cache</div>
+          </div>
+          <div class="l-right">
+            <span class="l-detail">248 MB</span>
+            <span class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="l-icon gray">
+            <svg viewBox="0 0 24 24"><path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Disk Usage</div>
+          </div>
+          <div class="l-right">
+            <span class="l-detail">1.8 GB</span>
+            <span class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Section -->
+    <div class="list-section">
+      <div class="list-section-header">Account</div>
+      <div class="list-group">
+        <div class="list-item">
+          <div class="l-icon yellow-bg">
+            <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Family Management</div>
+          </div>
+          <div class="l-right">
+            <span class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="l-icon indigo">
+            <svg viewBox="0 0 24 24"><path d="M17 1H7c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zm0 18H7V5h10v14zm-4.2-5.78v1.75l3.2-2.99L12.8 9v1.7c-3.18.48-4.42 2.26-4.8 4.52 1.14-1.68 2.68-2.43 4.8-2z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Active Sessions</div>
+          </div>
+          <div class="l-right">
+            <span class="l-detail">3 devices</span>
+            <span class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="l-icon green">
+            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Two-Factor Auth</div>
+          </div>
+          <div class="l-right">
+            <span class="l-detail" style="color:var(--green);">Enabled</span>
+            <span class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="l-icon gray">
+            <svg viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Change Password</div>
+          </div>
+          <div class="l-right">
+            <span class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Section -->
+    <div class="list-section">
+      <div class="list-section-header">About</div>
+      <div class="list-group">
+        <div class="list-item">
+          <div class="l-icon gray">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Version</div>
+          </div>
+          <div class="l-right">
+            <span class="l-detail">4.8.2 (1247)</span>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="l-icon gray">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Acknowledgements</div>
+          </div>
+          <div class="l-right">
+            <span class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="l-icon yellow-bg">
+            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Rate put.io</div>
+          </div>
+          <div class="l-right">
+            <span class="l-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      Files
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+      </div>
+      Transfers
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      </div>
+      Downloads
+    </div>
+    <div class="tab-item active">
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.488.488 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      </div>
+      Settings
+    </div>
+  </div>
+</div>
+</body>
+</html>
