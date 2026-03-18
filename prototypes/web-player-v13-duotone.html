@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Player (Duotone)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #111113;
+    --surface: #19191B;
+    --surface-2: #222225;
+    --surface-3: #2C2C30;
+    --border: rgba(253, 206, 69, 0.08);
+    --border-strong: rgba(253, 206, 69, 0.15);
+    --text: #EEEEF0;
+    --text-2: #ABABB2;
+    --text-3: #6E6E78;
+    --yellow: #FDCE45;
+    --yellow-bright: rgba(253, 206, 69, 1);
+    --yellow-mid: rgba(253, 206, 69, 0.6);
+    --yellow-dim: rgba(253, 206, 69, 0.3);
+    --yellow-faint: rgba(253, 206, 69, 0.12);
+    --yellow-ghost: rgba(253, 206, 69, 0.05);
+    --font: 'Inter', -apple-system, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ================================================================
+     SIDEBAR
+     ================================================================ */
+  .sidebar {
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .sidebar-brand {
+    padding: 28px 24px 36px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.03em;
+  }
+
+  .logo-dot { color: var(--yellow); }
+
+  .sidebar-nav { flex: 1; }
+
+  .nav-group-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding: 0 24px 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-2);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .nav-item:hover {
+    color: var(--text);
+    background: var(--yellow-ghost);
+  }
+
+  .nav-item.active {
+    color: var(--text);
+    font-weight: 600;
+    background: var(--yellow-ghost);
+  }
+
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background: var(--yellow);
+  }
+
+  .nav-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-3);
+    flex-shrink: 0;
+    transition: color 0.2s ease;
+  }
+
+  .nav-item.active .nav-icon { color: var(--yellow); }
+  .nav-item:hover .nav-icon { color: var(--text-2); }
+
+  .nav-badge {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--bg);
+    background: var(--yellow);
+    padding: 1px 7px;
+    border-radius: 3px;
+  }
+
+  .nav-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 24px;
+  }
+
+  .sidebar-footer {
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .storage-bar {
+    width: 100%;
+    height: 3px;
+    background: var(--surface-3);
+    border-radius: 2px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+
+  .storage-fill {
+    height: 100%;
+    width: 78%;
+    background: var(--yellow-dim);
+    border-radius: 2px;
+  }
+
+  .storage-label {
+    font-size: 11px;
+    color: var(--text-3);
+  }
+
+  .storage-label strong {
+    color: var(--text-2);
+    font-weight: 600;
+  }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 24px;
+  }
+
+  .user-avatar {
+    width: 30px;
+    height: 30px;
+    background: var(--surface-3);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--yellow);
+    line-height: 1;
+  }
+
+  .user-name {
+    font-size: 13px;
+    color: var(--text-2);
+    font-weight: 500;
+  }
+
+  /* ================================================================
+     CONTENT -- PLAYER
+     ================================================================ */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #0C0C0E;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Video area -- pure grayscale, duotone */
+  .video-area {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #0A0A0C 0%, #141416 30%, #1A1A1D 50%, #141416 70%, #0A0A0C 100%);
+  }
+
+  /* Letterbox bars */
+  .video-area::before,
+  .video-area::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 12%;
+    background: #0C0C0E;
+    z-index: 1;
+  }
+
+  .video-area::before { top: 0; }
+  .video-area::after { bottom: 0; }
+
+  .video-silhouette {
+    position: absolute;
+    bottom: 12%;
+    left: 0;
+    right: 0;
+    height: 30%;
+    background: linear-gradient(0deg, #0A0A0C 0%, transparent 100%);
+  }
+
+  /* Film grain texture overlay -- subtle */
+  .video-grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 128px;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* Now playing label inside video */
+  .now-playing-label {
+    position: absolute;
+    top: 14%;
+    left: 40px;
+    z-index: 3;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--yellow-dim);
+  }
+
+  /* Progress bar */
+  .progress-container {
+    height: 4px;
+    background: var(--surface-2);
+    flex-shrink: 0;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .progress-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 56.4%;
+    background: var(--yellow);
+  }
+
+  /* Playhead knob */
+  .progress-knob {
+    position: absolute;
+    top: -4px;
+    left: 56.4%;
+    width: 12px;
+    height: 12px;
+    background: var(--yellow);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+  }
+
+  /* Buffer bar */
+  .progress-buffer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 72%;
+    background: var(--yellow-faint);
+  }
+
+  /* Player controls */
+  .player-controls {
+    background: var(--surface);
+    padding: 20px 40px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .player-top {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  .player-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .player-meta {
+    font-size: 13px;
+    color: var(--text-3);
+  }
+
+  .player-time {
+    margin-left: auto;
+    font-size: 14px;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .player-time .current {
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .controls-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .ctrl-btn {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: var(--font);
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ctrl-btn:hover {
+    background: var(--surface-3);
+    color: var(--text);
+  }
+
+  .ctrl-btn.active-ctrl {
+    background: var(--yellow-ghost);
+    border-color: var(--border-strong);
+    color: var(--yellow);
+    font-weight: 600;
+  }
+
+  .ctrl-btn svg { flex-shrink: 0; }
+  .ctrl-spacer { flex: 1; }
+
+  .actions-row {
+    display: flex;
+    gap: 20px;
+  }
+
+  .action-link {
+    font-size: 12px;
+    color: var(--text-3);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+
+  .action-link:hover {
+    color: var(--yellow);
+  }
+
+  .kaomoji {
+    color: var(--text-3);
+    font-size: 12px;
+  }
+
+  /* Volume slider */
+  .volume-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 8px;
+  }
+
+  .volume-bar {
+    width: 80px;
+    height: 3px;
+    background: var(--surface-3);
+    border-radius: 2px;
+    position: relative;
+  }
+
+  .volume-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 70%;
+    background: var(--yellow-dim);
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">put<span class="logo-dot">.</span>io</div>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-group-label">Library</div>
+
+      <button class="nav-item active">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="5" width="16" height="12" rx="1"/>
+            <polyline points="2,5 2,3 8,3 10,5"/>
+          </svg>
+        </span>
+        Files
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="10,3 10,14"/>
+            <polyline points="6,10 10,14 14,10"/>
+            <line x1="4" y1="17" x2="16" y2="17"/>
+          </svg>
+        </span>
+        Transfers
+        <span class="nav-badge">3</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <path d="M3 14a4 4 0 0 1 4-4"/>
+            <path d="M3 10a8 8 0 0 1 8-8"/>
+            <circle cx="4" cy="16" r="2" fill="currentColor" stroke="none"/>
+          </svg>
+        </span>
+        RSS Feeds
+      </button>
+
+      <div class="nav-divider"></div>
+      <div class="nav-group-label">Manage</div>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 11a4 4 0 0 0 6 .4l2-2a4 4 0 0 0-5.6-5.6L9 5.2"/>
+            <path d="M12 9a4 4 0 0 0-6-.4l-2 2a4 4 0 0 0 5.6 5.6l1.4-1.4"/>
+          </svg>
+        </span>
+        Shared
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="10" cy="10" r="8"/>
+            <polyline points="10,5 10,10 13,12"/>
+          </svg>
+        </span>
+        History
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="5" x2="17" y2="5"/>
+            <path d="M7 5V3h6v2"/>
+            <path d="M5 5l1 12h8l1-12"/>
+          </svg>
+        </span>
+        Trash
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="storage-bar">
+        <div class="storage-fill"></div>
+      </div>
+      <div class="storage-label"><strong>39 TB</strong> / 50 TB</div>
+    </div>
+
+    <div class="user-row">
+      <div class="user-avatar">
+        <!-- Space invader -->
+        <svg width="16" height="14" viewBox="0 0 16 14" fill="currentColor">
+          <rect x="2" y="0" width="2" height="2"/>
+          <rect x="12" y="0" width="2" height="2"/>
+          <rect x="4" y="2" width="2" height="2"/>
+          <rect x="10" y="2" width="2" height="2"/>
+          <rect x="2" y="4" width="12" height="2"/>
+          <rect x="0" y="6" width="2" height="2"/>
+          <rect x="2" y="6" width="2" height="2"/>
+          <rect x="6" y="6" width="4" height="2"/>
+          <rect x="12" y="6" width="2" height="2"/>
+          <rect x="14" y="6" width="2" height="2"/>
+          <rect x="0" y="8" width="2" height="2"/>
+          <rect x="4" y="8" width="2" height="2"/>
+          <rect x="10" y="8" width="2" height="2"/>
+          <rect x="14" y="8" width="2" height="2"/>
+          <rect x="2" y="10" width="4" height="2"/>
+          <rect x="10" y="10" width="4" height="2"/>
+        </svg>
+      </div>
+      <span class="user-name">altay</span>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- Video area -->
+    <div class="video-area">
+      <div class="video-grain"></div>
+      <span class="now-playing-label">Now Playing</span>
+      <div class="video-silhouette"></div>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-container">
+      <div class="progress-buffer"></div>
+      <div class="progress-fill"></div>
+      <div class="progress-knob"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="player-controls">
+      <div class="player-top">
+        <span class="player-title">Inception</span>
+        <span class="player-meta">2010 &mdash; 2160p UHD &mdash; x265 &mdash; 6.7 GB</span>
+        <span class="player-time"><span class="current">1:23:10</span> / 2:28:00</span>
+      </div>
+
+      <div class="controls-row">
+        <button class="ctrl-btn active-ctrl">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <rect x="3" y="3" width="4" height="10" rx="1"/>
+            <rect x="9" y="3" width="4" height="10" rx="1"/>
+          </svg>
+          Pause
+        </button>
+        <button class="ctrl-btn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="12,8 4,3 4,13 12,8"/>
+            <line x1="2" y1="3" x2="2" y2="13"/>
+          </svg>
+          Previous
+        </button>
+        <button class="ctrl-btn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4,8 12,3 12,13 4,8"/>
+            <line x1="14" y1="3" x2="14" y2="13"/>
+          </svg>
+          Next
+        </button>
+
+        <div class="volume-group">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 6h2.5L8 3v10L4.5 10H2V6z"/>
+            <path d="M10.5 5.5a3.5 3.5 0 0 1 0 5"/>
+            <path d="M12 3.5a6 6 0 0 1 0 9"/>
+          </svg>
+          <div class="volume-bar">
+            <div class="volume-fill"></div>
+          </div>
+        </div>
+
+        <span class="ctrl-spacer"></span>
+        <button class="ctrl-btn">Subtitles</button>
+        <button class="ctrl-btn">Cast</button>
+        <button class="ctrl-btn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 5V2h4"/>
+            <path d="M14 5V2h-4"/>
+            <path d="M2 11v3h4"/>
+            <path d="M14 11v3h-4"/>
+          </svg>
+          Fullscreen
+        </button>
+      </div>
+
+      <div class="actions-row">
+        <a class="action-link" href="#">Download</a>
+        <a class="action-link" href="#">Share</a>
+        <a class="action-link" href="#">Move</a>
+        <a class="action-link" href="#">Rename</a>
+        <a class="action-link" href="#">Delete</a>
+        <span style="flex:1"></span>
+        <span class="kaomoji">(^_~)</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

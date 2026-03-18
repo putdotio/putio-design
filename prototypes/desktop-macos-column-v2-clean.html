@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>put.io — macOS Column View</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #1A1A1C;
+    color: #EEEEF0;
+    width: 1280px;
+    height: 800px;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .window {
+    width: 1280px;
+    height: 800px;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 0.5px solid rgba(255,255,255,0.08);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 0.5px rgba(255,255,255,0.06);
+  }
+
+  /* ── Title Bar ── */
+  .titlebar {
+    height: 52px;
+    background: #2D2D2F;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+
+  .traffic-lights {
+    display: flex;
+    gap: 8px;
+    margin-right: 16px;
+  }
+
+  .traffic-light { width: 12px; height: 12px; border-radius: 50%; }
+  .tl-close { background: #FF5F57; border: 0.5px solid #E0443E; }
+  .tl-minimize { background: #FFBD2E; border: 0.5px solid #DEA123; }
+  .tl-maximize { background: #27C93F; border: 0.5px solid #1AAB29; }
+
+  .titlebar-nav {
+    display: flex;
+    gap: 4px;
+    margin-right: 16px;
+  }
+
+  .titlebar-nav-btn {
+    width: 28px;
+    height: 24px;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .titlebar-nav-btn svg { color: rgba(238,238,240,0.4); }
+  .titlebar-nav-btn.active svg { color: rgba(238,238,240,0.8); }
+
+  .window-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #EEEEF0;
+    flex: 1;
+    text-align: center;
+    letter-spacing: -0.01em;
+  }
+
+  .window-title span { color: #FDCE45; }
+
+  /* ── Toolbar ── */
+  .toolbar {
+    height: 38px;
+    background: #2D2D2F;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+
+  .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+  }
+
+  .toolbar-btn {
+    height: 26px;
+    padding: 0 10px;
+    background: rgba(255,255,255,0.06);
+    border: 0.5px solid rgba(255,255,255,0.1);
+    color: rgba(238,238,240,0.7);
+    font-size: 11px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+
+  .toolbar-btn:first-child { border-radius: 5px 0 0 5px; }
+  .toolbar-btn:last-child { border-radius: 0 5px 5px 0; }
+
+  .toolbar-btn.active {
+    background: rgba(253,206,69,0.15);
+    color: #FDCE45;
+    border-color: rgba(253,206,69,0.25);
+  }
+
+  .toolbar-spacer { flex: 1; }
+
+  .toolbar-search {
+    height: 26px;
+    width: 200px;
+    background: rgba(255,255,255,0.06);
+    border: 0.5px solid rgba(255,255,255,0.1);
+    border-radius: 5px;
+    padding: 0 8px 0 28px;
+    color: #EEEEF0;
+    font-size: 12px;
+    font-family: inherit;
+    outline: none;
+  }
+
+  .search-wrapper { position: relative; }
+
+  .search-wrapper svg {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(238,238,240,0.35);
+    pointer-events: none;
+  }
+
+  .toolbar-action {
+    height: 26px;
+    padding: 0 12px;
+    background: #FDCE45;
+    border: none;
+    border-radius: 5px;
+    color: #111113;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* ── Main ── */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 200px;
+    background: rgba(45,45,47,0.85);
+    border-right: 0.5px solid rgba(255,255,255,0.06);
+    overflow-y: auto;
+    flex-shrink: 0;
+    padding: 8px 0;
+  }
+
+  .sidebar-header {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(238,238,240,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 8px 16px 4px;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 16px;
+    font-size: 13px;
+    color: rgba(238,238,240,0.85);
+    cursor: pointer;
+    margin: 0 8px;
+    border-radius: 5px;
+  }
+
+  .sidebar-item:hover { background: rgba(255,255,255,0.05); }
+
+  .sidebar-item.active {
+    background: rgba(253,206,69,0.15);
+    color: #FDCE45;
+  }
+
+  .sidebar-item .badge {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(253,206,69,0.2);
+    color: #FDCE45;
+    padding: 1px 6px;
+    border-radius: 8px;
+  }
+
+  .sidebar-divider {
+    height: 0.5px;
+    background: rgba(255,255,255,0.06);
+    margin: 8px 16px;
+  }
+
+  /* ── Column View ── */
+  .column-view {
+    flex: 1;
+    display: flex;
+    overflow-x: auto;
+    background: #1E1E20;
+  }
+
+  .column {
+    min-width: 220px;
+    max-width: 280px;
+    flex-shrink: 0;
+    border-right: 0.5px solid rgba(255,255,255,0.06);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .column:last-child {
+    border-right: none;
+    flex: 1;
+    max-width: none;
+  }
+
+  .column-header {
+    height: 24px;
+    background: rgba(255,255,255,0.025);
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(238,238,240,0.4);
+    flex-shrink: 0;
+  }
+
+  .column-list {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .column-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: rgba(238,238,240,0.85);
+    cursor: pointer;
+    border-bottom: 0.5px solid rgba(255,255,255,0.02);
+  }
+
+  .column-item:hover { background: rgba(255,255,255,0.04); }
+
+  .column-item.selected {
+    background: rgba(253,206,69,0.12);
+    color: #FDCE45;
+  }
+
+  .column-item svg { flex-shrink: 0; }
+
+  .column-item .item-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .column-item .chevron {
+    flex-shrink: 0;
+    color: rgba(238,238,240,0.25);
+  }
+
+  .column-item.selected .chevron { color: rgba(253,206,69,0.5); }
+
+  .column-item .item-size {
+    font-size: 11px;
+    color: rgba(238,238,240,0.35);
+    flex-shrink: 0;
+  }
+
+  /* ── Preview pane (rightmost column) ── */
+  .preview-pane {
+    flex: 1;
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 32px 24px;
+    gap: 16px;
+    overflow-y: auto;
+  }
+
+  .preview-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(59,130,246,0.12);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+  }
+
+  .preview-filename {
+    font-size: 15px;
+    font-weight: 600;
+    color: #EEEEF0;
+    text-align: center;
+    word-break: break-all;
+  }
+
+  .preview-kind {
+    font-size: 12px;
+    color: rgba(238,238,240,0.5);
+    margin-top: -8px;
+  }
+
+  .preview-meta {
+    width: 100%;
+    max-width: 260px;
+    margin-top: 8px;
+  }
+
+  .preview-meta-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 0.5px solid rgba(255,255,255,0.04);
+    font-size: 12px;
+  }
+
+  .preview-meta-label { color: rgba(238,238,240,0.45); }
+  .preview-meta-value { color: rgba(238,238,240,0.8); font-weight: 500; }
+
+  .preview-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .preview-btn {
+    height: 28px;
+    padding: 0 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .preview-btn.primary {
+    background: #FDCE45;
+    border: none;
+    color: #111113;
+    font-weight: 600;
+  }
+
+  .preview-btn.secondary {
+    background: rgba(255,255,255,0.06);
+    border: 0.5px solid rgba(255,255,255,0.1);
+    color: rgba(238,238,240,0.8);
+  }
+
+  /* ── Resize handle ── */
+  .column-resize {
+    width: 3px;
+    cursor: col-resize;
+    background: transparent;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .column-resize:hover { background: rgba(253,206,69,0.3); }
+
+  /* ── Status bar ── */
+  .statusbar {
+    height: 24px;
+    background: #2D2D2F;
+    border-top: 0.5px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-size: 11px;
+    color: rgba(238,238,240,0.45);
+    flex-shrink: 0;
+  }
+
+  .statusbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .storage-bar {
+    width: 80px;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .storage-fill {
+    height: 100%;
+    width: 62%;
+    background: #FDCE45;
+    border-radius: 2px;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="window">
+
+  <!-- Title Bar -->
+  <div class="titlebar">
+    <div class="traffic-lights">
+      <div class="traffic-light tl-close"></div>
+      <div class="traffic-light tl-minimize"></div>
+      <div class="traffic-light tl-maximize"></div>
+    </div>
+    <div class="titlebar-nav">
+      <button class="titlebar-nav-btn active">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 3L4.5 7L8.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="titlebar-nav-btn active">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5.5 3L9.5 7L5.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="window-title"><span>put</span>.io</div>
+    <div style="width: 80px;"></div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-group">
+      <button class="toolbar-btn">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="3" width="10" height="1.5" rx="0.5" fill="currentColor"/><rect x="2" y="6.25" width="10" height="1.5" rx="0.5" fill="currentColor"/><rect x="2" y="9.5" width="10" height="1.5" rx="0.5" fill="currentColor"/></svg>
+        List
+      </button>
+      <button class="toolbar-btn active">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="3" height="10" rx="0.5" stroke="currentColor" stroke-width="1" fill="none"/><rect x="5.5" y="2" width="3" height="10" rx="0.5" stroke="currentColor" stroke-width="1" fill="none"/><rect x="10" y="2" width="3" height="10" rx="0.5" stroke="currentColor" stroke-width="1" fill="none"/></svg>
+        Columns
+      </button>
+      <button class="toolbar-btn">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="2" width="4" height="4" rx="1" fill="currentColor"/><rect x="8" y="2" width="4" height="4" rx="1" fill="currentColor"/><rect x="2" y="8" width="4" height="4" rx="1" fill="currentColor"/><rect x="8" y="8" width="4" height="4" rx="1" fill="currentColor"/></svg>
+        Grid
+      </button>
+    </div>
+
+    <div class="toolbar-spacer"></div>
+
+    <div class="search-wrapper">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="3.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 8L10.5 10.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <input type="text" class="toolbar-search" placeholder="Search">
+    </div>
+
+    <button class="toolbar-action">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 2V10M2 6H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      New Transfer
+    </button>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">Favorites</div>
+      <div class="sidebar-item active">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4C2 3.44772 2.44772 3 3 3H13C13.5523 3 14 3.44772 14 4V12C14 12.5523 13.5523 13 13 13H3C2.44772 13 2 12.5523 2 12V4Z" fill="#FDCE45" opacity="0.8"/></svg>
+        All Files
+      </div>
+      <div class="sidebar-item">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5" stroke="#30A46C" stroke-width="1.2" fill="none"/><path d="M8 5V8.5L10.5 10" stroke="#30A46C" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Recent
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-header">Transfers</div>
+      <div class="sidebar-item">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3V10M8 10L5 7M8 10L11 7" stroke="#FDCE45" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 12H13" stroke="#FDCE45" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Active
+        <span class="badge">3</span>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-header">Locations</div>
+      <div class="sidebar-item">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4C2 3.45 2.45 3 3 3H6.5L8 5H13C13.55 5 14 5.45 14 6V12C14 12.55 13.55 13 13 13H3C2.45 13 2 12.55 2 12V4Z" fill="rgba(238,238,240,0.25)"/></svg>
+        Downloads
+      </div>
+      <div class="sidebar-item">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4C2 3.45 2.45 3 3 3H6.5L8 5H13C13.55 5 14 5.45 14 6V12C14 12.55 13.55 13 13 13H3C2.45 13 2 12.55 2 12V4Z" fill="rgba(238,238,240,0.25)"/></svg>
+        Movies
+      </div>
+      <div class="sidebar-item">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4C2 3.45 2.45 3 3 3H6.5L8 5H13C13.55 5 14 5.45 14 6V12C14 12.55 13.55 13 13 13H3C2.45 13 2 12.55 2 12V4Z" fill="rgba(238,238,240,0.25)"/></svg>
+        TV Shows
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-header">Tags</div>
+      <div class="sidebar-item">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="4" fill="#E5484D"/></svg>
+        Important
+      </div>
+      <div class="sidebar-item">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="4" fill="#FDCE45"/></svg>
+        Favorites
+      </div>
+    </div>
+
+    <!-- Column View -->
+    <div class="column-view">
+      <!-- Column 1: Root -->
+      <div class="column" style="width: 240px;">
+        <div class="column-header">put.io</div>
+        <div class="column-list">
+          <div class="column-item selected">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4C2 3.45 2.45 3 3 3H6.5L8 5H13C13.55 5 14 5.45 14 6V12C14 12.55 13.55 13 13 13H3C2.45 13 2 12.55 2 12V4Z" fill="#FDCE45" opacity="0.8"/></svg>
+            <span class="item-name">Downloads</span>
+            <svg class="chevron" width="8" height="12" viewBox="0 0 8 12" fill="none"><path d="M2 2L6 6L2 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="column-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4C2 3.45 2.45 3 3 3H6.5L8 5H13C13.55 5 14 5.45 14 6V12C14 12.55 13.55 13 13 13H3C2.45 13 2 12.55 2 12V4Z" fill="rgba(238,238,240,0.25)"/></svg>
+            <span class="item-name">Movies</span>
+            <svg class="chevron" width="8" height="12" viewBox="0 0 8 12" fill="none"><path d="M2 2L6 6L2 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="column-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4C2 3.45 2.45 3 3 3H6.5L8 5H13C13.55 5 14 5.45 14 6V12C14 12.55 13.55 13 13 13H3C2.45 13 2 12.55 2 12V4Z" fill="rgba(238,238,240,0.25)"/></svg>
+            <span class="item-name">TV Shows</span>
+            <svg class="chevron" width="8" height="12" viewBox="0 0 8 12" fill="none"><path d="M2 2L6 6L2 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="column-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4C2 3.45 2.45 3 3 3H6.5L8 5H13C13.55 5 14 5.45 14 6V12C14 12.55 13.55 13 13 13H3C2.45 13 2 12.55 2 12V4Z" fill="rgba(238,238,240,0.25)"/></svg>
+            <span class="item-name">Music</span>
+            <svg class="chevron" width="8" height="12" viewBox="0 0 8 12" fill="none"><path d="M2 2L6 6L2 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="column-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4C2 3.45 2.45 3 3 3H6.5L8 5H13C13.55 5 14 5.45 14 6V12C14 12.55 13.55 13 13 13H3C2.45 13 2 12.55 2 12V4Z" fill="rgba(238,238,240,0.25)"/></svg>
+            <span class="item-name">__dev__</span>
+            <svg class="chevron" width="8" height="12" viewBox="0 0 8 12" fill="none"><path d="M2 2L6 6L2 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="column-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" fill="rgba(238,238,240,0.15)"/></svg>
+            <span class="item-name">project-notes.txt</span>
+            <span class="item-size">12 KB</span>
+          </div>
+          <div class="column-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" fill="#E5484D" opacity="0.5"/></svg>
+            <span class="item-name">archive-2026.zip</span>
+            <span class="item-size">2.3 GB</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="column-resize"></div>
+
+      <!-- Column 2: Downloads contents -->
+      <div class="column" style="width: 260px;">
+        <div class="column-header">Downloads</div>
+        <div class="column-list">
+          <div class="column-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4C2 3.45 2.45 3 3 3H6.5L8 5H13C13.55 5 14 5.45 14 6V12C14 12.55 13.55 13 13 13H3C2.45 13 2 12.55 2 12V4Z" fill="rgba(238,238,240,0.25)"/></svg>
+            <span class="item-name">2026-03-batch</span>
+            <svg class="chevron" width="8" height="12" viewBox="0 0 8 12" fill="none"><path d="M2 2L6 6L2 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="column-item selected">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" fill="#3B82F6" opacity="0.45"/><polygon points="7,5 11,8 7,11" fill="white" opacity="0.7"/></svg>
+            <span class="item-name">documentary-2026.mkv</span>
+            <span class="item-size">4.7 GB</span>
+          </div>
+          <div class="column-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" fill="#3B82F6" opacity="0.45"/><polygon points="7,5 11,8 7,11" fill="white" opacity="0.7"/></svg>
+            <span class="item-name">the-last-dance-s01e01.mp4</span>
+            <span class="item-size">1.2 GB</span>
+          </div>
+          <div class="column-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" fill="#3B82F6" opacity="0.45"/><polygon points="7,5 11,8 7,11" fill="white" opacity="0.7"/></svg>
+            <span class="item-name">conference-talk.mp4</span>
+            <span class="item-size">890 MB</span>
+          </div>
+          <div class="column-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" fill="#E5484D" opacity="0.5"/></svg>
+            <span class="item-name">fonts-collection.tar.gz</span>
+            <span class="item-size">340 MB</span>
+          </div>
+          <div class="column-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" fill="#30A46C" opacity="0.45"/></svg>
+            <span class="item-name">ambient-mix-01.flac</span>
+            <span class="item-size">112 MB</span>
+          </div>
+          <div class="column-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" fill="#6E56CF" opacity="0.45"/></svg>
+            <span class="item-name">vacation-photo.jpg</span>
+            <span class="item-size">4.8 MB</span>
+          </div>
+          <div class="column-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" fill="#6E56CF" opacity="0.45"/></svg>
+            <span class="item-name">screenshot-dash.png</span>
+            <span class="item-size">1.8 MB</span>
+          </div>
+          <div class="column-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" fill="rgba(238,238,240,0.15)"/></svg>
+            <span class="item-name">readme.txt</span>
+            <span class="item-size">2.1 KB</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="column-resize"></div>
+
+      <!-- Column 3: Preview -->
+      <div class="column">
+        <div class="column-header">Preview</div>
+        <div class="preview-pane">
+          <div class="preview-icon">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="32" height="32" rx="4" fill="#3B82F6" opacity="0.25"/><polygon points="16,12 28,20 16,28" fill="#3B82F6" opacity="0.7"/></svg>
+          </div>
+          <div class="preview-filename">documentary-2026.mkv</div>
+          <div class="preview-kind">Matroska Video File</div>
+
+          <div class="preview-meta">
+            <div class="preview-meta-row">
+              <span class="preview-meta-label">Size</span>
+              <span class="preview-meta-value">4.7 GB</span>
+            </div>
+            <div class="preview-meta-row">
+              <span class="preview-meta-label">Resolution</span>
+              <span class="preview-meta-value">3840 x 2160</span>
+            </div>
+            <div class="preview-meta-row">
+              <span class="preview-meta-label">Duration</span>
+              <span class="preview-meta-value">2h 14m</span>
+            </div>
+            <div class="preview-meta-row">
+              <span class="preview-meta-label">Codec</span>
+              <span class="preview-meta-value">H.265 / AAC</span>
+            </div>
+            <div class="preview-meta-row">
+              <span class="preview-meta-label">Created</span>
+              <span class="preview-meta-value">Mar 14, 2026</span>
+            </div>
+            <div class="preview-meta-row">
+              <span class="preview-meta-label">Modified</span>
+              <span class="preview-meta-value">Mar 14, 2026</span>
+            </div>
+            <div class="preview-meta-row">
+              <span class="preview-meta-label">Transfer</span>
+              <span class="preview-meta-value" style="color: #30A46C;">Completed</span>
+            </div>
+          </div>
+
+          <div class="preview-actions">
+            <button class="preview-btn primary">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polygon points="3,1 10,6 3,11" fill="currentColor"/></svg>
+              Play
+            </button>
+            <button class="preview-btn secondary">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 2V8M6 8L3.5 5.5M6 8L8.5 5.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10H10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              Download
+            </button>
+            <button class="preview-btn secondary">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6H10M6 2V10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              Share
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Status bar -->
+  <div class="statusbar">
+    <div>put.io / Downloads / documentary-2026.mkv</div>
+    <div class="statusbar-right">
+      <span>62.4 GB of 100 GB used</span>
+      <div class="storage-bar"><div class="storage-fill"></div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

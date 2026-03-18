@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=412">
+<title>put.io -- Android Files Tabbed (Material 3)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --md-primary: #FDCE45;
+    --md-on-primary: #3D2E00;
+    --md-primary-container: #574400;
+    --md-on-primary-container: #FFE17A;
+    --md-secondary: #D0C6A0;
+    --md-on-secondary: #353016;
+    --md-secondary-container: #4C472B;
+    --md-on-secondary-container: #ECE2BA;
+    --md-tertiary: #A3D0B8;
+    --md-error: #FFB4AB;
+    --md-surface: #141210;
+    --md-surface-dim: #141210;
+    --md-surface-bright: #3B3830;
+    --md-surface-container-lowest: #0F0D0B;
+    --md-surface-container-low: #1C1A17;
+    --md-surface-container: #201E1B;
+    --md-surface-container-high: #2B2925;
+    --md-surface-container-highest: #363330;
+    --md-on-surface: #E7E2D9;
+    --md-on-surface-variant: #CBC6B8;
+    --md-outline: #959083;
+    --md-outline-variant: #4A4639;
+    --md-elevation-1: rgba(253,206,69,0.05);
+    --md-elevation-2: rgba(253,206,69,0.08);
+    --md-elevation-3: rgba(253,206,69,0.11);
+  }
+  body { font-family: 'Inter', 'Roboto', sans-serif; background: var(--md-surface); color: var(--md-on-surface); -webkit-font-smoothing: antialiased; }
+  .phone { width: 412px; height: 915px; overflow: hidden; display: flex; flex-direction: column; position: relative; background: var(--md-surface); }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 12px 24px 0;
+    font-size: 14px; font-weight: 500; height: 48px; flex-shrink: 0;
+  }
+  .status-bar .time { flex: 1; }
+  .status-bar .icons { display: flex; gap: 8px; align-items: center; }
+  .status-bar .icons svg { width: 16px; height: 16px; fill: var(--md-on-surface); }
+
+  /* Top App Bar */
+  .top-app-bar {
+    display: flex; align-items: center; padding: 4px 4px 0; gap: 4px; flex-shrink: 0;
+  }
+  .top-app-bar-icon {
+    width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;
+    border-radius: 24px; cursor: pointer;
+  }
+  .top-app-bar-title { flex: 1; font-size: 22px; font-weight: 600; padding-left: 4px; }
+  .top-app-bar-actions { display: flex; }
+
+  /* M3 Scrollable Tabs */
+  .m3-tabs {
+    display: flex; align-items: stretch; flex-shrink: 0;
+    border-bottom: 1px solid var(--md-outline-variant);
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .m3-tabs::-webkit-scrollbar { display: none; }
+  .m3-tab {
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    padding: 0 24px; height: 48px; cursor: pointer; position: relative;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .m3-tab-label {
+    font-size: 14px; font-weight: 500; color: var(--md-on-surface-variant);
+    padding-bottom: 14px;
+  }
+  .m3-tab.active .m3-tab-label { color: var(--md-primary); font-weight: 600; }
+  .m3-tab-indicator {
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 0; height: 3px; border-radius: 3px 3px 0 0;
+    background: var(--md-primary);
+  }
+  .m3-tab.active .m3-tab-indicator { width: 60%; }
+
+  /* Tab close */
+  .m3-tab-close {
+    position: absolute; top: 6px; right: 6px; width: 16px; height: 16px;
+    display: none; cursor: pointer; opacity: 0.5;
+  }
+  .m3-tab.active .m3-tab-close { display: flex; }
+
+  /* Content */
+  .content-area { flex: 1; overflow-y: auto; }
+  .section-header {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--md-on-surface-variant); padding: 20px 24px 8px;
+  }
+
+  /* File items - M3 style */
+  .file-item {
+    display: flex; align-items: center; gap: 16px; padding: 12px 24px;
+    cursor: pointer; position: relative;
+  }
+  .file-item:active { background: var(--md-elevation-1); }
+  .file-icon {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .file-icon.folder { background: rgba(253,206,69,0.12); }
+  .file-icon.video { background: rgba(163,208,184,0.12); }
+  .file-icon.audio { background: rgba(208,198,160,0.12); }
+  .file-icon.image { background: rgba(191,90,242,0.12); }
+  .file-info { flex: 1; min-width: 0; }
+  .file-name { font-size: 16px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-meta { font-size: 14px; color: var(--md-on-surface-variant); margin-top: 2px; }
+  .file-more {
+    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+    border-radius: 20px; flex-shrink: 0; cursor: pointer;
+  }
+
+  /* FAB */
+  .fab {
+    position: absolute; bottom: 88px; right: 16px;
+    width: 56px; height: 56px; border-radius: 16px;
+    background: var(--md-primary-container); display: flex;
+    align-items: center; justify-content: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.4); cursor: pointer; z-index: 10;
+  }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    display: flex; align-items: center; justify-content: space-around;
+    height: 80px; flex-shrink: 0;
+    background: var(--md-surface-container);
+    border-top: 1px solid var(--md-outline-variant);
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer; position: relative; padding: 0 20px;
+  }
+  .nav-pill {
+    width: 64px; height: 32px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-item.active .nav-pill { background: var(--md-secondary-container); }
+  .nav-item svg { width: 24px; height: 24px; }
+  .nav-label {
+    font-size: 12px; font-weight: 500; color: var(--md-on-surface-variant);
+  }
+  .nav-item.active .nav-label { color: var(--md-on-surface); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">12:30</span>
+    <div class="icons">
+      <svg viewBox="0 0 16 16"><path d="M1 10.5a1.5 1.5 0 013 0v3a1.5 1.5 0 01-3 0v-3zm4.5-3a1.5 1.5 0 013 0v6a1.5 1.5 0 01-3 0v-6zm4.5-3a1.5 1.5 0 013 0v9a1.5 1.5 0 01-3 0v-9z"/></svg>
+      <svg viewBox="0 0 16 16"><path d="M8 2C4.52 2 1.56 4.02.3 6.96a.75.75 0 001.4.54C2.72 5.1 5.18 3.5 8 3.5s5.28 1.6 6.3 4a.75.75 0 001.4-.54C14.44 4.02 11.48 2 8 2zm0 4c-1.96 0-3.7 1.14-4.6 2.88a.75.75 0 001.34.68C5.44 8.28 6.62 7.5 8 7.5s2.56.78 3.26 2.06a.75.75 0 001.34-.68C11.7 7.14 9.96 6 8 6zm0 4a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>
+      <svg viewBox="0 0 16 16"><path d="M2 4h10a2 2 0 012 2v5a2 2 0 01-2 2H2a2 2 0 01-2-2V6a2 2 0 012-2zm12.5 2.5v4l1.3.65A.5.5 0 0016 10.7V6.3a.5.5 0 00-.2-.45z"/></svg>
+    </div>
+  </div>
+
+  <!-- Top App Bar -->
+  <div class="top-app-bar">
+    <div class="top-app-bar-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--md-on-surface)" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </div>
+    <span class="top-app-bar-title">Files</span>
+    <div class="top-app-bar-actions">
+      <div class="top-app-bar-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--md-on-surface)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+      </div>
+      <div class="top-app-bar-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--md-on-surface)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- M3 Scrollable Tabs -->
+  <div class="m3-tabs">
+    <div class="m3-tab active">
+      <span class="m3-tab-label">Movies</span>
+      <div class="m3-tab-indicator"></div>
+    </div>
+    <div class="m3-tab">
+      <span class="m3-tab-label">TV Shows</span>
+      <div class="m3-tab-indicator"></div>
+    </div>
+    <div class="m3-tab">
+      <span class="m3-tab-label">Music</span>
+      <div class="m3-tab-indicator"></div>
+    </div>
+    <div class="m3-tab">
+      <span class="m3-tab-label">Books</span>
+      <div class="m3-tab-indicator"></div>
+    </div>
+    <div class="m3-tab">
+      <span class="m3-tab-label">Downloads</span>
+      <div class="m3-tab-indicator"></div>
+    </div>
+    <div class="m3-tab" style="padding: 0 16px;">
+      <span class="m3-tab-label" style="display:flex; align-items:center; gap:4px;">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--md-on-surface-variant)" stroke-width="2" stroke-linecap="round"><line x1="9" y1="3" x2="9" y2="15"/><line x1="3" y1="9" x2="15" y2="9"/></svg>
+      </span>
+      <div class="m3-tab-indicator"></div>
+    </div>
+  </div>
+
+  <!-- Content: Movies tab active -->
+  <div class="content-area">
+    <div class="section-header">Folders</div>
+
+    <div class="file-item">
+      <div class="file-icon folder">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--md-primary)"><path d="M2 6a2 2 0 012-2h4.586a2 2 0 011.414.586l1.414 1.414H20a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg>
+      </div>
+      <div class="file-info">
+        <div class="file-name">Action</div>
+        <div class="file-meta">12 items -- 48.2 GB</div>
+      </div>
+      <div class="file-more">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="var(--md-on-surface-variant)"><circle cx="10" cy="4" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="10" cy="16" r="1.5"/></svg>
+      </div>
+    </div>
+
+    <div class="file-item">
+      <div class="file-icon folder">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--md-primary)"><path d="M2 6a2 2 0 012-2h4.586a2 2 0 011.414.586l1.414 1.414H20a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg>
+      </div>
+      <div class="file-info">
+        <div class="file-name">Sci-Fi</div>
+        <div class="file-meta">8 items -- 35.1 GB</div>
+      </div>
+      <div class="file-more">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="var(--md-on-surface-variant)"><circle cx="10" cy="4" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="10" cy="16" r="1.5"/></svg>
+      </div>
+    </div>
+
+    <div class="file-item">
+      <div class="file-icon folder">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--md-primary)"><path d="M2 6a2 2 0 012-2h4.586a2 2 0 011.414.586l1.414 1.414H20a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg>
+      </div>
+      <div class="file-info">
+        <div class="file-name">Comedy</div>
+        <div class="file-meta">6 items -- 22.7 GB</div>
+      </div>
+      <div class="file-more">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="var(--md-on-surface-variant)"><circle cx="10" cy="4" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="10" cy="16" r="1.5"/></svg>
+      </div>
+    </div>
+
+    <div class="section-header">Files</div>
+
+    <div class="file-item">
+      <div class="file-icon video">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--md-tertiary)"><path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm5 4v8l7-4-7-4z"/></svg>
+      </div>
+      <div class="file-info">
+        <div class="file-name">Dune.Part.Two.2024.mkv</div>
+        <div class="file-meta">4.8 GB -- 2h 46m</div>
+      </div>
+      <div class="file-more">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="var(--md-on-surface-variant)"><circle cx="10" cy="4" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="10" cy="16" r="1.5"/></svg>
+      </div>
+    </div>
+
+    <div class="file-item">
+      <div class="file-icon video">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--md-tertiary)"><path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm5 4v8l7-4-7-4z"/></svg>
+      </div>
+      <div class="file-info">
+        <div class="file-name">Oppenheimer.2023.mkv</div>
+        <div class="file-meta">6.2 GB -- 3h 1m</div>
+      </div>
+      <div class="file-more">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="var(--md-on-surface-variant)"><circle cx="10" cy="4" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="10" cy="16" r="1.5"/></svg>
+      </div>
+    </div>
+
+    <div class="file-item">
+      <div class="file-icon video">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--md-tertiary)"><path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm5 4v8l7-4-7-4z"/></svg>
+      </div>
+      <div class="file-info">
+        <div class="file-name">Past.Lives.2023.mkv</div>
+        <div class="file-meta">2.1 GB -- 1h 46m</div>
+      </div>
+      <div class="file-more">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="var(--md-on-surface-variant)"><circle cx="10" cy="4" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="10" cy="16" r="1.5"/></svg>
+      </div>
+    </div>
+
+    <div class="file-item">
+      <div class="file-icon video">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--md-tertiary)"><path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm5 4v8l7-4-7-4z"/></svg>
+      </div>
+      <div class="file-info">
+        <div class="file-name">The.Holdovers.2023.mkv</div>
+        <div class="file-meta">3.4 GB -- 2h 13m</div>
+      </div>
+      <div class="file-more">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="var(--md-on-surface-variant)"><circle cx="10" cy="4" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="10" cy="16" r="1.5"/></svg>
+      </div>
+    </div>
+
+    <div class="file-item">
+      <div class="file-icon video">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--md-tertiary)"><path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm5 4v8l7-4-7-4z"/></svg>
+      </div>
+      <div class="file-info">
+        <div class="file-name">Poor.Things.2023.mkv</div>
+        <div class="file-meta">5.1 GB -- 2h 21m</div>
+      </div>
+      <div class="file-more">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="var(--md-on-surface-variant)"><circle cx="10" cy="4" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="10" cy="16" r="1.5"/></svg>
+      </div>
+    </div>
+
+    <div class="file-item">
+      <div class="file-icon video">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--md-tertiary)"><path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm5 4v8l7-4-7-4z"/></svg>
+      </div>
+      <div class="file-info">
+        <div class="file-name">Anatomy.of.a.Fall.mkv</div>
+        <div class="file-meta">3.8 GB -- 2h 30m</div>
+      </div>
+      <div class="file-more">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="var(--md-on-surface-variant)"><circle cx="10" cy="4" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="10" cy="16" r="1.5"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <div class="fab">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="var(--md-on-primary-container)" stroke-width="2.5" stroke-linecap="round"><line x1="14" y1="6" x2="14" y2="22"/><line x1="6" y1="14" x2="22" y2="14"/></svg>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active">
+      <div class="nav-pill">
+        <svg viewBox="0 0 24 24" fill="var(--md-on-secondary-container)"><path d="M3 7.5A4.5 4.5 0 017.5 3h2.879a1.5 1.5 0 011.06.44l.622.621a3 3 0 002.122.879H16.5A4.5 4.5 0 0121 9.44v6.06A4.5 4.5 0 0116.5 20h-9A4.5 4.5 0 013 15.5v-8z"/></svg>
+      </div>
+      <span class="nav-label">Files</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-pill">
+        <svg viewBox="0 0 24 24" fill="var(--md-on-surface-variant)"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <span class="nav-label">Transfers</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-pill">
+        <svg viewBox="0 0 24 24" fill="var(--md-on-surface-variant)"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 3a2 2 0 110 4 2 2 0 010-4zm0 14c-2.67 0-5.02-1.33-6.43-3.36C7.6 13.56 11.97 13 12 13c.03 0 4.4.56 6.43 2.64C17.02 17.67 14.67 19 12 19z"/></svg>
+      </div>
+      <span class="nav-label">Account</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-pill">
+        <svg viewBox="0 0 24 24" fill="var(--md-on-surface-variant)"><path d="M12 15.5A3.5 3.5 0 0015.5 12 3.5 3.5 0 0012 8.5 3.5 3.5 0 008.5 12a3.5 3.5 0 003.5 3.5zm7.43-2.53c.04-.32.07-.64.07-.97s-.03-.66-.07-.98l2.11-1.65a.5.5 0 00.12-.64l-2-3.46a.5.5 0 00-.61-.22l-2.49 1a7.04 7.04 0 00-1.69-.98l-.38-2.65A.49.49 0 0014 2h-4a.49.49 0 00-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1a.5.5 0 00-.61.22l-2 3.46a.49.49 0 00.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65a.5.5 0 00-.12.64l2 3.46a.5.5 0 00.61.22l2.49-1c.52.39 1.08.73 1.69.98l.38 2.65c.05.24.26.42.49.42h4c.24 0 .44-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1a.5.5 0 00.61-.22l2-3.46a.5.5 0 00-.12-.64l-2.11-1.65z"/></svg>
+      </div>
+      <span class="nav-label">Settings</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

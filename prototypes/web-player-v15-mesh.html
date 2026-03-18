@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Player (Gradient Mesh)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #111113;
+    --text: #EEEEF0;
+    --text-2: #ABABB2;
+    --text-3: #77777F;
+    --text-4: #55555E;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.12);
+    --yellow-glow: rgba(253, 206, 69, 0.20);
+    --green: #30A46C;
+    --red: #E5484D;
+    --glass: rgba(255, 255, 255, 0.04);
+    --glass-hover: rgba(255, 255, 255, 0.07);
+    --glass-active: rgba(255, 255, 255, 0.09);
+    --glass-border: rgba(255, 255, 255, 0.07);
+    --glass-border-strong: rgba(255, 255, 255, 0.12);
+    --radius-sm: 8px;
+    --radius-xs: 5px;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'cv11' 1, 'ss01' 1;
+    background: var(--bg);
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg);
+  }
+
+  /* ===== GRADIENT MESH ===== */
+  .mesh-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+  }
+
+  .mesh-orb { position: absolute; border-radius: 50%; filter: blur(100px); will-change: transform; }
+  .mesh-orb-1 { width: 700px; height: 700px; top: -150px; left: 300px; background: radial-gradient(circle, rgba(253,206,69,0.12) 0%, transparent 65%); animation: md1 12s ease-in-out infinite alternate; }
+  .mesh-orb-2 { width: 550px; height: 550px; bottom: -100px; right: 100px; background: radial-gradient(circle, rgba(253,206,69,0.08) 0%, transparent 60%); animation: md2 12s ease-in-out infinite alternate; }
+  .mesh-orb-3 { width: 400px; height: 400px; top: 400px; left: 0; background: radial-gradient(circle, rgba(48,164,108,0.06) 0%, transparent 60%); animation: md3 12s ease-in-out infinite alternate; }
+  .mesh-orb-4 { width: 500px; height: 500px; top: 100px; right: -100px; background: radial-gradient(circle, rgba(229,72,77,0.04) 0%, transparent 60%); animation: md4 12s ease-in-out infinite alternate; }
+  .mesh-orb-5 { width: 300px; height: 300px; bottom: 200px; left: 200px; background: radial-gradient(circle, rgba(253,206,69,0.09) 0%, transparent 60%); animation: md5 12s ease-in-out infinite alternate; }
+
+  @keyframes md1 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-40px,60px) scale(1.06); } }
+  @keyframes md2 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(50px,-40px) scale(1.08); } }
+  @keyframes md3 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(30px,-50px) scale(1.1); } }
+  @keyframes md4 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-60px,30px) scale(0.95); } }
+  @keyframes md5 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(20px,30px) scale(1.12); } }
+
+  /* ===== COLLAPSED SIDEBAR ===== */
+  .sidebar-collapsed {
+    width: 64px;
+    background: rgba(17,17,19,0.6);
+    backdrop-filter: blur(40px) saturate(150%);
+    -webkit-backdrop-filter: blur(40px) saturate(150%);
+    border-right: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 16px 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .sidebar-logo { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.03em; cursor: pointer; }
+  .sidebar-logo .dot { color: var(--yellow); text-shadow: 0 0 12px var(--yellow-glow); }
+
+  .sidebar-icon-btn {
+    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+    border: none; background: none; color: var(--text-3); cursor: pointer;
+    border-radius: var(--radius-sm); transition: all 0.15s ease; margin-bottom: 2px;
+  }
+  .sidebar-icon-btn:hover { background: var(--glass-hover); color: var(--text); }
+  .sidebar-icon-btn svg { display: block; }
+  .sidebar-spacer { flex: 1; }
+  .sidebar-avatar { width: 32px; height: 32px; background: var(--glass-hover); border-radius: 8px; border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; cursor: pointer; margin-top: 8px; }
+
+  /* ===== MAIN AREA ===== */
+  .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; z-index: 1; }
+
+  .breadcrumb-bar {
+    display: flex; align-items: center; gap: 8px; padding: 12px 24px;
+    background: rgba(17,17,19,0.5); backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-bottom: 1px solid var(--glass-border); min-height: 44px;
+  }
+  .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  .breadcrumb-item { color: var(--text-3); cursor: pointer; font-weight: 450; }
+  .breadcrumb-item:hover { color: var(--text-2); }
+  .breadcrumb-item.current { color: var(--text); font-weight: 500; }
+  .breadcrumb-sep { color: var(--text-4); font-size: 11px; }
+
+  .player-layout { flex: 1; display: flex; overflow: hidden; }
+
+  /* ===== VIDEO PLAYER ===== */
+  .player-section { flex: 1; display: flex; flex-direction: column; background: rgba(0,0,0,0.25); }
+
+  .video-area {
+    flex: 1; display: flex; align-items: center; justify-content: center; position: relative;
+    background: linear-gradient(180deg, rgba(17,17,19,0.9) 0%, rgba(25,25,27,0.6) 30%, rgba(34,34,37,0.5) 50%, rgba(25,25,27,0.6) 70%, rgba(17,17,19,0.9) 100%);
+    cursor: pointer;
+  }
+
+  .play-indicator {
+    width: 76px; height: 76px; border-radius: 50%;
+    background: var(--glass); backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border-strong);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
+  }
+  .play-indicator:hover { background: var(--glass-hover); transform: scale(1.06); }
+  .play-indicator svg { display: block; margin-left: 3px; }
+
+  .video-title-overlay { position: absolute; bottom: 80px; left: 28px; right: 28px; }
+  .video-title-text { font-size: 20px; font-weight: 600; color: #fff; letter-spacing: -0.02em; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+  .video-subtitle { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+
+  .video-area::before, .video-area::after {
+    content: ''; position: absolute; left: 0; right: 0; height: 12%; background: rgba(0,0,0,0.5);
+  }
+  .video-area::before { top: 0; }
+  .video-area::after { bottom: 0; }
+
+  /* ===== CONTROLS ===== */
+  .controls-bar {
+    background: rgba(17,17,19,0.5); backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border-top: 1px solid var(--glass-border); padding: 0 20px;
+  }
+
+  .progress-bar-wrap { display: flex; align-items: center; gap: 10px; padding: 10px 0 6px; }
+  .time-label { font-size: 11px; font-weight: 500; color: var(--text-3); font-family: 'SF Mono','Menlo','Consolas', monospace; font-variant-numeric: tabular-nums; min-width: 40px; }
+  .time-label.right { text-align: right; }
+
+  .video-progress-track { flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; cursor: pointer; transition: height 0.1s ease; }
+  .video-progress-track:hover { height: 6px; }
+  .video-progress-fill { height: 100%; background: var(--yellow); border-radius: 2px; box-shadow: 0 0 8px var(--yellow-glow); position: relative; }
+  .video-progress-fill::after { content: ''; position: absolute; right: -6px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; background: var(--yellow); border-radius: 50%; opacity: 0; transition: opacity 0.15s; box-shadow: 0 0 12px var(--yellow-glow); }
+  .video-progress-track:hover .video-progress-fill::after { opacity: 1; }
+
+  .controls-row { display: flex; align-items: center; gap: 4px; padding: 4px 0 10px; }
+  .ctrl-btn { width: 36px; height: 36px; border: none; background: none; color: var(--text-2); cursor: pointer; border-radius: var(--radius-xs); display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; }
+  .ctrl-btn:hover { background: var(--glass-hover); color: var(--text); }
+  .ctrl-btn svg { display: block; }
+
+  .ctrl-btn-play { width: 42px; height: 42px; border: 1px solid var(--glass-border); background: var(--glass-active); color: #fff; cursor: pointer; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; }
+  .ctrl-btn-play:hover { background: var(--glass-hover); }
+
+  .volume-slider { width: 80px; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; position: relative; cursor: pointer; margin-left: 4px; }
+  .volume-fill { height: 100%; width: 70%; background: var(--text-2); border-radius: 2px; }
+  .controls-spacer { flex: 1; }
+  .speed-label { font-size: 11.5px; font-weight: 600; color: var(--text-3); padding: 4px 8px; border-radius: var(--radius-xs); cursor: pointer; font-family: inherit; background: none; border: none; }
+  .speed-label:hover { background: var(--glass-hover); color: var(--text-2); }
+
+  /* ===== RIGHT PANEL ===== */
+  .right-panel {
+    width: 320px;
+    background: rgba(17,17,19,0.5);
+    backdrop-filter: blur(40px) saturate(150%);
+    -webkit-backdrop-filter: blur(40px) saturate(150%);
+    border-left: 1px solid var(--glass-border);
+    display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0;
+  }
+
+  .panel-section { padding: 16px 20px; border-bottom: 1px solid var(--glass-border); }
+  .panel-section-label { font-size: 10px; font-weight: 600; color: var(--text-4); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+
+  .btn-cast {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 11px 16px; background: var(--yellow); color: #111113;
+    font-size: 13px; font-weight: 600; border: none; border-radius: var(--radius-sm);
+    cursor: pointer; font-family: inherit; line-height: 1;
+    box-shadow: 0 0 24px var(--yellow-glow), 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .btn-cast:hover { box-shadow: 0 0 32px rgba(253,206,69,0.35), 0 2px 8px rgba(0,0,0,0.3); }
+  .btn-cast svg { display: block; }
+
+  .up-next-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .up-next-title { font-size: 10px; font-weight: 600; color: var(--text-4); text-transform: uppercase; letter-spacing: 0.08em; }
+  .toggle-wrap { display: flex; align-items: center; gap: 6px; }
+  .toggle-label { font-size: 11px; color: var(--text-4); font-weight: 450; }
+  .toggle-track { width: 32px; height: 18px; background: var(--yellow); border-radius: 9px; position: relative; cursor: pointer; }
+  .toggle-thumb { width: 14px; height: 14px; background: #fff; border-radius: 50%; position: absolute; top: 2px; right: 2px; }
+
+  .up-next-item { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: var(--radius-xs); cursor: pointer; transition: all 0.15s ease; }
+  .up-next-item:hover { background: var(--glass-hover); }
+  .up-next-thumb { width: 56px; height: 34px; background: var(--glass-hover); border-radius: var(--radius-xs); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--glass-border); }
+  .up-next-info { flex: 1; min-width: 0; }
+  .up-next-name { font-size: 12.5px; font-weight: 450; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .up-next-meta { font-size: 11px; color: var(--text-4); margin-top: 2px; }
+
+  .action-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-xs); cursor: pointer; transition: all 0.15s ease; margin-bottom: 2px; }
+  .action-row:hover { background: var(--glass-hover); }
+  .action-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; color: var(--text-3); flex-shrink: 0; }
+  .action-icon svg { display: block; }
+  .action-label { font-size: 13px; font-weight: 450; color: var(--text-2); flex: 1; }
+  .action-meta { font-size: 11.5px; color: var(--text-4); }
+
+  .collapsed-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-xs); cursor: pointer; transition: all 0.15s ease; margin-bottom: 2px; }
+  .collapsed-row:hover { background: var(--glass-hover); }
+  .collapsed-label { font-size: 13px; font-weight: 450; color: var(--text-3); flex: 1; }
+  .collapsed-chevron { color: var(--text-4); display: flex; align-items: center; }
+
+  .action-row.danger .action-icon { color: var(--red); }
+  .action-row.danger .action-label { color: rgba(229,72,77,0.8); }
+  .action-row.danger:hover { background: rgba(229,72,77,0.06); }
+
+  .right-panel::-webkit-scrollbar { width: 6px; }
+  .right-panel::-webkit-scrollbar-track { background: transparent; }
+  .right-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="mesh-bg">
+    <div class="mesh-orb mesh-orb-1"></div>
+    <div class="mesh-orb mesh-orb-2"></div>
+    <div class="mesh-orb mesh-orb-3"></div>
+    <div class="mesh-orb mesh-orb-4"></div>
+    <div class="mesh-orb mesh-orb-5"></div>
+  </div>
+
+  <div class="sidebar-collapsed">
+    <div class="sidebar-logo">p<span class="dot">.</span></div>
+    <button class="sidebar-icon-btn"><svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg></button>
+    <button class="sidebar-icon-btn"><svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7l-112,120a8,8,0,0,0,3,13l57.63,21.61L88.16,238.43a8,8,0,0,0,13.69,7l112-120A8,8,0,0,0,215.79,118.17Z"/></svg></button>
+    <button class="sidebar-icon-btn"><svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M98.91,157.09A71.53,71.53,0,0,1,120,208a8,8,0,0,1-16,0,56,56,0,0,0-56-56,8,8,0,0,1,0-16A71.53,71.53,0,0,1,98.91,157.09ZM48,88a8,8,0,0,0,0,16,104,104,0,0,1,104,104,8,8,0,0,0,16,0A120,120,0,0,0,48,88Zm0-40a8,8,0,0,0,0,16,144,144,0,0,1,144,144,8,8,0,0,0,16,0A160,160,0,0,0,48,48Zm12,160a12,12,0,1,0-12-12A12,12,0,0,0,60,208Z"/></svg></button>
+    <button class="sidebar-icon-btn"><svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.16,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.16-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,74,34.5a8,8,0,0,0-3.93,6L67.43,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.16,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.16,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.16,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.16-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.16,8,8,0,0,0-1.49-7.06Z"/></svg></button>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-avatar"><svg width="18" height="18" viewBox="0 0 16 16" fill="var(--text-2)"><rect x="3" y="2" width="2" height="2"/><rect x="11" y="2" width="2" height="2"/><rect x="5" y="4" width="2" height="2"/><rect x="9" y="4" width="2" height="2"/><rect x="3" y="6" width="10" height="2"/><rect x="1" y="8" width="2" height="2"/><rect x="3" y="8" width="2" height="2"/><rect x="5" y="8" width="6" height="2"/><rect x="11" y="8" width="2" height="2"/><rect x="13" y="8" width="2" height="2"/><rect x="1" y="10" width="2" height="2"/><rect x="5" y="10" width="2" height="2"/><rect x="9" y="10" width="2" height="2"/><rect x="13" y="10" width="2" height="2"/><rect x="3" y="12" width="2" height="2"/><rect x="5" y="12" width="2" height="2"/><rect x="9" y="12" width="2" height="2"/><rect x="11" y="12" width="2" height="2"/></svg></div>
+  </div>
+
+  <div class="main-area">
+    <div class="breadcrumb-bar">
+      <div class="breadcrumb">
+        <span class="breadcrumb-item">Your Files</span>
+        <span class="breadcrumb-sep"><svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"/></svg></span>
+        <span class="breadcrumb-item">downloads</span>
+        <span class="breadcrumb-sep"><svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"/></svg></span>
+        <span class="breadcrumb-item current">Dune Part Two (2024)</span>
+      </div>
+    </div>
+
+    <div class="player-layout">
+      <div class="player-section">
+        <div class="video-area">
+          <div class="play-indicator">
+            <svg width="28" height="28" viewBox="0 0 256 256" fill="#fff"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg>
+          </div>
+          <div class="video-title-overlay">
+            <div class="video-title-text">Dune: Part Two</div>
+            <div class="video-subtitle">2024 &middot; 2h 46m &middot; 2160p HDR</div>
+          </div>
+        </div>
+
+        <div class="controls-bar">
+          <div class="progress-bar-wrap">
+            <span class="time-label">0:47:23</span>
+            <div class="video-progress-track">
+              <div class="video-progress-fill" style="width: 28.5%;"></div>
+            </div>
+            <span class="time-label right">2:46:08</span>
+          </div>
+          <div class="controls-row">
+            <button class="ctrl-btn"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M195.88,34.47a8,8,0,0,0-8.53.85L120,88.22V48a8,8,0,0,0-12.65-6.53l-80,56a8,8,0,0,0,0,13.06l80,56A8,8,0,0,0,120,160V119.78l67.35,47.1A8,8,0,0,0,200,160V48A8,8,0,0,0,195.88,34.47Z"/></svg></button>
+            <button class="ctrl-btn-play"><svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg></button>
+            <button class="ctrl-btn"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M60.12,34.47a8,8,0,0,1,8.53.85L136,88.22V48a8,8,0,0,1,12.65-6.53l80,56a8,8,0,0,1,0,13.06l-80,56A8,8,0,0,1,136,160V119.78L68.65,166.88A8,8,0,0,1,56,160V48A8,8,0,0,1,60.12,34.47Z"/></svg></button>
+            <button class="ctrl-btn"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M155.51,24.81a8,8,0,0,0-8.42.88L77.25,80H32A16,16,0,0,0,16,96v64a16,16,0,0,0,16,16H77.25l69.84,54.31A8,8,0,0,0,160,224V32A8,8,0,0,0,155.51,24.81ZM144,207.64,84.91,161.69A7.94,7.94,0,0,0,80,160H32V96H80a7.94,7.94,0,0,0,4.91-1.69L144,48.36Zm50-63.77a24,24,0,0,0,0-31.74,8,8,0,1,0-12,10.58,8,8,0,0,1,0,10.58,8,8,0,1,0,12,10.58Zm32-56a72,72,0,0,1,0,80.26,8,8,0,1,1-12.27-10.26,56,56,0,0,0,0-59.74,8,8,0,1,1,12.27-10.26Z"/></svg></button>
+            <div class="volume-slider"><div class="volume-fill"></div></div>
+            <div class="controls-spacer"></div>
+            <button class="speed-label">1x</button>
+            <button class="ctrl-btn" title="PiP"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48H40A16,16,0,0,0,24,64V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48Zm0,144H40V64H216V192Zm-24-72H136a8,8,0,0,0-8,8v48a8,8,0,0,0,8,8h56a8,8,0,0,0,8-8V128A8,8,0,0,0,192,120Zm-8,48H144V136h40Z"/></svg></button>
+            <button class="ctrl-btn" title="Subtitles"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,144H32V64H224V192ZM48,136a8,8,0,0,1,8-8H72a8,8,0,0,1,0,16H56A8,8,0,0,1,48,136Zm160,0a8,8,0,0,1-8,8H104a8,8,0,0,1,0-16h96A8,8,0,0,1,208,136Zm-160,32a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H56A8,8,0,0,1,48,168Zm160,0a8,8,0,0,1-8,8H184a8,8,0,0,1,0-16h16A8,8,0,0,1,208,168Z"/></svg></button>
+            <button class="ctrl-btn" title="Fullscreen"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Zm0,176H48V48H208V208Zm-32-80v48a8,8,0,0,1-8,8H120a8,8,0,0,1,0-16h36.69L98.34,133.66a8,8,0,0,1,11.32-11.32L168,180.69V144a8,8,0,0,1,16,0Z"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="panel-section">
+          <button class="btn-cast">
+            <svg width="18" height="18" viewBox="0 0 256 256" fill="#111113"><path d="M232,56V200a16,16,0,0,1-16,16H152a8,8,0,0,1,0-16h64V56H40V96a8,8,0,0,1-16,0V56A16,16,0,0,1,40,40H216A16,16,0,0,1,232,56ZM32,184a8,8,0,0,0,0,16h8a8,8,0,0,0,8-8,16,16,0,0,0-16-16Zm0-32a8,8,0,0,0,0,16,48.05,48.05,0,0,1,48,48,8,8,0,0,0,16,0A64.07,64.07,0,0,0,32,152Zm0-32a8,8,0,0,0,0,16,80.09,80.09,0,0,1,80,80,8,8,0,0,0,16,0A96.11,96.11,0,0,0,32,120Z"/></svg>
+            Play on Chromecast
+          </button>
+        </div>
+
+        <div class="panel-section">
+          <div class="up-next-header">
+            <span class="up-next-title">Up Next</span>
+            <div class="toggle-wrap">
+              <span class="toggle-label">Autoplay</span>
+              <div class="toggle-track"><div class="toggle-thumb"></div></div>
+            </div>
+          </div>
+          <div class="up-next-item">
+            <div class="up-next-thumb"><svg width="16" height="16" viewBox="0 0 256 256" fill="var(--text-4)"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg></div>
+            <div class="up-next-info">
+              <div class="up-next-name">Cosmos Laundromat.mp4</div>
+              <div class="up-next-meta">209.89 MB &middot; 12 min</div>
+            </div>
+          </div>
+          <div class="up-next-item">
+            <div class="up-next-thumb"><svg width="16" height="16" viewBox="0 0 256 256" fill="var(--text-4)"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg></div>
+            <div class="up-next-info">
+              <div class="up-next-name">Sintel.mp4</div>
+              <div class="up-next-meta">892.45 MB &middot; 14 min</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-label">Actions</div>
+          <div class="action-row">
+            <div class="action-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0v56H208V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,132.69V40a8,8,0,0,0-16,0v92.69L93.66,106.34a8,8,0,0,0-11.32,11.32Z"/></svg></div>
+            <span class="action-label">Download</span>
+            <span class="action-meta">18.4 GB</span>
+          </div>
+          <div class="action-row">
+            <div class="action-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Zm176,144.89a.11.11,0,0,1,0,.11H40V88H216Z"/></svg></div>
+            <span class="action-label">Move to...</span>
+          </div>
+          <div class="action-row">
+            <div class="action-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg></div>
+            <span class="action-label">Share</span>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-label">Advanced</div>
+          <div class="collapsed-row">
+            <div class="action-icon" style="color: var(--text-3);"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M200,24H72A16,16,0,0,0,56,40V64H40A16,16,0,0,0,24,80v96a16,16,0,0,0,16,16H56v24a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V40A16,16,0,0,0,200,24Zm0,192H72V192h64a8,8,0,0,0,0-16H40V80H200Z"/></svg></div>
+            <span class="collapsed-label">Stream link</span>
+            <span class="collapsed-chevron"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"/></svg></span>
+          </div>
+          <div class="collapsed-row">
+            <div class="action-icon" style="color: var(--text-3);"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,172Z"/></svg></div>
+            <span class="collapsed-label">Media info</span>
+            <span class="collapsed-chevron"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"/></svg></span>
+          </div>
+        </div>
+
+        <div class="panel-section" style="border-bottom: none;">
+          <div class="action-row danger">
+            <div class="action-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"/></svg></div>
+            <span class="action-label">Move to Trash</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

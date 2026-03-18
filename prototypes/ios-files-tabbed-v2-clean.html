@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io -- iOS Files Tabbed (Safari-style)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000; --bg-2: #1C1C1E; --bg-3: #2C2C2E; --bg-4: #3A3A3C;
+    --line: #38383A; --solid: #8E8E93; --text-2: #AEAEB2; --text: #EEEEF0;
+    --yellow: #FDCE45; --green: #30A46C; --red: #E5484D; --blue: #0A84FF;
+  }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+  .phone { width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; position: relative; background: var(--bg); }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 12px 24px 0;
+    font-size: 15px; font-weight: 600; height: 54px; flex-shrink: 0;
+  }
+  .status-bar .time { flex: 1; }
+  .status-bar .icons { display: flex; align-items: center; gap: 6px; }
+
+  /* Tab Strip */
+  .tab-strip {
+    display: flex; align-items: center; gap: 0; padding: 0 12px;
+    flex-shrink: 0; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    border-bottom: 1px solid var(--line);
+  }
+  .tab-strip::-webkit-scrollbar { display: none; }
+  .tab-item {
+    display: flex; align-items: center; gap: 6px;
+    padding: 10px 14px; font-size: 13px; font-weight: 500;
+    color: var(--text-2); white-space: nowrap; cursor: pointer;
+    border-bottom: 2px solid transparent; position: relative;
+    flex-shrink: 0;
+  }
+  .tab-item.active { color: var(--yellow); border-bottom-color: var(--yellow); font-weight: 600; }
+  .tab-item .tab-icon { width: 16px; height: 16px; flex-shrink: 0; }
+  .tab-item .tab-close {
+    width: 16px; height: 16px; opacity: 0.4; cursor: pointer; flex-shrink: 0;
+  }
+  .tab-item.active .tab-close { opacity: 0.7; }
+  .tab-add {
+    width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; cursor: pointer; border-radius: 8px;
+  }
+  .tab-add:hover { background: var(--bg-3); }
+
+  /* Content area header */
+  .content-header {
+    display: flex; align-items: center; padding: 16px 16px 8px;
+    flex-shrink: 0;
+  }
+  .content-title { font-size: 28px; font-weight: 700; flex: 1; }
+  .content-actions { display: flex; gap: 8px; }
+  .content-action {
+    width: 36px; height: 36px; background: var(--bg-3); border-radius: 999px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+
+  /* Folder path breadcrumb */
+  .breadcrumb {
+    display: flex; align-items: center; gap: 4px; padding: 0 16px 12px;
+    font-size: 13px; color: var(--solid); flex-shrink: 0;
+  }
+  .breadcrumb span { color: var(--text-2); }
+  .breadcrumb .sep { color: var(--solid); }
+
+  /* File List */
+  .file-list { flex: 1; overflow-y: auto; padding-bottom: 20px; }
+  .list-group { background: var(--bg-2); margin: 0 16px 12px; border-radius: 12px; overflow: hidden; }
+  .list-item {
+    display: flex; align-items: center; padding: 12px 16px; gap: 12px;
+    border-bottom: 1px solid var(--line); cursor: pointer;
+  }
+  .list-item:last-child { border-bottom: none; }
+  .list-item .item-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .list-item .item-icon.folder { background: rgba(253,206,69,0.12); }
+  .list-item .item-icon.video { background: rgba(10,132,255,0.12); }
+  .list-item .item-icon.audio { background: rgba(48,164,108,0.12); }
+  .list-item .item-icon.image { background: rgba(191,90,242,0.12); }
+  .list-item .item-icon.archive { background: rgba(142,142,147,0.12); }
+  .item-info { flex: 1; min-width: 0; }
+  .item-name { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item-meta { font-size: 13px; color: var(--solid); margin-top: 2px; }
+  .item-chevron { width: 16px; height: 16px; color: var(--bg-4); flex-shrink: 0; }
+
+  /* Tab Overview Mode */
+  .tab-overview {
+    flex: 1; padding: 16px; overflow-y: auto;
+    display: none; flex-direction: column; gap: 16px;
+  }
+  .tab-overview.active { display: flex; }
+  .tab-overview-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 0 8px;
+  }
+  .tab-overview-title { font-size: 28px; font-weight: 700; }
+  .tab-overview-count { font-size: 15px; color: var(--solid); }
+
+  .tab-card {
+    background: var(--bg-2); border-radius: 16px; overflow: hidden;
+    border: 1px solid var(--line); cursor: pointer;
+  }
+  .tab-card.active-card { border-color: var(--yellow); }
+  .tab-card-header {
+    display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+    background: var(--bg-3);
+  }
+  .tab-card-header .card-title { flex: 1; font-size: 15px; font-weight: 600; }
+  .tab-card-header .card-count { font-size: 13px; color: var(--solid); }
+  .tab-card-header .card-close {
+    width: 20px; height: 20px; opacity: 0.5; cursor: pointer;
+  }
+  .tab-card-preview {
+    display: flex; flex-direction: column; gap: 0;
+  }
+  .card-preview-item {
+    display: flex; align-items: center; gap: 10px; padding: 10px 16px;
+    border-bottom: 1px solid rgba(56,56,58,0.5);
+    font-size: 14px; color: var(--text-2);
+  }
+  .card-preview-item:last-child { border-bottom: none; }
+  .card-preview-item .mini-icon { width: 20px; height: 20px; flex-shrink: 0; }
+
+  /* Bottom Tab Bar */
+  .bottom-bar {
+    display: flex; align-items: center; justify-content: space-around;
+    padding: 8px 0 28px; flex-shrink: 0;
+    border-top: 1px solid var(--line); background: var(--bg);
+  }
+  .bottom-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 500; color: var(--solid); cursor: pointer;
+  }
+  .bottom-item.active { color: var(--yellow); }
+  .bottom-item svg { width: 24px; height: 24px; }
+
+  /* Toggle button */
+  .overview-toggle {
+    position: absolute; bottom: 78px; right: 16px;
+    width: 48px; height: 48px; border-radius: 999px;
+    background: var(--yellow); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 10.5a1.5 1.5 0 013 0v3a1.5 1.5 0 01-3 0v-3zm4.5-3a1.5 1.5 0 013 0v6a1.5 1.5 0 01-3 0v-6zm4.5-3a1.5 1.5 0 013 0v9a1.5 1.5 0 01-3 0v-9z" opacity="0.9"/></svg>
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2C4.52 2 1.56 4.02.3 6.96a.75.75 0 001.4.54C2.72 5.1 5.18 3.5 8 3.5s5.28 1.6 6.3 4a.75.75 0 001.4-.54C14.44 4.02 11.48 2 8 2zm0 4c-1.96 0-3.7 1.14-4.6 2.88a.75.75 0 001.34.68C5.44 8.28 6.62 7.5 8 7.5s2.56.78 3.26 2.06a.75.75 0 001.34-.68C11.7 7.14 9.96 6 8 6zm0 4a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 4h10a2 2 0 012 2v5a2 2 0 01-2 2H2a2 2 0 01-2-2V6a2 2 0 012-2zm12.5 2.5v4l1.3.65A.5.5 0 0016 10.7V6.3a.5.5 0 00-.2-.45z"/></svg>
+    </div>
+  </div>
+
+  <!-- Tab Strip (scrollable) -->
+  <div class="tab-strip">
+    <div class="tab-item active">
+      <svg class="tab-icon" viewBox="0 0 16 16" fill="currentColor" style="color: var(--yellow)"><path d="M1 3.5A1.5 1.5 0 012.5 2h3.879a1.5 1.5 0 011.06.44l.622.622a1.5 1.5 0 001.06.438H13.5A1.5 1.5 0 0115 5v7.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 12.5v-9z"/></svg>
+      Movies
+      <svg class="tab-close" viewBox="0 0 16 16" fill="currentColor"><path d="M4.646 4.646a.5.5 0 01.708 0L8 7.293l2.646-2.647a.5.5 0 01.708.708L8.707 8l2.647 2.646a.5.5 0 01-.708.708L8 8.707l-2.646 2.647a.5.5 0 01-.708-.708L7.293 8 4.646 5.354a.5.5 0 010-.708z"/></svg>
+    </div>
+    <div class="tab-item">
+      <svg class="tab-icon" viewBox="0 0 16 16" fill="currentColor" style="color: var(--text-2)"><path d="M1 3.5A1.5 1.5 0 012.5 2h3.879a1.5 1.5 0 011.06.44l.622.622a1.5 1.5 0 001.06.438H13.5A1.5 1.5 0 0115 5v7.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 12.5v-9z"/></svg>
+      TV Shows
+    </div>
+    <div class="tab-item">
+      <svg class="tab-icon" viewBox="0 0 16 16" fill="currentColor" style="color: var(--text-2)"><path d="M1 3.5A1.5 1.5 0 012.5 2h3.879a1.5 1.5 0 011.06.44l.622.622a1.5 1.5 0 001.06.438H13.5A1.5 1.5 0 0115 5v7.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 12.5v-9z"/></svg>
+      Music
+    </div>
+    <div class="tab-item">
+      <svg class="tab-icon" viewBox="0 0 16 16" fill="currentColor" style="color: var(--text-2)"><path d="M1 3.5A1.5 1.5 0 012.5 2h3.879a1.5 1.5 0 011.06.44l.622.622a1.5 1.5 0 001.06.438H13.5A1.5 1.5 0 0115 5v7.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 12.5v-9z"/></svg>
+      Books
+    </div>
+    <div class="tab-add">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="9" y1="3" x2="9" y2="15"/><line x1="3" y1="9" x2="15" y2="9"/></svg>
+    </div>
+  </div>
+
+  <!-- Active Tab Content -->
+  <div class="content-header">
+    <span class="content-title">Movies</span>
+    <div class="content-actions">
+      <div class="content-action">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="5.5"/><line x1="12" y1="12" x2="16" y2="16"/></svg>
+      </div>
+      <div class="content-action">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round"><path d="M3 9.5L3 14.5C3 15.05 3.45 15.5 4 15.5L14 15.5C14.55 15.5 15 15.05 15 14.5L15 9.5"/><polyline points="12,6 9,3 6,6"/><line x1="9" y1="3" x2="9" y2="12"/></svg>
+      </div>
+    </div>
+  </div>
+  <div class="breadcrumb">
+    <span>Your Files</span>
+    <span class="sep">/</span>
+    <span style="color:var(--yellow)">Movies</span>
+  </div>
+
+  <!-- File List -->
+  <div class="file-list">
+    <div class="list-group">
+      <!-- Subfolder -->
+      <div class="list-item">
+        <div class="item-icon folder">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="var(--yellow)"><path d="M2 5.5A2.5 2.5 0 014.5 3h4.379a2 2 0 011.414.586l.828.828A2 2 0 0012.535 5H17.5A2.5 2.5 0 0120 7.5v9a2.5 2.5 0 01-2.5 2.5h-13A2.5 2.5 0 012 16.5v-11z"/></svg>
+        </div>
+        <div class="item-info">
+          <div class="item-name">Action</div>
+          <div class="item-meta">12 items -- 48.2 GB</div>
+        </div>
+        <svg class="item-chevron" viewBox="0 0 16 16" fill="var(--bg-4)"><path d="M6.22 4.22a.75.75 0 011.06 0l3.25 3.25a.75.75 0 010 1.06l-3.25 3.25a.75.75 0 01-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 010-1.06z"/></svg>
+      </div>
+      <!-- Subfolder -->
+      <div class="list-item">
+        <div class="item-icon folder">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="var(--yellow)"><path d="M2 5.5A2.5 2.5 0 014.5 3h4.379a2 2 0 011.414.586l.828.828A2 2 0 0012.535 5H17.5A2.5 2.5 0 0120 7.5v9a2.5 2.5 0 01-2.5 2.5h-13A2.5 2.5 0 012 16.5v-11z"/></svg>
+        </div>
+        <div class="item-info">
+          <div class="item-name">Sci-Fi</div>
+          <div class="item-meta">8 items -- 35.1 GB</div>
+        </div>
+        <svg class="item-chevron" viewBox="0 0 16 16" fill="var(--bg-4)"><path d="M6.22 4.22a.75.75 0 011.06 0l3.25 3.25a.75.75 0 010 1.06l-3.25 3.25a.75.75 0 01-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 010-1.06z"/></svg>
+      </div>
+      <!-- Subfolder -->
+      <div class="list-item">
+        <div class="item-icon folder">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="var(--yellow)"><path d="M2 5.5A2.5 2.5 0 014.5 3h4.379a2 2 0 011.414.586l.828.828A2 2 0 0012.535 5H17.5A2.5 2.5 0 0120 7.5v9a2.5 2.5 0 01-2.5 2.5h-13A2.5 2.5 0 012 16.5v-11z"/></svg>
+        </div>
+        <div class="item-info">
+          <div class="item-name">Comedy</div>
+          <div class="item-meta">6 items -- 22.7 GB</div>
+        </div>
+        <svg class="item-chevron" viewBox="0 0 16 16" fill="var(--bg-4)"><path d="M6.22 4.22a.75.75 0 011.06 0l3.25 3.25a.75.75 0 010 1.06l-3.25 3.25a.75.75 0 01-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 010-1.06z"/></svg>
+      </div>
+    </div>
+
+    <div class="list-group">
+      <!-- Video file -->
+      <div class="list-item">
+        <div class="item-icon video">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="#0A84FF"><path d="M4 4h14a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm5 3.5v7l5.5-3.5L9 7.5z"/></svg>
+        </div>
+        <div class="item-info">
+          <div class="item-name">Dune.Part.Two.2024.mkv</div>
+          <div class="item-meta">4.8 GB -- 2h 46m</div>
+        </div>
+      </div>
+      <!-- Video file -->
+      <div class="list-item">
+        <div class="item-icon video">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="#0A84FF"><path d="M4 4h14a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm5 3.5v7l5.5-3.5L9 7.5z"/></svg>
+        </div>
+        <div class="item-info">
+          <div class="item-name">Oppenheimer.2023.mkv</div>
+          <div class="item-meta">6.2 GB -- 3h 1m</div>
+        </div>
+      </div>
+      <!-- Video file -->
+      <div class="list-item">
+        <div class="item-icon video">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="#0A84FF"><path d="M4 4h14a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm5 3.5v7l5.5-3.5L9 7.5z"/></svg>
+        </div>
+        <div class="item-info">
+          <div class="item-name">Past.Lives.2023.mkv</div>
+          <div class="item-meta">2.1 GB -- 1h 46m</div>
+        </div>
+      </div>
+      <!-- Video file -->
+      <div class="list-item">
+        <div class="item-icon video">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="#0A84FF"><path d="M4 4h14a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm5 3.5v7l5.5-3.5L9 7.5z"/></svg>
+        </div>
+        <div class="item-info">
+          <div class="item-name">The.Holdovers.2023.mkv</div>
+          <div class="item-meta">3.4 GB -- 2h 13m</div>
+        </div>
+      </div>
+      <!-- Video file -->
+      <div class="list-item">
+        <div class="item-icon video">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="#0A84FF"><path d="M4 4h14a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm5 3.5v7l5.5-3.5L9 7.5z"/></svg>
+        </div>
+        <div class="item-info">
+          <div class="item-name">Poor.Things.2023.mkv</div>
+          <div class="item-meta">5.1 GB -- 2h 21m</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Overview toggle (shows grid icon) -->
+  <div class="overview-toggle">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="#000">
+      <rect x="2" y="2" width="7" height="7" rx="1.5"/>
+      <rect x="13" y="2" width="7" height="7" rx="1.5"/>
+      <rect x="2" y="13" width="7" height="7" rx="1.5"/>
+      <rect x="13" y="13" width="7" height="7" rx="1.5"/>
+    </svg>
+  </div>
+
+  <!-- Bottom Tab Bar -->
+  <div class="bottom-bar">
+    <div class="bottom-item active">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 7.5A4.5 4.5 0 017.5 3h2.879a1.5 1.5 0 011.06.44l.622.621a3 3 0 002.122.879H16.5A4.5 4.5 0 0121 9.44v6.06A4.5 4.5 0 0116.5 20h-9A4.5 4.5 0 013 15.5v-8z"/></svg>
+      Files
+    </div>
+    <div class="bottom-item">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      Transfers
+    </div>
+    <div class="bottom-item">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 3a2 2 0 110 4 2 2 0 010-4zm0 14c-2.67 0-5.02-1.33-6.43-3.36C7.6 13.56 11.97 13 12 13c.03 0 4.4.56 6.43 2.64C17.02 17.67 14.67 19 12 19z"/></svg>
+      Account
+    </div>
+    <div class="bottom-item">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15.5A3.5 3.5 0 0015.5 12 3.5 3.5 0 0012 8.5 3.5 3.5 0 008.5 12a3.5 3.5 0 003.5 3.5zm7.43-2.53c.04-.32.07-.64.07-.97s-.03-.66-.07-.98l2.11-1.65a.5.5 0 00.12-.64l-2-3.46a.5.5 0 00-.61-.22l-2.49 1a7.04 7.04 0 00-1.69-.98l-.38-2.65A.49.49 0 0014 2h-4a.49.49 0 00-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1a.5.5 0 00-.61.22l-2 3.46a.49.49 0 00.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65a.5.5 0 00-.12.64l2 3.46a.5.5 0 00.61.22l2.49-1c.52.39 1.08.73 1.69.98l.38 2.65c.05.24.26.42.49.42h4c.24 0 .44-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1a.5.5 0 00.61-.22l2-3.46a.5.5 0 00-.12-.64l-2.11-1.65z"/></svg>
+      Settings
+    </div>
+  </div>
+</div>
+</body>
+</html>

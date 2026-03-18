@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=412">
+<title>put.io — Android Files (Telegram-Native)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* Material 3 tokens derived from yellow #FDCE45 seed */
+  :root {
+    /* Primary from yellow seed */
+    --md-primary: #FDCE45;
+    --md-on-primary: #3B2F00;
+    --md-primary-container: #554600;
+    --md-on-primary-container: #FFE088;
+
+    /* Surfaces - dark theme M3 */
+    --md-surface: #1C1B1F;
+    --md-surface-dim: #141316;
+    --md-surface-bright: #3B383E;
+    --md-surface-container-lowest: #0F0E11;
+    --md-surface-container-low: #1E1D21;
+    --md-surface-container: #232228;
+    --md-surface-container-high: #2D2C32;
+    --md-surface-container-highest: #38373D;
+
+    --md-on-surface: #E6E1E5;
+    --md-on-surface-variant: #CAC4D0;
+    --md-outline: #938F99;
+    --md-outline-variant: #49454F;
+
+    /* Secondary */
+    --md-secondary: #CCC2A0;
+    --md-secondary-container: #4E4632;
+
+    /* Tertiary */
+    --md-tertiary: #A7CDAB;
+    --md-tertiary-container: #1E4A27;
+
+    /* Error */
+    --md-error: #E5484D;
+    --md-success: #30A46C;
+
+    /* Elevation tint */
+    --md-surface-tint: #FDCE45;
+  }
+
+  body {
+    font-family: 'Inter', 'Roboto', system-ui, sans-serif;
+    background: var(--md-surface);
+    color: var(--md-on-surface);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .phone {
+    width: 412px;
+    height: 915px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: var(--md-surface);
+  }
+
+  /* Android Status Bar */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 8px 16px;
+    height: 28px;
+    flex-shrink: 0;
+    gap: 4px;
+  }
+  .status-bar .clock {
+    font-size: 12px;
+    font-weight: 500;
+    margin-right: auto;
+    opacity: 0.8;
+  }
+
+  /* M3 Top App Bar - Medium */
+  .top-app-bar {
+    padding: 0 8px;
+    flex-shrink: 0;
+    background: var(--md-surface);
+  }
+  .top-app-bar-row {
+    display: flex;
+    align-items: center;
+    height: 56px;
+    padding: 0 4px;
+  }
+  .top-app-bar-row .nav-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--md-on-surface);
+  }
+  .top-app-bar-row .spacer { flex: 1; }
+  .top-app-bar-row .action-icons {
+    display: flex;
+    gap: 0;
+  }
+  .top-app-bar-row .action-icons .icon-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--md-on-surface-variant);
+  }
+  .top-app-bar-title {
+    padding: 0 16px 20px;
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.3;
+    color: var(--md-on-surface);
+  }
+
+  /* M3 Search Bar */
+  .search-bar {
+    margin: 0 16px 8px;
+    background: var(--md-surface-container-high);
+    border-radius: 28px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .search-bar svg { color: var(--md-on-surface-variant); }
+  .search-bar .search-text {
+    font-size: 16px;
+    color: var(--md-on-surface-variant);
+    flex: 1;
+  }
+  .search-bar .search-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--md-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* M3 Chips row */
+  .chips-row {
+    display: flex;
+    gap: 8px;
+    padding: 8px 16px 12px;
+    overflow-x: auto;
+    flex-shrink: 0;
+  }
+  .chip {
+    height: 32px;
+    border-radius: 8px;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    border: 1px solid var(--md-outline);
+    color: var(--md-on-surface-variant);
+    background: transparent;
+  }
+  .chip.selected {
+    background: var(--md-secondary-container);
+    color: var(--md-on-surface);
+    border-color: transparent;
+  }
+  .chip.selected svg { color: var(--md-on-surface); }
+
+  /* Scrollable content */
+  .scroll-content {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  /* Section header */
+  .section-label {
+    padding: 16px 16px 8px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.1px;
+    color: var(--md-on-surface-variant);
+  }
+
+  /* M3 List Items */
+  .list-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    min-height: 72px;
+    position: relative;
+  }
+  .list-item:active {
+    background: rgba(253,206,69,0.08);
+  }
+  .list-item .leading {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    flex-shrink: 0;
+  }
+  .leading.folder { background: var(--md-primary); }
+  .leading.folder svg { color: var(--md-on-primary); }
+  .leading.video { background: #7C5AFF; }
+  .leading.music { background: #FF4081; }
+  .leading.image { background: var(--md-success); }
+  .leading.doc { background: #448AFF; }
+  .leading.archive { background: var(--md-outline); }
+
+  .list-item .content {
+    flex: 1;
+    min-width: 0;
+  }
+  .list-item .headline {
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    line-height: 1.5;
+    color: var(--md-on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .list-item .supporting {
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.25px;
+    color: var(--md-on-surface-variant);
+    margin-top: 2px;
+  }
+  .list-item .trailing {
+    display: flex;
+    align-items: center;
+    margin-left: 16px;
+    flex-shrink: 0;
+    color: var(--md-on-surface-variant);
+  }
+  .list-item .trailing-text {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: var(--md-on-surface-variant);
+    text-align: right;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--md-outline-variant);
+    margin: 0 16px 0 72px;
+  }
+
+  /* M3 FAB */
+  .fab {
+    position: absolute;
+    bottom: 96px;
+    right: 16px;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: var(--md-primary-container);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 5px -1px rgba(0,0,0,0.2), 0 6px 10px 0 rgba(0,0,0,0.14), 0 1px 18px 0 rgba(0,0,0,0.12);
+  }
+  .fab svg { color: var(--md-on-primary-container); }
+
+  /* M3 Bottom Navigation */
+  .bottom-nav {
+    display: flex;
+    height: 80px;
+    background: var(--md-surface-container);
+    flex-shrink: 0;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    position: relative;
+  }
+  .nav-item .nav-indicator {
+    width: 64px;
+    height: 32px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-item.active .nav-indicator {
+    background: var(--md-secondary-container);
+  }
+  .nav-item.active svg { color: var(--md-on-surface); }
+  .nav-item:not(.active) svg { color: var(--md-on-surface-variant); }
+  .nav-item .nav-label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+  .nav-item.active .nav-label { color: var(--md-on-surface); }
+  .nav-item:not(.active) .nav-label { color: var(--md-on-surface-variant); }
+
+  /* M3 Badge */
+  .badge {
+    position: absolute;
+    top: 6px;
+    right: calc(50% - 26px);
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background: var(--md-error);
+    font-size: 11px;
+    font-weight: 500;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+  }
+
+  /* Navigation bar (gesture bar) */
+  .gesture-bar {
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--md-surface-container);
+  }
+  .gesture-bar div {
+    width: 134px;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--md-on-surface);
+    opacity: 0.3;
+  }
+
+  /* Storage card */
+  .storage-card {
+    margin: 12px 16px;
+    padding: 16px;
+    background: var(--md-surface-container-high);
+    border-radius: 12px;
+  }
+  .storage-card .storage-label {
+    font-size: 12px;
+    letter-spacing: 0.4px;
+    color: var(--md-on-surface-variant);
+    margin-bottom: 8px;
+  }
+  .storage-card .storage-bar {
+    height: 4px;
+    background: var(--md-outline-variant);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .storage-card .storage-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--md-primary);
+  }
+  .storage-card .storage-text {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--md-on-surface-variant);
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="clock">11:23</span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--md-on-surface)" opacity="0.7"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+    <svg width="16" height="14" viewBox="0 0 18 14" fill="var(--md-on-surface)" opacity="0.7"><rect x="0" y="4" width="3" height="10" rx="0.5" opacity="0.3"/><rect x="4" y="3" width="3" height="11" rx="0.5" opacity="0.5"/><rect x="8" y="1" width="3" height="13" rx="0.5" opacity="0.7"/><rect x="12" y="0" width="3" height="14" rx="0.5"/></svg>
+    <svg width="26" height="12" viewBox="0 0 26 12" fill="var(--md-on-surface)" opacity="0.7"><rect x="0" y="0" width="22" height="12" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/><rect x="22.5" y="3.5" width="2.5" height="5" rx="1"/><rect x="1.5" y="1.5" width="15" height="9" rx="1" fill="var(--md-primary)"/></svg>
+  </div>
+
+  <!-- M3 Top App Bar -->
+  <div class="top-app-bar">
+    <div class="top-app-bar-row">
+      <div class="nav-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--md-on-surface)"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+      </div>
+      <div class="spacer"></div>
+      <div class="action-icons">
+        <div class="icon-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--md-on-surface-variant)" stroke-width="2" stroke-linecap="round"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>
+        </div>
+        <div class="icon-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--md-on-surface-variant)" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+    <div class="top-app-bar-title">Files</div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-bar">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+    <span class="search-text">Search in Files</span>
+    <div class="search-avatar">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--md-on-primary)"><rect x="2" y="1" width="2" height="2"/><rect x="12" y="1" width="2" height="2"/><rect x="4" y="3" width="2" height="2"/><rect x="10" y="3" width="2" height="2"/><rect x="2" y="5" width="12" height="2"/><rect x="1" y="7" width="3" height="2"/><rect x="6" y="7" width="4" height="2"/><rect x="12" y="7" width="3" height="2"/><rect x="2" y="9" width="12" height="2"/><rect x="2" y="11" width="2" height="2"/><rect x="5" y="11" width="2" height="2"/><rect x="9" y="11" width="2" height="2"/><rect x="12" y="11" width="2" height="2"/></svg>
+    </div>
+  </div>
+
+  <!-- Filter Chips -->
+  <div class="chips-row">
+    <div class="chip selected">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+      All
+    </div>
+    <div class="chip">Videos</div>
+    <div class="chip">Music</div>
+    <div class="chip">Documents</div>
+    <div class="chip">Images</div>
+  </div>
+
+  <!-- Content -->
+  <div class="scroll-content">
+    <div class="section-label">Folders</div>
+
+    <div class="list-item">
+      <div class="leading folder">
+        <svg width="22" height="20" viewBox="0 0 24 22" fill="currentColor"><path d="M2 2h7l2 3h11a2 2 0 012 2v11a2 2 0 01-2 2H2a2 2 0 01-2-2V4a2 2 0 012-2z"/></svg>
+      </div>
+      <div class="content">
+        <div class="headline">Movies</div>
+        <div class="supporting">24 items</div>
+      </div>
+      <div class="trailing">
+        <span class="trailing-text">142.3 GB</span>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="list-item">
+      <div class="leading folder">
+        <svg width="22" height="20" viewBox="0 0 24 22" fill="currentColor"><path d="M2 2h7l2 3h11a2 2 0 012 2v11a2 2 0 01-2 2H2a2 2 0 01-2-2V4a2 2 0 012-2z"/></svg>
+      </div>
+      <div class="content">
+        <div class="headline">TV Shows</div>
+        <div class="supporting">18 items</div>
+      </div>
+      <div class="trailing">
+        <span class="trailing-text">98.7 GB</span>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="list-item">
+      <div class="leading folder">
+        <svg width="22" height="20" viewBox="0 0 24 22" fill="currentColor"><path d="M2 2h7l2 3h11a2 2 0 012 2v11a2 2 0 01-2 2H2a2 2 0 01-2-2V4a2 2 0 012-2z"/></svg>
+      </div>
+      <div class="content">
+        <div class="headline">Music</div>
+        <div class="supporting">156 items</div>
+      </div>
+      <div class="trailing">
+        <span class="trailing-text">12.4 GB</span>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="list-item">
+      <div class="leading folder">
+        <svg width="22" height="20" viewBox="0 0 24 22" fill="currentColor"><path d="M2 2h7l2 3h11a2 2 0 012 2v11a2 2 0 01-2 2H2a2 2 0 01-2-2V4a2 2 0 012-2z"/></svg>
+      </div>
+      <div class="content">
+        <div class="headline">Documents</div>
+        <div class="supporting">43 items</div>
+      </div>
+      <div class="trailing">
+        <span class="trailing-text">2.1 GB</span>
+      </div>
+    </div>
+
+    <div class="section-label">Recent Files</div>
+
+    <div class="list-item">
+      <div class="leading video">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><polygon points="9,6 18,12 9,18"/></svg>
+      </div>
+      <div class="content">
+        <div class="headline">Dune Part Two (2024).mkv</div>
+        <div class="supporting">4.2 GB</div>
+      </div>
+      <div class="trailing">
+        <span class="trailing-text">Yesterday</span>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="list-item">
+      <div class="leading video">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><polygon points="9,6 18,12 9,18"/></svg>
+      </div>
+      <div class="content">
+        <div class="headline">Oppenheimer (2023).mkv</div>
+        <div class="supporting">5.8 GB</div>
+      </div>
+      <div class="trailing">
+        <span class="trailing-text">3 days ago</span>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="list-item">
+      <div class="leading music">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M9 18V5l12-2v13M9 18a3 3 0 11-6 0 3 3 0 016 0zm12-2a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </div>
+      <div class="content">
+        <div class="headline">playlist-summer-2025.m3u</div>
+        <div class="supporting">2 KB</div>
+      </div>
+      <div class="trailing">
+        <span class="trailing-text">Last week</span>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="list-item">
+      <div class="leading image">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8.5" cy="8.5" r="2" fill="#000" opacity="0.3"/><path d="M2 16l5-5 4 4 3-3 8 8H4a2 2 0 01-2-2v-2z" fill="#000" opacity="0.2"/></svg>
+      </div>
+      <div class="content">
+        <div class="headline">vacation-photos.zip</div>
+        <div class="supporting">890 MB</div>
+      </div>
+      <div class="trailing">
+        <span class="trailing-text">2 weeks ago</span>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="list-item">
+      <div class="leading doc">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/></svg>
+      </div>
+      <div class="content">
+        <div class="headline">project-notes.pdf</div>
+        <div class="supporting">4.3 MB</div>
+      </div>
+      <div class="trailing">
+        <span class="trailing-text">3 weeks ago</span>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="list-item">
+      <div class="leading video">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><polygon points="9,6 18,12 9,18"/></svg>
+      </div>
+      <div class="content">
+        <div class="headline">The Matrix (1999).mkv</div>
+        <div class="supporting">2.1 GB</div>
+      </div>
+      <div class="trailing">
+        <span class="trailing-text">1 month ago</span>
+      </div>
+    </div>
+
+    <!-- Storage Card -->
+    <div class="storage-card">
+      <div class="storage-label">STORAGE</div>
+      <div class="storage-bar">
+        <div class="storage-fill" style="width:62%"></div>
+      </div>
+      <div class="storage-text">255.5 GB of 1 TB used</div>
+    </div>
+
+    <div style="height:80px"></div>
+  </div>
+
+  <!-- FAB -->
+  <div class="fab">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <div class="nav-item active">
+      <div class="nav-indicator">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4a2 2 0 012-2h5l2 2h7a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V4z"/></svg>
+      </div>
+      <span class="nav-label">Files</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-indicator">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/><circle cx="12" cy="12" r="10"/></svg>
+      </div>
+      <span class="nav-label">Transfers</span>
+      <div class="badge">2</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-indicator">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>
+      </div>
+      <span class="nav-label">Player</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-indicator">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+      </div>
+      <span class="nav-label">Settings</span>
+    </div>
+  </div>
+
+  <!-- Gesture bar -->
+  <div class="gesture-bar">
+    <div></div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>put.io — macOS Desktop (Clean)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #1A1A1C;
+    color: #EEEEF0;
+    width: 1280px;
+    height: 800px;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .window {
+    width: 1280px;
+    height: 800px;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 0.5px solid rgba(255,255,255,0.08);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 0.5px rgba(255,255,255,0.06);
+  }
+
+  /* ── Title Bar ── */
+  .titlebar {
+    height: 52px;
+    background: #2D2D2F;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+    -webkit-app-region: drag;
+  }
+
+  .traffic-lights {
+    display: flex;
+    gap: 8px;
+    margin-right: 16px;
+  }
+
+  .traffic-light {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .tl-close { background: #FF5F57; border: 0.5px solid #E0443E; }
+  .tl-minimize { background: #FFBD2E; border: 0.5px solid #DEA123; }
+  .tl-maximize { background: #27C93F; border: 0.5px solid #1AAB29; }
+
+  .titlebar-nav {
+    display: flex;
+    gap: 4px;
+    margin-right: 16px;
+  }
+
+  .titlebar-nav-btn {
+    width: 28px;
+    height: 24px;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .titlebar-nav-btn svg { color: rgba(238,238,240,0.4); }
+  .titlebar-nav-btn.active svg { color: rgba(238,238,240,0.8); }
+
+  .window-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #EEEEF0;
+    flex: 1;
+    text-align: center;
+    letter-spacing: -0.01em;
+  }
+
+  .window-title span { color: #FDCE45; }
+
+  /* ── Toolbar ── */
+  .toolbar {
+    height: 38px;
+    background: #2D2D2F;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+
+  .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+  }
+
+  .toolbar-btn {
+    height: 26px;
+    padding: 0 10px;
+    background: rgba(255,255,255,0.06);
+    border: 0.5px solid rgba(255,255,255,0.1);
+    color: rgba(238,238,240,0.7);
+    font-size: 11px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+
+  .toolbar-btn:first-child { border-radius: 5px 0 0 5px; }
+  .toolbar-btn:last-child { border-radius: 0 5px 5px 0; }
+  .toolbar-btn:only-child { border-radius: 5px; }
+
+  .toolbar-btn.active {
+    background: rgba(253,206,69,0.15);
+    color: #FDCE45;
+    border-color: rgba(253,206,69,0.25);
+  }
+
+  .toolbar-spacer { flex: 1; }
+
+  .toolbar-search {
+    height: 26px;
+    width: 200px;
+    background: rgba(255,255,255,0.06);
+    border: 0.5px solid rgba(255,255,255,0.1);
+    border-radius: 5px;
+    padding: 0 8px 0 28px;
+    color: #EEEEF0;
+    font-size: 12px;
+    font-family: inherit;
+    outline: none;
+    position: relative;
+  }
+
+  .search-wrapper {
+    position: relative;
+  }
+
+  .search-wrapper svg {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(238,238,240,0.35);
+    pointer-events: none;
+  }
+
+  .toolbar-action {
+    height: 26px;
+    padding: 0 12px;
+    background: #FDCE45;
+    border: none;
+    border-radius: 5px;
+    color: #111113;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+
+  /* ── Main content area ── */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 220px;
+    background: rgba(45,45,47,0.85);
+    border-right: 0.5px solid rgba(255,255,255,0.06);
+    overflow-y: auto;
+    flex-shrink: 0;
+    padding: 8px 0;
+  }
+
+  .sidebar-section {
+    margin-bottom: 4px;
+  }
+
+  .sidebar-header {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(238,238,240,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 8px 16px 4px;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 16px;
+    font-size: 13px;
+    color: rgba(238,238,240,0.85);
+    cursor: pointer;
+    border-radius: 0;
+    margin: 0 8px;
+    border-radius: 5px;
+  }
+
+  .sidebar-item:hover {
+    background: rgba(255,255,255,0.05);
+  }
+
+  .sidebar-item.active {
+    background: rgba(253,206,69,0.15);
+    color: #FDCE45;
+  }
+
+  .sidebar-item svg {
+    flex-shrink: 0;
+  }
+
+  .sidebar-item .badge {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(253,206,69,0.2);
+    color: #FDCE45;
+    padding: 1px 6px;
+    border-radius: 8px;
+  }
+
+  .sidebar-divider {
+    height: 0.5px;
+    background: rgba(255,255,255,0.06);
+    margin: 8px 16px;
+  }
+
+  .sidebar-disclosure {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    color: rgba(238,238,240,0.3);
+    margin-left: -2px;
+    margin-right: -2px;
+  }
+
+  /* ── Content area ── */
+  .content {
+    flex: 1;
+    background: #1E1E20;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .path-bar {
+    height: 28px;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 6px;
+    font-size: 12px;
+    color: rgba(238,238,240,0.5);
+    flex-shrink: 0;
+  }
+
+  .path-bar span { color: rgba(238,238,240,0.7); }
+  .path-bar .path-sep { color: rgba(238,238,240,0.25); }
+
+  /* ── File list (NSTableView style) ── */
+  .file-list {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .file-list-header {
+    display: grid;
+    grid-template-columns: 44px 1fr 120px 140px 100px;
+    height: 24px;
+    align-items: center;
+    padding: 0 16px;
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(238,238,240,0.4);
+    border-bottom: 0.5px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.02);
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .file-list-header .col-sortable {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .file-row {
+    display: grid;
+    grid-template-columns: 44px 1fr 120px 140px 100px;
+    height: 32px;
+    align-items: center;
+    padding: 0 16px;
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 0.5px solid rgba(255,255,255,0.02);
+  }
+
+  .file-row:nth-child(even) {
+    background: rgba(255,255,255,0.015);
+  }
+
+  .file-row:hover {
+    background: rgba(255,255,255,0.04);
+  }
+
+  .file-row.selected {
+    background: rgba(253,206,69,0.1);
+  }
+
+  .file-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .file-name {
+    color: #EEEEF0;
+    font-weight: 400;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 8px;
+  }
+
+  .file-name.folder { font-weight: 500; }
+
+  .file-size {
+    color: rgba(238,238,240,0.5);
+    font-size: 12px;
+  }
+
+  .file-date {
+    color: rgba(238,238,240,0.5);
+    font-size: 12px;
+  }
+
+  .file-kind {
+    color: rgba(238,238,240,0.4);
+    font-size: 12px;
+  }
+
+  /* ── Status bar ── */
+  .statusbar {
+    height: 24px;
+    background: #2D2D2F;
+    border-top: 0.5px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-size: 11px;
+    color: rgba(238,238,240,0.45);
+    flex-shrink: 0;
+  }
+
+  .statusbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .storage-bar {
+    width: 80px;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .storage-fill {
+    height: 100%;
+    width: 62%;
+    background: #FDCE45;
+    border-radius: 2px;
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="window">
+
+  <!-- Title Bar -->
+  <div class="titlebar">
+    <div class="traffic-lights">
+      <div class="traffic-light tl-close"></div>
+      <div class="traffic-light tl-minimize"></div>
+      <div class="traffic-light tl-maximize"></div>
+    </div>
+
+    <div class="titlebar-nav">
+      <button class="titlebar-nav-btn">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 3L4.5 7L8.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="titlebar-nav-btn active">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5.5 3L9.5 7L5.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <div class="window-title"><span>put</span>.io</div>
+
+    <div style="width: 80px;"></div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-group">
+      <button class="toolbar-btn active">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="3" width="10" height="1.5" rx="0.5" fill="currentColor"/><rect x="2" y="6.25" width="10" height="1.5" rx="0.5" fill="currentColor"/><rect x="2" y="9.5" width="10" height="1.5" rx="0.5" fill="currentColor"/></svg>
+        List
+      </button>
+      <button class="toolbar-btn">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="2" width="4" height="4" rx="1" fill="currentColor"/><rect x="8" y="2" width="4" height="4" rx="1" fill="currentColor"/><rect x="2" y="8" width="4" height="4" rx="1" fill="currentColor"/><rect x="8" y="8" width="4" height="4" rx="1" fill="currentColor"/></svg>
+        Grid
+      </button>
+      <button class="toolbar-btn">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="3" height="10" rx="0.5" stroke="currentColor" fill="none"/><rect x="5.5" y="2" width="3" height="10" rx="0.5" stroke="currentColor" fill="none"/><rect x="10" y="2" width="3" height="10" rx="0.5" stroke="currentColor" fill="none"/></svg>
+        Columns
+      </button>
+    </div>
+
+    <div class="toolbar-spacer"></div>
+
+    <div class="search-wrapper">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="3.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 8L10.5 10.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <input type="text" class="toolbar-search" placeholder="Search">
+    </div>
+
+    <button class="toolbar-action">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 2V10M2 6H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      New Transfer
+    </button>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-header">Favorites</div>
+        <div class="sidebar-item active">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4C2 3.44772 2.44772 3 3 3H13C13.5523 3 14 3.44772 14 4V12C14 12.5523 13.5523 13 13 13H3C2.44772 13 2 12.5523 2 12V4Z" fill="#FDCE45" opacity="0.8"/><path d="M2 5H14" stroke="rgba(0,0,0,0.2)" stroke-width="0.5"/></svg>
+          All Files
+        </div>
+        <div class="sidebar-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L9.5 5.5L13.5 5.5L10.5 8L11.5 12L8 9.5L4.5 12L5.5 8L2.5 5.5L6.5 5.5L8 2Z" fill="#FDCE45" opacity="0.6"/></svg>
+          Starred
+        </div>
+        <div class="sidebar-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5" stroke="#30A46C" stroke-width="1.2" fill="none"/><path d="M8 5V8.5L10.5 10" stroke="#30A46C" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Recent
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-header">Transfers</div>
+        <div class="sidebar-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3V10M8 10L5 7M8 10L11 7" stroke="#FDCE45" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 12H13" stroke="#FDCE45" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Active
+          <span class="badge">3</span>
+        </div>
+        <div class="sidebar-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8L7 11L12 5" stroke="#30A46C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Completed
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-header">Locations</div>
+        <div class="sidebar-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4C2 3.45 2.45 3 3 3H6.5L8 5H13C13.55 5 14 5.45 14 6V12C14 12.55 13.55 13 13 13H3C2.45 13 2 12.55 2 12V4Z" fill="rgba(238,238,240,0.25)"/></svg>
+          Downloads
+        </div>
+        <div class="sidebar-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4C2 3.45 2.45 3 3 3H6.5L8 5H13C13.55 5 14 5.45 14 6V12C14 12.55 13.55 13 13 13H3C2.45 13 2 12.55 2 12V4Z" fill="rgba(238,238,240,0.25)"/></svg>
+          Movies
+        </div>
+        <div class="sidebar-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4C2 3.45 2.45 3 3 3H6.5L8 5H13C13.55 5 14 5.45 14 6V12C14 12.55 13.55 13 13 13H3C2.45 13 2 12.55 2 12V4Z" fill="rgba(238,238,240,0.25)"/></svg>
+          TV Shows
+        </div>
+        <div class="sidebar-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4C2 3.45 2.45 3 3 3H6.5L8 5H13C13.55 5 14 5.45 14 6V12C14 12.55 13.55 13 13 13H3C2.45 13 2 12.55 2 12V4Z" fill="rgba(238,238,240,0.25)"/></svg>
+          Music
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-header">Tags</div>
+        <div class="sidebar-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="4" fill="#E5484D"/></svg>
+          Important
+        </div>
+        <div class="sidebar-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="4" fill="#30A46C"/></svg>
+          Archived
+        </div>
+        <div class="sidebar-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="4" fill="#FDCE45"/></svg>
+          Favorites
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Path bar -->
+      <div class="path-bar">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3C2 2.45 2.45 2 3 2H5.5L7 3.5H9.5C10.05 3.5 10.5 3.95 10.5 4.5V9.5C10.5 10.05 10.05 10.5 9.5 10.5H3C2.45 10.5 2 10.05 2 9.5V3Z" fill="currentColor" opacity="0.5"/></svg>
+        <span>put.io</span>
+        <span class="path-sep">/</span>
+        <span>All Files</span>
+      </div>
+
+      <!-- File list header -->
+      <div class="file-list-header">
+        <div></div>
+        <div class="col-sortable">Name <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M2 3L4 5.5L6 3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></div>
+        <div class="col-sortable">Size</div>
+        <div class="col-sortable">Date Modified</div>
+        <div>Kind</div>
+      </div>
+
+      <!-- File list -->
+      <div class="file-list">
+        <!-- Folders -->
+        <div class="file-row selected">
+          <div class="file-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 5C2 4.45 2.45 4 3 4H7.5L9.5 6H17C17.55 6 18 6.45 18 7V15C18 15.55 17.55 16 17 16H3C2.45 16 2 15.55 2 15V5Z" fill="#FDCE45" opacity="0.85"/></svg>
+          </div>
+          <div class="file-name folder">Downloads</div>
+          <div class="file-size">14 items</div>
+          <div class="file-date">Today, 2:34 PM</div>
+          <div class="file-kind">Folder</div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 5C2 4.45 2.45 4 3 4H7.5L9.5 6H17C17.55 6 18 6.45 18 7V15C18 15.55 17.55 16 17 16H3C2.45 16 2 15.55 2 15V5Z" fill="#FDCE45" opacity="0.85"/></svg>
+          </div>
+          <div class="file-name folder">Movies</div>
+          <div class="file-size">8 items</div>
+          <div class="file-date">Yesterday</div>
+          <div class="file-kind">Folder</div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 5C2 4.45 2.45 4 3 4H7.5L9.5 6H17C17.55 6 18 6.45 18 7V15C18 15.55 17.55 16 17 16H3C2.45 16 2 15.55 2 15V5Z" fill="#FDCE45" opacity="0.85"/></svg>
+          </div>
+          <div class="file-name folder">TV Shows</div>
+          <div class="file-size">23 items</div>
+          <div class="file-date">Mar 15, 2026</div>
+          <div class="file-kind">Folder</div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 5C2 4.45 2.45 4 3 4H7.5L9.5 6H17C17.55 6 18 6.45 18 7V15C18 15.55 17.55 16 17 16H3C2.45 16 2 15.55 2 15V5Z" fill="#FDCE45" opacity="0.85"/></svg>
+          </div>
+          <div class="file-name folder">Music</div>
+          <div class="file-size">156 items</div>
+          <div class="file-date">Mar 14, 2026</div>
+          <div class="file-kind">Folder</div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 5C2 4.45 2.45 4 3 4H7.5L9.5 6H17C17.55 6 18 6.45 18 7V15C18 15.55 17.55 16 17 16H3C2.45 16 2 15.55 2 15V5Z" fill="#FDCE45" opacity="0.85"/></svg>
+          </div>
+          <div class="file-name folder">__dev__</div>
+          <div class="file-size">5 items</div>
+          <div class="file-date">Mar 12, 2026</div>
+          <div class="file-kind">Folder</div>
+        </div>
+
+        <!-- Files -->
+        <div class="file-row">
+          <div class="file-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="4" y="2" width="12" height="16" rx="1.5" fill="rgba(238,238,240,0.15)"/><path d="M12 2L16 6H12.5C12.22 6 12 5.78 12 5.5V2Z" fill="rgba(238,238,240,0.25)"/><rect x="6" y="8" width="8" height="1" rx="0.5" fill="rgba(238,238,240,0.2)"/><rect x="6" y="10.5" width="6" height="1" rx="0.5" fill="rgba(238,238,240,0.2)"/><rect x="6" y="13" width="7" height="1" rx="0.5" fill="rgba(238,238,240,0.2)"/></svg>
+          </div>
+          <div class="file-name">project-notes.txt</div>
+          <div class="file-size">12 KB</div>
+          <div class="file-date">Today, 11:20 AM</div>
+          <div class="file-kind">Text</div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="2" width="14" height="16" rx="2" fill="#E5484D" opacity="0.7"/><path d="M7 7L10 10L13 7M7 13H13" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/></svg>
+          </div>
+          <div class="file-name">archive-2026.zip</div>
+          <div class="file-size">2.3 GB</div>
+          <div class="file-date">Mar 16, 2026</div>
+          <div class="file-kind">Archive</div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="2" width="14" height="16" rx="2" fill="#6E56CF" opacity="0.6"/><path d="M7 12L10 8L12 10.5L14 7" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/></svg>
+          </div>
+          <div class="file-name">vacation-photo.jpg</div>
+          <div class="file-size">4.8 MB</div>
+          <div class="file-date">Mar 15, 2026</div>
+          <div class="file-kind">Image</div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" fill="#3B82F6" opacity="0.5"/><polygon points="8,6 14,10 8,14" fill="white" opacity="0.8"/></svg>
+          </div>
+          <div class="file-name">documentary-2026.mkv</div>
+          <div class="file-size">4.7 GB</div>
+          <div class="file-date">Mar 14, 2026</div>
+          <div class="file-kind">Video</div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" fill="#3B82F6" opacity="0.5"/><polygon points="8,6 14,10 8,14" fill="white" opacity="0.8"/></svg>
+          </div>
+          <div class="file-name">the-last-dance-s01e01.mp4</div>
+          <div class="file-size">1.2 GB</div>
+          <div class="file-date">Mar 13, 2026</div>
+          <div class="file-kind">Video</div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" fill="#30A46C" opacity="0.5"/><circle cx="10" cy="10" r="3" stroke="white" stroke-width="1.2" fill="none" opacity="0.7"/><circle cx="10" cy="10" r="1" fill="white" opacity="0.7"/></svg>
+          </div>
+          <div class="file-name">playlist-march.m3u</div>
+          <div class="file-size">2.1 KB</div>
+          <div class="file-date">Mar 12, 2026</div>
+          <div class="file-kind">Playlist</div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="4" y="2" width="12" height="16" rx="1.5" fill="rgba(238,238,240,0.15)"/><path d="M12 2L16 6H12.5C12.22 6 12 5.78 12 5.5V2Z" fill="rgba(238,238,240,0.25)"/><rect x="6" y="8" width="8" height="1" rx="0.5" fill="rgba(238,238,240,0.2)"/><rect x="6" y="10.5" width="6" height="1" rx="0.5" fill="rgba(238,238,240,0.2)"/></svg>
+          </div>
+          <div class="file-name">todo.md</div>
+          <div class="file-size">856 B</div>
+          <div class="file-date">Mar 10, 2026</div>
+          <div class="file-kind">Markdown</div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" fill="#3B82F6" opacity="0.5"/><polygon points="8,6 14,10 8,14" fill="white" opacity="0.8"/></svg>
+          </div>
+          <div class="file-name">conference-talk-2026.mp4</div>
+          <div class="file-size">890 MB</div>
+          <div class="file-date">Mar 8, 2026</div>
+          <div class="file-kind">Video</div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="2" width="14" height="16" rx="2" fill="#E5484D" opacity="0.7"/><path d="M7 7L10 10L13 7M7 13H13" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/></svg>
+          </div>
+          <div class="file-name">fonts-collection.tar.gz</div>
+          <div class="file-size">340 MB</div>
+          <div class="file-date">Mar 5, 2026</div>
+          <div class="file-kind">Archive</div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" fill="#30A46C" opacity="0.5"/><circle cx="10" cy="10" r="3" stroke="white" stroke-width="1.2" fill="none" opacity="0.7"/><circle cx="10" cy="10" r="1" fill="white" opacity="0.7"/></svg>
+          </div>
+          <div class="file-name">ambient-mix-01.flac</div>
+          <div class="file-size">112 MB</div>
+          <div class="file-date">Mar 3, 2026</div>
+          <div class="file-kind">Audio</div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" fill="#6E56CF" opacity="0.6"/><path d="M7 12L10 8L12 10.5L14 7" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/></svg>
+          </div>
+          <div class="file-name">screenshot-dashboard.png</div>
+          <div class="file-size">1.8 MB</div>
+          <div class="file-date">Mar 1, 2026</div>
+          <div class="file-kind">Image</div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="4" y="2" width="12" height="16" rx="1.5" fill="rgba(238,238,240,0.15)"/><path d="M12 2L16 6H12.5C12.22 6 12 5.78 12 5.5V2Z" fill="rgba(238,238,240,0.25)"/><rect x="6" y="8" width="8" height="1" rx="0.5" fill="rgba(238,238,240,0.2)"/><rect x="6" y="10.5" width="6" height="1" rx="0.5" fill="rgba(238,238,240,0.2)"/><rect x="6" y="13" width="7" height="1" rx="0.5" fill="rgba(238,238,240,0.2)"/></svg>
+          </div>
+          <div class="file-name">api-keys-backup.txt</div>
+          <div class="file-size">340 B</div>
+          <div class="file-date">Feb 28, 2026</div>
+          <div class="file-kind">Text</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="statusbar">
+    <div>17 items, 5 folders</div>
+    <div class="statusbar-right">
+      <span>62.4 GB of 100 GB used</span>
+      <div class="storage-bar"><div class="storage-fill"></div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
