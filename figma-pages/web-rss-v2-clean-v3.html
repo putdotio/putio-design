@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- RSS v3 (Timeline Feed)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #09090B;
+    --bg-1: #0F0F12;
+    --bg-2: #141418;
+    --bg-3: #1A1A1F;
+    --bg-4: #212127;
+    --bg-5: #28282F;
+    --bg-hover: rgba(255, 255, 255, 0.03);
+    --bg-hover-strong: rgba(255, 255, 255, 0.05);
+
+    --border-subtle: rgba(255, 255, 255, 0.05);
+    --border-default: rgba(255, 255, 255, 0.07);
+    --border-strong: rgba(255, 255, 255, 0.10);
+
+    --text-primary: #F0F0F2;
+    --text-secondary: #A1A1AA;
+    --text-tertiary: #71717A;
+    --text-quaternary: #52525B;
+    --text-quinary: #3F3F46;
+
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.08);
+    --yellow-hover: rgba(253, 206, 69, 0.12);
+    --yellow-glow: rgba(253, 206, 69, 0.06);
+
+    --green: #34D399;
+    --green-dim: rgba(52, 211, 153, 0.10);
+    --red: #F87171;
+    --red-dim: rgba(248, 113, 113, 0.10);
+    --blue: #60A5FA;
+    --blue-dim: rgba(96, 165, 250, 0.10);
+    --purple: #A78BFA;
+    --purple-dim: rgba(167, 139, 250, 0.10);
+    --amber: #FBBF24;
+    --amber-dim: rgba(251, 191, 36, 0.10);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-0);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' 1, 'ss01' 1, 'cv01' 1;
+  }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 56px; background: var(--bg-1);
+    border-right: 1px solid var(--border-subtle);
+    display: flex; flex-direction: column; align-items: center;
+    flex-shrink: 0; padding: 16px 0 12px; gap: 2px;
+  }
+  .sidebar-logo {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px; cursor: pointer;
+  }
+  .sidebar-icon {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border: none; background: none; color: var(--text-quaternary);
+    cursor: pointer; border-radius: 8px;
+    transition: color 0.15s ease, background 0.15s ease;
+    position: relative;
+  }
+  .sidebar-icon:hover { color: var(--text-secondary); background: var(--bg-hover-strong); }
+  .sidebar-icon.active { color: var(--text-primary); background: var(--bg-3); }
+  .sidebar-icon.active::before {
+    content: ''; position: absolute; left: -10px; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 16px; background: var(--yellow); border-radius: 0 2px 2px 0;
+  }
+  .sidebar-icon svg { display: block; }
+  .sidebar-icon .notif {
+    position: absolute; top: 4px; right: 4px;
+    width: 8px; height: 8px; background: var(--yellow);
+    border-radius: 50%; border: 2px solid var(--bg-1);
+  }
+  .sidebar-spacer { flex: 1; }
+  .sidebar-avatar {
+    width: 32px; height: 32px; background: var(--bg-4); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .sidebar-avatar:hover { background: var(--bg-5); }
+
+  /* ===== MAIN ===== */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Command bar */
+  .command-bar-area {
+    display: flex; align-items: center; padding: 12px 24px;
+    background: var(--bg-1); border-bottom: 1px solid var(--border-subtle);
+  }
+  .command-trigger {
+    flex: 1; display: flex; align-items: center; gap: 10px;
+    background: var(--bg-2); border: 1px solid var(--border-default);
+    border-radius: 10px; padding: 8px 14px; cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease; max-width: 560px;
+  }
+  .command-trigger:hover { border-color: var(--border-strong); background: var(--bg-3); }
+  .command-trigger-icon { color: var(--text-quaternary); display: flex; align-items: center; flex-shrink: 0; }
+  .command-trigger-text { font-size: 13px; color: var(--text-quaternary); flex: 1; font-family: inherit; letter-spacing: -0.01em; }
+  .key-badge {
+    font-size: 10px; color: var(--text-quinary); background: var(--bg-4);
+    padding: 2px 6px; border-radius: 4px; font-family: 'SF Mono', 'Menlo', monospace;
+    line-height: 1.4; font-weight: 500; border: 1px solid var(--border-subtle);
+  }
+  .command-bar-right { display: flex; align-items: center; gap: 8px; margin-left: auto; padding-left: 16px; }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 6px; background: var(--yellow);
+    color: var(--bg-0); font-size: 12.5px; font-weight: 600; padding: 7px 14px;
+    border-radius: 8px; border: none; cursor: pointer; font-family: inherit;
+    letter-spacing: -0.01em; transition: all 0.12s ease; line-height: 1;
+  }
+  .btn-primary:hover { filter: brightness(1.1); box-shadow: 0 0 16px var(--yellow-glow); }
+  .btn-primary svg { display: block; }
+
+  /* Content layout */
+  .content-area { flex: 1; display: flex; overflow: hidden; }
+
+  /* Feed list panel */
+  .feed-panel {
+    width: 280px; flex-shrink: 0;
+    border-right: 1px solid var(--border-subtle);
+    display: flex; flex-direction: column;
+    background: var(--bg-1);
+  }
+  .feed-panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px 10px;
+  }
+  .feed-panel-title {
+    font-size: 12px; font-weight: 600; color: var(--text-secondary);
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .feed-count {
+    font-size: 11px; color: var(--text-quaternary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .feed-list { flex: 1; overflow-y: auto; }
+  .feed-list::-webkit-scrollbar { width: 4px; }
+  .feed-list::-webkit-scrollbar-track { background: transparent; }
+  .feed-list::-webkit-scrollbar-thumb { background: var(--bg-5); border-radius: 2px; }
+
+  .feed-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; cursor: pointer;
+    transition: background 0.08s ease;
+    border-bottom: 1px solid var(--border-subtle);
+    position: relative;
+  }
+  .feed-item:hover { background: var(--bg-hover); }
+  .feed-item.active { background: var(--bg-3); }
+  .feed-item.active::before {
+    content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    width: 2px; height: 20px; background: var(--yellow); border-radius: 0 1px 1px 0;
+  }
+
+  .feed-health {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .feed-health.healthy { background: var(--green); box-shadow: 0 0 6px rgba(52, 211, 153, 0.3); }
+  .feed-health.warning { background: var(--amber); box-shadow: 0 0 6px rgba(251, 191, 36, 0.3); }
+  .feed-health.error { background: var(--red); box-shadow: 0 0 6px rgba(248, 113, 113, 0.3); }
+  .feed-health.paused { background: var(--text-quaternary); }
+
+  .feed-info { flex: 1; min-width: 0; }
+  .feed-name {
+    font-size: 12.5px; font-weight: 500; color: var(--text-primary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+  }
+  .feed-meta {
+    font-size: 10.5px; color: var(--text-quaternary); margin-top: 2px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .feed-ep-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 20px; height: 18px; padding: 0 5px;
+    font-size: 10px; font-weight: 600; border-radius: 4px;
+    font-variant-numeric: tabular-nums; flex-shrink: 0;
+  }
+  .feed-ep-count.has-new {
+    background: var(--yellow-dim); color: var(--yellow);
+  }
+  .feed-ep-count.none {
+    background: var(--bg-4); color: var(--text-quaternary);
+  }
+
+  /* ShowRSS card */
+  .showrss-card {
+    margin: 12px 12px 12px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .showrss-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--yellow), var(--amber));
+  }
+  .showrss-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+  }
+  .showrss-icon {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: var(--yellow-dim); display: flex; align-items: center; justify-content: center;
+  }
+  .showrss-title { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+  .showrss-desc { font-size: 11px; color: var(--text-tertiary); line-height: 1.5; margin-bottom: 10px; }
+  .showrss-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600; color: var(--yellow);
+    background: none; border: none; cursor: pointer; font-family: inherit;
+    padding: 0; transition: opacity 0.1s ease;
+  }
+  .showrss-btn:hover { opacity: 0.8; }
+  .showrss-btn svg { display: block; }
+
+  /* Timeline panel */
+  .timeline-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  .timeline-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 24px 10px;
+  }
+  .timeline-title { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
+  .header-spacer { flex: 1; }
+
+  .filter-pills {
+    display: flex; align-items: center; gap: 4px;
+    background: var(--bg-2); border-radius: 8px; padding: 2px;
+    border: 1px solid var(--border-subtle);
+  }
+  .filter-pill {
+    font-size: 11.5px; font-weight: 500; color: var(--text-quaternary);
+    padding: 4px 10px; border-radius: 6px; border: none; background: none;
+    cursor: pointer; font-family: inherit; transition: all 0.1s ease;
+  }
+  .filter-pill:hover { color: var(--text-secondary); }
+  .filter-pill.active { color: var(--text-primary); background: var(--bg-4); }
+
+  /* Timeline content */
+  .timeline-scroll { flex: 1; overflow-y: auto; padding-bottom: 20px; }
+  .timeline-scroll::-webkit-scrollbar { width: 6px; }
+  .timeline-scroll::-webkit-scrollbar-track { background: transparent; }
+  .timeline-scroll::-webkit-scrollbar-thumb { background: var(--bg-5); border-radius: 3px; }
+
+  .timeline-date {
+    font-size: 11px; font-weight: 500; color: var(--text-quinary);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 14px 24px 6px;
+    position: sticky; top: 0; background: var(--bg-0); z-index: 2;
+  }
+
+  /* Episode row */
+  .episode-row {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: background 0.08s ease;
+    position: relative;
+  }
+  .episode-row:hover { background: var(--bg-hover); }
+  .episode-row.unread::before {
+    content: ''; position: absolute; left: 12px; top: 18px;
+    width: 5px; height: 5px; background: var(--yellow); border-radius: 50%;
+  }
+
+  /* Timeline connector */
+  .episode-time-col {
+    width: 48px; flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: center;
+    padding-top: 2px;
+  }
+  .episode-time {
+    font-size: 10.5px; font-weight: 500; color: var(--text-quaternary);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+
+  .episode-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .episode-icon.video { background: var(--yellow-dim); color: var(--yellow); }
+  .episode-icon.downloading { background: var(--blue-dim); color: var(--blue); }
+  .episode-icon.completed { background: var(--green-dim); color: var(--green); }
+
+  .episode-info { flex: 1; min-width: 0; }
+  .episode-title-row { display: flex; align-items: center; gap: 8px; }
+  .episode-title {
+    font-size: 13px; font-weight: 500; color: var(--text-primary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+  }
+  .episode-row:hover .episode-title { color: #fff; }
+  .episode-badge {
+    display: inline-flex; align-items: center; padding: 1px 5px;
+    border-radius: 3px; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.02em; flex-shrink: 0; line-height: 1.5;
+  }
+  .badge-quality { background: var(--bg-4); color: var(--text-secondary); }
+  .badge-new { background: var(--yellow-dim); color: var(--yellow); }
+
+  .episode-sub {
+    font-size: 11.5px; color: var(--text-tertiary); margin-top: 3px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .episode-sub-sep { color: var(--text-quinary); }
+
+  .episode-right {
+    display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+    flex-shrink: 0;
+  }
+  .episode-size {
+    font-size: 11px; color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Download progress inline */
+  .ep-progress {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .ep-progress-track {
+    width: 60px; height: 3px; background: var(--bg-4); border-radius: 2px;
+    overflow: hidden;
+  }
+  .ep-progress-fill {
+    height: 100%; border-radius: 2px;
+  }
+  .ep-progress-fill.yellow { background: var(--yellow); }
+  .ep-progress-fill.green { background: var(--green); }
+  .ep-progress-pct {
+    font-size: 10px; font-weight: 500; color: var(--text-tertiary);
+    font-family: 'SF Mono', 'Menlo', monospace; font-variant-numeric: tabular-nums;
+  }
+
+  /* Episode actions on hover */
+  .episode-actions {
+    display: flex; align-items: center; gap: 2px;
+    opacity: 0; transition: opacity 0.1s ease;
+    flex-shrink: 0;
+  }
+  .episode-row:hover .episode-actions { opacity: 1; }
+  .ep-action-btn {
+    width: 28px; height: 28px; border: none; background: none;
+    color: var(--text-tertiary); cursor: pointer; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.1s ease;
+  }
+  .ep-action-btn:hover { background: var(--bg-4); color: var(--text-primary); }
+  .ep-action-btn svg { display: block; }
+
+  /* Status bar */
+  .status-bar {
+    display: flex; align-items: center; gap: 12px; padding: 6px 24px;
+    border-top: 1px solid var(--border-subtle); background: var(--bg-1); min-height: 32px;
+  }
+  .status-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; flex-shrink: 0; }
+  .status-text { font-size: 11px; color: var(--text-quaternary); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .status-sep { width: 1px; height: 10px; background: var(--border-subtle); }
+
+  /* Pulse for active dots */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .pulse { animation: pulse 2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" fill="var(--bg-4)" stroke="var(--border-strong)" stroke-width="1"/>
+        <circle cx="12" cy="12" r="4" fill="#FDCE45"/>
+      </svg>
+    </div>
+    <button class="sidebar-icon" title="Files">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg>
+    </button>
+    <button class="sidebar-icon" title="Transfers">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7l-112,120a8,8,0,0,0,3,13l57.63,21.61L88.16,238.43a8,8,0,0,0,13.69,7l112-120A8,8,0,0,0,215.79,118.17Z"/></svg>
+      <span class="notif"></span>
+    </button>
+    <button class="sidebar-icon active" title="RSS Feeds">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M98.91,157.09A71.53,71.53,0,0,1,120,208a8,8,0,0,1-16,0,56,56,0,0,0-56-56,8,8,0,0,1,0-16A71.53,71.53,0,0,1,98.91,157.09ZM48,88a8,8,0,0,0,0,16,104,104,0,0,1,104,104,8,8,0,0,0,16,0A120,120,0,0,0,48,88Zm0-40a8,8,0,0,0,0,16,144,144,0,0,1,144,144,8,8,0,0,0,16,0A160,160,0,0,0,48,48Zm12,160a12,12,0,1,0-12-12A12,12,0,0,0,60,208Z"/></svg>
+    </button>
+    <button class="sidebar-icon" title="Storage">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM112,152H48V104h64Zm96,0H128V104h80Zm-160,16h64v40H48Zm80,0h80v40H128ZM208,88H48V48H208Z"/></svg>
+    </button>
+    <button class="sidebar-icon" title="Settings">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.16,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.16-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,74,34.5a8,8,0,0,0-3.93,6L67.43,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.16,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.16,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.16,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.16-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.16,8,8,0,0,0-1.49-7.06Z"/></svg>
+    </button>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-avatar">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="var(--text-tertiary)">
+        <rect x="3" y="2" width="2" height="2"/><rect x="11" y="2" width="2" height="2"/>
+        <rect x="5" y="4" width="2" height="2"/><rect x="9" y="4" width="2" height="2"/>
+        <rect x="3" y="6" width="10" height="2"/>
+        <rect x="1" y="8" width="2" height="2"/><rect x="3" y="8" width="2" height="2"/>
+        <rect x="5" y="8" width="6" height="2"/><rect x="11" y="8" width="2" height="2"/>
+        <rect x="13" y="8" width="2" height="2"/>
+        <rect x="1" y="10" width="2" height="2"/><rect x="5" y="10" width="2" height="2"/>
+        <rect x="9" y="10" width="2" height="2"/><rect x="13" y="10" width="2" height="2"/>
+        <rect x="3" y="12" width="2" height="2"/><rect x="5" y="12" width="2" height="2"/>
+        <rect x="9" y="12" width="2" height="2"/><rect x="11" y="12" width="2" height="2"/>
+      </svg>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- Command bar -->
+    <div class="command-bar-area">
+      <div class="command-trigger">
+        <span class="command-trigger-icon">
+          <svg width="15" height="15" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,218.34l-50.07-50.07a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.31ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>
+        </span>
+        <span class="command-trigger-text">Search feeds, episodes, or add a new RSS...</span>
+        <span class="key-badge">&#8984;K</span>
+      </div>
+      <div class="command-bar-right">
+        <button class="btn-primary">
+          <svg width="13" height="13" viewBox="0 0 256 256" fill="currentColor"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/></svg>
+          Add Feed
+        </button>
+      </div>
+    </div>
+
+    <!-- Content area: feed list + timeline -->
+    <div class="content-area">
+
+      <!-- Feed list panel -->
+      <div class="feed-panel">
+        <div class="feed-panel-header">
+          <span class="feed-panel-title">Feeds</span>
+          <span class="feed-count">7 feeds</span>
+        </div>
+
+        <div class="feed-list">
+          <!-- Active feed -->
+          <div class="feed-item active">
+            <div class="feed-health healthy"></div>
+            <div class="feed-info">
+              <div class="feed-name">The Bear</div>
+              <div class="feed-meta">ShowRSS <span style="color: var(--text-quinary);">--</span> Checked 2m ago</div>
+            </div>
+            <span class="feed-ep-count has-new">3</span>
+          </div>
+
+          <div class="feed-item">
+            <div class="feed-health healthy"></div>
+            <div class="feed-info">
+              <div class="feed-name">Shogun</div>
+              <div class="feed-meta">ShowRSS <span style="color: var(--text-quinary);">--</span> Checked 5m ago</div>
+            </div>
+            <span class="feed-ep-count has-new">1</span>
+          </div>
+
+          <div class="feed-item">
+            <div class="feed-health healthy"></div>
+            <div class="feed-info">
+              <div class="feed-name">Hacks</div>
+              <div class="feed-meta">ShowRSS <span style="color: var(--text-quinary);">--</span> Checked 8m ago</div>
+            </div>
+            <span class="feed-ep-count none">0</span>
+          </div>
+
+          <div class="feed-item">
+            <div class="feed-health warning"></div>
+            <div class="feed-info">
+              <div class="feed-name">True Detective</div>
+              <div class="feed-meta">ShowRSS <span style="color: var(--text-quinary);">--</span> 3h since check</div>
+            </div>
+            <span class="feed-ep-count none">0</span>
+          </div>
+
+          <div class="feed-item">
+            <div class="feed-health healthy"></div>
+            <div class="feed-info">
+              <div class="feed-name">Fallout</div>
+              <div class="feed-meta">Custom RSS <span style="color: var(--text-quinary);">--</span> Checked 12m ago</div>
+            </div>
+            <span class="feed-ep-count has-new">8</span>
+          </div>
+
+          <div class="feed-item">
+            <div class="feed-health error"></div>
+            <div class="feed-info">
+              <div class="feed-name">3 Body Problem</div>
+              <div class="feed-meta" style="color: var(--red);">Feed unreachable</div>
+            </div>
+            <span class="feed-ep-count none">0</span>
+          </div>
+
+          <div class="feed-item">
+            <div class="feed-health paused"></div>
+            <div class="feed-info">
+              <div class="feed-name">Slow Horses</div>
+              <div class="feed-meta">Paused <span style="color: var(--text-quinary);">--</span> Season ended</div>
+            </div>
+            <span class="feed-ep-count none">0</span>
+          </div>
+        </div>
+
+        <!-- ShowRSS integration card -->
+        <div class="showrss-card">
+          <div class="showrss-header">
+            <div class="showrss-icon">
+              <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M98.91,157.09A71.53,71.53,0,0,1,120,208a8,8,0,0,1-16,0,56,56,0,0,0-56-56,8,8,0,0,1,0-16A71.53,71.53,0,0,1,98.91,157.09ZM48,88a8,8,0,0,0,0,16,104,104,0,0,1,104,104,8,8,0,0,0,16,0A120,120,0,0,0,48,88Zm0-40a8,8,0,0,0,0,16,144,144,0,0,1,144,144,8,8,0,0,0,16,0A160,160,0,0,0,48,48Zm12,160a12,12,0,1,0-12-12A12,12,0,0,0,60,208Z"/></svg>
+            </div>
+            <span class="showrss-title">ShowRSS</span>
+          </div>
+          <div class="showrss-desc">Auto-download new episodes from your ShowRSS personal feed. Connect your account to get started.</div>
+          <button class="showrss-btn">
+            Connect ShowRSS
+            <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Timeline panel -->
+      <div class="timeline-panel">
+
+        <div class="timeline-header">
+          <span class="timeline-title">The Bear</span>
+          <div class="header-spacer"></div>
+          <div class="filter-pills">
+            <button class="filter-pill active">All</button>
+            <button class="filter-pill">New</button>
+            <button class="filter-pill">Downloading</button>
+            <button class="filter-pill">Downloaded</button>
+          </div>
+        </div>
+
+        <div class="timeline-scroll">
+
+          <!-- Today -->
+          <div class="timeline-date">Today</div>
+
+          <div class="episode-row unread">
+            <div class="episode-time-col">
+              <span class="episode-time">2:14 PM</span>
+            </div>
+            <div class="episode-icon video">
+              <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg>
+            </div>
+            <div class="episode-info">
+              <div class="episode-title-row">
+                <span class="episode-title">S03E10 - Forever</span>
+                <span class="episode-badge badge-new">NEW</span>
+                <span class="episode-badge badge-quality">1080p</span>
+              </div>
+              <div class="episode-sub">
+                Season Finale
+                <span class="episode-sub-sep">--</span>
+                WEB-DL
+                <span class="episode-sub-sep">--</span>
+                44 min
+              </div>
+            </div>
+            <div class="episode-right">
+              <div class="ep-progress">
+                <div class="ep-progress-track">
+                  <div class="ep-progress-fill yellow" style="width: 67%;"></div>
+                </div>
+                <span class="ep-progress-pct">67%</span>
+              </div>
+              <span class="episode-size">1.8 GB</span>
+            </div>
+            <div class="episode-actions">
+              <button class="ep-action-btn" title="Pause">
+                <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48V208a16,16,0,0,1-16,16H160a16,16,0,0,1-16-16V48a16,16,0,0,1,16-16h40A16,16,0,0,1,216,48ZM96,32H56A16,16,0,0,0,40,48V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V48A16,16,0,0,0,96,32Z"/></svg>
+              </button>
+              <button class="ep-action-btn" title="More">
+                <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="episode-row unread">
+            <div class="episode-time-col">
+              <span class="episode-time">1:47 PM</span>
+            </div>
+            <div class="episode-icon completed">
+              <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg>
+            </div>
+            <div class="episode-info">
+              <div class="episode-title-row">
+                <span class="episode-title">S03E09 - Apologies</span>
+                <span class="episode-badge badge-new">NEW</span>
+                <span class="episode-badge badge-quality">1080p</span>
+              </div>
+              <div class="episode-sub">
+                Episode 9
+                <span class="episode-sub-sep">--</span>
+                WEB-DL
+                <span class="episode-sub-sep">--</span>
+                38 min
+              </div>
+            </div>
+            <div class="episode-right">
+              <span class="episode-size" style="color: var(--green);">Done</span>
+              <span class="episode-size">1.6 GB</span>
+            </div>
+            <div class="episode-actions">
+              <button class="ep-action-btn" title="Play">
+                <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg>
+              </button>
+              <button class="ep-action-btn" title="More">
+                <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Yesterday -->
+          <div class="timeline-date">Yesterday</div>
+
+          <div class="episode-row">
+            <div class="episode-time-col">
+              <span class="episode-time">11:22 PM</span>
+            </div>
+            <div class="episode-icon completed">
+              <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg>
+            </div>
+            <div class="episode-info">
+              <div class="episode-title-row">
+                <span class="episode-title">S03E08 - Ice Chips</span>
+                <span class="episode-badge badge-quality">1080p</span>
+              </div>
+              <div class="episode-sub">
+                Episode 8
+                <span class="episode-sub-sep">--</span>
+                WEB-DL
+                <span class="episode-sub-sep">--</span>
+                33 min
+              </div>
+            </div>
+            <div class="episode-right">
+              <span class="episode-size" style="color: var(--green);">Done</span>
+              <span class="episode-size">1.4 GB</span>
+            </div>
+            <div class="episode-actions">
+              <button class="ep-action-btn" title="Play">
+                <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg>
+              </button>
+              <button class="ep-action-btn" title="More">
+                <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Last Week -->
+          <div class="timeline-date">Last Week</div>
+
+          <div class="episode-row">
+            <div class="episode-time-col">
+              <span class="episode-time">Mar 12</span>
+            </div>
+            <div class="episode-icon completed">
+              <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg>
+            </div>
+            <div class="episode-info">
+              <div class="episode-title-row">
+                <span class="episode-title">S03E07 - Napkins</span>
+                <span class="episode-badge badge-quality">1080p</span>
+              </div>
+              <div class="episode-sub">
+                Episode 7
+                <span class="episode-sub-sep">--</span>
+                WEB-DL
+                <span class="episode-sub-sep">--</span>
+                41 min
+              </div>
+            </div>
+            <div class="episode-right">
+              <span class="episode-size" style="color: var(--green);">Done</span>
+              <span class="episode-size">1.7 GB</span>
+            </div>
+            <div class="episode-actions">
+              <button class="ep-action-btn" title="Play">
+                <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg>
+              </button>
+              <button class="ep-action-btn" title="More">
+                <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="episode-row">
+            <div class="episode-time-col">
+              <span class="episode-time">Mar 12</span>
+            </div>
+            <div class="episode-icon completed">
+              <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg>
+            </div>
+            <div class="episode-info">
+              <div class="episode-title-row">
+                <span class="episode-title">S03E06 - Violet</span>
+                <span class="episode-badge badge-quality">1080p</span>
+              </div>
+              <div class="episode-sub">
+                Episode 6
+                <span class="episode-sub-sep">--</span>
+                WEB-DL
+                <span class="episode-sub-sep">--</span>
+                36 min
+              </div>
+            </div>
+            <div class="episode-right">
+              <span class="episode-size" style="color: var(--green);">Done</span>
+              <span class="episode-size">1.5 GB</span>
+            </div>
+            <div class="episode-actions">
+              <button class="ep-action-btn" title="Play">
+                <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg>
+              </button>
+              <button class="ep-action-btn" title="More">
+                <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="episode-row">
+            <div class="episode-time-col">
+              <span class="episode-time">Mar 11</span>
+            </div>
+            <div class="episode-icon completed">
+              <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg>
+            </div>
+            <div class="episode-info">
+              <div class="episode-title-row">
+                <span class="episode-title">S03E05 - Children</span>
+                <span class="episode-badge badge-quality">1080p</span>
+              </div>
+              <div class="episode-sub">
+                Episode 5
+                <span class="episode-sub-sep">--</span>
+                WEB-DL
+                <span class="episode-sub-sep">--</span>
+                29 min
+              </div>
+            </div>
+            <div class="episode-right">
+              <span class="episode-size" style="color: var(--green);">Done</span>
+              <span class="episode-size">1.2 GB</span>
+            </div>
+            <div class="episode-actions">
+              <button class="ep-action-btn" title="Play">
+                <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg>
+              </button>
+              <button class="ep-action-btn" title="More">
+                <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="episode-row">
+            <div class="episode-time-col">
+              <span class="episode-time">Mar 10</span>
+            </div>
+            <div class="episode-icon completed">
+              <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg>
+            </div>
+            <div class="episode-info">
+              <div class="episode-title-row">
+                <span class="episode-title">S03E04 - Doors</span>
+                <span class="episode-badge badge-quality">1080p</span>
+              </div>
+              <div class="episode-sub">
+                Episode 4
+                <span class="episode-sub-sep">--</span>
+                WEB-DL
+                <span class="episode-sub-sep">--</span>
+                42 min
+              </div>
+            </div>
+            <div class="episode-right">
+              <span class="episode-size" style="color: var(--green);">Done</span>
+              <span class="episode-size">1.7 GB</span>
+            </div>
+            <div class="episode-actions">
+              <button class="ep-action-btn" title="Play">
+                <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40.74V215.26a15.94,15.94,0,0,0,8.12,13.89,16,16,0,0,0,16.2-.3L232.4,141.51a16,16,0,0,0,0-27Z"/></svg>
+              </button>
+              <button class="ep-action-btn" title="More">
+                <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Status bar -->
+    <div class="status-bar">
+      <span class="status-dot"></span>
+      <span class="status-text">Connected</span>
+      <span class="status-sep"></span>
+      <span class="status-text">7 feeds</span>
+      <span class="status-sep"></span>
+      <span class="status-text">12 new episodes</span>
+      <span class="status-sep"></span>
+      <span class="status-text">Last checked 2m ago</span>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
