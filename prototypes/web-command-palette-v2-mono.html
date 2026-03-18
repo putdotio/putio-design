@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Command Palette (Mono)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0C0C0E;
+    --bg-2: #141416;
+    --bg-3: #1C1C20;
+    --bg-4: #262628;
+    --bg-5: #2E2E32;
+    --border: #2A2A30;
+    --border-strong: #3A3A42;
+    --text: #E4E4EA;
+    --text-2: #B0B0BA;
+    --text-3: #7A7A86;
+    --text-4: #4A4A52;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.08);
+    --green: #4CC38A;
+    --red: #FF6369;
+    --blue: #6EB0FF;
+    --purple: #A78BFA;
+  }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 220px;
+    background: var(--bg-2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-header {
+    padding: 18px 16px 14px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--yellow);
+    letter-spacing: -0.02em;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 8px 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .nav-section-label {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--text-4);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 16px 10px 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-3);
+  }
+  .nav-item.active {
+    background: var(--bg-3);
+    color: var(--yellow);
+    font-weight: 500;
+  }
+
+  .nav-prefix {
+    font-size: 10px;
+    color: var(--text-4);
+    width: 18px;
+    flex-shrink: 0;
+  }
+
+  /* ===== MAIN AREA ===== */
+  .main-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+  }
+
+  .topbar-main {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+
+  .breadcrumb {
+    color: var(--text-3);
+  }
+
+  .breadcrumb-sep { color: var(--text-4); }
+
+  .topbar-main .spacer { flex: 1; }
+
+  .kbd-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-4);
+  }
+
+  .content-area {
+    flex: 1;
+    padding: 16px 20px;
+  }
+
+  .bg-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+  .bg-row-prefix {
+    color: var(--text-4);
+    width: 16px;
+    flex-shrink: 0;
+    font-size: 10px;
+  }
+  .bg-row-name {
+    flex: 1;
+    color: var(--text-2);
+  }
+  .bg-row-type {
+    font-size: 10px;
+    color: var(--text-4);
+    width: 40px;
+    text-align: right;
+  }
+  .bg-row-meta {
+    font-size: 10px;
+    color: var(--text-4);
+    width: 64px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ===== OVERLAY ===== */
+  .overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 160px;
+    z-index: 100;
+  }
+
+  /* ===== COMMAND PALETTE ===== */
+  .palette {
+    width: 600px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-strong);
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Search */
+  .palette-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .palette-prompt {
+    color: var(--yellow);
+    font-size: 13px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .palette-input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+  }
+  .palette-input::placeholder { color: var(--text-4); }
+
+  .palette-esc {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-4);
+    background: var(--bg-4);
+    padding: 2px 6px;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  /* Results */
+  .palette-results {
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 4px 0;
+  }
+
+  .palette-group { padding: 0 8px; }
+
+  .palette-group-label {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--text-4);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 10px 8px 4px;
+  }
+
+  .palette-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 8px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .palette-item:hover { background: var(--bg-3); }
+  .palette-item.focused {
+    background: var(--yellow-dim);
+  }
+
+  .palette-item-prefix {
+    font-size: 11px;
+    color: var(--text-4);
+    width: 16px;
+    flex-shrink: 0;
+  }
+  .palette-item.focused .palette-item-prefix {
+    color: var(--yellow);
+  }
+
+  .palette-item-text { flex: 1; min-width: 0; }
+  .palette-item-name {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .palette-item.focused .palette-item-name {
+    color: var(--yellow);
+    font-weight: 500;
+  }
+  .palette-item-desc {
+    font-size: 10px;
+    color: var(--text-4);
+    margin-top: 1px;
+  }
+
+  .palette-item-meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .kbd {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-4);
+    background: var(--bg-4);
+    padding: 1px 5px;
+    border: 1px solid var(--border);
+    font-family: inherit;
+  }
+
+  .palette-item-type {
+    font-size: 10px;
+    color: var(--text-4);
+  }
+
+  /* Footer */
+  .palette-footer {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 10px;
+    color: var(--text-4);
+  }
+  .palette-footer-hint {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put.io</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active">
+        <span class="nav-prefix">&gt;</span>
+        files
+      </div>
+      <div class="nav-item">
+        <span class="nav-prefix"> </span>
+        transfers
+      </div>
+      <div class="nav-item">
+        <span class="nav-prefix"> </span>
+        rss
+      </div>
+      <div class="nav-section-label">account</div>
+      <div class="nav-item">
+        <span class="nav-prefix"> </span>
+        history
+      </div>
+      <div class="nav-item">
+        <span class="nav-prefix"> </span>
+        sharing
+      </div>
+    </nav>
+  </div>
+
+  <!-- Main area -->
+  <div class="main-area">
+    <div class="topbar-main">
+      <span class="breadcrumb">files <span class="breadcrumb-sep">/</span> downloads</span>
+      <div class="spacer"></div>
+      <div class="kbd-hint">
+        <span class="kbd">&#8984;K</span>
+        :cmd
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="bg-row">
+        <span class="bg-row-prefix">d</span>
+        <span class="bg-row-name">movies</span>
+        <span class="bg-row-type">dir</span>
+        <span class="bg-row-meta">142.8 GB</span>
+      </div>
+      <div class="bg-row">
+        <span class="bg-row-prefix">d</span>
+        <span class="bg-row-name">shows</span>
+        <span class="bg-row-type">dir</span>
+        <span class="bg-row-meta">86.3 GB</span>
+      </div>
+      <div class="bg-row">
+        <span class="bg-row-prefix">f</span>
+        <span class="bg-row-name">Sintel.2010.2160p.mkv</span>
+        <span class="bg-row-type">mkv</span>
+        <span class="bg-row-meta">8.2 GB</span>
+      </div>
+      <div class="bg-row">
+        <span class="bg-row-prefix">f</span>
+        <span class="bg-row-name">Big.Buck.Bunny.1080p.mp4</span>
+        <span class="bg-row-type">mp4</span>
+        <span class="bg-row-meta">1.4 GB</span>
+      </div>
+      <div class="bg-row">
+        <span class="bg-row-prefix">f</span>
+        <span class="bg-row-name">readme.txt</span>
+        <span class="bg-row-type">txt</span>
+        <span class="bg-row-meta">2.1 KB</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay">
+    <div class="palette">
+
+      <!-- Search -->
+      <div class="palette-search">
+        <span class="palette-prompt">:</span>
+        <input type="text" class="palette-input" placeholder="type a command..." readonly>
+        <span class="palette-esc">esc</span>
+      </div>
+
+      <!-- Results -->
+      <div class="palette-results">
+
+        <!-- Recent -->
+        <div class="palette-group">
+          <div class="palette-group-label">recent</div>
+
+          <div class="palette-item focused">
+            <span class="palette-item-prefix">&gt;</span>
+            <div class="palette-item-text">
+              <div class="palette-item-name">Sintel.2010.2160p.mkv</div>
+              <div class="palette-item-desc">downloads/movies</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="palette-item-type">8.2 GB</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <span class="palette-item-prefix"> </span>
+            <div class="palette-item-text">
+              <div class="palette-item-name">movies/</div>
+              <div class="palette-item-desc">downloads</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="palette-item-type">dir</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <span class="palette-item-prefix"> </span>
+            <div class="palette-item-text">
+              <div class="palette-item-name">Cosmos.Laundromat.720p.mp4</div>
+              <div class="palette-item-desc">downloads</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="palette-item-type">209 MB</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="palette-group">
+          <div class="palette-group-label">actions</div>
+
+          <div class="palette-item">
+            <span class="palette-item-prefix"> </span>
+            <div class="palette-item-text">
+              <div class="palette-item-name">:transfer new</div>
+              <div class="palette-item-desc">add magnet, torrent, or url</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">&#8984;N</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <span class="palette-item-prefix"> </span>
+            <div class="palette-item-text">
+              <div class="palette-item-name">:paste</div>
+              <div class="palette-item-desc">paste link from clipboard</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">&#8984;V</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <span class="palette-item-prefix"> </span>
+            <div class="palette-item-text">
+              <div class="palette-item-name">:settings</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">&#8984;,</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <span class="palette-item-prefix"> </span>
+            <div class="palette-item-text">
+              <div class="palette-item-name">:theme toggle</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">&#8984;D</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="palette-group">
+          <div class="palette-group-label">goto</div>
+
+          <div class="palette-item">
+            <span class="palette-item-prefix"> </span>
+            <div class="palette-item-text">
+              <div class="palette-item-name">:goto files</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">G</span> <span class="kbd">F</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <span class="palette-item-prefix"> </span>
+            <div class="palette-item-text">
+              <div class="palette-item-name">:goto transfers</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">G</span> <span class="kbd">T</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <span class="palette-item-prefix"> </span>
+            <div class="palette-item-text">
+              <div class="palette-item-name">:goto rss</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">G</span> <span class="kbd">R</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <span class="palette-item-prefix"> </span>
+            <div class="palette-item-text">
+              <div class="palette-item-name">:goto history</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">G</span> <span class="kbd">H</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <span class="palette-item-prefix"> </span>
+            <div class="palette-item-text">
+              <div class="palette-item-name">:goto sharing</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">G</span> <span class="kbd">S</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="palette-footer">
+        <div class="palette-footer-hint">
+          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+          </svg>
+          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+            <path d="M12 5v14M5 12l7 7 7-7"/>
+          </svg>
+          nav
+        </div>
+        <div class="palette-footer-hint">
+          <span class="kbd" style="padding: 0px 4px; font-size: 9px;">ret</span>
+          exec
+        </div>
+        <div class="palette-footer-hint">
+          <span class="kbd" style="padding: 0px 4px; font-size: 9px;">tab</span>
+          preview
+        </div>
+        <div style="flex:1;"></div>
+        <div class="palette-footer-hint" style="opacity: 0.4;">
+          put.io :cmd
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

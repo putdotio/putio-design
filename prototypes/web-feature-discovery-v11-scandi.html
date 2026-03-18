@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Feature Discovery (Scandi)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #111113;
+    --surface: #1C1A17;
+    --surface-2: #232019;
+    --border: #2A2723;
+    --text: #EEEEF0;
+    --text-2: #C8C4BE;
+    --text-3: #8A857D;
+    --text-4: #5C5850;
+    --yellow: #FDCE45;
+    --yellow-soft: rgba(253, 206, 69, 0.06);
+    --yellow-glow: rgba(253, 206, 69, 0.12);
+    --green: #30A46C;
+    --green-soft: rgba(48, 164, 108, 0.08);
+    --red: #E5484D;
+    --blue: #3B82F6;
+    --blue-soft: rgba(59, 130, 246, 0.08);
+    --purple: #8B5CF6;
+    --purple-soft: rgba(139, 92, 246, 0.08);
+    --orange: #F0A030;
+    --orange-soft: rgba(240, 160, 48, 0.08);
+    --font: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    --radius: 16px;
+    --radius-sm: 12px;
+    --radius-xs: 8px;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 260px;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    padding: 24px 16px;
+    gap: 8px;
+  }
+
+  .sidebar-brand { padding: 8px 12px 24px; }
+  .logo { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.03em; }
+  .logo-dot { color: var(--yellow); }
+
+  .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .nav-group-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-4); padding: 16px 12px 6px;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; font-size: 14px; font-weight: 500;
+    color: var(--text-3); cursor: pointer; border: none;
+    background: none; width: 100%; text-align: left;
+    font-family: var(--font); border-radius: var(--radius-sm);
+  }
+  .nav-item:hover { color: var(--text-2); background: rgba(255,255,255,0.03); }
+  .nav-item.active { color: var(--text); font-weight: 600; background: var(--surface-2); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; color: var(--text-4); flex-shrink: 0; }
+  .nav-item.active .nav-icon { color: var(--yellow); }
+
+  .sidebar-footer { padding: 16px 12px 8px; }
+  .storage-card {
+    background: var(--surface-2); border-radius: var(--radius-sm);
+    padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .storage-bar { width: 100%; height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 10px; overflow: hidden; }
+  .storage-fill { height: 100%; width: 78%; background: linear-gradient(90deg, var(--yellow), #F0B830); border-radius: 3px; }
+  .storage-label { font-size: 12px; color: var(--text-3); font-weight: 500; }
+  .storage-label strong { color: var(--text-2); font-weight: 700; }
+
+  /* MAIN */
+  .main {
+    flex: 1; display: flex; flex-direction: column; overflow: hidden;
+    padding: 24px 32px 24px 24px; gap: 20px;
+  }
+
+  .topbar { display: flex; align-items: center; gap: 12px; }
+  .topbar-spacer { flex: 1; }
+  .topbar-left { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-3); }
+  .topbar-left span { color: var(--text); font-weight: 600; }
+
+  .topbar-btn {
+    width: 36px; height: 36px; border-radius: var(--radius-xs);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: none; background: none; color: var(--text-3);
+  }
+  .topbar-btn:hover { background: var(--surface); color: var(--text); }
+  .user-avatar {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--yellow), #F0A030);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: var(--bg);
+  }
+
+  .content-header { display: flex; align-items: baseline; gap: 20px; }
+  .page-title { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; flex: 1; }
+
+  .content-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+
+  /* File rows */
+  .file-row {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 20px; border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  .file-row:hover { background: var(--surface); }
+  .file-row.highlighted {
+    background: var(--surface);
+    border-left: 3px solid var(--yellow);
+    padding-left: 17px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .file-icon {
+    width: 40px; height: 40px;
+    border-radius: var(--radius-xs);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .file-icon.folder { background: var(--yellow-soft); }
+  .file-icon.video { background: var(--green-soft); }
+
+  .file-info { flex: 1; min-width: 0; }
+  .fname { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fsub { font-size: 12px; color: var(--text-4); margin-top: 1px; }
+  .fsize { font-size: 13px; color: var(--text-3); min-width: 80px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+  /* Discovery cards */
+  .discovery-card {
+    display: flex; align-items: flex-start; gap: 16px;
+    padding: 20px; border-radius: var(--radius);
+    margin: 4px 0; position: relative;
+  }
+
+  .discovery-card.rss {
+    background: linear-gradient(135deg, rgba(253, 206, 69, 0.05) 0%, rgba(253, 206, 69, 0.02) 100%);
+    border: 1px solid rgba(253, 206, 69, 0.08);
+  }
+  .discovery-card.extension {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.02) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.08);
+  }
+  .discovery-card.family {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0.02) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.08);
+  }
+  .discovery-card.storage {
+    background: linear-gradient(135deg, rgba(240, 160, 48, 0.05) 0%, rgba(240, 160, 48, 0.02) 100%);
+    border: 1px solid rgba(240, 160, 48, 0.08);
+  }
+  .discovery-card.vlc {
+    background: linear-gradient(135deg, rgba(48, 164, 108, 0.05) 0%, rgba(48, 164, 108, 0.02) 100%);
+    border: 1px solid rgba(48, 164, 108, 0.08);
+  }
+
+  .discovery-icon {
+    width: 40px; height: 40px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .discovery-card.rss .discovery-icon { background: var(--yellow-soft); }
+  .discovery-card.extension .discovery-icon { background: var(--blue-soft); }
+  .discovery-card.family .discovery-icon { background: var(--purple-soft); }
+  .discovery-card.storage .discovery-icon { background: var(--orange-soft); }
+  .discovery-card.vlc .discovery-icon { background: var(--green-soft); }
+
+  .discovery-content { flex: 1; min-width: 0; }
+
+  .discovery-tag {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .discovery-card.rss .discovery-tag { color: var(--yellow); }
+  .discovery-card.extension .discovery-tag { color: var(--blue); }
+  .discovery-card.family .discovery-tag { color: var(--purple); }
+  .discovery-card.storage .discovery-tag { color: var(--orange); }
+  .discovery-card.vlc .discovery-tag { color: var(--green); }
+
+  .discovery-headline {
+    font-size: 14px; font-weight: 600; color: var(--text);
+    margin-bottom: 4px; letter-spacing: -0.02em; line-height: 1.3;
+  }
+
+  .discovery-desc {
+    font-size: 13px; color: var(--text-3);
+    line-height: 1.5; margin-bottom: 12px;
+  }
+
+  .discovery-actions { display: flex; align-items: center; gap: 12px; }
+
+  .discovery-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: var(--radius-xs);
+    font-size: 12px; font-weight: 700; font-family: var(--font);
+    border: none; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .discovery-card.rss .discovery-cta { background: var(--yellow); color: var(--bg); }
+  .discovery-card.extension .discovery-cta { background: var(--blue); color: #fff; }
+  .discovery-card.family .discovery-cta { background: var(--purple); color: #fff; }
+  .discovery-card.storage .discovery-cta { background: var(--orange); color: var(--bg); }
+  .discovery-card.vlc .discovery-cta { background: var(--green); color: #fff; }
+
+  .discovery-dismiss {
+    font-size: 12px; color: var(--text-4); cursor: pointer;
+    border: none; background: none; font-family: var(--font); font-weight: 500;
+  }
+  .discovery-dismiss:hover { color: var(--text-2); }
+
+  .discovery-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--text-4);
+    border: none; background: none; border-radius: var(--radius-xs);
+  }
+  .discovery-close:hover { background: rgba(255,255,255,0.04); color: var(--text-2); }
+
+  .scene-label {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 8px; margin-top: 12px;
+    padding: 10px 16px;
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--yellow);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .scene-label-text { font-size: 12px; color: var(--text-3); line-height: 1.4; }
+  .scene-label-text strong { color: var(--text); font-weight: 600; }
+  .scene-number {
+    font-size: 11px; font-weight: 700; color: var(--yellow);
+    flex-shrink: 0; width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--yellow-soft); border-radius: var(--radius-xs);
+  }
+
+  .section-gap { height: 16px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">put<span class="logo-dot">.</span>io</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-group-label">Library</div>
+      <button class="nav-item active">
+        <span class="nav-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="16" height="12" rx="2"/><path d="M2 7V5a2 2 0 0 1 2-2h4l2 2"/></svg></span>
+        Files
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="10,3 10,14"/><polyline points="6,10 10,14 14,10"/><line x1="4" y1="17" x2="16" y2="17"/></svg></span>
+        Transfers
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 14a4 4 0 0 1 4-4"/><path d="M3 10a8 8 0 0 1 8-8"/><circle cx="4" cy="16" r="2" fill="currentColor" stroke="none"/></svg></span>
+        RSS Feeds
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><polyline points="10,5 10,10 13,12"/></svg></span>
+        History
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="3"/></svg></span>
+        Settings
+      </button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="storage-card">
+        <div class="storage-bar"><div class="storage-fill"></div></div>
+        <div class="storage-label"><strong>39 TB</strong> / 50 TB</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="16" height="12" rx="2"/><path d="M2 7V5a2 2 0 0 1 2-2h4l2 2"/></svg>
+        <span>Feature Discovery</span>
+      </div>
+      <div class="topbar-spacer"></div>
+      <button class="topbar-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+      <div class="user-avatar">A</div>
+    </div>
+
+    <div class="content-header">
+      <h1 class="page-title">Feature Discovery</h1>
+    </div>
+
+    <div class="content-scroll">
+
+      <!-- SCENE 1: RSS -->
+      <div class="scene-label">
+        <span class="scene-number">1</span>
+        <div class="scene-label-text"><strong>Context:</strong> User finished episode 3 of The Wire. System detects sequential viewing and surfaces RSS.</div>
+      </div>
+
+      <div class="file-row">
+        <div class="file-icon video"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="8,5 16,10 8,15"/></svg></div>
+        <div class="file-info"><div class="fname">The.Wire.S03E01.Time.After.Time.mkv</div><div class="fsub">Watched</div></div>
+        <span class="fsize">1.2 GB</span>
+      </div>
+      <div class="file-row">
+        <div class="file-icon video"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="8,5 16,10 8,15"/></svg></div>
+        <div class="file-info"><div class="fname">The.Wire.S03E02.All.Due.Respect.mkv</div><div class="fsub">Watched</div></div>
+        <span class="fsize">1.1 GB</span>
+      </div>
+      <div class="file-row highlighted">
+        <div class="file-icon video"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="8,5 16,10 8,15"/></svg></div>
+        <div class="file-info"><div class="fname">The.Wire.S03E03.Dead.Soldiers.mkv</div><div class="fsub" style="color: var(--green);">Just watched</div></div>
+        <span class="fsize">1.3 GB</span>
+      </div>
+
+      <div class="discovery-card rss">
+        <div class="discovery-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg></div>
+        <div class="discovery-content">
+          <div class="discovery-tag">Did you know?</div>
+          <div class="discovery-headline">Want new episodes automatically?</div>
+          <div class="discovery-desc">Connect ShowRSS and every new episode downloads to put.io the moment it's available. No more manual searching.</div>
+          <div class="discovery-actions">
+            <button class="discovery-cta">Set up RSS feeds <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+            <button class="discovery-dismiss">Not now</button>
+          </div>
+        </div>
+        <button class="discovery-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+
+      <div class="section-gap"></div>
+
+      <!-- SCENE 2: Browser extension -->
+      <div class="scene-label">
+        <span class="scene-number">2</span>
+        <div class="scene-label-text"><strong>Context:</strong> User pastes a URL manually. System suggests the browser extension for a faster workflow.</div>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 2px;">
+        <div style="flex: 1; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; color: var(--text-3); display: flex; align-items: center; gap: 8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          magnet:?xt=urn:btih:a3f2b8c...&dn=Documentary.2026
+        </div>
+        <div style="padding: 12px 20px; background: var(--yellow); color: var(--bg); border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; display: flex; align-items: center; box-shadow: 0 2px 12px rgba(253, 206, 69, 0.2);">Transfer</div>
+      </div>
+
+      <div class="discovery-card extension">
+        <div class="discovery-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+        <div class="discovery-content">
+          <div class="discovery-tag">Faster workflow</div>
+          <div class="discovery-headline">Download from any page with the browser extension</div>
+          <div class="discovery-desc">Right-click any magnet link or torrent and send it straight to put.io. No more copy-pasting URLs.</div>
+          <div class="discovery-actions">
+            <button class="discovery-cta">Install for Chrome <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+            <button class="discovery-dismiss">Maybe later</button>
+          </div>
+        </div>
+        <button class="discovery-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+
+      <div class="section-gap"></div>
+
+      <!-- SCENE 3: Family sharing -->
+      <div class="scene-label">
+        <span class="scene-number">3</span>
+        <div class="scene-label-text"><strong>Context:</strong> User generates a share link. System detects repeated sharing and suggests family sharing.</div>
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-bottom: 2px; padding: 16px; background: var(--surface); border-radius: var(--radius-sm) var(--radius-sm) 0 0; border: 1px solid var(--border); border-bottom: none;">
+        <div style="flex: 1;">
+          <div style="font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; letter-spacing: -0.02em;">Share "The Wire S03"</div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="flex: 1; padding: 10px 12px; background: var(--surface-2); border-radius: var(--radius-xs); font-size: 12px; color: var(--text-3);">https://put.io/s/abc123xyz</div>
+            <div style="padding: 10px 16px; background: var(--border); border-radius: var(--radius-xs); font-size: 12px; font-weight: 600; color: var(--text);">Copy link</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="discovery-card family" style="border-radius: 0 0 var(--radius) var(--radius); margin-top: 0;">
+        <div class="discovery-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="discovery-content">
+          <div class="discovery-tag">For your family</div>
+          <div class="discovery-headline">Share with your family -- your plan supports 4 members</div>
+          <div class="discovery-desc">Instead of sharing links, add family members to your plan. They get their own account with access to shared folders.</div>
+          <div class="discovery-actions">
+            <button class="discovery-cta">Set up family sharing <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+            <button class="discovery-dismiss">Not now</button>
+          </div>
+        </div>
+        <button class="discovery-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+
+      <div class="section-gap"></div>
+
+      <!-- SCENE 4: Storage -->
+      <div class="scene-label">
+        <span class="scene-number">4</span>
+        <div class="scene-label-text"><strong>Context:</strong> User is deleting files to free space. System suggests upgrading.</div>
+      </div>
+
+      <div class="file-row" style="opacity: 0.5; text-decoration: line-through;">
+        <div class="file-icon video"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="8,5 16,10 8,15"/></svg></div>
+        <div class="file-info"><div class="fname">Old.Movie.2020.1080p.mkv</div><div class="fsub" style="color: var(--red);">Deleting</div></div>
+        <span class="fsize">3.4 GB</span>
+      </div>
+      <div class="file-row" style="opacity: 0.5; text-decoration: line-through;">
+        <div class="file-icon video"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="8,5 16,10 8,15"/></svg></div>
+        <div class="file-info"><div class="fname">Random.Series.S01-S02.Complete.mkv</div><div class="fsub" style="color: var(--red);">Deleting</div></div>
+        <span class="fsize">22 GB</span>
+      </div>
+
+      <div class="discovery-card storage">
+        <div class="discovery-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
+        <div class="discovery-content">
+          <div class="discovery-tag">Based on your usage</div>
+          <div class="discovery-headline">Upgrading would save you cleanup time</div>
+          <div class="discovery-desc">You've deleted 48 GB this month. With the 1 TB plan, you'd have 720 GB of headroom -- enough for 3 months without cleaning up.</div>
+          <div class="discovery-actions">
+            <button class="discovery-cta">See plan options <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+            <button class="discovery-dismiss">I'll manage</button>
+          </div>
+        </div>
+        <button class="discovery-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>
