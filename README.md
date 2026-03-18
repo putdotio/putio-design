@@ -32,8 +32,6 @@ Web · iOS · Android · tvOS · Android TV · Roku · watchOS · visionOS · CL
 {platform}-{screen}-{variant}-{iteration}.html
 ```
 
-`-v3` suffix = latest iteration. Start there
-
 ## Context
 
 Start with [`docs/design.md`](docs/design.md) — 1170 lines of product context, user research (61 interviews), personas, and design needs.
