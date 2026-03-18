@@ -39,5 +39,3 @@ Start with [`docs/design.md`](docs/design.md) — 1170 lines of product context,
 ᕦ(ò_óˇ)ᕤ
 
 ᕦ(ò_óˇ)ᕤ
-
-ᕦ(ò_óˇ)ᕤ
