@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — History (Ink)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #111113;
+    --bg-2: #19191B;
+    --bg-3: #222225;
+    --border: #4B4B52;
+    --border-dim: #333338;
+    --text: #EEEEF0;
+    --text-2: #ABABB2;
+    --text-3: #77777F;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.10);
+    --green: #30A46C;
+    --red: #E5484D;
+    --blue: #60A5FA;
+    --purple: #A78BFA;
+    --mono: 'IBM Plex Mono', 'Menlo', monospace;
+  }
+
+  body {
+    font-family: var(--mono);
+    font-size: 14px;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px; background: var(--bg-2); border-right: 1px solid var(--border-dim);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .sidebar-brand { padding: 24px 20px 20px; }
+  .logo { font-size: 16px; font-weight: 700; color: var(--text); }
+  .logo span { color: var(--yellow); }
+
+  .sidebar-nav { flex: 1; padding: 4px 0; }
+  .nav-item {
+    display: block; padding: 6px 20px; font-size: 13px; color: var(--text-2); cursor: pointer;
+    border: none; background: none; width: 100%; text-align: left; font-family: var(--mono);
+    transition: color 0.1s; line-height: 1.6;
+  }
+  .nav-item:hover { color: var(--text); }
+  .nav-item.active { color: var(--yellow); }
+  .nav-item.active::before { content: '* '; }
+  .nav-sep { height: 1px; background: var(--border-dim); margin: 8px 20px; }
+
+  .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border-dim); }
+  .storage-text { font-size: 12px; color: var(--text-3); line-height: 1.6; }
+  .storage-bar { font-size: 12px; color: var(--yellow); letter-spacing: 0; }
+
+  .user-row { padding: 10px 20px 16px; font-size: 12px; color: var(--text-3); }
+
+  /* CONTENT */
+  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
+
+  .topbar {
+    display: flex; align-items: center; gap: 12px; padding: 12px 0;
+    margin: 0 auto; width: 640px; border-bottom: 1px solid var(--border-dim);
+  }
+  .topbar-spacer { flex: 1; }
+  .search-input {
+    background: none; border: 1px solid var(--border-dim); color: var(--text);
+    font-size: 12px; font-family: var(--mono); padding: 5px 10px; width: 200px; outline: none;
+  }
+  .search-input:focus { border-color: var(--yellow); }
+  .search-input::placeholder { color: var(--text-3); }
+
+  .btn-transfer {
+    background: none; border: 1px solid var(--yellow); color: var(--yellow);
+    font-size: 12px; font-family: var(--mono); padding: 5px 12px; cursor: pointer; font-weight: 600;
+  }
+  .btn-transfer:hover { background: var(--yellow); color: var(--bg); }
+
+  /* 640px column */
+  .ink-column {
+    flex: 1; overflow-y: auto; max-width: 640px; width: 640px; margin: 0 auto; padding: 0 0 40px;
+  }
+  .ink-column::-webkit-scrollbar { width: 4px; }
+  .ink-column::-webkit-scrollbar-track { background: transparent; }
+  .ink-column::-webkit-scrollbar-thumb { background: var(--border-dim); }
+
+  .page-heading { font-size: 20px; font-weight: 700; color: var(--text); padding: 24px 0 4px; letter-spacing: -0.02em; }
+
+  /* Continue Watching - text only */
+  .continue-section { padding: 16px 0; border-bottom: 1px solid var(--border-dim); }
+  .section-label { font-size: 12px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+
+  .continue-item {
+    display: flex; align-items: baseline; gap: 0; padding: 4px 0; cursor: pointer; line-height: 1.6;
+  }
+  .continue-item:hover { color: var(--yellow); }
+  .continue-title { font-size: 14px; font-weight: 500; color: var(--text); flex: 1; }
+  .continue-item:hover .continue-title { color: var(--yellow); }
+  .continue-progress-text { font-size: 12px; color: var(--text-3); flex-shrink: 0; margin-left: 12px; }
+  .continue-bar { display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+  .continue-bar-track { flex: 1; height: 2px; background: var(--border-dim); }
+  .continue-bar-fill { height: 2px; background: var(--yellow); }
+
+  /* Filter */
+  .filter-row { display: flex; gap: 0; padding: 12px 0; border-bottom: 1px solid var(--border-dim); font-size: 13px; }
+  .filter-item { color: var(--text-3); cursor: pointer; padding: 0; background: none; border: none; font-family: var(--mono); font-size: 13px; }
+  .filter-item:hover { color: var(--text); }
+  .filter-item.active { color: var(--yellow); }
+  .filter-sep { color: var(--border-dim); margin: 0 8px; }
+
+  /* Date groups */
+  .date-group { padding-top: 20px; }
+  .date-label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; padding-bottom: 8px; border-bottom: 1px solid var(--border-dim); }
+
+  .history-row {
+    display: flex; align-items: baseline; padding: 6px 0; border-bottom: 1px solid rgba(51,51,56,0.5);
+    cursor: pointer; font-size: 14px; line-height: 1.6; gap: 0;
+  }
+  .history-row:hover { color: var(--yellow); }
+
+  .history-time-text { font-size: 12px; color: var(--text-3); width: 90px; flex-shrink: 0; }
+  .history-action-text { font-size: 12px; color: var(--text-2); width: 100px; flex-shrink: 0; }
+  .history-action-text.watched { color: var(--yellow); }
+  .history-action-text.downloaded { color: var(--blue); }
+  .history-action-text.converted { color: var(--purple); }
+  .history-action-text.transferred { color: var(--green); }
+  .history-name-text { font-size: 14px; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .history-row:hover .history-name-text { color: var(--yellow); }
+
+  .status-bar {
+    display: flex; align-items: center; gap: 12px;
+    max-width: 640px; width: 640px; margin: 0 auto; padding: 8px 0;
+    border-top: 1px solid var(--border-dim); font-size: 11px; color: var(--text-3);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-brand"><div class="logo">put<span>.</span>io</div></div>
+    <div class="sidebar-nav">
+      <button class="nav-item">Files</button>
+      <button class="nav-item">Transfers</button>
+      <button class="nav-item">RSS Feeds</button>
+      <div class="nav-sep"></div>
+      <button class="nav-item">Shared</button>
+      <button class="nav-item active">History</button>
+      <button class="nav-item">Trash</button>
+      <div class="nav-sep"></div>
+      <button class="nav-item">Settings</button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="storage-bar">[################....] 78%</div>
+      <div class="storage-text">39 TB of 50 TB</div>
+    </div>
+    <div class="user-row">altay</div>
+  </div>
+
+  <div class="content">
+    <div class="topbar">
+      <div class="topbar-spacer"></div>
+      <input class="search-input" placeholder="search..." />
+      <button class="btn-transfer">+ new transfer</button>
+    </div>
+
+    <div class="ink-column">
+      <h1 class="page-heading">History</h1>
+
+      <div class="continue-section">
+        <div class="section-label">Continue Watching</div>
+        <div class="continue-item">
+          <div class="continue-title">Severance S02E09</div>
+          <div class="continue-progress-text">62% -- 23:41 left</div>
+        </div>
+        <div class="continue-bar"><div class="continue-bar-track"><div class="continue-bar-fill" style="width: 62%;"></div></div></div>
+
+        <div class="continue-item" style="margin-top: 8px;">
+          <div class="continue-title">Cosmos Laundromat</div>
+          <div class="continue-progress-text">85% -- 4:12 left</div>
+        </div>
+        <div class="continue-bar"><div class="continue-bar-track"><div class="continue-bar-fill" style="width: 85%;"></div></div></div>
+
+        <div class="continue-item" style="margin-top: 8px;">
+          <div class="continue-title">Sintel</div>
+          <div class="continue-progress-text">41% -- 8:30 left</div>
+        </div>
+        <div class="continue-bar"><div class="continue-bar-track"><div class="continue-bar-fill" style="width: 41%;"></div></div></div>
+
+        <div class="continue-item" style="margin-top: 8px;">
+          <div class="continue-title">Big Buck Bunny</div>
+          <div class="continue-progress-text">28% -- 12:05 left</div>
+        </div>
+        <div class="continue-bar"><div class="continue-bar-track"><div class="continue-bar-fill" style="width: 28%;"></div></div></div>
+      </div>
+
+      <div class="filter-row">
+        <button class="filter-item active">all</button>
+        <span class="filter-sep">/</span>
+        <button class="filter-item">watched (24)</button>
+        <span class="filter-sep">/</span>
+        <button class="filter-item">downloaded (18)</button>
+        <span class="filter-sep">/</span>
+        <button class="filter-item">converted (7)</button>
+      </div>
+
+      <div class="date-group">
+        <div class="date-label">Today</div>
+        <div class="history-row">
+          <div class="history-time-text">2:14 PM</div>
+          <div class="history-action-text watched">watched</div>
+          <div class="history-name-text">Severance S02E10 1080p WEB-DL.mkv</div>
+        </div>
+        <div class="history-row">
+          <div class="history-time-text">1:48 PM</div>
+          <div class="history-action-text downloaded">downloaded</div>
+          <div class="history-name-text">Severance S02E10 1080p WEB-DL.mkv</div>
+        </div>
+        <div class="history-row">
+          <div class="history-time-text">1:32 PM</div>
+          <div class="history-action-text transferred">transferred</div>
+          <div class="history-name-text">Severance S02E10 1080p WEB-DL.mkv</div>
+        </div>
+        <div class="history-row">
+          <div class="history-time-text">11:20 AM</div>
+          <div class="history-action-text converted">converted</div>
+          <div class="history-name-text">podcast-episode-127.mp3</div>
+        </div>
+      </div>
+
+      <div class="date-group">
+        <div class="date-label">Yesterday</div>
+        <div class="history-row">
+          <div class="history-time-text">9:45 PM</div>
+          <div class="history-action-text watched">watched</div>
+          <div class="history-name-text">The White Lotus S03E06 720p.mkv</div>
+        </div>
+        <div class="history-row">
+          <div class="history-time-text">8:20 PM</div>
+          <div class="history-action-text downloaded">downloaded</div>
+          <div class="history-name-text">The White Lotus S03E06 720p.mkv</div>
+        </div>
+        <div class="history-row">
+          <div class="history-time-text">3:15 PM</div>
+          <div class="history-action-text transferred">transferred</div>
+          <div class="history-name-text">Cosmos Laundromat.mp4</div>
+        </div>
+      </div>
+
+      <div class="date-group">
+        <div class="date-label">This Week</div>
+        <div class="history-row">
+          <div class="history-time-text">Tue 10:30</div>
+          <div class="history-action-text watched">watched</div>
+          <div class="history-name-text">Andor S02E04 2160p WEB-DL.mkv</div>
+        </div>
+        <div class="history-row">
+          <div class="history-time-text">Mon 4:00</div>
+          <div class="history-action-text downloaded">downloaded</div>
+          <div class="history-name-text">Big Buck Bunny (2008).mkv</div>
+        </div>
+        <div class="history-row">
+          <div class="history-time-text">Mon 2:15</div>
+          <div class="history-action-text converted">converted</div>
+          <div class="history-name-text">ebook-design-systems.epub</div>
+        </div>
+        <div class="history-row">
+          <div class="history-time-text">Sun 11:00</div>
+          <div class="history-action-text transferred">transferred</div>
+          <div class="history-name-text">Sintel.mp4</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      91 events -- put.io -- istanbul -- since 2011
+    </div>
+  </div>
+</div>
+</body>
+</html>
