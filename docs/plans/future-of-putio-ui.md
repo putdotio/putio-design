@@ -278,6 +278,30 @@ The spec is the feature. The code is the artifact.
 
 ---
 
+## Infrastructure: Feature Flags & Remote Config
+
+Current TV app uses a homegrown remote config. For the rewrite, adopt a proper feature flag service.
+
+**Recommendation: Statsig**
+- Feature flags + experiments + analytics in one
+- Ties flags to metrics natively — flip VLC-kit on for 10% of users, automatically see if crash rate changes
+- SDKs for Swift, Kotlin, JS, React — covers all platforms
+- Free tier is generous for put.io's scale
+
+**Alternatives:**
+- PostHog — open source, self-hostable, flags + analytics + session replay
+- LaunchDarkly — industry standard, expensive
+- Unleash — open source, just flags, simple
+
+**Use cases:**
+- Phased VLC-kit rollout (percentage-based, per-platform)
+- A/B test home screen layouts
+- Kill switch for features during incidents
+- Per-user overrides for beta testing
+- Tunnel route recommendations by region
+
+---
+
 ## Risks & Open Questions
 
 ### Real Risks
