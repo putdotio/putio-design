@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io -- iOS Files v12 Kinetic</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A0F;
+    --bg-card: rgba(255,255,255,0.04);
+    --bg-card-border: rgba(255,255,255,0.06);
+    --text: #F0F0F5;
+    --text-2: rgba(255,255,255,0.45);
+    --text-3: rgba(255,255,255,0.25);
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --cyan: #45D9FD;
+    --magenta: #FD45B0;
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .phone {
+    width: 390px; height: 844px; overflow: hidden;
+    display: flex; flex-direction: column; position: relative;
+    background: var(--bg);
+  }
+
+  /* Animated gradient background */
+  .bg-gradient {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg,
+      rgba(253,206,69,0.06) 0%,
+      rgba(69,217,253,0.04) 25%,
+      rgba(253,69,176,0.04) 50%,
+      rgba(253,206,69,0.06) 75%,
+      rgba(69,217,253,0.04) 100%
+    );
+    background-size: 400% 400%;
+    animation: gradientShift 8s ease infinite;
+    pointer-events: none;
+  }
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    25% { background-position: 100% 50%; }
+    50% { background-position: 100% 0%; }
+    75% { background-position: 0% 100%; }
+  }
+
+  /* Pulsing accent line */
+  .accent-line {
+    position: absolute; top: 54px; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--yellow), var(--cyan), var(--magenta), transparent);
+    background-size: 200% 100%;
+    animation: lineFlow 3s linear infinite;
+    opacity: 0.6;
+  }
+  @keyframes lineFlow {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 14px 24px 8px;
+    font-size: 15px; font-weight: 600; height: 54px; flex-shrink: 0;
+    position: relative; z-index: 1;
+  }
+  .status-bar .time { flex: 1; }
+  .status-bar .icons { display: flex; align-items: center; gap: 6px; }
+
+  /* Nav Bar */
+  .nav-bar {
+    display: flex; align-items: center; padding: 8px 20px 16px; flex-shrink: 0;
+    position: relative; z-index: 1;
+  }
+  .nav-title {
+    font-size: 34px; font-weight: 800; flex: 1;
+    letter-spacing: -0.03em;
+    background: linear-gradient(90deg, var(--yellow), var(--cyan));
+    background-size: 200% 100%;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    animation: textShimmer 4s ease infinite;
+  }
+  @keyframes textShimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .nav-action {
+    width: 40px; height: 40px;
+    background: var(--bg-card); border: 1px solid var(--bg-card-border);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .nav-action::after {
+    content: ''; position: absolute; inset: -1px; border-radius: 20px;
+    background: conic-gradient(var(--yellow), var(--cyan), var(--magenta), var(--yellow));
+    opacity: 0.3; z-index: -1;
+    animation: spin 4s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Search */
+  .search-bar {
+    margin: 0 20px 16px; padding: 12px 16px;
+    background: var(--bg-card); border: 1px solid var(--bg-card-border);
+    border-radius: 16px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 15px; font-weight: 400; color: var(--text-2); flex-shrink: 0;
+    position: relative; z-index: 1;
+  }
+
+  /* Transfer Pulse Card */
+  .transfer-pulse {
+    margin: 0 20px 16px; padding: 16px;
+    background: var(--bg-card); border: 1px solid var(--bg-card-border);
+    border-radius: 16px; flex-shrink: 0;
+    position: relative; z-index: 1; overflow: hidden;
+  }
+  .transfer-pulse::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--yellow), var(--cyan), var(--magenta));
+    background-size: 200% 100%;
+    animation: lineFlow 2s linear infinite;
+  }
+  .transfer-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .pulse-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--yellow);
+    box-shadow: 0 0 12px var(--yellow);
+    animation: pulse 1.5s ease infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 4px var(--yellow); transform: scale(1); }
+    50% { box-shadow: 0 0 16px var(--yellow); transform: scale(1.2); }
+  }
+  .transfer-name { flex: 1; font-size: 14px; font-weight: 600; color: var(--text); }
+  .transfer-pct { font-size: 16px; font-weight: 700; color: var(--yellow); font-variant-numeric: tabular-nums; }
+  .progress-track { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+  .progress-fill {
+    height: 100%; width: 63%; border-radius: 2px;
+    background: linear-gradient(90deg, var(--yellow), var(--cyan));
+    animation: progressPulse 2s ease infinite;
+  }
+  @keyframes progressPulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+  }
+  .transfer-meta { font-size: 12px; color: var(--text-2); margin-top: 8px; }
+
+  /* File List */
+  .file-list { flex: 1; overflow-y: auto; padding: 0 20px 8px; position: relative; z-index: 1; }
+
+  .section-label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--text-2);
+    padding: 8px 0 10px;
+  }
+
+  .file-group {
+    background: var(--bg-card); border: 1px solid var(--bg-card-border);
+    border-radius: 16px; overflow: hidden; margin-bottom: 16px;
+  }
+
+  .file-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.2s;
+  }
+  .file-row:last-child { border-bottom: none; }
+  .file-row:hover { background: rgba(255,255,255,0.02); }
+
+  .file-icon-k {
+    width: 42px; height: 42px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 12px; position: relative;
+    background: var(--yellow-dim);
+  }
+  .file-icon-k::after {
+    content: ''; position: absolute; inset: 0; border-radius: 12px;
+    border: 1px solid rgba(253,206,69,0.2);
+    animation: borderPulse 3s ease infinite;
+  }
+  @keyframes borderPulse {
+    0%, 100% { border-color: rgba(253,206,69,0.1); }
+    50% { border-color: rgba(253,206,69,0.3); }
+  }
+
+  .file-info { flex: 1; min-width: 0; }
+  .file-name {
+    font-size: 15px; font-weight: 500; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .file-meta { font-size: 13px; font-weight: 400; color: var(--text-2); margin-top: 2px; }
+  .file-size { font-size: 13px; font-weight: 500; color: var(--text-3); flex-shrink: 0; }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex; background: rgba(10,10,15,0.85);
+    border-top: 1px solid var(--bg-card-border);
+    padding: 6px 0 34px; flex-shrink: 0;
+    position: relative; z-index: 1;
+  }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 500; color: var(--text-2); padding: 4px 0;
+    cursor: pointer;
+  }
+  .tab-item.active { color: var(--yellow); }
+  .tab-item.active svg { filter: drop-shadow(0 0 6px rgba(253,206,69,0.4)); }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="bg-gradient"></div>
+  <div class="accent-line"></div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+        <rect x="0" y="8" width="3" height="4" fill="white"/>
+        <rect x="4.5" y="5" width="3" height="7" fill="white"/>
+        <rect x="9" y="2" width="3" height="10" fill="white"/>
+        <rect x="13.5" y="0" width="3" height="12" fill="white"/>
+      </svg>
+      <svg width="27" height="13" viewBox="0 0 27 13" fill="none">
+        <rect x="0.5" y="0.5" width="23" height="12" rx="2" stroke="white" stroke-opacity="0.35"/>
+        <rect x="2" y="2" width="18" height="9" rx="1" fill="white"/>
+        <rect x="25" y="4" width="2" height="5" fill="white" fill-opacity="0.4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav-bar">
+    <h1 class="nav-title">Files</h1>
+    <div class="nav-action">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M9 2v14M2 9h14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="6.5" cy="6.5" r="5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+      <path d="M11 11l3.5 3.5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    search your cloud...
+  </div>
+
+  <!-- Transfer Pulse -->
+  <div class="transfer-pulse">
+    <div class="transfer-header">
+      <div class="pulse-dot"></div>
+      <span class="transfer-name">inception 2160p.mkv</span>
+      <span class="transfer-pct">63%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill"></div></div>
+    <div class="transfer-meta">12.4 MB/s -- about 23 min remaining</div>
+  </div>
+
+  <!-- File List -->
+  <div class="file-list">
+    <div class="section-label">Folders</div>
+    <div class="file-group">
+      <div class="file-row">
+        <div class="file-icon-k">
+          <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+            <path d="M0 2h7l2 2h11v10H0z" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Movies</div>
+          <div class="file-meta">24 items -- 142 GB</div>
+        </div>
+        <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="file-row">
+        <div class="file-icon-k">
+          <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+            <path d="M0 2h7l2 2h11v10H0z" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">TV Shows</div>
+          <div class="file-meta">156 items -- 89 GB</div>
+        </div>
+        <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="file-row">
+        <div class="file-icon-k">
+          <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+            <path d="M0 2h7l2 2h11v10H0z" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Music</div>
+          <div class="file-meta">2,841 items -- 18 GB</div>
+        </div>
+        <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+
+    <div class="section-label">Recent</div>
+    <div class="file-group">
+      <div class="file-row">
+        <div class="file-icon-k">
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+            <rect x="0" y="0" width="18" height="14" rx="2" fill="rgba(253,206,69,0.3)"/>
+            <polygon points="7,3 13,7 7,11" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">blade runner 2049.mkv</div>
+          <div class="file-meta">2 hours ago</div>
+        </div>
+        <span class="file-size">4.2 GB</span>
+      </div>
+      <div class="file-row">
+        <div class="file-icon-k">
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+            <rect x="0" y="0" width="18" height="14" rx="2" fill="rgba(253,206,69,0.3)"/>
+            <polygon points="7,3 13,7 7,11" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">the bear s03e08.mp4</div>
+          <div class="file-meta">yesterday</div>
+        </div>
+        <span class="file-size">1.8 GB</span>
+      </div>
+      <div class="file-row">
+        <div class="file-icon-k">
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+            <rect x="0" y="0" width="18" height="14" rx="2" fill="rgba(253,206,69,0.3)"/>
+            <polygon points="7,3 13,7 7,11" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">dune part two.mkv</div>
+          <div class="file-meta">3 days ago</div>
+        </div>
+        <span class="file-size">6.1 GB</span>
+      </div>
+      <div class="file-row">
+        <div class="file-icon-k">
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+            <rect x="0" y="0" width="18" height="14" rx="2" fill="rgba(253,206,69,0.3)"/>
+            <polygon points="7,3 13,7 7,11" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">severance s02e10.mp4</div>
+          <div class="file-meta">last week</div>
+        </div>
+        <span class="file-size">2.3 GB</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item active">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M3 7h7l2 2h9v11H3z" fill="#FDCE45"/>
+      </svg>
+      Files
+    </div>
+    <div class="tab-item">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M13 2l-2 8h6l-4 12 2-8H9l4-12z" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" fill="none"/>
+      </svg>
+      Transfers
+    </div>
+    <div class="tab-item">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 4v12M8 12l4 4 4-4" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M5 18h14" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Downloads
+    </div>
+    <div class="tab-item">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="3" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
+        <path d="M12 3v2M12 19v2M3 12h2M19 12h2" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Settings
+    </div>
+  </div>
+</div>
+</body>
+</html>
