@@ -12,134 +12,113 @@ A combined design + engineering strategy document. Not a decision — a discussi
 
 ## Where We Are
 
-- ~6 people, Altay leads all frontend + native apps solo
+- Altay leads all frontend + native apps **solo**
 - No dedicated designer, no dedicated platform engineers
+- **Code is cheap now.** AI coding agents (Codex, Claude Code) can implement specs across platforms in parallel
 - Web app: React + theme-ui + Emotion, migrating to Tailwind/CVA
-- iOS/tvOS: native Swift
+- iOS/tvOS: native Swift (iOS app built 2017, still works)
 - Android/Android TV: native Kotlin (TV uses React Native via `tv-native`)
 - Roku: exists but minimal
 - Browser extensions: web
-- SDK: TypeScript (Effect-based rewrite in progress)
+- SDK: TypeScript (Effect-based rewrite in progress — currently just OAuth2 + client)
 - Design: 376 HTML prototypes across 11 design variants, 9 platforms — produced by AI, not yet validated
+- **Going open source** — the SDKs and potentially the apps
+
+## The Core Insight
+
+The old constraint — "small team can't maintain native apps for every platform" — is dissolving. With:
+1. **Well-written specs** as the source of truth
+2. **AI agents** that can implement those specs across platforms
+3. **Open source** community contributions
+4. **Native SDKs** as the shared layer
+
+...the economics of "native everywhere" change fundamentally. The bottleneck moves from "writing code" to "writing specs and reviewing code."
 
 ## The Core Question
 
-How do we ship a cohesive design across every platform without drowning a tiny team?
+~~How do we ship a cohesive design across every platform without drowning a tiny team?~~
+
+How do we define put.io's UI so precisely that agents and contributors can implement it natively on any platform?
 
 ---
 
-## Option A: Spec-Driven Native (The Ideal)
+## The Strategy: Spec-Driven Native
 
-Each platform gets a native app built to a shared spec.
+This is a full rewrite. Not an evolution — a reshape. The current apps work but they're 7+ years old, designless, and siloed. We're going to do it right.
+
+### Architecture
 
 ```
-putio-design/        → tokens, component specs, flow specs, platform guides
-putio-ios/           → Swift/SwiftUI (iOS + tvOS)
-putio-android/       → Kotlin/Compose (Android + Android TV)
-putio-tv-web/        → lightweight JS (Tizen, LG webOS, Vizio, Vidaa)
-putio-web/           → React (existing, evolved)
-putio-roku/          → BrightScript (if worth it)
+putio-design/        → tokens, component specs, flow specs, platform guides (THIS REPO)
+putio-sdk-ts/        → TypeScript SDK (Effect-based, open source)
+putio-sdk-swift/     → Swift SDK (open source)
+putio-sdk-kotlin/    → Kotlin SDK (open source)
+putio-ios/           → SwiftUI (iOS + tvOS + visionOS) — NEW, vlc-kit for full-res playback
+putio-android/       → Compose (Android + Android TV) — NEW
+putio-web/           → React/Next.js — NEW or major evolution
+putio-tv-web/        → lightweight JS (Tizen, LG webOS, Vizio, Vidaa) — NEW
+putio-extensions/    → browser extensions
+putio-roku/          → BrightScript (if demand proves it)
+putio-cli/           → terminal client
 ```
 
-**What you get:**
-- Platform-native UX everywhere. SwiftUI on iOS feels like iOS. Compose on Android feels like Android.
-- Performance. No framework abstraction layer on TV.
-- Clean SDK extraction. Native SDKs (Swift, Kotlin, JS) become the shared layer; apps are thin UI shells.
-- Symphony-style specs mean any engineer (or AI agent) can implement a screen from a contract.
-- Future-proof: new platforms (visionOS, CarPlay, Xbox) just need a new thin UI layer on the SDK.
+### Why This Works Now (And Didn't Before)
 
-**What it costs:**
-- Every feature ships N times. "Add subtitle picker" = Swift PR + Kotlin PR + web PR + spec update.
-- Spec maintenance is a real job. Specs drift immediately without enforcement. Who owns this?
-- Need platform knowledge across Swift, Kotlin, web, and maybe BrightScript. For a 6-person team, that's brutal.
-- You're rewriting working software. The current apps aren't great, but they work. Multi-year commitment.
-- SDK-first is deceptively hard. Bad SDK under time pressure = bad apps on top.
+**"Every feature ships N times"** — Yes, but an agent takes a component spec and produces a Swift PR + Kotlin PR + web PR + TV PR in parallel. Review is the bottleneck, not implementation. One human reviews, agents implement.
 
-**Honest risk:** This is how Spotify and Netflix do it. They also have 50-200x your headcount. The architecture is right but the execution requires either hiring or extreme discipline.
+**"Spec maintenance is a full-time job"** — Specs ARE the product. When you change a spec, agents propagate the change. The spec repo is the monorepo of intent. Make it open source and the community helps maintain it.
+
+**"Need platform knowledge across 4+ stacks"** — Agents have it. You need one person who understands the platform well enough to review. That person is Altay.
+
+**"SDK-first is deceptively hard"** — The TypeScript SDK rewrite is already in progress (Effect-based). Swift and Kotlin SDKs are well-understood patterns. Open-source them and the community helps.
+
+**"You're rewriting working software"** — Yes, deliberately. The iOS app is from 2017. The Android TV app is RN projected onto a TV. The web app is a generic shadcn file manager. They all work, but put.io deserves to feel like put.io.
+
+### The VLC-Kit Angle
+
+Current tvOS player uses AVPlayer, which requires HLS transcoding for many formats. VLC-kit plays virtually anything natively — MKV, x265, DTS, you name it. This means:
+- No server-side transcoding needed
+- Full resolution playback of original files
+- Massive reduction in server compute costs
+- Better user experience (no "converting..." wait)
+
+This alone justifies a native tvOS rewrite. And if it works on tvOS, it works on iOS too.
+
+### What Open Source Enables
+
+- **SDKs** — community builds wrappers for platforms we don't cover (Python, Go, Rust)
+- **Specs** — community proposes component improvements, catches edge cases
+- **Apps** — community contributes platform-specific fixes (someone with a Roku will fix Roku bugs)
+- **Credibility** — put.io becomes a reference implementation for spec-driven multi-platform development
+- **Hiring signal** — "we build in public" attracts engineers who care about craft
 
 ---
 
-## Option B: React Native Hybrid
+## The Spec Layer
 
-Shared RN codebase for mobile + TV, web stays React.
-
-```
-putio-mobile/        → RN (iOS + Android)
-putio-tv/            → RN (tvOS + Android TV) + RN Web (Tizen, LG, etc.) + RN Windows (Xbox)
-putio-web/           → React (existing)
-putio-roku/          → BrightScript
-```
-
-**What you get:**
-- Code sharing across mobile + TV.
-- One component library, one design system implementation.
-- Smaller team can move faster on features.
-
-**What it costs:**
-- RN on TV is pain. Callstack's showcase: 10.9s TTI on Tizen. put.io's audience would riot.
-- "Write once" becomes "debug everywhere." Platform quirks leak through constantly.
-- TV UX paradigms (D-pad, 10-foot UI, focus management) are fundamentally different from mobile touch. Sharing components across these is a lie.
-- You lose native platform feel. RN apps feel like RN apps, not iOS/Android apps.
-- Throwing away working native Swift and Kotlin code.
-
-**Honest risk:** You save on initial dev but pay in maintenance, performance debugging, and user experience. For a product whose users are technical and opinionated, "kinda works on every platform" might be worse than "great on fewer platforms."
-
----
-
-## Option C: Pragmatic Native + Web TV (The Recommendation)
-
-Keep native where it matters, add a lightweight web app for the long tail of TV platforms.
-
-```
-putio-design/        → tokens, component specs, flow specs (source of truth)
-putio-ios/           → Swift/SwiftUI (iOS + tvOS) — evolve existing
-putio-android/       → Kotlin/Compose (Android + Android TV) — evolve existing
-putio-tv-web/        → lightweight web (Tizen, LG, Vizio, Vidaa) — NEW
-putio-web/           → React (existing, evolved with new design system)
-putio-extensions/    → browser extensions (existing)
-```
-
-Skip: Roku (US-centric, BrightScript hell, tiny put.io overlap), Xbox (browser app sufficient), Windows desktop (web app), visionOS (wait for market).
-
-**Why this works for put.io specifically:**
-- You already have native iOS and Android. Don't throw them away. Evolve them.
-- The web app is your primary interface. It gets the most design investment.
-- TV web app is new but simple — file browser + player, D-pad nav. React + Norigin Spatial Navigation or Lightning JS. Ship in weeks.
-- ~6 people can realistically maintain 4 codebases (iOS, Android, web, TV-web) if the specs are clear.
-- SDKs emerge naturally from the native apps — extract common API/model layers over time.
-
-**What changes from today:**
-1. `putio-design` becomes the canonical spec repo (it's already started)
-2. Design tokens ship as packages consumable by all platforms
-3. Component specs are written before implementation — "what does TransferCard show and do?"
-4. New TV-web app covers Tizen/LG/Vizio with a single lightweight codebase
-5. Existing native apps evolve with new design language, not rewritten
-
-**What stays the same:**
-- Swift for iOS/tvOS
-- Kotlin for Android/Android TV
-- React for web
-- The team
-
----
-
-## The Spec Layer (Applies to Any Option)
-
-Regardless of implementation strategy, the spec layer is the unlock. Inspired by OpenAI Symphony.
+Inspired by OpenAI Symphony. The spec repo is the single source of truth.
 
 ### Design Tokens (machine-readable)
-```
+```yaml
 colors:
   brand-yellow: "#FDCE45"
   surface-primary: {dark: "#0A0A0A", light: "#FFFFFF"}
-  ...
+  surface-secondary: {dark: "#141414", light: "#F5F5F5"}
+  text-primary: {dark: "#FFFFFF", light: "#0A0A0A"}
+  health-good: "#22C55E"
+  health-warning: "#EAB308"
+  health-error: "#EF4444"
+
 typography:
   heading-1: {family: "GT America", weight: 700, size: 28, lineHeight: 34}
-  ...
-spacing:
-  xs: 4, sm: 8, md: 16, lg: 24, xl: 32
+  body: {family: "GT America", weight: 400, size: 14, lineHeight: 20}
+  mono: {family: "GT America Mono", weight: 400, size: 13, lineHeight: 18}
+
+spacing: {xs: 4, sm: 8, md: 16, lg: 24, xl: 32}
+
 motion:
   duration-fast: 150ms
+  duration-normal: 250ms
   easing-default: cubic-bezier(0.4, 0, 0.2, 1)
 ```
 
@@ -149,22 +128,23 @@ TransferCard:
   description: Shows a single transfer's status
   props:
     title: string          # parsed filename or raw
-    progress: 0-100        # percentage
-    speed: string          # "2.4 MB/s" or null
-    health: low|medium|high
-    status: downloading|seeding|completed|error
+    progress: 0-100
+    speed: string | null   # "2.4 MB/s"
+    health: low | medium | high
+    status: downloading | seeding | completed | error
   states:
-    - idle: shows progress bar, speed, health dot
-    - error: red health dot, error message, retry action
-    - completed: checkmark, "Ready to stream" or file size
+    idle: shows progress bar, speed, health dot
+    error: red health dot, error message, retry action
+    completed: checkmark, "Ready to stream" or file size
   actions:
-    - tap/click: navigate to file
-    - long-press/right-click: context menu (pause, remove, retry)
+    tap: navigate to file
+    long-press: context menu (pause, remove, retry)
   platform notes:
-    - iOS: UICollectionViewCell, swipe actions
-    - Android: RecyclerView item, Material 3 card
-    - TV: focusable row item, D-pad select = navigate
-    - Web: table row or card depending on viewport
+    ios: UICollectionViewCell, swipe actions for pause/remove
+    android: Material 3 card, RecyclerView item
+    tv-native: focusable row, D-pad select = navigate, long-press = options
+    tv-web: focusable div, remote OK = navigate, back = exit menu
+    web: table row (list view) or card (grid view) depending on viewport
 ```
 
 ### Flow Specs (state machines)
@@ -183,35 +163,35 @@ Onboarding:
 
 ---
 
-## TV Platform Deep Dive
+## TV Platform Strategy
 
-### Tier 1: Native (already owned)
-- **tvOS** — Swift, existing app, evolve with new design
-- **Android TV / Fire TV** — Kotlin, existing app, evolve with new design
+### Tier 1: Native
+- **tvOS** — SwiftUI + VLC-kit. Full-res playback without transcoding. This is the flagship TV experience.
+- **Android TV / Fire TV** — Compose. Covers the cheap streaming stick market.
 
-### Tier 2: Web-based TV (new)
-- **Samsung Tizen** — Chromium webview, largest smart TV market share
+### Tier 2: Web-Based TV (single codebase)
+- **Samsung Tizen** — largest smart TV market share, Chromium webview
 - **LG webOS** — Chromium webview
 - **Vizio SmartCast** — Chromium webview
 - **Hisense Vidaa** — Chromium webview
 
-All Tier 2 platforms are just embedded browsers. One web app covers all of them.
+All Tier 2 platforms are embedded browsers. One lightweight web app covers all.
 
-**Framework options for TV-web:**
+**Framework options:**
 
-| Framework | Renderer | Performance | Learning curve | Community |
-|-----------|----------|-------------|---------------|-----------|
-| React + Norigin | DOM | Good | Low (team knows React) | Active |
-| Lightning 3 | WebGL | Best | Medium (new paradigm) | Niche but backed by Comcast |
-| Vanilla JS | DOM | Great | Low | N/A |
+| Framework | Renderer | Performance | Team fit | Pick if... |
+|-----------|----------|-------------|----------|------------|
+| React + Norigin Spatial Nav | DOM | Good | High (React team) | Ship fast, good enough perf |
+| Lightning 3 | WebGL | Best | Medium (new paradigm) | Need 60fps on weak chips |
+| Vanilla JS/TS | DOM | Great | High | Want zero deps, full control |
 
-**Recommendation:** Start with React + Norigin (lowest risk, team already knows React). If performance isn't good enough on low-end Tizen, evaluate Lightning 3.
+Start with React + Norigin (lowest risk). Evaluate Lightning if performance isn't good enough.
 
-### Tier 3: Skip or defer
-- **Roku** — BrightScript, completely separate stack, US-centric market. ROI questionable.
-- **Xbox** — Browser app via Edge is good enough. Native UWP only if user demand proves it.
-- **PS5** — No app platform. Browser only.
-- **visionOS** — Cool but market is tiny. Revisit in 2027.
+### Tier 3: Deferred
+- **Roku** — BrightScript, separate stack. Only if user demand proves it. Community could build this if specs + SDK exist.
+- **Xbox** — React Native Windows is an option. Or browser app via Edge. Defer.
+- **PS5** — Browser only, no app platform.
+- **visionOS** — SwiftUI, shares with iOS. Cool but tiny market. The spatial player prototype exists. Revisit 2027.
 
 ---
 
@@ -219,41 +199,78 @@ All Tier 2 platforms are just embedded browsers. One web app covers all of them.
 
 The design exploration produced:
 - 376 HTML prototypes across 11 visual directions
-- 4 core variants (Clean, Mono, Brutalist, Editorial)
+- 4 core design variants (Clean Modern, Monospace, Brutalist, Editorial) + 7 additional explorations
 - Component inventory across web, iOS, Android, TV, watchOS, visionOS
-- Design decisions documented
-- Personas and needs from 61 real user interviews
+- Design decisions documented (`docs/decisions.md`)
+- 4 personas from 61 real user interviews (Pipeline Builder, Casual Streamer, Archivist, Evangelist)
+- 24 user needs distilled from interviews
+- Full UI audit of current product
+- Linear issues mapped to personas
 
 **What's missing:**
-- Validated design direction (which variant? probably a hybrid)
-- Design tokens as a package (not just in HTML files)
+- Validated design direction (which variant? hybrid?)
+- Design tokens as a consumable package
 - Component specs (the Symphony-style contracts)
-- Flow specs
-- Figma components (Claude created frames but they need human review)
-- TV-web prototype on real hardware
+- Flow specs (state machines for every user journey)
+- SDK: TypeScript is in progress, Swift and Kotlin don't exist yet
+- TV-web prototype tested on real hardware
+- VLC-kit proof of concept on tvOS
 
 ---
 
-## Next Steps (Proposed)
+## The Agent Workflow
 
-1. **Pick a design direction** — review prototypes, converge on one variant (or hybrid)
-2. **Extract design tokens** — from chosen direction into `putio-design/tokens/`
-3. **Write 5 core component specs** — TransferCard, FileRow, Player, Sidebar, StorageDashboard
-4. **Build TV-web proof of concept** — React + Norigin, file browser + player, test on Tizen emulator
-5. **Present to team** — this doc + prototypes + direction as "Future of put.io UI" RFC
-6. **Iterate** — get buy-in, refine, start implementation
+This is how a feature ships in this new world:
+
+```
+1. Write/update component spec in putio-design
+2. Agent reads spec → generates implementation PRs for each platform
+3. Agent runs tests, lints, builds
+4. Human reviews PRs (one person, multiple platforms)
+5. Merge → CI/CD → ship
+```
+
+For a new screen like "Storage Dashboard":
+1. Write the spec: what it shows, what actions it has, what data it needs
+2. Agent produces: SwiftUI view, Compose screen, React component, TV-web page
+3. Each PR references the spec. Each implementation follows platform conventions.
+4. One review pass. Ship everywhere.
+
+The spec is the feature. The code is the artifact.
 
 ---
 
-## Open Questions
+## Risks & Open Questions
 
-- [ ] Which design variant wins? Clean Modern is safest, Editorial has the most soul. Hybrid?
-- [ ] Is the team willing to maintain component specs long-term?
-- [ ] What's the actual Tizen/LG/Vizio user demand? Worth the investment?
-- [ ] Should SDKs be extracted now or later?
-- [ ] How much of the existing native code is worth keeping vs rewriting with new design?
-- [ ] Roku: skip entirely or minimal BrightScript effort?
+### Real Risks
+- **Agent code quality** — agents produce code fast but it needs review. Without good review, you ship mediocre software 4x as fast.
+- **Spec-to-implementation gap** — specs can't capture everything. Platform-specific edge cases still need human judgment.
+- **VLC-kit on tvOS** — needs a proof of concept. Licensing (LGPL) implications for App Store distribution.
+- **Open source maintenance** — community contributions need review capacity. More repos = more surface area.
+- **Design direction** — 376 prototypes is exploration, not a decision. Need to converge before building.
+
+### Open Questions
+- [ ] Which design variant wins? Or is it a hybrid?
+- [ ] VLC-kit PoC: does it work on tvOS? App Store LGPL compliance?
+- [ ] TypeScript SDK: how far along is the Effect rewrite? Timeline to v1?
+- [ ] What's the actual user demand for Tizen/LG/Vizio?
+- [ ] Should the apps be open source too, or just the SDKs and specs?
+- [ ] Roku: skip entirely or let community build it from specs?
+- [ ] How to handle platform-specific features that don't map to a shared spec? (e.g., iOS Shortcuts, Android widgets, TV voice search)
 
 ---
 
-*This document is a discussion starter, not a decision. The goal is to align on direction before writing code.*
+## Proposed Next Steps
+
+1. **Converge on design direction** — pick a variant or hybrid from the 376 prototypes
+2. **Extract design tokens** — machine-readable, consumable by all platforms
+3. **Write 5 core component specs** — FileRow, TransferCard, Player, Sidebar, StorageDashboard
+4. **VLC-kit PoC on tvOS** — can it play MKV/x265/DTS natively? App Store implications?
+5. **TypeScript SDK v1** — finish the Effect-based rewrite, open source it
+6. **TV-web PoC** — React + Norigin, file browser + player, test on Tizen emulator
+7. **Present to team** — this doc + prototypes + direction as RFC
+8. **Start building** — specs first, agents implement, human reviews
+
+---
+
+*This is a reshape, not a refactor. put.io is 15 years old and has never had a design voice. It's time.*
