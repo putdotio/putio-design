@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — PATCH NOTES (Retro)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0A0A0E;
+    --bg-2: #0F0F14;
+    --bg-3: #16161C;
+    --bg-card: #111118;
+    --line: #1E1E28;
+    --border: #2A2A38;
+    --muted: #4A4A60;
+    --text-2: #8080A0;
+    --text: #C8C8E0;
+    --bright: #E8E8F8;
+    --white: #F4F4FF;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.08);
+    --yellow-border: rgba(253, 206, 69, 0.25);
+    --green: #30A46C;
+    --cyan: #06B6D4;
+    --magenta: #D946EF;
+    --red: #E5484D;
+    --pixel: 'Press Start 2P', monospace;
+    --mono: 'Space Mono', 'Courier New', monospace;
+  }
+
+  body {
+    font-family: var(--mono);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* CRT scanline overlay */
+  .page::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.08) 2px,
+      rgba(0, 0, 0, 0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* CRT vignette */
+  .page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);
+    pointer-events: none;
+    z-index: 9;
+  }
+
+  /* Top bar */
+  .topbar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    padding: 16px 40px;
+    border-bottom: 2px solid var(--yellow);
+    background: var(--bg-2);
+  }
+
+  .topbar-brand {
+    font-family: var(--pixel);
+    font-size: 12px;
+    color: var(--yellow);
+    margin-right: 32px;
+  }
+
+  .topbar-decor {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    margin-right: auto;
+  }
+
+  .topbar-nav {
+    display: flex;
+    gap: 20px;
+  }
+
+  .topbar-link {
+    font-family: var(--pixel);
+    font-size: 8px;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+
+  .topbar-link:hover { color: var(--bright); }
+  .topbar-link.active { color: var(--yellow); }
+
+  /* Content */
+  .content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    height: calc(900px - 52px);
+  }
+
+  /* Left panel: title area */
+  .left-panel {
+    width: 380px;
+    border-right: 2px solid var(--line);
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-2);
+    flex-shrink: 0;
+  }
+
+  .patch-title {
+    font-family: var(--pixel);
+    font-size: 24px;
+    color: var(--yellow);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  .patch-version {
+    font-family: var(--pixel);
+    font-size: 10px;
+    color: var(--text-2);
+    margin-bottom: 32px;
+  }
+
+  .patch-ascii {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--muted);
+    white-space: pre;
+    margin-bottom: 32px;
+  }
+
+  .patch-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+
+  .stat-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--pixel);
+    font-size: 8px;
+  }
+
+  .stat-block {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+  }
+
+  .stat-label { color: var(--text-2); }
+  .stat-value { color: var(--bright); margin-left: auto; }
+
+  .left-spacer { flex: 1; }
+
+  .left-footer {
+    font-family: var(--pixel);
+    font-size: 7px;
+    color: var(--muted);
+    line-height: 2;
+  }
+
+  /* Right panel: patch notes */
+  .right-panel {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 48px;
+  }
+
+  .notes-header {
+    font-family: var(--pixel);
+    font-size: 8px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--line);
+  }
+
+  /* Feature entry */
+  .feature-entry {
+    margin-bottom: 28px;
+    padding: 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    position: relative;
+  }
+
+  .feature-entry::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+  }
+
+  .feature-entry.type-new::before { background: var(--yellow); }
+  .feature-entry.type-improved::before { background: var(--green); }
+
+  .feature-unlocked {
+    font-family: var(--pixel);
+    font-size: 8px;
+    color: var(--yellow);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  .feature-unlocked.improved {
+    color: var(--green);
+  }
+
+  .feature-pixel-icon {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    width: 24px;
+  }
+
+  .px {
+    width: 5px;
+    height: 5px;
+    flex-shrink: 0;
+  }
+
+  .px-y { background: var(--yellow); }
+  .px-g { background: var(--green); }
+  .px-c { background: var(--cyan); }
+  .px-m { background: var(--magenta); }
+  .px-d { background: var(--border); }
+  .px-t { background: transparent; }
+
+  .feature-name {
+    font-family: var(--pixel);
+    font-size: 14px;
+    color: var(--white);
+    margin-bottom: 4px;
+    line-height: 1.6;
+  }
+
+  .feature-tagline {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--yellow);
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+
+  .feature-tagline.green { color: var(--green); }
+
+  .feature-desc {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--text-2);
+  }
+
+  .feature-cta {
+    display: inline-block;
+    margin-top: 16px;
+    font-family: var(--pixel);
+    font-size: 8px;
+    color: var(--bg);
+    background: var(--yellow);
+    padding: 8px 16px;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    text-transform: uppercase;
+    transition: opacity 0.15s;
+  }
+
+  .feature-cta:hover { opacity: 0.85; }
+
+  .feature-cta.green { background: var(--green); }
+
+  /* Block character decorations */
+  .block-decor {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin: 16px 0;
+    letter-spacing: 2px;
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-brand">PUT.IO</div>
+    <div class="topbar-decor">&lt;!-- patch notes --&gt;</div>
+    <nav class="topbar-nav">
+      <a class="topbar-link" href="#">Files</a>
+      <a class="topbar-link" href="#">Transfers</a>
+      <a class="topbar-link" href="#">RSS</a>
+      <a class="topbar-link active" href="#">Patches</a>
+      <a class="topbar-link" href="#">Config</a>
+    </nav>
+  </div>
+
+  <div class="content">
+
+    <!-- Left panel -->
+    <div class="left-panel">
+      <div class="patch-title">PATCH<br>NOTES</div>
+      <div class="patch-version">v4.12.0 // MAR 2026</div>
+
+      <div class="patch-ascii">  _____
+ |     |
+ |  P  |
+ |_____|
+ put.io</div>
+
+      <div class="patch-stats">
+        <div class="stat-row">
+          <div class="stat-block" style="background:var(--yellow)"></div>
+          <span class="stat-label">NEW FEATURES</span>
+          <span class="stat-value">3</span>
+        </div>
+        <div class="stat-row">
+          <div class="stat-block" style="background:var(--green)"></div>
+          <span class="stat-label">IMPROVEMENTS</span>
+          <span class="stat-value">1</span>
+        </div>
+        <div class="stat-row">
+          <div class="stat-block" style="background:var(--red)"></div>
+          <span class="stat-label">BUG FIXES</span>
+          <span class="stat-value">0</span>
+        </div>
+        <div class="stat-row">
+          <div class="stat-block" style="background:var(--cyan)"></div>
+          <span class="stat-label">XP GAINED</span>
+          <span class="stat-value">9001</span>
+        </div>
+      </div>
+
+      <div class="left-spacer"></div>
+
+      <div class="left-footer">
+        PRESS START TO<br>
+        CONTINUE...
+      </div>
+    </div>
+
+    <!-- Right panel: notes -->
+    <div class="right-panel">
+
+      <div class="notes-header">/// Feature Log /// Updated 2026-03-18 ///</div>
+
+      <!-- RSS Automation -->
+      <div class="feature-entry type-new">
+        <div class="feature-unlocked">*** NEW FEATURE UNLOCKED! ***</div>
+        <div class="feature-pixel-icon">
+          <div class="px px-y"></div><div class="px px-y"></div><div class="px px-y"></div><div class="px px-y"></div>
+          <div class="px px-y"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-y"></div>
+          <div class="px px-y"></div><div class="px px-y"></div><div class="px px-y"></div><div class="px px-y"></div>
+          <div class="px px-d"></div><div class="px px-d"></div><div class="px px-y"></div><div class="px px-d"></div>
+        </div>
+        <div class="feature-name">RSS Automation</div>
+        <div class="feature-tagline">your shows, on autopilot</div>
+        <div class="feature-desc">
+          Set up RSS feeds for your favorite shows and let put.io handle<br>
+          the rest. New episodes get fetched, downloaded, and organized<br>
+          automatically. Wake up to fresh content -- no manual work needed.
+        </div>
+        <button class="feature-cta">Activate</button>
+      </div>
+
+      <div class="block-decor">&#9608;&#9608;&#9604;&#9604;&#9608;&#9608;&#9604;&#9604;&#9608;&#9608;&#9604;&#9604;&#9608;&#9608;&#9604;&#9604;&#9608;&#9608;&#9604;&#9604;&#9608;&#9608;&#9604;&#9604;&#9608;&#9608;&#9604;&#9604;&#9608;&#9608;&#9604;&#9604;</div>
+
+      <!-- Storage Dashboard -->
+      <div class="feature-entry type-new">
+        <div class="feature-unlocked">*** NEW FEATURE UNLOCKED! ***</div>
+        <div class="feature-pixel-icon">
+          <div class="px px-c"></div><div class="px px-c"></div><div class="px px-c"></div><div class="px px-c"></div>
+          <div class="px px-c"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-d"></div>
+          <div class="px px-c"></div><div class="px px-c"></div><div class="px px-d"></div><div class="px px-d"></div>
+          <div class="px px-c"></div><div class="px px-c"></div><div class="px px-c"></div><div class="px px-d"></div>
+        </div>
+        <div class="feature-name">Storage Dashboard</div>
+        <div class="feature-tagline">see what's taking space</div>
+        <div class="feature-desc">
+          A clear breakdown of your storage by file type, age, and size.<br>
+          Find the big files, clean up what you don't need, and make room<br>
+          for what matters. No more guessing where your terabytes went.
+        </div>
+        <button class="feature-cta">Activate</button>
+      </div>
+
+      <div class="block-decor">&#9600;&#9600;&#9608;&#9608;&#9600;&#9600;&#9608;&#9608;&#9600;&#9600;&#9608;&#9608;&#9600;&#9600;&#9608;&#9608;&#9600;&#9600;&#9608;&#9608;&#9600;&#9600;&#9608;&#9608;&#9600;&#9600;&#9608;&#9608;&#9600;&#9600;&#9608;&#9608;</div>
+
+      <!-- Family Sharing -->
+      <div class="feature-entry type-improved">
+        <div class="feature-unlocked improved">*** UPGRADE COMPLETE! ***</div>
+        <div class="feature-pixel-icon">
+          <div class="px px-g"></div><div class="px px-t"></div><div class="px px-g"></div><div class="px px-t"></div>
+          <div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div>
+          <div class="px px-t"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-t"></div>
+          <div class="px px-g"></div><div class="px px-t"></div><div class="px px-t"></div><div class="px px-g"></div>
+        </div>
+        <div class="feature-name">Family Sharing</div>
+        <div class="feature-tagline green">now with up to 4 members</div>
+        <div class="feature-desc">
+          Share your put.io account with up to 4 family members. Everyone<br>
+          gets their own space, their own transfer queue, and their own<br>
+          watch history. One plan, the whole crew.
+        </div>
+        <button class="feature-cta green">Activate</button>
+      </div>
+
+      <div class="block-decor">&#9608;&#9604;&#9608;&#9604;&#9608;&#9604;&#9608;&#9604;&#9608;&#9604;&#9608;&#9604;&#9608;&#9604;&#9608;&#9604;&#9608;&#9604;&#9608;&#9604;&#9608;&#9604;&#9608;&#9604;&#9608;&#9604;&#9608;&#9604;&#9608;&#9604;&#9608;&#9604;</div>
+
+      <!-- Browser Extension -->
+      <div class="feature-entry type-new">
+        <div class="feature-unlocked">*** NEW FEATURE UNLOCKED! ***</div>
+        <div class="feature-pixel-icon">
+          <div class="px px-m"></div><div class="px px-m"></div><div class="px px-m"></div><div class="px px-m"></div>
+          <div class="px px-m"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-m"></div>
+          <div class="px px-m"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-m"></div>
+          <div class="px px-m"></div><div class="px px-m"></div><div class="px px-m"></div><div class="px px-m"></div>
+        </div>
+        <div class="feature-name">Browser Extension</div>
+        <div class="feature-tagline">one click from any page</div>
+        <div class="feature-desc">
+          Right-click any link and send it straight to put.io. Works on<br>
+          Chrome, Firefox, and Edge. The toolbar button shows your active<br>
+          transfers at a glance. Dead simple.
+        </div>
+        <button class="feature-cta">Activate</button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>

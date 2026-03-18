@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Web Storage v6 Retro</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #050508; --bg-2: #0c0c10; --bg-3: #141418; --bg-4: #1c1c22;
+    --line: #2a2a33; --text: #d0d0d0; --text-2: #666670; --yellow: #FDCE45;
+    --green: #33ff33; --red: #ff3333; --cyan: #00ffff; --magenta: #ff00ff;
+    --pixel-font: 'Press Start 2P', monospace;
+    --mono-font: 'Space Mono', monospace;
+  }
+  body { font-family: var(--mono-font); background: var(--bg); color: var(--text); -webkit-font-smoothing: none; image-rendering: pixelated; overflow: hidden; }
+
+  .page { width: 1440px; height: 900px; overflow: hidden; display: flex; flex-direction: column; position: relative; background: var(--bg); }
+
+  /* CRT Scanline Overlay */
+  .crt-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 9999;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0, 0, 0, 0.08) 2px, rgba(0, 0, 0, 0.08) 4px
+    );
+  }
+  .crt-overlay::after {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%);
+  }
+
+  .glow-yellow { text-shadow: 0 0 6px rgba(253,206,69,0.4), 0 0 14px rgba(253,206,69,0.2); }
+  .glow-green { text-shadow: 0 0 6px rgba(51,255,51,0.4), 0 0 14px rgba(51,255,51,0.2); }
+  .glow-cyan { text-shadow: 0 0 6px rgba(0,255,255,0.4), 0 0 14px rgba(0,255,255,0.2); }
+
+  .blink { animation: blink 1s step-end infinite; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* Top Bar */
+  .top-bar {
+    display: flex; align-items: center; padding: 20px 48px; flex-shrink: 0;
+    border-bottom: 1px solid var(--line); background: var(--bg-2);
+  }
+  .logo-area { display: flex; align-items: center; gap: 16px; flex: 1; }
+  .logo-text { font-family: var(--pixel-font); font-size: 18px; color: var(--yellow); }
+  .top-nav { display: flex; gap: 32px; }
+  .top-nav-item {
+    font-family: var(--pixel-font); font-size: 9px; color: var(--text-2);
+    cursor: pointer; padding: 8px 0;
+  }
+  .top-nav-item.active { color: var(--yellow); border-bottom: 2px solid var(--yellow); }
+  .top-right { display: flex; align-items: center; gap: 20px; margin-left: 48px; }
+
+  /* Main Layout */
+  .main-layout {
+    display: flex; flex: 1; overflow: hidden;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px; border-right: 1px solid var(--line); padding: 24px 0;
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 24px; font-family: var(--pixel-font); font-size: 9px;
+    color: var(--text-2); cursor: pointer;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item.active {
+    color: var(--yellow); border-left-color: var(--yellow);
+    background: rgba(253,206,69,0.05);
+  }
+  .sidebar-icon { width: 20px; height: 20px; }
+
+  /* Content */
+  .content { flex: 1; padding: 32px 48px; overflow-y: auto; }
+
+  /* Page header */
+  .page-header {
+    display: flex; align-items: center; gap: 24px; margin-bottom: 32px;
+  }
+  .page-title {
+    font-family: var(--pixel-font); font-size: 22px; color: var(--yellow);
+    letter-spacing: 2px;
+  }
+  .page-subtitle { font-size: 13px; color: var(--text-2); }
+
+  /* Dashboard Grid */
+  .dashboard-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px;
+  }
+
+  /* Panel */
+  .panel {
+    border: 1px solid var(--line); background: var(--bg-2); padding: 24px;
+  }
+  .panel-header {
+    font-family: var(--pixel-font); font-size: 10px; color: var(--yellow);
+    margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--line);
+    letter-spacing: 1px;
+  }
+
+  /* Pixel Art Pie Chart */
+  .pie-chart-container {
+    display: flex; align-items: center; gap: 32px;
+  }
+  .pixel-pie {
+    width: 160px; height: 160px; flex-shrink: 0;
+  }
+  .pie-legend { display: flex; flex-direction: column; gap: 12px; }
+  .legend-item { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+  .legend-color { width: 12px; height: 12px; flex-shrink: 0; }
+  .legend-label { color: var(--text-2); flex: 1; }
+  .legend-value { font-weight: 700; }
+
+  /* Usage Bars */
+  .usage-bars { display: flex; flex-direction: column; gap: 16px; }
+  .usage-item { display: flex; flex-direction: column; gap: 6px; }
+  .usage-label {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px;
+  }
+  .usage-name { color: var(--text); font-weight: 700; }
+  .usage-size { color: var(--cyan); font-family: var(--pixel-font); font-size: 9px; }
+  .usage-bar-track {
+    font-family: var(--mono-font); font-size: 13px; letter-spacing: 1px;
+  }
+
+  /* ASCII visualization */
+  .ascii-viz {
+    font-family: var(--mono-font); font-size: 11px; line-height: 1.6;
+    color: var(--green); padding: 16px; background: var(--bg); border: 1px solid var(--line);
+  }
+  .ascii-row { display: flex; align-items: center; gap: 8px; }
+  .ascii-label { width: 80px; text-align: right; color: var(--text-2); font-size: 10px; }
+  .ascii-bar { color: var(--cyan); }
+  .ascii-val { color: var(--yellow); font-size: 10px; width: 60px; }
+
+  /* Stats row */
+  .stats-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 32px;
+  }
+  .stat-card {
+    border: 1px solid var(--line); background: var(--bg-2); padding: 20px;
+    text-align: center;
+  }
+  .stat-value {
+    font-family: var(--pixel-font); font-size: 20px; margin-bottom: 8px;
+  }
+  .stat-label {
+    font-family: var(--pixel-font); font-size: 8px; color: var(--text-2);
+    letter-spacing: 1px;
+  }
+
+  /* Activity log */
+  .activity-log { display: flex; flex-direction: column; gap: 2px; }
+  .log-entry {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 12px; font-size: 11px;
+    border-bottom: 1px solid rgba(42,42,51,0.3);
+  }
+  .log-time { color: var(--text-2); width: 70px; font-size: 10px; }
+  .log-action { color: var(--green); width: 60px; font-family: var(--pixel-font); font-size: 7px; }
+  .log-file { color: var(--text); flex: 1; }
+  .log-size { color: var(--cyan); font-size: 10px; }
+
+  /* Full width panels */
+  .full-panel {
+    border: 1px solid var(--line); background: var(--bg-2); padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  /* Footer */
+  .footer {
+    display: flex; align-items: center; padding: 12px 48px;
+    border-top: 1px solid var(--line); background: var(--bg-2); flex-shrink: 0;
+    gap: 32px;
+  }
+  .footer-prompt { font-size: 12px; color: var(--green); flex: 1; }
+  .footer-info { font-size: 11px; color: var(--text-2); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="crt-overlay"></div>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo-area">
+      <!-- Space Invader mini -->
+      <svg width="32" height="24" viewBox="0 0 32 24">
+        <rect x="4" y="0" width="4" height="4" fill="#FDCE45"/>
+        <rect x="24" y="0" width="4" height="4" fill="#FDCE45"/>
+        <rect x="8" y="4" width="16" height="4" fill="#FDCE45"/>
+        <rect x="4" y="8" width="24" height="4" fill="#FDCE45"/>
+        <rect x="0" y="12" width="32" height="4" fill="#FDCE45"/>
+        <rect x="0" y="16" width="4" height="4" fill="#FDCE45"/>
+        <rect x="8" y="16" width="16" height="4" fill="#FDCE45"/>
+        <rect x="28" y="16" width="4" height="4" fill="#FDCE45"/>
+        <rect x="4" y="20" width="8" height="4" fill="#FDCE45"/>
+        <rect x="20" y="20" width="8" height="4" fill="#FDCE45"/>
+        <rect x="8" y="12" width="4" height="4" fill="#050508"/>
+        <rect x="20" y="12" width="4" height="4" fill="#050508"/>
+      </svg>
+      <span class="logo-text glow-yellow">PUT.IO</span>
+    </div>
+    <div class="top-nav">
+      <span class="top-nav-item">FILES</span>
+      <span class="top-nav-item">TRANSFERS</span>
+      <span class="top-nav-item active">STORAGE</span>
+      <span class="top-nav-item">SETTINGS</span>
+    </div>
+    <div class="top-right">
+      <span style="font-family:var(--mono-font);font-size:11px;color:var(--text-2);">ᕦ(ò_óˇ)ᕤ</span>
+      <!-- Pixel user avatar as space invader -->
+      <svg width="24" height="20" viewBox="0 0 24 20">
+        <rect x="4" y="0" width="4" height="4" fill="#FDCE45"/>
+        <rect x="16" y="0" width="4" height="4" fill="#FDCE45"/>
+        <rect x="4" y="4" width="16" height="4" fill="#FDCE45"/>
+        <rect x="0" y="8" width="24" height="4" fill="#FDCE45"/>
+        <rect x="0" y="12" width="4" height="4" fill="#FDCE45"/>
+        <rect x="8" y="12" width="8" height="4" fill="#FDCE45"/>
+        <rect x="20" y="12" width="4" height="4" fill="#FDCE45"/>
+        <rect x="4" y="16" width="4" height="4" fill="#FDCE45"/>
+        <rect x="16" y="16" width="4" height="4" fill="#FDCE45"/>
+        <rect x="8" y="8" width="4" height="4" fill="#050508"/>
+        <rect x="16" y="8" width="4" height="4" fill="#050508"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-item">
+        <svg class="sidebar-icon" width="20" height="20" viewBox="0 0 20 20">
+          <rect x="2" y="5" width="7" height="2" fill="#888"/>
+          <rect x="2" y="7" width="16" height="12" fill="#888"/>
+          <rect x="3" y="8" width="14" height="10" fill="#555"/>
+        </svg>
+        FILES
+      </div>
+      <div class="sidebar-item">
+        <svg class="sidebar-icon" width="20" height="20" viewBox="0 0 20 20">
+          <rect x="9" y="2" width="2" height="10" fill="#888"/>
+          <rect x="5" y="10" width="10" height="2" fill="#888"/>
+          <rect x="7" y="12" width="6" height="2" fill="#888"/>
+          <rect x="9" y="14" width="2" height="2" fill="#888"/>
+        </svg>
+        TRANSFERS
+      </div>
+      <div class="sidebar-item active">
+        <svg class="sidebar-icon" width="20" height="20" viewBox="0 0 20 20">
+          <rect x="2" y="2" width="16" height="16" fill="none" stroke="#FDCE45" stroke-width="1"/>
+          <rect x="4" y="4" width="5" height="12" fill="#FDCE45"/>
+          <rect x="10" y="8" width="5" height="8" fill="#00ffff"/>
+        </svg>
+        STORAGE
+      </div>
+      <div class="sidebar-item">
+        <svg class="sidebar-icon" width="20" height="20" viewBox="0 0 20 20">
+          <rect x="8" y="2" width="4" height="3" fill="#888"/>
+          <rect x="8" y="15" width="4" height="3" fill="#888"/>
+          <rect x="2" y="8" width="3" height="4" fill="#888"/>
+          <rect x="15" y="8" width="3" height="4" fill="#888"/>
+          <rect x="6" y="6" width="8" height="8" fill="#888"/>
+          <rect x="8" y="8" width="4" height="4" fill="#050508"/>
+        </svg>
+        SETTINGS
+      </div>
+
+      <div style="margin-top:auto;padding:16px 24px;border-top:1px solid var(--line);">
+        <div style="font-family:var(--pixel-font);font-size:7px;color:var(--text-2);margin-bottom:8px;">PLAN: PRO</div>
+        <div style="font-family:var(--pixel-font);font-size:7px;color:var(--green);">1 TB TOTAL</div>
+        <div style="font-family:var(--mono-font);font-size:10px;color:var(--text-2);margin-top:12px;">
+          USED: <span style="color:var(--cyan);">654.2 GB</span><br>
+          FREE: <span style="color:var(--green);">345.8 GB</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Header -->
+      <div class="page-header">
+        <!-- Pixel disk icon -->
+        <svg width="36" height="36" viewBox="0 0 36 36">
+          <rect x="4" y="2" width="28" height="32" fill="#333" stroke="#555" stroke-width="1"/>
+          <rect x="8" y="4" width="20" height="8" fill="#222"/>
+          <rect x="14" y="5" width="8" height="2" fill="#FDCE45"/>
+          <rect x="12" y="20" width="12" height="12" fill="#222"/>
+          <rect x="14" y="22" width="8" height="8" fill="#333"/>
+          <rect x="16" y="24" width="4" height="4" fill="#555"/>
+        </svg>
+        <div>
+          <div class="page-title glow-yellow">DISK USAGE</div>
+          <div class="page-subtitle">STORAGE ALLOCATION AND ANALYSIS</div>
+        </div>
+        <div style="margin-left:auto;font-family:var(--mono-font);font-size:11px;color:var(--text-2);">
+          LAST SCAN: <span style="color:var(--green);">19:85:00</span>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value" style="color:var(--cyan);">654.2<span style="font-size:10px;">GB</span></div>
+          <div class="stat-label">USED SPACE</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:var(--green);">345.8<span style="font-size:10px;">GB</span></div>
+          <div class="stat-label">FREE SPACE</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:var(--yellow);">1,247</div>
+          <div class="stat-label">TOTAL FILES</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:var(--magenta);">42</div>
+          <div class="stat-label">DIRECTORIES</div>
+        </div>
+      </div>
+
+      <!-- Dashboard Grid -->
+      <div class="dashboard-grid">
+        <!-- Pixel Art Pie Chart -->
+        <div class="panel">
+          <div class="panel-header">STORAGE BREAKDOWN</div>
+          <div class="pie-chart-container">
+            <!-- Pixel art pie chart approximation using colored rects -->
+            <svg class="pixel-pie" width="160" height="160" viewBox="0 0 32 32">
+              <!-- Background circle -->
+              <rect x="10" y="0" width="12" height="2" fill="#333"/>
+              <rect x="6" y="2" width="4" height="2" fill="#333"/><rect x="22" y="2" width="4" height="2" fill="#333"/>
+              <rect x="4" y="4" width="2" height="2" fill="#333"/><rect x="26" y="4" width="2" height="2" fill="#333"/>
+              <rect x="2" y="6" width="2" height="4" fill="#333"/><rect x="28" y="6" width="2" height="4" fill="#333"/>
+              <rect x="0" y="10" width="2" height="12" fill="#333"/><rect x="30" y="10" width="2" height="12" fill="#333"/>
+              <rect x="2" y="22" width="2" height="4" fill="#333"/><rect x="28" y="22" width="2" height="4" fill="#333"/>
+              <rect x="4" y="26" width="2" height="2" fill="#333"/><rect x="26" y="26" width="2" height="2" fill="#333"/>
+              <rect x="6" y="28" width="4" height="2" fill="#333"/><rect x="22" y="28" width="4" height="2" fill="#333"/>
+              <rect x="10" y="30" width="12" height="2" fill="#333"/>
+              <!-- Fill sections - Movies (yellow, top-right quadrant + some) -->
+              <rect x="16" y="2" width="6" height="2" fill="#FDCE45"/>
+              <rect x="22" y="4" width="4" height="2" fill="#FDCE45"/>
+              <rect x="26" y="4" width="2" height="2" fill="#FDCE45"/>
+              <rect x="28" y="6" width="2" height="4" fill="#FDCE45"/>
+              <rect x="30" y="10" width="2" height="6" fill="#FDCE45"/>
+              <rect x="16" y="4" width="6" height="18" fill="#FDCE45"/>
+              <rect x="22" y="6" width="6" height="16" fill="#FDCE45"/>
+              <rect x="28" y="10" width="2" height="6" fill="#FDCE45"/>
+              <!-- TV Shows (cyan, bottom section) -->
+              <rect x="4" y="16" width="12" height="10" fill="#00ffff"/>
+              <rect x="2" y="16" width="2" height="6" fill="#00ffff"/>
+              <rect x="6" y="26" width="10" height="2" fill="#00ffff"/>
+              <rect x="4" y="26" width="2" height="2" fill="#00ffff"/>
+              <rect x="10" y="28" width="6" height="2" fill="#00ffff"/>
+              <rect x="16" y="22" width="6" height="4" fill="#00ffff"/>
+              <rect x="22" y="22" width="4" height="2" fill="#00ffff"/>
+              <!-- Music (magenta, left section) -->
+              <rect x="4" y="4" width="12" height="12" fill="#ff00ff"/>
+              <rect x="2" y="6" width="2" height="10" fill="#ff00ff"/>
+              <rect x="0" y="10" width="2" height="6" fill="#ff00ff"/>
+              <rect x="6" y="2" width="4" height="2" fill="#ff00ff"/>
+              <rect x="10" y="2" width="6" height="2" fill="#ff00ff"/>
+              <!-- Other (green, small wedge) -->
+              <rect x="16" y="26" width="6" height="2" fill="#33ff33"/>
+              <rect x="22" y="24" width="4" height="2" fill="#33ff33"/>
+              <rect x="26" y="22" width="2" height="2" fill="#33ff33"/>
+              <rect x="22" y="26" width="4" height="2" fill="#33ff33"/>
+              <rect x="10" y="30" width="2" height="2" fill="#33ff33"/>
+              <!-- Free space (dark, remaining) -->
+              <rect x="28" y="16" width="2" height="6" fill="#1a1a22"/>
+              <rect x="30" y="16" width="2" height="6" fill="#1a1a22"/>
+              <rect x="26" y="16" width="2" height="6" fill="#1a1a22"/>
+            </svg>
+            <div class="pie-legend">
+              <div class="legend-item">
+                <div class="legend-color" style="background:#FDCE45;"></div>
+                <span class="legend-label">Movies</span>
+                <span class="legend-value" style="color:#FDCE45;">284.6 GB</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background:#00ffff;"></div>
+                <span class="legend-label">TV Shows</span>
+                <span class="legend-value" style="color:#00ffff;">198.3 GB</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background:#ff00ff;"></div>
+                <span class="legend-label">Music</span>
+                <span class="legend-value" style="color:#ff00ff;">118.4 GB</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background:#33ff33;"></div>
+                <span class="legend-label">Other</span>
+                <span class="legend-value" style="color:#33ff33;">52.9 GB</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background:#1a1a22;border:1px solid #333;"></div>
+                <span class="legend-label">Free</span>
+                <span class="legend-value" style="color:#888;">345.8 GB</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Block-character usage bars -->
+        <div class="panel">
+          <div class="panel-header">ALLOCATION BY TYPE</div>
+          <div class="usage-bars">
+            <div class="usage-item">
+              <div class="usage-label">
+                <span class="usage-name">Movies</span>
+                <span class="usage-size">284.6 GB</span>
+              </div>
+              <span class="usage-bar-track" style="color:#FDCE45;">████████████████████████████░░░░░░░░░░░░</span>
+            </div>
+            <div class="usage-item">
+              <div class="usage-label">
+                <span class="usage-name">TV Shows</span>
+                <span class="usage-size">198.3 GB</span>
+              </div>
+              <span class="usage-bar-track" style="color:#00ffff;">████████████████████░░░░░░░░░░░░░░░░░░░░</span>
+            </div>
+            <div class="usage-item">
+              <div class="usage-label">
+                <span class="usage-name">Music</span>
+                <span class="usage-size">118.4 GB</span>
+              </div>
+              <span class="usage-bar-track" style="color:#ff00ff;">████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>
+            </div>
+            <div class="usage-item">
+              <div class="usage-label">
+                <span class="usage-name">Documents</span>
+                <span class="usage-size">38.2 GB</span>
+              </div>
+              <span class="usage-bar-track" style="color:#33ff33;">████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>
+            </div>
+            <div class="usage-item">
+              <div class="usage-label">
+                <span class="usage-name">Other</span>
+                <span class="usage-size">14.7 GB</span>
+              </div>
+              <span class="usage-bar-track" style="color:#888;">██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ASCII Data Visualization -->
+      <div class="full-panel">
+        <div class="panel-header">WEEKLY TRANSFER VOLUME (ASCII CHART)</div>
+        <div class="ascii-viz">
+          <div class="ascii-row">
+            <span class="ascii-label">MON</span>
+            <span class="ascii-bar">████████████████████████████████████</span>
+            <span class="ascii-val">48.2 GB</span>
+          </div>
+          <div class="ascii-row">
+            <span class="ascii-label">TUE</span>
+            <span class="ascii-bar">██████████████████████████</span>
+            <span class="ascii-val">34.8 GB</span>
+          </div>
+          <div class="ascii-row">
+            <span class="ascii-label">WED</span>
+            <span class="ascii-bar">███████████████████████████████████████████</span>
+            <span class="ascii-val">58.1 GB</span>
+          </div>
+          <div class="ascii-row">
+            <span class="ascii-label">THU</span>
+            <span class="ascii-bar">██████████████████</span>
+            <span class="ascii-val">24.3 GB</span>
+          </div>
+          <div class="ascii-row">
+            <span class="ascii-label">FRI</span>
+            <span class="ascii-bar">████████████████████████████████████████████████████</span>
+            <span class="ascii-val">72.6 GB</span>
+          </div>
+          <div class="ascii-row">
+            <span class="ascii-label">SAT</span>
+            <span class="ascii-bar">████████████████████████████████████████████████</span>
+            <span class="ascii-val">65.4 GB</span>
+          </div>
+          <div class="ascii-row">
+            <span class="ascii-label">SUN</span>
+            <span class="ascii-bar">████████████████████████████████████████████████████████████</span>
+            <span class="ascii-val">82.1 GB</span>
+          </div>
+          <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--line);display:flex;justify-content:space-between;">
+            <span style="color:var(--text-2);">TOTAL THIS WEEK:</span>
+            <span style="color:var(--yellow);font-family:var(--pixel-font);font-size:10px;">385.5 GB</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="full-panel">
+        <div class="panel-header">RECENT ACTIVITY LOG</div>
+        <div class="activity-log">
+          <div class="log-entry">
+            <span class="log-time">19:83:22</span>
+            <span class="log-action" style="color:var(--green);">ADD</span>
+            <span class="log-file">Ghost.In.The.Shell.1995.Remastered.mkv</span>
+            <span class="log-size">3.2 GB</span>
+          </div>
+          <div class="log-entry">
+            <span class="log-time">19:81:45</span>
+            <span class="log-action" style="color:var(--cyan);">MOVE</span>
+            <span class="log-file">Blade.Runner.2049.mkv &gt; Movies/</span>
+            <span class="log-size">4.1 GB</span>
+          </div>
+          <div class="log-entry">
+            <span class="log-time">19:78:12</span>
+            <span class="log-action" style="color:var(--red);">DEL</span>
+            <span class="log-file">temp_download_cache.tmp</span>
+            <span class="log-size">892 MB</span>
+          </div>
+          <div class="log-entry">
+            <span class="log-time">19:74:33</span>
+            <span class="log-action" style="color:var(--green);">ADD</span>
+            <span class="log-file">Cowboy.Bebop.Complete.Series.zip</span>
+            <span class="log-size">24.6 GB</span>
+          </div>
+          <div class="log-entry">
+            <span class="log-time">19:70:01</span>
+            <span class="log-action" style="color:var(--yellow);">XFER</span>
+            <span class="log-file">Akira.1988.Remastered.mkv</span>
+            <span class="log-size">3.6 GB</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span class="footer-prompt glow-green">C:\PUT.IO\STORAGE&gt; DISK SCAN COMPLETE.<span class="blink">_</span></span>
+    <span class="footer-info" style="font-family:var(--mono-font);font-size:11px;">
+      ᕦ(ò_óˇ)ᕤ
+    </span>
+    <span class="footer-info">
+      UPTIME: <span style="color:var(--green);">99.97%</span>
+    </span>
+    <span style="font-family:var(--pixel-font);font-size:9px;color:var(--yellow);">
+      PUT.IO RETRO v6.0
+    </span>
+  </div>
+</div>
+</body>
+</html>
