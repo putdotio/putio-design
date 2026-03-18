@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>put.io -- tvOS Home (Glassmorphism)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --glass: rgba(255, 255, 255, 0.06);
+    --glass-hover: rgba(255, 255, 255, 0.1);
+    --glass-strong: rgba(255, 255, 255, 0.12);
+    --glass-extra: rgba(255, 255, 255, 0.16);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-border-strong: rgba(255, 255, 255, 0.18);
+
+    --text: #EEEEF2;
+    --text-2: #B0B0BE;
+    --text-3: #7A7A8E;
+    --text-4: #55556A;
+
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.15);
+    --green: #4ADE80;
+    --green-dim: rgba(74, 222, 128, 0.15);
+    --blue: #60A5FA;
+    --blue-dim: rgba(96, 165, 250, 0.12);
+    --orange: #FB923C;
+    --orange-dim: rgba(251, 146, 60, 0.12);
+
+    --radius: 18px;
+    --radius-sm: 14px;
+    --blur: blur(30px);
+    --blur-heavy: blur(40px);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(145deg, #0a0a1a 0%, #0f1530 15%, #1a0f40 35%, #0f1b4d 55%, #0a2a5e 75%, #0d3545 100%);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* Ambient gradient orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb-1 { width: 800px; height: 800px; top: -200px; right: -100px; background: radial-gradient(circle, rgba(167, 139, 250, 0.1) 0%, transparent 70%); }
+  .orb-2 { width: 600px; height: 600px; bottom: -150px; left: 200px; background: radial-gradient(circle, rgba(96, 165, 250, 0.08) 0%, transparent 70%); }
+  .orb-3 { width: 400px; height: 400px; top: 50%; left: 30%; background: radial-gradient(circle, rgba(253, 206, 69, 0.05) 0%, transparent 70%); }
+
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  /* ===== TOP TAB BAR ===== */
+  .tab-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 72px;
+    background: var(--glass);
+    backdrop-filter: var(--blur-heavy);
+    -webkit-backdrop-filter: var(--blur-heavy);
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    padding: 0 48px;
+    gap: 8px;
+    z-index: 10;
+  }
+
+  .tab-logo {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.03em;
+    margin-right: 36px;
+  }
+  .tab-logo span { color: var(--yellow); }
+
+  .tab-item {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text-3);
+    padding: 8px 18px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+  }
+  .tab-item:hover { color: var(--text-2); background: var(--glass-hover); }
+  .tab-item.active {
+    color: var(--text);
+    background: var(--glass-strong);
+    border-color: var(--glass-border-strong);
+    font-weight: 600;
+  }
+
+  .tab-spacer { flex: 1; }
+
+  .tab-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .tab-search:hover { border-color: var(--glass-border-strong); }
+  .tab-search span { font-size: 15px; color: var(--text-4); }
+
+  .tab-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--glass-strong);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--yellow);
+    margin-left: 12px;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  .main-content {
+    padding: 96px 64px 48px;
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .greeting { font-size: 18px; color: var(--text-4); font-weight: 400; margin-bottom: 4px; }
+  .page-title {
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 36px;
+    background: linear-gradient(135deg, var(--text) 0%, var(--text-2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 8px;
+  }
+  .badge-yellow { background: var(--yellow-dim); color: var(--yellow); }
+  .badge-green { background: var(--green-dim); color: var(--green); }
+  .badge-blue { background: var(--blue-dim); color: var(--blue); }
+  .badge-orange { background: var(--orange-dim); color: var(--orange); }
+
+  /* ===== SECTION ===== */
+  .section { margin-bottom: 32px; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .section-title { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; }
+  .section-count { font-size: 16px; color: var(--text-4); font-weight: 400; }
+  .section-action {
+    margin-left: auto;
+    font-size: 16px;
+    color: var(--text-3);
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    padding: 6px 16px;
+    border-radius: 10px;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .section-action:hover { background: var(--glass-hover); border-color: var(--glass-border-strong); color: var(--text-2); }
+
+  /* ===== LIST ROWS ===== */
+  .list-container { display: flex; flex-direction: column; gap: 4px; }
+
+  .list-row {
+    display: grid;
+    align-items: center;
+    padding: 0 28px;
+    height: 70px;
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .list-row:hover {
+    background: var(--glass-hover);
+    border-color: var(--glass-border-strong);
+  }
+
+  .list-row.focused {
+    background: var(--glass-extra);
+    border-color: var(--glass-border-strong);
+    box-shadow: 0 0 30px rgba(253, 206, 69, 0.06), inset 0 0 30px rgba(253, 206, 69, 0.03);
+  }
+  .list-row.focused .lr-name { color: var(--text); font-weight: 600; }
+
+  /* Grid layouts */
+  .list-row.cw { grid-template-columns: 48px 1fr 220px 140px 48px; gap: 16px; }
+  .list-row.ra { grid-template-columns: 48px 1fr 140px 160px 48px; gap: 16px; }
+  .list-row.tr { grid-template-columns: 16px 1fr 220px 140px; gap: 16px; }
+
+  .lr-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
+  .lr-icon svg { width: 28px; height: 28px; }
+
+  .lr-name-area { min-width: 0; }
+  .lr-name {
+    font-size: 20px; font-weight: 500; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;
+  }
+  .lr-sub {
+    font-size: 14px; color: var(--text-4);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .lr-progress-area { display: flex; flex-direction: column; gap: 5px; }
+  .lr-progress-text {
+    font-size: 15px; color: var(--text-3); font-weight: 500;
+    text-align: right; font-variant-numeric: tabular-nums;
+  }
+  .lr-progress-bar {
+    width: 100%; height: 4px; background: rgba(255,255,255,0.06);
+    border-radius: 2px; overflow: hidden;
+  }
+  .lr-progress-fill { height: 100%; border-radius: 2px; }
+
+  .lr-time { font-size: 16px; color: var(--text-4); text-align: right; }
+  .lr-size { font-size: 16px; color: var(--text-2); text-align: right; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .lr-date { font-size: 15px; color: var(--text-4); text-align: right; }
+  .lr-chevron { display: flex; align-items: center; justify-content: flex-end; }
+
+  .tr-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+  .main-content::-webkit-scrollbar { width: 4px; }
+  .main-content::-webkit-scrollbar-track { background: transparent; }
+  .main-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="tv-frame">
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <div class="tab-logo">put<span>.</span>io</div>
+    <div class="tab-item active">Home</div>
+    <div class="tab-item">Files</div>
+    <div class="tab-item">Transfers</div>
+    <div class="tab-item">Search</div>
+    <div class="tab-item">Settings</div>
+    <div class="tab-spacer"></div>
+    <div class="tab-search">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke="var(--text-4)" stroke-width="1.5"/><path d="M21 21l-4.35-4.35" stroke="var(--text-4)" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span>Search</span>
+    </div>
+    <div class="tab-avatar">A</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <div class="greeting">Good evening</div>
+    <div class="page-title">Welcome back</div>
+
+    <!-- CONTINUE WATCHING -->
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">Continue Watching</h2>
+        <span class="section-count">4 items</span>
+        <span class="glass-badge badge-yellow">RESUME</span>
+        <button class="section-action">See All</button>
+      </div>
+      <div class="list-container">
+        <div class="list-row cw focused">
+          <div class="lr-icon"><svg fill="none" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" stroke="var(--text-2)" stroke-width="1.5"/><path d="M10 9l5 3-5 3V9z" fill="var(--text-2)" opacity="0.7"/></svg></div>
+          <div class="lr-name-area">
+            <div class="lr-name">Severance <span style="color:var(--text-4); font-weight:400;">S02E08</span></div>
+            <div class="lr-sub">The Department of Design</div>
+          </div>
+          <div class="lr-progress-area">
+            <div class="lr-progress-text">34:12 / 52:00</div>
+            <div class="lr-progress-bar"><div class="lr-progress-fill" style="width:66%; background:linear-gradient(90deg, var(--yellow), rgba(253,206,69,0.5));"></div></div>
+          </div>
+          <div class="lr-time">18 min left</div>
+          <div class="lr-chevron"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke="var(--text-4)" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="list-row cw">
+          <div class="lr-icon"><svg fill="none" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" stroke="var(--text-3)" stroke-width="1.5"/><path d="M10 9l5 3-5 3V9z" fill="var(--text-3)" opacity="0.5"/></svg></div>
+          <div class="lr-name-area">
+            <div class="lr-name">Planet Earth III <span style="color:var(--text-4); font-weight:400;">S01E04</span></div>
+            <div class="lr-sub">Freshwater</div>
+          </div>
+          <div class="lr-progress-area">
+            <div class="lr-progress-text">18:45 / 58:00</div>
+            <div class="lr-progress-bar"><div class="lr-progress-fill" style="width:32%; background:linear-gradient(90deg, var(--yellow), rgba(253,206,69,0.5));"></div></div>
+          </div>
+          <div class="lr-time">39 min left</div>
+          <div class="lr-chevron"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke="var(--text-4)" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="list-row cw">
+          <div class="lr-icon"><svg fill="none" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" stroke="var(--text-3)" stroke-width="1.5"/><path d="M10 9l5 3-5 3V9z" fill="var(--text-3)" opacity="0.5"/></svg></div>
+          <div class="lr-name-area">
+            <div class="lr-name">Dune: Part Two</div>
+            <div class="lr-sub">2024 -- 2h 46m</div>
+          </div>
+          <div class="lr-progress-area">
+            <div class="lr-progress-text">1:12:33 / 2:46:00</div>
+            <div class="lr-progress-bar"><div class="lr-progress-fill" style="width:44%; background:linear-gradient(90deg, var(--yellow), rgba(253,206,69,0.5));"></div></div>
+          </div>
+          <div class="lr-time">1h 33m left</div>
+          <div class="lr-chevron"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke="var(--text-4)" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECENTLY ADDED -->
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">Recently Added</h2>
+        <span class="section-count">12 items</span>
+        <span class="glass-badge badge-green">FRESH</span>
+        <button class="section-action">See All</button>
+      </div>
+      <div class="list-container">
+        <div class="list-row ra">
+          <div class="lr-icon"><svg fill="none" viewBox="0 0 24 24"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2v11z" stroke="var(--yellow)" stroke-width="1.5" fill="rgba(253,206,69,0.08)"/></svg></div>
+          <div class="lr-name-area">
+            <div class="lr-name">Music Collection</div>
+            <div class="lr-sub">42 files</div>
+          </div>
+          <div class="lr-size">8.4 GB</div>
+          <div class="lr-date">Today</div>
+          <div class="lr-chevron"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke="var(--text-4)" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="list-row ra">
+          <div class="lr-icon"><svg fill="none" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" stroke="var(--text-3)" stroke-width="1.5"/><path d="M10 9l5 3-5 3V9z" fill="var(--text-3)" opacity="0.5"/></svg></div>
+          <div class="lr-name-area">
+            <div class="lr-name">The.White.Lotus.S03E01.mkv</div>
+            <div class="lr-sub">Video -- 1080p</div>
+          </div>
+          <div class="lr-size">3.2 GB</div>
+          <div class="lr-date">Yesterday</div>
+          <div class="lr-chevron"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke="var(--text-4)" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="list-row ra">
+          <div class="lr-icon"><svg fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="var(--text-3)" stroke-width="1.5"/><path d="M14 2v6h6" stroke="var(--text-3)" stroke-width="1.5"/></svg></div>
+          <div class="lr-name-area">
+            <div class="lr-name">project-archive.zip</div>
+            <div class="lr-sub">Archive -- compressed</div>
+          </div>
+          <div class="lr-size">1.8 GB</div>
+          <div class="lr-date">2 days ago</div>
+          <div class="lr-chevron"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke="var(--text-4)" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="list-row ra">
+          <div class="lr-icon"><svg fill="none" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13" stroke="var(--text-3)" stroke-width="1.5" stroke-linecap="round"/><circle cx="6" cy="18" r="3" stroke="var(--text-3)" stroke-width="1.5"/><circle cx="18" cy="16" r="3" stroke="var(--text-3)" stroke-width="1.5"/></svg></div>
+          <div class="lr-name-area">
+            <div class="lr-name">Podcast - Tech Today #147</div>
+            <div class="lr-sub">Audio -- 128kbps</div>
+          </div>
+          <div class="lr-size">86 MB</div>
+          <div class="lr-date">3 days ago</div>
+          <div class="lr-chevron"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke="var(--text-4)" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVE TRANSFERS -->
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">Active Transfers</h2>
+        <span class="section-count">2 active</span>
+        <span class="glass-badge badge-orange">DOWNLOADING</span>
+      </div>
+      <div class="list-container">
+        <div class="list-row tr">
+          <div class="tr-dot" style="background:var(--green); box-shadow: 0 0 8px rgba(74,222,128,0.4);"></div>
+          <div class="lr-name-area">
+            <div class="lr-name">Shogun.S02.Complete.1080p</div>
+            <div class="lr-sub">Downloading -- 12.4 MB/s</div>
+          </div>
+          <div class="lr-progress-area">
+            <div class="lr-progress-text">78%</div>
+            <div class="lr-progress-bar"><div class="lr-progress-fill" style="width:78%; background:linear-gradient(90deg, var(--green), rgba(74,222,128,0.4));"></div></div>
+          </div>
+          <div class="lr-time">~8 min</div>
+        </div>
+        <div class="list-row tr">
+          <div class="tr-dot" style="background:var(--blue); box-shadow: 0 0 8px rgba(96,165,250,0.3);"></div>
+          <div class="lr-name-area">
+            <div class="lr-name">music-library-backup.tar</div>
+            <div class="lr-sub">Queued -- waiting</div>
+          </div>
+          <div class="lr-progress-area">
+            <div class="lr-progress-text">0%</div>
+            <div class="lr-progress-bar"><div class="lr-progress-fill" style="width:0%;"></div></div>
+          </div>
+          <div class="lr-time">Pending</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
