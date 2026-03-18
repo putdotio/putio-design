@@ -179,6 +179,38 @@ For music, podcasts, audiobooks.
 
 ---
 
+## Trash
+
+- List of deleted files (from API)
+- Each row: filename, date deleted, size
+- Actions: restore, delete permanently
+- "Empty trash" option with confirmation dialog
+- Empty state: "Trash is empty" with checkmark
+
+---
+
+## Favorites / Pinned Folders
+
+- Star/pin folders for quick access (SUP-34)
+- Pinned folders appear as a row on Home screen
+- Toggle favorite: long-press → "Add to Favorites" / "Remove from Favorites"
+- Synced via API — pin on phone, see on TV
+- Limit: 10 pinned folders (UI constraint, not API)
+- Great for: "Movies", "TV Shows", "Music" — the folders users navigate to 90% of the time
+
+---
+
+## Diagnostics
+
+- Available from Settings → About → Diagnostics
+- **Connection test**: ping API, show latency
+- **Playback test**: play a known test file, report success/failure + codec info
+- **Device info**: model, OS version, app version, VLC-kit/libVLC version
+- **Copy to clipboard**: one-tap copy all diagnostic info for support tickets
+- **Network info**: connection type, IP, CDN endpoint
+
+---
+
 ## Settings
 
 ### Sections
@@ -227,6 +259,30 @@ For music, podcasts, audiobooks.
 - libVLC-android for playback
 - Also covers Fire TV (same APK, test with Fire TV remote)
 
+### Back Button Behavior (all platforms)
+
+Precise back button / menu button behavior (ref: UI-1528):
+
+```
+Player overlay visible → dismiss overlay (stay in player)
+Player (no overlay)    → exit player → return to file list
+Search results         → back to search input
+Search input           → back to previous screen
+File browser (subfolder) → parent folder
+File browser (root)    → home screen
+Home screen            → system (exit app / app switcher)
+Any modal/dialog       → dismiss modal first
+```
+
+Fire TV specifically: back button must dismiss playback menu/overlay before exiting player. Never skip straight out.
+
+### Voice Search
+
+- tvOS: Siri — "Play [filename] on put.io", "Search put.io for [query]"
+- Android TV: Google Assistant — same intents
+- Fire TV: Alexa — same intents
+- Implementation: register as a search provider, respond to system search intents with file results
+
 ---
 
 ## API Dependencies
@@ -245,6 +301,10 @@ For music, podcasts, audiobooks.
 | `POST /files/{id}/start-from` | Continue Watching — save position |
 | `DELETE /files/{id}` | Delete file |
 | `GET /account/info` | Settings — account info |
+| `GET /trash/list` | Trash |
+| `POST /trash/{id}/restore` | Trash — restore file |
+| `DELETE /trash/{id}` | Trash — permanent delete |
+| `DELETE /trash/empty` | Trash — empty all |
 
 ---
 
