@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>put.io — macOS Desktop (Telegram-Native)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #1E1E1E;
+    --sidebar-bg: rgba(30,30,30,0.85);
+    --content-bg: #282828;
+    --titlebar-bg: rgba(40,40,40,0.92);
+    --text: #E5E5E5;
+    --text-secondary: #999999;
+    --text-tertiary: #666666;
+    --separator: rgba(255,255,255,0.08);
+    --tint: #FDCE45;
+    --tint-dim: rgba(253,206,69,0.12);
+    --tint-selection: rgba(253,206,69,0.2);
+    --green: #30A46C;
+    --red: #E5484D;
+    --blue: #0A84FF;
+    --sidebar-width: 240px;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, 'SF Pro Text', system-ui, sans-serif;
+    background: #111111;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .window {
+    width: 1280px;
+    height: 800px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    background: var(--bg);
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 0.5px rgba(255,255,255,0.1);
+  }
+
+  /* macOS Title Bar */
+  .titlebar {
+    height: 52px;
+    background: var(--titlebar-bg);
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    border-bottom: 0.5px solid var(--separator);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+  }
+
+  /* Traffic lights */
+  .traffic-lights {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px;
+    width: var(--sidebar-width);
+    flex-shrink: 0;
+  }
+  .traffic-light {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+  .traffic-light.close { background: #FF5F57; }
+  .traffic-light.minimize { background: #FEBC2E; }
+  .traffic-light.maximize { background: #28C840; }
+
+  /* Toolbar */
+  .toolbar {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 8px;
+  }
+  .toolbar-title {
+    font-size: 13px;
+    font-weight: 600;
+    flex: 1;
+  }
+  .toolbar-btn {
+    width: 28px;
+    height: 24px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+  }
+  .toolbar-btn:hover {
+    background: rgba(255,255,255,0.06);
+  }
+  .toolbar-search {
+    width: 200px;
+    height: 24px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    gap: 6px;
+  }
+  .toolbar-search svg { color: var(--text-tertiary); }
+  .toolbar-search span {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+  .toolbar-nav {
+    display: flex;
+    gap: 2px;
+    margin-right: 8px;
+  }
+  .toolbar-nav .nav-arrow {
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+  }
+  .toolbar-view-toggle {
+    display: flex;
+    background: rgba(255,255,255,0.06);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .view-btn {
+    width: 28px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+  }
+  .view-btn.active {
+    background: rgba(255,255,255,0.1);
+    color: var(--text);
+  }
+
+  /* Main layout */
+  .main {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* Sidebar - NSOutlineView style */
+  .sidebar {
+    width: var(--sidebar-width);
+    background: var(--sidebar-bg);
+    border-right: 0.5px solid var(--separator);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    flex-shrink: 0;
+  }
+  .sidebar-section {
+    padding: 8px 12px 4px;
+  }
+  .sidebar-section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 4px 8px;
+    margin-bottom: 2px;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 5px;
+    gap: 8px;
+    height: 26px;
+    font-size: 13px;
+    color: var(--text);
+    cursor: default;
+  }
+  .sidebar-item.selected {
+    background: var(--tint-selection);
+    color: var(--tint);
+  }
+  .sidebar-item.selected svg { color: var(--tint); }
+  .sidebar-item:not(.selected) svg { color: var(--text-tertiary); }
+  .sidebar-item .sidebar-label { flex: 1; }
+  .sidebar-item .sidebar-count {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+  .sidebar-item.selected .sidebar-count { color: rgba(253,206,69,0.6); }
+
+  /* Outline disclosure */
+  .sidebar-item.indent-1 { padding-left: 28px; }
+  .sidebar-item.indent-2 { padding-left: 48px; }
+  .sidebar-item .disclosure {
+    width: 12px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+  }
+
+  /* Content - NSTableView */
+  .content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--content-bg);
+    overflow: hidden;
+  }
+
+  /* Path bar */
+  .path-bar {
+    display: flex;
+    align-items: center;
+    padding: 6px 16px;
+    gap: 4px;
+    border-bottom: 0.5px solid var(--separator);
+    flex-shrink: 0;
+    height: 28px;
+  }
+  .path-segment {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .path-segment.current { color: var(--text); font-weight: 500; }
+  .path-separator {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin: 0 2px;
+  }
+
+  /* Table header */
+  .table-header {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 24px;
+    border-bottom: 0.5px solid var(--separator);
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.02);
+  }
+  .th { font-size: 11px; font-weight: 500; color: var(--text-tertiary); }
+  .th-name { flex: 1; padding-left: 28px; }
+  .th-size { width: 90px; text-align: right; }
+  .th-kind { width: 120px; padding-left: 16px; }
+  .th-date { width: 140px; padding-left: 16px; }
+
+  /* Table rows */
+  .file-list {
+    flex: 1;
+    overflow-y: auto;
+  }
+  .table-row {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 28px;
+    cursor: default;
+  }
+  .table-row:nth-child(even) {
+    background: rgba(255,255,255,0.02);
+  }
+  .table-row.selected {
+    background: var(--tint);
+    color: #000;
+  }
+  .table-row.selected .td { color: #000; }
+  .table-row.selected .td-secondary { color: rgba(0,0,0,0.6); }
+  .table-row.selected svg { color: #000 !important; }
+
+  .td-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+  .td-name {
+    flex: 1;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .td { font-size: 12px; color: var(--text-secondary); }
+  .td-secondary { font-size: 12px; color: var(--text-tertiary); }
+  .td-size { width: 90px; text-align: right; }
+  .td-kind { width: 120px; padding-left: 16px; }
+  .td-date { width: 140px; padding-left: 16px; }
+
+  /* Folder icon colors */
+  .icon-folder { color: var(--tint); }
+  .icon-video { color: #BF5AF2; }
+  .icon-music { color: #FF375F; }
+  .icon-image { color: #30D158; }
+  .icon-doc { color: #0A84FF; }
+  .icon-archive { color: #8E8E93; }
+
+  /* Status bar */
+  .status-bar-bottom {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 22px;
+    border-top: 0.5px solid var(--separator);
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.02);
+  }
+  .status-text {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    flex: 1;
+  }
+  .storage-mini {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+  .storage-mini-bar {
+    width: 80px;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .storage-mini-fill {
+    height: 100%;
+    background: var(--tint);
+    border-radius: 2px;
+  }
+
+  /* Avatar in sidebar */
+  .sidebar-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--tint);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+<div class="window">
+  <!-- Title Bar -->
+  <div class="titlebar">
+    <div class="traffic-lights">
+      <div class="traffic-light close"></div>
+      <div class="traffic-light minimize"></div>
+      <div class="traffic-light maximize"></div>
+    </div>
+    <div class="toolbar">
+      <div class="toolbar-nav">
+        <div class="nav-arrow">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,2 4,6 8,10"/></svg>
+        </div>
+        <div class="nav-arrow">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,2 8,6 4,10"/></svg>
+        </div>
+      </div>
+      <div class="toolbar-title">Movies</div>
+      <div class="toolbar-view-toggle">
+        <div class="view-btn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+        </div>
+        <div class="view-btn active">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2" rx="0.5"/><rect x="1" y="7" width="14" height="2" rx="0.5"/><rect x="1" y="12" width="14" height="2" rx="0.5"/></svg>
+        </div>
+        <div class="view-btn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="4" height="14" rx="1"/><rect x="6" y="1" width="4" height="14" rx="1"/><rect x="11" y="1" width="4" height="14" rx="1"/></svg>
+        </div>
+      </div>
+      <div class="toolbar-btn">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+      </div>
+      <div class="toolbar-btn">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="4"/><path d="M14 14l-4-4" stroke-linecap="round"/></svg>
+      </div>
+      <div class="toolbar-search">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M14 14l-3.5-3.5" stroke-linecap="round"/></svg>
+        <span>Search</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">put.io</div>
+        <div class="sidebar-item selected">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          <span class="sidebar-label">All Files</span>
+          <span class="sidebar-count">241</span>
+        </div>
+        <div class="sidebar-item">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2l2 4.5 5 .7-3.6 3.5.85 5L8 13.3 3.75 15.7l.85-5L1 7.2l5-.7L8 2z"/></svg>
+          <span class="sidebar-label">Favorites</span>
+          <span class="sidebar-count">12</span>
+        </div>
+        <div class="sidebar-item">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l3 2" stroke-linecap="round"/></svg>
+          <span class="sidebar-label">Recent</span>
+        </div>
+        <div class="sidebar-item">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h12M5 3V2a1 1 0 011-1h4a1 1 0 011 1v1M3 3v10a1 1 0 001 1h8a1 1 0 001-1V3"/></svg>
+          <span class="sidebar-label">Trash</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Folders</div>
+        <div class="sidebar-item">
+          <div class="disclosure">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><polygon points="2,1 6,4 2,7"/></svg>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--tint)"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          <span class="sidebar-label">Movies</span>
+          <span class="sidebar-count">24</span>
+        </div>
+        <div class="sidebar-item indent-1">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--tint)"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          <span class="sidebar-label">Action</span>
+          <span class="sidebar-count">8</span>
+        </div>
+        <div class="sidebar-item indent-1">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--tint)"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          <span class="sidebar-label">Sci-Fi</span>
+          <span class="sidebar-count">6</span>
+        </div>
+        <div class="sidebar-item indent-1">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--tint)"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          <span class="sidebar-label">Drama</span>
+          <span class="sidebar-count">10</span>
+        </div>
+        <div class="sidebar-item">
+          <div class="disclosure">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><polygon points="1,2 7,2 4,6"/></svg>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--tint)"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          <span class="sidebar-label">TV Shows</span>
+          <span class="sidebar-count">18</span>
+        </div>
+        <div class="sidebar-item">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--tint)"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          <span class="sidebar-label">Music</span>
+          <span class="sidebar-count">156</span>
+        </div>
+        <div class="sidebar-item">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--tint)"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          <span class="sidebar-label">Documents</span>
+          <span class="sidebar-count">43</span>
+        </div>
+        <div class="sidebar-item">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--tint)"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          <span class="sidebar-label">Photos</span>
+          <span class="sidebar-count">89</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Transfers</div>
+        <div class="sidebar-item">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M2 12h12"/></svg>
+          <span class="sidebar-label">Active</span>
+          <span class="sidebar-count" style="background:var(--tint);color:#000;border-radius:8px;padding:0 6px;font-size:10px;font-weight:600">2</span>
+        </div>
+        <div class="sidebar-item">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M6 8l2 2 3-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="sidebar-label">Completed</span>
+        </div>
+      </div>
+
+      <!-- Account at bottom -->
+      <div style="margin-top:auto;padding:12px;border-top:0.5px solid var(--separator)">
+        <div class="sidebar-item">
+          <div class="sidebar-avatar">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="#000"><rect x="2" y="1" width="2" height="2"/><rect x="12" y="1" width="2" height="2"/><rect x="4" y="3" width="2" height="2"/><rect x="10" y="3" width="2" height="2"/><rect x="2" y="5" width="12" height="2"/><rect x="1" y="7" width="3" height="2"/><rect x="6" y="7" width="4" height="2"/><rect x="12" y="7" width="3" height="2"/><rect x="2" y="9" width="12" height="2"/><rect x="2" y="11" width="2" height="2"/><rect x="12" y="11" width="2" height="2"/></svg>
+          </div>
+          <span class="sidebar-label" style="font-size:12px">glitch</span>
+          <span class="sidebar-count">Pro</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content-area">
+      <!-- Path bar -->
+      <div class="path-bar">
+        <div class="path-segment">
+          <svg width="10" height="10" viewBox="0 0 16 16" fill="var(--tint)"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          put.io
+        </div>
+        <span class="path-separator">
+          <svg width="6" height="10" viewBox="0 0 6 10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><polyline points="1,1 5,5 1,9"/></svg>
+        </span>
+        <div class="path-segment current">Movies</div>
+      </div>
+
+      <!-- Table header -->
+      <div class="table-header">
+        <span class="th th-name">Name</span>
+        <span class="th th-date">Date Modified</span>
+        <span class="th th-size">Size</span>
+        <span class="th th-kind">Kind</span>
+      </div>
+
+      <!-- File list -->
+      <div class="file-list">
+        <!-- Folders -->
+        <div class="table-row">
+          <div class="td-icon icon-folder">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          </div>
+          <span class="td-name">Action</span>
+          <span class="td td-date">Today, 2:34 PM</span>
+          <span class="td td-size">--</span>
+          <span class="td td-kind">Folder</span>
+        </div>
+        <div class="table-row">
+          <div class="td-icon icon-folder">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          </div>
+          <span class="td-name">Sci-Fi</span>
+          <span class="td td-date">Yesterday, 8:12 AM</span>
+          <span class="td td-size">--</span>
+          <span class="td td-kind">Folder</span>
+        </div>
+        <div class="table-row">
+          <div class="td-icon icon-folder">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          </div>
+          <span class="td-name">Drama</span>
+          <span class="td td-date">Mar 15, 2026</span>
+          <span class="td td-size">--</span>
+          <span class="td td-kind">Folder</span>
+        </div>
+
+        <!-- Selected row -->
+        <div class="table-row selected">
+          <div class="td-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="12" rx="2"/><polygon points="6.5,5 11,8 6.5,11" fill="#000" opacity="0.3"/></svg>
+          </div>
+          <span class="td-name">Dune Part Two (2024).mkv</span>
+          <span class="td-secondary td-date">Yesterday</span>
+          <span class="td-secondary td-size">4.2 GB</span>
+          <span class="td-secondary td-kind">MKV Video</span>
+        </div>
+
+        <div class="table-row">
+          <div class="td-icon icon-video">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="12" rx="2"/><polygon points="6.5,5 11,8 6.5,11" fill="#1E1E1E" opacity="0.4"/></svg>
+          </div>
+          <span class="td-name">Oppenheimer (2023).mkv</span>
+          <span class="td td-date">Mar 15, 2026</span>
+          <span class="td td-size">5.8 GB</span>
+          <span class="td td-kind">MKV Video</span>
+        </div>
+        <div class="table-row">
+          <div class="td-icon icon-video">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="12" rx="2"/><polygon points="6.5,5 11,8 6.5,11" fill="#1E1E1E" opacity="0.4"/></svg>
+          </div>
+          <span class="td-name">The Matrix (1999).mkv</span>
+          <span class="td td-date">Mar 12, 2026</span>
+          <span class="td td-size">2.1 GB</span>
+          <span class="td td-kind">MKV Video</span>
+        </div>
+        <div class="table-row">
+          <div class="td-icon icon-video">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="12" rx="2"/><polygon points="6.5,5 11,8 6.5,11" fill="#1E1E1E" opacity="0.4"/></svg>
+          </div>
+          <span class="td-name">Blade Runner 2049 (2017).mkv</span>
+          <span class="td td-date">Mar 10, 2026</span>
+          <span class="td td-size">4.5 GB</span>
+          <span class="td td-kind">MKV Video</span>
+        </div>
+        <div class="table-row">
+          <div class="td-icon icon-video">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="12" rx="2"/><polygon points="6.5,5 11,8 6.5,11" fill="#1E1E1E" opacity="0.4"/></svg>
+          </div>
+          <span class="td-name">Interstellar (2014).mkv</span>
+          <span class="td td-date">Mar 8, 2026</span>
+          <span class="td td-size">3.9 GB</span>
+          <span class="td td-kind">MKV Video</span>
+        </div>
+        <div class="table-row">
+          <div class="td-icon icon-video">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="12" rx="2"/><polygon points="6.5,5 11,8 6.5,11" fill="#1E1E1E" opacity="0.4"/></svg>
+          </div>
+          <span class="td-name">Mad Max Fury Road (2015).mkv</span>
+          <span class="td td-date">Mar 5, 2026</span>
+          <span class="td td-size">3.2 GB</span>
+          <span class="td td-kind">MKV Video</span>
+        </div>
+        <div class="table-row">
+          <div class="td-icon icon-video">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="12" rx="2"/><polygon points="6.5,5 11,8 6.5,11" fill="#1E1E1E" opacity="0.4"/></svg>
+          </div>
+          <span class="td-name">Everything Everywhere All at Once (2022).mkv</span>
+          <span class="td td-date">Mar 3, 2026</span>
+          <span class="td td-size">2.8 GB</span>
+          <span class="td td-kind">MKV Video</span>
+        </div>
+        <div class="table-row">
+          <div class="td-icon icon-video">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="12" rx="2"/><polygon points="6.5,5 11,8 6.5,11" fill="#1E1E1E" opacity="0.4"/></svg>
+          </div>
+          <span class="td-name">Parasite (2019).mkv</span>
+          <span class="td td-date">Feb 28, 2026</span>
+          <span class="td td-size">2.4 GB</span>
+          <span class="td td-kind">MKV Video</span>
+        </div>
+        <div class="table-row">
+          <div class="td-icon icon-video">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="12" rx="2"/><polygon points="6.5,5 11,8 6.5,11" fill="#1E1E1E" opacity="0.4"/></svg>
+          </div>
+          <span class="td-name">The Dark Knight (2008).mkv</span>
+          <span class="td td-date">Feb 25, 2026</span>
+          <span class="td td-size">3.1 GB</span>
+          <span class="td td-kind">MKV Video</span>
+        </div>
+        <div class="table-row">
+          <div class="td-icon icon-video">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="12" rx="2"/><polygon points="6.5,5 11,8 6.5,11" fill="#1E1E1E" opacity="0.4"/></svg>
+          </div>
+          <span class="td-name">Arrival (2016).mkv</span>
+          <span class="td td-date">Feb 22, 2026</span>
+          <span class="td td-size">1.9 GB</span>
+          <span class="td td-kind">MKV Video</span>
+        </div>
+        <div class="table-row">
+          <div class="td-icon icon-video">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="12" rx="2"/><polygon points="6.5,5 11,8 6.5,11" fill="#1E1E1E" opacity="0.4"/></svg>
+          </div>
+          <span class="td-name">No Country for Old Men (2007).mkv</span>
+          <span class="td td-date">Feb 20, 2026</span>
+          <span class="td td-size">2.2 GB</span>
+          <span class="td td-kind">MKV Video</span>
+        </div>
+        <div class="table-row">
+          <div class="td-icon icon-video">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="12" rx="2"/><polygon points="6.5,5 11,8 6.5,11" fill="#1E1E1E" opacity="0.4"/></svg>
+          </div>
+          <span class="td-name">Whiplash (2014).mkv</span>
+          <span class="td td-date">Feb 18, 2026</span>
+          <span class="td td-size">1.6 GB</span>
+          <span class="td td-kind">MKV Video</span>
+        </div>
+        <div class="table-row">
+          <div class="td-icon icon-video">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="12" rx="2"/><polygon points="6.5,5 11,8 6.5,11" fill="#1E1E1E" opacity="0.4"/></svg>
+          </div>
+          <span class="td-name">Spirited Away (2001).mkv</span>
+          <span class="td td-date">Feb 15, 2026</span>
+          <span class="td td-size">1.8 GB</span>
+          <span class="td td-kind">MKV Video</span>
+        </div>
+        <div class="table-row">
+          <div class="td-icon icon-video">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="12" rx="2"/><polygon points="6.5,5 11,8 6.5,11" fill="#1E1E1E" opacity="0.4"/></svg>
+          </div>
+          <span class="td-name">The Grand Budapest Hotel (2014).mkv</span>
+          <span class="td td-date">Feb 12, 2026</span>
+          <span class="td td-size">2.0 GB</span>
+          <span class="td td-kind">MKV Video</span>
+        </div>
+        <div class="table-row">
+          <div class="td-icon icon-video">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="12" rx="2"/><polygon points="6.5,5 11,8 6.5,11" fill="#1E1E1E" opacity="0.4"/></svg>
+          </div>
+          <span class="td-name">Drive (2011).mkv</span>
+          <span class="td td-date">Feb 10, 2026</span>
+          <span class="td td-size">1.5 GB</span>
+          <span class="td td-kind">MKV Video</span>
+        </div>
+        <div class="table-row">
+          <div class="td-icon icon-video">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="12" rx="2"/><polygon points="6.5,5 11,8 6.5,11" fill="#1E1E1E" opacity="0.4"/></svg>
+          </div>
+          <span class="td-name">Her (2013).mkv</span>
+          <span class="td td-date">Feb 8, 2026</span>
+          <span class="td td-size">1.7 GB</span>
+          <span class="td td-kind">MKV Video</span>
+        </div>
+        <div class="table-row">
+          <div class="td-icon icon-video">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="12" rx="2"/><polygon points="6.5,5 11,8 6.5,11" fill="#1E1E1E" opacity="0.4"/></svg>
+          </div>
+          <span class="td-name">Sicario (2015).mkv</span>
+          <span class="td td-date">Feb 5, 2026</span>
+          <span class="td td-size">2.3 GB</span>
+          <span class="td td-kind">MKV Video</span>
+        </div>
+      </div>
+
+      <!-- Status bar -->
+      <div class="status-bar-bottom">
+        <span class="status-text">24 items, 3 selected</span>
+        <div class="storage-mini">
+          <div class="storage-mini-bar">
+            <div class="storage-mini-fill" style="width:62%"></div>
+          </div>
+          255.5 GB of 1 TB
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

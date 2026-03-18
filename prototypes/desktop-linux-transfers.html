@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>put.io -- GNOME Transfers</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113;
+    --text: #EEEEF0;
+    --yellow: #FDCE45;
+    --green: #30A46C;
+    --red: #E5484D;
+    --headerbar: #1E1E21;
+    --headerbar-border: #2A2A2E;
+    --sidebar: #161618;
+    --sidebar-border: #2A2A2D;
+    --view: #111113;
+    --card: #1C1C1F;
+    --card-hover: #232326;
+    --border: #333338;
+    --text-secondary: #9999A1;
+    --text-dim: #6C6C75;
+    --selected-bg: rgba(253, 206, 69, 0.15);
+    --selected-border: rgba(253, 206, 69, 0.3);
+    --hover-bg: rgba(255, 255, 255, 0.06);
+    --adw-radius: 12px;
+    --adw-radius-sm: 8px;
+    --adw-radius-xs: 6px;
+    --font: 'Inter', 'Cantarell', system-ui, sans-serif;
+  }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    width: 1280px;
+    height: 800px;
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* GNOME Headerbar */
+  .headerbar {
+    height: 46px;
+    background: var(--headerbar);
+    border-bottom: 1px solid var(--headerbar-border);
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    user-select: none;
+  }
+  .headerbar-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 220px;
+    padding-left: 2px;
+  }
+  .window-btn-group {
+    display: flex;
+    gap: 6px;
+    margin-right: 8px;
+  }
+  .window-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+    transition: background 0.15s;
+  }
+  .window-btn:hover { background: rgba(255, 255, 255, 0.14); }
+  .window-btn.close:hover { background: var(--red); color: white; }
+  .window-btn svg { width: 10px; height: 10px; }
+
+  .headerbar-center {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .headerbar-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .headerbar-subtitle {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  .headerbar-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 220px;
+    justify-content: flex-end;
+    padding-right: 2px;
+  }
+  .headerbar-btn {
+    height: 32px;
+    border-radius: var(--adw-radius-xs);
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 10px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .headerbar-btn:hover { background: rgba(255, 255, 255, 0.08); color: var(--text); }
+  .headerbar-btn.suggested {
+    background: var(--yellow);
+    color: #111113;
+    border-radius: var(--adw-radius-sm);
+    padding: 0 14px;
+  }
+  .headerbar-btn.suggested:hover { background: #ffe06a; }
+  .headerbar-btn svg { width: 16px; height: 16px; }
+  .headerbar-icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--adw-radius-xs);
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .headerbar-icon-btn:hover { background: rgba(255, 255, 255, 0.08); color: var(--text); }
+  .headerbar-icon-btn svg { width: 16px; height: 16px; }
+
+  /* Main Layout */
+  .main {
+    display: flex;
+    height: calc(800px - 46px);
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    background: var(--sidebar);
+    border-right: 1px solid var(--sidebar-border);
+    padding: 8px;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  .sidebar-section { margin-bottom: 4px; }
+  .sidebar-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 8px 10px 6px;
+  }
+  .sidebar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--adw-radius-sm);
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+    margin: 1px 0;
+  }
+  .sidebar-row:hover { background: var(--hover-bg); color: var(--text); }
+  .sidebar-row.active {
+    background: var(--selected-bg);
+    color: var(--yellow);
+  }
+  .sidebar-row svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .sidebar-row.active svg { color: var(--yellow); }
+  .sidebar-row .badge {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(253, 206, 69, 0.2);
+    color: var(--yellow);
+    padding: 1px 7px;
+    border-radius: 10px;
+  }
+  .sidebar-separator {
+    height: 1px;
+    background: var(--sidebar-border);
+    margin: 6px 10px;
+  }
+  .sidebar-storage {
+    margin: 8px 2px;
+    padding: 10px;
+    background: var(--card);
+    border-radius: var(--adw-radius-sm);
+    border: 1px solid var(--border);
+  }
+  .sidebar-storage-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .sidebar-storage-bar {
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+  .sidebar-storage-fill {
+    height: 100%;
+    width: 62%;
+    background: var(--yellow);
+    border-radius: 3px;
+  }
+  .sidebar-storage-text {
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  /* Content */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--view);
+    min-width: 0;
+  }
+
+  /* Summary Bar */
+  .summary-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--view);
+  }
+  .summary-stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .summary-stat svg { width: 14px; height: 14px; }
+  .summary-stat.down svg { color: var(--green); }
+  .summary-stat.up svg { color: var(--yellow); }
+  .summary-stat-value {
+    font-weight: 600;
+    color: var(--text);
+  }
+  .summary-divider {
+    width: 1px;
+    height: 16px;
+    background: var(--border);
+  }
+  .summary-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .summary-pill.active { background: rgba(48, 164, 108, 0.12); color: var(--green); }
+  .summary-pill.completed { background: rgba(253, 206, 69, 0.12); color: var(--yellow); }
+  .summary-pill.total { background: rgba(255, 255, 255, 0.06); color: var(--text-secondary); }
+
+  /* Transfer List */
+  .transfer-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 12px;
+  }
+
+  /* AdwActionRow style transfer item */
+  .adw-list-group {
+    margin-bottom: 12px;
+  }
+  .adw-list-group-header {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 8px 12px 6px;
+  }
+  .adw-list-box {
+    background: var(--card);
+    border-radius: var(--adw-radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .adw-action-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.1s;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .adw-action-row:last-child { border-bottom: none; }
+  .adw-action-row:hover { background: rgba(255, 255, 255, 0.03); }
+
+  .adw-row-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--adw-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: 14px;
+  }
+  .adw-row-icon svg { width: 20px; height: 20px; }
+  .adw-row-icon.green { background: rgba(48, 164, 108, 0.15); color: var(--green); }
+  .adw-row-icon.yellow { background: rgba(253, 206, 69, 0.15); color: var(--yellow); }
+  .adw-row-icon.gray { background: rgba(108, 108, 117, 0.15); color: var(--text-dim); }
+  .adw-row-icon.red { background: rgba(229, 72, 77, 0.15); color: var(--red); }
+  .adw-row-icon.blue { background: rgba(78, 159, 229, 0.15); color: #4E9FE5; }
+
+  .adw-row-content {
+    flex: 1;
+    min-width: 0;
+  }
+  .adw-row-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .adw-row-subtitle {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .adw-row-progress {
+    margin-top: 8px;
+  }
+  .adw-progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .adw-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+  .adw-progress-fill.green { background: var(--green); }
+  .adw-progress-fill.yellow { background: var(--yellow); }
+  .adw-progress-fill.gray { background: var(--text-dim); }
+  .adw-progress-fill.red { background: var(--red); }
+
+  .adw-row-details {
+    margin-top: 6px;
+    display: flex;
+    gap: 16px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .adw-detail {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .adw-detail svg { width: 10px; height: 10px; }
+  .adw-detail.down svg { color: var(--green); }
+  .adw-detail.up svg { color: var(--yellow); }
+
+  .adw-row-suffix {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 12px;
+    flex-shrink: 0;
+  }
+  .adw-row-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 14px;
+    white-space: nowrap;
+  }
+  .adw-row-status.downloading { background: rgba(48, 164, 108, 0.12); color: var(--green); }
+  .adw-row-status.seeding { background: rgba(253, 206, 69, 0.12); color: var(--yellow); }
+  .adw-row-status.completed { background: rgba(48, 164, 108, 0.1); color: var(--green); }
+  .adw-row-status.paused { background: rgba(108, 108, 117, 0.12); color: var(--text-secondary); }
+  .adw-row-status.error { background: rgba(229, 72, 77, 0.12); color: var(--red); }
+
+  .adw-row-percent {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    min-width: 40px;
+    text-align: right;
+  }
+
+  .adw-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--adw-radius-xs);
+    border: none;
+    background: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .adw-action-btn:hover { background: rgba(255, 255, 255, 0.08); color: var(--text-secondary); }
+  .adw-action-btn svg { width: 16px; height: 16px; }
+
+  /* Expanded row */
+  .adw-row-expanded {
+    padding: 0 16px 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .adw-expanded-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 24px;
+    font-size: 12px;
+    padding: 8px 0 4px 54px;
+  }
+  .adw-expanded-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+  }
+  .adw-expanded-label { color: var(--text-dim); }
+  .adw-expanded-value { color: var(--text-secondary); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- GNOME Headerbar -->
+<div class="headerbar">
+  <div class="headerbar-left">
+    <div class="window-btn-group">
+      <button class="window-btn close">
+        <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg>
+      </button>
+      <button class="window-btn minimize">
+        <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4"><line x1="2" y1="5" x2="8" y2="5"/></svg>
+      </button>
+      <button class="window-btn maximize">
+        <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="2" width="6" height="6" rx="0.5"/></svg>
+      </button>
+    </div>
+    <button class="headerbar-btn">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7.5 2L3.5 6l4 4"/></svg>
+    </button>
+  </div>
+
+  <div class="headerbar-center">
+    <div>
+      <div class="headerbar-title">Transfers</div>
+    </div>
+  </div>
+
+  <div class="headerbar-right">
+    <button class="headerbar-btn suggested">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10M3 8h10"/></svg>
+      Add
+    </button>
+    <button class="headerbar-icon-btn">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="2" width="10" height="12" rx="1.5"/><path d="M5.5 5.5h5M5.5 8h5M5.5 10.5h3"/></svg>
+    </button>
+    <button class="headerbar-icon-btn">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="3" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="8" cy="13" r="1.5"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="main">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Places</div>
+      <div class="sidebar-row">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M9.5 2H3.5A1.5 1.5 0 002 3.5v9A1.5 1.5 0 003.5 14h9a1.5 1.5 0 001.5-1.5V7"/><path d="M14 2L8 8"/><path d="M10 2h4v4"/></svg>
+        Recent
+      </div>
+      <div class="sidebar-row">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3.5L13 6l-2.5 2.5L11 12l-3-2-3 2 .5-3.5L3 6l3.5-.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        Starred
+      </div>
+    </div>
+    <div class="sidebar-separator"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">put.io</div>
+      <div class="sidebar-row">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 12.5a3 3 0 01-.5-5.96 4.5 4.5 0 018.94-.58A3 3 0 0113 12.5H4z"/></svg>
+        Your Files
+      </div>
+      <div class="sidebar-row active">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M8 3v10M3 8l5 5 5-5"/></svg>
+        Transfers
+        <span class="badge">3</span>
+      </div>
+      <div class="sidebar-row">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 4h10M5 4V3h6v1M4 4v9a1 1 0 001 1h6a1 1 0 001-1V4"/><path d="M6.5 7v4M9.5 7v4"/></svg>
+        Trash
+      </div>
+    </div>
+    <div class="sidebar-separator"></div>
+    <div class="sidebar-storage">
+      <div class="sidebar-storage-label">Storage</div>
+      <div class="sidebar-storage-bar"><div class="sidebar-storage-fill"></div></div>
+      <div class="sidebar-storage-text">618 GB of 1 TB used</div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <!-- Summary Bar -->
+    <div class="summary-bar">
+      <div class="summary-stat down">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2v10M3 8l4 4 4-4"/></svg>
+        <span class="summary-stat-value">24.5 MB/s</span>
+      </div>
+      <div class="summary-stat up">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 12V2M3 6l4-4 4 4"/></svg>
+        <span class="summary-stat-value">8.2 MB/s</span>
+      </div>
+      <div class="summary-divider"></div>
+      <div class="summary-pill active">3 Active</div>
+      <div class="summary-pill completed">1 Seeding</div>
+      <div class="summary-pill total">8 Total</div>
+      <div style="flex:1"></div>
+      <button class="headerbar-btn" style="font-size:12px;">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3.5" y="3" width="3" height="8" rx="0.5"/><rect x="7.5" y="3" width="3" height="8" rx="0.5"/></svg>
+        Pause All
+      </button>
+      <button class="headerbar-btn" style="font-size:12px;">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 4h10M4 4V3h6v1M3 4v8a1 1 0 001 1h6a1 1 0 001-1V4"/></svg>
+        Clear Done
+      </button>
+    </div>
+
+    <!-- Transfer List -->
+    <div class="transfer-list">
+      <!-- Active Downloads -->
+      <div class="adw-list-group">
+        <div class="adw-list-group-header">Active</div>
+        <div class="adw-list-box">
+          <!-- Transfer 1 - Downloading, expanded -->
+          <div class="adw-action-row">
+            <div class="adw-row-icon green">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3v14M5 12l5 5 5-5"/></svg>
+            </div>
+            <div class="adw-row-content">
+              <div class="adw-row-title">Oppenheimer.2023.2160p.UHD.BluRay.REMUX.mkv</div>
+              <div class="adw-row-subtitle">
+                <span>18.4 GB of 24.7 GB</span>
+                <span>ETA: 4m 12s</span>
+              </div>
+              <div class="adw-row-progress">
+                <div class="adw-progress-bar"><div class="adw-progress-fill green" style="width:74.5%"></div></div>
+              </div>
+              <div class="adw-row-details">
+                <div class="adw-detail down">
+                  <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 1v8M2 6l3 3 3-3"/></svg>
+                  18.2 MB/s
+                </div>
+                <div class="adw-detail up">
+                  <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 9V1M2 4l3-3 3 3"/></svg>
+                  4.1 MB/s
+                </div>
+                <span>Seeds: 142</span>
+                <span>Peers: 38</span>
+              </div>
+            </div>
+            <div class="adw-row-suffix">
+              <div class="adw-row-percent">74.5%</div>
+              <button class="adw-action-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="3.5" height="10" rx="0.5"/><rect x="8.5" y="3" width="3.5" height="10" rx="0.5"/></svg></button>
+              <button class="adw-action-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5l4 3-4 3z"/><line x1="12" y1="5" x2="12" y2="11"/></svg></button>
+            </div>
+          </div>
+          <!-- Expanded detail -->
+          <div class="adw-row-expanded">
+            <div class="adw-expanded-grid">
+              <div class="adw-expanded-item">
+                <span class="adw-expanded-label">Added</span>
+                <span class="adw-expanded-value">Mar 18, 10:02 AM</span>
+              </div>
+              <div class="adw-expanded-item">
+                <span class="adw-expanded-label">Ratio</span>
+                <span class="adw-expanded-value">0.31</span>
+              </div>
+              <div class="adw-expanded-item">
+                <span class="adw-expanded-label">Tracker</span>
+                <span class="adw-expanded-value">udp://tracker.example.com</span>
+              </div>
+              <div class="adw-expanded-item">
+                <span class="adw-expanded-label">Pieces</span>
+                <span class="adw-expanded-value">2,418 / 3,245</span>
+              </div>
+              <div class="adw-expanded-item">
+                <span class="adw-expanded-label">Save to</span>
+                <span class="adw-expanded-value">Movies/</span>
+              </div>
+              <div class="adw-expanded-item">
+                <span class="adw-expanded-label">Hash</span>
+                <span class="adw-expanded-value">a3f7...9d2c</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transfer 2 -->
+          <div class="adw-action-row">
+            <div class="adw-row-icon green">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3v14M5 12l5 5 5-5"/></svg>
+            </div>
+            <div class="adw-row-content">
+              <div class="adw-row-title">The.Last.of.Us.S02E01.1080p.WEB-DL.mkv</div>
+              <div class="adw-row-subtitle">
+                <span>1.8 GB of 3.2 GB</span>
+                <span>ETA: 2m 45s</span>
+              </div>
+              <div class="adw-row-progress">
+                <div class="adw-progress-bar"><div class="adw-progress-fill green" style="width:56.3%"></div></div>
+              </div>
+              <div class="adw-row-details">
+                <div class="adw-detail down">
+                  <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 1v8M2 6l3 3 3-3"/></svg>
+                  5.8 MB/s
+                </div>
+                <div class="adw-detail up">
+                  <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 9V1M2 4l3-3 3 3"/></svg>
+                  2.4 MB/s
+                </div>
+                <span>Seeds: 89</span>
+                <span>Peers: 24</span>
+              </div>
+            </div>
+            <div class="adw-row-suffix">
+              <div class="adw-row-percent">56.3%</div>
+              <button class="adw-action-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="3.5" height="10" rx="0.5"/><rect x="8.5" y="3" width="3.5" height="10" rx="0.5"/></svg></button>
+              <button class="adw-action-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5l4 3-4 3z"/><line x1="12" y1="5" x2="12" y2="11"/></svg></button>
+            </div>
+          </div>
+
+          <!-- Transfer 3 - just started -->
+          <div class="adw-action-row">
+            <div class="adw-row-icon blue">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3v14M5 12l5 5 5-5"/></svg>
+            </div>
+            <div class="adw-row-content">
+              <div class="adw-row-title">fedora-41-workstation.iso</div>
+              <div class="adw-row-subtitle">
+                <span>210 MB of 2.1 GB</span>
+                <span>ETA: 6m 30s</span>
+              </div>
+              <div class="adw-row-progress">
+                <div class="adw-progress-bar"><div class="adw-progress-fill green" style="width:10%"></div></div>
+              </div>
+              <div class="adw-row-details">
+                <div class="adw-detail down">
+                  <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 1v8M2 6l3 3 3-3"/></svg>
+                  0.5 MB/s
+                </div>
+                <span>Seeds: 256</span>
+                <span>Peers: 12</span>
+              </div>
+            </div>
+            <div class="adw-row-suffix">
+              <div class="adw-row-percent">10.0%</div>
+              <button class="adw-action-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="3.5" height="10" rx="0.5"/><rect x="8.5" y="3" width="3.5" height="10" rx="0.5"/></svg></button>
+              <button class="adw-action-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5l4 3-4 3z"/><line x1="12" y1="5" x2="12" y2="11"/></svg></button>
+            </div>
+          </div>
+
+          <!-- Seeding -->
+          <div class="adw-action-row">
+            <div class="adw-row-icon yellow">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 17V3M5 8l5-5 5 5"/></svg>
+            </div>
+            <div class="adw-row-content">
+              <div class="adw-row-title">Blade.Runner.2049.4K.HDR.mkv</div>
+              <div class="adw-row-subtitle">
+                <span>32.1 GB</span>
+                <span>Ratio: 2.4</span>
+              </div>
+              <div class="adw-row-progress">
+                <div class="adw-progress-bar"><div class="adw-progress-fill yellow" style="width:100%"></div></div>
+              </div>
+              <div class="adw-row-details">
+                <div class="adw-detail up">
+                  <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 9V1M2 4l3-3 3 3"/></svg>
+                  1.8 MB/s
+                </div>
+                <span>Peers: 8</span>
+              </div>
+            </div>
+            <div class="adw-row-suffix">
+              <div class="adw-row-status seeding">Seeding</div>
+              <button class="adw-action-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="3.5" height="10" rx="0.5"/><rect x="8.5" y="3" width="3.5" height="10" rx="0.5"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paused / Error -->
+      <div class="adw-list-group">
+        <div class="adw-list-group-header">Paused</div>
+        <div class="adw-list-box">
+          <div class="adw-action-row">
+            <div class="adw-row-icon gray">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="4" width="4" height="12" rx="1"/><rect x="11" y="4" width="4" height="12" rx="1"/></svg>
+            </div>
+            <div class="adw-row-content">
+              <div class="adw-row-title">archlinux-2026.03-x86_64.iso</div>
+              <div class="adw-row-subtitle">
+                <span>412 MB of 820 MB</span>
+                <span>Paused by user</span>
+              </div>
+              <div class="adw-row-progress">
+                <div class="adw-progress-bar"><div class="adw-progress-fill gray" style="width:50.2%"></div></div>
+              </div>
+            </div>
+            <div class="adw-row-suffix">
+              <div class="adw-row-percent" style="color: var(--text-dim);">50.2%</div>
+              <button class="adw-action-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 4v8l7-4z"/></svg></button>
+              <button class="adw-action-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5h10M5 5V4h6v1M4 5v8a1 1 0 001 1h6a1 1 0 001-1V5"/></svg></button>
+            </div>
+          </div>
+
+          <div class="adw-action-row">
+            <div class="adw-row-icon red">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4M10 13v.5"/></svg>
+            </div>
+            <div class="adw-row-content">
+              <div class="adw-row-title">corrupted-torrent-file.mkv</div>
+              <div class="adw-row-subtitle" style="color: var(--red);">
+                <span>Error: Tracker not responding</span>
+              </div>
+              <div class="adw-row-progress">
+                <div class="adw-progress-bar"><div class="adw-progress-fill red" style="width:12%"></div></div>
+              </div>
+            </div>
+            <div class="adw-row-suffix">
+              <div class="adw-row-status error">Error</div>
+              <button class="adw-action-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8a5 5 0 019-2M13 8a5 5 0 01-9 2"/><path d="M12 3v3h-3M4 13v-3h3"/></svg></button>
+              <button class="adw-action-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5h10M5 5V4h6v1M4 5v8a1 1 0 001 1h6a1 1 0 001-1V5"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Completed -->
+      <div class="adw-list-group">
+        <div class="adw-list-group-header">Completed</div>
+        <div class="adw-list-box">
+          <div class="adw-action-row">
+            <div class="adw-row-icon green">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M7 10l2 2 4-4"/></svg>
+            </div>
+            <div class="adw-row-content">
+              <div class="adw-row-title">Everything.Everywhere.All.At.Once.2022.mkv</div>
+              <div class="adw-row-subtitle">
+                <span>9.8 GB</span>
+                <span>Completed 2h ago</span>
+              </div>
+              <div class="adw-row-progress">
+                <div class="adw-progress-bar"><div class="adw-progress-fill green" style="width:100%"></div></div>
+              </div>
+            </div>
+            <div class="adw-row-suffix">
+              <div class="adw-row-status completed">Done</div>
+              <button class="adw-action-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h4l2 2h4v7H3z"/></svg></button>
+              <button class="adw-action-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5h10M5 5V4h6v1M4 5v8a1 1 0 001 1h6a1 1 0 001-1V5"/></svg></button>
+            </div>
+          </div>
+
+          <div class="adw-action-row">
+            <div class="adw-row-icon green">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M7 10l2 2 4-4"/></svg>
+            </div>
+            <div class="adw-row-content">
+              <div class="adw-row-title">podcast-backlog-episodes.zip</div>
+              <div class="adw-row-subtitle">
+                <span>1.4 GB</span>
+                <span>Completed 5h ago</span>
+              </div>
+              <div class="adw-row-progress">
+                <div class="adw-progress-bar"><div class="adw-progress-fill green" style="width:100%"></div></div>
+              </div>
+            </div>
+            <div class="adw-row-suffix">
+              <div class="adw-row-status completed">Done</div>
+              <button class="adw-action-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h4l2 2h4v7H3z"/></svg></button>
+              <button class="adw-action-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5h10M5 5V4h6v1M4 5v8a1 1 0 001 1h6a1 1 0 001-1V5"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>put.io — Windows Desktop (Telegram-Native)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    /* WinUI 3 dark theme with yellow accent */
+    --bg-mica: #202020;
+    --bg-layer: #2B2B2B;
+    --bg-card: #323232;
+    --bg-card-hover: #383838;
+    --bg-subtle: rgba(255,255,255,0.05);
+    --bg-acrylic: rgba(44,44,44,0.80);
+    --text-primary: #FFFFFF;
+    --text-secondary: #C5C5C5;
+    --text-tertiary: #9A9A9A;
+    --text-disabled: #5C5C5C;
+    --stroke: rgba(255,255,255,0.08);
+    --stroke-card: rgba(255,255,255,0.06);
+    --divider: rgba(255,255,255,0.08);
+    --accent: #FDCE45;
+    --accent-dim: rgba(253,206,69,0.15);
+    --accent-hover: rgba(253,206,69,0.25);
+    --accent-on: #000000;
+    --green: #30A46C;
+    --red: #E5484D;
+    --nav-width: 280px;
+    --titlebar-height: 32px;
+  }
+
+  body {
+    font-family: 'Inter', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+    background: #111111;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .window {
+    width: 1280px;
+    height: 800px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-mica);
+    position: relative;
+    border-radius: 8px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+  }
+
+  /* Windows 11 Title Bar */
+  .titlebar {
+    height: var(--titlebar-height);
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    background: transparent;
+    -webkit-app-region: drag;
+  }
+  .titlebar-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 12px;
+  }
+  .titlebar-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-left: 8px;
+    flex: 1;
+  }
+  .window-controls {
+    display: flex;
+    height: 100%;
+  }
+  .window-btn {
+    width: 46px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+  }
+  .window-btn:hover {
+    background: rgba(255,255,255,0.06);
+  }
+  .window-btn.close:hover {
+    background: #C42B1C;
+    color: #fff;
+  }
+
+  /* Main layout */
+  .main {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* WinUI NavigationView */
+  .nav-view {
+    width: var(--nav-width);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-layer);
+    border-right: 1px solid var(--stroke);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  /* Hamburger / nav header */
+  .nav-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+  .hamburger-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+  }
+
+  /* AutoSuggestBox */
+  .nav-search {
+    margin: 4px 12px 8px;
+    height: 32px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--stroke);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .nav-search svg { color: var(--text-tertiary); }
+  .nav-search span {
+    font-size: 14px;
+    color: var(--text-tertiary);
+  }
+
+  /* Nav items */
+  .nav-items {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 4px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 4px;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--text-primary);
+    cursor: default;
+    margin: 1px 0;
+    position: relative;
+  }
+  .nav-item:hover {
+    background: var(--bg-subtle);
+  }
+  .nav-item.active {
+    background: var(--accent-dim);
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 16px;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+  .nav-item.active svg { color: var(--accent); }
+  .nav-item:not(.active) svg { color: var(--text-secondary); }
+  .nav-item .nav-text { flex: 1; }
+  .nav-item .nav-badge {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  /* TreeView items */
+  .nav-divider {
+    height: 1px;
+    background: var(--divider);
+    margin: 4px 16px;
+  }
+  .nav-section-header {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    padding: 12px 16px 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .nav-item.indent-1 { padding-left: 36px; }
+  .nav-item.indent-2 { padding-left: 56px; }
+  .tree-expander {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+  }
+
+  /* Nav footer (settings) */
+  .nav-footer {
+    border-top: 1px solid var(--stroke);
+    padding: 4px;
+    flex-shrink: 0;
+  }
+
+  /* Content Area */
+  .content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-mica);
+    overflow: hidden;
+  }
+
+  /* Command bar */
+  .command-bar {
+    display: flex;
+    align-items: center;
+    padding: 8px 24px;
+    gap: 4px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--stroke);
+  }
+  .command-btn {
+    height: 30px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    font-size: 13px;
+    color: var(--text-primary);
+    background: transparent;
+  }
+  .command-btn:hover {
+    background: var(--bg-subtle);
+  }
+  .command-btn svg { color: var(--text-secondary); }
+  .command-btn.primary {
+    background: var(--accent);
+    color: var(--accent-on);
+  }
+  .command-btn.primary svg { color: var(--accent-on); }
+  .command-separator {
+    width: 1px;
+    height: 20px;
+    background: var(--divider);
+    margin: 0 4px;
+  }
+  .command-spacer { flex: 1; }
+
+  /* Breadcrumb bar */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    padding: 8px 24px;
+    gap: 4px;
+    flex-shrink: 0;
+    height: 40px;
+    background: var(--bg-subtle);
+    border-bottom: 1px solid var(--stroke);
+  }
+  .breadcrumb-item {
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .breadcrumb-item:hover {
+    background: rgba(255,255,255,0.06);
+  }
+  .breadcrumb-item.current {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .breadcrumb-sep {
+    color: var(--text-disabled);
+    font-size: 12px;
+  }
+
+  /* Table / DetailsList */
+  .details-header {
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    height: 32px;
+    border-bottom: 1px solid var(--stroke);
+    flex-shrink: 0;
+  }
+  .dh { font-size: 12px; font-weight: 500; color: var(--text-tertiary); }
+  .dh-name { flex: 1; padding-left: 36px; }
+  .dh-date { width: 160px; }
+  .dh-type { width: 120px; }
+  .dh-size { width: 100px; text-align: right; }
+
+  .details-list {
+    flex: 1;
+    overflow-y: auto;
+  }
+  .details-row {
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    height: 36px;
+    cursor: default;
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+  }
+  .details-row:hover {
+    background: var(--bg-subtle);
+  }
+  .details-row.selected {
+    background: var(--accent-dim);
+  }
+  .details-row.selected::after {
+    content: '';
+    position: absolute;
+  }
+  .dr-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+  .dr-name {
+    flex: 1;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dr-cell {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .dr-date { width: 160px; }
+  .dr-type { width: 120px; }
+  .dr-size { width: 100px; text-align: right; }
+
+  /* Icon colors */
+  .ic-folder { color: var(--accent); }
+  .ic-video { color: #B388FF; }
+  .ic-music { color: #FF80AB; }
+  .ic-image { color: #69F0AE; }
+  .ic-doc { color: #82B1FF; }
+
+  /* Status bar */
+  .status-bar-win {
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    height: 26px;
+    border-top: 1px solid var(--stroke);
+    flex-shrink: 0;
+    background: var(--bg-layer);
+  }
+  .status-text {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    flex: 1;
+  }
+  .status-storage {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .status-storage span {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+  .storage-bar-mini {
+    width: 100px;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .storage-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  /* Nav account */
+  .nav-account {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    height: 48px;
+  }
+  .nav-account-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .nav-account-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .nav-account-name {
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .nav-account-plan {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  /* Checkbox */
+  .checkbox {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--text-tertiary);
+    border-radius: 3px;
+    margin-right: 10px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .checkbox.checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .checkbox.checked svg { color: var(--accent-on); }
+</style>
+</head>
+<body>
+<div class="window">
+  <!-- Title Bar -->
+  <div class="titlebar">
+    <div class="titlebar-icon">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="var(--accent)"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+    </div>
+    <span class="titlebar-text">put.io</span>
+    <div class="window-controls">
+      <div class="window-btn">
+        <svg width="10" height="1" viewBox="0 0 10 1" fill="currentColor"><rect width="10" height="1"/></svg>
+      </div>
+      <div class="window-btn">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1"><rect x="0.5" y="0.5" width="9" height="9"/></svg>
+      </div>
+      <div class="window-btn close">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- NavigationView -->
+    <div class="nav-view">
+      <!-- Hamburger -->
+      <div class="nav-header">
+        <div class="hamburger-btn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect y="2" width="16" height="1.5" rx="0.5"/><rect y="7" width="16" height="1.5" rx="0.5"/><rect y="12" width="16" height="1.5" rx="0.5"/></svg>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="nav-search">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M14 14l-3.5-3.5" stroke-linecap="round"/></svg>
+        <span>Search</span>
+      </div>
+
+      <!-- Nav items -->
+      <div class="nav-items">
+        <div class="nav-item active">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4a2 2 0 012-2h5l2 2h7a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V4z"/></svg>
+          <span class="nav-text">All Files</span>
+        </div>
+        <div class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 5v7l4 2" stroke-linecap="round"/></svg>
+          <span class="nav-text">Recent</span>
+        </div>
+        <div class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l3 6.5 7 1-5 5 1.2 7L12 18.5 5.8 21.5 7 14.5 2 9.5l7-1L12 2z" stroke-linejoin="round"/></svg>
+          <span class="nav-text">Favorites</span>
+          <span class="nav-badge">12</span>
+        </div>
+
+        <div class="nav-divider"></div>
+        <div class="nav-section-header">Folders</div>
+
+        <!-- TreeView folder hierarchy -->
+        <div class="nav-item">
+          <div class="tree-expander">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><polygon points="3,2 8,5 3,8"/></svg>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="var(--accent)"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          <span class="nav-text">Movies</span>
+          <span class="nav-badge">24</span>
+        </div>
+        <div class="nav-item indent-1">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="var(--accent)" opacity="0.7"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          <span class="nav-text">Action</span>
+          <span class="nav-badge">8</span>
+        </div>
+        <div class="nav-item indent-1">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="var(--accent)" opacity="0.7"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          <span class="nav-text">Sci-Fi</span>
+          <span class="nav-badge">6</span>
+        </div>
+        <div class="nav-item indent-1">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="var(--accent)" opacity="0.7"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          <span class="nav-text">Drama</span>
+          <span class="nav-badge">10</span>
+        </div>
+        <div class="nav-item">
+          <div class="tree-expander">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><polygon points="2,3 8,3 5,7"/></svg>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="var(--accent)"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          <span class="nav-text">TV Shows</span>
+          <span class="nav-badge">18</span>
+        </div>
+        <div class="nav-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="var(--accent)"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          <span class="nav-text" style="padding-left:28px">Music</span>
+          <span class="nav-badge">156</span>
+        </div>
+        <div class="nav-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="var(--accent)"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          <span class="nav-text" style="padding-left:28px">Documents</span>
+          <span class="nav-badge">43</span>
+        </div>
+        <div class="nav-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="var(--accent)"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          <span class="nav-text" style="padding-left:28px">Photos</span>
+          <span class="nav-badge">89</span>
+        </div>
+
+        <div class="nav-divider"></div>
+        <div class="nav-section-header">Transfers</div>
+
+        <div class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 4v12M8 12l4 4 4-4"/><path d="M4 18h16"/></svg>
+          <span class="nav-text">Active</span>
+          <span class="nav-badge" style="background:var(--accent);color:var(--accent-on);border-radius:10px;padding:0 6px;font-size:11px;font-weight:600">2</span>
+        </div>
+        <div class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="nav-text">Completed</span>
+        </div>
+        <div class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M6 6v14a2 2 0 002 2h8a2 2 0 002-2V6" stroke-linecap="round"/></svg>
+          <span class="nav-text">Trash</span>
+        </div>
+      </div>
+
+      <!-- Footer / settings + account -->
+      <div class="nav-footer">
+        <div class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"/></svg>
+          <span class="nav-text">Settings</span>
+        </div>
+        <div class="nav-account">
+          <div class="nav-account-avatar">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="var(--accent-on)"><rect x="2" y="1" width="2" height="2"/><rect x="12" y="1" width="2" height="2"/><rect x="4" y="3" width="2" height="2"/><rect x="10" y="3" width="2" height="2"/><rect x="2" y="5" width="12" height="2"/><rect x="1" y="7" width="3" height="2"/><rect x="6" y="7" width="4" height="2"/><rect x="12" y="7" width="3" height="2"/><rect x="2" y="9" width="12" height="2"/><rect x="2" y="11" width="2" height="2"/><rect x="12" y="11" width="2" height="2"/></svg>
+          </div>
+          <div class="nav-account-info">
+            <div class="nav-account-name">glitch</div>
+            <div class="nav-account-plan">Pro Plan</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content-area">
+      <!-- Command bar -->
+      <div class="command-bar">
+        <div class="command-btn primary">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 2v12M2 8h12" stroke-linecap="round"/></svg>
+          Add
+        </div>
+        <div class="command-separator"></div>
+        <div class="command-btn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 2h4l1 1h7v10H2z"/></svg>
+          New folder
+        </div>
+        <div class="command-btn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="2" width="12" height="12" rx="1"/><path d="M2 8h12"/></svg>
+          Copy
+        </div>
+        <div class="command-btn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 2H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V8"/><path d="M6 10l7-7M10 3h3v3"/></svg>
+          Move
+        </div>
+        <div class="command-btn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 4h10M6 4V3a1 1 0 011-1h2a1 1 0 011 1v1M4 4v9a1 1 0 001 1h6a1 1 0 001-1V4"/></svg>
+          Delete
+        </div>
+        <div class="command-spacer"></div>
+        <div class="command-btn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M4 8h8M6 12h4" stroke-linecap="round"/></svg>
+          Sort
+        </div>
+        <div class="command-btn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="6" height="5" rx="1"/><rect x="9" y="2" width="6" height="5" rx="1"/><rect x="1" y="9" width="6" height="5" rx="1"/><rect x="9" y="9" width="6" height="5" rx="1"/></svg>
+        </div>
+        <div class="command-btn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect y="2" width="16" height="2" rx="0.5"/><rect y="7" width="16" height="2" rx="0.5"/><rect y="12" width="16" height="2" rx="0.5"/></svg>
+        </div>
+      </div>
+
+      <!-- Breadcrumb -->
+      <div class="breadcrumb">
+        <div class="breadcrumb-item">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="var(--accent)"><path d="M1 3a1 1 0 011-1h4l1.5 2H14a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+          put.io
+        </div>
+        <span class="breadcrumb-sep">
+          <svg width="6" height="10" viewBox="0 0 6 10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><polyline points="1,1 5,5 1,9"/></svg>
+        </span>
+        <div class="breadcrumb-item current">All Files</div>
+      </div>
+
+      <!-- Details header -->
+      <div class="details-header">
+        <span class="dh dh-name">Name</span>
+        <span class="dh dh-date">Date modified</span>
+        <span class="dh dh-type">Type</span>
+        <span class="dh dh-size">Size</span>
+      </div>
+
+      <!-- Details list -->
+      <div class="details-list">
+        <div class="details-row">
+          <div class="checkbox"></div>
+          <div class="dr-icon ic-folder">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M1 3.5A1.5 1.5 0 012.5 2H7l1.5 2h7A1.5 1.5 0 0117 5.5v9a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 011 14.5v-11z"/></svg>
+          </div>
+          <span class="dr-name">Movies</span>
+          <span class="dr-cell dr-date">Today, 2:34 PM</span>
+          <span class="dr-cell dr-type">File folder</span>
+          <span class="dr-cell dr-size">142.3 GB</span>
+        </div>
+        <div class="details-row">
+          <div class="checkbox"></div>
+          <div class="dr-icon ic-folder">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M1 3.5A1.5 1.5 0 012.5 2H7l1.5 2h7A1.5 1.5 0 0117 5.5v9a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 011 14.5v-11z"/></svg>
+          </div>
+          <span class="dr-name">TV Shows</span>
+          <span class="dr-cell dr-date">Yesterday, 8:12 AM</span>
+          <span class="dr-cell dr-type">File folder</span>
+          <span class="dr-cell dr-size">98.7 GB</span>
+        </div>
+        <div class="details-row">
+          <div class="checkbox"></div>
+          <div class="dr-icon ic-folder">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M1 3.5A1.5 1.5 0 012.5 2H7l1.5 2h7A1.5 1.5 0 0117 5.5v9a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 011 14.5v-11z"/></svg>
+          </div>
+          <span class="dr-name">Music</span>
+          <span class="dr-cell dr-date">Mar 15, 2026</span>
+          <span class="dr-cell dr-type">File folder</span>
+          <span class="dr-cell dr-size">12.4 GB</span>
+        </div>
+        <div class="details-row">
+          <div class="checkbox"></div>
+          <div class="dr-icon ic-folder">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M1 3.5A1.5 1.5 0 012.5 2H7l1.5 2h7A1.5 1.5 0 0117 5.5v9a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 011 14.5v-11z"/></svg>
+          </div>
+          <span class="dr-name">Documents</span>
+          <span class="dr-cell dr-date">Mar 12, 2026</span>
+          <span class="dr-cell dr-type">File folder</span>
+          <span class="dr-cell dr-size">2.1 GB</span>
+        </div>
+        <div class="details-row">
+          <div class="checkbox"></div>
+          <div class="dr-icon ic-folder">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M1 3.5A1.5 1.5 0 012.5 2H7l1.5 2h7A1.5 1.5 0 0117 5.5v9a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 011 14.5v-11z"/></svg>
+          </div>
+          <span class="dr-name">Photos</span>
+          <span class="dr-cell dr-date">Mar 10, 2026</span>
+          <span class="dr-cell dr-type">File folder</span>
+          <span class="dr-cell dr-size">8.9 GB</span>
+        </div>
+
+        <!-- Files -->
+        <div class="details-row selected">
+          <div class="checkbox checked">
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="currentColor"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="dr-icon ic-video">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><rect x="1" y="3" width="16" height="12" rx="2"/><polygon points="7,6 12,9 7,12" fill="#202020" opacity="0.4"/></svg>
+          </div>
+          <span class="dr-name">Dune Part Two (2024).mkv</span>
+          <span class="dr-cell dr-date">Yesterday</span>
+          <span class="dr-cell dr-type">MKV Video</span>
+          <span class="dr-cell dr-size">4.2 GB</span>
+        </div>
+        <div class="details-row">
+          <div class="checkbox"></div>
+          <div class="dr-icon ic-video">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><rect x="1" y="3" width="16" height="12" rx="2"/><polygon points="7,6 12,9 7,12" fill="#202020" opacity="0.4"/></svg>
+          </div>
+          <span class="dr-name">Oppenheimer (2023).mkv</span>
+          <span class="dr-cell dr-date">3 days ago</span>
+          <span class="dr-cell dr-type">MKV Video</span>
+          <span class="dr-cell dr-size">5.8 GB</span>
+        </div>
+        <div class="details-row">
+          <div class="checkbox"></div>
+          <div class="dr-icon ic-music">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M7 14V4l9-1.5v10M7 14a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zm9-1.5a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/></svg>
+          </div>
+          <span class="dr-name">playlist-summer-2025.m3u</span>
+          <span class="dr-cell dr-date">Last week</span>
+          <span class="dr-cell dr-type">M3U Playlist</span>
+          <span class="dr-cell dr-size">2 KB</span>
+        </div>
+        <div class="details-row">
+          <div class="checkbox"></div>
+          <div class="dr-icon ic-image">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><rect x="1" y="1" width="16" height="16" rx="2"/><circle cx="6" cy="6" r="2" fill="#202020" opacity="0.3"/><path d="M1 13l4-4 3 3 2.5-2.5 6.5 6.5H3a2 2 0 01-2-2v-1z" fill="#202020" opacity="0.2"/></svg>
+          </div>
+          <span class="dr-name">vacation-photos.zip</span>
+          <span class="dr-cell dr-date">2 weeks ago</span>
+          <span class="dr-cell dr-type">ZIP Archive</span>
+          <span class="dr-cell dr-size">890 MB</span>
+        </div>
+        <div class="details-row">
+          <div class="checkbox"></div>
+          <div class="dr-icon ic-doc">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M11 1H4a1.5 1.5 0 00-1.5 1.5v13A1.5 1.5 0 004 17h10a1.5 1.5 0 001.5-1.5V5.5L11 1z"/></svg>
+          </div>
+          <span class="dr-name">project-notes.pdf</span>
+          <span class="dr-cell dr-date">3 weeks ago</span>
+          <span class="dr-cell dr-type">PDF Document</span>
+          <span class="dr-cell dr-size">4.3 MB</span>
+        </div>
+        <div class="details-row">
+          <div class="checkbox"></div>
+          <div class="dr-icon ic-video">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><rect x="1" y="3" width="16" height="12" rx="2"/><polygon points="7,6 12,9 7,12" fill="#202020" opacity="0.4"/></svg>
+          </div>
+          <span class="dr-name">The Matrix (1999).mkv</span>
+          <span class="dr-cell dr-date">1 month ago</span>
+          <span class="dr-cell dr-type">MKV Video</span>
+          <span class="dr-cell dr-size">2.1 GB</span>
+        </div>
+        <div class="details-row">
+          <div class="checkbox"></div>
+          <div class="dr-icon ic-video">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><rect x="1" y="3" width="16" height="12" rx="2"/><polygon points="7,6 12,9 7,12" fill="#202020" opacity="0.4"/></svg>
+          </div>
+          <span class="dr-name">Blade Runner 2049 (2017).mkv</span>
+          <span class="dr-cell dr-date">1 month ago</span>
+          <span class="dr-cell dr-type">MKV Video</span>
+          <span class="dr-cell dr-size">4.5 GB</span>
+        </div>
+        <div class="details-row">
+          <div class="checkbox"></div>
+          <div class="dr-icon ic-video">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><rect x="1" y="3" width="16" height="12" rx="2"/><polygon points="7,6 12,9 7,12" fill="#202020" opacity="0.4"/></svg>
+          </div>
+          <span class="dr-name">Interstellar (2014).mkv</span>
+          <span class="dr-cell dr-date">1 month ago</span>
+          <span class="dr-cell dr-type">MKV Video</span>
+          <span class="dr-cell dr-size">3.9 GB</span>
+        </div>
+        <div class="details-row">
+          <div class="checkbox"></div>
+          <div class="dr-icon ic-video">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><rect x="1" y="3" width="16" height="12" rx="2"/><polygon points="7,6 12,9 7,12" fill="#202020" opacity="0.4"/></svg>
+          </div>
+          <span class="dr-name">Mad Max Fury Road (2015).mkv</span>
+          <span class="dr-cell dr-date">2 months ago</span>
+          <span class="dr-cell dr-type">MKV Video</span>
+          <span class="dr-cell dr-size">3.2 GB</span>
+        </div>
+        <div class="details-row">
+          <div class="checkbox"></div>
+          <div class="dr-icon ic-video">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><rect x="1" y="3" width="16" height="12" rx="2"/><polygon points="7,6 12,9 7,12" fill="#202020" opacity="0.4"/></svg>
+          </div>
+          <span class="dr-name">Everything Everywhere All at Once (2022).mkv</span>
+          <span class="dr-cell dr-date">2 months ago</span>
+          <span class="dr-cell dr-type">MKV Video</span>
+          <span class="dr-cell dr-size">2.8 GB</span>
+        </div>
+        <div class="details-row">
+          <div class="checkbox"></div>
+          <div class="dr-icon ic-video">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><rect x="1" y="3" width="16" height="12" rx="2"/><polygon points="7,6 12,9 7,12" fill="#202020" opacity="0.4"/></svg>
+          </div>
+          <span class="dr-name">Parasite (2019).mkv</span>
+          <span class="dr-cell dr-date">2 months ago</span>
+          <span class="dr-cell dr-type">MKV Video</span>
+          <span class="dr-cell dr-size">2.4 GB</span>
+        </div>
+      </div>
+
+      <!-- Status bar -->
+      <div class="status-bar-win">
+        <span class="status-text">16 items -- 1 selected</span>
+        <div class="status-storage">
+          <div class="storage-bar-mini">
+            <div class="storage-bar-fill" style="width:62%"></div>
+          </div>
+          <span>255.5 GB of 1 TB used</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

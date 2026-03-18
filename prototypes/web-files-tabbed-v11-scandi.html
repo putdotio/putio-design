@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Tabbed File Manager (Scandi)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113;
+    --bg-2: #19191B;
+    --bg-3: #222225;
+    --bg-warm: #1A1917;
+    --bg-card: #1E1E20;
+    --border: #4B4B52;
+    --border-subtle: #2A2A2E;
+    --border-warm: #33302A;
+    --text: #EEEEF0;
+    --text-2: #ABABB2;
+    --text-3: #76767E;
+    --yellow: #FDCE45;
+    --green: #30A46C;
+    --red: #E5484D;
+    --blue: #5B9BF0;
+    --purple: #A78BFA;
+    --orange: #F0A050;
+    --radius: 14px;
+    --radius-sm: 10px;
+  }
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .app {
+    width: 1440px;
+    height: 900px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  /* Warm Rounded Tab Bar */
+  .tab-bar {
+    display: flex;
+    align-items: flex-end;
+    background: var(--bg);
+    padding: 8px 12px 0;
+    height: 48px;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .tab {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 18px;
+    height: 38px;
+    border-radius: var(--radius) var(--radius) 0 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    letter-spacing: -0.01em;
+  }
+  .tab:hover { color: var(--text-2); background: var(--bg-2); }
+  .tab.active {
+    background: var(--bg-card);
+    color: var(--text);
+  }
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 16px;
+    right: 16px;
+    height: 2.5px;
+    background: var(--yellow);
+    border-radius: 2px 2px 0 0;
+  }
+  .tab-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .tab-dot.yellow { background: var(--yellow); }
+  .tab-dot.blue { background: var(--blue); }
+  .tab-dot.green { background: var(--green); }
+  .tab-dot.purple { background: var(--purple); }
+  .tab-label {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tab-close {
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .tab:hover .tab-close, .tab.active .tab-close { opacity: 0.4; }
+  .tab-close:hover { opacity: 1 !important; background: rgba(255,255,255,0.08); }
+  .tab-close svg { width: 10px; height: 10px; }
+  .tab-new {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-3);
+    cursor: pointer;
+    border-radius: var(--radius) var(--radius) 0 0;
+    transition: all 0.15s;
+  }
+  .tab-new:hover { color: var(--yellow); background: var(--bg-2); }
+  .tab-new svg { width: 14px; height: 14px; }
+
+  /* Breadcrumb Bar */
+  .breadcrumb-bar {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    height: 44px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-subtle);
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .nav-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .nav-btn:hover { background: var(--bg-3); }
+  .nav-btn.disabled { color: var(--text-3); }
+  .nav-btn svg { width: 14px; height: 14px; }
+  .bc-path {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    font-size: 13px;
+  }
+  .bc-item {
+    padding: 4px 10px;
+    border-radius: 8px;
+    color: var(--text-2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .bc-item:hover { background: var(--bg-3); color: var(--text); }
+  .bc-item.current { color: var(--text); font-weight: 600; }
+  .bc-sep { color: var(--text-3); }
+  .bc-sep svg { width: 8px; height: 8px; }
+  .action-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .action-btn {
+    height: 30px;
+    padding: 0 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-2);
+    cursor: pointer;
+    border: 1px solid var(--border-subtle);
+    background: transparent;
+    transition: all 0.15s;
+    letter-spacing: -0.01em;
+  }
+  .action-btn:hover { background: var(--bg-3); color: var(--text); border-color: var(--border); }
+  .action-btn svg { width: 14px; height: 14px; }
+  .action-btn.primary {
+    background: var(--yellow);
+    color: var(--bg);
+    border-color: var(--yellow);
+  }
+  .action-btn.primary:hover { filter: brightness(1.1); }
+
+  /* Split Pane */
+  .pane-container {
+    flex: 1;
+    display: flex;
+    padding: 0 12px 12px;
+    gap: 0;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+    background: var(--bg-card);
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+  .pane:first-child { border-radius: 0 0 0 var(--radius); }
+  .pane:last-child { border-radius: 0 0 var(--radius) 0; }
+
+  .pane-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    gap: 10px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+  }
+  .pane-folder-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(253, 206, 69, 0.1);
+  }
+  .pane-folder-icon svg { width: 16px; height: 16px; color: var(--yellow); }
+  .pane-name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .pane-count {
+    font-size: 11px;
+    color: var(--text-3);
+    margin-left: auto;
+    font-weight: 500;
+  }
+
+  .split-divider {
+    width: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: col-resize;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .split-divider-line {
+    width: 3px;
+    height: 40px;
+    background: var(--border-subtle);
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .split-divider:hover .split-divider-line {
+    background: var(--yellow);
+    height: 60px;
+  }
+
+  /* File List */
+  .file-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 8px;
+  }
+  .file-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s;
+    gap: 12px;
+    margin-bottom: 2px;
+  }
+  .file-row:hover { background: var(--bg-3); }
+  .file-row.selected { background: rgba(253, 206, 69, 0.06); }
+
+  .file-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .file-icon svg { width: 18px; height: 18px; }
+  .file-icon.folder { background: rgba(253, 206, 69, 0.1); }
+  .file-icon.folder svg { color: var(--yellow); }
+  .file-icon.video { background: rgba(91, 155, 240, 0.1); }
+  .file-icon.video svg { color: var(--blue); }
+  .file-icon.audio { background: rgba(48, 164, 108, 0.1); }
+  .file-icon.audio svg { color: var(--green); }
+  .file-icon.image { background: rgba(167, 139, 250, 0.1); }
+  .file-icon.image svg { color: var(--purple); }
+  .file-icon.doc { background: rgba(240, 160, 80, 0.1); }
+  .file-icon.doc svg { color: var(--orange); }
+  .file-icon.archive { background: rgba(171, 171, 178, 0.06); }
+  .file-icon.archive svg { color: var(--text-2); }
+
+  .file-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .file-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .file-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+  }
+  .file-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+  .badge-4k { background: rgba(253, 206, 69, 0.12); color: var(--yellow); }
+  .badge-1080p { background: rgba(91, 155, 240, 0.12); color: var(--blue); }
+  .badge-720p { background: rgba(48, 164, 108, 0.12); color: var(--green); }
+  .badge-hdr { background: rgba(167, 139, 250, 0.12); color: var(--purple); }
+  .badge-flac { background: rgba(48, 164, 108, 0.12); color: var(--green); }
+  .badge-hevc { background: rgba(240, 160, 80, 0.12); color: var(--orange); }
+
+  .file-meta {
+    font-size: 11px;
+    color: var(--text-3);
+    margin-top: 2px;
+    font-weight: 400;
+  }
+  .file-size {
+    font-size: 12px;
+    color: var(--text-2);
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+
+  /* Bottom Bar */
+  .bottom-bar {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    height: 36px;
+    background: var(--bg);
+    font-size: 11px;
+    color: var(--text-3);
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .bb-seg {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .bb-seg svg { width: 12px; height: 12px; }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+  .transfer-bar {
+    width: 100px;
+    height: 4px;
+    background: var(--bg-3);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .transfer-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 3px;
+    width: 68%;
+  }
+  .bb-spacer { flex: 1; }
+  .bb-shortcuts {
+    display: flex;
+    gap: 12px;
+    font-size: 10px;
+  }
+  .kbd {
+    background: var(--bg-3);
+    border: 1px solid var(--border-subtle);
+    border-radius: 5px;
+    padding: 1px 5px;
+    font-size: 9px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    line-height: 16px;
+    margin-right: 3px;
+  }
+  .storage-bar {
+    width: 70px;
+    height: 4px;
+    background: var(--bg-3);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .storage-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 3px;
+    width: 42%;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab active">
+      <div class="tab-dot yellow"></div>
+      <span class="tab-label">downloads</span>
+      <span class="tab-close"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l6 6M8 2l-6 6"/></svg></span>
+    </div>
+    <div class="tab">
+      <div class="tab-dot blue"></div>
+      <span class="tab-label">stuff</span>
+      <span class="tab-close"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l6 6M8 2l-6 6"/></svg></span>
+    </div>
+    <div class="tab">
+      <div class="tab-dot green"></div>
+      <span class="tab-label">__dev__</span>
+      <span class="tab-close"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l6 6M8 2l-6 6"/></svg></span>
+    </div>
+    <div class="tab">
+      <div class="tab-dot purple"></div>
+      <span class="tab-label">Items shared with you</span>
+      <span class="tab-close"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l6 6M8 2l-6 6"/></svg></span>
+    </div>
+    <div class="tab-new">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2v10M2 7h10"/></svg>
+    </div>
+  </div>
+
+  <!-- Breadcrumb Bar -->
+  <div class="breadcrumb-bar">
+    <div class="nav-btn disabled"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2L4 7l5 5"/></svg></div>
+    <div class="nav-btn"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2l5 5-5 5"/></svg></div>
+    <div class="bc-path">
+      <span class="bc-item">Your Files</span>
+      <span class="bc-sep"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2.5 1l3 3-3 3"/></svg></span>
+      <span class="bc-item current">downloads</span>
+    </div>
+    <div class="action-group">
+      <div class="action-btn">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="4" height="10" rx="1"/><rect x="8" y="2" width="4" height="10" rx="1"/></svg>
+        Split
+      </div>
+      <div class="action-btn">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="4"/><path d="M9 9l3 3"/></svg>
+        Search
+      </div>
+      <div class="action-btn primary">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 2v10M2 7h10"/></svg>
+        Upload
+      </div>
+    </div>
+  </div>
+
+  <!-- Split Panes -->
+  <div class="pane-container">
+    <!-- Left Pane: downloads -->
+    <div class="pane">
+      <div class="pane-header">
+        <div class="pane-folder-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 4V12a1.5 1.5 0 001.5 1.5h10a1.5 1.5 0 001.5-1.5V6.5A1.5 1.5 0 0013 5H8L6.5 3H3A1.5 1.5 0 001.5 4z"/></svg></div>
+        <span class="pane-name">downloads</span>
+        <span class="pane-count">8 items</span>
+      </div>
+      <div class="file-list">
+        <div class="file-row selected">
+          <div class="file-icon video"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1" y="3" width="16" height="12" rx="2"/><path d="M7 7l5 3-5 3V7z" fill="currentColor" stroke="none"/></svg></div>
+          <div class="file-info">
+            <div class="file-name-row">
+              <span class="file-name">Dune Part Two</span>
+              <span class="file-badge badge-4k">4K</span>
+              <span class="file-badge badge-hdr">HDR</span>
+            </div>
+            <div class="file-meta">18.4 GB -- Mar 15</div>
+          </div>
+          <span class="file-size">18.4 GB</span>
+        </div>
+        <div class="file-row">
+          <div class="file-icon video"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1" y="3" width="16" height="12" rx="2"/><path d="M7 7l5 3-5 3V7z" fill="currentColor" stroke="none"/></svg></div>
+          <div class="file-info">
+            <div class="file-name-row">
+              <span class="file-name">The Bear S03E01 - Tomorrow</span>
+              <span class="file-badge badge-1080p">1080p</span>
+              <span class="file-badge badge-hevc">HEVC</span>
+            </div>
+            <div class="file-meta">4.2 GB -- Mar 14</div>
+          </div>
+          <span class="file-size">4.2 GB</span>
+        </div>
+        <div class="file-row">
+          <div class="file-icon video"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1" y="3" width="16" height="12" rx="2"/><path d="M7 7l5 3-5 3V7z" fill="currentColor" stroke="none"/></svg></div>
+          <div class="file-info">
+            <div class="file-name-row">
+              <span class="file-name">The Bear S03E02 - Next</span>
+              <span class="file-badge badge-1080p">1080p</span>
+              <span class="file-badge badge-hevc">HEVC</span>
+            </div>
+            <div class="file-meta">3.8 GB -- Mar 14</div>
+          </div>
+          <span class="file-size">3.8 GB</span>
+        </div>
+        <div class="file-row">
+          <div class="file-icon audio"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="13" r="3"/><circle cx="14" cy="11" r="3"/><path d="M9 13V3l8-1v9"/></svg></div>
+          <div class="file-info">
+            <div class="file-name-row">
+              <span class="file-name">Nils Frahm - All Melody</span>
+              <span class="file-badge badge-flac">FLAC</span>
+            </div>
+            <div class="file-meta">890 MB -- Mar 12</div>
+          </div>
+          <span class="file-size">890 MB</span>
+        </div>
+        <div class="file-row">
+          <div class="file-icon video"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1" y="3" width="16" height="12" rx="2"/><path d="M7 7l5 3-5 3V7z" fill="currentColor" stroke="none"/></svg></div>
+          <div class="file-info">
+            <div class="file-name-row">
+              <span class="file-name">Oppenheimer</span>
+              <span class="file-badge badge-4k">4K</span>
+            </div>
+            <div class="file-meta">22.1 GB -- Mar 10</div>
+          </div>
+          <span class="file-size">22.1 GB</span>
+        </div>
+        <div class="file-row">
+          <div class="file-icon folder"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 5v9a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2H9L7.5 3H4a2 2 0 00-2 2z"/></svg></div>
+          <div class="file-info">
+            <div class="file-name-row">
+              <span class="file-name">Severance S02</span>
+            </div>
+            <div class="file-meta">38.6 GB -- 10 episodes</div>
+          </div>
+          <span class="file-size">38.6 GB</span>
+        </div>
+        <div class="file-row">
+          <div class="file-icon image"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1" y="2" width="16" height="14" rx="2"/><circle cx="6" cy="7" r="2"/><path d="M1 13l4-4 3 3 3-3 6 6"/></svg></div>
+          <div class="file-info">
+            <div class="file-name-row">
+              <span class="file-name">wallpapers-collection.zip</span>
+            </div>
+            <div class="file-meta">245 MB -- Mar 5</div>
+          </div>
+          <span class="file-size">245 MB</span>
+        </div>
+        <div class="file-row">
+          <div class="file-icon archive"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 1h12a2 2 0 012 2v12a2 2 0 01-2 2H3a2 2 0 01-2-2V3a2 2 0 012-2z"/><path d="M7 1v16M9 3H7M9 7H7M9 11H7"/></svg></div>
+          <div class="file-info">
+            <div class="file-name-row">
+              <span class="file-name">fonts-inter-v4.tar.gz</span>
+            </div>
+            <div class="file-meta">12 MB -- Mar 1</div>
+          </div>
+          <span class="file-size">12 MB</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Split Divider -->
+    <div class="split-divider">
+      <div class="split-divider-line"></div>
+    </div>
+
+    <!-- Right Pane: stuff -->
+    <div class="pane">
+      <div class="pane-header">
+        <div class="pane-folder-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 4V12a1.5 1.5 0 001.5 1.5h10a1.5 1.5 0 001.5-1.5V6.5A1.5 1.5 0 0013 5H8L6.5 3H3A1.5 1.5 0 001.5 4z"/></svg></div>
+        <span class="pane-name">stuff</span>
+        <span class="pane-count">6 items</span>
+      </div>
+      <div class="file-list">
+        <div class="file-row">
+          <div class="file-icon folder"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 5v9a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2H9L7.5 3H4a2 2 0 00-2 2z"/></svg></div>
+          <div class="file-info">
+            <div class="file-name-row">
+              <span class="file-name">project-assets</span>
+            </div>
+            <div class="file-meta">1.2 GB -- Mar 16</div>
+          </div>
+          <span class="file-size">1.2 GB</span>
+        </div>
+        <div class="file-row">
+          <div class="file-icon doc"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 1h7l4 4v10a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2z"/><path d="M11 1v4h4"/><path d="M6 9h6M6 12h4"/></svg></div>
+          <div class="file-info">
+            <div class="file-name-row">
+              <span class="file-name">meeting-notes-q1.pdf</span>
+            </div>
+            <div class="file-meta">4.8 MB -- Mar 14</div>
+          </div>
+          <span class="file-size">4.8 MB</span>
+        </div>
+        <div class="file-row">
+          <div class="file-icon video"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1" y="3" width="16" height="12" rx="2"/><path d="M7 7l5 3-5 3V7z" fill="currentColor" stroke="none"/></svg></div>
+          <div class="file-info">
+            <div class="file-name-row">
+              <span class="file-name">screen-recording-2024.mp4</span>
+              <span class="file-badge badge-720p">720p</span>
+            </div>
+            <div class="file-meta">320 MB -- Mar 11</div>
+          </div>
+          <span class="file-size">320 MB</span>
+        </div>
+        <div class="file-row">
+          <div class="file-icon image"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1" y="2" width="16" height="14" rx="2"/><circle cx="6" cy="7" r="2"/><path d="M1 13l4-4 3 3 3-3 6 6"/></svg></div>
+          <div class="file-info">
+            <div class="file-name-row">
+              <span class="file-name">vacation-photos.zip</span>
+            </div>
+            <div class="file-meta">2.1 GB -- Mar 7</div>
+          </div>
+          <span class="file-size">2.1 GB</span>
+        </div>
+        <div class="file-row">
+          <div class="file-icon audio"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="13" r="3"/><circle cx="14" cy="11" r="3"/><path d="M9 13V3l8-1v9"/></svg></div>
+          <div class="file-info">
+            <div class="file-name-row">
+              <span class="file-name">podcast-ep42-final.mp3</span>
+            </div>
+            <div class="file-meta">185 MB -- Mar 3</div>
+          </div>
+          <span class="file-size">185 MB</span>
+        </div>
+        <div class="file-row">
+          <div class="file-icon archive"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 1h12a2 2 0 012 2v12a2 2 0 01-2 2H3a2 2 0 01-2-2V3a2 2 0 012-2z"/><path d="M7 1v16M9 3H7M9 7H7M9 11H7"/></svg></div>
+          <div class="file-info">
+            <div class="file-name-row">
+              <span class="file-name">backup-jan-2024.tar.gz</span>
+            </div>
+            <div class="file-meta">8.4 GB -- Feb 28</div>
+          </div>
+          <span class="file-size">8.4 GB</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="bottom-bar">
+    <div class="bb-seg">
+      <div class="status-dot"></div>
+      Connected
+    </div>
+    <div class="bb-seg">
+      <svg viewBox="0 0 12 12" fill="none" stroke="var(--yellow)" stroke-width="1.5"><path d="M6 2v8M3 7l3 3 3-3"/></svg>
+      <span style="color: var(--text-2)">2 transfers</span>
+      <div class="transfer-bar"><div class="transfer-fill"></div></div>
+      68%
+      <span style="color: var(--text-2)">14.2 MB/s</span>
+    </div>
+    <div class="bb-spacer"></div>
+    <div class="bb-shortcuts">
+      <span><span class="kbd">Cmd+T</span>New tab</span>
+      <span><span class="kbd">Cmd+W</span>Close</span>
+      <span><span class="kbd">Cmd+[</span><span class="kbd">]</span> Switch</span>
+    </div>
+    <div class="bb-seg">
+      <div class="storage-bar"><div class="storage-fill"></div></div>
+      42.3 / 100 GB
+    </div>
+  </div>
+</div>
+</body>
+</html>
