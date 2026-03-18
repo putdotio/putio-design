@@ -24,15 +24,6 @@ docs/
   assets/            Screenshots of current app (the "before")
 ```
 
-## Design Variants
-
-| Variant | Font | Vibe |
-|---------|------|------|
-| Clean Modern | Inter | Linear, Raycast, Notion |
-| Monospace | JetBrains Mono | Terminal, vim, dev tool |
-| Brutalist | Inter Black + JetBrains Mono | Oxide Computer, mission control |
-| Editorial | DM Serif Display + Inter | Letterboxd, Are.na, warmth |
-
 ## Platforms
 
 Web · iOS · Android · tvOS · Android TV · Roku · watchOS · visionOS · CLI
