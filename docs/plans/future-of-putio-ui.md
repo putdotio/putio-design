@@ -163,6 +163,44 @@ Onboarding:
 
 ---
 
+## Feature Matrix
+
+The core features that every native app (iOS, tvOS, Android, Android TV) must implement. Each feature gets a spec.
+
+| Feature | Description | Platforms | Notes |
+|---------|-------------|-----------|-------|
+| **Auth** | Login, signup, token-based device auth (TV) | All | TV uses code pairing, mobile uses OAuth |
+| **Navigation** | File browser — folders, files, breadcrumbs | All | D-pad on TV, touch on mobile, click on web |
+| **Search** | Full-text search across files | All | Search history, recent queries |
+| **Conversion flow** | Status of file conversion (HLS generation) | Web, TV-web only | Native apps with VLC-kit skip this entirely |
+| **Video playback** | Play video files with subtitle + audio track selection | All | VLC-kit (iOS/tvOS), libVLC (Android), Shaka/HLS.js (web/TV-web) |
+| **Audio playback** | Play audio files, background playback on mobile | Mobile, web | Now Playing UI, lock screen controls |
+| **History** | Recently played/accessed files | All | Synced via API |
+| **Continue watching** | Resume playback from last position | All | Per-file timestamp stored server-side |
+| **Settings** | Account, playback preferences, storage info | All | Platform-native settings patterns |
+
+### Platform-specific features (not shared)
+
+| Feature | Platform | Notes |
+|---------|----------|-------|
+| Offline downloads | iOS, Android | Download files for offline playback |
+| Background audio | iOS, Android | Continue playing when app backgrounded |
+| Widgets | iOS, Android | Quick access to recent files, transfer status |
+| Share extension | iOS, Android | "Open in put.io" from other apps |
+| Browser extension | Web | Magnet link interception |
+| AirPlay / Chromecast | iOS, Android | Cast to external displays |
+| HDMI audio passthrough | tvOS, Android TV | DTS-HD, TrueHD, DD+ via libVLC/VLC-kit |
+| Siri / Shortcuts | iOS, tvOS | "Play my latest download on put.io" |
+| Picture-in-Picture | iOS, tvOS, Android | System PiP for video |
+
+### The VLC-kit difference
+
+With VLC-kit/libVLC on native apps, the **conversion flow feature disappears entirely** for native platforms. Users never see "converting..." again. This is the single biggest UX improvement in the rewrite.
+
+Web and TV-web still need HLS (server-generated), so the conversion flow remains there — but native app users get instant playback of any format.
+
+---
+
 ## TV Platform Strategy
 
 ### Tier 1: Native
