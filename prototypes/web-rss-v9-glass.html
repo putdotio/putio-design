@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — RSS Automation (Glass)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #111113;
+    --bg-2: #19191B;
+    --bg-3: #222225;
+    --bg-4: #2C2C30;
+    --border: #4B4B52;
+    --border-subtle: rgba(255,255,255,0.06);
+    --border-default: rgba(255,255,255,0.08);
+    --text: #EEEEF0;
+    --text-2: #ABABB2;
+    --text-3: #787882;
+    --text-4: #55555E;
+    --text-5: #3F3F46;
+
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.10);
+    --yellow-glow: rgba(253,206,69,0.20);
+    --yellow-hover: #FDD85C;
+
+    --green: #30A46C;
+    --green-dim: rgba(48,164,108,0.12);
+    --red: #E5484D;
+    --red-dim: rgba(229,72,77,0.12);
+    --blue: #60A5FA;
+    --amber: #FBBF24;
+    --amber-dim: rgba(251,191,36,0.12);
+
+    --glass: rgba(255,255,255,0.04);
+    --glass-hover: rgba(255,255,255,0.07);
+    --glass-active: rgba(255,255,255,0.09);
+    --glass-border: rgba(255,255,255,0.08);
+    --glass-border-strong: rgba(255,255,255,0.12);
+    --glass-inset: inset 0 1px 1px rgba(255,255,255,0.05);
+
+    --blur-heavy: blur(40px);
+    --blur-medium: blur(24px);
+    --blur-light: blur(16px);
+    --radius: 14px;
+    --radius-sm: 8px;
+    --radius-xs: 6px;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' 1, 'ss01' 1;
+    background: var(--bg);
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg);
+  }
+
+  /* Warm amber ambient glow */
+  .app::before {
+    content: '';
+    position: absolute;
+    top: -80px;
+    left: 400px;
+    width: 600px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(253,206,69,0.06) 0%, rgba(253,206,69,0.02) 40%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .app::after {
+    content: '';
+    position: absolute;
+    bottom: -100px;
+    right: 200px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(253,206,69,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .warm-glow {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 50% 20%, rgba(28,21,0,0.4) 0%, transparent 55%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== ICON SIDEBAR ===== */
+  .icon-sidebar {
+    width: 56px;
+    background: var(--glass);
+    backdrop-filter: var(--blur-heavy);
+    -webkit-backdrop-filter: var(--blur-heavy);
+    border-right: 1px solid var(--glass-border);
+    display: flex; flex-direction: column; align-items: center;
+    flex-shrink: 0; padding: 16px 0 12px; gap: 2px;
+    position: relative; z-index: 1;
+    box-shadow: var(--glass-inset);
+  }
+  .sidebar-logo {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px; cursor: pointer;
+  }
+  .sidebar-icon {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border: none; background: none; color: var(--text-4);
+    cursor: pointer; border-radius: 8px;
+    transition: color 0.15s ease, background 0.15s ease;
+    position: relative;
+  }
+  .sidebar-icon:hover { color: var(--text-2); background: var(--glass-hover); }
+  .sidebar-icon.active {
+    color: var(--text); background: var(--glass-active);
+  }
+  .sidebar-icon.active::before {
+    content: ''; position: absolute; left: -10px; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 16px; background: var(--yellow); border-radius: 0 2px 2px 0;
+    box-shadow: 0 0 8px rgba(253,206,69,0.3);
+  }
+  .sidebar-icon svg { display: block; }
+  .sidebar-icon .notif {
+    position: absolute; top: 4px; right: 4px;
+    width: 8px; height: 8px; background: var(--yellow);
+    border-radius: 50%; border: 2px solid var(--bg);
+    box-shadow: 0 0 6px rgba(253,206,69,0.4);
+  }
+  .sidebar-spacer { flex: 1; }
+  .sidebar-avatar {
+    width: 32px; height: 32px; background: var(--glass-hover); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    border: 1px solid var(--glass-border);
+  }
+
+  /* ===== FEED PANEL ===== */
+  .feed-panel {
+    width: 280px; flex-shrink: 0;
+    background: var(--glass);
+    backdrop-filter: var(--blur-heavy);
+    -webkit-backdrop-filter: var(--blur-heavy);
+    border-right: 1px solid var(--glass-border);
+    display: flex; flex-direction: column;
+    position: relative; z-index: 1;
+    box-shadow: var(--glass-inset);
+  }
+
+  .feed-panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 16px 12px;
+  }
+  .feed-panel-title {
+    font-size: 12px; font-weight: 600; color: var(--text-2);
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .feed-count { font-size: 11px; color: var(--text-4); font-variant-numeric: tabular-nums; }
+
+  .feed-list { flex: 1; overflow-y: auto; }
+  .feed-list::-webkit-scrollbar { width: 4px; }
+  .feed-list::-webkit-scrollbar-track { background: transparent; }
+  .feed-list::-webkit-scrollbar-thumb { background: var(--bg-4); border-radius: 2px; }
+
+  .feed-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; cursor: pointer;
+    transition: background 0.08s ease;
+    border-bottom: 1px solid var(--border-subtle);
+    position: relative;
+  }
+  .feed-item:hover { background: var(--glass-hover); }
+  .feed-item.active { background: var(--glass-active); }
+  .feed-item.active::before {
+    content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    width: 2px; height: 20px; background: var(--yellow); border-radius: 0 1px 1px 0;
+    box-shadow: 0 0 6px rgba(253,206,69,0.3);
+  }
+
+  .feed-health {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .feed-health.healthy {
+    background: var(--green);
+    box-shadow: 0 0 8px rgba(48,164,108,0.5);
+  }
+  .feed-health.warning {
+    background: var(--amber);
+    box-shadow: 0 0 8px rgba(251,191,36,0.4);
+  }
+  .feed-health.error {
+    background: var(--red);
+    box-shadow: 0 0 8px rgba(229,72,77,0.4);
+  }
+  .feed-health.paused { background: var(--text-4); }
+
+  .feed-info { flex: 1; min-width: 0; }
+  .feed-name {
+    font-size: 12.5px; font-weight: 500; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+  }
+  .feed-meta {
+    font-size: 10.5px; color: var(--text-4); margin-top: 2px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .feed-ep-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 20px; height: 18px; padding: 0 5px;
+    font-size: 10px; font-weight: 600; border-radius: 4px;
+    font-variant-numeric: tabular-nums; flex-shrink: 0;
+  }
+  .feed-ep-count.has-new {
+    background: var(--yellow-dim); color: var(--yellow);
+    box-shadow: 0 0 6px rgba(253,206,69,0.1);
+  }
+  .feed-ep-count.none { background: rgba(255,255,255,0.06); color: var(--text-4); }
+
+  /* ShowRSS card */
+  .showrss-card {
+    margin: 12px;
+    background: var(--glass);
+    backdrop-filter: var(--blur-light);
+    -webkit-backdrop-filter: var(--blur-light);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--glass-inset);
+  }
+  .showrss-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--yellow), var(--amber));
+    box-shadow: 0 0 12px rgba(253,206,69,0.2);
+  }
+  .showrss-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .showrss-icon {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: var(--yellow-dim);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .showrss-title { font-size: 12px; font-weight: 600; color: var(--text); }
+  .showrss-desc { font-size: 11px; color: var(--text-3); line-height: 1.5; margin-bottom: 10px; }
+  .showrss-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600; color: var(--yellow);
+    background: none; border: none; cursor: pointer; font-family: inherit;
+  }
+  .showrss-btn svg { display: block; }
+
+  /* ===== TIMELINE PANEL ===== */
+  .timeline-panel {
+    flex: 1; display: flex; flex-direction: column;
+    overflow: hidden; position: relative; z-index: 1;
+  }
+
+  .timeline-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 24px;
+    background: var(--glass);
+    backdrop-filter: var(--blur-medium);
+    -webkit-backdrop-filter: var(--blur-medium);
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: var(--glass-inset);
+  }
+  .timeline-title { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
+  .header-spacer { flex: 1; }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--yellow); color: #111113;
+    font-size: 12.5px; font-weight: 600; padding: 7px 14px;
+    border-radius: var(--radius-sm); border: none; cursor: pointer;
+    font-family: inherit; letter-spacing: -0.01em;
+    line-height: 1;
+    box-shadow: 0 0 16px var(--yellow-glow);
+  }
+  .btn-primary:hover { background: var(--yellow-hover); }
+  .btn-primary svg { display: block; }
+
+  .filter-pills {
+    display: flex; align-items: center; gap: 4px;
+    background: var(--glass); border-radius: 8px; padding: 2px;
+    border: 1px solid var(--glass-border);
+    backdrop-filter: var(--blur-light);
+    -webkit-backdrop-filter: var(--blur-light);
+  }
+  .filter-pill {
+    font-size: 11.5px; font-weight: 500; color: var(--text-4);
+    padding: 4px 10px; border-radius: 6px; border: none; background: none;
+    cursor: pointer; font-family: inherit;
+  }
+  .filter-pill:hover { color: var(--text-2); }
+  .filter-pill.active { color: var(--text); background: var(--glass-active); }
+
+  /* Timeline content */
+  .timeline-scroll { flex: 1; overflow-y: auto; padding-bottom: 20px; }
+  .timeline-scroll::-webkit-scrollbar { width: 6px; }
+  .timeline-scroll::-webkit-scrollbar-track { background: transparent; }
+  .timeline-scroll::-webkit-scrollbar-thumb { background: var(--bg-4); border-radius: 3px; }
+
+  .timeline-date {
+    font-size: 11px; font-weight: 500; color: var(--text-5);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 14px 24px 6px;
+    position: sticky; top: 0;
+    background: rgba(17,17,19,0.8);
+    backdrop-filter: var(--blur-light);
+    -webkit-backdrop-filter: var(--blur-light);
+    z-index: 2;
+  }
+
+  /* Episode row */
+  .episode-row {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer; transition: background 0.1s ease;
+  }
+  .episode-row:hover { background: var(--glass-hover); }
+
+  .episode-poster {
+    width: 56px; height: 32px; flex-shrink: 0;
+    background: var(--bg-3);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--glass-border);
+  }
+
+  .episode-info { flex: 1; min-width: 0; }
+  .episode-show {
+    font-size: 10.5px; font-weight: 600; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.04em;
+    margin-bottom: 2px;
+  }
+  .episode-title {
+    font-size: 13px; font-weight: 500; color: var(--text);
+    letter-spacing: -0.01em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .episode-meta {
+    font-size: 11px; color: var(--text-4); margin-top: 2px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .episode-status {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10.5px; font-weight: 500; padding: 2px 8px;
+    border-radius: 4px; flex-shrink: 0;
+  }
+  .episode-status.downloaded {
+    background: var(--green-dim); color: var(--green);
+  }
+  .episode-status.downloading {
+    background: var(--yellow-dim); color: var(--yellow);
+  }
+  .episode-status.queued {
+    background: rgba(255,255,255,0.06); color: var(--text-4);
+  }
+  .episode-status.error {
+    background: var(--red-dim); color: var(--red);
+  }
+
+  .episode-time {
+    font-size: 11px; color: var(--text-5); flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="warm-glow"></div>
+
+  <!-- ===== ICON SIDEBAR ===== -->
+  <div class="icon-sidebar">
+    <div class="sidebar-logo">
+      <svg width="24" height="24" viewBox="0 0 100 100" fill="none">
+        <circle cx="50" cy="50" r="44" stroke="#FDCE45" stroke-width="6" fill="none"/>
+        <circle cx="50" cy="50" r="6" fill="#FDCE45"/>
+      </svg>
+    </div>
+
+    <button class="sidebar-icon">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg>
+    </button>
+
+    <button class="sidebar-icon">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7l-112,120a8,8,0,0,0,3,13l57.63,21.61L88.16,238.43a8,8,0,0,0,13.69,7l112-120A8,8,0,0,0,215.79,118.17Z"/></svg>
+      <div class="notif"></div>
+    </button>
+
+    <button class="sidebar-icon active">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M98.91,157.09A71.53,71.53,0,0,1,120,208a8,8,0,0,1-16,0,56,56,0,0,0-56-56,8,8,0,0,1,0-16A71.53,71.53,0,0,1,98.91,157.09ZM48,88a8,8,0,0,0,0,16,104,104,0,0,1,104,104,8,8,0,0,0,16,0A120,120,0,0,0,48,88Zm0-40a8,8,0,0,0,0,16,144,144,0,0,1,144,144,8,8,0,0,0,16,0A160,160,0,0,0,48,48Zm12,160a12,12,0,1,0-12-12A12,12,0,0,0,60,208Z"/></svg>
+    </button>
+
+    <button class="sidebar-icon">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg>
+    </button>
+
+    <div class="sidebar-spacer"></div>
+
+    <button class="sidebar-icon">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.16,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.16-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,74,34.5a8,8,0,0,0-3.93,6L67.43,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.16,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.16,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.16,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.16-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.16,8,8,0,0,0-1.49-7.06Z"/></svg>
+    </button>
+
+    <div class="sidebar-avatar">
+      <svg width="16" height="16" viewBox="0 0 256 256" fill="#ABABB2"><path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"/></svg>
+    </div>
+  </div>
+
+  <!-- ===== FEED PANEL ===== -->
+  <div class="feed-panel">
+    <div class="feed-panel-header">
+      <span class="feed-panel-title">Feeds</span>
+      <span class="feed-count">8 feeds</span>
+    </div>
+
+    <div class="feed-list">
+      <div class="feed-item active">
+        <div class="feed-health healthy"></div>
+        <div class="feed-info">
+          <div class="feed-name">The Bear</div>
+          <div class="feed-meta">S03 - ShowRSS</div>
+        </div>
+        <div class="feed-ep-count has-new">3</div>
+      </div>
+
+      <div class="feed-item">
+        <div class="feed-health healthy"></div>
+        <div class="feed-info">
+          <div class="feed-name">Severance</div>
+          <div class="feed-meta">S02 - ShowRSS</div>
+        </div>
+        <div class="feed-ep-count has-new">1</div>
+      </div>
+
+      <div class="feed-item">
+        <div class="feed-health healthy"></div>
+        <div class="feed-info">
+          <div class="feed-name">Shogun</div>
+          <div class="feed-meta">S01 - ShowRSS</div>
+        </div>
+        <div class="feed-ep-count none">0</div>
+      </div>
+
+      <div class="feed-item">
+        <div class="feed-health warning"></div>
+        <div class="feed-info">
+          <div class="feed-name">The Last of Us</div>
+          <div class="feed-meta">S02 - EZTV</div>
+        </div>
+        <div class="feed-ep-count has-new">2</div>
+      </div>
+
+      <div class="feed-item">
+        <div class="feed-health healthy"></div>
+        <div class="feed-info">
+          <div class="feed-name">True Detective</div>
+          <div class="feed-meta">S04 - ShowRSS</div>
+        </div>
+        <div class="feed-ep-count none">0</div>
+      </div>
+
+      <div class="feed-item">
+        <div class="feed-health error"></div>
+        <div class="feed-info">
+          <div class="feed-name">Podcast: 99% Invisible</div>
+          <div class="feed-meta">Feed error</div>
+        </div>
+        <div class="feed-ep-count none">!</div>
+      </div>
+
+      <div class="feed-item">
+        <div class="feed-health paused"></div>
+        <div class="feed-info">
+          <div class="feed-name">House of the Dragon</div>
+          <div class="feed-meta">Paused - Off-season</div>
+        </div>
+        <div class="feed-ep-count none">-</div>
+      </div>
+
+      <div class="feed-item">
+        <div class="feed-health healthy"></div>
+        <div class="feed-info">
+          <div class="feed-name">Slow Horses</div>
+          <div class="feed-meta">S04 - ShowRSS</div>
+        </div>
+        <div class="feed-ep-count has-new">4</div>
+      </div>
+    </div>
+
+    <div class="showrss-card">
+      <div class="showrss-header">
+        <div class="showrss-icon">
+          <svg width="12" height="12" viewBox="0 0 256 256" fill="#FDCE45"><path d="M98.91,157.09A71.53,71.53,0,0,1,120,208a8,8,0,0,1-16,0,56,56,0,0,0-56-56,8,8,0,0,1,0-16A71.53,71.53,0,0,1,98.91,157.09ZM48,88a8,8,0,0,0,0,16,104,104,0,0,1,104,104,8,8,0,0,0,16,0A120,120,0,0,0,48,88Zm0-40a8,8,0,0,0,0,16,144,144,0,0,1,144,144,8,8,0,0,0,16,0A160,160,0,0,0,48,48Zm12,160a12,12,0,1,0-12-12A12,12,0,0,0,60,208Z"/></svg>
+        </div>
+        <span class="showrss-title">ShowRSS</span>
+      </div>
+      <div class="showrss-desc">Auto-download new episodes from your favorite shows. One-click setup.</div>
+      <button class="showrss-btn">
+        Browse shows
+        <svg width="10" height="10" viewBox="0 0 256 256" fill="#FDCE45"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== TIMELINE PANEL ===== -->
+  <div class="timeline-panel">
+    <div class="timeline-header">
+      <span class="timeline-title">The Bear</span>
+      <div class="header-spacer"></div>
+      <div class="filter-pills">
+        <button class="filter-pill active">All</button>
+        <button class="filter-pill">New</button>
+        <button class="filter-pill">Downloaded</button>
+      </div>
+      <button class="btn-primary">
+        <svg width="12" height="12" viewBox="0 0 256 256" fill="#111113"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.16,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.16-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,74,34.5a8,8,0,0,0-3.93,6L67.43,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.16,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.16,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.16,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.16-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.16,8,8,0,0,0-1.49-7.06Z"/></svg>
+        Feed Settings
+      </button>
+    </div>
+
+    <div class="timeline-scroll">
+      <div class="timeline-date">Today</div>
+
+      <div class="episode-row">
+        <div class="episode-poster">
+          <svg width="16" height="16" viewBox="0 0 256 256" fill="#787882"><path d="M187.58,119.84l-52-36A12,12,0,0,0,116,93.87v72.26a12,12,0,0,0,19.58,9.33l52-36a12,12,0,0,0,0-18.62Z"/></svg>
+        </div>
+        <div class="episode-info">
+          <div class="episode-show">The Bear</div>
+          <div class="episode-title">S03E10 - Forever</div>
+          <div class="episode-meta">
+            <span>1080p</span>
+            <span>-</span>
+            <span>1.2 GB</span>
+          </div>
+        </div>
+        <span class="episode-status downloading">Downloading</span>
+        <span class="episode-time">2h ago</span>
+      </div>
+
+      <div class="episode-row">
+        <div class="episode-poster">
+          <svg width="16" height="16" viewBox="0 0 256 256" fill="#787882"><path d="M187.58,119.84l-52-36A12,12,0,0,0,116,93.87v72.26a12,12,0,0,0,19.58,9.33l52-36a12,12,0,0,0,0-18.62Z"/></svg>
+        </div>
+        <div class="episode-info">
+          <div class="episode-show">The Bear</div>
+          <div class="episode-title">S03E09 - Apologies</div>
+          <div class="episode-meta">
+            <span>1080p</span>
+            <span>-</span>
+            <span>1.1 GB</span>
+          </div>
+        </div>
+        <span class="episode-status downloaded">Downloaded</span>
+        <span class="episode-time">4h ago</span>
+      </div>
+
+      <div class="timeline-date">Yesterday</div>
+
+      <div class="episode-row">
+        <div class="episode-poster">
+          <svg width="16" height="16" viewBox="0 0 256 256" fill="#787882"><path d="M187.58,119.84l-52-36A12,12,0,0,0,116,93.87v72.26a12,12,0,0,0,19.58,9.33l52-36a12,12,0,0,0,0-18.62Z"/></svg>
+        </div>
+        <div class="episode-info">
+          <div class="episode-show">The Bear</div>
+          <div class="episode-title">S03E08 - Ice Chips</div>
+          <div class="episode-meta">
+            <span>1080p</span>
+            <span>-</span>
+            <span>980 MB</span>
+          </div>
+        </div>
+        <span class="episode-status downloaded">Downloaded</span>
+        <span class="episode-time">1d ago</span>
+      </div>
+
+      <div class="episode-row">
+        <div class="episode-poster">
+          <svg width="16" height="16" viewBox="0 0 256 256" fill="#787882"><path d="M187.58,119.84l-52-36A12,12,0,0,0,116,93.87v72.26a12,12,0,0,0,19.58,9.33l52-36a12,12,0,0,0,0-18.62Z"/></svg>
+        </div>
+        <div class="episode-info">
+          <div class="episode-show">The Bear</div>
+          <div class="episode-title">S03E07 - Napkins</div>
+          <div class="episode-meta">
+            <span>1080p</span>
+            <span>-</span>
+            <span>1.0 GB</span>
+          </div>
+        </div>
+        <span class="episode-status downloaded">Downloaded</span>
+        <span class="episode-time">1d ago</span>
+      </div>
+
+      <div class="timeline-date">March 15</div>
+
+      <div class="episode-row">
+        <div class="episode-poster">
+          <svg width="16" height="16" viewBox="0 0 256 256" fill="#787882"><path d="M187.58,119.84l-52-36A12,12,0,0,0,116,93.87v72.26a12,12,0,0,0,19.58,9.33l52-36a12,12,0,0,0,0-18.62Z"/></svg>
+        </div>
+        <div class="episode-info">
+          <div class="episode-show">The Bear</div>
+          <div class="episode-title">S03E06 - Fishes</div>
+          <div class="episode-meta">
+            <span>1080p</span>
+            <span>-</span>
+            <span>1.4 GB</span>
+          </div>
+        </div>
+        <span class="episode-status downloaded">Downloaded</span>
+        <span class="episode-time">3d ago</span>
+      </div>
+
+      <div class="episode-row">
+        <div class="episode-poster">
+          <svg width="16" height="16" viewBox="0 0 256 256" fill="#787882"><path d="M187.58,119.84l-52-36A12,12,0,0,0,116,93.87v72.26a12,12,0,0,0,19.58,9.33l52-36a12,12,0,0,0,0-18.62Z"/></svg>
+        </div>
+        <div class="episode-info">
+          <div class="episode-show">The Bear</div>
+          <div class="episode-title">S03E05 - Children</div>
+          <div class="episode-meta">
+            <span>1080p</span>
+            <span>-</span>
+            <span>1.1 GB</span>
+          </div>
+        </div>
+        <span class="episode-status downloaded">Downloaded</span>
+        <span class="episode-time">3d ago</span>
+      </div>
+
+      <div class="timeline-date">March 12</div>
+
+      <div class="episode-row">
+        <div class="episode-poster">
+          <svg width="16" height="16" viewBox="0 0 256 256" fill="#787882"><path d="M187.58,119.84l-52-36A12,12,0,0,0,116,93.87v72.26a12,12,0,0,0,19.58,9.33l52-36a12,12,0,0,0,0-18.62Z"/></svg>
+        </div>
+        <div class="episode-info">
+          <div class="episode-show">The Bear</div>
+          <div class="episode-title">S03E04 - Violet</div>
+          <div class="episode-meta">
+            <span>1080p</span>
+            <span>-</span>
+            <span>1.0 GB</span>
+          </div>
+        </div>
+        <span class="episode-status downloaded">Downloaded</span>
+        <span class="episode-time">6d ago</span>
+      </div>
+
+      <div class="episode-row">
+        <div class="episode-poster">
+          <svg width="16" height="16" viewBox="0 0 256 256" fill="#787882"><path d="M187.58,119.84l-52-36A12,12,0,0,0,116,93.87v72.26a12,12,0,0,0,19.58,9.33l52-36a12,12,0,0,0,0-18.62Z"/></svg>
+        </div>
+        <div class="episode-info">
+          <div class="episode-show">The Bear</div>
+          <div class="episode-title">S03E03 - Doors</div>
+          <div class="episode-meta">
+            <span>1080p</span>
+            <span>-</span>
+            <span>950 MB</span>
+          </div>
+        </div>
+        <span class="episode-status downloaded">Downloaded</span>
+        <span class="episode-time">6d ago</span>
+      </div>
+
+      <div class="episode-row">
+        <div class="episode-poster">
+          <svg width="16" height="16" viewBox="0 0 256 256" fill="#787882"><path d="M187.58,119.84l-52-36A12,12,0,0,0,116,93.87v72.26a12,12,0,0,0,19.58,9.33l52-36a12,12,0,0,0,0-18.62Z"/></svg>
+        </div>
+        <div class="episode-info">
+          <div class="episode-show">The Bear</div>
+          <div class="episode-title">S03E02 - Beef</div>
+          <div class="episode-meta">
+            <span>1080p</span>
+            <span>-</span>
+            <span>1.1 GB</span>
+          </div>
+        </div>
+        <span class="episode-status downloaded">Downloaded</span>
+        <span class="episode-time">6d ago</span>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
