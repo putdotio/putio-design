@@ -77,6 +77,7 @@
   .item-icon.extension { background: rgba(251,146,60,0.12); color: #FB923C; }
   .item-icon.spatial { background: rgba(147,130,220,0.12); color: #9382DC; }
   .item-icon.cli { background: rgba(163,163,163,0.12); color: #A3A3A3; }
+  .item-icon.desktop { background: rgba(96,165,250,0.12); color: #60A5FA; }
   .item-icon.marketing { background: rgba(139,92,246,0.12); color: #A78BFA; }
 
   .item-info { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
@@ -101,6 +102,10 @@
   .tag.swiss { background: rgba(239,68,68,0.1); color: #EF4444; }
   .tag.scandi { background: rgba(217,199,175,0.1); color: #D9C7AF; }
   .tag.kinetic { background: rgba(34,211,238,0.1); color: #22D3EE; }
+  .tag.duotone { background: rgba(253,206,69,0.1); color: var(--yellow); }
+  .tag.wire { background: rgba(200,200,200,0.08); color: #C8C8C8; }
+  .tag.mesh { background: rgba(244,114,182,0.1); color: #F472B6; }
+  .tag.dense { background: rgba(34,197,94,0.1); color: #22C55E; }
 
   .item-arrow { color: var(--border); font-size: 12px; flex-shrink: 0; transition: color 0.1s; }
   .item:hover .item-arrow { color: var(--yellow); }
@@ -212,11 +217,11 @@
 <div class="container">
   <div class="hero">
     <h1>put<span>.</span>io design exploration</h1>
-    <p>Exploration across 12 platforms, 11 design variants. Every screen is self-contained HTML.</p>
+    <p>Every screen is self-contained HTML. Click to preview in device frame.</p>
     <div class="stats">
-      <div class="stat"><div class="stat-value">289</div><div class="stat-label">Screens</div></div>
-      <div class="stat"><div class="stat-value">12</div><div class="stat-label">Platforms</div></div>
-      <div class="stat"><div class="stat-value">11</div><div class="stat-label">Variants</div></div>
+      <div class="stat"><div class="stat-value">346</div><div class="stat-label">Screens</div></div>
+      <div class="stat"><div class="stat-value">15</div><div class="stat-label">Platforms</div></div>
+      <div class="stat"><div class="stat-value">15</div><div class="stat-label">Variants</div></div>
     </div>
   </div>
 
@@ -229,10 +234,9 @@
         <button class="nav-btn" data-group="platform" data-filter="ios">iOS</button>
         <button class="nav-btn" data-group="platform" data-filter="android">Android</button>
         <button class="nav-btn" data-group="platform" data-filter="tv">TV</button>
+        <button class="nav-btn" data-group="platform" data-filter="desktop">Desktop</button>
         <button class="nav-btn" data-group="platform" data-filter="watch">Watch</button>
         <button class="nav-btn" data-group="platform" data-filter="extension">Extension</button>
-        <button class="nav-btn" data-group="platform" data-filter="spatial">Spatial</button>
-        <button class="nav-btn" data-group="platform" data-filter="cli">CLI</button>
         <button class="nav-btn" data-group="platform" data-filter="marketing">Marketing</button>
       </div>
     </div>
@@ -252,6 +256,10 @@
         <button class="nav-btn" data-group="variant" data-filter="swiss">Swiss</button>
         <button class="nav-btn" data-group="variant" data-filter="scandi">Scandi</button>
         <button class="nav-btn" data-group="variant" data-filter="kinetic">Kinetic</button>
+        <button class="nav-btn" data-group="variant" data-filter="duotone">Duotone</button>
+        <button class="nav-btn" data-group="variant" data-filter="wire">Wire</button>
+        <button class="nav-btn" data-group="variant" data-filter="mesh">Mesh</button>
+        <button class="nav-btn" data-group="variant" data-filter="dense">Dense</button>
       </div>
     </div>
   </div>
@@ -280,6 +288,7 @@ const files = ["about-v10-swiss.html", "about-v11-scandi.html", "about-v12-kinet
 
 function getCategory(n) {
   if (n.startsWith('watchos-') || n.startsWith('wearos-')) return 'watch';
+  if (n.startsWith('desktop-')) return 'desktop';
   if (n.startsWith('visionos-')) return 'spatial';
   if (n.startsWith('cli-') || n === 'cli-app.html') return 'cli';
   if (n.includes('browser-extension') || n.includes('extension')) return 'extension';
@@ -293,6 +302,10 @@ function getCategory(n) {
 
 function getVariant(n) {
   if (n.includes('native') || n.includes('m3-v3')) return 'native';
+  if (n.includes('v16-dense') || n.includes('-dense')) return 'dense';
+  if (n.includes('v15-mesh') || n.includes('-mesh')) return 'mesh';
+  if (n.includes('v14-wire') || n.includes('-wire')) return 'wire';
+  if (n.includes('v13-duotone') || n.includes('-duotone')) return 'duotone';
   if (n.includes('v12-kinetic') || n.includes('-kinetic')) return 'kinetic';
   if (n.includes('v11-scandi') || n.includes('-scandi')) return 'scandi';
   if (n.includes('v10-swiss') || n.includes('-swiss')) return 'swiss';
@@ -311,6 +324,12 @@ function getScreen(n) {
   const s = n.replace('.html','');
   const parts = s.split('-');
   // Extract the core screen name
+  if (s.includes('tabbed')) return 'Files (Tabbed)';
+  if (s.includes('nested')) return 'Files (Tree)';
+  if (s.includes('split')) return 'Files (Split)';
+  if (s.includes('column')) return 'Files (Column)';
+  if (s.includes('menubar')) return 'Menu Bar';
+  if (s.includes('telegram')) return 'Files (Native)';
   if (parts.includes('files') || parts.includes('filebrowser')) return 'Files';
   if (parts.includes('transfers')) return 'Transfers';
   if (parts.includes('player')) return 'Player';
@@ -361,8 +380,9 @@ function getScreen(n) {
 }
 
 function getPlatform(n) {
+  if (n.startsWith('desktop-')) return n.includes('macos') ? 'macOS' : n.includes('windows') ? 'Windows' : 'Linux';
   if (n.includes('browser-extension') || n.includes('extension')) return 'Extension';
-  if (n.startsWith('watchos-') || n.includes('watch')) return 'Watch';
+  if (n.startsWith('watchos-') || n.startsWith('wearos-')) return 'Watch';
   if (n.startsWith('visionos-')) return 'visionOS';
   if (n.startsWith('cli-')) return 'CLI';
   if (n.startsWith('ios-')) return 'iOS';
@@ -385,7 +405,7 @@ function getTags(n) {
 }
 
 function getIconLetter(cat) {
-  const m = { web: 'W', ios: 'i', android: 'A', tv: 'T', watch: '⌚', extension: 'E', spatial: 'S', cli: '>', marketing: 'M' };
+  const m = { web: 'W', ios: 'i', android: 'A', tv: 'T', desktop: 'D', watch: '⌚', extension: 'E', spatial: 'S', cli: '>', marketing: 'M' };
   return m[cat] || '·';
 }
 
@@ -466,6 +486,8 @@ function getFrameType(file) {
   if (file.startsWith('android-') && !file.startsWith('androidtv-')) return 'android';
   if (file.startsWith('tvos-') || file.startsWith('androidtv-')) return 'tv';
   if (file.startsWith('roku-')) return 'roku';
+  if (file.startsWith('desktop-') && file.includes('menubar')) return 'extension';
+  if (file.startsWith('desktop-')) return 'other';
   if (file.startsWith('visionos-') || file.startsWith('cli-')) return 'other';
   return 'web';
 }
