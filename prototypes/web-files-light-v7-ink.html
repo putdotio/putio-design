@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Files (Ink Light)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #FFFFFF;
+    --text: #1A1A1A;
+    --muted: #999999;
+    --yellow: #FDCE45;
+    --mono: 'IBM Plex Mono', 'iA Writer Quattro', 'Menlo', 'Consolas', monospace;
+  }
+
+  body {
+    font-family: var(--mono);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 24px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .frame {
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ================================================================
+     TOP NAVIGATION
+     ================================================================ */
+  .nav {
+    width: 640px;
+    padding: 48px 0 0;
+  }
+
+  .nav-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .nav-brand {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    margin-right: auto;
+  }
+
+  .nav-link {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 400;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+
+  .nav-link:hover {
+    color: var(--text);
+  }
+
+  .nav-link.active {
+    color: var(--text);
+  }
+
+  /* Yellow dot for active nav item */
+  .nav-link.active::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--yellow);
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  .nav-sep {
+    color: #CCCCCC;
+    font-size: 13px;
+    user-select: none;
+  }
+
+  /* ================================================================
+     CONTENT
+     ================================================================ */
+  .content {
+    width: 640px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-top: 64px;
+  }
+
+  .page-title {
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 36px;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin-bottom: 48px;
+  }
+
+  /* ================================================================
+     BREADCRUMB
+     ================================================================ */
+  .breadcrumb {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 32px;
+    letter-spacing: 0.01em;
+  }
+
+  .breadcrumb a {
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--text);
+  }
+
+  /* ================================================================
+     FILE LIST
+     ================================================================ */
+  .file-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .file-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 0;
+    cursor: pointer;
+    transition: color 0.15s ease;
+    position: relative;
+  }
+
+  .file-row:hover .file-name {
+    color: var(--muted);
+  }
+
+  /* Yellow dot for selected item */
+  .file-row.selected::before {
+    content: '';
+    position: absolute;
+    left: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--yellow);
+  }
+
+  .file-name {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 400;
+    transition: color 0.15s ease;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .file-row.is-folder .file-name {
+    font-weight: 500;
+  }
+
+  .file-meta {
+    color: var(--muted);
+    font-size: 13px;
+    white-space: nowrap;
+    margin-left: 32px;
+    flex-shrink: 0;
+  }
+
+  /* ================================================================
+     FOOTER
+     ================================================================ */
+  .footer {
+    width: 640px;
+    padding: 48px 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .footer-brand {
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  .footer-storage {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .kaomoji {
+    color: #E0E0E0;
+    font-size: 11px;
+    margin-left: 16px;
+    letter-spacing: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="frame">
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-row">
+      <a class="nav-brand" href="#">put.io</a>
+      <a class="nav-link active" href="#">files</a>
+      <span class="nav-sep">&middot;</span>
+      <a class="nav-link" href="#">transfers</a>
+      <span class="nav-sep">&middot;</span>
+      <a class="nav-link" href="#">rss</a>
+      <span class="nav-sep">&middot;</span>
+      <a class="nav-link" href="#">sharing</a>
+      <span class="nav-sep">&middot;</span>
+      <a class="nav-link" href="#">history</a>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <main class="content">
+    <h1 class="page-title">Files</h1>
+
+    <div class="breadcrumb">
+      <a href="#">Your Files</a> / <a href="#">Movies</a>
+    </div>
+
+    <div class="file-list">
+      <div class="file-row is-folder">
+        <span class="file-name">Documentaries/</span>
+        <span class="file-meta">12 items</span>
+      </div>
+
+      <div class="file-row is-folder">
+        <span class="file-name">Criterion Collection/</span>
+        <span class="file-meta">34 items</span>
+      </div>
+
+      <div class="file-row selected">
+        <span class="file-name">Inception.2010.2160p.UHD.BluRay.x265.mkv</span>
+        <span class="file-meta">6.7 GB &nbsp; 2024-12-14</span>
+      </div>
+
+      <div class="file-row">
+        <span class="file-name">The.Grand.Budapest.Hotel.2014.1080p.BluRay.x264.mkv</span>
+        <span class="file-meta">4.1 GB &nbsp; 2024-12-12</span>
+      </div>
+
+      <div class="file-row">
+        <span class="file-name">Blade.Runner.2049.2017.2160p.UHD.BluRay.x265.mkv</span>
+        <span class="file-meta">8.2 GB &nbsp; 2024-12-10</span>
+      </div>
+
+      <div class="file-row">
+        <span class="file-name">Stalker.1979.Criterion.1080p.BluRay.x264.mkv</span>
+        <span class="file-meta">5.4 GB &nbsp; 2024-12-08</span>
+      </div>
+
+      <div class="file-row">
+        <span class="file-name">Parasite.2019.2160p.UHD.BluRay.x265.mkv</span>
+        <span class="file-meta">7.1 GB &nbsp; 2024-12-05</span>
+      </div>
+
+      <div class="file-row">
+        <span class="file-name">Drive.2011.1080p.BluRay.x264.mkv</span>
+        <span class="file-meta">3.8 GB &nbsp; 2024-12-03</span>
+      </div>
+
+      <div class="file-row">
+        <span class="file-name">2001.A.Space.Odyssey.1968.2160p.UHD.BluRay.x265.mkv</span>
+        <span class="file-meta">9.3 GB &nbsp; 2024-11-28</span>
+      </div>
+
+      <div class="file-row">
+        <span class="file-name">Arrival.2016.1080p.BluRay.x264.mkv</span>
+        <span class="file-meta">4.5 GB &nbsp; 2024-11-25</span>
+      </div>
+
+      <div class="file-row">
+        <span class="file-name">The.Lighthouse.2019.1080p.BluRay.x264.mkv</span>
+        <span class="file-meta">3.2 GB &nbsp; 2024-11-22</span>
+      </div>
+
+      <div class="file-row">
+        <span class="file-name">Annihilation.2018.1080p.BluRay.x264.mkv</span>
+        <span class="file-meta">4.0 GB &nbsp; 2024-11-19</span>
+      </div>
+
+      <div class="file-row is-folder">
+        <span class="file-name">Subtitles/</span>
+        <span class="file-meta">8 items</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <span class="footer-brand">put.io<span class="kaomoji">&nbsp;&nbsp;&nbsp;&#x1566;(&#xF2;_&#xF3;&#x2C7;)&#x1564;</span></span>
+    <span class="footer-storage">39 TB / 50 TB</span>
+  </footer>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=412">
+<title>put.io — Android Files (Scandinavian)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #1A1816;
+    --surface: #222018;
+    --surface-2: #2A2820;
+    --surface-warm: #302D24;
+    --border: rgba(255,255,255,0.06);
+    --text: #F2EDE4;
+    --text-2: #B8B0A0;
+    --text-3: #7A7468;
+    --yellow: #FDCE45;
+    --yellow-soft: rgba(253,206,69,0.12);
+    --green: #7BC4A0;
+    --green-soft: rgba(123,196,160,0.12);
+    --purple: #A8A0D8;
+    --purple-soft: rgba(168,160,216,0.10);
+    --red: #E88888;
+    --radius: 20px;
+    --radius-sm: 14px;
+    --radius-xs: 10px;
+  }
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .phone { width: 412px; height: 915px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 12px 24px 0;
+    font-size: 14px; font-weight: 500; height: 48px;
+  }
+  .status-bar .time { flex: 1; }
+  .status-bar .icons { display: flex; gap: 8px; align-items: center; }
+  .status-bar .icons svg { width: 16px; height: 16px; fill: var(--text); }
+
+  /* Top Bar */
+  .top-bar {
+    display: flex; align-items: center; padding: 4px 12px;
+  }
+  .icon-btn {
+    width: 48px; height: 48px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: none; cursor: pointer;
+  }
+  .icon-btn svg { width: 24px; height: 24px; fill: var(--text-2); }
+  .top-bar .spacer { flex: 1; }
+  .avatar-btn {
+    width: 38px; height: 38px; border-radius: 999px;
+    background: var(--surface-2);
+    display: flex; align-items: center; justify-content: center;
+    border: none; cursor: pointer; margin-right: 4px;
+  }
+  .avatar-btn svg { width: 22px; height: 22px; }
+
+  /* Title -- warm, friendly */
+  .top-bar-title {
+    padding: 16px 20px 8px;
+    font-size: 30px; font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  .top-bar-title .subtitle {
+    display: block;
+    font-size: 14px; font-weight: 400;
+    color: var(--text-3);
+    margin-top: 4px;
+  }
+
+  /* Search */
+  .search-bar {
+    margin: 8px 16px 12px; padding: 14px 18px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    display: flex; align-items: center; gap: 12px;
+    font-size: 15px; color: var(--text-3);
+  }
+  .search-bar svg { width: 20px; height: 20px; fill: var(--text-3); flex-shrink: 0; }
+
+  /* Chips -- soft rounded */
+  .chip-row { display: flex; gap: 8px; padding: 0 16px 14px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 18px; border-radius: 999px;
+    background: var(--surface);
+    font-size: 13px; font-weight: 500; color: var(--text-2);
+    white-space: nowrap; cursor: pointer;
+    border: none;
+  }
+  .chip.active {
+    background: var(--yellow-soft);
+    color: var(--yellow);
+  }
+
+  /* File list */
+  .file-list { flex: 1; overflow-y: auto; padding-bottom: 80px; }
+
+  .list-section-header {
+    font-size: 13px; font-weight: 600;
+    color: var(--text-3);
+    padding: 20px 20px 10px;
+  }
+
+  .list-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 20px;
+    min-height: 68px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    margin: 2px 12px;
+  }
+  .list-item:hover { background: var(--surface); }
+
+  .l-icon-wrap {
+    width: 48px; height: 48px; border-radius: var(--radius-xs);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .l-icon-wrap.folder { background: var(--yellow-soft); }
+  .l-icon-wrap.video { background: var(--green-soft); }
+  .l-icon-wrap.audio { background: var(--purple-soft); }
+  .l-icon-wrap.doc { background: rgba(255,255,255,0.04); }
+  .l-icon-wrap svg { width: 22px; height: 22px; }
+  .l-icon-wrap.folder svg { fill: var(--yellow); }
+  .l-icon-wrap.video svg { fill: var(--green); }
+  .l-icon-wrap.audio svg { fill: var(--purple); }
+  .l-icon-wrap.doc svg { fill: var(--text-3); }
+
+  .l-info { flex: 1; min-width: 0; }
+  .l-headline {
+    font-size: 15px; font-weight: 600;
+    color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .l-supporting {
+    font-size: 13px; color: var(--text-3);
+    margin-top: 3px;
+  }
+
+  .l-trailing { flex-shrink: 0; }
+  .l-badge {
+    font-size: 11px; font-weight: 600;
+    background: var(--yellow-soft);
+    color: var(--yellow);
+    padding: 3px 10px; border-radius: 999px;
+  }
+
+  .l-chevron svg { width: 20px; height: 20px; fill: var(--text-3); }
+
+  /* Warm card */
+  .warm-card {
+    margin: 4px 16px 8px;
+    padding: 18px 20px;
+    background: var(--surface-warm);
+    border-radius: var(--radius);
+  }
+  .warm-card-title {
+    font-size: 13px; font-weight: 600;
+    color: var(--text-2);
+    margin-bottom: 8px;
+  }
+  .warm-card-body {
+    font-size: 14px; color: var(--text);
+    line-height: 1.4; font-weight: 500;
+  }
+  .warm-card-progress {
+    display: flex; align-items: center; gap: 10px; margin-top: 12px;
+  }
+  .warm-card-bar {
+    flex: 1; height: 6px; border-radius: 3px;
+    background: rgba(255,255,255,0.06);
+    overflow: hidden;
+  }
+  .warm-card-fill {
+    height: 100%; border-radius: 3px;
+    background: var(--yellow);
+  }
+  .warm-card-pct {
+    font-size: 14px; font-weight: 600; color: var(--yellow);
+  }
+
+  /* FAB */
+  .fab {
+    position: absolute;
+    bottom: 92px; right: 16px;
+    width: 56px; height: 56px;
+    border-radius: var(--radius);
+    background: var(--yellow);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 20px rgba(253,206,69,0.2);
+    border: none; cursor: pointer;
+    z-index: 10;
+  }
+  .fab svg { width: 26px; height: 26px; fill: var(--bg); }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    display: flex;
+    background: var(--surface);
+    height: 80px; flex-shrink: 0;
+    z-index: 10;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 4px; cursor: pointer;
+    position: relative;
+  }
+  .nav-indicator {
+    width: 56px; height: 32px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-item.active .nav-indicator {
+    background: var(--yellow-soft);
+  }
+  .nav-indicator svg { width: 22px; height: 22px; fill: var(--text-3); }
+  .nav-item.active .nav-indicator svg { fill: var(--yellow); }
+  .nav-label {
+    font-size: 11px; font-weight: 500;
+    color: var(--text-3);
+  }
+  .nav-item.active .nav-label {
+    color: var(--text); font-weight: 600;
+  }
+  .nav-badge {
+    position: absolute; top: 8px; right: calc(50% - 26px);
+    background: var(--red); color: #FFFFFF;
+    font-size: 10px; font-weight: 700;
+    width: 18px; height: 18px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">12:34</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M2 22h4V12H2v10zm6 0h4V7H8v15zm6 0h4V2h-4v20z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4zM16 20H8V6h8v14z"/></svg>
+    </div>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="spacer"></div>
+    <div class="icon-btn">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    </div>
+    <div class="avatar-btn">
+      <svg viewBox="0 0 24 24" fill="none">
+        <rect x="4" y="4" width="2" height="2" fill="#FDCE45"/>
+        <rect x="18" y="4" width="2" height="2" fill="#FDCE45"/>
+        <rect x="6" y="6" width="2" height="2" fill="#FDCE45"/>
+        <rect x="16" y="6" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="8" width="16" height="2" fill="#FDCE45"/>
+        <rect x="4" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="8" y="10" width="8" height="2" fill="#FDCE45"/>
+        <rect x="18" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="12" width="2" height="2" fill="#FDCE45"/>
+        <rect x="8" y="12" width="2" height="2" fill="#1A1816"/>
+        <rect x="14" y="12" width="2" height="2" fill="#1A1816"/>
+        <rect x="10" y="12" width="4" height="2" fill="#FDCE45"/>
+        <rect x="18" y="12" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="14" width="16" height="2" fill="#FDCE45"/>
+        <rect x="6" y="16" width="4" height="2" fill="#FDCE45"/>
+        <rect x="14" y="16" width="4" height="2" fill="#FDCE45"/>
+        <rect x="8" y="18" width="2" height="2" fill="#FDCE45"/>
+        <rect x="14" y="18" width="2" height="2" fill="#FDCE45"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Title -->
+  <div class="top-bar-title">
+    Your Files
+    <span class="subtitle">11 items -- 39 TB of 50 TB used</span>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    Search your files
+  </div>
+
+  <!-- Chips -->
+  <div class="chip-row">
+    <div class="chip active">All</div>
+    <div class="chip">Videos</div>
+    <div class="chip">Audio</div>
+    <div class="chip">Documents</div>
+  </div>
+
+  <!-- File List -->
+  <div class="file-list">
+    <!-- Transfer card -->
+    <div class="warm-card">
+      <div class="warm-card-title">Now Transferring</div>
+      <div class="warm-card-body">Inception (2160p BluRay) -- 4.2 GB of 6.7 GB</div>
+      <div class="warm-card-progress">
+        <div class="warm-card-bar"><div class="warm-card-fill" style="width: 63%;"></div></div>
+        <span class="warm-card-pct">63%</span>
+      </div>
+    </div>
+
+    <div class="list-section-header">Folders</div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">downloads</div>
+        <div class="l-supporting">21.78 GB -- 8 items</div>
+      </div>
+      <div class="l-chevron">
+        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">stuff</div>
+        <div class="l-supporting">4.16 GB -- a year ago</div>
+      </div>
+      <div class="l-chevron">
+        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">chill institute</div>
+        <div class="l-supporting">0 B -- 16 hours ago</div>
+      </div>
+      <div class="l-chevron">
+        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">__dev__</div>
+        <div class="l-supporting">6.6 GB -- 2 years ago</div>
+      </div>
+      <div class="l-chevron">
+        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+      </div>
+    </div>
+
+    <div class="list-section-header">Recent Files</div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap video">
+        <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">Cosmos Laundromat</div>
+        <div class="l-supporting">209.89 MB -- 2 days ago</div>
+      </div>
+      <div class="l-trailing">
+        <span class="l-badge">720p</span>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap video">
+        <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">Sintel</div>
+        <div class="l-supporting">892.45 MB -- 3 days ago</div>
+      </div>
+      <div class="l-trailing">
+        <span class="l-badge">1080p</span>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap video">
+        <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">Big Buck Bunny</div>
+        <div class="l-supporting">1.22 GB -- 5 days ago</div>
+      </div>
+      <div class="l-trailing">
+        <span class="l-badge">4K</span>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap audio">
+        <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">podcast-episode-127.mp3</div>
+        <div class="l-supporting">45.2 MB -- 5 days ago</div>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap doc">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">ebook-design-systems.epub</div>
+        <div class="l-supporting">12.3 MB -- a week ago</div>
+      </div>
+    </div>
+
+    <div style="text-align: center; padding: 24px 0 8px; font-size: 12px; color: var(--text-3); font-weight: 300;">
+      your cloud, simply
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab">
+    <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+  </button>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active">
+      <div class="nav-indicator">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <span class="nav-label">Files</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-indicator">
+        <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+      </div>
+      <span class="nav-label">Transfers</span>
+      <div class="nav-badge">3</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-indicator">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      </div>
+      <span class="nav-label">Downloads</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-indicator">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.488.488 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      </div>
+      <span class="nav-label">Settings</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

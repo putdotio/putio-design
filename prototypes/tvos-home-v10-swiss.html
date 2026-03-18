@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>put.io -- tvOS Home (v10 Swiss)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0A0A0A;
+    --bg-2: #111111;
+    --bg-3: #1A1A1A;
+    --bg-4: #222222;
+    --bg-5: #2C2C2C;
+    --border: rgba(255,255,255,0.06);
+    --text: #EDEDED;
+    --text-2: #999999;
+    --text-3: #666666;
+    --text-4: #444444;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.10);
+    --green: #3ECF8E;
+  }
+
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+  }
+
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    flex-direction: column;
+    padding: 60px 120px;
+  }
+
+  /* TOP NAV */
+  .top-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 60px;
+  }
+  .nav-brand {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    margin-right: 40px;
+  }
+  .nav-brand span { color: var(--yellow); }
+
+  .nav-tab {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    padding: 4px 16px;
+    transition: color 0.15s;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active {
+    color: var(--text);
+    border-bottom: 2px solid var(--yellow);
+    font-weight: 500;
+  }
+
+  .nav-spacer { flex: 1; }
+
+  .nav-avatar {
+    width: 36px; height: 36px;
+    background: var(--bg-4);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* SECTIONS */
+  .section {
+    margin-bottom: 48px;
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* LIST-BASED file browser rows */
+  .file-list-row {
+    display: flex;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    gap: 24px;
+  }
+  .file-list-row:last-child { border-bottom: none; }
+  .file-list-row:hover .flr-name { color: var(--yellow); }
+  .file-list-row.focused {
+    background: var(--bg-3);
+    margin: 0 -16px;
+    padding: 14px 16px;
+    border-left: 2px solid var(--yellow);
+  }
+
+  .flr-icon {
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .flr-name {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text);
+    flex: 1;
+    letter-spacing: -0.02em;
+    transition: color 0.1s;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .flr-meta {
+    font-size: 13px;
+    color: var(--text-3);
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+
+  .flr-size {
+    font-size: 13px;
+    color: var(--text-3);
+    white-space: nowrap;
+    width: 80px;
+    text-align: right;
+  }
+
+  .flr-date {
+    font-size: 13px;
+    color: var(--text-4);
+    width: 100px;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .flr-progress {
+    font-size: 13px;
+    color: var(--yellow);
+    width: 80px;
+    text-align: right;
+  }
+
+  /* Transfer row */
+  .transfer-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 24px;
+  }
+  .transfer-row:last-child { border-bottom: none; }
+  .tr-name { font-size: 17px; color: var(--text); flex: 1; letter-spacing: -0.01em; }
+  .tr-pct { font-size: 17px; color: var(--text-2); width: 60px; text-align: right; }
+  .tr-speed { font-size: 13px; color: var(--text-3); width: 100px; text-align: right; }
+  .tr-status { font-size: 13px; color: var(--text-3); width: 100px; text-align: right; }
+
+  /* Stats */
+  .stats-row {
+    display: flex;
+    gap: 80px;
+    margin-top: 12px;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* 12 column grid for the content area */
+  .content-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 48px;
+    flex: 1;
+  }
+  .cg-8 { grid-column: span 8; }
+  .cg-4 { grid-column: span 4; }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- TOP NAV -->
+  <div class="top-nav">
+    <div class="nav-brand">put<span>.</span>io</div>
+    <div class="nav-tab active">Home</div>
+    <div class="nav-tab">Files</div>
+    <div class="nav-tab">Transfers</div>
+    <div class="nav-tab">Search</div>
+    <div class="nav-tab">Settings</div>
+    <div class="nav-spacer"></div>
+    <div class="nav-avatar">
+      <svg width="20" height="20" viewBox="0 0 16 16" fill="var(--text-2)">
+        <rect x="3" y="2" width="2" height="2"/><rect x="11" y="2" width="2" height="2"/>
+        <rect x="5" y="4" width="2" height="2"/><rect x="9" y="4" width="2" height="2"/>
+        <rect x="3" y="6" width="10" height="2"/>
+        <rect x="1" y="8" width="2" height="2"/><rect x="3" y="8" width="2" height="2"/>
+        <rect x="5" y="8" width="6" height="2"/><rect x="11" y="8" width="2" height="2"/>
+        <rect x="13" y="8" width="2" height="2"/>
+        <rect x="1" y="10" width="2" height="2"/><rect x="5" y="10" width="2" height="2"/>
+        <rect x="9" y="10" width="2" height="2"/><rect x="13" y="10" width="2" height="2"/>
+        <rect x="3" y="12" width="2" height="2"/><rect x="5" y="12" width="2" height="2"/>
+        <rect x="9" y="12" width="2" height="2"/><rect x="11" y="12" width="2" height="2"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="content-grid">
+
+    <!-- LEFT: 8 cols -->
+    <div class="cg-8">
+
+      <!-- Continue Watching -->
+      <div class="section">
+        <div class="section-title">Continue Watching</div>
+        <div class="file-list-row focused">
+          <span class="flr-icon">
+            <svg width="20" height="20" viewBox="0 0 256 256" fill="var(--yellow)"><path d="M232,128a104,104,0,1,1-104-104A104.11,104.11,0,0,1,232,128Zm-144-52v104a8,8,0,0,0,12.15,6.69l84-52a8,8,0,0,0,0-13.38l-84-52A8,8,0,0,0,88,76Z"/></svg>
+          </span>
+          <span class="flr-name">the bear s03e08</span>
+          <span class="flr-meta">.mp4</span>
+          <span class="flr-size">1.8 GB</span>
+          <span class="flr-progress">63%</span>
+        </div>
+        <div class="file-list-row">
+          <span class="flr-icon">
+            <svg width="20" height="20" viewBox="0 0 256 256" fill="var(--text-3)"><path d="M232,128a104,104,0,1,1-104-104A104.11,104.11,0,0,1,232,128Zm-144-52v104a8,8,0,0,0,12.15,6.69l84-52a8,8,0,0,0,0-13.38l-84-52A8,8,0,0,0,88,76Z"/></svg>
+          </span>
+          <span class="flr-name">severance s02e10</span>
+          <span class="flr-meta">.mp4</span>
+          <span class="flr-size">2.3 GB</span>
+          <span class="flr-progress">41%</span>
+        </div>
+        <div class="file-list-row">
+          <span class="flr-icon">
+            <svg width="20" height="20" viewBox="0 0 256 256" fill="var(--text-3)"><path d="M232,128a104,104,0,1,1-104-104A104.11,104.11,0,0,1,232,128Zm-144-52v104a8,8,0,0,0,12.15,6.69l84-52a8,8,0,0,0,0-13.38l-84-52A8,8,0,0,0,88,76Z"/></svg>
+          </span>
+          <span class="flr-name">dune part two</span>
+          <span class="flr-meta">.mkv</span>
+          <span class="flr-size">6.1 GB</span>
+          <span class="flr-progress">22%</span>
+        </div>
+      </div>
+
+      <!-- Recently Added -->
+      <div class="section">
+        <div class="section-title">Recently Added</div>
+        <div class="file-list-row">
+          <span class="flr-icon">
+            <svg width="20" height="20" viewBox="0 0 256 256" fill="var(--text-3)"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Z"/></svg>
+          </span>
+          <span class="flr-name">blade runner 2049</span>
+          <span class="flr-meta">.mkv</span>
+          <span class="flr-size">4.2 GB</span>
+          <span class="flr-date">2 days ago</span>
+        </div>
+        <div class="file-list-row">
+          <span class="flr-icon">
+            <svg width="20" height="20" viewBox="0 0 256 256" fill="var(--text-3)"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Z"/></svg>
+          </span>
+          <span class="flr-name">oppenheimer</span>
+          <span class="flr-meta">.mkv</span>
+          <span class="flr-size">8.4 GB</span>
+          <span class="flr-date">5 days ago</span>
+        </div>
+        <div class="file-list-row">
+          <span class="flr-icon">
+            <svg width="20" height="20" viewBox="0 0 256 256" fill="var(--text-3)"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Z"/></svg>
+          </span>
+          <span class="flr-name">past lives</span>
+          <span class="flr-meta">.mp4</span>
+          <span class="flr-size">2.8 GB</span>
+          <span class="flr-date">1 week ago</span>
+        </div>
+        <div class="file-list-row">
+          <span class="flr-icon">
+            <svg width="20" height="20" viewBox="0 0 256 256" fill="var(--text-3)"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Z"/></svg>
+          </span>
+          <span class="flr-name">poor things</span>
+          <span class="flr-meta">.mkv</span>
+          <span class="flr-size">5.3 GB</span>
+          <span class="flr-date">1 week ago</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: 4 cols -->
+    <div class="cg-4">
+
+      <!-- Active Transfers -->
+      <div class="section">
+        <div class="section-title">Active Transfers</div>
+        <div class="transfer-row">
+          <span class="tr-name">poor things</span>
+          <span class="tr-pct">87%</span>
+          <span class="tr-speed">12.4 MB/s</span>
+          <span class="tr-status">downloading</span>
+        </div>
+        <div class="transfer-row">
+          <span class="tr-name">the holdovers</span>
+          <span class="tr-pct">34%</span>
+          <span class="tr-speed">8.7 MB/s</span>
+          <span class="tr-status">downloading</span>
+        </div>
+        <div class="transfer-row">
+          <span class="tr-name">anatomy of a fall</span>
+          <span class="tr-pct">100%</span>
+          <span class="tr-speed"></span>
+          <span class="tr-status">completed</span>
+        </div>
+      </div>
+
+      <!-- Storage -->
+      <div class="section">
+        <div class="section-title">Storage</div>
+        <div class="stats-row">
+          <div>
+            <div class="stat-value">39 TB</div>
+            <div class="stat-label">Used of 100 TB</div>
+          </div>
+        </div>
+        <div class="stats-row" style="margin-top:24px">
+          <div>
+            <div class="stat-value">3,058</div>
+            <div class="stat-label">Total Files</div>
+          </div>
+          <div>
+            <div class="stat-value">4</div>
+            <div class="stat-label">Transfers</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+</body>
+</html>
