@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=412">
+<title>put.io -- Android Storage Dashboard (Material 3 Deep)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    /* M3 Dark Theme -- Yellow #FDCE45 seed */
+    --md-primary: #FDCE45;
+    --md-on-primary: #3D2E00;
+    --md-primary-container: #574400;
+    --md-on-primary-container: #FFE17A;
+    --md-secondary: #D0C6A0;
+    --md-on-secondary: #353016;
+    --md-secondary-container: #4C472B;
+    --md-on-secondary-container: #ECE2BA;
+    --md-tertiary: #A3D0B8;
+    --md-on-tertiary: #0B3725;
+    --md-tertiary-container: #254E3A;
+    --md-on-tertiary-container: #BFF0D3;
+    --md-error: #FFB4AB;
+    --md-on-error: #690005;
+    --md-error-container: #93000A;
+    --md-on-error-container: #FFDAD6;
+    --md-surface: #141210;
+    --md-surface-dim: #141210;
+    --md-surface-container-lowest: #0F0D0B;
+    --md-surface-container-low: #1C1A17;
+    --md-surface-container: #201E1B;
+    --md-surface-container-high: #2B2925;
+    --md-surface-container-highest: #363330;
+    --md-on-surface: #E7E2D9;
+    --md-on-surface-variant: #CBC6B8;
+    --md-outline: #959083;
+    --md-outline-variant: #4A4639;
+    --md-inverse-surface: #E7E2D9;
+    --md-inverse-on-surface: #333027;
+    --md-inverse-primary: #6D5E00;
+    /* Extended palette */
+    --video-color: #FDCE45;
+    --audio-color: #D0C6A0;
+    --doc-color: #A3D0B8;
+    --archive-color: #959083;
+    /* Elevation tint */
+    --md-elevation-1: rgba(253, 206, 69, 0.05);
+    --md-elevation-2: rgba(253, 206, 69, 0.08);
+    --md-elevation-3: rgba(253, 206, 69, 0.11);
+    --md-elevation-4: rgba(253, 206, 69, 0.12);
+  }
+  body {
+    font-family: 'Inter', 'Roboto', sans-serif;
+    background: var(--md-surface);
+    color: var(--md-on-surface);
+    -webkit-font-smoothing: antialiased;
+  }
+  .phone {
+    width: 412px; height: 915px; overflow: hidden;
+    display: flex; flex-direction: column; position: relative;
+    background: var(--md-surface);
+  }
+
+  /* ===== STATUS BAR ===== */
+  .status-bar {
+    display: flex; align-items: center; padding: 12px 24px 0;
+    font-size: 14px; font-weight: 500; height: 48px; flex-shrink: 0;
+  }
+  .status-bar .time { flex: 1; }
+  .status-bar .icons { display: flex; gap: 8px; align-items: center; }
+  .status-bar .icons svg { width: 16px; height: 16px; fill: var(--md-on-surface); }
+
+  /* ===== M3 TOP APP BAR ===== */
+  .top-app-bar {
+    display: flex; align-items: center; padding: 4px 4px 0;
+    gap: 4px; flex-shrink: 0;
+  }
+  .icon-btn {
+    width: 48px; height: 48px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: none; cursor: pointer; flex-shrink: 0;
+  }
+  .icon-btn svg { width: 24px; height: 24px; fill: var(--md-on-surface-variant); }
+  .spacer { flex: 1; }
+  .top-title {
+    padding: 4px 16px 16px; flex-shrink: 0;
+    /* M3 Headline Small */
+    font-size: 24px; font-weight: 700; letter-spacing: -0.01em;
+    color: var(--md-on-surface);
+  }
+
+  /* ===== SCROLLABLE CONTENT ===== */
+  .scroll-content { flex: 1; overflow-y: auto; padding-bottom: 8px; }
+
+  /* ===== HERO CARD: M3 Card with Storage Gauge ===== */
+  .hero-card {
+    margin: 0 16px 16px;
+    background: var(--md-surface-container);
+    border-radius: 28px; /* M3 extra-large shape */
+    padding: 28px 24px 24px;
+    display: flex; flex-direction: column; align-items: center;
+    /* Elevation level 1 */
+    box-shadow: inset 0 0 0 1000px var(--md-elevation-1);
+  }
+
+  /* M3 Circular Progress */
+  .gauge-container { position: relative; width: 180px; height: 180px; margin-bottom: 20px; }
+  .gauge-center {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%); text-align: center;
+  }
+  .gauge-pct {
+    /* M3 Display Small */
+    font-size: 36px; font-weight: 700; letter-spacing: -0.02em;
+    color: var(--md-on-surface);
+  }
+  .gauge-label {
+    /* M3 Body Small */
+    font-size: 12px; font-weight: 400; color: var(--md-on-surface-variant);
+    margin-top: 2px; font-variant-numeric: tabular-nums;
+  }
+
+  .gauge-stats {
+    display: flex; gap: 32px; width: 100%; justify-content: center;
+  }
+  .gauge-stat { text-align: center; }
+  .gauge-stat-value {
+    /* M3 Title Medium */
+    font-size: 16px; font-weight: 500; color: var(--md-on-surface);
+  }
+  .gauge-stat-label {
+    /* M3 Body Small */
+    font-size: 12px; font-weight: 400; color: var(--md-on-surface-variant);
+    margin-top: 2px;
+  }
+  .gauge-stat-value.available { color: var(--md-tertiary); }
+
+  /* ===== BREAKDOWN CARDS ===== */
+  .section-label {
+    /* M3 Title Small */
+    font-size: 14px; font-weight: 500; letter-spacing: 0.1px;
+    color: var(--md-on-surface-variant);
+    padding: 8px 16px 12px;
+  }
+
+  .breakdown-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; padding: 0 16px 16px;
+  }
+
+  .breakdown-card {
+    background: var(--md-surface-container);
+    border-radius: 16px; /* M3 large shape */
+    padding: 16px;
+    box-shadow: inset 0 0 0 1000px var(--md-elevation-1);
+  }
+  .bk-icon-row {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  }
+  .bk-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .bk-icon svg { width: 20px; height: 20px; }
+  .bk-icon.video { background: var(--md-primary-container); }
+  .bk-icon.video svg { fill: var(--md-on-primary-container); }
+  .bk-icon.audio { background: var(--md-secondary-container); }
+  .bk-icon.audio svg { fill: var(--md-on-secondary-container); }
+  .bk-icon.docs { background: var(--md-tertiary-container); }
+  .bk-icon.docs svg { fill: var(--md-on-tertiary-container); }
+  .bk-icon.other { background: var(--md-surface-container-highest); }
+  .bk-icon.other svg { fill: var(--md-on-surface-variant); }
+  .bk-name {
+    /* M3 Title Small */
+    font-size: 14px; font-weight: 500; color: var(--md-on-surface);
+  }
+  .bk-size {
+    /* M3 Display Small (compact) */
+    font-size: 22px; font-weight: 700; color: var(--md-on-surface);
+    margin-bottom: 4px; letter-spacing: -0.02em;
+  }
+  .bk-files {
+    /* M3 Body Small */
+    font-size: 12px; font-weight: 400; color: var(--md-on-surface-variant);
+    margin-bottom: 10px;
+  }
+  .bk-bar {
+    height: 4px; background: var(--md-surface-container-highest);
+    border-radius: 2px; overflow: hidden;
+  }
+  .bk-bar-fill { height: 100%; border-radius: 2px; }
+
+  /* ===== INSIGHT CARDS (M3 Filled Tonal) ===== */
+  .insight-card {
+    margin: 0 16px 12px;
+    background: var(--md-primary-container);
+    border-radius: 16px; /* M3 large shape */
+    padding: 16px 20px;
+    display: flex; flex-direction: column; gap: 8px;
+    /* Elevation level 1 */
+    box-shadow: inset 0 0 0 1000px var(--md-elevation-1);
+  }
+  .insight-header {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .insight-icon {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,225,122,0.15);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .insight-icon svg { width: 22px; height: 22px; fill: var(--md-on-primary-container); }
+  .insight-title {
+    /* M3 Title Small */
+    font-size: 14px; font-weight: 500; color: var(--md-on-primary-container);
+    flex: 1;
+  }
+  .insight-desc {
+    /* M3 Body Medium */
+    font-size: 14px; font-weight: 400; line-height: 20px;
+    color: var(--md-on-primary-container); opacity: 0.85;
+  }
+  .insight-action {
+    display: inline-flex; align-items: center; gap: 6px;
+    /* M3 Label Large */
+    font-size: 14px; font-weight: 500; letter-spacing: 0.1px;
+    color: var(--md-on-primary-container);
+    background: none; border: none; cursor: pointer;
+    font-family: inherit; padding: 0;
+    align-self: flex-start;
+  }
+  .insight-action svg { width: 18px; height: 18px; fill: var(--md-on-primary-container); }
+
+  /* Secondary insight */
+  .insight-card.secondary {
+    background: var(--md-tertiary-container);
+  }
+  .insight-card.secondary .insight-icon {
+    background: rgba(191,240,211,0.15);
+  }
+  .insight-card.secondary .insight-icon svg { fill: var(--md-on-tertiary-container); }
+  .insight-card.secondary .insight-title { color: var(--md-on-tertiary-container); }
+  .insight-card.secondary .insight-desc { color: var(--md-on-tertiary-container); }
+  .insight-card.secondary .insight-action { color: var(--md-on-tertiary-container); }
+  .insight-card.secondary .insight-action svg { fill: var(--md-on-tertiary-container); }
+
+  /* ===== LARGEST FILES: M3 List in Card ===== */
+  .files-card {
+    margin: 0 16px 16px;
+    background: var(--md-surface-container);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1000px var(--md-elevation-1);
+  }
+  .files-card-header {
+    padding: 16px 16px 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .files-card-title {
+    /* M3 Title Small */
+    font-size: 14px; font-weight: 500; color: var(--md-on-surface-variant);
+    letter-spacing: 0.1px;
+  }
+  .files-card-action {
+    /* M3 Label Large */
+    font-size: 14px; font-weight: 500; letter-spacing: 0.1px;
+    color: var(--md-primary);
+    background: none; border: none; cursor: pointer; font-family: inherit;
+  }
+
+  .file-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+    position: relative;
+  }
+  .file-row::after {
+    content: ''; position: absolute;
+    bottom: 0; left: 64px; right: 16px;
+    height: 1px; background: var(--md-outline-variant); opacity: 0.3;
+  }
+  .file-row:last-child::after { display: none; }
+
+  .file-row-icon {
+    width: 40px; height: 40px; border-radius: 12px; /* M3 medium shape */
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .file-row-icon.video { background: var(--md-primary-container); }
+  .file-row-icon.video svg { fill: var(--md-on-primary-container); }
+  .file-row-icon.audio { background: var(--md-secondary-container); }
+  .file-row-icon.audio svg { fill: var(--md-on-secondary-container); }
+  .file-row-icon svg { width: 20px; height: 20px; }
+
+  .file-row-body { flex: 1; min-width: 0; }
+  .file-row-name {
+    /* M3 Body Large */
+    font-size: 14px; font-weight: 400; color: var(--md-on-surface);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .file-row-meta {
+    /* M3 Body Small */
+    font-size: 12px; font-weight: 400; color: var(--md-on-surface-variant);
+    margin-top: 2px;
+  }
+  .file-row-size {
+    /* M3 Label Medium */
+    font-size: 12px; font-weight: 500; letter-spacing: 0.5px;
+    color: var(--md-on-surface-variant);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+  .file-row-overflow {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: none; cursor: pointer; flex-shrink: 0;
+  }
+  .file-row-overflow svg { width: 20px; height: 20px; fill: var(--md-on-surface-variant); }
+
+  /* ===== MANAGE STORAGE: M3 Outlined Card ===== */
+  .manage-card {
+    margin: 0 16px 20px;
+    background: var(--md-surface-container-low);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: 16px;
+    padding: 0;
+    overflow: hidden;
+  }
+  .manage-card-header {
+    padding: 16px 16px 12px;
+  }
+  .manage-card-title {
+    /* M3 Title Small */
+    font-size: 14px; font-weight: 500; letter-spacing: 0.1px;
+    color: var(--md-on-surface-variant);
+  }
+  .manage-row {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 16px;
+    position: relative; cursor: pointer;
+  }
+  .manage-row::after {
+    content: ''; position: absolute;
+    bottom: 0; left: 56px; right: 16px;
+    height: 1px; background: var(--md-outline-variant); opacity: 0.3;
+  }
+  .manage-row:last-child::after { display: none; }
+  .manage-icon {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .manage-icon svg { width: 20px; height: 20px; }
+  .manage-icon.clean {
+    background: var(--md-error-container);
+  }
+  .manage-icon.clean svg { fill: var(--md-on-error-container); }
+  .manage-icon.expire {
+    background: var(--md-secondary-container);
+  }
+  .manage-icon.expire svg { fill: var(--md-on-secondary-container); }
+  .manage-icon.export {
+    background: var(--md-tertiary-container);
+  }
+  .manage-icon.export svg { fill: var(--md-on-tertiary-container); }
+  .manage-body { flex: 1; min-width: 0; }
+  .manage-name {
+    /* M3 Body Large */
+    font-size: 14px; font-weight: 400; color: var(--md-on-surface);
+  }
+  .manage-desc {
+    /* M3 Body Small */
+    font-size: 12px; font-weight: 400; color: var(--md-on-surface-variant);
+    margin-top: 2px;
+  }
+  .manage-chevron {
+    flex-shrink: 0;
+  }
+  .manage-chevron svg { width: 20px; height: 20px; fill: var(--md-outline); }
+
+  /* ===== M3 BOTTOM NAVIGATION BAR ===== */
+  .bottom-nav {
+    display: flex;
+    background: var(--md-surface-container);
+    box-shadow: inset 0 0 0 1000px var(--md-elevation-2);
+    height: 80px; flex-shrink: 0;
+    z-index: 10;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 4px; cursor: pointer;
+    position: relative;
+  }
+  .nav-pill {
+    width: 64px; height: 32px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-item.active .nav-pill {
+    background: var(--md-secondary-container);
+  }
+  .nav-pill svg { width: 24px; height: 24px; fill: var(--md-on-surface-variant); }
+  .nav-item.active .nav-pill svg { fill: var(--md-on-secondary-container); }
+  .nav-label {
+    /* M3 Label Medium */
+    font-size: 12px; font-weight: 500; letter-spacing: 0.5px;
+    color: var(--md-on-surface-variant);
+  }
+  .nav-item.active .nav-label {
+    color: var(--md-on-surface); font-weight: 600;
+  }
+  .nav-badge {
+    position: absolute; top: 4px; right: calc(50% - 26px);
+    background: var(--md-error);
+    color: var(--md-on-error);
+    font-size: 11px; font-weight: 700;
+    width: 16px; height: 16px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">12:34</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M2 22h4V12H2v10zm6 0h4V7H8v15zm6 0h4V2h-4v20z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <!-- M3 Top App Bar -->
+  <div class="top-app-bar">
+    <div class="icon-btn">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    </div>
+    <div class="spacer"></div>
+    <div class="icon-btn">
+      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+    </div>
+  </div>
+  <div class="top-title">Storage</div>
+
+  <!-- Scrollable Content -->
+  <div class="scroll-content">
+
+    <!-- Hero Card: Storage Gauge -->
+    <div class="hero-card">
+      <div class="gauge-container">
+        <svg viewBox="0 0 180 180" width="180" height="180">
+          <!-- Background track -->
+          <circle cx="90" cy="90" r="70" fill="none" stroke="var(--md-surface-container-highest)" stroke-width="14"/>
+          <!-- Video segment: 62% of total usage -->
+          <circle cx="90" cy="90" r="70" fill="none" stroke="var(--md-primary)" stroke-width="14"
+            stroke-dasharray="213 227" stroke-dashoffset="0"
+            transform="rotate(-90 90 90)" stroke-linecap="round"/>
+          <!-- Audio segment: 15% -->
+          <circle cx="90" cy="90" r="70" fill="none" stroke="var(--md-secondary)" stroke-width="14"
+            stroke-dasharray="52 388" stroke-dashoffset="-217"
+            transform="rotate(-90 90 90)" stroke-linecap="round"/>
+          <!-- Docs segment: 8% -->
+          <circle cx="90" cy="90" r="70" fill="none" stroke="var(--md-tertiary)" stroke-width="14"
+            stroke-dasharray="28 412" stroke-dashoffset="-273"
+            transform="rotate(-90 90 90)" stroke-linecap="round"/>
+          <!-- Other segment: 15% -->
+          <circle cx="90" cy="90" r="70" fill="none" stroke="var(--md-outline)" stroke-width="14"
+            stroke-dasharray="50 390" stroke-dashoffset="-305"
+            transform="rotate(-90 90 90)" stroke-linecap="round"/>
+        </svg>
+        <div class="gauge-center">
+          <div class="gauge-pct">78%</div>
+          <div class="gauge-label">39 / 50 TB</div>
+        </div>
+      </div>
+      <div class="gauge-stats">
+        <div class="gauge-stat">
+          <div class="gauge-stat-value">14,847</div>
+          <div class="gauge-stat-label">Files</div>
+        </div>
+        <div class="gauge-stat">
+          <div class="gauge-stat-value">342</div>
+          <div class="gauge-stat-label">Folders</div>
+        </div>
+        <div class="gauge-stat">
+          <div class="gauge-stat-value available">11 TB</div>
+          <div class="gauge-stat-label">Available</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Breakdown Cards (2x2 grid) -->
+    <div class="section-label">By file type</div>
+    <div class="breakdown-grid">
+      <div class="breakdown-card">
+        <div class="bk-icon-row">
+          <div class="bk-icon video">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div class="bk-name">Video</div>
+        </div>
+        <div class="bk-size">24.2 TB</div>
+        <div class="bk-files">8,421 files</div>
+        <div class="bk-bar"><div class="bk-bar-fill" style="width: 62%; background: var(--md-primary);"></div></div>
+      </div>
+
+      <div class="breakdown-card">
+        <div class="bk-icon-row">
+          <div class="bk-icon audio">
+            <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+          </div>
+          <div class="bk-name">Audio</div>
+        </div>
+        <div class="bk-size">5.9 TB</div>
+        <div class="bk-files">3,892 files</div>
+        <div class="bk-bar"><div class="bk-bar-fill" style="width: 15%; background: var(--md-secondary);"></div></div>
+      </div>
+
+      <div class="breakdown-card">
+        <div class="bk-icon-row">
+          <div class="bk-icon docs">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+          </div>
+          <div class="bk-name">Documents</div>
+        </div>
+        <div class="bk-size">3.1 TB</div>
+        <div class="bk-files">1,892 files</div>
+        <div class="bk-bar"><div class="bk-bar-fill" style="width: 8%; background: var(--md-tertiary);"></div></div>
+      </div>
+
+      <div class="breakdown-card">
+        <div class="bk-icon-row">
+          <div class="bk-icon other">
+            <svg viewBox="0 0 24 24"><path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/></svg>
+          </div>
+          <div class="bk-name">Other</div>
+        </div>
+        <div class="bk-size">5.8 TB</div>
+        <div class="bk-files">642 files</div>
+        <div class="bk-bar"><div class="bk-bar-fill" style="width: 15%; background: var(--md-outline);"></div></div>
+      </div>
+    </div>
+
+    <!-- Insight Cards -->
+    <div class="section-label">Insights</div>
+
+    <div class="insight-card">
+      <div class="insight-header">
+        <div class="insight-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+        </div>
+        <div class="insight-title">1,204 files never opened</div>
+      </div>
+      <div class="insight-desc">That's 2.8 TB sitting idle. Downloaded but never watched, listened to, or opened.</div>
+      <button class="insight-action">
+        Review them
+        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+      </button>
+    </div>
+
+    <div class="insight-card secondary">
+      <div class="insight-header">
+        <div class="insight-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+        </div>
+        <div class="insight-title">23 duplicate files found</div>
+      </div>
+      <div class="insight-desc">Potential savings of 1.4 TB by removing identical copies across your folders.</div>
+      <button class="insight-action">
+        Clean up
+        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+      </button>
+    </div>
+
+    <!-- Largest Files -->
+    <div class="files-card">
+      <div class="files-card-header">
+        <span class="files-card-title">Largest files</span>
+        <button class="files-card-action">See all</button>
+      </div>
+
+      <div class="file-row">
+        <div class="file-row-icon video">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div class="file-row-body">
+          <div class="file-row-name">Inception (2025) 2160p</div>
+          <div class="file-row-meta">4K BluRay -- 3 days ago</div>
+        </div>
+        <div class="file-row-size">67.4 GB</div>
+        <button class="file-row-overflow">
+          <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        </button>
+      </div>
+
+      <div class="file-row">
+        <div class="file-row-icon video">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div class="file-row-body">
+          <div class="file-row-name">The Wire Complete Series</div>
+          <div class="file-row-meta">1080p -- watched S1-S3</div>
+        </div>
+        <div class="file-row-size">45.2 GB</div>
+        <button class="file-row-overflow">
+          <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        </button>
+      </div>
+
+      <div class="file-row">
+        <div class="file-row-icon video">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div class="file-row-body">
+          <div class="file-row-name">Marty Supreme (2025)</div>
+          <div class="file-row-meta">1080p WEBRip -- 16 hours ago</div>
+        </div>
+        <div class="file-row-size">15.4 GB</div>
+        <button class="file-row-overflow">
+          <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        </button>
+      </div>
+
+      <div class="file-row">
+        <div class="file-row-icon audio">
+          <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        </div>
+        <div class="file-row-body">
+          <div class="file-row-name">Radiohead -- Discography</div>
+          <div class="file-row-meta">FLAC -- played often</div>
+        </div>
+        <div class="file-row-size">12.8 GB</div>
+        <button class="file-row-overflow">
+          <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Manage Storage -->
+    <div class="manage-card">
+      <div class="manage-card-header">
+        <div class="manage-card-title">Manage storage</div>
+      </div>
+
+      <div class="manage-row">
+        <div class="manage-icon clean">
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </div>
+        <div class="manage-body">
+          <div class="manage-name">Clean up storage</div>
+          <div class="manage-desc">Remove unused and duplicate files</div>
+        </div>
+        <div class="manage-chevron">
+          <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </div>
+      </div>
+
+      <div class="manage-row">
+        <div class="manage-icon expire">
+          <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+        </div>
+        <div class="manage-body">
+          <div class="manage-name">Auto-expire rules</div>
+          <div class="manage-desc">Set retention policies for old files</div>
+        </div>
+        <div class="manage-chevron">
+          <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </div>
+      </div>
+
+      <div class="manage-row">
+        <div class="manage-icon export">
+          <svg viewBox="0 0 24 24"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>
+        </div>
+        <div class="manage-body">
+          <div class="manage-name">Export file list</div>
+          <div class="manage-desc">Download a CSV of all your files</div>
+        </div>
+        <div class="manage-chevron">
+          <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- M3 Bottom Navigation -->
+  <div class="bottom-nav">
+    <div class="nav-item">
+      <div class="nav-pill">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <span class="nav-label">Files</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-pill">
+        <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+      </div>
+      <span class="nav-label">Transfers</span>
+      <div class="nav-badge">3</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-pill">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      </div>
+      <span class="nav-label">Downloads</span>
+    </div>
+    <div class="nav-item active">
+      <div class="nav-pill">
+        <!-- Storage icon -->
+        <svg viewBox="0 0 24 24"><path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/></svg>
+      </div>
+      <span class="nav-label">Storage</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

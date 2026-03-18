@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io — iOS Now Playing + Lock Screen</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --yellow: #FDCE45;
+    --green: #30D158;
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --label: #FFFFFF;
+    --label-secondary: rgba(255,255,255,0.7);
+    --label-tertiary: rgba(255,255,255,0.5);
+    --label-quaternary: rgba(255,255,255,0.35);
+    --bg-secondary: #1C1C1E;
+    --bg-tertiary: #2C2C2E;
+    --separator: rgba(84,84,88,0.65);
+  }
+  body {
+    font-family: 'Inter', -apple-system, 'SF Pro Display', system-ui, sans-serif;
+    background: #000;
+    color: var(--label);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ============================================
+     STATE 1: NOW PLAYING (FULL SCREEN AUDIO)
+     Follows Apple Music Now Playing exactly
+     ============================================ */
+  .now-playing-screen {
+    width: 390px;
+    height: 844px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Ambient Background - Apple Music style gradient from album art */
+  .np-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 140% 50% at 30% 20%, rgba(253,206,69,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 100% 60% at 70% 80%, rgba(200,140,40,0.08) 0%, transparent 50%),
+      linear-gradient(180deg, #1a1510 0%, #0d0b08 40%, #080706 100%);
+    z-index: 0;
+  }
+
+  /* Status Bar */
+  .status-bar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    padding: 14px 24px 0;
+    height: 54px;
+    flex-shrink: 0;
+  }
+  .status-bar .time {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    flex: 1;
+  }
+  .status-bar .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* Drag Handle */
+  .drag-handle {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    padding: 8px 0 4px;
+    flex-shrink: 0;
+  }
+  .drag-handle-bar {
+    width: 36px;
+    height: 5px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.2);
+  }
+
+  /* Album Art */
+  .album-art-container {
+    position: relative;
+    z-index: 1;
+    padding: 12px 40px 0;
+    flex-shrink: 0;
+  }
+  .album-art {
+    width: 310px;
+    height: 310px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #2a2218 0%, #1a1510 30%, #3d2e1a 60%, #1f1a12 100%);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3);
+  }
+  /* Geometric art pattern */
+  .art-geo {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .art-geo svg {
+    opacity: 0.3;
+  }
+
+  /* Track Info */
+  .track-info {
+    position: relative;
+    z-index: 1;
+    padding: 24px 30px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .track-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .track-title {
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    line-height: 26px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .track-artist {
+    font-size: 21px;
+    font-weight: 400;
+    color: var(--label-secondary);
+    letter-spacing: -0.4px;
+    line-height: 26px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+  }
+  .track-menu-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  /* Scrubber */
+  .np-scrubber {
+    position: relative;
+    z-index: 1;
+    padding: 24px 30px 0;
+    flex-shrink: 0;
+  }
+  .scrub-track {
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    position: relative;
+  }
+  .scrub-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 40%;
+    background: var(--label);
+    border-radius: 2px;
+  }
+  .scrub-dot {
+    position: absolute;
+    top: 50%;
+    left: 40%;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--label);
+    transform: translate(-50%, -50%);
+  }
+  .scrub-times {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 6px;
+  }
+  .scrub-time {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--label-tertiary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.1px;
+  }
+
+  /* Transport Controls */
+  .transport {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 16px 0 0;
+    flex-shrink: 0;
+  }
+  .transport-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.85;
+  }
+  .transport-btn.small { opacity: 0.5; }
+  .transport-btn.play {
+    width: 64px;
+    height: 64px;
+    opacity: 1;
+  }
+
+  /* Volume */
+  .volume-section {
+    position: relative;
+    z-index: 1;
+    padding: 28px 30px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .vol-icon { opacity: 0.5; flex-shrink: 0; }
+  .vol-track {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    position: relative;
+  }
+  .vol-fill {
+    height: 100%;
+    width: 55%;
+    background: var(--label);
+    border-radius: 2px;
+  }
+
+  /* Bottom Actions */
+  .np-bottom-actions {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 50px 0;
+    flex-shrink: 0;
+  }
+  .bottom-action {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5;
+  }
+
+  /* Home Indicator */
+  .home-indicator-wrap {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 10px;
+  }
+  .home-indicator {
+    width: 134px;
+    height: 5px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.2);
+  }
+
+  /* ============================================
+     SPACER BETWEEN STATES
+     ============================================ */
+  .state-divider {
+    width: 390px;
+    height: 40px;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .divider-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--label-quaternary);
+  }
+
+  /* ============================================
+     STATE 2: LOCK SCREEN
+     ============================================ */
+  .lock-screen {
+    width: 390px;
+    height: 844px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Lock screen wallpaper */
+  .ls-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 40% at 50% 30%, rgba(20,30,60,0.6) 0%, transparent 70%),
+      linear-gradient(180deg, #0c1220 0%, #0a0e18 50%, #080a12 100%);
+    z-index: 0;
+  }
+
+  /* Lock Screen Status Bar */
+  .ls-status-bar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    padding: 14px 24px 0;
+    height: 54px;
+    flex-shrink: 0;
+  }
+  .ls-status-bar .time {
+    font-size: 15px;
+    font-weight: 600;
+    flex: 1;
+  }
+  .ls-status-bar .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* Dynamic Island */
+  .dynamic-island {
+    position: relative;
+    z-index: 2;
+    margin: 0 auto;
+    width: 250px;
+    min-height: 44px;
+    background: #1a1a1a;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    gap: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    margin-top: -10px;
+  }
+  .di-progress-ring {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .di-progress-ring svg {
+    transform: rotate(-90deg);
+  }
+  .di-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .di-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--label);
+    letter-spacing: -0.1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .di-subtitle {
+    font-size: 10px;
+    color: var(--label-tertiary);
+    letter-spacing: -0.05px;
+  }
+  .di-percent {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--yellow);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+
+  /* Lock Screen Time */
+  .ls-time-section {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 40px 0 4px;
+    flex-shrink: 0;
+  }
+  .ls-date {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--label-secondary);
+    letter-spacing: -0.2px;
+  }
+  .ls-clock {
+    font-size: 82px;
+    font-weight: 700;
+    letter-spacing: -3px;
+    line-height: 90px;
+    color: var(--label);
+  }
+
+  /* Now Playing Widget */
+  .np-widget {
+    position: relative;
+    z-index: 1;
+    margin: 24px 20px 0;
+    background: rgba(28,28,30,0.75);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border-radius: 16px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 0.5px solid rgba(255,255,255,0.08);
+  }
+  .np-widget-art {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #2a2218 0%, #3d2e1a 100%);
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .np-widget-art-geo {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .np-widget-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .np-widget-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--label);
+    letter-spacing: -0.2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .np-widget-artist {
+    font-size: 13px;
+    color: var(--label-secondary);
+    letter-spacing: -0.1px;
+    margin-top: 1px;
+  }
+  .np-widget-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+
+  /* Notification */
+  .notification {
+    position: relative;
+    z-index: 1;
+    margin: 12px 20px 0;
+    background: rgba(28,28,30,0.75);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border-radius: 16px;
+    padding: 14px 16px;
+    border: 0.5px solid rgba(255,255,255,0.06);
+  }
+  .notif-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .notif-app-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    background: var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .notif-app-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--label-tertiary);
+    letter-spacing: -0.1px;
+    flex: 1;
+  }
+  .notif-time {
+    font-size: 13px;
+    color: var(--label-quaternary);
+    letter-spacing: -0.1px;
+  }
+  .notif-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--label);
+    letter-spacing: -0.2px;
+  }
+  .notif-body {
+    font-size: 15px;
+    color: var(--label-secondary);
+    letter-spacing: -0.2px;
+    margin-top: 2px;
+    line-height: 20px;
+  }
+
+  /* Lock Screen Bottom */
+  .ls-bottom {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 0 10px;
+  }
+  .ls-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 46px 16px;
+  }
+  .ls-action-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ls-home-indicator {
+    display: flex;
+    justify-content: center;
+  }
+  .ls-home-bar {
+    width: 134px;
+    height: 5px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.25);
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================
+     STATE 1: NOW PLAYING (FULL SCREEN AUDIO)
+     ============================================ -->
+<div class="now-playing-screen">
+  <div class="np-bg"></div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="status-icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+        <rect x="0" y="9" width="3" height="3" rx="0.5" fill="white"/>
+        <rect x="4.5" y="6" width="3" height="6" rx="0.5" fill="white"/>
+        <rect x="9" y="3" width="3" height="9" rx="0.5" fill="white"/>
+        <rect x="13.5" y="0" width="3" height="12" rx="0.5" fill="white"/>
+      </svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white">
+        <path d="M8 3.6c2.1 0 4 .8 5.4 2.1l1.2-1.4C12.8 2.6 10.5 1.6 8 1.6S3.2 2.6 1.4 4.3l1.2 1.4C4 4.4 5.9 3.6 8 3.6zm0 3.4c1.3 0 2.4.5 3.3 1.3l1.2-1.4C11.2 5.8 9.7 5.2 8 5.2s-3.2.6-4.5 1.7l1.2 1.4C5.6 7.5 6.7 7 8 7zm0 3.4c.7 0 1.3.3 1.8.7L8 13l-1.8-1.9c.5-.4 1.1-.7 1.8-.7z"/>
+      </svg>
+      <svg width="27" height="12" viewBox="0 0 27 12" fill="none">
+        <rect x="0.5" y="0.5" width="23" height="11" rx="2.5" stroke="rgba(255,255,255,0.35)"/>
+        <rect x="2" y="2" width="20" height="8" rx="1.5" fill="white"/>
+        <path d="M25 4v4a2 2 0 0 0 0-4z" fill="rgba(255,255,255,0.35)"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Drag Handle -->
+  <div class="drag-handle">
+    <div class="drag-handle-bar"></div>
+  </div>
+
+  <!-- Album Art -->
+  <div class="album-art-container">
+    <div class="album-art">
+      <div class="art-geo">
+        <svg width="200" height="200" viewBox="0 0 200 200" fill="none">
+          <!-- Geometric abstract pattern -->
+          <circle cx="100" cy="100" r="80" stroke="rgba(253,206,69,0.3)" stroke-width="1"/>
+          <circle cx="100" cy="100" r="55" stroke="rgba(253,206,69,0.2)" stroke-width="1"/>
+          <circle cx="100" cy="100" r="30" stroke="rgba(253,206,69,0.15)" stroke-width="1"/>
+          <line x1="20" y1="100" x2="180" y2="100" stroke="rgba(253,206,69,0.1)" stroke-width="0.5"/>
+          <line x1="100" y1="20" x2="100" y2="180" stroke="rgba(253,206,69,0.1)" stroke-width="0.5"/>
+          <polygon points="100,30 160,80 140,150 60,150 40,80" stroke="rgba(253,206,69,0.15)" stroke-width="0.5" fill="none"/>
+          <rect x="60" y="60" width="80" height="80" rx="4" stroke="rgba(253,206,69,0.12)" stroke-width="0.5" fill="none" transform="rotate(45 100 100)"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Track Info -->
+  <div class="track-info">
+    <div class="track-text">
+      <div class="track-title">Ambient Transmission 04</div>
+      <div class="track-artist">put.io Cloud Library</div>
+    </div>
+    <div class="track-menu-btn">
+      <svg width="16" height="4" viewBox="0 0 16 4" fill="white">
+        <circle cx="2" cy="2" r="1.5"/>
+        <circle cx="8" cy="2" r="1.5"/>
+        <circle cx="14" cy="2" r="1.5"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Scrubber -->
+  <div class="np-scrubber">
+    <div class="scrub-track">
+      <div class="scrub-fill"></div>
+      <div class="scrub-dot"></div>
+    </div>
+    <div class="scrub-times">
+      <span class="scrub-time">2:14</span>
+      <span class="scrub-time">-4:32</span>
+    </div>
+  </div>
+
+  <!-- Transport Controls -->
+  <div class="transport">
+    <!-- Shuffle -->
+    <div class="transport-btn small">
+      <svg width="24" height="18" viewBox="0 0 24 18" fill="white">
+        <path d="M2 4h4l4 5-4 5H2M16 4h2l4 5-4 5h-2M8 4l8 10M16 4L8 14" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+
+    <!-- Previous -->
+    <div class="transport-btn">
+      <svg width="32" height="28" viewBox="0 0 32 28" fill="white">
+        <path d="M28 2v24L14 14 28 2zM14 2v24L0 14 14 2z"/>
+      </svg>
+    </div>
+
+    <!-- Play/Pause -->
+    <div class="transport-btn play">
+      <svg width="36" height="42" viewBox="0 0 36 42" fill="white">
+        <path d="M4 0v42L34 21 4 0z"/>
+      </svg>
+    </div>
+
+    <!-- Next -->
+    <div class="transport-btn">
+      <svg width="32" height="28" viewBox="0 0 32 28" fill="white">
+        <path d="M4 2v24l14-12L4 2zM18 2v24l14-12L18 2z"/>
+      </svg>
+    </div>
+
+    <!-- Repeat -->
+    <div class="transport-btn small">
+      <svg width="22" height="20" viewBox="0 0 22 20" fill="none">
+        <path d="M17 1l3 3-3 3M5 19l-3-3 3-3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M20 4H6a4 4 0 00-4 4v1M2 16h14a4 4 0 004-4v-1" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Volume -->
+  <div class="volume-section">
+    <div class="vol-icon">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="white">
+        <path d="M0 5h3l4-4v12L3 9H0V5z"/>
+      </svg>
+    </div>
+    <div class="vol-track">
+      <div class="vol-fill"></div>
+    </div>
+    <div class="vol-icon">
+      <svg width="16" height="14" viewBox="0 0 16 14" fill="white">
+        <path d="M0 4.5h3l4-4v13L3 9.5H0v-5z"/>
+        <path d="M11 2c1.5 1.3 2.5 3.2 2.5 5.5S12.5 11.2 11 12.5M9 4.5c.8.7 1.3 1.7 1.3 2.7S9.8 9.3 9 10" stroke="white" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Bottom Actions -->
+  <div class="np-bottom-actions">
+    <!-- Lyrics -->
+    <div class="bottom-action">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="white">
+        <path d="M3 5h16M3 9h12M3 13h14M3 17h10" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+
+    <!-- AirPlay -->
+    <div class="bottom-action">
+      <svg width="22" height="20" viewBox="0 0 22 20" fill="none">
+        <rect x="1" y="1" width="20" height="14" rx="2" stroke="white" stroke-width="1.5"/>
+        <path d="M6 18l5-5 5 5H6z" fill="white"/>
+      </svg>
+    </div>
+
+    <!-- Queue -->
+    <div class="bottom-action">
+      <svg width="22" height="18" viewBox="0 0 22 18" fill="white">
+        <path d="M2 2h18M2 7h14M2 12h16" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <circle cx="18" cy="14" r="3" fill="white"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Home Indicator -->
+  <div class="home-indicator-wrap">
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- Divider -->
+<div class="state-divider">
+  <span class="divider-label">Lock Screen State</span>
+</div>
+
+<!-- ============================================
+     STATE 2: LOCK SCREEN
+     ============================================ -->
+<div class="lock-screen">
+  <div class="ls-bg"></div>
+
+  <!-- Status Bar -->
+  <div class="ls-status-bar">
+    <span class="time">9:41</span>
+    <div class="status-icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+        <rect x="0" y="9" width="3" height="3" rx="0.5" fill="white"/>
+        <rect x="4.5" y="6" width="3" height="6" rx="0.5" fill="white"/>
+        <rect x="9" y="3" width="3" height="9" rx="0.5" fill="white"/>
+        <rect x="13.5" y="0" width="3" height="12" rx="0.5" fill="white"/>
+      </svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white">
+        <path d="M8 3.6c2.1 0 4 .8 5.4 2.1l1.2-1.4C12.8 2.6 10.5 1.6 8 1.6S3.2 2.6 1.4 4.3l1.2 1.4C4 4.4 5.9 3.6 8 3.6zm0 3.4c1.3 0 2.4.5 3.3 1.3l1.2-1.4C11.2 5.8 9.7 5.2 8 5.2s-3.2.6-4.5 1.7l1.2 1.4C5.6 7.5 6.7 7 8 7zm0 3.4c.7 0 1.3.3 1.8.7L8 13l-1.8-1.9c.5-.4 1.1-.7 1.8-.7z"/>
+      </svg>
+      <svg width="27" height="12" viewBox="0 0 27 12" fill="none">
+        <rect x="0.5" y="0.5" width="23" height="11" rx="2.5" stroke="rgba(255,255,255,0.35)"/>
+        <rect x="2" y="2" width="20" height="8" rx="1.5" fill="white"/>
+        <path d="M25 4v4a2 2 0 0 0 0-4z" fill="rgba(255,255,255,0.35)"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Dynamic Island - Transfer Progress -->
+  <div class="dynamic-island">
+    <div class="di-progress-ring">
+      <svg width="28" height="28" viewBox="0 0 28 28">
+        <circle cx="14" cy="14" r="11" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2.5"/>
+        <circle cx="14" cy="14" r="11" fill="none" stroke="var(--yellow)" stroke-width="2.5"
+          stroke-dasharray="69.1" stroke-dashoffset="26.3" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="di-info">
+      <div class="di-title">Better.Call.Saul.S06E13</div>
+      <div class="di-subtitle">4.2 GB of 6.8 GB</div>
+    </div>
+    <div class="di-percent">62%</div>
+  </div>
+
+  <!-- Lock Screen Time -->
+  <div class="ls-time-section">
+    <div class="ls-date">Wednesday, March 18</div>
+    <div class="ls-clock">9:41</div>
+  </div>
+
+  <!-- Now Playing Widget -->
+  <div class="np-widget">
+    <div class="np-widget-art">
+      <div class="np-widget-art-geo">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="24" r="16" stroke="rgba(253,206,69,0.3)" stroke-width="0.5"/>
+          <circle cx="24" cy="24" r="10" stroke="rgba(253,206,69,0.2)" stroke-width="0.5"/>
+          <polygon points="24,10 34,20 30,34 18,34 14,20" stroke="rgba(253,206,69,0.15)" stroke-width="0.5" fill="none"/>
+        </svg>
+      </div>
+    </div>
+    <div class="np-widget-info">
+      <div class="np-widget-title">Ambient Transmission 04</div>
+      <div class="np-widget-artist">put.io Cloud Library</div>
+    </div>
+    <div class="np-widget-controls">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="white" opacity="0.8">
+        <path d="M4 2v14l10-7L4 2z"/>
+      </svg>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="white" opacity="0.8">
+        <path d="M3 2v14l7-7L3 2zM10 2v14l7-7-7-7z"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Notification -->
+  <div class="notification">
+    <div class="notif-header">
+      <div class="notif-app-icon">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="#000">
+          <path d="M9.5 5a3.5 3.5 0 00-6.58-1.65A2.5 2.5 0 002.5 9h7a2 2 0 00.33-3.97L9.5 5z"/>
+        </svg>
+      </div>
+      <span class="notif-app-name">PUT.IO</span>
+      <span class="notif-time">12m ago</span>
+    </div>
+    <div class="notif-title">Transfer Complete</div>
+    <div class="notif-body">Pose.S03E01.720p.WEB -- 1.4 GB saved to your cloud storage</div>
+  </div>
+
+  <!-- Bottom -->
+  <div class="ls-bottom">
+    <div class="ls-actions">
+      <!-- Flashlight -->
+      <div class="ls-action-btn">
+        <svg width="20" height="24" viewBox="0 0 20 24" fill="white" opacity="0.7">
+          <rect x="5" y="0" width="10" height="8" rx="2"/>
+          <path d="M5 8l2 3v11a2 2 0 002 2h2a2 2 0 002-2V11l2-3H5z"/>
+          <circle cx="10" cy="15" r="1.5" fill="rgba(0,0,0,0.3)"/>
+        </svg>
+      </div>
+      <!-- Camera -->
+      <div class="ls-action-btn">
+        <svg width="24" height="20" viewBox="0 0 24 20" fill="white" opacity="0.7">
+          <path d="M2 4a2 2 0 012-2h4l2-2h4l2 2h4a2 2 0 012 2v14a2 2 0 01-2 2H4a2 2 0 01-2-2V4z"/>
+          <circle cx="12" cy="11" r="4" fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="1.5"/>
+        </svg>
+      </div>
+    </div>
+    <div class="ls-home-indicator">
+      <div class="ls-home-bar"></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
