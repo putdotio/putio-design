@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=820">
+<title>put.io -- watchOS 11</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000;
+    --surface: #1C1C1E;
+    --surface-2: #2C2C2E;
+    --surface-3: #3A3A3C;
+    --text: #FFFFFF;
+    --text-2: #EBEBF5;
+    --text-3: #8E8E93;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.15);
+    --green: #30D158;
+    --green-dim: rgba(48, 209, 88, 0.15);
+    --red: #FF453A;
+    --blue: #0A84FF;
+  }
+  body {
+    font-family: -apple-system, 'SF Pro Rounded', system-ui, sans-serif;
+    background: #1C1C1E;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    width: 820px; height: 500px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+
+  .page-title {
+    font-size: 10px; font-weight: 600; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 20px;
+  }
+
+  .watch-row {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+  }
+
+  .watch-col {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 8px;
+  }
+
+  .watch-face {
+    width: 198px; height: 242px;
+    background: var(--bg);
+    border-radius: 48px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.06),
+      0 4px 24px rgba(0,0,0,0.5);
+  }
+
+  .watch-label {
+    font-size: 10px; font-weight: 600; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+
+  /* ========== FACE 1: Now Playing ========== */
+  .face-nowplaying {
+    display: flex; flex-direction: column;
+    align-items: center;
+    height: 100%;
+    padding: 24px 16px 20px;
+  }
+  .np-brand {
+    font-size: 9px; font-weight: 600; color: var(--yellow);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .np-artwork {
+    width: 120px; height: 80px;
+    background: linear-gradient(145deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .np-artwork::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.4) 100%);
+    border-radius: 12px;
+  }
+  .np-artwork-icon {
+    position: relative; z-index: 1;
+    opacity: 0.3;
+  }
+  .np-title {
+    font-size: 16px; font-weight: 600; color: var(--text);
+    text-align: center; line-height: 1.2;
+  }
+  .np-subtitle {
+    font-size: 12px; color: var(--text-3); margin-top: 2px;
+  }
+  .np-progress {
+    width: 100%; height: 2px;
+    background: var(--surface-3); border-radius: 1px;
+    margin-top: 10px;
+  }
+  .np-progress-fill {
+    width: 42%; height: 100%;
+    background: var(--yellow); border-radius: 1px;
+  }
+  .np-controls {
+    display: flex; align-items: center; gap: 20px;
+    margin-top: 10px;
+  }
+  .np-btn {
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: none; cursor: pointer;
+  }
+  .np-btn svg { fill: var(--text-2); }
+  .np-btn.play svg { fill: var(--text); }
+  .np-volume {
+    width: 100%; margin-top: 8px;
+    display: flex; justify-content: center;
+  }
+
+  /* ========== FACE 2: Transfers ========== */
+  .face-transfers {
+    display: flex; flex-direction: column;
+    height: 100%;
+    padding: 28px 16px 24px;
+  }
+  .tf-title {
+    font-size: 14px; font-weight: 600; color: var(--text);
+    margin-bottom: 14px;
+  }
+  .tf-list {
+    flex: 1; display: flex; flex-direction: column;
+    gap: 4px; justify-content: center;
+  }
+  .tf-row {
+    display: flex; align-items: center; gap: 8px;
+    height: 32px;
+  }
+  .tf-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+  .tf-dot.yellow { background: var(--yellow); }
+  .tf-dot.blue { background: var(--blue); }
+  .tf-dot.green { background: var(--green); }
+  .tf-name {
+    flex: 1; font-size: 12px; font-weight: 500; color: var(--text-2);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .tf-status {
+    font-size: 12px; font-weight: 600; color: var(--text-3);
+    flex-shrink: 0;
+  }
+  .tf-status.sharing { color: var(--blue); }
+  .tf-status.done { color: var(--green); }
+  .tf-summary {
+    font-size: 11px; color: var(--text-3); font-weight: 500;
+    margin-top: auto;
+    text-align: center;
+  }
+
+  /* ========== FACE 3: Storage ========== */
+  .face-storage {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    height: 100%; padding: 20px;
+  }
+  .storage-ring {
+    position: relative;
+    width: 100px; height: 100px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .storage-ring svg {
+    position: absolute; width: 100px; height: 100px;
+  }
+  .ring-text {
+    position: relative; z-index: 1; text-align: center;
+  }
+  .ring-main {
+    font-size: 24px; font-weight: 700; color: var(--text);
+    line-height: 1; letter-spacing: -0.02em;
+  }
+  .ring-unit {
+    font-size: 10px; font-weight: 500; color: var(--text-3);
+    display: block; margin-top: 2px;
+  }
+  .storage-label {
+    font-size: 12px; color: var(--text-3); font-weight: 500;
+    margin-top: 10px;
+  }
+  .storage-free {
+    font-size: 12px; color: var(--green); font-weight: 600;
+    margin-top: 4px;
+  }
+
+  /* ========== FACE 4: Notification ========== */
+  .face-notification {
+    display: flex; flex-direction: column;
+    align-items: center;
+    height: 100%;
+    padding: 28px 16px 22px;
+  }
+  .notif-icon {
+    width: 20px; height: 20px; border-radius: 6px;
+    background: var(--yellow);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px;
+  }
+  .notif-icon svg { width: 11px; height: 11px; }
+  .notif-status {
+    font-size: 14px; font-weight: 600; color: var(--green);
+    margin-bottom: 6px;
+  }
+  .notif-title {
+    font-size: 16px; font-weight: 600; color: var(--text);
+    text-align: center; line-height: 1.3;
+    margin-bottom: 4px;
+  }
+  .notif-meta {
+    font-size: 12px; color: var(--text-3);
+    margin-bottom: 4px;
+  }
+  .notif-ready {
+    font-size: 12px; color: var(--green); font-weight: 500;
+    margin-bottom: 14px;
+  }
+  .notif-action {
+    background: var(--yellow);
+    border: none; border-radius: 999px;
+    padding: 8px 20px;
+    font-size: 11px; font-weight: 600;
+    color: #000; cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.01em;
+  }
+</style>
+</head>
+<body>
+<div class="page-title">watchOS 11</div>
+<div class="watch-row">
+
+  <!-- FACE 1: Now Playing -->
+  <div class="watch-col">
+    <div class="watch-face">
+      <div class="face-nowplaying">
+        <div class="np-brand">put.io</div>
+        <div class="np-artwork">
+          <svg class="np-artwork-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+            <line x1="7" y1="2" x2="7" y2="22"/>
+            <line x1="17" y1="2" x2="17" y2="22"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <line x1="2" y1="7" x2="7" y2="7"/>
+            <line x1="2" y1="17" x2="7" y2="17"/>
+            <line x1="17" y1="7" x2="22" y2="7"/>
+            <line x1="17" y1="17" x2="22" y2="17"/>
+          </svg>
+        </div>
+        <div class="np-title">The Wire</div>
+        <div class="np-subtitle">S3 &middot; E2</div>
+        <div class="np-progress"><div class="np-progress-fill"></div></div>
+        <div class="np-controls">
+          <div class="np-btn">
+            <svg width="22" height="22" viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+          </div>
+          <div class="np-btn play">
+            <svg width="28" height="28" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div class="np-btn">
+            <svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+          </div>
+        </div>
+        <!-- Volume arc -->
+        <div class="np-volume">
+          <svg width="80" height="14" viewBox="0 0 80 14">
+            <path d="M8 12 Q40 0 72 12" fill="none" stroke="#3A3A3C" stroke-width="2" stroke-linecap="round"/>
+            <path d="M8 12 Q24 6 40 6" fill="none" stroke="#FDCE45" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <span class="watch-label">Now Playing</span>
+  </div>
+
+  <!-- FACE 2: Transfers -->
+  <div class="watch-col">
+    <div class="watch-face">
+      <div class="face-transfers">
+        <div class="tf-title">Transfers</div>
+        <div class="tf-list">
+          <div class="tf-row">
+            <div class="tf-dot yellow"></div>
+            <span class="tf-name">Ubuntu 24.04</span>
+            <span class="tf-status">73%</span>
+          </div>
+          <div class="tf-row">
+            <div class="tf-dot blue"></div>
+            <span class="tf-name">Game of Thrones</span>
+            <span class="tf-status sharing">Sharing</span>
+          </div>
+          <div class="tf-row">
+            <div class="tf-dot green"></div>
+            <span class="tf-name">Podcast Feed</span>
+            <span class="tf-status done">Done</span>
+          </div>
+        </div>
+        <div class="tf-summary">3 active</div>
+      </div>
+    </div>
+    <span class="watch-label">Transfers</span>
+  </div>
+
+  <!-- FACE 3: Storage -->
+  <div class="watch-col">
+    <div class="watch-face">
+      <div class="face-storage">
+        <div class="storage-ring">
+          <!-- Background track -->
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#2C2C2E" stroke-width="8"
+              stroke-linecap="round"
+              transform="rotate(-90 50 50)"/>
+            <!-- 78% fill: circumference = 2 * pi * 42 = 263.89, 78% = 205.84 -->
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#FDCE45" stroke-width="8"
+              stroke-linecap="round"
+              stroke-dasharray="205.84 263.89"
+              transform="rotate(-90 50 50)"/>
+          </svg>
+          <div class="ring-text">
+            <div class="ring-main">39.2</div>
+            <span class="ring-unit">of 50 TB</span>
+          </div>
+        </div>
+        <div class="storage-label">78% used</div>
+        <div class="storage-free">21.8 GB free</div>
+      </div>
+    </div>
+    <span class="watch-label">Storage</span>
+  </div>
+
+  <!-- FACE 4: Notification -->
+  <div class="watch-col">
+    <div class="watch-face">
+      <div class="face-notification">
+        <div class="notif-icon">
+          <svg viewBox="0 0 16 16" fill="#000">
+            <rect x="3" y="3" width="3" height="10"/>
+            <rect x="6" y="3" width="4" height="3"/>
+            <rect x="10" y="3" width="3" height="6"/>
+            <rect x="6" y="6" width="4" height="3"/>
+          </svg>
+        </div>
+        <div class="notif-status">Transfer Complete</div>
+        <div class="notif-title">Big Buck Bunny</div>
+        <div class="notif-meta">1080p &middot; 4.7 GB</div>
+        <div class="notif-ready">Ready to stream</div>
+        <button class="notif-action">Open on TV</button>
+      </div>
+    </div>
+    <span class="watch-label">Notification</span>
+  </div>
+
+</div>
+</body>
+</html>

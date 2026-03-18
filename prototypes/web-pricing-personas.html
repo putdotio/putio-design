@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Pricing by Persona</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0C0C0E; --bg-2: #111114; --bg-3: #19191C; --bg-4: #222226;
+    --bg-5: #2C2C31; --line: #2A2A2F; --border: #3E3E44; --focus: #4B4B52;
+    --solid: #65656D; --text-2: #ABABB2; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868; --yellow-dark: #FCBE03;
+    --yellow-subtle: rgba(253, 206, 69, 0.12);
+    --yellow-glow: rgba(253, 206, 69, 0.06);
+    --green-9: #30A46C; --green-11: #4CC38A;
+    --green-subtle: rgba(48, 164, 108, 0.15);
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    width: 1440px;
+    min-height: 900px;
+    position: relative;
+  }
+
+  /* ---- Ambient ---- */
+  .glow {
+    position: absolute;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1000px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(253, 206, 69, 0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ---- Nav ---- */
+  .nav {
+    display: flex;
+    align-items: center;
+    padding: 24px 64px;
+    position: relative;
+    z-index: 10;
+  }
+  .logo {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .logo span { color: var(--yellow); }
+  .nav-spacer { flex: 1; }
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+  }
+  .nav-link {
+    font-size: 14px;
+    color: var(--text-2);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.15s;
+  }
+  .nav-link:hover { color: var(--text); }
+  .nav-link.active { color: var(--yellow); }
+  .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--yellow);
+    color: #0C0C0E;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+  }
+
+  /* ---- Hero ---- */
+  .pricing-hero {
+    text-align: center;
+    padding: 56px 64px 48px;
+    position: relative;
+  }
+  .pricing-hero h1 {
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.12;
+    margin-bottom: 16px;
+  }
+  .pricing-hero .subtitle {
+    font-size: 18px;
+    color: var(--text-2);
+    max-width: 480px;
+    margin: 0 auto 36px;
+    line-height: 1.5;
+  }
+
+  /* ---- Billing Toggle ---- */
+  .billing-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px;
+  }
+  .toggle-option {
+    padding: 8px 24px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-2);
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .toggle-option.active {
+    background: var(--bg-4);
+    color: var(--text);
+  }
+  .toggle-save {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--green-11);
+    background: var(--green-subtle);
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-left: 12px;
+  }
+
+  /* ---- Pricing Grid ---- */
+  .pricing-grid {
+    display: flex;
+    gap: 24px;
+    padding: 0 80px;
+    align-items: stretch;
+    justify-content: center;
+  }
+
+  /* ---- Plan Card ---- */
+  .plan-card {
+    flex: 1;
+    max-width: 400px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 32px 28px 28px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .plan-card:hover {
+    border-color: var(--border);
+  }
+  .plan-card.featured {
+    border-color: var(--yellow);
+    box-shadow: 0 0 0 1px var(--yellow), 0 0 60px rgba(253, 206, 69, 0.06), 0 8px 40px rgba(253, 206, 69, 0.04);
+    transform: translateY(-4px);
+  }
+  .plan-card.featured:hover {
+    border-color: var(--yellow);
+  }
+
+  .plan-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--yellow);
+    color: #0C0C0E;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 16px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .plan-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--bg-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .plan-card.featured .plan-icon {
+    background: var(--yellow-subtle);
+  }
+
+  .plan-name {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .plan-subtitle {
+    font-size: 14px;
+    color: var(--text-2);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .plan-personality {
+    font-size: 13px;
+    color: var(--solid);
+    font-style: italic;
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+
+  .plan-price {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+  .plan-currency {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-2);
+  }
+  .plan-amount {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .plan-period {
+    font-size: 16px;
+    color: var(--solid);
+    font-weight: 500;
+  }
+  .plan-yearly-price {
+    font-size: 13px;
+    color: var(--solid);
+    margin-bottom: 4px;
+    display: none;
+  }
+  .plan-yearly-price .strikethrough {
+    text-decoration: line-through;
+    color: var(--focus);
+    margin-right: 6px;
+  }
+  .plan-yearly-price .savings {
+    color: var(--green-11);
+    font-weight: 600;
+  }
+  .yearly-active .plan-yearly-price {
+    display: block;
+  }
+
+  .plan-storage {
+    font-size: 14px;
+    color: var(--text-2);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+  }
+  .plan-storage .bar {
+    display: inline-block;
+    width: 48px;
+    height: 4px;
+    background: var(--bg-5);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+  .plan-storage .bar-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+
+  .plan-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 13px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    margin-bottom: 24px;
+  }
+  .plan-cta.primary {
+    background: var(--yellow);
+    color: #0C0C0E;
+    border: 1px solid var(--yellow);
+  }
+  .plan-cta.primary:hover {
+    background: var(--yellow-hover);
+    border-color: var(--yellow-hover);
+  }
+  .plan-cta.outlined {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .plan-cta.outlined:hover {
+    background: var(--bg-3);
+    border-color: var(--focus);
+  }
+
+  .plan-divider {
+    height: 1px;
+    background: var(--line);
+    margin-bottom: 20px;
+  }
+
+  .plan-features-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--solid);
+    margin-bottom: 14px;
+  }
+  .plan-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 5px 0;
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.5;
+  }
+  .plan-feature .check {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--green-11);
+  }
+  .plan-card.featured .plan-feature .check {
+    color: var(--yellow);
+  }
+  .plan-feature .highlight {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* ---- Enterprise CTA ---- */
+  .enterprise-cta {
+    text-align: center;
+    padding: 40px 64px 0;
+  }
+  .enterprise-cta p {
+    font-size: 15px;
+    color: var(--text-2);
+  }
+  .enterprise-cta a {
+    color: var(--yellow);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid rgba(253, 206, 69, 0.3);
+    padding-bottom: 1px;
+    transition: border-color 0.15s;
+  }
+  .enterprise-cta a:hover {
+    border-color: var(--yellow);
+  }
+
+  /* ---- Guarantees ---- */
+  .guarantees {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    padding: 56px 64px 0;
+  }
+  .guarantee {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--text-2);
+  }
+  .guarantee-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ---- Compare Section ---- */
+  .compare-section {
+    padding: 64px 64px 0;
+  }
+  .compare-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 32px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .compare-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-align: center;
+  }
+  .compare-toggle-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s;
+    flex-shrink: 0;
+  }
+  .compare-toggle-icon.expanded {
+    transform: rotate(180deg);
+  }
+
+  .compare-table-wrap {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+  .compare-table-wrap.expanded {
+    max-height: 800px;
+  }
+  .compare-table {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    border-collapse: collapse;
+  }
+  .compare-table th {
+    text-align: center;
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    border-bottom: 1px solid var(--line);
+  }
+  .compare-table th:first-child {
+    text-align: left;
+    color: var(--solid);
+    font-weight: 500;
+  }
+  .compare-table th.featured-col {
+    color: var(--yellow);
+  }
+  .compare-table td {
+    padding: 12px 20px;
+    font-size: 13px;
+    color: var(--text-2);
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+  }
+  .compare-table td:first-child {
+    text-align: left;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .compare-table .check-cell {
+    color: var(--green-11);
+  }
+  .compare-table .dash-cell {
+    color: var(--bg-5);
+  }
+  .compare-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* ---- FAQ Section ---- */
+  .faq-section {
+    padding: 64px 64px 0;
+  }
+  .faq-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .faq-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .faq-item {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px 24px;
+  }
+  .faq-q {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .faq-a {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.6;
+  }
+
+  /* ---- Trust Section ---- */
+  .trust-section {
+    max-width: 720px;
+    margin: 56px auto 0;
+    text-align: center;
+    padding: 0 64px;
+  }
+  .trust-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 32px;
+  }
+  .trust-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--green-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .trust-text {
+    text-align: left;
+  }
+  .trust-text .main {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .trust-text .sub {
+    font-size: 13px;
+    color: var(--solid);
+  }
+
+  /* ---- Footer ---- */
+  .footer {
+    padding: 64px 64px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-top: 1px solid var(--line);
+    margin-top: 64px;
+  }
+  .footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .footer-brand .logo {
+    font-size: 20px;
+  }
+  .footer-brand .tagline {
+    font-size: 13px;
+    color: var(--solid);
+    max-width: 240px;
+    line-height: 1.5;
+  }
+  .footer-cols {
+    display: flex;
+    gap: 64px;
+  }
+  .footer-col-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--solid);
+    margin-bottom: 16px;
+  }
+  .footer-col a {
+    display: block;
+    font-size: 13px;
+    color: var(--text-2);
+    text-decoration: none;
+    padding: 3px 0;
+    transition: color 0.15s;
+  }
+  .footer-col a:hover {
+    color: var(--text);
+  }
+  .footer-bottom {
+    text-align: center;
+    padding: 0 64px 32px;
+    font-size: 12px;
+    color: var(--solid);
+  }
+
+  /* ---- Check SVG helper ---- */
+  .check-svg { display: inline-flex; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="glow"></div>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a class="logo" href="#">put<span>.</span>io</a>
+    <div class="nav-spacer"></div>
+    <div class="nav-links">
+      <a class="nav-link" href="#">Features</a>
+      <a class="nav-link active" href="#">Pricing</a>
+      <a class="nav-link" href="#">Blog</a>
+      <a class="nav-link" href="#">Help</a>
+      <a class="nav-cta" href="#">Start free trial</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="pricing-hero">
+    <h1>Simple plans for every<br>kind of user</h1>
+    <p class="subtitle">No contracts. No throttling. Cancel anytime.</p>
+
+    <!-- Billing Toggle -->
+    <div class="billing-toggle">
+      <button class="toggle-option active" onclick="toggleBilling('monthly')">Monthly</button>
+      <button class="toggle-option" onclick="toggleBilling('yearly')">Yearly</button>
+      <span class="toggle-save">Save 17%</span>
+    </div>
+  </div>
+
+  <!-- Pricing Grid -->
+  <div class="pricing-grid" id="pricingGrid">
+
+    <!-- Streamer -->
+    <div class="plan-card">
+      <div class="plan-icon">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M7 4.5L16 10L7 15.5V4.5Z" fill="var(--text-2)" stroke="var(--text-2)" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="plan-name">Streamer</div>
+      <div class="plan-subtitle">For casual watching</div>
+      <div class="plan-personality">"I just want to press play"</div>
+      <div class="plan-price">
+        <span class="plan-currency">$</span>
+        <span class="plan-amount" data-monthly="9.99" data-yearly="8.29">9.99</span>
+        <span class="plan-period">/mo</span>
+      </div>
+      <div class="plan-yearly-price">
+        <span class="strikethrough">$119.88</span>
+        <span class="savings">$99.49/yr</span>
+      </div>
+      <div class="plan-storage">
+        <span class="bar"><span class="bar-fill" style="width:12%;"></span></span>
+        100 GB
+      </div>
+      <button class="plan-cta outlined">Start free trial</button>
+      <div class="plan-divider"></div>
+      <div class="plan-features-title">What you get</div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Unlimited downloads</span>
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>10 simultaneous downloads</span>
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Stream on any device</span>
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Built-in player with subtitles</span>
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Chromecast &amp; AirPlay</span>
+      </div>
+    </div>
+
+    <!-- Power (Featured) -->
+    <div class="plan-card featured">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-icon">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M11 1L4 11H10L9 19L16 9H10L11 1Z" fill="var(--yellow)" stroke="var(--yellow)" stroke-width="1.2" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="plan-name">Power</div>
+      <div class="plan-subtitle">For serious streamers</div>
+      <div class="plan-personality">"I have a NAS and opinions about codecs"</div>
+      <div class="plan-price">
+        <span class="plan-currency">$</span>
+        <span class="plan-amount" data-monthly="14.99" data-yearly="12.49">14.99</span>
+        <span class="plan-period">/mo</span>
+      </div>
+      <div class="plan-yearly-price">
+        <span class="strikethrough">$179.88</span>
+        <span class="savings">$149.90/yr</span>
+      </div>
+      <div class="plan-storage">
+        <span class="bar"><span class="bar-fill" style="width:50%;"></span></span>
+        500 GB
+      </div>
+      <button class="plan-cta primary">Start free trial</button>
+      <div class="plan-divider"></div>
+      <div class="plan-features-title">Everything in Streamer, plus</div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>25 simultaneous downloads</span>
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span><span class="highlight">RSS Automation</span> for recurring downloads</span>
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Priority download speed</span>
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Browser extension</span>
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Downloads stay available for 14 days</span>
+      </div>
+    </div>
+
+    <!-- Archivist -->
+    <div class="plan-card">
+      <div class="plan-icon">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--text-2)" stroke-width="1.5">
+          <rect x="3" y="3" width="14" height="5" rx="1.5" stroke-linejoin="round"/>
+          <rect x="3" y="10" width="14" height="7" rx="1.5" stroke-linejoin="round"/>
+          <line x1="8" y1="13" x2="12" y2="13" stroke-linecap="round"/>
+          <line x1="8" y1="5.5" x2="12" y2="5.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="plan-name">Archivist</div>
+      <div class="plan-subtitle">For collectors &amp; families</div>
+      <div class="plan-personality">"I enjoy curating my collection"</div>
+      <div class="plan-price">
+        <span class="plan-currency">$</span>
+        <span class="plan-amount" data-monthly="24.99" data-yearly="20.79">24.99</span>
+        <span class="plan-period">/mo</span>
+      </div>
+      <div class="plan-yearly-price">
+        <span class="strikethrough">$299.88</span>
+        <span class="savings">$249.49/yr</span>
+      </div>
+      <div class="plan-storage">
+        <span class="bar"><span class="bar-fill" style="width:100%;"></span></span>
+        2 TB
+      </div>
+      <button class="plan-cta outlined">Start free trial</button>
+      <div class="plan-divider"></div>
+      <div class="plan-features-title">Everything in Power, plus</div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span><span class="highlight">Family sharing</span> (up to 4 people)</span>
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>50 simultaneous downloads</span>
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Downloads stay available for 30 days</span>
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Storage dashboard &amp; analytics</span>
+      </div>
+      <div class="plan-feature">
+        <svg class="check" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Priority support</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Enterprise CTA -->
+  <div class="enterprise-cta">
+    <p>Need more? <a href="#">Contact us for custom plans up to 10 TB</a></p>
+  </div>
+
+  <!-- Guarantees -->
+  <div class="guarantees">
+    <div class="guarantee">
+      <div class="guarantee-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--green-11)" stroke-width="1.5">
+          <path d="M8 1.5l5.5 2.5v4c0 3.5-2.5 5.5-5.5 7-3-1.5-5.5-3.5-5.5-7V4L8 1.5z" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5.5 8l2 2 3.5-3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      No friction money-back guarantee during your first week
+    </div>
+    <div class="guarantee">
+      <div class="guarantee-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--yellow)" stroke-width="1.5">
+          <circle cx="8" cy="8" r="6.5"/>
+          <path d="M8 4.5V8l2.5 1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      Cancel anytime. Seriously, one click.
+    </div>
+    <div class="guarantee">
+      <div class="guarantee-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--text-2)" stroke-width="1.5">
+          <rect x="2" y="4" width="12" height="9" rx="1.5"/>
+          <path d="M2 7h12" stroke-linecap="round"/>
+          <path d="M5 10h3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      Stripe-powered. We never see your card details.
+    </div>
+  </div>
+
+  <!-- Comparison Table (Expandable) -->
+  <div class="compare-section">
+    <div class="compare-header" onclick="toggleCompare()">
+      <h2 class="compare-title">Compare plans side by side</h2>
+      <div class="compare-toggle-icon" id="compareToggle">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--text-2)" stroke-width="1.5">
+          <path d="M2 4l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="compare-table-wrap" id="compareWrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Streamer</th>
+            <th class="featured-col">Power</th>
+            <th>Archivist</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Price</td>
+            <td>$9.99/mo</td>
+            <td>$14.99/mo</td>
+            <td>$24.99/mo</td>
+          </tr>
+          <tr>
+            <td>Storage</td>
+            <td>100 GB</td>
+            <td>500 GB</td>
+            <td>2 TB</td>
+          </tr>
+          <tr>
+            <td>Simultaneous downloads</td>
+            <td>10</td>
+            <td>25</td>
+            <td>50</td>
+          </tr>
+          <tr>
+            <td>Availability period</td>
+            <td>7 days</td>
+            <td>14 days</td>
+            <td>30 days</td>
+          </tr>
+          <tr>
+            <td>Streaming &amp; casting</td>
+            <td class="check-cell"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+            <td class="check-cell"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+            <td class="check-cell"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+          </tr>
+          <tr>
+            <td>Built-in player &amp; subtitles</td>
+            <td class="check-cell"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+            <td class="check-cell"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+            <td class="check-cell"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+          </tr>
+          <tr>
+            <td>RSS Automation</td>
+            <td class="dash-cell">&mdash;</td>
+            <td class="check-cell"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+            <td class="check-cell"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+          </tr>
+          <tr>
+            <td>Priority download speed</td>
+            <td class="dash-cell">&mdash;</td>
+            <td class="check-cell"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+            <td class="check-cell"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+          </tr>
+          <tr>
+            <td>Browser extension</td>
+            <td class="dash-cell">&mdash;</td>
+            <td class="check-cell"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+            <td class="check-cell"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+          </tr>
+          <tr>
+            <td>Family sharing (up to 4)</td>
+            <td class="dash-cell">&mdash;</td>
+            <td class="dash-cell">&mdash;</td>
+            <td class="check-cell"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+          </tr>
+          <tr>
+            <td>Storage dashboard</td>
+            <td class="dash-cell">&mdash;</td>
+            <td class="dash-cell">&mdash;</td>
+            <td class="check-cell"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+          </tr>
+          <tr>
+            <td>Priority support</td>
+            <td class="dash-cell">&mdash;</td>
+            <td class="dash-cell">&mdash;</td>
+            <td class="check-cell"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq-section">
+    <h2 class="faq-title">Frequently asked questions</h2>
+    <div class="faq-grid">
+      <div class="faq-item">
+        <div class="faq-q">Can I change plans anytime?</div>
+        <div class="faq-a">Yes. Upgrade instantly, downgrade at the end of your billing cycle. We prorate everything fairly.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What happens when I hit my storage limit?</div>
+        <div class="faq-a">Oldest completed downloads are paused to free space. You can still stream everything you have. Upgrade or clean up to keep going.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is there a free tier?</div>
+        <div class="faq-a">We offer a $0.99 one-day trial so you can try everything with zero commitment. No credit card tricks.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What payment methods do you accept?</div>
+        <div class="faq-a">All major credit cards, debit cards, and PayPal. Payments are processed securely through Stripe.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trust Section -->
+  <div class="trust-section">
+    <div class="trust-badge">
+      <div class="trust-icon">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--green-11)" stroke-width="1.5">
+          <path d="M9 1.5l6 2.75v4.25c0 3.75-2.75 6-6 7.5-3.25-1.5-6-3.75-6-7.5V4.25L9 1.5z" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 9l2.25 2.25L12.25 7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="trust-text">
+        <div class="main">No friction money-back guarantee during your first week</div>
+        <div class="sub">Since 2011, Istanbul. We're the cloud that gets out of your way.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-brand">
+      <a class="logo" href="#">put<span>.</span>io</a>
+      <div class="tagline">The cloud that gets out of your way. Since 2011, Istanbul.</div>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <div class="footer-col-title">Product</div>
+        <a href="#">Features</a>
+        <a href="#">Pricing</a>
+        <a href="#">Apps</a>
+        <a href="#">API</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Support</div>
+        <a href="#">Help Center</a>
+        <a href="#">Status</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Legal</div>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+      </div>
+    </div>
+  </footer>
+  <div class="footer-bottom">
+    &copy; 2011&ndash;2026 put.io &middot; All rights reserved.
+  </div>
+
+</div>
+
+<script>
+  function toggleBilling(mode) {
+    const buttons = document.querySelectorAll('.toggle-option');
+    const grid = document.getElementById('pricingGrid');
+    const amounts = document.querySelectorAll('.plan-amount');
+
+    if (mode === 'yearly') {
+      buttons[0].classList.remove('active');
+      buttons[1].classList.add('active');
+      grid.classList.add('yearly-active');
+      amounts.forEach(el => {
+        el.textContent = el.dataset.yearly;
+      });
+    } else {
+      buttons[1].classList.remove('active');
+      buttons[0].classList.add('active');
+      grid.classList.remove('yearly-active');
+      amounts.forEach(el => {
+        el.textContent = el.dataset.monthly;
+      });
+    }
+  }
+
+  function toggleCompare() {
+    const wrap = document.getElementById('compareWrap');
+    const icon = document.getElementById('compareToggle');
+    wrap.classList.toggle('expanded');
+    icon.classList.toggle('expanded');
+  }
+</script>
+</body>
+</html>

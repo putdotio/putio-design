@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>put.io — Windows 11 Native File Browser</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #202020;
+    --bg-deep: #1A1A1A;
+    --text: #F0F0F0;
+    --yellow: #FDCE45;
+    --green: #30A46C;
+    --red: #C42B1C;
+    --surface: #2D2D2D;
+    --surface-high: #383838;
+    --surface-higher: #434343;
+    --border: rgba(255, 255, 255, 0.07);
+    --border-bright: rgba(255, 255, 255, 0.1);
+    --text-secondary: #B0B0B0;
+    --text-tertiary: #787878;
+    --mica: #282828;
+    --mica-nav: #252525;
+    --hover: rgba(255, 255, 255, 0.04);
+    --hover-bright: rgba(255, 255, 255, 0.06);
+    --pressed: rgba(255, 255, 255, 0.03);
+    --selected: rgba(253, 206, 69, 0.10);
+    --selected-border: rgba(253, 206, 69, 0.25);
+    --accent-subtle: rgba(253, 206, 69, 0.08);
+    --radius: 8px;
+    --radius-sm: 4px;
+    --font: 'Segoe UI Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg-deep);
+    color: var(--text);
+    width: 1280px;
+    height: 800px;
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Window Frame */
+  .window {
+    width: 1280px;
+    height: 800px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border-bright);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+  }
+
+  /* Title Bar — Mica material */
+  .title-bar {
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--mica);
+    border-bottom: 1px solid var(--border);
+    -webkit-app-region: drag;
+    user-select: none;
+    flex-shrink: 0;
+  }
+  .title-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 14px;
+  }
+  .app-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .title-bar-title {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-secondary);
+  }
+  .window-controls {
+    display: flex;
+    height: 32px;
+  }
+  .window-btn {
+    width: 46px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: background 0.1s;
+  }
+  .window-btn:hover { background: var(--hover-bright); }
+  .window-btn.close:hover { background: var(--red); color: white; }
+  .window-btn svg { width: 10px; height: 10px; }
+
+  /* Main Layout */
+  .main {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* Navigation Pane — WinUI NavigationView */
+  .nav-pane {
+    width: 320px;
+    background: var(--mica-nav);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+  .nav-top {
+    display: flex;
+    align-items: center;
+    padding: 8px 8px 4px;
+    gap: 8px;
+  }
+  .hamburger-btn {
+    width: 40px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .hamburger-btn:hover { background: var(--hover); }
+  .hamburger-btn svg { width: 16px; height: 16px; }
+
+  .nav-search {
+    flex: 1;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border-bright);
+    border-radius: var(--radius-sm);
+    padding: 0 10px;
+    color: var(--text-tertiary);
+    font-size: 13px;
+  }
+  .nav-search svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  .nav-items {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 4px 0;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 12px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 1px 4px;
+    transition: background 0.08s;
+    position: relative;
+  }
+  .nav-item:hover { background: var(--hover); color: var(--text); }
+  .nav-item.active {
+    background: var(--accent-subtle);
+    color: var(--text);
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 16px;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .nav-item.active svg { color: var(--yellow); }
+  .nav-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 6px 16px;
+  }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--surface-high);
+    color: var(--text-tertiary);
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  /* Navigation Bottom — Settings + Storage */
+  .nav-bottom {
+    padding: 4px 8px 8px;
+    border-top: 1px solid var(--border);
+  }
+  .nav-settings {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 12px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 1px 4px;
+    transition: background 0.08s;
+  }
+  .nav-settings:hover { background: var(--hover); color: var(--text); }
+  .nav-settings svg { width: 16px; height: 16px; }
+  .nav-storage {
+    margin: 8px 8px 4px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius-sm);
+  }
+  .nav-storage-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .nav-storage-bar {
+    height: 4px;
+    background: var(--surface-high);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+  .nav-storage-fill {
+    height: 100%;
+    width: 78.4%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+  .nav-storage-text {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  /* Content Area */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    min-width: 0;
+  }
+
+  /* Command Bar — WinUI style */
+  .command-bar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 12px;
+    background: var(--bg);
+    min-height: 40px;
+    flex-shrink: 0;
+  }
+  .cmd-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    height: 32px;
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 13px;
+    font-family: var(--font);
+    transition: background 0.08s;
+    white-space: nowrap;
+  }
+  .cmd-btn:hover { background: var(--hover-bright); color: var(--text); }
+  .cmd-btn svg { width: 16px; height: 16px; }
+  .cmd-btn.primary {
+    background: var(--yellow);
+    color: #1A1A1A;
+    font-weight: 600;
+  }
+  .cmd-btn.primary:hover { background: #FFDA6A; }
+  .cmd-btn.primary svg { color: #1A1A1A; }
+  .cmd-sep {
+    width: 1px;
+    height: 20px;
+    background: var(--border-bright);
+    margin: 0 4px;
+    flex-shrink: 0;
+  }
+  .cmd-dropdown::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 3.5px solid transparent;
+    border-right: 3.5px solid transparent;
+    border-top: 4px solid currentColor;
+    margin-left: 2px;
+  }
+
+  /* Breadcrumb Bar */
+  .breadcrumb-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px 8px;
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+  .breadcrumb-nav-btns {
+    display: flex;
+    gap: 2px;
+    margin-right: 4px;
+  }
+  .breadcrumb-nav-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    color: var(--text-tertiary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  .breadcrumb-nav-btn:hover { background: var(--hover); color: var(--text-secondary); }
+  .breadcrumb-nav-btn.enabled { color: var(--text-secondary); }
+  .breadcrumb-path {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: var(--surface);
+    border: 1px solid var(--border-bright);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    height: 30px;
+  }
+  .breadcrumb-segment {
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 3px;
+  }
+  .breadcrumb-segment:hover { background: var(--hover); color: var(--text); }
+  .breadcrumb-segment.current { color: var(--text); }
+  .breadcrumb-chevron {
+    color: var(--text-tertiary);
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* File List Header — Fluent Data Grid */
+  .file-header {
+    display: grid;
+    grid-template-columns: 40px 1fr 140px 120px 100px;
+    align-items: center;
+    padding: 0 12px;
+    height: 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+  .file-header-cell {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 400;
+    padding: 0 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .file-header-cell:hover { color: var(--text-secondary); }
+  .file-header-cell.sorted { color: var(--text-secondary); }
+  .sort-arrow { font-size: 9px; }
+
+  /* File List */
+  .file-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2px 4px;
+  }
+  .file-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 140px 120px 100px;
+    align-items: center;
+    padding: 0 12px;
+    height: 32px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    margin: 0 4px;
+    border-radius: var(--radius-sm);
+    transition: background 0.06s;
+  }
+  .file-row:hover { background: var(--hover); }
+  .file-row.selected {
+    background: var(--selected);
+    border-color: var(--selected-border);
+  }
+  .file-cell {
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 0 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .file-cell.name {
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .file-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .file-checkbox {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .checkbox-inner {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--text-tertiary);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .file-row.selected .checkbox-inner {
+    background: var(--yellow);
+    border-color: var(--yellow);
+  }
+
+  /* Watch progress indicator */
+  .watch-progress {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+  .watch-bar {
+    width: 40px;
+    height: 3px;
+    background: var(--surface-higher);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .watch-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+
+  /* Status Bar */
+  .status-bar {
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    background: var(--mica);
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+  }
+  .status-bar-left, .status-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+  .status-connected {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="window">
+
+  <!-- Title Bar -->
+  <div class="title-bar">
+    <div class="title-bar-left">
+      <div class="app-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="2" width="20" height="20" rx="4" fill="#FDCE45"/>
+          <path d="M8 8h8v2H8zm0 3h6v2H8zm0 3h7v2H8z" fill="#1A1A1A"/>
+        </svg>
+      </div>
+      <span class="title-bar-title">put.io</span>
+    </div>
+    <div class="window-controls">
+      <button class="window-btn minimize">
+        <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.2"><line x1="1" y1="5" x2="9" y2="5"/></svg>
+      </button>
+      <button class="window-btn maximize">
+        <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="7" height="7" rx="0.5"/></svg>
+      </button>
+      <button class="window-btn close">
+        <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.2"><line x1="1.5" y1="1.5" x2="8.5" y2="8.5"/><line x1="8.5" y1="1.5" x2="1.5" y2="8.5"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- Navigation Pane — 320px WinUI NavigationView -->
+    <div class="nav-pane">
+
+      <!-- Top: Hamburger + Search -->
+      <div class="nav-top">
+        <button class="hamburger-btn">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+        </button>
+        <div class="nav-search">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="5.5" cy="5.5" r="4"/><path d="M9 9l3.5 3.5"/></svg>
+          <span>Search</span>
+        </div>
+      </div>
+
+      <!-- Nav Items -->
+      <div class="nav-items">
+        <div class="nav-item active">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 3h4l2 2h6v8H2z"/></svg>
+          Files
+        </div>
+        <div class="nav-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M8 3v10M3 8l5 5 5-5"/></svg>
+          Transfers
+          <span class="nav-badge">2</span>
+        </div>
+        <div class="nav-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="8" cy="8" r="5.5"/><path d="M8 4.5V8l2.5 2.5"/></svg>
+          History
+        </div>
+        <div class="nav-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3 3h2v2H3zM3 7h2v2H3zM3 11h2v2H3zM7 3.5h6M7 7.5h6M7 11.5h6"/></svg>
+          RSS
+        </div>
+        <div class="nav-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 2v12l4-3 4 3V2z"/></svg>
+          Sharing
+        </div>
+        <div class="nav-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3 4h10M5 4V3h6v1M4 4v9a1 1 0 001 1h6a1 1 0 001-1V4"/><path d="M6.5 7v4M9.5 7v4"/></svg>
+          Trash
+        </div>
+      </div>
+
+      <!-- Bottom: Settings + Storage -->
+      <div class="nav-bottom">
+        <div class="nav-settings">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="8" cy="8" r="2.5"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"/></svg>
+          Settings
+        </div>
+        <div class="nav-storage">
+          <div class="nav-storage-label">Storage</div>
+          <div class="nav-storage-bar"><div class="nav-storage-fill"></div></div>
+          <div class="nav-storage-text">39.2 / 50 TB used</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content">
+
+      <!-- Command Bar -->
+      <div class="command-bar">
+        <button class="cmd-btn primary">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10M3 8h10"/></svg>
+          New Transfer
+        </button>
+        <div class="cmd-sep"></div>
+        <button class="cmd-btn cmd-dropdown">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 4h12M2 8h8M2 12h10"/></svg>
+          Sort
+        </button>
+        <button class="cmd-btn">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 3h12M2 7h12M2 11h12"/></svg>
+        </button>
+        <button class="cmd-btn">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="2" width="5" height="5" rx="0.5"/><rect x="9" y="2" width="5" height="5" rx="0.5"/><rect x="2" y="9" width="5" height="5" rx="0.5"/><rect x="9" y="9" width="5" height="5" rx="0.5"/></svg>
+        </button>
+        <div class="cmd-sep"></div>
+        <button class="cmd-btn">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="8" cy="4" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="8" cy="12" r="1"/></svg>
+        </button>
+      </div>
+
+      <!-- Breadcrumb Bar -->
+      <div class="breadcrumb-bar">
+        <div class="breadcrumb-nav-btns">
+          <button class="breadcrumb-nav-btn enabled">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7.5 2L3.5 6l4 4"/></svg>
+          </button>
+          <button class="breadcrumb-nav-btn">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 2l4 4-4 4"/></svg>
+          </button>
+          <button class="breadcrumb-nav-btn enabled">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 1L10.5 4v5L6 11 1.5 9V4z"/></svg>
+          </button>
+        </div>
+        <div class="breadcrumb-path">
+          <span class="breadcrumb-segment">Your Files</span>
+          <span class="breadcrumb-chevron">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3 1.5l3 2.5-3 2.5"/></svg>
+          </span>
+          <span class="breadcrumb-segment">Downloads</span>
+          <span class="breadcrumb-chevron">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3 1.5l3 2.5-3 2.5"/></svg>
+          </span>
+          <span class="breadcrumb-segment">TV Shows</span>
+          <span class="breadcrumb-chevron">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3 1.5l3 2.5-3 2.5"/></svg>
+          </span>
+          <span class="breadcrumb-segment current">The Wire</span>
+        </div>
+      </div>
+
+      <!-- File List Header -->
+      <div class="file-header">
+        <div class="file-header-cell"></div>
+        <div class="file-header-cell sorted">Name <span class="sort-arrow">&#9650;</span></div>
+        <div class="file-header-cell">Date modified</div>
+        <div class="file-header-cell">Type</div>
+        <div class="file-header-cell">Size</div>
+      </div>
+
+      <!-- File List -->
+      <div class="file-list">
+        <!-- Folders -->
+        <div class="file-row">
+          <div class="file-cell"><div class="file-checkbox"><div class="checkbox-inner"></div></div></div>
+          <div class="file-cell name">
+            <div class="file-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M2 4.5h5.5l2 2H18v10H2z" fill="#FDCE45" opacity="0.9"/></svg></div>
+            Season 1
+          </div>
+          <div class="file-cell">Mar 15, 2026</div>
+          <div class="file-cell">File folder</div>
+          <div class="file-cell">18.4 GB</div>
+        </div>
+        <div class="file-row selected">
+          <div class="file-cell"><div class="file-checkbox"><div class="checkbox-inner"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#1A1A1A" stroke-width="1.5"><path d="M2 5.5L4 7.5 8 3"/></svg></div></div></div>
+          <div class="file-cell name">
+            <div class="file-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M2 4.5h5.5l2 2H18v10H2z" fill="#FDCE45" opacity="0.9"/></svg></div>
+            Season 2
+          </div>
+          <div class="file-cell">Mar 12, 2026</div>
+          <div class="file-cell">File folder</div>
+          <div class="file-cell">16.2 GB</div>
+        </div>
+        <div class="file-row">
+          <div class="file-cell"><div class="file-checkbox"><div class="checkbox-inner"></div></div></div>
+          <div class="file-cell name">
+            <div class="file-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M2 4.5h5.5l2 2H18v10H2z" fill="#FDCE45" opacity="0.9"/></svg></div>
+            Season 3
+          </div>
+          <div class="file-cell">Mar 10, 2026</div>
+          <div class="file-cell">File folder</div>
+          <div class="file-cell">14.8 GB</div>
+        </div>
+
+        <!-- Video files -->
+        <div class="file-row">
+          <div class="file-cell"><div class="file-checkbox"><div class="checkbox-inner"></div></div></div>
+          <div class="file-cell name">
+            <div class="file-icon">
+              <svg viewBox="0 0 20 20" fill="none">
+                <rect x="2" y="2" width="16" height="16" rx="2" fill="#4E9FE5" opacity="0.85"/>
+                <path d="M8 6.5v7l6-3.5z" fill="white" opacity="0.85"/>
+              </svg>
+            </div>
+            The Wire S3E01 - Time After Time.mkv
+          </div>
+          <div class="file-cell">Mar 10, 2026</div>
+          <div class="file-cell">MKV Video</div>
+          <div class="file-cell">1.8 GB</div>
+        </div>
+        <div class="file-row">
+          <div class="file-cell"><div class="file-checkbox"><div class="checkbox-inner"></div></div></div>
+          <div class="file-cell name">
+            <div class="file-icon">
+              <svg viewBox="0 0 20 20" fill="none">
+                <rect x="2" y="2" width="16" height="16" rx="2" fill="#4E9FE5" opacity="0.85"/>
+                <path d="M8 6.5v7l6-3.5z" fill="white" opacity="0.85"/>
+              </svg>
+            </div>
+            <span style="display:flex;align-items:center;gap:10px">
+              The Wire S3E02 - All Due Respect.mkv
+              <span class="watch-progress">
+                <span class="watch-bar"><span class="watch-fill" style="width:35%"></span></span>
+                35%
+              </span>
+            </span>
+          </div>
+          <div class="file-cell">Mar 10, 2026</div>
+          <div class="file-cell">MKV Video</div>
+          <div class="file-cell">1.9 GB</div>
+        </div>
+
+        <!-- Audio file -->
+        <div class="file-row">
+          <div class="file-cell"><div class="file-checkbox"><div class="checkbox-inner"></div></div></div>
+          <div class="file-cell name">
+            <div class="file-icon">
+              <svg viewBox="0 0 20 20" fill="none">
+                <rect x="2" y="2" width="16" height="16" rx="2" fill="#9B6DFF" opacity="0.85"/>
+                <path d="M12 5v7.5a2 2 0 11-2-2h1V6.5L8 7.5v5a2 2 0 11-2-2h1V5z" fill="white" opacity="0.8"/>
+              </svg>
+            </div>
+            Soundtrack.flac
+          </div>
+          <div class="file-cell">Mar 10, 2026</div>
+          <div class="file-cell">FLAC Audio</div>
+          <div class="file-cell">450 MB</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="status-bar-left">
+      <span>6 items &middot; 3 folders, 3 files</span>
+    </div>
+    <div class="status-bar-right">
+      <span class="status-connected"><span class="status-dot"></span> Connected</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
