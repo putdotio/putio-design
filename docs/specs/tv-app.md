@@ -242,6 +242,114 @@ For music, podcasts, audiobooks.
 
 ---
 
+## Tunnel / Route Selection
+
+put.io routes traffic through different geographic endpoints. Users pick which route to use (affects download speeds and content availability).
+
+- Available from Settings → Tunnel Route
+- List of available routes from API
+- Current route highlighted with checkmark
+- Select → immediately apply, no restart needed
+- Show route display name (e.g., "Amsterdam", "London", "New York")
+
+---
+
+## Resume Playback Prompt
+
+When opening a file with saved progress, show a pre-player overlay:
+
+- File poster/screenshot as background
+- Progress bar showing watched portion (yellow) vs remaining (white)
+- Two buttons:
+  - **"Continue playing from [timestamp]"** (focused by default)
+  - **"Start from the beginning"**
+- Selecting either dismisses overlay and starts playback
+- If no saved progress, skip straight to player
+
+This is a critical UX pattern — the current app has it and it's good. Keep it.
+
+---
+
+## Error States & Loading
+
+Every screen needs defined error and empty states:
+
+| Screen | Empty state | Error state |
+|--------|-------------|-------------|
+| Home | "Welcome! Add files at put.io" + QR | Retry button + error message |
+| Files (folder) | "This folder is empty" | Retry button |
+| Search | "Search your files" (before query) / "No results" (after) | Retry button |
+| History | "No playback history yet" | Retry button |
+| Trash | "Trash is empty ✓" | Retry button |
+| Continue Watching | Row hidden (not shown on home) | Row hidden |
+
+### Loading patterns
+- Initial app load: splash screen with put.io logo
+- Screen transitions: fade animation (not push)
+- Data loading: activity indicator centered on screen
+- Pull-to-refresh: not applicable on TV (use explicit "Refresh" button in file actions)
+- Video buffering: activity indicator over black background
+
+---
+
+## Remote Config & Feature Flags
+
+The current app uses remote config for:
+- Buffer settings (per-platform tuning)
+- Playback type preference (HLS vs MP4 — becomes irrelevant with VLC-kit for most cases)
+- Feature flags (enable/disable features server-side)
+
+Keep this pattern. Useful for:
+- Gradual VLC-kit rollout (fall back to HLS if VLC-kit crashes)
+- A/B testing home screen layouts
+- Disabling features during incidents
+
+---
+
+## Sentry / Error Reporting
+
+- Crash reporting via Sentry (current app already has this)
+- Set user context on login (user_id, username)
+- Set config context (remote config, user config)
+- Breadcrumbs for: navigation events, playback start/stop/error, API errors
+
+---
+
+## Update Notifier
+
+- Check for app updates on launch
+- If update available, show modal: "A new version is available. Update now?"
+- "Update" button → open platform app store
+- "Later" button → dismiss, don't ask again for 24h
+- Force update option for critical releases (remote config flag)
+
+---
+
+## Design References
+
+HTML prototypes exist for all TV screens in `prototypes/`:
+
+### tvOS
+- `tvos-home-v1.html` through `tvos-home-v11-scandi.html` (9 variants)
+- `tvos-files-native.html`, `tvos-files-v2.html`, `tvos-files-tvos26.html`
+- `tvos-player-v2-clean.html`, `tvos-player-tvos26.html`
+- `tvos-search-v2-clean.html`
+- `tvos-settings-v2-clean.html`
+
+### Android TV
+- `androidtv-home-v1.html`, `androidtv-home-native.html`, `androidtv-home-googletv.html`
+- `androidtv-files-v2-clean.html`, `androidtv-files-googletv.html`
+- `androidtv-player-v2-clean.html`
+- `androidtv-search-v2-clean.html`
+- `androidtv-browse-native.html`
+
+### Roku (deferred)
+- `roku-files.html` + 3 variants
+
+Review these prototypes to inform final design direction. The `*-native.html` and `*-tvos26.html` variants follow platform conventions most closely.
+
+---
+
 ## Platform-Specific Notes
 
 ### tvOS (SwiftUI + VLC-kit)
