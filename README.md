@@ -2,8 +2,6 @@
 
 Design exploration for [put.io](https://put.io) — a cloud storage and transfer service across every platform.
 
-133 self-contained HTML prototypes, 4 design variants, 9 platforms, 3 iterations deep.
-
 ## Browse
 
 ```
