@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Transfers (Minimal Ink)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0E0E0E;
+    --text: #E8E8E8;
+    --muted: #666666;
+    --yellow: #FDCE45;
+    --mono: 'IBM Plex Mono', 'iA Writer Quattro', 'Menlo', 'Consolas', monospace;
+  }
+
+  body {
+    font-family: var(--mono);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 24px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .frame {
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ================================================================
+     TOP NAVIGATION
+     ================================================================ */
+  .nav {
+    width: 640px;
+    padding: 48px 0 0;
+  }
+
+  .nav-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .nav-brand {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    margin-right: auto;
+  }
+
+  .nav-link {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 400;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+
+  .nav-link:hover {
+    color: var(--yellow);
+  }
+
+  .nav-link.active {
+    color: var(--text);
+  }
+
+  .nav-sep {
+    color: #333333;
+    font-size: 13px;
+    user-select: none;
+  }
+
+  /* ================================================================
+     CONTENT
+     ================================================================ */
+  .content {
+    width: 640px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-top: 64px;
+  }
+
+  .page-title {
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 36px;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin-bottom: 48px;
+  }
+
+  /* ================================================================
+     TRANSFER LIST
+     ================================================================ */
+  .transfer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .transfer-row {
+    padding: 8px 0;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.15s ease;
+  }
+
+  .transfer-row:hover .transfer-name {
+    color: var(--yellow);
+  }
+
+  /* Yellow dot for active download */
+  .transfer-row.active::before {
+    content: '';
+    position: absolute;
+    left: -16px;
+    top: 17px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--yellow);
+  }
+
+  .transfer-primary {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  .transfer-name {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 400;
+    transition: color 0.15s ease;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .transfer-status-word {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .transfer-detail {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 2px;
+    letter-spacing: 0.01em;
+  }
+
+  /* Complete transfers — everything muted */
+  .transfer-row.complete .transfer-name {
+    color: var(--muted);
+  }
+
+  .transfer-row.complete .transfer-detail {
+    color: #444444;
+  }
+
+  /* ================================================================
+     SECTION LABEL
+     ================================================================ */
+  .section-label {
+    color: #444444;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 32px 0 12px;
+  }
+
+  /* ================================================================
+     FOOTER
+     ================================================================ */
+  .footer {
+    width: 640px;
+    padding: 48px 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .footer-brand {
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  .footer-stat {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .kaomoji {
+    color: #2a2a2a;
+    font-size: 11px;
+    margin-left: 16px;
+    letter-spacing: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="frame">
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-row">
+      <a class="nav-brand" href="#">put.io</a>
+      <a class="nav-link" href="#">files</a>
+      <span class="nav-sep">&middot;</span>
+      <a class="nav-link active" href="#">transfers</a>
+      <span class="nav-sep">&middot;</span>
+      <a class="nav-link" href="#">rss</a>
+      <span class="nav-sep">&middot;</span>
+      <a class="nav-link" href="#">sharing</a>
+      <span class="nav-sep">&middot;</span>
+      <a class="nav-link" href="#">history</a>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <main class="content">
+    <h1 class="page-title">Transfers</h1>
+
+    <div class="section-label">downloading</div>
+
+    <div class="transfer-list">
+      <div class="transfer-row active">
+        <div class="transfer-primary">
+          <span class="transfer-name">Inception.2010.2160p.UHD.BluRay.x265.mkv</span>
+          <span class="transfer-status-word">downloading</span>
+        </div>
+        <div class="transfer-detail">63% &mdash; 4.2 of 6.7 GB &mdash; 23 min remaining &mdash; 12.4 MB/s</div>
+      </div>
+
+      <div class="transfer-row active">
+        <div class="transfer-primary">
+          <span class="transfer-name">Blade.Runner.2049.2017.2160p.UHD.BluRay.x265.mkv</span>
+          <span class="transfer-status-word">downloading</span>
+        </div>
+        <div class="transfer-detail">31% &mdash; 2.5 of 8.2 GB &mdash; 41 min remaining &mdash; 8.7 MB/s</div>
+      </div>
+
+      <div class="transfer-row">
+        <div class="transfer-primary">
+          <span class="transfer-name">Stalker.1979.Criterion.1080p.BluRay.x264.mkv</span>
+          <span class="transfer-status-word">stalled</span>
+        </div>
+        <div class="transfer-detail">12% &mdash; 0.6 of 5.4 GB &mdash; no peers</div>
+      </div>
+    </div>
+
+    <div class="section-label">complete</div>
+
+    <div class="transfer-list">
+      <div class="transfer-row complete">
+        <div class="transfer-primary">
+          <span class="transfer-name">The.Grand.Budapest.Hotel.2014.1080p.BluRay.x264.mkv</span>
+          <span class="transfer-status-word">complete</span>
+        </div>
+        <div class="transfer-detail">4.1 GB &mdash; finished 2 hours ago</div>
+      </div>
+
+      <div class="transfer-row complete">
+        <div class="transfer-primary">
+          <span class="transfer-name">Parasite.2019.2160p.UHD.BluRay.x265.mkv</span>
+          <span class="transfer-status-word">complete</span>
+        </div>
+        <div class="transfer-detail">7.1 GB &mdash; finished 5 hours ago</div>
+      </div>
+
+      <div class="transfer-row complete">
+        <div class="transfer-primary">
+          <span class="transfer-name">Drive.2011.1080p.BluRay.x264.mkv</span>
+          <span class="transfer-status-word">complete</span>
+        </div>
+        <div class="transfer-detail">3.8 GB &mdash; finished yesterday</div>
+      </div>
+
+      <div class="transfer-row complete">
+        <div class="transfer-primary">
+          <span class="transfer-name">2001.A.Space.Odyssey.1968.2160p.UHD.BluRay.x265.mkv</span>
+          <span class="transfer-status-word">complete</span>
+        </div>
+        <div class="transfer-detail">9.3 GB &mdash; finished yesterday</div>
+      </div>
+
+      <div class="transfer-row complete">
+        <div class="transfer-primary">
+          <span class="transfer-name">Arrival.2016.1080p.BluRay.x264.mkv</span>
+          <span class="transfer-status-word">complete</span>
+        </div>
+        <div class="transfer-detail">4.5 GB &mdash; finished 3 days ago</div>
+      </div>
+
+      <div class="transfer-row complete">
+        <div class="transfer-primary">
+          <span class="transfer-name">The.Lighthouse.2019.1080p.BluRay.x264.mkv</span>
+          <span class="transfer-status-word">complete</span>
+        </div>
+        <div class="transfer-detail">3.2 GB &mdash; finished 4 days ago</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <span class="footer-brand">put.io<span class="kaomoji">&nbsp;&nbsp;&nbsp;&#x1566;(&#xF2;_&#xF3;&#x2C7;)&#x1564;</span></span>
+    <span class="footer-stat">3 active &middot; 6 complete</span>
+  </footer>
+
+</div>
+
+</body>
+</html>

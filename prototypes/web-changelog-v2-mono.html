@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Changelog (Monospace)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0C0C0E;
+    --bg-2: #111114;
+    --bg-3: #18181C;
+    --line: #1E1E24;
+    --border: #2A2A32;
+    --muted: #555564;
+    --text-2: #8888A0;
+    --text: #C8C8D8;
+    --bright: #E8E8F0;
+    --white: #F4F4FA;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.08);
+    --green: #30A46C;
+    --blue: #3B82F6;
+    --orange: #F97316;
+    --red: #E5484D;
+    --mono: 'JetBrains Mono', 'SF Mono', 'Menlo', 'Consolas', monospace;
+  }
+
+  body {
+    font-family: var(--mono);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    width: 1440px;
+    height: 900px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Top bar */
+  .topbar {
+    padding: 20px 48px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-shrink: 0;
+  }
+
+  .topbar-brand {
+    color: var(--yellow);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .topbar-sep {
+    color: var(--border);
+  }
+
+  .topbar-path {
+    color: var(--text-2);
+    font-size: 13px;
+  }
+
+  .topbar-path span {
+    color: var(--bright);
+  }
+
+  .topbar-spacer { flex: 1; }
+
+  .topbar-link {
+    color: var(--muted);
+    font-size: 12px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .topbar-link:hover { color: var(--yellow); }
+
+  /* Main content area */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px 48px;
+    display: flex;
+    gap: 48px;
+  }
+
+  /* Left: log entries */
+  .log-area {
+    flex: 1;
+    max-width: 860px;
+  }
+
+  .log-header {
+    margin-bottom: 32px;
+  }
+
+  .log-header-line {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  .log-header-title {
+    color: var(--yellow);
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .log-header-sub {
+    color: var(--text-2);
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  /* Commit entry */
+  .commit {
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .commit:last-child {
+    border-bottom: none;
+  }
+
+  .commit-hash-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+
+  .commit-hash {
+    color: var(--yellow);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .commit-tag {
+    padding: 1px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 2px;
+    letter-spacing: 0.04em;
+  }
+
+  .commit-tag-new {
+    background: rgba(48, 164, 108, 0.15);
+    color: var(--green);
+    border: 1px solid rgba(48, 164, 108, 0.3);
+  }
+
+  .commit-tag-improved {
+    background: rgba(59, 130, 246, 0.12);
+    color: var(--blue);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+  }
+
+  .commit-tag-fix {
+    background: rgba(233, 72, 77, 0.12);
+    color: var(--red);
+    border: 1px solid rgba(233, 72, 77, 0.25);
+  }
+
+  .commit-meta {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+
+  .commit-meta span {
+    color: var(--text-2);
+  }
+
+  .commit-title {
+    color: var(--bright);
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+
+  .commit-subtitle {
+    color: var(--yellow);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    opacity: 0.9;
+  }
+
+  .commit-body {
+    color: var(--text-2);
+    font-size: 13px;
+    line-height: 1.7;
+    padding-left: 4px;
+    border-left: 2px solid var(--line);
+    margin-left: 2px;
+    padding: 8px 0 8px 16px;
+  }
+
+  .commit-diff {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .commit-diff .added {
+    color: var(--green);
+  }
+
+  .commit-diff .removed {
+    color: var(--red);
+  }
+
+  /* Right sidebar: summary */
+  .aside {
+    width: 280px;
+    flex-shrink: 0;
+  }
+
+  .aside-block {
+    margin-bottom: 32px;
+  }
+
+  .aside-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .aside-stat {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 12px;
+  }
+
+  .aside-stat-label { color: var(--text-2); }
+  .aside-stat-value { color: var(--bright); font-weight: 600; }
+  .aside-stat-value.yellow { color: var(--yellow); }
+
+  .aside-tag-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .aside-tag-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+
+  .aside-tag-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 1px;
+    flex-shrink: 0;
+  }
+
+  .aside-branch {
+    font-size: 12px;
+    color: var(--text-2);
+    padding: 8px 12px;
+    background: var(--bg-3);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+
+  .aside-branch span { color: var(--yellow); }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <span class="topbar-brand">put.io</span>
+    <span class="topbar-sep">//</span>
+    <span class="topbar-path"><span>changelog</span> --format=log --latest</span>
+    <span class="topbar-spacer"></span>
+    <a class="topbar-link" href="#">files</a>
+    <a class="topbar-link" href="#">transfers</a>
+    <a class="topbar-link" href="#">settings</a>
+  </div>
+
+  <div class="content">
+
+    <!-- Log entries -->
+    <div class="log-area">
+
+      <div class="log-header">
+        <div class="log-header-line">$ putio log --oneline --decorate</div>
+        <div class="log-header-title">CHANGELOG</div>
+        <div class="log-header-sub">latest releases // updated 2026-03-18</div>
+      </div>
+
+      <!-- Entry 1: RSS Automation -->
+      <div class="commit">
+        <div class="commit-hash-line">
+          <span class="commit-hash">a3f7c2d</span>
+          <span class="commit-tag commit-tag-new">[NEW]</span>
+        </div>
+        <div class="commit-meta">Author: <span>put.io team</span> &nbsp; Date: <span>2026-03-15</span></div>
+        <div class="commit-title">feat: RSS Automation</div>
+        <div class="commit-subtitle">your shows, on autopilot</div>
+        <div class="commit-body">
+          Set up RSS feeds for your favorite shows and let<br>
+          put.io handle the rest. New episodes get fetched,<br>
+          downloaded, and organized -- no manual work needed.<br>
+          <br>
+          Wake up to fresh content every morning.
+        </div>
+        <div class="commit-diff">
+          <span class="added">+rss-engine</span> <span class="added">+auto-organize</span> <span class="added">+feed-parser</span>
+        </div>
+      </div>
+
+      <!-- Entry 2: Storage Dashboard -->
+      <div class="commit">
+        <div class="commit-hash-line">
+          <span class="commit-hash">e9b1d4f</span>
+          <span class="commit-tag commit-tag-new">[NEW]</span>
+        </div>
+        <div class="commit-meta">Author: <span>put.io team</span> &nbsp; Date: <span>2026-03-10</span></div>
+        <div class="commit-title">feat: Storage Dashboard</div>
+        <div class="commit-subtitle">see what's taking space</div>
+        <div class="commit-body">
+          A clear breakdown of your storage by file type,<br>
+          age, and size. Find the heavy hitters, clean up<br>
+          what you don't need, make room for what matters.<br>
+          <br>
+          No more guessing where your terabytes went.
+        </div>
+        <div class="commit-diff">
+          <span class="added">+storage-analytics</span> <span class="added">+cleanup-wizard</span> <span class="removed">-manual-audit</span>
+        </div>
+      </div>
+
+      <!-- Entry 3: Family Sharing -->
+      <div class="commit">
+        <div class="commit-hash-line">
+          <span class="commit-hash">7c4a8e2</span>
+          <span class="commit-tag commit-tag-improved">[IMPROVED]</span>
+        </div>
+        <div class="commit-meta">Author: <span>put.io team</span> &nbsp; Date: <span>2026-02-28</span></div>
+        <div class="commit-title">improve: Family Sharing</div>
+        <div class="commit-subtitle">now with up to 4 members</div>
+        <div class="commit-body">
+          Share your put.io account with up to 4 family<br>
+          members. Everyone gets their own space, their own<br>
+          transfer queue, and their own watch history.<br>
+          <br>
+          One plan, the whole crew.
+        </div>
+        <div class="commit-diff">
+          <span class="added">+multi-user</span> <span class="added">+per-user-history</span> <span class="added">+shared-storage</span>
+        </div>
+      </div>
+
+      <!-- Entry 4: Browser Extension -->
+      <div class="commit">
+        <div class="commit-hash-line">
+          <span class="commit-hash">1f6d3b9</span>
+          <span class="commit-tag commit-tag-new">[NEW]</span>
+        </div>
+        <div class="commit-meta">Author: <span>put.io team</span> &nbsp; Date: <span>2026-02-20</span></div>
+        <div class="commit-title">feat: Browser Extension</div>
+        <div class="commit-subtitle">one click from any page</div>
+        <div class="commit-body">
+          Right-click any link and send it straight to put.io.<br>
+          Works on Chrome, Firefox, and Edge. The toolbar<br>
+          button shows your active transfers at a glance.<br>
+          <br>
+          Dead simple.
+        </div>
+        <div class="commit-diff">
+          <span class="added">+chrome-ext</span> <span class="added">+firefox-ext</span> <span class="added">+edge-ext</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right sidebar -->
+    <aside class="aside">
+
+      <div class="aside-block">
+        <div class="aside-title">Release Info</div>
+        <div class="aside-stat">
+          <span class="aside-stat-label">version</span>
+          <span class="aside-stat-value yellow">v4.12.0</span>
+        </div>
+        <div class="aside-stat">
+          <span class="aside-stat-label">entries</span>
+          <span class="aside-stat-value">4</span>
+        </div>
+        <div class="aside-stat">
+          <span class="aside-stat-label">period</span>
+          <span class="aside-stat-value">Feb-Mar 2026</span>
+        </div>
+      </div>
+
+      <div class="aside-block">
+        <div class="aside-title">Tags</div>
+        <div class="aside-tag-list">
+          <div class="aside-tag-row">
+            <div class="aside-tag-dot" style="background:var(--green)"></div>
+            [NEW] -- 3 entries
+          </div>
+          <div class="aside-tag-row">
+            <div class="aside-tag-dot" style="background:var(--blue)"></div>
+            [IMPROVED] -- 1 entry
+          </div>
+          <div class="aside-tag-row">
+            <div class="aside-tag-dot" style="background:var(--red)"></div>
+            [FIX] -- 0 entries
+          </div>
+        </div>
+      </div>
+
+      <div class="aside-block">
+        <div class="aside-title">Branch</div>
+        <div class="aside-branch">
+          <span>release/</span>2026.03
+        </div>
+      </div>
+
+      <div class="aside-block">
+        <div class="aside-title">Quick Nav</div>
+        <div class="aside-tag-list">
+          <div class="aside-tag-row" style="cursor:pointer">
+            <div class="aside-tag-dot" style="background:var(--yellow)"></div>
+            a3f7c2d RSS Automation
+          </div>
+          <div class="aside-tag-row" style="cursor:pointer">
+            <div class="aside-tag-dot" style="background:var(--yellow)"></div>
+            e9b1d4f Storage Dashboard
+          </div>
+          <div class="aside-tag-row" style="cursor:pointer">
+            <div class="aside-tag-dot" style="background:var(--yellow)"></div>
+            7c4a8e2 Family Sharing
+          </div>
+          <div class="aside-tag-row" style="cursor:pointer">
+            <div class="aside-tag-dot" style="background:var(--yellow)"></div>
+            1f6d3b9 Browser Extension
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440, initial-scale=1.0">
+<title>put.io - Storage (Web, v7 Ink)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000000;
+    color: #E8E8E8;
+    font-family: 'IBM Plex Mono', monospace;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 720px;
+    padding-top: 100px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .page-header {
+    margin-bottom: 96px;
+  }
+
+  .page-title {
+    font-size: 13px;
+    color: #666666;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+  }
+
+  .hero-stat {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+
+  .hero-number {
+    font-size: 72px;
+    font-weight: 600;
+    color: #E8E8E8;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .hero-unit {
+    font-size: 28px;
+    font-weight: 400;
+    color: #666666;
+    letter-spacing: -0.01em;
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    color: #666666;
+    letter-spacing: 0.02em;
+  }
+
+  .breakdown {
+    margin-bottom: 80px;
+  }
+
+  .breakdown-title {
+    font-size: 12px;
+    color: #666666;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 36px;
+  }
+
+  .breakdown-line {
+    display: flex;
+    align-items: baseline;
+    padding: 14px 0;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .breakdown-line:hover .bl-type {
+    color: #FDCE45;
+  }
+
+  .breakdown-line.active::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #FDCE45;
+  }
+
+  .bl-type {
+    font-size: 18px;
+    color: #E8E8E8;
+    width: 200px;
+    flex-shrink: 0;
+    transition: color 0.15s ease;
+    letter-spacing: 0.01em;
+  }
+
+  .bl-size {
+    font-size: 18px;
+    color: #E8E8E8;
+    width: 140px;
+    letter-spacing: -0.01em;
+  }
+
+  .bl-count {
+    font-size: 14px;
+    color: #666666;
+    width: 120px;
+    letter-spacing: 0.02em;
+  }
+
+  .bl-pct {
+    font-size: 14px;
+    color: #666666;
+    margin-left: auto;
+    letter-spacing: 0.02em;
+  }
+
+  .type-sep {
+    color: #666666;
+    font-size: 16px;
+    padding: 0 16px;
+  }
+
+  .breakdown-summary {
+    font-size: 15px;
+    color: #666666;
+    letter-spacing: 0.01em;
+    line-height: 1.8;
+    margin-bottom: 40px;
+  }
+
+  .breakdown-summary .bright {
+    color: #E8E8E8;
+  }
+
+  .largest-files {
+    margin-bottom: 60px;
+  }
+
+  .largest-title {
+    font-size: 12px;
+    color: #666666;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 36px;
+  }
+
+  .file-line {
+    display: flex;
+    align-items: baseline;
+    padding: 12px 0;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .file-line:hover .fl-name {
+    color: #FDCE45;
+  }
+
+  .fl-rank {
+    font-size: 11px;
+    color: #666666;
+    width: 36px;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+
+  .fl-ext {
+    font-size: 12px;
+    color: #666666;
+    width: 52px;
+    flex-shrink: 0;
+  }
+
+  .fl-name {
+    font-size: 15px;
+    color: #E8E8E8;
+    flex: 1;
+    transition: color 0.15s ease;
+    letter-spacing: 0.01em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .fl-size {
+    font-size: 14px;
+    color: #666666;
+    padding-left: 24px;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+
+  .fl-date {
+    font-size: 12px;
+    color: #666666;
+    padding-left: 24px;
+    width: 120px;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .footer-stats {
+    display: flex;
+    gap: 60px;
+    padding-top: 40px;
+  }
+
+  .footer-stat-value {
+    font-size: 24px;
+    font-weight: 500;
+    color: #E8E8E8;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+
+  .footer-stat-label {
+    font-size: 11px;
+    color: #666666;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="page-header">
+    <div class="page-title">storage</div>
+    <div class="hero-stat">
+      <span class="hero-number">39</span>
+      <span class="hero-unit">TB used</span>
+    </div>
+    <div class="hero-sub">of 100 TB available</div>
+  </div>
+
+  <div class="breakdown">
+    <div class="breakdown-title">by file type</div>
+
+    <div class="breakdown-line active">
+      <span class="bl-type">video</span>
+      <span class="bl-size">24.2 TB</span>
+      <span class="bl-count">1,247 files</span>
+      <span class="bl-pct">62%</span>
+    </div>
+    <div class="breakdown-line">
+      <span class="bl-type">audio</span>
+      <span class="bl-size">5.9 TB</span>
+      <span class="bl-count">12,483 files</span>
+      <span class="bl-pct">15%</span>
+    </div>
+    <div class="breakdown-line">
+      <span class="bl-type">documents</span>
+      <span class="bl-size">3.1 TB</span>
+      <span class="bl-count">841 files</span>
+      <span class="bl-pct">8%</span>
+    </div>
+    <div class="breakdown-line">
+      <span class="bl-type">images</span>
+      <span class="bl-size">2.4 TB</span>
+      <span class="bl-count">6,219 files</span>
+      <span class="bl-pct">6%</span>
+    </div>
+    <div class="breakdown-line">
+      <span class="bl-type">archives</span>
+      <span class="bl-size">1.8 TB</span>
+      <span class="bl-count">394 files</span>
+      <span class="bl-pct">5%</span>
+    </div>
+    <div class="breakdown-line">
+      <span class="bl-type">other</span>
+      <span class="bl-size">1.6 TB</span>
+      <span class="bl-count">328 files</span>
+      <span class="bl-pct">4%</span>
+    </div>
+  </div>
+
+  <div class="largest-files">
+    <div class="largest-title">largest files</div>
+
+    <div class="file-line">
+      <span class="fl-rank">01</span>
+      <span class="fl-ext">.mkv</span>
+      <span class="fl-name">oppenheimer</span>
+      <span class="fl-size">8.4 GB</span>
+      <span class="fl-date">5 days ago</span>
+    </div>
+    <div class="file-line">
+      <span class="fl-rank">02</span>
+      <span class="fl-ext">.mkv</span>
+      <span class="fl-name">killers of the flower moon</span>
+      <span class="fl-size">7.2 GB</span>
+      <span class="fl-date">3 weeks ago</span>
+    </div>
+    <div class="file-line">
+      <span class="fl-rank">03</span>
+      <span class="fl-ext">.mkv</span>
+      <span class="fl-name">napoleon directors cut</span>
+      <span class="fl-size">6.8 GB</span>
+      <span class="fl-date">1 month ago</span>
+    </div>
+    <div class="file-line">
+      <span class="fl-rank">04</span>
+      <span class="fl-ext">.mkv</span>
+      <span class="fl-name">dune part two</span>
+      <span class="fl-size">6.1 GB</span>
+      <span class="fl-date">3 days ago</span>
+    </div>
+    <div class="file-line">
+      <span class="fl-rank">05</span>
+      <span class="fl-ext">.mkv</span>
+      <span class="fl-name">poor things</span>
+      <span class="fl-size">5.3 GB</span>
+      <span class="fl-date">1 week ago</span>
+    </div>
+    <div class="file-line">
+      <span class="fl-rank">06</span>
+      <span class="fl-ext">.mkv</span>
+      <span class="fl-name">barbie</span>
+      <span class="fl-size">4.5 GB</span>
+      <span class="fl-date">2 months ago</span>
+    </div>
+    <div class="file-line">
+      <span class="fl-rank">07</span>
+      <span class="fl-ext">.mkv</span>
+      <span class="fl-name">anatomy of a fall</span>
+      <span class="fl-size">4.7 GB</span>
+      <span class="fl-date">2 weeks ago</span>
+    </div>
+    <div class="file-line">
+      <span class="fl-rank">08</span>
+      <span class="fl-ext">.mkv</span>
+      <span class="fl-name">blade runner 2049</span>
+      <span class="fl-size">4.2 GB</span>
+      <span class="fl-date">2 days ago</span>
+    </div>
+  </div>
+
+  <div class="footer-stats">
+    <div>
+      <div class="footer-stat-value">61 TB</div>
+      <div class="footer-stat-label">free space</div>
+    </div>
+    <div>
+      <div class="footer-stat-value">21,512</div>
+      <div class="footer-stat-label">total files</div>
+    </div>
+    <div>
+      <div class="footer-stat-value">247</div>
+      <div class="footer-stat-label">folders</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</body>
+</html>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=412">
+<title>put.io — Android Files v6 Retro</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0a0a; --bg-2: #111111; --bg-3: #1a1a1a; --bg-4: #222222;
+    --line: #333333; --text: #e0e0e0; --text-2: #888888; --yellow: #FDCE45;
+    --green: #33ff33; --red: #ff3333; --cyan: #00ffff; --magenta: #ff00ff;
+    --pixel-font: 'Press Start 2P', monospace;
+    --mono-font: 'Space Mono', monospace;
+  }
+  body { font-family: var(--mono-font); background: var(--bg); color: var(--text); -webkit-font-smoothing: none; image-rendering: pixelated; }
+
+  .phone { width: 412px; height: 915px; overflow: hidden; display: flex; flex-direction: column; position: relative; background: var(--bg); }
+
+  /* CRT Scanline Overlay */
+  .crt-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 9999;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0, 0, 0, 0.12) 2px, rgba(0, 0, 0, 0.12) 4px
+    );
+  }
+  .crt-overlay::after {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.35) 100%);
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 10px 16px;
+    font-family: var(--mono-font); font-size: 11px; height: 36px; flex-shrink: 0;
+    color: var(--text-2); background: var(--bg-2);
+  }
+  .status-bar .time { flex: 1; color: var(--yellow); font-weight: 700; }
+  .status-bar .icons { display: flex; align-items: center; gap: 8px; }
+
+  /* Top App Bar */
+  .top-bar {
+    display: flex; align-items: center; padding: 12px 16px; flex-shrink: 0;
+    border-bottom: 1px solid var(--line); gap: 12px;
+  }
+  .top-title {
+    font-family: var(--pixel-font); font-size: 14px; color: var(--yellow);
+    flex: 1; text-shadow: 2px 2px 0px rgba(253,206,69,0.2);
+  }
+
+  /* Search Bar - Block character style */
+  .search-bar {
+    margin: 12px 16px; padding: 10px 12px;
+    border: 1px solid var(--yellow); background: var(--bg-2);
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--mono-font); font-size: 12px;
+  }
+  .search-border-top, .search-border-bottom {
+    margin: 0 16px; font-family: var(--mono-font); font-size: 12px;
+    color: var(--yellow); line-height: 1;
+  }
+  .search-inner { color: var(--text-2); flex: 1; }
+
+  /* Chip row */
+  .chip-row {
+    display: flex; gap: 8px; padding: 4px 16px 12px; overflow-x: auto; flex-shrink: 0;
+  }
+  .chip {
+    font-family: var(--pixel-font); font-size: 7px; padding: 6px 10px;
+    border: 1px solid var(--line); color: var(--text-2); white-space: nowrap;
+    background: var(--bg-2);
+  }
+  .chip.active { border-color: var(--yellow); color: var(--yellow); background: rgba(253,206,69,0.1); }
+
+  /* Space Invader Avatar */
+  .invader-header {
+    display: flex; align-items: center; gap: 12px; padding: 8px 16px 12px;
+    border-bottom: 1px solid var(--line); flex-shrink: 0;
+  }
+  .invader-greeting {
+    font-family: var(--pixel-font); font-size: 9px; color: var(--green);
+    line-height: 1.6;
+  }
+
+  /* File List */
+  .file-list { flex: 1; overflow-y: auto; }
+  .file-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px; border-bottom: 1px solid var(--line);
+  }
+  .file-icon { width: 40px; height: 40px; flex-shrink: 0; }
+  .file-info { flex: 1; min-width: 0; }
+  .file-name {
+    font-family: var(--mono-font); font-size: 13px; font-weight: 700;
+    color: var(--text); margin-bottom: 3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .file-meta { font-size: 11px; color: var(--text-2); }
+  .file-more {
+    width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Transfer with block progress */
+  .transfer-section {
+    padding: 0 16px; flex-shrink: 0;
+  }
+  .transfer-item {
+    padding: 12px 0; border-bottom: 1px solid var(--line);
+  }
+  .transfer-name { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .transfer-stats { font-size: 10px; color: var(--text-2); margin-bottom: 6px; }
+  .progress-line {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .progress-bar { font-family: var(--mono-font); font-size: 11px; color: var(--green); letter-spacing: 1px; }
+  .progress-pct { font-family: var(--mono-font); font-size: 10px; color: var(--yellow); }
+
+  /* Section header */
+  .section-hdr {
+    font-family: var(--pixel-font); font-size: 8px; color: var(--yellow);
+    padding: 16px 16px 8px; text-transform: uppercase; letter-spacing: 1px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* Loading animation */
+  .loading-text {
+    font-family: var(--pixel-font); font-size: 8px; color: var(--cyan);
+    padding: 8px 16px; text-align: center;
+  }
+  @keyframes loading {
+    0% { content: 'LOADING'; }
+    25% { content: 'LOADING.'; }
+    50% { content: 'LOADING..'; }
+    75% { content: 'LOADING...'; }
+  }
+  .loading-dots::after {
+    content: '...';
+    animation: dotPulse 1.5s step-end infinite;
+  }
+  @keyframes dotPulse {
+    0% { content: ''; }
+    25% { content: '.'; }
+    50% { content: '..'; }
+    75% { content: '...'; }
+  }
+
+  .blink { animation: blink 1s step-end infinite; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* FAB */
+  .fab {
+    position: absolute; bottom: 80px; right: 20px;
+    width: 56px; height: 56px; background: var(--yellow);
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid #b8941f; z-index: 10;
+    box-shadow: 4px 4px 0px #000;
+  }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    display: flex; border-top: 1px solid var(--line);
+    background: var(--bg-2); flex-shrink: 0; padding: 8px 0 20px;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font-family: var(--pixel-font); font-size: 7px; color: var(--text-2);
+  }
+  .nav-item.active { color: var(--yellow); }
+  .nav-icon { width: 24px; height: 24px; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="crt-overlay"></div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">19:85</span>
+    <div class="icons">
+      <svg width="14" height="12" viewBox="0 0 14 12">
+        <rect x="0" y="9" width="3" height="3" fill="#FDCE45"/>
+        <rect x="4" y="6" width="3" height="6" fill="#FDCE45"/>
+        <rect x="8" y="3" width="3" height="9" fill="#FDCE45"/>
+        <rect x="12" y="0" width="2" height="12" fill="#333"/>
+      </svg>
+      <svg width="20" height="10" viewBox="0 0 20 10">
+        <rect x="0" y="0" width="16" height="10" fill="none" stroke="#FDCE45" stroke-width="1"/>
+        <rect x="16" y="3" width="3" height="4" fill="#FDCE45"/>
+        <rect x="2" y="2" width="4" height="6" fill="#33ff33"/>
+        <rect x="7" y="2" width="4" height="6" fill="#33ff33"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <!-- Pixel hamburger -->
+    <svg width="20" height="16" viewBox="0 0 20 16">
+      <rect x="0" y="0" width="20" height="2" fill="#FDCE45"/>
+      <rect x="0" y="7" width="20" height="2" fill="#FDCE45"/>
+      <rect x="0" y="14" width="20" height="2" fill="#FDCE45"/>
+    </svg>
+    <span class="top-title">PUT.IO FILES</span>
+    <!-- Pixel sort icon -->
+    <svg width="18" height="14" viewBox="0 0 18 14">
+      <rect x="0" y="0" width="18" height="2" fill="#888"/>
+      <rect x="0" y="4" width="14" height="2" fill="#888"/>
+      <rect x="0" y="8" width="10" height="2" fill="#888"/>
+      <rect x="0" y="12" width="6" height="2" fill="#888"/>
+    </svg>
+  </div>
+
+  <!-- Space Invader Greeting -->
+  <div class="invader-header">
+    <!-- Space Invader SVG -->
+    <svg width="44" height="36" viewBox="0 0 44 36">
+      <rect x="8" y="0" width="4" height="4" fill="#FDCE45"/>
+      <rect x="32" y="0" width="4" height="4" fill="#FDCE45"/>
+      <rect x="12" y="4" width="4" height="4" fill="#FDCE45"/>
+      <rect x="28" y="4" width="4" height="4" fill="#FDCE45"/>
+      <rect x="8" y="8" width="28" height="4" fill="#FDCE45"/>
+      <rect x="4" y="12" width="8" height="4" fill="#FDCE45"/>
+      <rect x="16" y="12" width="12" height="4" fill="#FDCE45"/>
+      <rect x="32" y="12" width="8" height="4" fill="#FDCE45"/>
+      <rect x="0" y="16" width="44" height="4" fill="#FDCE45"/>
+      <rect x="0" y="20" width="4" height="4" fill="#FDCE45"/>
+      <rect x="8" y="20" width="28" height="4" fill="#FDCE45"/>
+      <rect x="40" y="20" width="4" height="4" fill="#FDCE45"/>
+      <rect x="0" y="24" width="4" height="4" fill="#FDCE45"/>
+      <rect x="8" y="24" width="4" height="4" fill="#FDCE45"/>
+      <rect x="32" y="24" width="4" height="4" fill="#FDCE45"/>
+      <rect x="40" y="24" width="4" height="4" fill="#FDCE45"/>
+      <rect x="12" y="28" width="8" height="4" fill="#FDCE45"/>
+      <rect x="24" y="28" width="8" height="4" fill="#FDCE45"/>
+      <!-- Eyes -->
+      <rect x="12" y="16" width="4" height="4" fill="#0a0a0a"/>
+      <rect x="28" y="16" width="4" height="4" fill="#0a0a0a"/>
+    </svg>
+    <div class="invader-greeting">
+      GREETINGS, PLAYER ONE!<br>
+      <span style="color:#FDCE45;">254.6 GB</span> <span style="color:#888;">FREE SPACE</span><br>
+      <span style="color:#888;">&#x1DA6;(&#xF2;_&#xF3;&#x2C7;)&#x1DA4;</span>
+    </div>
+  </div>
+
+  <!-- Search Bar with block characters -->
+  <div class="search-bar">
+    <svg width="14" height="14" viewBox="0 0 14 14">
+      <rect x="3" y="1" width="6" height="1" fill="#FDCE45"/>
+      <rect x="2" y="2" width="1" height="1" fill="#FDCE45"/><rect x="9" y="2" width="1" height="1" fill="#FDCE45"/>
+      <rect x="1" y="3" width="1" height="4" fill="#FDCE45"/><rect x="10" y="3" width="1" height="4" fill="#FDCE45"/>
+      <rect x="2" y="7" width="1" height="1" fill="#FDCE45"/><rect x="9" y="7" width="1" height="1" fill="#FDCE45"/>
+      <rect x="3" y="8" width="6" height="1" fill="#FDCE45"/>
+      <rect x="9" y="9" width="1" height="1" fill="#FDCE45"/>
+      <rect x="10" y="10" width="1" height="1" fill="#FDCE45"/>
+      <rect x="11" y="11" width="2" height="1" fill="#FDCE45"/>
+      <rect x="12" y="12" width="1" height="1" fill="#FDCE45"/>
+    </svg>
+    <span class="search-inner">SEARCH FILES<span class="blink">_</span></span>
+  </div>
+
+  <!-- Filter Chips -->
+  <div class="chip-row">
+    <div class="chip active">ALL</div>
+    <div class="chip">VIDEO</div>
+    <div class="chip">AUDIO</div>
+    <div class="chip">DOCS</div>
+    <div class="chip">IMG</div>
+  </div>
+
+  <!-- Loading indicator -->
+  <div class="loading-text">LOADING<span class="loading-dots"></span></div>
+
+  <!-- Active Transfers -->
+  <div class="section-hdr">ACTIVE TRANSFERS</div>
+  <div class="transfer-section">
+    <div class="transfer-item">
+      <div class="transfer-name">Ghost.In.The.Shell.mkv</div>
+      <div class="transfer-stats">1.9 GB / 2.8 GB - 15 MB/s</div>
+      <div class="progress-line">
+        <span class="progress-bar">████████████░░░░░░░░</span>
+        <span class="progress-pct">67%</span>
+      </div>
+    </div>
+    <div class="transfer-item">
+      <div class="transfer-name">Neuromancer.Audiobook.zip</div>
+      <div class="transfer-stats">340 MB / 890 MB - 6 MB/s</div>
+      <div class="progress-line">
+        <span class="progress-bar">████████░░░░░░░░░░░░</span>
+        <span class="progress-pct">38%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- File List -->
+  <div class="section-hdr">YOUR FILES</div>
+  <div class="file-list">
+    <div class="file-item">
+      <svg class="file-icon" width="40" height="40" viewBox="0 0 40 40">
+        <rect x="2" y="8" width="14" height="3" fill="#FDCE45"/>
+        <rect x="2" y="11" width="36" height="24" fill="#FDCE45"/>
+        <rect x="4" y="13" width="32" height="20" fill="#b8941f"/>
+        <rect x="2" y="8" width="2" height="3" fill="#b8941f"/>
+        <rect x="14" y="8" width="2" height="3" fill="#b8941f"/>
+      </svg>
+      <div class="file-info">
+        <div class="file-name">Movies</div>
+        <div class="file-meta">24 items / 142.3 GB</div>
+      </div>
+      <div class="file-more">
+        <svg width="4" height="16" viewBox="0 0 4 16">
+          <rect x="0" y="0" width="4" height="4" fill="#888"/>
+          <rect x="0" y="6" width="4" height="4" fill="#888"/>
+          <rect x="0" y="12" width="4" height="4" fill="#888"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="file-item">
+      <svg class="file-icon" width="40" height="40" viewBox="0 0 40 40">
+        <rect x="2" y="8" width="14" height="3" fill="#00ffff"/>
+        <rect x="2" y="11" width="36" height="24" fill="#00ffff"/>
+        <rect x="4" y="13" width="32" height="20" fill="#008888"/>
+        <rect x="2" y="8" width="2" height="3" fill="#008888"/>
+        <rect x="14" y="8" width="2" height="3" fill="#008888"/>
+      </svg>
+      <div class="file-info">
+        <div class="file-name">TV Shows</div>
+        <div class="file-meta">156 items / 89.7 GB</div>
+      </div>
+      <div class="file-more">
+        <svg width="4" height="16" viewBox="0 0 4 16"><rect x="0" y="0" width="4" height="4" fill="#888"/><rect x="0" y="6" width="4" height="4" fill="#888"/><rect x="0" y="12" width="4" height="4" fill="#888"/></svg>
+      </div>
+    </div>
+
+    <div class="file-item">
+      <svg class="file-icon" width="40" height="40" viewBox="0 0 40 40">
+        <rect x="2" y="8" width="14" height="3" fill="#ff00ff"/>
+        <rect x="2" y="11" width="36" height="24" fill="#ff00ff"/>
+        <rect x="4" y="13" width="32" height="20" fill="#880088"/>
+        <rect x="2" y="8" width="2" height="3" fill="#880088"/>
+        <rect x="14" y="8" width="2" height="3" fill="#880088"/>
+      </svg>
+      <div class="file-info">
+        <div class="file-name">Music</div>
+        <div class="file-meta">312 items / 18.4 GB</div>
+      </div>
+      <div class="file-more">
+        <svg width="4" height="16" viewBox="0 0 4 16"><rect x="0" y="0" width="4" height="4" fill="#888"/><rect x="0" y="6" width="4" height="4" fill="#888"/><rect x="0" y="12" width="4" height="4" fill="#888"/></svg>
+      </div>
+    </div>
+
+    <div class="file-item">
+      <svg class="file-icon" width="40" height="40" viewBox="0 0 40 40">
+        <rect x="2" y="8" width="14" height="3" fill="#33ff33"/>
+        <rect x="2" y="11" width="36" height="24" fill="#33ff33"/>
+        <rect x="4" y="13" width="32" height="20" fill="#1a881a"/>
+        <rect x="2" y="8" width="2" height="3" fill="#1a881a"/>
+        <rect x="14" y="8" width="2" height="3" fill="#1a881a"/>
+      </svg>
+      <div class="file-info">
+        <div class="file-name">Downloads</div>
+        <div class="file-meta">8 items / 4.2 GB</div>
+      </div>
+      <div class="file-more">
+        <svg width="4" height="16" viewBox="0 0 4 16"><rect x="0" y="0" width="4" height="4" fill="#888"/><rect x="0" y="6" width="4" height="4" fill="#888"/><rect x="0" y="12" width="4" height="4" fill="#888"/></svg>
+      </div>
+    </div>
+
+    <div class="file-item">
+      <svg class="file-icon" width="40" height="40" viewBox="0 0 40 40">
+        <rect x="6" y="4" width="28" height="32" fill="#222" stroke="#555" stroke-width="1"/>
+        <rect x="6" y="4" width="20" height="8" fill="#333"/>
+        <rect x="26" y="4" width="8" height="8" fill="#444"/>
+        <rect x="10" y="16" width="20" height="2" fill="#555"/>
+        <rect x="10" y="22" width="16" height="2" fill="#555"/>
+        <rect x="10" y="28" width="18" height="2" fill="#555"/>
+      </svg>
+      <div class="file-info">
+        <div class="file-name">Tron.Legacy.2010.mkv</div>
+        <div class="file-meta">3.2 GB - 2h ago</div>
+      </div>
+      <div class="file-more">
+        <svg width="4" height="16" viewBox="0 0 4 16"><rect x="0" y="0" width="4" height="4" fill="#888"/><rect x="0" y="6" width="4" height="4" fill="#888"/><rect x="0" y="12" width="4" height="4" fill="#888"/></svg>
+      </div>
+    </div>
+
+    <div class="file-item">
+      <svg class="file-icon" width="40" height="40" viewBox="0 0 40 40">
+        <rect x="6" y="4" width="28" height="32" fill="#222" stroke="#555" stroke-width="1"/>
+        <rect x="6" y="4" width="20" height="8" fill="#333"/>
+        <rect x="26" y="4" width="8" height="8" fill="#444"/>
+        <rect x="10" y="16" width="20" height="2" fill="#555"/>
+        <rect x="10" y="22" width="16" height="2" fill="#555"/>
+        <rect x="10" y="28" width="18" height="2" fill="#555"/>
+      </svg>
+      <div class="file-info">
+        <div class="file-name">WarGames.1983.mkv</div>
+        <div class="file-meta">1.8 GB - yesterday</div>
+      </div>
+      <div class="file-more">
+        <svg width="4" height="16" viewBox="0 0 4 16"><rect x="0" y="0" width="4" height="4" fill="#888"/><rect x="0" y="6" width="4" height="4" fill="#888"/><rect x="0" y="12" width="4" height="4" fill="#888"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAB: Space Invader -->
+  <div class="fab">
+    <svg width="28" height="24" viewBox="0 0 28 24">
+      <rect x="4" y="0" width="4" height="4" fill="#0a0a0a"/>
+      <rect x="20" y="0" width="4" height="4" fill="#0a0a0a"/>
+      <rect x="8" y="4" width="12" height="4" fill="#0a0a0a"/>
+      <rect x="4" y="8" width="20" height="4" fill="#0a0a0a"/>
+      <rect x="0" y="12" width="4" height="4" fill="#0a0a0a"/>
+      <rect x="4" y="12" width="8" height="4" fill="#0a0a0a"/>
+      <rect x="16" y="12" width="8" height="4" fill="#0a0a0a"/>
+      <rect x="24" y="12" width="4" height="4" fill="#0a0a0a"/>
+      <rect x="4" y="16" width="4" height="4" fill="#0a0a0a"/>
+      <rect x="20" y="16" width="4" height="4" fill="#0a0a0a"/>
+      <!-- Plus sign for add -->
+      <rect x="12" y="6" width="4" height="12" fill="#0a0a0a"/>
+      <rect x="8" y="10" width="12" height="4" fill="#0a0a0a"/>
+    </svg>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active">
+      <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24">
+        <rect x="2" y="6" width="8" height="2" fill="#FDCE45"/>
+        <rect x="2" y="8" width="20" height="14" fill="#FDCE45"/>
+        <rect x="3" y="9" width="18" height="12" fill="#b8941f"/>
+      </svg>
+      FILES
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24">
+        <rect x="11" y="4" width="2" height="12" fill="#888"/>
+        <rect x="7" y="14" width="10" height="2" fill="#888"/>
+        <rect x="9" y="16" width="6" height="2" fill="#888"/>
+        <rect x="11" y="18" width="2" height="2" fill="#888"/>
+      </svg>
+      XFERS
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24">
+        <rect x="8" y="4" width="2" height="16" fill="#888"/>
+        <rect x="10" y="6" width="2" height="12" fill="#888"/>
+        <rect x="12" y="8" width="2" height="8" fill="#888"/>
+        <rect x="14" y="10" width="2" height="4" fill="#888"/>
+      </svg>
+      PLAY
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24">
+        <rect x="10" y="2" width="4" height="4" fill="#888"/>
+        <rect x="10" y="18" width="4" height="4" fill="#888"/>
+        <rect x="2" y="10" width="4" height="4" fill="#888"/>
+        <rect x="18" y="10" width="4" height="4" fill="#888"/>
+        <rect x="8" y="8" width="8" height="8" fill="#888"/>
+        <rect x="10" y="10" width="4" height="4" fill="#333"/>
+      </svg>
+      CONF
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Files (Retro/Pixel)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #0A0A0A;
+    --bg-1: #0E0E0E;
+    --bg-2: #141414;
+    --bg-3: #1A1A1A;
+    --bg-4: #222222;
+    --bg-5: #2A2A2A;
+    --line: #2E2E2E;
+    --line-strong: #3A3A3A;
+    --border: #444444;
+    --solid: #666666;
+    --text-3: #888888;
+    --text-2: #AAAAAA;
+    --text: #D0D0D0;
+    --white: #E8E8E8;
+
+    --yellow: #FDCE45;
+    --yellow-dim: #C9A530;
+    --yellow-glow: rgba(253, 206, 69, 0.08);
+    --yellow-border: rgba(253, 206, 69, 0.3);
+    --yellow-text-shadow: 0 0 8px rgba(253, 206, 69, 0.4), 0 0 2px rgba(253, 206, 69, 0.2);
+
+    --green: #30A46C;
+    --green-bright: #4CC38A;
+    --green-glow: 0 0 6px rgba(76, 195, 138, 0.3);
+    --red: #E5484D;
+    --cyan: #22D3EE;
+    --blue: #3B82F6;
+
+    --font-pixel: 'Press Start 2P', monospace;
+    --font-body: 'Space Mono', 'Courier New', monospace;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg-0);
+    color: var(--text);
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+    image-rendering: pixelated;
+  }
+
+  /* =============================================
+     CRT SCANLINE OVERLAY
+     ============================================= */
+  .crt-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgba(0, 0, 0, 0.06) 1px,
+      rgba(0, 0, 0, 0.06) 2px
+    );
+  }
+
+  /* =============================================
+     APP CONTAINER
+     ============================================= */
+  .app {
+    position: relative;
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    background: var(--bg-0);
+  }
+
+  /* =============================================
+     BLINKING CURSOR ANIMATION
+     ============================================= */
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { text-shadow: 0 0 4px rgba(253, 206, 69, 0.3); }
+    50% { text-shadow: 0 0 12px rgba(253, 206, 69, 0.6), 0 0 4px rgba(253, 206, 69, 0.3); }
+  }
+
+  /* =============================================
+     SIDEBAR
+     ============================================= */
+  .sidebar {
+    width: 228px;
+    background: var(--bg-1);
+    border-right: 1px solid var(--yellow-border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo {
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .logo {
+    font-family: var(--font-pixel);
+    font-size: 14px;
+    color: var(--white);
+    line-height: 1.4;
+    text-shadow: var(--yellow-text-shadow);
+  }
+  .logo span { color: var(--yellow); }
+
+  .logo-sub {
+    font-family: var(--font-body);
+    font-size: 9px;
+    color: var(--solid);
+    letter-spacing: 0.1em;
+    margin-top: 8px;
+    text-transform: uppercase;
+  }
+
+  .logo-invader {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-invader svg { width: 24px; height: 24px; }
+  .logo-kaomoji {
+    font-family: var(--font-body);
+    font-size: 10px;
+    color: var(--yellow);
+    text-shadow: var(--yellow-text-shadow);
+  }
+
+  /* Nav */
+  .sidebar-nav {
+    flex: 1;
+    padding: 8px 0;
+    overflow-y: auto;
+  }
+
+  .nav-section-label {
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--solid);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 12px 16px 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--text-2);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    border-left: 2px solid transparent;
+  }
+  .nav-item:hover {
+    background: var(--bg-3);
+    color: var(--text);
+    border-left-color: var(--line-strong);
+  }
+  .nav-item.active {
+    background: var(--yellow-glow);
+    color: var(--yellow);
+    border-left-color: var(--yellow);
+    font-weight: 700;
+    text-shadow: var(--yellow-text-shadow);
+  }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .nav-icon svg { width: 16px; height: 16px; }
+
+  .nav-badge {
+    margin-left: auto;
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--yellow);
+  }
+
+  .nav-sep {
+    height: 1px;
+    background: var(--line);
+    margin: 6px 16px;
+  }
+
+  /* Storage */
+  .sidebar-storage {
+    padding: 12px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .storage-label {
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--solid);
+    margin-bottom: 8px;
+  }
+  .storage-bar-pixel {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--yellow);
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .storage-bar-pixel .empty { color: var(--bg-4); }
+  .storage-text {
+    font-family: var(--font-body);
+    font-size: 9px;
+    color: var(--text-3);
+  }
+  .storage-text strong { color: var(--text-2); font-weight: 700; }
+
+  /* User */
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--bg-4);
+    border: 1px solid var(--yellow-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .user-avatar svg { width: 20px; height: 20px; }
+  .user-name {
+    font-size: 10px;
+    color: var(--text-2);
+  }
+  .user-status {
+    font-size: 9px;
+    color: var(--green-bright);
+    text-shadow: var(--green-glow);
+  }
+
+  /* =============================================
+     MAIN CONTENT
+     ============================================= */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  /* Top Bar */
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-1);
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--solid);
+  }
+  .breadcrumb a {
+    color: var(--text-3);
+    text-decoration: none;
+  }
+  .breadcrumb a:hover { color: var(--yellow); }
+  .breadcrumb .sep { color: var(--line-strong); }
+  .breadcrumb .current {
+    color: var(--yellow);
+    font-weight: 700;
+  }
+  .breadcrumb .cursor {
+    display: inline-block;
+    width: 6px;
+    height: 12px;
+    background: var(--yellow);
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+
+  .topbar-spacer { flex: 1; }
+
+  /* Search */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    padding: 6px 12px;
+    width: 300px;
+  }
+  .search-bar:focus-within {
+    border-color: var(--yellow-border);
+    box-shadow: 0 0 0 1px var(--yellow-border), 0 0 8px rgba(253, 206, 69, 0.1);
+  }
+  .search-bar .search-icon { color: var(--solid); display: flex; }
+  .search-bar .search-icon svg { width: 16px; height: 16px; }
+  .search-bar input {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 11px;
+    outline: none;
+    flex: 1;
+    font-family: var(--font-body);
+  }
+  .search-bar input::placeholder { color: var(--solid); }
+  .search-shortcut {
+    font-family: var(--font-pixel);
+    font-size: 6px;
+    color: var(--solid);
+    background: var(--bg-4);
+    padding: 2px 6px;
+    border: 1px solid var(--line);
+  }
+
+  /* View toggle */
+  .view-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--line);
+  }
+  .view-btn {
+    background: var(--bg-2);
+    border: none;
+    padding: 6px 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: var(--solid);
+  }
+  .view-btn.active {
+    background: var(--yellow-glow);
+    color: var(--yellow);
+  }
+  .view-btn + .view-btn { border-left: 1px solid var(--line); }
+  .view-btn svg { width: 14px; height: 14px; }
+
+  /* =============================================
+     FILE TABLE
+     ============================================= */
+  .file-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+  }
+
+  .file-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .file-table thead th {
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--solid);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 10px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-1);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  .file-table thead th:first-child { padding-left: 24px; }
+
+  .file-table tbody tr {
+    border-bottom: 1px solid var(--bg-3);
+    cursor: pointer;
+  }
+  .file-table tbody tr:hover {
+    background: var(--bg-2);
+  }
+  .file-table tbody tr.selected {
+    background: var(--yellow-glow);
+    border-left: 2px solid var(--yellow);
+  }
+  .file-table tbody tr.selected td:first-child {
+    padding-left: 22px;
+  }
+
+  .file-table td {
+    padding: 8px 16px;
+    font-size: 12px;
+    color: var(--text-2);
+    vertical-align: middle;
+  }
+  .file-table td:first-child { padding-left: 24px; }
+
+  .file-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .file-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .file-icon svg { width: 16px; height: 16px; }
+
+  .file-name {
+    color: var(--text);
+    font-weight: 400;
+  }
+  tr.selected .file-name {
+    color: var(--yellow);
+    text-shadow: var(--yellow-text-shadow);
+  }
+
+  .file-cursor {
+    display: none;
+    width: 6px;
+    height: 12px;
+    background: var(--yellow);
+    animation: blink 1s step-end infinite;
+    flex-shrink: 0;
+  }
+  tr.selected .file-cursor { display: inline-block; }
+
+  .file-size {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .file-date {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--text-3);
+  }
+
+  .file-type-badge {
+    font-family: var(--font-pixel);
+    font-size: 6px;
+    padding: 2px 6px;
+    border: 1px solid var(--line);
+    color: var(--text-3);
+    background: var(--bg-3);
+    text-transform: uppercase;
+  }
+  .file-type-badge.video { color: var(--cyan); border-color: rgba(34, 211, 238, 0.3); }
+  .file-type-badge.audio { color: var(--green-bright); border-color: rgba(76, 195, 138, 0.3); }
+  .file-type-badge.folder { color: var(--yellow); border-color: var(--yellow-border); }
+
+  /* =============================================
+     STATUS BAR
+     ============================================= */
+  .statusbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 6px 24px;
+    border-top: 1px solid var(--line);
+    background: var(--bg-1);
+    font-family: var(--font-body);
+    font-size: 10px;
+    color: var(--text-3);
+  }
+
+  .statusbar-ready {
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--green-bright);
+    text-shadow: 0 0 6px rgba(76, 195, 138, 0.4);
+  }
+
+  .statusbar-spacer { flex: 1; }
+
+  .statusbar-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .statusbar-dot {
+    width: 4px;
+    height: 4px;
+    background: var(--green-bright);
+    box-shadow: 0 0 4px rgba(76, 195, 138, 0.5);
+  }
+
+  .statusbar-kaomoji {
+    color: var(--yellow);
+    font-size: 10px;
+    text-shadow: var(--yellow-text-shadow);
+  }
+
+  /* =============================================
+     WAVEFORM DECORATION
+     ============================================= */
+  .waveform-deco {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 12px;
+  }
+  .waveform-deco .bar {
+    width: 2px;
+    background: var(--yellow);
+    opacity: 0.3;
+  }
+
+  /* =============================================
+     RIGHT PANEL - FILE DETAILS
+     ============================================= */
+  .detail-panel {
+    width: 280px;
+    background: var(--bg-1);
+    border-left: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+
+  .detail-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .detail-title {
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--yellow);
+    text-shadow: var(--yellow-text-shadow);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  .detail-filename {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--text);
+    word-break: break-all;
+    line-height: 1.5;
+  }
+
+  .detail-preview {
+    padding: 16px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .detail-preview-box {
+    width: 248px;
+    height: 140px;
+    background: var(--bg-3);
+    border: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .detail-preview-box::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgba(0, 0, 0, 0.05) 1px,
+      rgba(0, 0, 0, 0.05) 2px
+    );
+    pointer-events: none;
+  }
+  .detail-preview-box svg { width: 40px; height: 40px; }
+  .detail-preview-label {
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--text-3);
+  }
+
+  .detail-meta {
+    padding: 16px;
+  }
+  .detail-meta-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--bg-3);
+  }
+  .detail-meta-label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    color: var(--solid);
+    text-transform: uppercase;
+  }
+  .detail-meta-value {
+    font-family: var(--font-body);
+    font-size: 10px;
+    color: var(--text-2);
+    text-align: right;
+  }
+
+  .detail-actions {
+    padding: 0 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .detail-btn {
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    background: var(--bg-3);
+    color: var(--text-2);
+    cursor: pointer;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .detail-btn:hover {
+    border-color: var(--yellow-border);
+    color: var(--yellow);
+    background: var(--yellow-glow);
+  }
+  .detail-btn.primary {
+    border-color: var(--yellow-border);
+    color: var(--yellow);
+    background: rgba(253, 206, 69, 0.06);
+  }
+</style>
+</head>
+<body>
+
+<!-- CRT Scanline Overlay -->
+<div class="crt-overlay"></div>
+
+<div class="app">
+  <!-- ==========================================
+       SIDEBAR
+       ========================================== -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo">put<span>.</span>io</div>
+      <div class="logo-sub">Cloud Storage System v6.0</div>
+      <div class="logo-invader">
+        <!-- Space Invader pixel art SVG -->
+        <svg viewBox="0 0 16 16" fill="none">
+          <rect x="2" y="1" width="2" height="2" fill="#FDCE45"/>
+          <rect x="12" y="1" width="2" height="2" fill="#FDCE45"/>
+          <rect x="4" y="3" width="2" height="2" fill="#FDCE45"/>
+          <rect x="10" y="3" width="2" height="2" fill="#FDCE45"/>
+          <rect x="2" y="5" width="12" height="2" fill="#FDCE45"/>
+          <rect x="0" y="7" width="2" height="2" fill="#FDCE45"/>
+          <rect x="2" y="7" width="2" height="2" fill="#FDCE45"/>
+          <rect x="4" y="7" width="2" height="2" fill="#FDCE45"/>
+          <rect x="6" y="7" width="4" height="2" fill="#0A0A0A"/>
+          <rect x="10" y="7" width="2" height="2" fill="#FDCE45"/>
+          <rect x="12" y="7" width="2" height="2" fill="#FDCE45"/>
+          <rect x="14" y="7" width="2" height="2" fill="#FDCE45"/>
+          <rect x="0" y="9" width="4" height="2" fill="#FDCE45"/>
+          <rect x="6" y="9" width="4" height="2" fill="#FDCE45"/>
+          <rect x="12" y="9" width="4" height="2" fill="#FDCE45"/>
+          <rect x="0" y="11" width="2" height="2" fill="#FDCE45"/>
+          <rect x="4" y="11" width="2" height="2" fill="#FDCE45"/>
+          <rect x="10" y="11" width="2" height="2" fill="#FDCE45"/>
+          <rect x="14" y="11" width="2" height="2" fill="#FDCE45"/>
+          <rect x="2" y="13" width="2" height="2" fill="#FDCE45"/>
+          <rect x="6" y="13" width="4" height="2" fill="#FDCE45"/>
+          <rect x="12" y="13" width="2" height="2" fill="#FDCE45"/>
+        </svg>
+        <span class="logo-kaomoji">&omega;(&ograve;_&oacute;&#711;)&omega;</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Navigate</div>
+
+      <button class="nav-item active">
+        <span class="nav-icon">
+          <!-- Pixel folder icon -->
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="3" width="6" height="2" fill="currentColor"/>
+            <rect x="7" y="4" width="2" height="1" fill="currentColor"/>
+            <rect x="1" y="5" width="14" height="1" fill="currentColor"/>
+            <rect x="1" y="6" width="1" height="7" fill="currentColor"/>
+            <rect x="14" y="6" width="1" height="7" fill="currentColor"/>
+            <rect x="1" y="13" width="14" height="1" fill="currentColor"/>
+          </svg>
+        </span>
+        Files
+        <span class="nav-badge">24</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <!-- Pixel transfer/arrow icon -->
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="4" width="10" height="2" fill="currentColor"/>
+            <rect x="8" y="2" width="2" height="2" fill="currentColor"/>
+            <rect x="10" y="4" width="2" height="2" fill="currentColor"/>
+            <rect x="1" y="10" width="10" height="2" fill="currentColor"/>
+            <rect x="4" y="12" width="2" height="2" fill="currentColor"/>
+            <rect x="2" y="10" width="2" height="2" fill="currentColor"/>
+          </svg>
+        </span>
+        Transfers
+        <span class="nav-badge">3</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <!-- Pixel clock/history icon -->
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="4" y="1" width="8" height="1" fill="currentColor"/>
+            <rect x="2" y="2" width="2" height="1" fill="currentColor"/>
+            <rect x="12" y="2" width="2" height="1" fill="currentColor"/>
+            <rect x="1" y="3" width="1" height="10" fill="currentColor"/>
+            <rect x="14" y="3" width="1" height="10" fill="currentColor"/>
+            <rect x="2" y="13" width="2" height="1" fill="currentColor"/>
+            <rect x="12" y="13" width="2" height="1" fill="currentColor"/>
+            <rect x="4" y="14" width="8" height="1" fill="currentColor"/>
+            <rect x="7" y="4" width="2" height="5" fill="currentColor"/>
+            <rect x="9" y="7" width="3" height="2" fill="currentColor"/>
+          </svg>
+        </span>
+        History
+      </button>
+
+      <div class="nav-sep"></div>
+      <div class="nav-section-label">Library</div>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <!-- Pixel play icon -->
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="4" y="2" width="2" height="12" fill="currentColor"/>
+            <rect x="6" y="3" width="2" height="10" fill="currentColor"/>
+            <rect x="8" y="4" width="2" height="8" fill="currentColor"/>
+            <rect x="10" y="5" width="2" height="6" fill="currentColor"/>
+            <rect x="12" y="6" width="2" height="4" fill="currentColor"/>
+          </svg>
+        </span>
+        Videos
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <!-- Pixel music note icon -->
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="6" y="1" width="2" height="10" fill="currentColor"/>
+            <rect x="8" y="1" width="4" height="2" fill="currentColor"/>
+            <rect x="12" y="2" width="2" height="2" fill="currentColor"/>
+            <rect x="2" y="10" width="4" height="2" fill="currentColor"/>
+            <rect x="1" y="11" width="2" height="2" fill="currentColor"/>
+            <rect x="3" y="12" width="4" height="2" fill="currentColor"/>
+          </svg>
+        </span>
+        Audio
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <!-- Pixel RSS icon -->
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="11" width="3" height="3" fill="currentColor"/>
+            <rect x="2" y="7" width="2" height="3" fill="currentColor"/>
+            <rect x="4" y="9" width="3" height="2" fill="currentColor"/>
+            <rect x="6" y="10" width="2" height="2" fill="currentColor"/>
+            <rect x="8" y="11" width="2" height="3" fill="currentColor"/>
+            <rect x="2" y="3" width="2" height="3" fill="currentColor"/>
+            <rect x="4" y="5" width="3" height="2" fill="currentColor"/>
+            <rect x="7" y="6" width="2" height="2" fill="currentColor"/>
+            <rect x="9" y="7" width="2" height="2" fill="currentColor"/>
+            <rect x="11" y="8" width="2" height="2" fill="currentColor"/>
+            <rect x="12" y="10" width="2" height="4" fill="currentColor"/>
+          </svg>
+        </span>
+        RSS Feeds
+      </button>
+
+      <div class="nav-sep"></div>
+      <div class="nav-section-label">System</div>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <!-- Pixel settings/gear icon -->
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="6" y="0" width="4" height="2" fill="currentColor"/>
+            <rect x="6" y="14" width="4" height="2" fill="currentColor"/>
+            <rect x="0" y="6" width="2" height="4" fill="currentColor"/>
+            <rect x="14" y="6" width="2" height="4" fill="currentColor"/>
+            <rect x="4" y="4" width="8" height="8" fill="currentColor"/>
+            <rect x="6" y="6" width="4" height="4" fill="#0E0E0E"/>
+            <rect x="2" y="2" width="2" height="2" fill="currentColor"/>
+            <rect x="12" y="2" width="2" height="2" fill="currentColor"/>
+            <rect x="2" y="12" width="2" height="2" fill="currentColor"/>
+            <rect x="12" y="12" width="2" height="2" fill="currentColor"/>
+          </svg>
+        </span>
+        Settings
+      </button>
+    </nav>
+
+    <!-- Storage -->
+    <div class="sidebar-storage">
+      <div class="storage-label">Storage</div>
+      <div class="storage-bar-pixel">&block;&block;&block;&block;&block;&block;&block;&block;&block;&block;<span class="empty">&block;&block;&block;&block;&block;&block;</span></div>
+      <div class="storage-text"><strong>642,000 MB</strong> / 1,024,000 MB</div>
+    </div>
+
+    <!-- User -->
+    <div class="sidebar-user">
+      <div class="user-avatar">
+        <!-- Space invader avatar SVG -->
+        <svg viewBox="0 0 16 16" fill="none">
+          <rect x="3" y="2" width="2" height="2" fill="#FDCE45"/>
+          <rect x="11" y="2" width="2" height="2" fill="#FDCE45"/>
+          <rect x="5" y="4" width="2" height="2" fill="#FDCE45"/>
+          <rect x="9" y="4" width="2" height="2" fill="#FDCE45"/>
+          <rect x="3" y="6" width="10" height="2" fill="#FDCE45"/>
+          <rect x="1" y="8" width="3" height="2" fill="#FDCE45"/>
+          <rect x="5" y="8" width="6" height="2" fill="#FDCE45"/>
+          <rect x="12" y="8" width="3" height="2" fill="#FDCE45"/>
+          <rect x="1" y="10" width="2" height="2" fill="#FDCE45"/>
+          <rect x="5" y="10" width="2" height="2" fill="#FDCE45"/>
+          <rect x="9" y="10" width="2" height="2" fill="#FDCE45"/>
+          <rect x="13" y="10" width="2" height="2" fill="#FDCE45"/>
+          <rect x="3" y="12" width="2" height="2" fill="#FDCE45"/>
+          <rect x="11" y="12" width="2" height="2" fill="#FDCE45"/>
+        </svg>
+      </div>
+      <div>
+        <div class="user-name">commander_x</div>
+        <div class="user-status">ONLINE</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==========================================
+       MAIN CONTENT
+       ========================================== -->
+  <main class="content">
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="breadcrumb">
+        <a href="#">~/</a>
+        <span class="sep">/</span>
+        <a href="#">Your Files</a>
+        <span class="sep">/</span>
+        <span class="current">Movies</span>
+        <span class="cursor"></span>
+      </div>
+
+      <div class="topbar-spacer"></div>
+
+      <!-- Search -->
+      <div class="search-bar">
+        <span class="search-icon">
+          <!-- Pixel search/magnifier -->
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect x="4" y="1" width="6" height="1" fill="currentColor"/>
+            <rect x="2" y="2" width="2" height="1" fill="currentColor"/>
+            <rect x="10" y="2" width="2" height="1" fill="currentColor"/>
+            <rect x="1" y="3" width="1" height="6" fill="currentColor"/>
+            <rect x="12" y="3" width="1" height="6" fill="currentColor"/>
+            <rect x="2" y="9" width="2" height="1" fill="currentColor"/>
+            <rect x="10" y="9" width="2" height="1" fill="currentColor"/>
+            <rect x="4" y="10" width="6" height="1" fill="currentColor"/>
+            <rect x="10" y="10" width="2" height="2" fill="currentColor"/>
+            <rect x="12" y="12" width="2" height="2" fill="currentColor"/>
+            <rect x="13" y="13" width="2" height="2" fill="currentColor"/>
+          </svg>
+        </span>
+        <input type="text" placeholder="SEARCH FILES...">
+        <span class="search-shortcut">/</span>
+      </div>
+
+      <!-- View toggle -->
+      <div class="view-toggle">
+        <button class="view-btn active">
+          <!-- Pixel list view icon -->
+          <svg viewBox="0 0 14 14" fill="none">
+            <rect x="0" y="1" width="14" height="2" fill="currentColor"/>
+            <rect x="0" y="6" width="14" height="2" fill="currentColor"/>
+            <rect x="0" y="11" width="14" height="2" fill="currentColor"/>
+          </svg>
+        </button>
+        <button class="view-btn">
+          <!-- Pixel grid view icon -->
+          <svg viewBox="0 0 14 14" fill="none">
+            <rect x="0" y="0" width="6" height="6" fill="currentColor"/>
+            <rect x="8" y="0" width="6" height="6" fill="currentColor"/>
+            <rect x="0" y="8" width="6" height="6" fill="currentColor"/>
+            <rect x="8" y="8" width="6" height="6" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- File Table -->
+    <div class="file-area">
+      <table class="file-table">
+        <thead>
+          <tr>
+            <th style="width: 50%;">Name</th>
+            <th style="width: 12%;">Type</th>
+            <th style="width: 14%;">Size</th>
+            <th style="width: 14%;">Modified</th>
+            <th style="width: 10%;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="file-name-cell">
+                <span class="file-icon">
+                  <!-- Pixel folder icon - yellow -->
+                  <svg viewBox="0 0 16 16" fill="none">
+                    <rect x="1" y="3" width="6" height="2" fill="#FDCE45"/>
+                    <rect x="7" y="4" width="2" height="1" fill="#FDCE45"/>
+                    <rect x="1" y="5" width="14" height="1" fill="#FDCE45"/>
+                    <rect x="1" y="6" width="1" height="7" fill="#FDCE45"/>
+                    <rect x="14" y="6" width="1" height="7" fill="#FDCE45"/>
+                    <rect x="1" y="13" width="14" height="1" fill="#FDCE45"/>
+                  </svg>
+                </span>
+                <span class="file-name">Sci-Fi Collection</span>
+              </div>
+            </td>
+            <td><span class="file-type-badge folder">DIR</span></td>
+            <td class="file-size">14 items</td>
+            <td class="file-date">2026-03-15</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="file-name-cell">
+                <span class="file-icon">
+                  <svg viewBox="0 0 16 16" fill="none">
+                    <rect x="1" y="3" width="6" height="2" fill="#FDCE45"/>
+                    <rect x="7" y="4" width="2" height="1" fill="#FDCE45"/>
+                    <rect x="1" y="5" width="14" height="1" fill="#FDCE45"/>
+                    <rect x="1" y="6" width="1" height="7" fill="#FDCE45"/>
+                    <rect x="14" y="6" width="1" height="7" fill="#FDCE45"/>
+                    <rect x="1" y="13" width="14" height="1" fill="#FDCE45"/>
+                  </svg>
+                </span>
+                <span class="file-name">Documentaries</span>
+              </div>
+            </td>
+            <td><span class="file-type-badge folder">DIR</span></td>
+            <td class="file-size">8 items</td>
+            <td class="file-date">2026-03-12</td>
+            <td></td>
+          </tr>
+          <tr class="selected">
+            <td>
+              <div class="file-name-cell">
+                <span class="file-icon">
+                  <!-- Pixel video/film icon - cyan -->
+                  <svg viewBox="0 0 16 16" fill="none">
+                    <rect x="0" y="2" width="16" height="1" fill="#22D3EE"/>
+                    <rect x="0" y="13" width="16" height="1" fill="#22D3EE"/>
+                    <rect x="0" y="3" width="1" height="10" fill="#22D3EE"/>
+                    <rect x="15" y="3" width="1" height="10" fill="#22D3EE"/>
+                    <rect x="1" y="3" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="1" y="6" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="1" y="9" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="1" y="11" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="13" y="3" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="13" y="6" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="13" y="9" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="13" y="11" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="6" y="5" width="2" height="6" fill="#22D3EE"/>
+                    <rect x="8" y="6" width="2" height="4" fill="#22D3EE"/>
+                    <rect x="10" y="7" width="2" height="2" fill="#22D3EE"/>
+                  </svg>
+                </span>
+                <span class="file-name">Blade.Runner.2049.2017.2160p.mkv</span>
+                <span class="file-cursor"></span>
+              </div>
+            </td>
+            <td><span class="file-type-badge video">MKV</span></td>
+            <td class="file-size">58,240 MB</td>
+            <td class="file-date">2026-03-10</td>
+            <td>
+              <div class="waveform-deco">
+                <div class="bar" style="height:4px;"></div>
+                <div class="bar" style="height:8px;"></div>
+                <div class="bar" style="height:12px;"></div>
+                <div class="bar" style="height:6px;"></div>
+                <div class="bar" style="height:10px;"></div>
+                <div class="bar" style="height:4px;"></div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="file-name-cell">
+                <span class="file-icon">
+                  <svg viewBox="0 0 16 16" fill="none">
+                    <rect x="0" y="2" width="16" height="1" fill="#22D3EE"/>
+                    <rect x="0" y="13" width="16" height="1" fill="#22D3EE"/>
+                    <rect x="0" y="3" width="1" height="10" fill="#22D3EE"/>
+                    <rect x="15" y="3" width="1" height="10" fill="#22D3EE"/>
+                    <rect x="1" y="3" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="1" y="6" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="1" y="9" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="1" y="11" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="13" y="3" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="13" y="6" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="13" y="9" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="13" y="11" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="6" y="5" width="2" height="6" fill="#22D3EE"/>
+                    <rect x="8" y="6" width="2" height="4" fill="#22D3EE"/>
+                    <rect x="10" y="7" width="2" height="2" fill="#22D3EE"/>
+                  </svg>
+                </span>
+                <span class="file-name">Dune.Part.Two.2024.2160p.mkv</span>
+              </div>
+            </td>
+            <td><span class="file-type-badge video">MKV</span></td>
+            <td class="file-size">52,480 MB</td>
+            <td class="file-date">2026-03-08</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="file-name-cell">
+                <span class="file-icon">
+                  <svg viewBox="0 0 16 16" fill="none">
+                    <rect x="0" y="2" width="16" height="1" fill="#22D3EE"/>
+                    <rect x="0" y="13" width="16" height="1" fill="#22D3EE"/>
+                    <rect x="0" y="3" width="1" height="10" fill="#22D3EE"/>
+                    <rect x="15" y="3" width="1" height="10" fill="#22D3EE"/>
+                    <rect x="1" y="3" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="1" y="6" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="1" y="9" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="1" y="11" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="13" y="3" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="13" y="6" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="13" y="9" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="13" y="11" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="6" y="5" width="2" height="6" fill="#22D3EE"/>
+                    <rect x="8" y="6" width="2" height="4" fill="#22D3EE"/>
+                    <rect x="10" y="7" width="2" height="2" fill="#22D3EE"/>
+                  </svg>
+                </span>
+                <span class="file-name">The.Matrix.1999.1080p.mp4</span>
+              </div>
+            </td>
+            <td><span class="file-type-badge video">MP4</span></td>
+            <td class="file-size">4,160 MB</td>
+            <td class="file-date">2026-03-05</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="file-name-cell">
+                <span class="file-icon">
+                  <!-- Pixel audio icon - green -->
+                  <svg viewBox="0 0 16 16" fill="none">
+                    <rect x="2" y="4" width="4" height="8" fill="#4CC38A"/>
+                    <rect x="6" y="3" width="2" height="2" fill="#4CC38A"/>
+                    <rect x="6" y="11" width="2" height="2" fill="#4CC38A"/>
+                    <rect x="8" y="1" width="2" height="2" fill="#4CC38A"/>
+                    <rect x="8" y="13" width="2" height="2" fill="#4CC38A"/>
+                    <rect x="10" y="4" width="2" height="2" fill="#4CC38A"/>
+                    <rect x="10" y="10" width="2" height="2" fill="#4CC38A"/>
+                    <rect x="12" y="6" width="2" height="4" fill="#4CC38A"/>
+                  </svg>
+                </span>
+                <span class="file-name">Interstellar.OST.flac</span>
+              </div>
+            </td>
+            <td><span class="file-type-badge audio">FLAC</span></td>
+            <td class="file-size">890 MB</td>
+            <td class="file-date">2026-03-02</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="file-name-cell">
+                <span class="file-icon">
+                  <svg viewBox="0 0 16 16" fill="none">
+                    <rect x="0" y="2" width="16" height="1" fill="#22D3EE"/>
+                    <rect x="0" y="13" width="16" height="1" fill="#22D3EE"/>
+                    <rect x="0" y="3" width="1" height="10" fill="#22D3EE"/>
+                    <rect x="15" y="3" width="1" height="10" fill="#22D3EE"/>
+                    <rect x="1" y="3" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="1" y="6" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="1" y="9" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="1" y="11" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="13" y="3" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="13" y="6" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="13" y="9" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="13" y="11" width="2" height="2" fill="#22D3EE"/>
+                    <rect x="6" y="5" width="2" height="6" fill="#22D3EE"/>
+                    <rect x="8" y="6" width="2" height="4" fill="#22D3EE"/>
+                    <rect x="10" y="7" width="2" height="2" fill="#22D3EE"/>
+                  </svg>
+                </span>
+                <span class="file-name">Akira.1988.Remaster.mkv</span>
+              </div>
+            </td>
+            <td><span class="file-type-badge video">MKV</span></td>
+            <td class="file-size">8,320 MB</td>
+            <td class="file-date">2026-02-28</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="file-name-cell">
+                <span class="file-icon">
+                  <!-- Pixel document/file icon -->
+                  <svg viewBox="0 0 16 16" fill="none">
+                    <rect x="2" y="1" width="8" height="1" fill="#888888"/>
+                    <rect x="10" y="1" width="1" height="1" fill="#888888"/>
+                    <rect x="11" y="2" width="1" height="1" fill="#888888"/>
+                    <rect x="12" y="3" width="1" height="1" fill="#888888"/>
+                    <rect x="2" y="2" width="1" height="12" fill="#888888"/>
+                    <rect x="12" y="4" width="1" height="10" fill="#888888"/>
+                    <rect x="2" y="14" width="11" height="1" fill="#888888"/>
+                    <rect x="4" y="6" width="6" height="1" fill="#555555"/>
+                    <rect x="4" y="8" width="6" height="1" fill="#555555"/>
+                    <rect x="4" y="10" width="4" height="1" fill="#555555"/>
+                  </svg>
+                </span>
+                <span class="file-name">notes.txt</span>
+              </div>
+            </td>
+            <td><span class="file-type-badge">TXT</span></td>
+            <td class="file-size">2 MB</td>
+            <td class="file-date">2026-02-25</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="file-name-cell">
+                <span class="file-icon">
+                  <svg viewBox="0 0 16 16" fill="none">
+                    <rect x="1" y="3" width="6" height="2" fill="#FDCE45"/>
+                    <rect x="7" y="4" width="2" height="1" fill="#FDCE45"/>
+                    <rect x="1" y="5" width="14" height="1" fill="#FDCE45"/>
+                    <rect x="1" y="6" width="1" height="7" fill="#FDCE45"/>
+                    <rect x="14" y="6" width="1" height="7" fill="#FDCE45"/>
+                    <rect x="1" y="13" width="14" height="1" fill="#FDCE45"/>
+                  </svg>
+                </span>
+                <span class="file-name">Anime Backlog</span>
+              </div>
+            </td>
+            <td><span class="file-type-badge folder">DIR</span></td>
+            <td class="file-size">42 items</td>
+            <td class="file-date">2026-02-20</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="file-name-cell">
+                <span class="file-icon">
+                  <svg viewBox="0 0 16 16" fill="none">
+                    <rect x="2" y="4" width="4" height="8" fill="#4CC38A"/>
+                    <rect x="6" y="3" width="2" height="2" fill="#4CC38A"/>
+                    <rect x="6" y="11" width="2" height="2" fill="#4CC38A"/>
+                    <rect x="8" y="1" width="2" height="2" fill="#4CC38A"/>
+                    <rect x="8" y="13" width="2" height="2" fill="#4CC38A"/>
+                    <rect x="10" y="4" width="2" height="2" fill="#4CC38A"/>
+                    <rect x="10" y="10" width="2" height="2" fill="#4CC38A"/>
+                    <rect x="12" y="6" width="2" height="4" fill="#4CC38A"/>
+                  </svg>
+                </span>
+                <span class="file-name">synthwave_mix_2026.mp3</span>
+              </div>
+            </td>
+            <td><span class="file-type-badge audio">MP3</span></td>
+            <td class="file-size">128 MB</td>
+            <td class="file-date">2026-02-18</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="statusbar">
+      <span class="statusbar-ready">READY.</span>
+      <span class="statusbar-item">
+        <span class="statusbar-dot"></span>
+        <span>10 items</span>
+      </span>
+      <span class="statusbar-item">3 folders, 5 videos, 2 audio</span>
+      <span class="statusbar-spacer"></span>
+      <span class="statusbar-item">642,000 MB used</span>
+      <span class="statusbar-kaomoji">&omega;(&ograve;_&oacute;&#711;)&omega;</span>
+    </div>
+  </main>
+
+  <!-- ==========================================
+       DETAIL PANEL
+       ========================================== -->
+  <aside class="detail-panel">
+    <div class="detail-header">
+      <div class="detail-title">File Inspector</div>
+      <div class="detail-filename">Blade.Runner.2049.2017.2160p.mkv</div>
+    </div>
+
+    <div class="detail-preview">
+      <div class="detail-preview-box">
+        <!-- Large pixel play icon -->
+        <svg viewBox="0 0 32 32" fill="none">
+          <rect x="8" y="4" width="4" height="24" fill="#FDCE45"/>
+          <rect x="12" y="6" width="4" height="20" fill="#FDCE45"/>
+          <rect x="16" y="8" width="4" height="16" fill="#FDCE45"/>
+          <rect x="20" y="10" width="4" height="12" fill="#FDCE45"/>
+          <rect x="24" y="12" width="4" height="8" fill="#FDCE45"/>
+        </svg>
+        <div class="detail-preview-label">PREVIEW</div>
+      </div>
+    </div>
+
+    <div class="detail-meta">
+      <div class="detail-meta-row">
+        <span class="detail-meta-label">Size</span>
+        <span class="detail-meta-value">58,240 MB</span>
+      </div>
+      <div class="detail-meta-row">
+        <span class="detail-meta-label">Format</span>
+        <span class="detail-meta-value">Matroska / MKV</span>
+      </div>
+      <div class="detail-meta-row">
+        <span class="detail-meta-label">Resolution</span>
+        <span class="detail-meta-value">3840 x 2160</span>
+      </div>
+      <div class="detail-meta-row">
+        <span class="detail-meta-label">Codec</span>
+        <span class="detail-meta-value">HEVC / x265</span>
+      </div>
+      <div class="detail-meta-row">
+        <span class="detail-meta-label">Duration</span>
+        <span class="detail-meta-value">02:43:24</span>
+      </div>
+      <div class="detail-meta-row">
+        <span class="detail-meta-label">Audio</span>
+        <span class="detail-meta-value">TrueHD 7.1</span>
+      </div>
+      <div class="detail-meta-row">
+        <span class="detail-meta-label">Added</span>
+        <span class="detail-meta-value">2026-03-10</span>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <button class="detail-btn primary">Play Now</button>
+      <button class="detail-btn">Download</button>
+      <button class="detail-btn">Share Link</button>
+      <button class="detail-btn">Delete</button>
+    </div>
+  </aside>
+</div>
+
+</body>
+</html>
