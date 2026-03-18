@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io -- iOS Files v3 Clean</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #000000;
+    --bg-2: #1C1C1E;
+    --bg-3: #2C2C2E;
+    --bg-4: #3A3A3C;
+    --bg-5: #48484A;
+    --line: #38383A;
+    --solid: #8E8E93;
+    --text-2: #AEAEB2;
+    --text: #FFFFFF;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.15);
+    --green: #30D158;
+    --red: #FF453A;
+    --blue: #0A84FF;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .phone {
+    width: 390px;
+    height: 844px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    padding: 12px 24px 0;
+    font-size: 15px;
+    font-weight: 600;
+    height: 54px;
+    flex-shrink: 0;
+  }
+  .status-bar .time { flex: 1; }
+  .status-bar .icons { display: flex; align-items: center; gap: 6px; }
+
+  /* Nav Bar */
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px 4px;
+    flex-shrink: 0;
+  }
+  .nav-title {
+    font-size: 34px;
+    font-weight: 700;
+    flex: 1;
+  }
+  .nav-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .nav-btn {
+    width: 36px;
+    height: 36px;
+    background: var(--bg-3);
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Search */
+  .search-container {
+    padding: 8px 16px 6px;
+    flex-shrink: 0;
+  }
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--bg-2);
+    border-radius: 12px;
+    font-size: 16px;
+    color: var(--solid);
+  }
+  .search-bar .results-preview {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text);
+    font-size: 16px;
+  }
+  .search-bar .results-preview .query {
+    color: var(--text);
+    font-weight: 500;
+  }
+  .search-bar .cancel {
+    color: var(--blue);
+    font-size: 15px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  /* Quick actions bar */
+  .quick-actions {
+    display: flex;
+    gap: 8px;
+    padding: 6px 16px 10px;
+    flex-shrink: 0;
+  }
+  .qa-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    background: var(--bg-2);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-2);
+  }
+  .qa-btn.active {
+    background: var(--yellow-dim);
+    color: var(--yellow);
+  }
+  .qa-btn svg { flex-shrink: 0; }
+
+  /* Transfer progress bar */
+  .transfer-progress-bar {
+    height: 3px;
+    background: rgba(253, 206, 69, 0.1);
+    margin: 0 16px 4px;
+    border-radius: 2px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .transfer-progress-bar .fill {
+    height: 100%;
+    width: 73%;
+    background: linear-gradient(90deg, var(--yellow), #FDD85C);
+    border-radius: 2px;
+    position: relative;
+  }
+  .transfer-progress-bar .fill::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -1px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--yellow);
+    box-shadow: 0 0 6px var(--yellow);
+  }
+  .transfer-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 16px 10px;
+    font-size: 12px;
+    color: var(--solid);
+    flex-shrink: 0;
+  }
+  .transfer-label .t-name { color: var(--text-2); font-weight: 500; }
+  .transfer-label .t-pct { color: var(--yellow); font-weight: 600; margin-left: auto; }
+
+  /* File List */
+  .file-list { flex: 1; overflow-y: auto; }
+
+  .list-group {
+    background: var(--bg-2);
+    margin: 0 16px 16px;
+    border-radius: 12px;
+    overflow: visible;
+    position: relative;
+  }
+
+  .list-section-header {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--solid);
+    padding: 16px 16px 8px;
+    letter-spacing: 0.04em;
+  }
+
+  .list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    min-height: 56px;
+    position: relative;
+  }
+  .list-item:last-child { border-bottom: none; }
+
+  .l-icon {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .l-info { flex: 1; min-width: 0; }
+  .l-name {
+    font-size: 17px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .l-meta {
+    font-size: 14px;
+    color: var(--solid);
+    margin-top: 2px;
+  }
+  .l-chevron { color: var(--solid); flex-shrink: 0; }
+  .l-badge {
+    font-size: 11px;
+    background: var(--yellow-dim);
+    color: var(--yellow);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  /* ===== SWIPE ACTIONS (revealed state) ===== */
+  .swipe-row {
+    position: relative;
+    overflow: visible;
+  }
+  .swipe-actions {
+    position: absolute;
+    right: -1px;
+    top: 0;
+    bottom: 1px;
+    display: flex;
+    z-index: 5;
+  }
+  .swipe-btn {
+    width: 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    color: white;
+  }
+  .swipe-btn.share { background: var(--blue); border-radius: 0; }
+  .swipe-btn.download { background: var(--green); }
+  .swipe-btn.delete { background: var(--red); border-radius: 0 12px 12px 0; }
+
+  .swipe-row .list-item {
+    transform: translateX(-216px);
+    background: var(--bg-2);
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ===== CONTEXT MENU ===== */
+  .context-menu-wrapper {
+    position: relative;
+  }
+  .context-menu-wrapper .list-item {
+    background: var(--bg-3);
+    border-radius: 12px;
+    border-bottom: none;
+    margin: 4px 0;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.06);
+  }
+
+  .context-menu {
+    position: absolute;
+    top: 100%;
+    left: 40px;
+    width: 240px;
+    background: rgba(44, 44, 46, 0.98);
+    backdrop-filter: blur(40px);
+    border-radius: 14px;
+    padding: 6px;
+    z-index: 20;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    margin-top: 4px;
+  }
+
+  .ctx-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .ctx-item:hover { background: rgba(255, 255, 255, 0.06); }
+
+  .ctx-sep {
+    height: 1px;
+    background: var(--line);
+    margin: 4px 10px;
+  }
+
+  .ctx-item.destructive { color: var(--red); }
+  .ctx-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex;
+    background: rgba(28, 28, 30, 0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--line);
+    padding: 6px 0 34px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 30;
+  }
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    color: var(--solid);
+    padding: 4px 0;
+    position: relative;
+  }
+  .tab-item.active { color: var(--yellow); }
+  .tab-icon { width: 24px; height: 24px; }
+  .tab-badge {
+    position: absolute;
+    top: -2px;
+    right: calc(50% - 22px);
+    background: var(--yellow);
+    color: #000;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+        <rect x="0" y="8" width="3" height="4" rx="0.5" fill="white"/>
+        <rect x="4.5" y="5" width="3" height="7" rx="0.5" fill="white"/>
+        <rect x="9" y="2" width="3" height="10" rx="0.5" fill="white"/>
+        <rect x="13.5" y="0" width="3" height="12" rx="0.5" fill="white"/>
+      </svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+        <path d="M8 11.5a1.2 1.2 0 100-2.4 1.2 1.2 0 000 2.4z" fill="white"/>
+        <path d="M5 8.2a4.5 4.5 0 016 0" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M2.5 5.5a8 8 0 0111 0" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M0.5 2.8a11.5 11.5 0 0115 0" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <svg width="27" height="13" viewBox="0 0 27 13" fill="none">
+        <rect x="0.5" y="0.5" width="23" height="12" rx="2.5" stroke="white" stroke-opacity="0.35"/>
+        <rect x="2" y="2" width="20" height="9" rx="1.5" fill="white"/>
+        <path d="M25 4.5v4a2 2 0 000-4z" fill="white" fill-opacity="0.4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Nav Bar -->
+  <div class="nav-bar">
+    <h1 class="nav-title">Files</h1>
+    <div class="nav-actions">
+      <div class="nav-btn">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M9 2v14M2 9h14" stroke="#FDCE45" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="nav-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#AEAEB2" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="6" r="1.5"/>
+          <circle cx="12" cy="12" r="1.5"/>
+          <circle cx="12" cy="18" r="1.5"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pull-down search (active state) -->
+  <div class="search-container">
+    <div class="search-bar">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="6.5" cy="6.5" r="5.5" stroke="#8E8E93" stroke-width="1.5"/>
+        <path d="M11 11l4 4" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Search files and folders
+    </div>
+  </div>
+
+  <!-- Quick Actions Bar -->
+  <div class="quick-actions">
+    <div class="qa-btn active">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M2 4l5 5 5-5" stroke="#FDCE45" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Recent
+    </div>
+    <div class="qa-btn">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <rect x="1" y="1" width="12" height="3" rx="1" stroke="#AEAEB2" stroke-width="1.2"/>
+        <rect x="1" y="5.5" width="12" height="3" rx="1" stroke="#AEAEB2" stroke-width="1.2"/>
+        <rect x="1" y="10" width="12" height="3" rx="1" stroke="#AEAEB2" stroke-width="1.2"/>
+      </svg>
+      Filter
+    </div>
+    <div class="qa-btn">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <rect x="1" y="1" width="5" height="5" rx="1" stroke="#AEAEB2" stroke-width="1.2"/>
+        <rect x="8" y="1" width="5" height="5" rx="1" stroke="#AEAEB2" stroke-width="1.2"/>
+        <rect x="1" y="8" width="5" height="5" rx="1" stroke="#AEAEB2" stroke-width="1.2"/>
+        <rect x="8" y="8" width="5" height="5" rx="1" stroke="#AEAEB2" stroke-width="1.2"/>
+      </svg>
+      Grid
+    </div>
+    <div class="qa-btn">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1v12M1 7h12" stroke="#AEAEB2" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      Select
+    </div>
+  </div>
+
+  <!-- Inline transfer progress -->
+  <div class="transfer-progress-bar"><div class="fill"></div></div>
+  <div class="transfer-label">
+    <span class="t-name">Inception 2160p</span>
+    <span>downloading -- 12 min left</span>
+    <span class="t-pct">73%</span>
+  </div>
+
+  <!-- File List -->
+  <div class="file-list">
+    <div class="list-group">
+      <!-- Regular folder -->
+      <div class="list-item">
+        <div class="l-icon">
+          <svg width="28" height="24" viewBox="0 0 28 24" fill="none">
+            <path d="M1 4a2 2 0 012-2h8l3 3h12a2 2 0 012 2v13a2 2 0 01-2 2H3a2 2 0 01-2-2V4z" fill="#FDCE45"/>
+            <path d="M1 8h26v12a2 2 0 01-2 2H3a2 2 0 01-2-2V8z" fill="#E5B93D"/>
+          </svg>
+        </div>
+        <div class="l-info">
+          <div class="l-name">movies</div>
+          <div class="l-meta">142.8 GB -- 23 items</div>
+        </div>
+        <span class="l-chevron">
+          <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
+            <path d="M1 1l6 6-6 6" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </div>
+
+      <!-- Swipe actions revealed on this row -->
+      <div class="swipe-row">
+        <div class="swipe-actions">
+          <div class="swipe-btn share">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/>
+              <polyline points="16 6 12 2 8 6"/>
+              <line x1="12" y1="2" x2="12" y2="15"/>
+            </svg>
+            Share
+          </div>
+          <div class="swipe-btn download">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3v12m0 0l-4-4m4 4l4-4"/>
+              <path d="M5 17v2a2 2 0 002 2h10a2 2 0 002-2v-2"/>
+            </svg>
+            Save
+          </div>
+          <div class="swipe-btn delete">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+            </svg>
+            Delete
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="28" height="24" viewBox="0 0 28 24" fill="none">
+              <path d="M1 4a2 2 0 012-2h8l3 3h12a2 2 0 012 2v13a2 2 0 01-2 2H3a2 2 0 01-2-2V4z" fill="#FDCE45"/>
+              <path d="M1 8h26v12a2 2 0 01-2 2H3a2 2 0 01-2-2V8z" fill="#E5B93D"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">shows</div>
+            <div class="l-meta">86.3 GB -- 12 items</div>
+          </div>
+          <span class="l-chevron">
+            <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
+              <path d="M1 1l6 6-6 6" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+
+      <!-- Context menu shown on this row -->
+      <div class="context-menu-wrapper">
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <rect x="1" y="4" width="26" height="20" rx="3" fill="#3A3A3C"/>
+              <polygon points="11,9 21,14 11,19" fill="#FDCE45"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Sintel.2010.2160p.mkv</div>
+            <div class="l-meta">8.2 GB -- 2 days ago</div>
+          </div>
+          <span class="l-badge">4K</span>
+        </div>
+
+        <!-- Context Menu -->
+        <div class="context-menu">
+          <div class="ctx-item">
+            <div class="ctx-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5,3 19,12 5,21"/>
+              </svg>
+            </div>
+            Play
+          </div>
+          <div class="ctx-item">
+            <div class="ctx-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3v12m0 0l-4-4m4 4l4-4"/>
+                <path d="M5 17v2a2 2 0 002 2h10a2 2 0 002-2v-2"/>
+              </svg>
+            </div>
+            Download to device
+          </div>
+          <div class="ctx-item">
+            <div class="ctx-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/>
+                <polyline points="16 6 12 2 8 6"/>
+                <line x1="12" y1="2" x2="12" y2="15"/>
+              </svg>
+            </div>
+            Share
+          </div>
+          <div class="ctx-sep"></div>
+          <div class="ctx-item">
+            <div class="ctx-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round">
+                <path d="M3 7V5a2 2 0 012-2h4l2 2h6a2 2 0 012 2v2"/>
+                <rect x="2" y="9" width="20" height="11" rx="2"/>
+              </svg>
+            </div>
+            Move to folder
+          </div>
+          <div class="ctx-item">
+            <div class="ctx-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round">
+                <path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+              </svg>
+            </div>
+            Rename
+          </div>
+          <div class="ctx-item">
+            <div class="ctx-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 8v4l2 2"/>
+              </svg>
+            </div>
+            File info
+          </div>
+          <div class="ctx-sep"></div>
+          <div class="ctx-item destructive">
+            <div class="ctx-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF453A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+              </svg>
+            </div>
+            Delete
+          </div>
+        </div>
+      </div>
+
+      <!-- Regular video file -->
+      <div class="list-item">
+        <div class="l-icon">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <rect x="1" y="4" width="26" height="20" rx="3" fill="#3A3A3C"/>
+            <polygon points="11,9 21,14 11,19" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="l-info">
+          <div class="l-name">Cosmos.Laundromat.mp4</div>
+          <div class="l-meta">209 MB -- 3 days ago</div>
+        </div>
+        <span class="l-badge">720p</span>
+      </div>
+
+      <!-- Audio file -->
+      <div class="list-item">
+        <div class="l-icon">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <rect x="2" y="2" width="24" height="24" rx="6" fill="#3A3A3C"/>
+            <path d="M10 8v12M14 5v18M18 9v10M22 12v4M6 12v4" stroke="#FDCE45" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="l-info">
+          <div class="l-name">podcast-ep-127.mp3</div>
+          <div class="l-meta">45.2 MB -- 5 days ago</div>
+        </div>
+      </div>
+
+      <!-- Document -->
+      <div class="list-item">
+        <div class="l-icon">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <path d="M6 2h11l7 7v17a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z" fill="#3A3A3C"/>
+            <path d="M17 2l7 7h-5a2 2 0 01-2-2V2z" fill="#555"/>
+            <rect x="8" y="14" width="12" height="1.5" rx="0.75" fill="#8E8E93"/>
+            <rect x="8" y="18" width="9" height="1.5" rx="0.75" fill="#8E8E93"/>
+          </svg>
+        </div>
+        <div class="l-info">
+          <div class="l-name">project-notes.pdf</div>
+          <div class="l-meta">2.1 MB -- a week ago</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item active">
+      <svg class="tab-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M3 7a2 2 0 012-2h5l2 2h7a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" fill="#FDCE45"/>
+      </svg>
+      Files
+    </div>
+    <div class="tab-item">
+      <svg class="tab-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="tab-badge">2</span>
+      Transfers
+    </div>
+    <div class="tab-item">
+      <svg class="tab-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 3v12m0 0l-4-4m4 4l4-4" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M5 17v2a2 2 0 002 2h10a2 2 0 002-2v-2" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Downloads
+    </div>
+    <div class="tab-item">
+      <svg class="tab-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="3" stroke="#8E8E93" stroke-width="1.5"/>
+        <path d="M12 1v2m0 18v2m11-11h-2M3 12H1m18.07-7.07l-1.41 1.41M6.34 17.66l-1.41 1.41m14.14 0l-1.41-1.41M6.34 6.34L4.93 4.93" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Settings
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io — iOS Transfers (Deeply Native)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000;
+    --bg-grouped: #000000;
+    --bg-secondary: #1C1C1E;
+    --bg-tertiary: #2C2C2E;
+    --bg-quaternary: #3A3A3C;
+    --separator: rgba(84,84,88,0.65);
+    --label: #FFFFFF;
+    --label-secondary: #AEAEB2;
+    --label-tertiary: #8E8E93;
+    --label-quaternary: #636366;
+    --fill: rgba(120,120,128,0.36);
+    --yellow: #FDCE45;
+    --green: #30D158;
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --orange: #FF9F0A;
+  }
+  body {
+    font-family: 'Inter', -apple-system, 'SF Pro Display', system-ui, sans-serif;
+    background: var(--bg-grouped);
+    color: var(--label);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .phone {
+    width: 390px;
+    height: 844px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: var(--bg-grouped);
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    padding: 14px 24px 0;
+    height: 54px;
+    flex-shrink: 0;
+  }
+  .status-bar .time {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    flex: 1;
+  }
+  .status-bar .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* Navigation Bar */
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    padding: 6px 20px 0;
+    flex-shrink: 0;
+  }
+  .nav-bar h1 {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: 0.37px;
+    line-height: 41px;
+    flex: 1;
+  }
+  .nav-action {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Pull to Refresh */
+  .pull-refresh {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 0 4px;
+    flex-shrink: 0;
+  }
+  .refresh-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--label-quaternary);
+    border-top-color: var(--label-secondary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Segmented Control */
+  .segmented-control {
+    margin: 12px 20px 0;
+    height: 32px;
+    background: rgba(118,118,128,0.24);
+    border-radius: 8px;
+    display: flex;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+  .seg-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--label-secondary);
+    border-radius: 7px;
+    letter-spacing: -0.08px;
+  }
+  .seg-option.active {
+    background: var(--bg-tertiary);
+    color: var(--label);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  }
+
+  /* Summary Bar */
+  .summary-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 8px;
+    flex-shrink: 0;
+  }
+  .summary-text {
+    font-size: 13px;
+    color: var(--label-tertiary);
+    letter-spacing: -0.08px;
+  }
+  .summary-speed {
+    font-size: 13px;
+    color: var(--yellow);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.08px;
+  }
+
+  /* Scroll Content */
+  .scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 8px;
+  }
+
+  /* Grouped List */
+  .grouped-list {
+    margin: 0 20px 16px;
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  /* Transfer Row */
+  .transfer-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 16px;
+    position: relative;
+    gap: 12px;
+  }
+  .transfer-row + .transfer-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 52px;
+    right: 0;
+    height: 0.5px;
+    background: var(--separator);
+  }
+
+  .transfer-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .transfer-content {
+    flex: 1;
+    min-width: 0;
+  }
+  .transfer-title {
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--label);
+    letter-spacing: -0.4px;
+    line-height: 22px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .transfer-subtitle {
+    font-size: 14px;
+    color: var(--label-tertiary);
+    letter-spacing: -0.15px;
+    line-height: 18px;
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Progress Bar */
+  .transfer-progress-track {
+    height: 3px;
+    background: var(--bg-quaternary);
+    border-radius: 1.5px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .transfer-progress-fill {
+    height: 100%;
+    border-radius: 1.5px;
+    transition: width 0.3s ease;
+  }
+  .fill-yellow { background: var(--yellow); }
+  .fill-blue { background: var(--blue); }
+
+  .transfer-detail {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--label-tertiary);
+    letter-spacing: -0.2px;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+  }
+  .transfer-detail.active {
+    color: var(--yellow);
+    font-weight: 600;
+  }
+
+  /* Swipe Container */
+  .swipe-container {
+    position: relative;
+    overflow: hidden;
+  }
+  .swipe-transfer {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 16px;
+    gap: 12px;
+    background: var(--bg-secondary);
+    position: relative;
+    z-index: 1;
+    transform: translateX(-160px);
+  }
+  .swipe-transfer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 52px;
+    right: 0;
+    height: 0.5px;
+    background: var(--separator);
+  }
+  .swipe-actions {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    width: 160px;
+  }
+  .swipe-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 2px;
+  }
+  .swipe-action.retry { background: var(--blue); }
+  .swipe-action.delete { background: var(--red); }
+  .swipe-action-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: -0.06px;
+  }
+
+  /* Section Header */
+  .section-header {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--label-tertiary);
+    text-transform: uppercase;
+    letter-spacing: -0.08px;
+    padding: 20px 20px 7px;
+  }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex;
+    background: rgba(28,28,30,0.92);
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    border-top: 0.5px solid rgba(84,84,88,0.65);
+    padding: 5px 0 34px;
+    flex-shrink: 0;
+  }
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding-top: 5px;
+  }
+  .tab-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--label-tertiary);
+    letter-spacing: -0.01px;
+  }
+  .tab-item.active .tab-label {
+    color: var(--yellow);
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="status-icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+        <rect x="0" y="9" width="3" height="3" rx="0.5" fill="white"/>
+        <rect x="4.5" y="6" width="3" height="6" rx="0.5" fill="white"/>
+        <rect x="9" y="3" width="3" height="9" rx="0.5" fill="white"/>
+        <rect x="13.5" y="0" width="3" height="12" rx="0.5" fill="white"/>
+      </svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white">
+        <path d="M8 3.6c2.1 0 4 .8 5.4 2.1l1.2-1.4C12.8 2.6 10.5 1.6 8 1.6S3.2 2.6 1.4 4.3l1.2 1.4C4 4.4 5.9 3.6 8 3.6zm0 3.4c1.3 0 2.4.5 3.3 1.3l1.2-1.4C11.2 5.8 9.7 5.2 8 5.2s-3.2.6-4.5 1.7l1.2 1.4C5.6 7.5 6.7 7 8 7zm0 3.4c.7 0 1.3.3 1.8.7L8 13l-1.8-1.9c.5-.4 1.1-.7 1.8-.7z"/>
+      </svg>
+      <svg width="27" height="12" viewBox="0 0 27 12" fill="none">
+        <rect x="0.5" y="0.5" width="23" height="11" rx="2.5" stroke="rgba(255,255,255,0.35)"/>
+        <rect x="2" y="2" width="20" height="8" rx="1.5" fill="white"/>
+        <path d="M25 4v4a2 2 0 0 0 0-4z" fill="rgba(255,255,255,0.35)"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="nav-bar">
+    <h1>Transfers</h1>
+    <div class="nav-action">
+      <!-- Plus button -->
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="var(--yellow)">
+        <path d="M11 2v18M2 11h18" stroke="var(--yellow)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Pull to Refresh -->
+  <div class="pull-refresh">
+    <div class="refresh-spinner"></div>
+  </div>
+
+  <!-- Segmented Control -->
+  <div class="segmented-control">
+    <div class="seg-option active">All</div>
+    <div class="seg-option">Active</div>
+    <div class="seg-option">Done</div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-bar">
+    <span class="summary-text">6 transfers</span>
+    <span class="summary-speed">12.4 MB/s</span>
+  </div>
+
+  <!-- Scroll Content -->
+  <div class="scroll-content">
+
+    <!-- Active Transfers Section -->
+    <div class="section-header" style="padding-top: 4px;">Downloading</div>
+    <div class="grouped-list">
+
+      <!-- Active Transfer 1 -->
+      <div class="transfer-row">
+        <div class="transfer-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--yellow)">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+          </svg>
+        </div>
+        <div class="transfer-content">
+          <div class="transfer-title">Better.Call.Saul.S06E13.1080p</div>
+          <div class="transfer-subtitle">4.2 GB of 6.8 GB -- 14 min remaining</div>
+          <div class="transfer-progress-track">
+            <div class="transfer-progress-fill fill-yellow" style="width: 62%;"></div>
+          </div>
+        </div>
+        <div class="transfer-detail active">62%</div>
+      </div>
+
+      <!-- Active Transfer 2 -->
+      <div class="transfer-row">
+        <div class="transfer-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--yellow)">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+          </svg>
+        </div>
+        <div class="transfer-content">
+          <div class="transfer-title">Succession.S04.Complete.Pack</div>
+          <div class="transfer-subtitle">12.1 GB of 38.4 GB -- 2 hr remaining</div>
+          <div class="transfer-progress-track">
+            <div class="transfer-progress-fill fill-yellow" style="width: 31%;"></div>
+          </div>
+        </div>
+        <div class="transfer-detail active">31%</div>
+      </div>
+
+      <!-- Active Transfer 3 - Seeding/Processing -->
+      <div class="transfer-row">
+        <div class="transfer-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--blue)">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+            <path d="M12 6v6l4 2" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+        <div class="transfer-content">
+          <div class="transfer-title">Ubuntu.22.04.ISO</div>
+          <div class="transfer-subtitle">Processing file...</div>
+          <div class="transfer-progress-track">
+            <div class="transfer-progress-fill fill-blue" style="width: 100%; opacity: 0.6;"></div>
+          </div>
+        </div>
+        <div class="transfer-detail" style="color: var(--blue);">100%</div>
+      </div>
+    </div>
+
+    <!-- Completed Section -->
+    <div class="section-header">Completed</div>
+    <div class="grouped-list">
+
+      <!-- Completed Transfer -->
+      <div class="transfer-row">
+        <div class="transfer-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" fill="var(--green)"/>
+            <path d="M7.5 12l3 3 6-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="transfer-content">
+          <div class="transfer-title">Pose.S03E01.720p.WEB</div>
+          <div class="transfer-subtitle">1.4 GB -- Completed 12 min ago</div>
+        </div>
+        <div class="transfer-detail" style="color: var(--green);">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="var(--green)">
+            <path d="M3.5 8l3 3 6-6" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Completed Transfer 2 -->
+      <div class="transfer-row">
+        <div class="transfer-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" fill="var(--green)"/>
+            <path d="M7.5 12l3 3 6-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="transfer-content">
+          <div class="transfer-title">The.Bear.S02E06.1080p</div>
+          <div class="transfer-subtitle">2.8 GB -- Completed 1 hr ago</div>
+        </div>
+        <div class="transfer-detail" style="color: var(--green);">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="var(--green)">
+            <path d="M3.5 8l3 3 6-6" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Failed Section -->
+    <div class="section-header">Failed</div>
+    <div class="grouped-list">
+
+      <!-- Failed Transfer with Swipe Revealed -->
+      <div class="swipe-container">
+        <div class="swipe-transfer">
+          <div class="transfer-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" fill="var(--red)"/>
+              <path d="M12 7v6M12 15.5v1" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="transfer-content">
+            <div class="transfer-title">Dune.Part.Two.2024.4K.HDR</div>
+            <div class="transfer-subtitle" style="color: var(--red);">Tracker unreachable -- Failed 3 hr ago</div>
+          </div>
+          <div class="transfer-detail" style="color: var(--red);">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="var(--red)">
+              <circle cx="8" cy="8" r="7" fill="none" stroke="var(--red)" stroke-width="1.5"/>
+              <path d="M8 4.5v4.5M8 11v1" stroke="var(--red)" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="swipe-actions">
+          <div class="swipe-action retry">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="white">
+              <path d="M9 2v3l3-3-3-3v3zm0 0C5.13 2 2 5.13 2 9s3.13 7 7 7 7-3.13 7-7h-2c0 2.76-2.24 5-5 5S4 11.76 4 9s2.24-5 5-5z"/>
+            </svg>
+            <span class="swipe-action-label">Retry</span>
+          </div>
+          <div class="swipe-action delete">
+            <svg width="16" height="18" viewBox="0 0 16 18" fill="white">
+              <path d="M5 0h6l1 2h3.5v1.5h-15V2H4L5 0zM1.5 4h13l-1 13H2.5l-1-13z"/>
+            </svg>
+            <span class="swipe-action-label">Delete</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height: 20px;"></div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="var(--label-tertiary)">
+        <path d="M3 3h7v7H3V3zm9 0h7v7h-7V3zM3 12h7v7H3v-7zm9 0h7v7h-7v-7z"/>
+      </svg>
+      <span class="tab-label">Dashboard</span>
+    </div>
+    <div class="tab-item">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="var(--label-tertiary)">
+        <path d="M2 3a2 2 0 012-2h6l2 2h6a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V3z"/>
+      </svg>
+      <span class="tab-label">Files</span>
+    </div>
+    <div class="tab-item active">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="var(--yellow)">
+        <path d="M19 9h-5V3H8v6H3l8 8 8-8zM3 19v2h16v-2H3z"/>
+      </svg>
+      <span class="tab-label">Transfers</span>
+    </div>
+    <div class="tab-item">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="var(--label-tertiary)">
+        <circle cx="11" cy="11" r="9" fill="none" stroke="var(--label-tertiary)" stroke-width="2"/>
+        <circle cx="11" cy="8" r="3" fill="var(--label-tertiary)"/>
+        <path d="M5 17.5c0-3 2.7-5.5 6-5.5s6 2.5 6 5.5" fill="var(--label-tertiary)"/>
+      </svg>
+      <span class="tab-label">Account</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

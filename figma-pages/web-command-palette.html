@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Command Palette</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #0C0C0E;
+    --bg-1: #111114;
+    --bg-2: #161619;
+    --bg-3: #1C1C20;
+    --bg-4: #232328;
+    --bg-5: #2A2A30;
+    --bg-hover: #1E1E23;
+
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-default: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.12);
+
+    --text-primary: #EDEDEF;
+    --text-secondary: #A0A0A8;
+    --text-tertiary: #6C6C76;
+    --text-quaternary: #4A4A52;
+
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.12);
+    --yellow-hover: #FDD85C;
+
+    --green: #3ECF8E;
+    --red: #EF4444;
+    --blue: #60A5FA;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-0);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' 1, 'ss01' 1;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ===== SIDEBAR (dimmed background) ===== */
+  .sidebar {
+    width: 232px;
+    background: var(--bg-1);
+    border-right: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+  }
+  .logo .dot { color: var(--yellow); }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 0 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .nav-section-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-quaternary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 20px 12px 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 12px;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    border-radius: 6px;
+  }
+  .nav-item.active {
+    background: var(--bg-3);
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .nav-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ===== MAIN AREA (dimmed) ===== */
+  .main-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-0);
+  }
+
+  .topbar-main {
+    display: flex;
+    align-items: center;
+    padding: 16px 28px;
+    gap: 16px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .breadcrumb {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .topbar-main .spacer { flex: 1; }
+
+  .kbd-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-quaternary);
+  }
+
+  .content-area {
+    flex: 1;
+    padding: 24px 28px;
+  }
+
+  /* Faux file rows in background */
+  .bg-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+  }
+  .bg-row-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .bg-row-name {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .bg-row-meta {
+    font-size: 12px;
+    color: var(--text-quaternary);
+  }
+
+  /* ===== OVERLAY ===== */
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 180px;
+    z-index: 100;
+  }
+
+  /* ===== COMMAND PALETTE ===== */
+  .palette {
+    width: 620px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-strong);
+    border-radius: 16px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+  }
+
+  /* Search input */
+  .palette-search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .palette-search-icon {
+    flex-shrink: 0;
+    color: var(--text-tertiary);
+  }
+
+  .palette-input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 15px;
+    outline: none;
+  }
+  .palette-input::placeholder {
+    color: var(--text-quaternary);
+  }
+
+  .palette-esc {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-quaternary);
+    background: var(--bg-4);
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  /* Results */
+  .palette-results {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 8px 0;
+  }
+
+  .palette-group {
+    padding: 0 8px;
+  }
+
+  .palette-group-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-quaternary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 12px 12px 6px;
+  }
+
+  .palette-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.08s;
+  }
+  .palette-item:hover {
+    background: var(--bg-3);
+  }
+  .palette-item.focused {
+    background: var(--yellow-dim);
+    outline: 1px solid rgba(253, 206, 69, 0.15);
+  }
+
+  .palette-item-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--bg-4);
+  }
+  .palette-item.focused .palette-item-icon {
+    background: rgba(253, 206, 69, 0.15);
+  }
+
+  .palette-item-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .palette-item-name {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .palette-item.focused .palette-item-name {
+    color: var(--yellow);
+    font-weight: 500;
+  }
+  .palette-item-desc {
+    font-size: 11px;
+    color: var(--text-quaternary);
+    margin-top: 1px;
+  }
+
+  .palette-item-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .kbd {
+    font-size: 11px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-quaternary);
+    background: var(--bg-4);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border-subtle);
+    line-height: 1.4;
+  }
+
+  .palette-item-type {
+    font-size: 11px;
+    color: var(--text-quaternary);
+  }
+
+  /* Footer */
+  .palette-footer {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 20px;
+    border-top: 1px solid var(--border-subtle);
+    font-size: 11px;
+    color: var(--text-quaternary);
+  }
+  .palette-footer-hint {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Sidebar (dimmed background) -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="dot">.</span>io</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active">
+        <div class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M2 5a1.5 1.5 0 011.5-1.5h4L9 5h5.5A1.5 1.5 0 0116 6.5V13a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 012 13V5z" fill="#FDCE45"/>
+          </svg>
+        </div>
+        Files
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M10 2L3 11h6l-1 6 7-9h-6l1-6z" stroke="#6C6C76" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        Transfers
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M3 10a6 6 0 016 6" stroke="#6C6C76" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M3 6a10 10 0 0110 10" stroke="#6C6C76" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M3 2a14 14 0 0114 14" stroke="#6C6C76" stroke-width="1.3" stroke-linecap="round"/>
+            <circle cx="4" cy="15" r="1.5" fill="#6C6C76"/>
+          </svg>
+        </div>
+        RSS
+      </div>
+      <div class="nav-section-label">Account</div>
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="9" r="7" stroke="#6C6C76" stroke-width="1.3"/>
+            <path d="M9 6v3l2 1.5" stroke="#6C6C76" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        History
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="5" cy="9" r="2" stroke="#6C6C76" stroke-width="1.3"/>
+            <circle cx="13" cy="5" r="2" stroke="#6C6C76" stroke-width="1.3"/>
+            <circle cx="13" cy="13" r="2" stroke="#6C6C76" stroke-width="1.3"/>
+            <line x1="7" y1="8" x2="11" y2="6" stroke="#6C6C76" stroke-width="1"/>
+            <line x1="7" y1="10" x2="11" y2="12" stroke="#6C6C76" stroke-width="1"/>
+          </svg>
+        </div>
+        Sharing
+      </div>
+    </nav>
+  </div>
+
+  <!-- Main area (dimmed background) -->
+  <div class="main-area">
+    <div class="topbar-main">
+      <span class="breadcrumb">Files / downloads</span>
+      <div class="spacer"></div>
+      <div class="kbd-hint">
+        <span class="kbd">&#8984;K</span>
+        Search & commands
+      </div>
+    </div>
+    <div class="content-area">
+      <!-- Faux file list in background -->
+      <div class="bg-row">
+        <div class="bg-row-icon">
+          <svg width="24" height="20" viewBox="0 0 24 20" fill="none">
+            <path d="M1 3.5A1.5 1.5 0 012.5 2H8l2.5 2.5H21.5A1.5 1.5 0 0123 6v11.5a1.5 1.5 0 01-1.5 1.5h-19A1.5 1.5 0 011 17.5V3.5z" fill="#FDCE45"/>
+            <path d="M1 7h22v10.5a1.5 1.5 0 01-1.5 1.5h-19A1.5 1.5 0 011 17.5V7z" fill="#E5B93D"/>
+          </svg>
+        </div>
+        <span class="bg-row-name">movies</span>
+        <span class="bg-row-meta">142.8 GB</span>
+      </div>
+      <div class="bg-row">
+        <div class="bg-row-icon">
+          <svg width="24" height="20" viewBox="0 0 24 20" fill="none">
+            <path d="M1 3.5A1.5 1.5 0 012.5 2H8l2.5 2.5H21.5A1.5 1.5 0 0123 6v11.5a1.5 1.5 0 01-1.5 1.5h-19A1.5 1.5 0 011 17.5V3.5z" fill="#FDCE45"/>
+            <path d="M1 7h22v10.5a1.5 1.5 0 01-1.5 1.5h-19A1.5 1.5 0 011 17.5V7z" fill="#E5B93D"/>
+          </svg>
+        </div>
+        <span class="bg-row-name">shows</span>
+        <span class="bg-row-meta">86.3 GB</span>
+      </div>
+      <div class="bg-row">
+        <div class="bg-row-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="1" y="3" width="22" height="17" rx="2.5" fill="#3A3A3C"/>
+            <polygon points="10,8 17,12 10,16" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <span class="bg-row-name">Sintel.2010.2160p.mkv</span>
+        <span class="bg-row-meta">8.2 GB</span>
+      </div>
+      <div class="bg-row">
+        <div class="bg-row-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="1" y="3" width="22" height="17" rx="2.5" fill="#3A3A3C"/>
+            <polygon points="10,8 17,12 10,16" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <span class="bg-row-name">Big.Buck.Bunny.1080p.mp4</span>
+        <span class="bg-row-meta">1.4 GB</span>
+      </div>
+      <div class="bg-row">
+        <div class="bg-row-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="2" width="18" height="20" rx="2" fill="#3A3A3C"/>
+            <rect x="7" y="8" width="10" height="1.5" rx="0.75" fill="#6C6C76"/>
+            <rect x="7" y="12" width="7" height="1.5" rx="0.75" fill="#6C6C76"/>
+          </svg>
+        </div>
+        <span class="bg-row-name">readme.txt</span>
+        <span class="bg-row-meta">2.1 KB</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Command Palette Overlay -->
+  <div class="overlay">
+    <div class="palette">
+
+      <!-- Search input -->
+      <div class="palette-search">
+        <svg class="palette-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" class="palette-input" placeholder="Type a command or search..." readonly>
+        <span class="palette-esc">ESC</span>
+      </div>
+
+      <!-- Results -->
+      <div class="palette-results">
+
+        <!-- Recent -->
+        <div class="palette-group">
+          <div class="palette-group-label">Recent</div>
+
+          <div class="palette-item focused">
+            <div class="palette-item-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FDCE45" stroke-width="2" stroke-linecap="round">
+                <rect x="1" y="3" width="22" height="17" rx="2.5"/>
+                <polygon points="10,8 17,12 10,16" fill="#FDCE45" stroke="none"/>
+              </svg>
+            </div>
+            <div class="palette-item-text">
+              <div class="palette-item-name">Sintel.2010.2160p.mkv</div>
+              <div class="palette-item-desc">downloads / movies</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="palette-item-type">8.2 GB</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <div class="palette-item-icon">
+              <svg width="16" height="16" viewBox="0 0 24 20" fill="none">
+                <path d="M1 3.5A1.5 1.5 0 012.5 2H8l2.5 2.5H21.5A1.5 1.5 0 0123 6v11.5a1.5 1.5 0 01-1.5 1.5h-19A1.5 1.5 0 011 17.5V3.5z" fill="#FDCE45"/>
+              </svg>
+            </div>
+            <div class="palette-item-text">
+              <div class="palette-item-name">movies</div>
+              <div class="palette-item-desc">downloads</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="palette-item-type">Folder</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <div class="palette-item-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <rect x="1" y="3" width="22" height="17" rx="2.5" fill="#3A3A3C"/>
+                <polygon points="10,8 17,12 10,16" fill="#A0A0A8"/>
+              </svg>
+            </div>
+            <div class="palette-item-text">
+              <div class="palette-item-name">Cosmos.Laundromat.720p.mp4</div>
+              <div class="palette-item-desc">downloads</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="palette-item-type">209 MB</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="palette-group">
+          <div class="palette-group-label">Actions</div>
+
+          <div class="palette-item">
+            <div class="palette-item-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A0A0A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+            </div>
+            <div class="palette-item-text">
+              <div class="palette-item-name">New Transfer</div>
+              <div class="palette-item-desc">Add a magnet link, torrent, or URL</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">&#8984;N</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <div class="palette-item-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A0A0A8" stroke-width="2" stroke-linecap="round">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+            </div>
+            <div class="palette-item-text">
+              <div class="palette-item-name">Go to Transfers</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">G</span> <span class="kbd">T</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <div class="palette-item-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A0A0A8" stroke-width="2" stroke-linecap="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+              </svg>
+            </div>
+            <div class="palette-item-text">
+              <div class="palette-item-name">Open Settings</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">&#8984;,</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <div class="palette-item-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A0A0A8" stroke-width="2" stroke-linecap="round">
+                <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+              </svg>
+            </div>
+            <div class="palette-item-text">
+              <div class="palette-item-name">Toggle Dark Mode</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">&#8984;D</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="palette-group">
+          <div class="palette-group-label">Navigation</div>
+
+          <div class="palette-item">
+            <div class="palette-item-icon">
+              <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+                <path d="M2 5a1.5 1.5 0 011.5-1.5h4L9 5h5.5A1.5 1.5 0 0116 6.5V13a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 012 13V5z" fill="#6C6C76"/>
+              </svg>
+            </div>
+            <div class="palette-item-text">
+              <div class="palette-item-name">Files</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">G</span> <span class="kbd">F</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <div class="palette-item-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6C6C76" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+            </div>
+            <div class="palette-item-text">
+              <div class="palette-item-name">Transfers</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">G</span> <span class="kbd">T</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <div class="palette-item-icon">
+              <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+                <path d="M3 10a6 6 0 016 6" stroke="#6C6C76" stroke-width="1.3" stroke-linecap="round"/>
+                <path d="M3 6a10 10 0 0110 10" stroke="#6C6C76" stroke-width="1.3" stroke-linecap="round"/>
+                <circle cx="4" cy="15" r="1.5" fill="#6C6C76"/>
+              </svg>
+            </div>
+            <div class="palette-item-text">
+              <div class="palette-item-name">RSS</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">G</span> <span class="kbd">R</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <div class="palette-item-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6C6C76" stroke-width="1.5" stroke-linecap="round">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 7v5l3 2"/>
+              </svg>
+            </div>
+            <div class="palette-item-text">
+              <div class="palette-item-name">History</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">G</span> <span class="kbd">H</span>
+            </div>
+          </div>
+
+          <div class="palette-item">
+            <div class="palette-item-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6C6C76" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="6" cy="12" r="3"/>
+                <circle cx="18" cy="6" r="3"/>
+                <circle cx="18" cy="18" r="3"/>
+                <line x1="9" y1="10.5" x2="15" y2="7.5"/>
+                <line x1="9" y1="13.5" x2="15" y2="16.5"/>
+              </svg>
+            </div>
+            <div class="palette-item-text">
+              <div class="palette-item-name">Sharing</div>
+            </div>
+            <div class="palette-item-meta">
+              <span class="kbd">G</span> <span class="kbd">S</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="palette-footer">
+        <div class="palette-footer-hint">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+          </svg>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M12 5v14M5 12l7 7 7-7"/>
+          </svg>
+          Navigate
+        </div>
+        <div class="palette-footer-hint">
+          <span class="kbd" style="padding: 1px 5px; font-size: 10px;">&#9166;</span>
+          Open
+        </div>
+        <div class="palette-footer-hint">
+          <span class="kbd" style="padding: 1px 5px; font-size: 10px;">TAB</span>
+          Preview
+        </div>
+        <div style="flex:1;"></div>
+        <div class="palette-footer-hint" style="color: var(--text-quaternary); opacity: 0.6;">
+          put.io command palette
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

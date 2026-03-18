@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Sharing Redesign (Editorial v2)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Serif+Text:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0D0D0F;
+    --bg-2: #121214;
+    --bg-3: #19191C;
+    --bg-4: #212125;
+    --bg-5: #2A2A2F;
+    --line: #252529;
+    --border: #35353B;
+    --focus: #4E4E58;
+    --solid: #6B6B76;
+    --text-2: #9B9BA6;
+    --text-3: #B5B5BF;
+    --text: #EAEAEF;
+
+    --yellow: #FDCE45;
+    --sunlight-dim: rgba(253, 206, 69, 0.07);
+    --sunlight-wash: rgba(253, 206, 69, 0.04);
+    --amber: #E8A228;
+    --green: #30A46C;
+    --green-dim: rgba(48, 164, 108, 0.10);
+    --blue: #60A5FA;
+    --blue-dim: rgba(96, 165, 250, 0.10);
+    --purple: #A78BFA;
+    --purple-dim: rgba(167, 139, 250, 0.10);
+    --red: #E5484D;
+
+    --serif: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+    --serif-text: 'DM Serif Text', Georgia, serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'JetBrains Mono', 'SF Mono', 'Menlo', monospace;
+  }
+
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 264px; background: var(--bg-2); border-right: 1px solid var(--line);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .sidebar-brand { padding: 28px 28px 8px; }
+  .logo { font-family: var(--serif); font-size: 28px; font-weight: 400; color: var(--text); letter-spacing: -0.03em; }
+  .logo span { color: var(--yellow); }
+  .sidebar-tagline { font-family: var(--serif-text); font-style: italic; font-size: 11px; color: var(--solid); padding: 0 28px 20px; }
+  .sidebar-nav { flex: 1; }
+  .nav-chapter { font-family: var(--serif-text); font-style: italic; font-size: 11px; color: var(--solid); padding: 22px 28px 8px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 14px; padding: 10px 28px; font-size: 14px;
+    color: var(--text-2); cursor: pointer; border: none; background: none; width: 100%;
+    text-align: left; font-family: var(--sans); transition: all 0.15s ease; position: relative;
+  }
+  .nav-item:hover { color: var(--text); background: var(--bg-3); }
+  .nav-item.active { color: var(--text); font-weight: 500; background: var(--sunlight-wash); }
+  .nav-item.active::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 2.5px; background: var(--yellow); border-radius: 0 2px 2px 0; }
+  .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; color: var(--solid); flex-shrink: 0; }
+  .nav-item.active .nav-icon { color: var(--yellow); }
+  .nav-badge-count { margin-left: auto; font-size: 10px; font-weight: 600; color: var(--bg); background: var(--yellow); padding: 1px 7px; border-radius: 10px; font-family: var(--mono); }
+  .nav-badge { margin-left: auto; font-size: 11px; color: var(--solid); font-family: var(--mono); }
+  .nav-divider { height: 1px; background: var(--line); margin: 10px 28px; }
+  .sidebar-footer { padding: 18px 28px; border-top: 1px solid var(--line); }
+  .storage-track { width: 100%; height: 3px; background: var(--bg-5); border-radius: 2px; overflow: hidden; }
+  .storage-fill { height: 100%; background: linear-gradient(90deg, var(--yellow), var(--amber)); border-radius: 2px; }
+  .storage-label { font-size: 11px; color: var(--solid); margin-top: 8px; }
+  .storage-label strong { color: var(--text-3); font-weight: 500; }
+  .user-row { display: flex; align-items: center; gap: 12px; padding: 14px 28px 18px; }
+  .user-avatar { width: 30px; height: 30px; background: var(--bg-5); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .user-avatar svg { color: var(--text-2); }
+  .user-name { font-size: 13px; color: var(--text-2); font-weight: 500; }
+  .user-menu { margin-left: auto; background: none; border: none; color: var(--solid); cursor: pointer; padding: 4px; display: flex; }
+
+  /* CONTENT */
+  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .content-scroll { flex: 1; overflow-y: auto; padding: 0 48px 48px; }
+  .content-scroll::-webkit-scrollbar { width: 6px; }
+  .content-scroll::-webkit-scrollbar-track { background: transparent; }
+  .content-scroll::-webkit-scrollbar-thumb { background: var(--bg-5); border-radius: 3px; }
+
+  .content-header { padding: 36px 48px 6px; }
+  .page-heading { font-family: var(--serif); font-size: 36px; font-weight: 400; letter-spacing: -0.035em; color: var(--text); }
+  .page-heading em { font-style: italic; color: var(--yellow); }
+  .page-subtitle { font-family: var(--serif-text); font-style: italic; font-size: 14px; color: var(--solid); padding: 4px 48px 0; }
+
+  /* Share with Mom Hero */
+  .share-hero {
+    margin-top: 28px; padding: 32px;
+    background: linear-gradient(135deg, rgba(253,206,69,0.06), rgba(253,206,69,0.02));
+    border: 1px solid rgba(253,206,69,0.12); border-radius: 20px;
+    display: flex; gap: 32px; align-items: center;
+  }
+  .share-hero-illustration {
+    width: 120px; height: 120px; border-radius: 16px;
+    background: rgba(253,206,69,0.08); border: 1px solid rgba(253,206,69,0.15);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .share-hero-text { flex: 1; }
+  .share-hero-title {
+    font-family: var(--serif); font-size: 26px; font-weight: 400;
+    color: var(--text); margin-bottom: 8px; letter-spacing: -0.02em;
+  }
+  .share-hero-title em { font-style: italic; color: var(--yellow); }
+  .share-hero-desc { font-size: 15px; color: var(--text-2); line-height: 1.6; margin-bottom: 18px; }
+  .share-hero-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--yellow); color: var(--bg); font-size: 14px; font-weight: 600;
+    padding: 12px 28px; border-radius: 12px; border: none; cursor: pointer;
+    font-family: var(--sans); transition: all 0.2s ease;
+    box-shadow: 0 0 24px rgba(253,206,69,0.2);
+  }
+
+  /* Section Headings */
+  .sharing-section {
+    margin-top: 40px; padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .sharing-section-icon { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .sharing-section-title { font-family: var(--serif); font-size: 22px; font-weight: 400; letter-spacing: -0.02em; }
+  .sharing-section-desc { font-family: var(--serif-text); font-style: italic; font-size: 13px; color: var(--solid); margin-top: 4px; }
+
+  /* Following Feed */
+  .feed-card {
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px;
+    padding: 20px; margin-top: 14px; transition: border-color 0.15s ease;
+  }
+  .feed-card:hover { border-color: var(--border); }
+  .feed-card-top { display: flex; align-items: flex-start; gap: 14px; }
+  .feed-card-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .feed-card-icon.blue { background: var(--blue-dim); border: 1px solid rgba(96,165,250,0.15); }
+  .feed-card-icon.purple { background: var(--purple-dim); border: 1px solid rgba(167,139,250,0.15); }
+  .feed-card-icon.green { background: var(--green-dim); border: 1px solid rgba(48,164,108,0.15); }
+  .feed-card-info { flex: 1; min-width: 0; }
+  .feed-card-name { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; margin-bottom: 4px; }
+  .feed-card-desc { font-size: 13px; color: var(--solid); line-height: 1.4; }
+  .feed-card-meta { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .feed-card-person { font-size: 12px; color: var(--text-2); }
+  .feed-card-date { font-size: 12px; color: var(--solid); font-family: var(--mono); }
+
+  .feed-update {
+    display: flex; align-items: center; gap: 10px; margin-top: 12px;
+    padding: 10px 14px; background: var(--bg-3); border-radius: 10px;
+    font-size: 13px; color: var(--text-2);
+  }
+  .feed-update-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); flex-shrink: 0; }
+  .feed-update-time { margin-left: auto; font-size: 11px; color: var(--solid); font-family: var(--mono); }
+
+  /* Collab presence */
+  .collab-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-top: 14px; }
+  .collab-card:hover { border-color: var(--border); }
+  .collab-header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .collab-title { font-size: 16px; font-weight: 600; color: var(--text); flex: 1; }
+  .collab-live { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--green); font-weight: 500; }
+  .collab-live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse-green 2s infinite; }
+  @keyframes pulse-green { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .collab-members { display: flex; gap: 12px; flex-wrap: wrap; }
+  .collab-member {
+    display: flex; align-items: center; gap: 8px; padding: 8px 14px;
+    background: var(--bg-3); border-radius: 10px; font-size: 13px;
+  }
+  .collab-member-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .collab-member-dot.online { background: var(--green); box-shadow: 0 0 6px rgba(48,164,108,0.4); }
+  .collab-member-dot.offline { background: var(--solid); }
+  .collab-member-name { color: var(--text); font-weight: 500; }
+  .collab-member-status { color: var(--solid); font-size: 11px; margin-left: 4px; }
+
+  /* Shared Link preview cards */
+  .link-card {
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px;
+    overflow: hidden; margin-top: 14px; display: flex; transition: border-color 0.15s ease;
+  }
+  .link-card:hover { border-color: var(--border); }
+  .link-preview {
+    width: 200px; flex-shrink: 0; display: flex; align-items: center;
+    justify-content: center; position: relative;
+  }
+  .link-preview.warm { background: rgba(253,206,69,0.04); }
+  .link-body { padding: 20px 24px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .link-name { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .link-url { font-size: 12px; color: var(--solid); font-family: var(--mono); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .link-meta { display: flex; align-items: center; gap: 16px; font-size: 13px; }
+  .link-downloads { color: var(--text-2); }
+  .link-expiry { color: var(--solid); }
+  .link-expiry-countdown {
+    display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
+    border-radius: 6px; font-size: 12px; font-weight: 500; font-family: var(--mono);
+  }
+  .link-expiry-countdown.active { background: var(--green-dim); color: var(--green); }
+  .link-expiry-countdown.warning { background: rgba(232,162,40,0.10); color: var(--amber); }
+  .link-expiry-countdown.expired { background: rgba(229,72,77,0.08); color: var(--red); opacity: 0.6; }
+
+  .link-copy-btn {
+    margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+    background: none; border: 1px solid var(--border); border-radius: 8px;
+    padding: 6px 14px; font-size: 12px; color: var(--text-2); cursor: pointer;
+    font-family: var(--sans); transition: all 0.15s ease;
+  }
+  .link-copy-btn:hover { background: var(--bg-3); border-color: var(--focus); color: var(--text); }
+
+  /* Footer */
+  .app-footer {
+    display: flex; align-items: center; justify-content: center;
+    padding: 12px 40px; border-top: 1px solid var(--line);
+    background: var(--bg-2); flex-shrink: 0; font-size: 12px; color: var(--solid); gap: 6px;
+  }
+  .footer-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--border); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand"><div class="logo">put<span>.</span>io</div></div>
+    <div class="sidebar-tagline">your cloud, curated</div>
+    <div class="sidebar-nav">
+      <div class="nav-chapter">i. Collection</div>
+      <button class="nav-item"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v2"/><rect x="2" y="9" width="20" height="11" rx="2"/></svg></span>Your Library</button>
+      <button class="nav-item"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>Transfers<span class="nav-badge-count">3</span></button>
+      <button class="nav-item"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1.5" fill="currentColor" stroke="none"/></svg></span>RSS Feeds</button>
+      <div class="nav-divider"></div>
+      <div class="nav-chapter">ii. Housekeeping</div>
+      <button class="nav-item active"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>Shared</button>
+      <button class="nav-item"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>History</button>
+      <button class="nav-item"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>Trash<span class="nav-badge">19.5 GB</span></button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="storage-track"><div class="storage-fill" style="width:78%;"></div></div>
+      <div class="storage-label"><strong>39 TB</strong> of 50 TB</div>
+    </div>
+    <div class="user-row">
+      <div class="user-avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <span class="user-name">altay</span>
+      <button class="user-menu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg></button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="content-header">
+      <h1 class="page-heading"><em>Sharing</em></h1>
+    </div>
+    <p class="page-subtitle">Three ways to share. Choose the one that fits.</p>
+
+    <div class="content-scroll">
+
+      <!-- Share with Mom Hero -->
+      <div class="share-hero">
+        <div class="share-hero-illustration">
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+            <circle cx="32" cy="32" r="24" stroke="#FDCE45" stroke-width="2" stroke-dasharray="6 4" opacity="0.3"/>
+            <circle cx="32" cy="32" r="16" stroke="#FDCE45" stroke-width="1.5" opacity="0.5"/>
+            <circle cx="32" cy="32" r="6" fill="#FDCE45" opacity="0.8"/>
+            <path d="M32 8v6M32 50v6M8 32h6M50 32h6" stroke="#FDCE45" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+            <circle cx="48" cy="18" r="4" stroke="#FDCE45" stroke-width="1.5" fill="none" opacity="0.4"/>
+            <circle cx="16" cy="46" r="3" stroke="#FDCE45" stroke-width="1.5" fill="none" opacity="0.4"/>
+            <line x1="36" y1="28" x2="45" y2="20" stroke="#FDCE45" stroke-width="1" opacity="0.3"/>
+            <line x1="28" y1="36" x2="18" y2="44" stroke="#FDCE45" stroke-width="1" opacity="0.3"/>
+          </svg>
+        </div>
+        <div class="share-hero-text">
+          <div class="share-hero-title">Share with <em>Mom</em></div>
+          <div class="share-hero-desc">Generate a simple, time-limited link anyone can use. No put.io account needed. Perfect for sharing that movie night pick with people who think "cloud storage" means the weather.</div>
+          <button class="share-hero-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+            Create a Link
+          </button>
+        </div>
+      </div>
+
+      <!-- Section: Following -->
+      <div class="sharing-section">
+        <div class="sharing-section-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <div class="sharing-section-title">Following</div>
+        </div>
+        <div class="sharing-section-desc">Live feed of updates from folders you're watching. Like a timeline, but for files.</div>
+      </div>
+
+      <div class="feed-card">
+        <div class="feed-card-top">
+          <div class="feed-card-icon blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v2"/><rect x="2" y="9" width="20" height="11" rx="2"/></svg></div>
+          <div class="feed-card-info">
+            <div class="feed-card-name">Movie Night Picks</div>
+            <div class="feed-card-desc">from deniz -- updated weekly with new recommendations</div>
+          </div>
+          <div class="feed-card-meta"><div class="feed-card-date">2h ago</div></div>
+        </div>
+        <div class="feed-update">
+          <div class="feed-update-dot"></div>
+          <span><strong style="color: var(--text);">deniz</strong> added "The Substance (2024).mkv" -- 4.2 GB</span>
+          <span class="feed-update-time">2h ago</span>
+        </div>
+        <div class="feed-update">
+          <div class="feed-update-dot"></div>
+          <span><strong style="color: var(--text);">deniz</strong> added "Conclave (2024).mkv" -- 3.8 GB</span>
+          <span class="feed-update-time">1d ago</span>
+        </div>
+      </div>
+
+      <div class="feed-card">
+        <div class="feed-card-top">
+          <div class="feed-card-icon blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v2"/><rect x="2" y="9" width="20" height="11" rx="2"/></svg></div>
+          <div class="feed-card-info">
+            <div class="feed-card-name">Documentary Archive</div>
+            <div class="feed-card-desc">from kerem -- 312 items, 1.8 TB of the good stuff</div>
+          </div>
+          <div class="feed-card-meta"><div class="feed-card-date">1d ago</div></div>
+        </div>
+      </div>
+
+      <!-- Section: Collaborative -->
+      <div class="sharing-section">
+        <div class="sharing-section-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          <div class="sharing-section-title">Collaborative</div>
+        </div>
+        <div class="sharing-section-desc">Real-time shared folders. Everyone adds, everyone sees. Who's online right now?</div>
+      </div>
+
+      <div class="collab-card">
+        <div class="collab-header">
+          <div class="feed-card-icon purple"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+          <div class="collab-title">Chill Institute</div>
+          <div class="collab-live"><div class="collab-live-dot"></div> 2 online</div>
+        </div>
+        <div class="collab-members">
+          <div class="collab-member">
+            <div class="collab-member-dot online"></div>
+            <span class="collab-member-name">you</span>
+            <span class="collab-member-status">browsing</span>
+          </div>
+          <div class="collab-member">
+            <div class="collab-member-dot online"></div>
+            <span class="collab-member-name">deniz</span>
+            <span class="collab-member-status">adding files</span>
+          </div>
+          <div class="collab-member">
+            <div class="collab-member-dot offline"></div>
+            <span class="collab-member-name">kerem</span>
+            <span class="collab-member-status">last seen 3h ago</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="collab-card">
+        <div class="collab-header">
+          <div class="feed-card-icon purple"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          <div class="collab-title">Family Photos 2025</div>
+          <div class="collab-live" style="color: var(--solid);"><div class="collab-member-dot offline"></div> all offline</div>
+        </div>
+        <div class="collab-members">
+          <div class="collab-member">
+            <div class="collab-member-dot offline"></div>
+            <span class="collab-member-name">you</span>
+          </div>
+          <div class="collab-member">
+            <div class="collab-member-dot offline"></div>
+            <span class="collab-member-name">mom</span>
+            <span class="collab-member-status">2d ago</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Shared Links -->
+      <div class="sharing-section">
+        <div class="sharing-section-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          <div class="sharing-section-title">Shared Links</div>
+        </div>
+        <div class="sharing-section-desc">Beautiful link preview cards with expiry countdowns. Share freely, stay in control.</div>
+      </div>
+
+      <!-- Link 1: Active -->
+      <div class="link-card">
+        <div class="link-preview warm">
+          <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
+            <rect x="2" y="5" width="28" height="22" rx="4" fill="rgba(253,206,69,0.06)" stroke="var(--border)" stroke-width="1.5"/>
+            <polygon points="13,10 13,22 23,16" fill="var(--yellow)" opacity="0.6"/>
+          </svg>
+        </div>
+        <div class="link-body">
+          <div class="link-name">Cosmos Laundromat.mp4</div>
+          <div class="link-url">put.io/s/xK7mQ9...</div>
+          <div class="link-meta">
+            <span class="link-downloads">14 downloads</span>
+            <span class="link-expiry-countdown active">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              5 days left
+            </span>
+            <button class="link-copy-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy Link
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Link 2: Warning -->
+      <div class="link-card">
+        <div class="link-preview warm">
+          <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
+            <rect x="2" y="5" width="28" height="22" rx="4" fill="rgba(253,206,69,0.06)" stroke="var(--border)" stroke-width="1.5"/>
+            <polygon points="13,10 13,22 23,16" fill="var(--yellow)" opacity="0.6"/>
+          </svg>
+        </div>
+        <div class="link-body">
+          <div class="link-name">Big Buck Bunny (2008).mkv</div>
+          <div class="link-url">put.io/s/aB3nR2...</div>
+          <div class="link-meta">
+            <span class="link-downloads">3 downloads</span>
+            <span class="link-expiry-countdown warning">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              1 day left
+            </span>
+            <button class="link-copy-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy Link
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Link 3: Expired -->
+      <div class="link-card" style="opacity: 0.5;">
+        <div class="link-preview warm" style="opacity: 0.5;">
+          <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
+            <rect x="2" y="5" width="28" height="22" rx="4" fill="rgba(160,160,168,0.04)" stroke="var(--border)" stroke-width="1.5"/>
+            <path d="M12 13v6M16 11v10M20 14v4" stroke="var(--solid)" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="link-body">
+          <div class="link-name">podcast-episode-127.mp3</div>
+          <div class="link-url">put.io/s/zP9wK4...</div>
+          <div class="link-meta">
+            <span class="link-downloads">0 downloads</span>
+            <span class="link-expiry-countdown expired">Expired 3 days ago</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="app-footer">
+      <span>put.io</span><span class="footer-dot"></span><span>istanbul</span><span class="footer-dot"></span><span>since 2011</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

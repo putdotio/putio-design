@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Onboarding v3 (Clean Modern)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #0C0C0E;
+    --bg-1: #111114;
+    --bg-2: #161619;
+    --bg-3: #1C1C20;
+    --bg-4: #232328;
+    --bg-5: #2A2A30;
+    --bg-hover: #1E1E23;
+
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-default: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.12);
+
+    --text-primary: #EDEDEF;
+    --text-secondary: #A0A0A8;
+    --text-tertiary: #6C6C76;
+    --text-quaternary: #4A4A52;
+
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.12);
+    --yellow-glow: rgba(253, 206, 69, 0.06);
+    --yellow-hover: #FDD85C;
+
+    --green: #3ECF8E;
+    --blue: #60A5FA;
+    --purple: #A78BFA;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-0);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' 1, 'ss01' 1;
+  }
+
+  .page {
+    width: 1440px;
+    height: 900px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Ambient glow */
+  .glow {
+    position: absolute;
+    top: -180px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(253, 206, 69, 0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Top bar */
+  .topbar {
+    display: flex;
+    align-items: center;
+    padding: 28px 64px;
+    position: relative;
+    z-index: 10;
+  }
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+  }
+  .logo .dot { color: var(--yellow); }
+  .topbar-spacer { flex: 1; }
+  .topbar-link {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .topbar-link:hover { color: var(--text-secondary); }
+
+  /* Main content */
+  .main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 0 64px;
+    gap: 80px;
+    position: relative;
+    z-index: 5;
+  }
+
+  /* Left side: illustration */
+  .illustration-side {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .flow-diagram {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    position: relative;
+  }
+
+  .flow-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .flow-circle {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .flow-circle.link-node {
+    background: var(--bg-2);
+    border: 1.5px solid var(--border-strong);
+    box-shadow: 0 0 0 1px var(--border-subtle);
+  }
+
+  .flow-circle.cloud-node {
+    background: var(--yellow-dim);
+    border: 1.5px solid rgba(253, 206, 69, 0.2);
+    box-shadow: 0 0 40px rgba(253, 206, 69, 0.08);
+  }
+
+  .flow-circle.stream-node {
+    background: rgba(62, 207, 142, 0.08);
+    border: 1.5px solid rgba(62, 207, 142, 0.15);
+  }
+
+  .flow-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    letter-spacing: 0.02em;
+  }
+
+  /* Connector arrows */
+  .flow-connector {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .connector-line {
+    width: 64px;
+    height: 1px;
+    position: relative;
+  }
+  .connector-line::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border-strong), var(--yellow) 50%, var(--border-strong));
+  }
+  /* Animated dots on connector */
+  .connector-line::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 0;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--yellow);
+    box-shadow: 0 0 6px var(--yellow);
+    animation: flowDot 2s linear infinite;
+  }
+
+  @keyframes flowDot {
+    0% { left: 0; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { left: calc(100% - 5px); opacity: 0; }
+  }
+
+  .connector-2 .connector-line::after {
+    animation-delay: 0.8s;
+  }
+
+  .connector-arrow {
+    width: 0;
+    height: 0;
+    border-left: 5px solid var(--yellow);
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    opacity: 0.6;
+  }
+
+  /* Orbit rings around cloud node */
+  .orbit-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(253, 206, 69, 0.06);
+    animation: orbitPulse 4s ease-in-out infinite;
+  }
+  .orbit-ring.r1 {
+    width: 140px; height: 140px;
+    top: -22px; left: -22px;
+  }
+  .orbit-ring.r2 {
+    width: 180px; height: 180px;
+    top: -42px; left: -42px;
+    animation-delay: 1s;
+  }
+  .orbit-ring.r3 {
+    width: 220px; height: 220px;
+    top: -62px; left: -62px;
+    animation-delay: 2s;
+  }
+
+  @keyframes orbitPulse {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.02); }
+  }
+
+  /* Right side: action */
+  .action-side {
+    flex: 1;
+    max-width: 480px;
+  }
+
+  .welcome-kaomoji {
+    font-size: 24px;
+    color: var(--yellow);
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  .action-heading {
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .action-heading .accent { color: var(--yellow); }
+
+  .action-subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 36px;
+    max-width: 400px;
+  }
+
+  /* Paste input */
+  .paste-field-wrapper {
+    position: relative;
+    margin-bottom: 12px;
+  }
+
+  .paste-field {
+    width: 100%;
+    padding: 18px 120px 18px 20px;
+    background: var(--bg-2);
+    border: 1.5px solid var(--border-default);
+    border-radius: 14px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .paste-field:focus {
+    border-color: var(--yellow);
+    box-shadow: 0 0 0 3px var(--yellow-dim);
+  }
+  .paste-field::placeholder {
+    color: var(--text-quaternary);
+  }
+
+  .paste-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--yellow);
+    color: var(--bg-0);
+    border: none;
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+  }
+  .paste-btn:hover { background: var(--yellow-hover); }
+
+  .paste-hint {
+    font-size: 12px;
+    color: var(--text-quaternary);
+    margin-bottom: 40px;
+    padding-left: 4px;
+  }
+
+  /* Platform cards */
+  .platforms-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-quaternary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+  }
+
+  .platforms {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+
+  .platform-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 12px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    transition: border-color 0.15s;
+  }
+  .platform-card:hover { border-color: var(--border-default); }
+
+  .platform-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .platform-name {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+  }
+
+  /* Skip link */
+  .explore-link {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.15s;
+  }
+  .explore-link:hover { color: var(--text-secondary); }
+
+  /* Floating badge */
+  .badge-strip {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 64px;
+    gap: 32px;
+    z-index: 10;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-1);
+  }
+
+  .badge-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-quaternary);
+  }
+  .badge-item svg { opacity: 0.5; }
+  .badge-sep {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--text-quaternary);
+    opacity: 0.4;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="glow"></div>
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="logo">put<span class="dot">.</span>io</div>
+    <div class="topbar-spacer"></div>
+    <a class="topbar-link">Sign in</a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- Left: Flow Illustration -->
+    <div class="illustration-side">
+      <div class="flow-diagram">
+
+        <!-- Node 1: Link -->
+        <div class="flow-node">
+          <div class="flow-circle link-node">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+              <path d="M15 21a6 6 0 008.49.71l3.5-3.5a6 6 0 00-8.49-8.49L16.75 11.5" stroke="#A0A0A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M21 15a6 6 0 00-8.49-.71l-3.5 3.5a6 6 0 008.49 8.49L19.25 24.5" stroke="#A0A0A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="flow-label">Paste a link</span>
+        </div>
+
+        <!-- Connector 1 -->
+        <div class="flow-connector connector-1">
+          <div class="connector-line"></div>
+          <div class="connector-arrow"></div>
+        </div>
+
+        <!-- Node 2: Cloud -->
+        <div class="flow-node">
+          <div class="flow-circle cloud-node" style="position:relative;">
+            <div class="orbit-ring r1"></div>
+            <div class="orbit-ring r2"></div>
+            <div class="orbit-ring r3"></div>
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <path d="M10 28a8 8 0 01-.5-16A10 10 0 0129 14a8 8 0 011 15.9" stroke="#FDCE45" stroke-width="2" stroke-linecap="round"/>
+              <path d="M16 22l4-4 4 4" stroke="#FDCE45" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M20 18v12" stroke="#FDCE45" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="flow-label" style="color: var(--yellow); opacity: 0.7;">We fetch it</span>
+        </div>
+
+        <!-- Connector 2 -->
+        <div class="flow-connector connector-2">
+          <div class="connector-line"></div>
+          <div class="connector-arrow"></div>
+        </div>
+
+        <!-- Node 3: Stream -->
+        <div class="flow-node">
+          <div class="flow-circle stream-node">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+              <rect x="5" y="8" width="26" height="16" rx="2" stroke="#3ECF8E" stroke-width="2"/>
+              <path d="M5 28h26" stroke="#3ECF8E" stroke-width="2" stroke-linecap="round"/>
+              <polygon points="15,13 15,21 22,17" fill="#3ECF8E" opacity="0.7"/>
+            </svg>
+          </div>
+          <span class="flow-label" style="color: var(--green); opacity: 0.7;">You stream</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Action -->
+    <div class="action-side">
+      <div class="welcome-kaomoji">(&#x0020;&#x0e51;_&#x0e51;)&#x2518;</div>
+      <h1 class="action-heading">
+        Paste anything.<br>
+        <span class="accent">We'll handle it.</span>
+      </h1>
+      <p class="action-subtitle">
+        Drop a magnet link, torrent URL, or any file link. We fetch it to the cloud at full speed, and you stream it instantly from any device.
+      </p>
+
+      <!-- Paste field -->
+      <div class="paste-field-wrapper">
+        <input type="text" class="paste-field" placeholder="magnet:?xt=urn:btih:... or any URL" readonly>
+        <button class="paste-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/>
+            <rect x="8" y="2" width="8" height="4" rx="1"/>
+          </svg>
+          Paste
+        </button>
+      </div>
+      <p class="paste-hint">Supports magnet links, torrent files, HTTP/S URLs, and more</p>
+
+      <!-- Platform cards -->
+      <div class="platforms-label">Watch everywhere</div>
+      <div class="platforms">
+        <div class="platform-card">
+          <div class="platform-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <rect x="2" y="3" width="18" height="13" rx="2" stroke="#6C6C76" stroke-width="1.5"/>
+              <path d="M7 19h8" stroke="#6C6C76" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M11 16v3" stroke="#6C6C76" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="platform-name">Web</span>
+        </div>
+        <div class="platform-card">
+          <div class="platform-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <rect x="6" y="2" width="10" height="18" rx="2" stroke="#6C6C76" stroke-width="1.5"/>
+              <path d="M9 17h4" stroke="#6C6C76" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="platform-name">iOS</span>
+        </div>
+        <div class="platform-card">
+          <div class="platform-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <rect x="2" y="3" width="18" height="13" rx="1" stroke="#6C6C76" stroke-width="1.5"/>
+              <path d="M5 19h12" stroke="#6C6C76" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M2 13h18" stroke="#6C6C76" stroke-width="1.2" opacity="0.4"/>
+            </svg>
+          </div>
+          <span class="platform-name">TV</span>
+        </div>
+        <div class="platform-card">
+          <div class="platform-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <rect x="6" y="2" width="10" height="18" rx="2" stroke="#6C6C76" stroke-width="1.5"/>
+              <circle cx="11" cy="17" r="1" fill="#6C6C76"/>
+            </svg>
+          </div>
+          <span class="platform-name">Android</span>
+        </div>
+      </div>
+
+      <!-- Explore link -->
+      <a class="explore-link">
+        Or explore the app
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Bottom badge strip -->
+  <div class="badge-strip">
+    <div class="badge-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <rect x="3" y="11" width="18" height="11" rx="2"/>
+        <path d="M7 11V7a5 5 0 0110 0v4"/>
+      </svg>
+      End-to-end encrypted
+    </div>
+    <div class="badge-sep"></div>
+    <div class="badge-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 6v6l4 2"/>
+      </svg>
+      Downloads in seconds
+    </div>
+    <div class="badge-sep"></div>
+    <div class="badge-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M3 18v-6a9 9 0 0118 0v6"/>
+        <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/>
+      </svg>
+      Stream from anywhere
+    </div>
+    <div class="badge-sep"></div>
+    <div class="badge-item">Since 2011 -- Istanbul</div>
+  </div>
+</div>
+</body>
+</html>

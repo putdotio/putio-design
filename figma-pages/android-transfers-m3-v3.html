@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=412">
+<title>put.io -- Android Transfers (Material 3 Deep)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    /* M3 Dark Theme -- Yellow #FDCE45 seed */
+    --md-primary: #FDCE45;
+    --md-on-primary: #3D2E00;
+    --md-primary-container: #574400;
+    --md-on-primary-container: #FFE17A;
+    --md-secondary: #D0C6A0;
+    --md-on-secondary: #353016;
+    --md-secondary-container: #4C472B;
+    --md-on-secondary-container: #ECE2BA;
+    --md-tertiary: #A3D0B8;
+    --md-on-tertiary: #0B3725;
+    --md-tertiary-container: #254E3A;
+    --md-on-tertiary-container: #BFF0D3;
+    --md-error: #FFB4AB;
+    --md-on-error: #690005;
+    --md-error-container: #93000A;
+    --md-on-error-container: #FFDAD6;
+    --md-surface: #141210;
+    --md-surface-dim: #141210;
+    --md-surface-container-lowest: #0F0D0B;
+    --md-surface-container-low: #1C1A17;
+    --md-surface-container: #201E1B;
+    --md-surface-container-high: #2B2925;
+    --md-surface-container-highest: #363330;
+    --md-on-surface: #E7E2D9;
+    --md-on-surface-variant: #CBC6B8;
+    --md-outline: #959083;
+    --md-outline-variant: #4A4639;
+    --md-inverse-surface: #E7E2D9;
+    --md-inverse-on-surface: #333027;
+    --md-inverse-primary: #6D5E00;
+    /* Semantic colors using M3 tonal palette */
+    --status-green: #7DDC9A;
+    --status-green-container: #0F3424;
+    --status-on-green-container: #B8F5C8;
+    --status-yellow: #FDCE45;
+    --status-yellow-container: #3D2E00;
+    --status-red: #FFB4AB;
+    --status-red-container: #93000A;
+    /* Elevation tint */
+    --md-elevation-1: rgba(253, 206, 69, 0.05);
+    --md-elevation-2: rgba(253, 206, 69, 0.08);
+    --md-elevation-3: rgba(253, 206, 69, 0.11);
+  }
+  body {
+    font-family: 'Inter', 'Roboto', sans-serif;
+    background: var(--md-surface);
+    color: var(--md-on-surface);
+    -webkit-font-smoothing: antialiased;
+  }
+  .phone {
+    width: 412px; height: 915px; overflow: hidden;
+    display: flex; flex-direction: column; position: relative;
+    background: var(--md-surface);
+  }
+
+  /* ===== STATUS BAR ===== */
+  .status-bar {
+    display: flex; align-items: center; padding: 12px 24px 0;
+    font-size: 14px; font-weight: 500; height: 48px; flex-shrink: 0;
+  }
+  .status-bar .time { flex: 1; }
+  .status-bar .icons { display: flex; gap: 8px; align-items: center; }
+  .status-bar .icons svg { width: 16px; height: 16px; fill: var(--md-on-surface); }
+
+  /* ===== M3 TOP APP BAR ===== */
+  .top-app-bar {
+    display: flex; align-items: center; padding: 4px 4px 0;
+    gap: 4px; flex-shrink: 0;
+  }
+  .icon-btn {
+    width: 48px; height: 48px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: none; cursor: pointer; flex-shrink: 0;
+  }
+  .icon-btn svg { width: 24px; height: 24px; fill: var(--md-on-surface-variant); }
+  .spacer { flex: 1; }
+  .top-title {
+    padding: 4px 16px 8px; flex-shrink: 0;
+    /* M3 Headline Small */
+    font-size: 24px; font-weight: 700; letter-spacing: -0.01em;
+    color: var(--md-on-surface);
+  }
+
+  /* ===== M3 FILTER CHIPS ===== */
+  .chip-row {
+    display: flex; gap: 8px; padding: 4px 16px 16px;
+    overflow-x: auto; flex-shrink: 0;
+  }
+  .chip-row::-webkit-scrollbar { display: none; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 16px; border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--md-outline);
+    /* M3 Label Large */
+    font-size: 14px; font-weight: 500; letter-spacing: 0.1px;
+    color: var(--md-on-surface-variant);
+    white-space: nowrap; cursor: pointer; height: 32px;
+  }
+  .chip.selected {
+    background: var(--md-secondary-container);
+    border-color: transparent;
+    color: var(--md-on-secondary-container);
+  }
+  .chip svg { width: 18px; height: 18px; fill: currentColor; }
+
+  /* ===== TRANSFER LIST ===== */
+  .transfer-list { flex: 1; overflow-y: auto; padding-bottom: 88px; }
+
+  .transfer-item {
+    display: flex; align-items: flex-start; gap: 16px;
+    padding: 16px 16px 16px 16px;
+    position: relative;
+    cursor: pointer;
+  }
+  .transfer-item::after {
+    content: ''; position: absolute;
+    bottom: 0; left: 72px; right: 16px;
+    height: 1px; background: var(--md-outline-variant); opacity: 0.4;
+  }
+  .transfer-item:last-child::after { display: none; }
+
+  /* Leading: status circle in colored container */
+  .status-circle {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .status-circle.active {
+    background: var(--md-primary-container);
+  }
+  .status-circle.active svg { fill: var(--md-on-primary-container); }
+  .status-circle.complete {
+    background: var(--md-tertiary-container);
+  }
+  .status-circle.complete svg { fill: var(--md-on-tertiary-container); }
+  .status-circle.failed {
+    background: var(--md-error-container);
+  }
+  .status-circle.failed svg { fill: var(--md-on-error-container); }
+  .status-circle.expired {
+    background: var(--md-surface-container-highest);
+  }
+  .status-circle.expired svg { fill: var(--md-outline); }
+  .status-circle svg { width: 20px; height: 20px; }
+
+  /* Body */
+  .t-body { flex: 1; min-width: 0; }
+  .t-headline {
+    /* M3 Body Large */
+    font-size: 16px; font-weight: 400; line-height: 24px;
+    color: var(--md-on-surface);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .t-badges {
+    display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap;
+  }
+  .t-badge {
+    /* M3 Label Small */
+    font-size: 11px; font-weight: 500; letter-spacing: 0.5px;
+    padding: 2px 8px; border-radius: 4px;
+  }
+  .t-badge.quality {
+    background: var(--md-primary-container);
+    color: var(--md-on-primary-container);
+  }
+  .t-badge.source {
+    background: var(--md-surface-container-highest);
+    color: var(--md-on-surface-variant);
+  }
+  .t-supporting {
+    /* M3 Body Medium */
+    font-size: 14px; font-weight: 400; line-height: 20px;
+    color: var(--md-on-surface-variant);
+    margin-top: 4px;
+  }
+
+  /* M3 Linear Progress Indicator */
+  .progress-track {
+    width: 100%; height: 4px;
+    background: var(--md-surface-container-highest);
+    border-radius: 2px; overflow: hidden;
+    margin-top: 10px;
+  }
+  .progress-fill { height: 100%; border-radius: 2px; }
+  .progress-fill.active { background: var(--md-primary); }
+  .progress-fill.complete { background: var(--md-tertiary); }
+  .progress-fill.error { background: var(--md-error); }
+
+  /* Trailing */
+  .t-trailing {
+    display: flex; flex-direction: column; align-items: flex-end;
+    gap: 6px; flex-shrink: 0; padding-top: 2px;
+  }
+  .t-percent {
+    /* M3 Title Medium */
+    font-size: 16px; font-weight: 500; letter-spacing: 0.15px;
+    color: var(--md-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* M3 Filled Tonal Button */
+  .tonal-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 32px; padding: 0 16px;
+    border-radius: 16px; /* full height pill */
+    border: none; cursor: pointer;
+    /* M3 Label Large */
+    font-size: 14px; font-weight: 500; letter-spacing: 0.1px;
+    font-family: inherit;
+  }
+  .tonal-btn.open {
+    background: var(--md-tertiary-container);
+    color: var(--md-on-tertiary-container);
+  }
+  /* M3 Outlined Button */
+  .outlined-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 32px; padding: 0 16px;
+    border-radius: 16px;
+    background: transparent;
+    border: 1px solid var(--md-error);
+    cursor: pointer;
+    /* M3 Label Large */
+    font-size: 14px; font-weight: 500; letter-spacing: 0.1px;
+    color: var(--md-error);
+    font-family: inherit;
+  }
+
+  /* ===== SNACKBAR ===== */
+  .snackbar {
+    position: absolute;
+    bottom: 88px; left: 16px; right: 16px;
+    background: var(--md-inverse-surface);
+    color: var(--md-inverse-on-surface);
+    border-radius: 4px;
+    padding: 14px 8px 14px 16px;
+    /* M3 Body Medium */
+    font-size: 14px; font-weight: 400;
+    display: flex; align-items: center; gap: 8px;
+    z-index: 9;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.4), 0 6px 20px rgba(0,0,0,0.2);
+  }
+  .snackbar-icon {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--md-tertiary-container);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .snackbar-icon svg { width: 14px; height: 14px; fill: var(--md-on-tertiary-container); }
+  .snackbar-text { flex: 1; }
+  .snackbar-action {
+    /* M3 Label Large */
+    font-size: 14px; font-weight: 500; letter-spacing: 0.1px;
+    color: var(--md-inverse-primary);
+    background: none; border: none; cursor: pointer;
+    font-family: inherit; padding: 8px 12px;
+  }
+
+  /* ===== EXTENDED FAB ===== */
+  .ext-fab {
+    position: absolute;
+    bottom: 96px; right: 16px;
+    height: 56px;
+    border-radius: 16px;
+    background: var(--md-primary-container);
+    color: var(--md-on-primary-container);
+    display: flex; align-items: center; gap: 12px;
+    padding: 0 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.15),
+                inset 0 0 0 1000px var(--md-elevation-3);
+    border: none; cursor: pointer; z-index: 10;
+    /* M3 Label Large */
+    font-size: 14px; font-weight: 500; font-family: inherit;
+    letter-spacing: 0.1px;
+  }
+  .ext-fab svg { width: 24px; height: 24px; fill: var(--md-on-primary-container); }
+
+  /* ===== M3 BOTTOM NAVIGATION BAR ===== */
+  .bottom-nav {
+    display: flex;
+    background: var(--md-surface-container);
+    box-shadow: inset 0 0 0 1000px var(--md-elevation-2);
+    height: 80px; flex-shrink: 0;
+    z-index: 10;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 4px; cursor: pointer;
+    position: relative;
+  }
+  .nav-pill {
+    width: 64px; height: 32px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-item.active .nav-pill {
+    background: var(--md-secondary-container);
+  }
+  .nav-pill svg { width: 24px; height: 24px; fill: var(--md-on-surface-variant); }
+  .nav-item.active .nav-pill svg { fill: var(--md-on-secondary-container); }
+  .nav-label {
+    /* M3 Label Medium */
+    font-size: 12px; font-weight: 500; letter-spacing: 0.5px;
+    color: var(--md-on-surface-variant);
+  }
+  .nav-item.active .nav-label {
+    color: var(--md-on-surface); font-weight: 600;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">12:34</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M2 22h4V12H2v10zm6 0h4V7H8v15zm6 0h4V2h-4v20z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <!-- M3 Top App Bar -->
+  <div class="top-app-bar">
+    <div class="spacer"></div>
+    <div class="icon-btn">
+      <!-- Sort/filter -->
+      <svg viewBox="0 0 24 24"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>
+    </div>
+    <div class="icon-btn">
+      <!-- More -->
+      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+    </div>
+  </div>
+  <div class="top-title">Transfers</div>
+
+  <!-- M3 Filter Chips -->
+  <div class="chip-row">
+    <div class="chip selected">
+      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+      All
+    </div>
+    <div class="chip">Active</div>
+    <div class="chip">Completed</div>
+    <div class="chip">Failed</div>
+  </div>
+
+  <!-- Transfer List -->
+  <div class="transfer-list">
+    <!-- Downloading: Inception -->
+    <div class="transfer-item">
+      <div class="status-circle active">
+        <!-- Download arrow -->
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      </div>
+      <div class="t-body">
+        <div class="t-headline">Inception</div>
+        <div class="t-badges">
+          <span class="t-badge quality">2160p</span>
+          <span class="t-badge source">BluRay</span>
+        </div>
+        <div class="t-supporting">4.2 GB of 6.7 GB -- 18.4 MB/s -- 23 min</div>
+        <div class="progress-track">
+          <div class="progress-fill active" style="width: 63%;"></div>
+        </div>
+      </div>
+      <div class="t-trailing">
+        <span class="t-percent">63%</span>
+      </div>
+    </div>
+
+    <!-- Downloading: Wolf of Wall Street -->
+    <div class="transfer-item">
+      <div class="status-circle active">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      </div>
+      <div class="t-body">
+        <div class="t-headline">The Wolf of Wall Street</div>
+        <div class="t-badges">
+          <span class="t-badge quality">1080p</span>
+        </div>
+        <div class="t-supporting">1.45 GB of 2.22 GB -- 12.1 MB/s -- 8 min</div>
+        <div class="progress-track">
+          <div class="progress-fill active" style="width: 65%;"></div>
+        </div>
+      </div>
+      <div class="t-trailing">
+        <span class="t-percent">65%</span>
+      </div>
+    </div>
+
+    <!-- Completed: Pose -->
+    <div class="transfer-item">
+      <div class="status-circle complete">
+        <!-- Check -->
+        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+      </div>
+      <div class="t-body">
+        <div class="t-headline">Pose</div>
+        <div class="t-badges">
+          <span class="t-badge quality">720p</span>
+          <span class="t-badge source">WEBRip</span>
+        </div>
+        <div class="t-supporting">Completed -- 763.09 MB -- ratio: 1.03</div>
+        <div class="progress-track">
+          <div class="progress-fill complete" style="width: 100%;"></div>
+        </div>
+      </div>
+      <div class="t-trailing">
+        <button class="tonal-btn open">Open</button>
+      </div>
+    </div>
+
+    <!-- Seeding: Marty Supreme -->
+    <div class="transfer-item">
+      <div class="status-circle complete">
+        <!-- Upload/seed arrow -->
+        <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+      </div>
+      <div class="t-body">
+        <div class="t-headline">Marty Supreme</div>
+        <div class="t-badges">
+          <span class="t-badge quality">1080p</span>
+          <span class="t-badge source">WEBRip</span>
+        </div>
+        <div class="t-supporting">Seeding -- 15.38 GB -- ratio: 1.24</div>
+        <div class="progress-track">
+          <div class="progress-fill complete" style="width: 100%;"></div>
+        </div>
+      </div>
+      <div class="t-trailing">
+        <button class="tonal-btn open">Open</button>
+      </div>
+    </div>
+
+    <!-- Failed: Rare Documentary -->
+    <div class="transfer-item">
+      <div class="status-circle failed">
+        <!-- Error icon -->
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+      </div>
+      <div class="t-body">
+        <div class="t-headline">Rare Documentary 1987</div>
+        <div class="t-badges">
+          <span class="t-badge source">SD</span>
+        </div>
+        <div class="t-supporting">Stalled -- No sources -- Added 2 days ago</div>
+        <div class="progress-track">
+          <div class="progress-fill error" style="width: 8%;"></div>
+        </div>
+      </div>
+      <div class="t-trailing">
+        <button class="outlined-btn">Retry</button>
+      </div>
+    </div>
+
+    <!-- Completed: Thor -->
+    <div class="transfer-item">
+      <div class="status-circle complete">
+        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+      </div>
+      <div class="t-body">
+        <div class="t-headline">Thor: Love and Thunder</div>
+        <div class="t-badges">
+          <span class="t-badge quality">1080p</span>
+          <span class="t-badge source">BluRay</span>
+        </div>
+        <div class="t-supporting">Completed -- 2.19 GB -- ratio: 2.31</div>
+        <div class="progress-track">
+          <div class="progress-fill complete" style="width: 100%;"></div>
+        </div>
+      </div>
+      <div class="t-trailing">
+        <button class="tonal-btn open">Open</button>
+      </div>
+    </div>
+
+    <!-- Expired -->
+    <div class="transfer-item" style="opacity: 0.5;">
+      <div class="status-circle expired">
+        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+      </div>
+      <div class="t-body">
+        <div class="t-headline">from put.io -- files we couldn't recover</div>
+        <div class="t-supporting">2025-10-02 -- 2.26 KB -- Expired</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Snackbar -->
+  <div class="snackbar">
+    <div class="snackbar-icon">
+      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+    </div>
+    <span class="snackbar-text">Inception complete</span>
+    <button class="snackbar-action">Open</button>
+  </div>
+
+  <!-- Extended FAB -->
+  <button class="ext-fab" style="display: none;">
+    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+    New transfer
+  </button>
+
+  <!-- M3 Bottom Navigation -->
+  <div class="bottom-nav">
+    <div class="nav-item">
+      <div class="nav-pill">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <span class="nav-label">Files</span>
+    </div>
+    <div class="nav-item active">
+      <div class="nav-pill">
+        <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+      </div>
+      <span class="nav-label">Transfers</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-pill">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      </div>
+      <span class="nav-label">Downloads</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-pill">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.488.488 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      </div>
+      <span class="nav-label">Settings</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>
