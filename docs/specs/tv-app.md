@@ -290,6 +290,62 @@ Every screen needs defined error and empty states:
 - Pull-to-refresh: not applicable on TV (use explicit "Refresh" button in file actions)
 - Video buffering: activity indicator over black background
 
+### Error Handling Architecture
+
+Errors are never shown raw. Every error goes through a localization chain that maps it to a user-friendly message + recovery suggestion.
+
+**Error localizer chain** (ordered by priority):
+1. **Network error** — "Can't connect to put.io. Check your internet connection." → Recovery: "Make sure your TV is connected to Wi-Fi"
+2. **Auth error (401)** — "Session expired" → Recovery: "Please sign in again"
+3. **Rate limit (429)** — "Too many requests" → Recovery: "Please try again in a moment" + include rate limit ID for support
+4. **Timeout** — "Request timed out" → Recovery: "Check your connection and try again"
+5. **Not found (404)** — "File not found" → Recovery: "This file may have been deleted"
+6. **File not reachable** — "Can't reach this file right now" → Recovery: "Try a different tunnel route in Settings"
+7. **Server error (5xx)** — "Something went wrong on our end" → Recovery: "Try again in a few minutes. If this persists, contact support@put.io"
+8. **Known API error (catch-all)** — Logs to Sentry, shows trace ID → Recovery: "Contact support@put.io with this ID: [trace_id]"
+9. **Unknown error (catch-all)** — Logs to Sentry, shows error ID → Recovery: "Something unexpected happened. Error ID: [error_id]"
+
+**Error UI components:**
+
+```yaml
+ErrorState:
+  props:
+    message: string        # "Can't connect to put.io"
+    recovery:
+      type: instruction | action | none
+      description: string  # "Check your internet connection"
+      action: retry | settings | auth | none
+  layout:
+    - Warning icon (⚠️ styled, not emoji)
+    - Message text (heading weight)
+    - Recovery description (body weight, muted color)
+    - Action button if applicable ("Try Again", "Go to Settings", "Sign In")
+  platform notes:
+    tv: action button gets focus automatically
+```
+
+**Error boundary:**
+- Wraps every screen at the navigator level
+- Catches unhandled React errors
+- Renders ErrorState with localized error
+- Logs to Sentry with full context
+
+**Player-specific errors:**
+| Error | Message | Recovery |
+|-------|---------|----------|
+| VLC codec unsupported | "Can't play this file format" | "Try playing on web at put.io" |
+| Stream URL expired | "Playback link expired" | "Go back and try again" (auto-retry once) |
+| No audio tracks | "No audio found in this file" | "This file may be corrupted" |
+| Subtitle load failed | "Couldn't load subtitles" | Continue playback without subs (non-blocking) |
+| Buffering timeout (30s) | "Playback stalled" | "Check your connection. Try a different tunnel route." |
+
+**Principles:**
+- Never show raw error codes, stack traces, or API responses
+- Every error has a recovery suggestion — never leave the user stuck
+- Include Sentry trace/error ID for unknown errors so support can look them up
+- Subtitle/non-critical errors are toasts, not full-screen blockers
+- Player errors offer "go back" as escape hatch, never trap user in error state
+
 ---
 
 ## Remote Config & Feature Flags
