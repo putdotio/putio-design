@@ -491,13 +491,14 @@ function scaleFrame() {
   if (frame.classList.contains('frame-mobile') || frame.classList.contains('frame-android')) maxScale = 0.85;
   if (frame.classList.contains('frame-extension')) maxScale = 0.85;
   if (frame.classList.contains('frame-watch') || frame.classList.contains('frame-wearos')) maxScale = 0.9;
-  const scale = Math.min(availW / (iw + bw), availH / (ih + bh), maxScale);
+  // Account for borders in available space, not in iframe size
+  const scale = Math.min((availW - bw) / iw, (availH - bh) / ih, maxScale);
 
-  // Scale iframe inside the frame, size frame to match
+  // Scale iframe inside the frame, size frame to exact scaled content
   iframe.style.transform = `scale(${scale})`;
   iframe.style.transformOrigin = '0 0';
-  frame.style.width = (iw * scale) + 'px';
-  frame.style.height = (ih * scale) + 'px';
+  frame.style.width = Math.round(iw * scale) + 'px';
+  frame.style.height = Math.round(ih * scale) + 'px';
 }
 
 function openModal(file) {
