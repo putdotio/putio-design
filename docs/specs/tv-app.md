@@ -476,6 +476,34 @@ Last page: { files: [...], cursor: null }
 - Android TV: `LazyColumn` with `LazyListState` monitoring last visible index
 - Both: D-pad scrolling should feel smooth — prefetch aggressively
 
+### Virtualized List Rendering
+
+TV hardware is weak. Lists must be virtualized — only render what's on screen + a small buffer.
+
+**Requirements:**
+- Only mount visible items + 5 items above/below viewport (overscan buffer)
+- Recycle item views — don't create/destroy on scroll
+- Estimated item height must be consistent (no layout jumps)
+- Maintain scroll position when new pages append
+- Focus management must survive recycling — focused item stays focused after rerender
+
+**Platform implementation:**
+- tvOS (SwiftUI): `List` with `LazyVStack` — SwiftUI handles virtualization natively. Use `.id()` for stable identity.
+- Android TV (Compose): `LazyColumn` — Compose handles virtualization. Use `key` parameter for stable identity. Consider `Leanback` `VerticalGridView` for grid layouts.
+- Current RN app uses `FlashList` (Shopify) with `estimatedItemSize: 152` — this works well, keep the same principle.
+
+**Performance targets:**
+- Scroll at 60fps with 1000+ items loaded
+- First page render < 100ms after data arrives
+- No dropped frames during D-pad rapid scroll (hold down button)
+- Memory: don't keep more than ~200 item views alive at once
+
+**Anti-patterns to avoid:**
+- `FlatList` without `getItemLayout` — causes scroll jank
+- Re-rendering entire list on single item state change — use stable keys + memoized items
+- Inline closures in render items — allocates on every render
+- Loading thumbnails synchronously — async with placeholder
+
 ### Cursor usage
 - Cursor is opaque — don't parse or store it beyond the current session
 - Cursor is also used for bulk operations (e.g., "restore all trash" sends cursor instead of individual IDs)
