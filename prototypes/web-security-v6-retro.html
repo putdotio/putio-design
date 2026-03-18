@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Security (Retro)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #0A0A0A;
+    --bg-1: #0E0E0E;
+    --bg-2: #141414;
+    --bg-3: #1A1A1A;
+    --bg-4: #222222;
+    --bg-5: #2A2A2A;
+    --line: #2E2E2E;
+    --line-strong: #3A3A3A;
+    --border: #444444;
+    --solid: #666666;
+    --text-3: #888888;
+    --text-2: #AAAAAA;
+    --text: #D0D0D0;
+    --white: #E8E8E8;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.08);
+    --yellow-border: rgba(253, 206, 69, 0.3);
+    --yellow-text-shadow: 0 0 8px rgba(253, 206, 69, 0.4), 0 0 2px rgba(253, 206, 69, 0.2);
+    --green: #30A46C;
+    --green-bright: #4CC38A;
+    --green-glow: 0 0 6px rgba(76, 195, 138, 0.3);
+    --red: #E5484D;
+    --red-bright: #FF6369;
+    --orange: #F76B15;
+    --orange-bright: #FF8B3E;
+    --blue: #3B82F6;
+    --font-pixel: 'Press Start 2P', monospace;
+    --font-body: 'Space Mono', 'Courier New', monospace;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg-0);
+    color: var(--text);
+    -webkit-font-smoothing: none;
+    image-rendering: pixelated;
+  }
+
+  .crt-overlay {
+    position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+    background: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0,0,0,0.06) 1px, rgba(0,0,0,0.06) 2px);
+  }
+
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; background: var(--bg-0); }
+
+  /* Sidebar */
+  .sidebar {
+    width: 228px; background: var(--bg-1); border-right: 1px solid var(--yellow-border);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .sidebar-logo { padding: 20px 16px 16px; border-bottom: 1px solid var(--line); }
+  .logo { font-family: var(--font-pixel); font-size: 14px; color: var(--white); text-shadow: var(--yellow-text-shadow); }
+  .logo span { color: var(--yellow); }
+  .logo-sub { font-size: 9px; color: var(--solid); letter-spacing: 0.1em; margin-top: 8px; text-transform: uppercase; }
+
+  .sidebar-nav { flex: 1; padding: 8px 0; }
+  .nav-section-label { font-family: var(--font-pixel); font-size: 7px; color: var(--solid); letter-spacing: 0.1em; text-transform: uppercase; padding: 12px 16px 6px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 8px; padding: 8px 16px;
+    font-size: 11px; color: var(--text-2); cursor: pointer;
+    border: none; background: none; width: 100%; text-align: left;
+    font-family: var(--font-body); border-left: 2px solid transparent;
+  }
+  .nav-item:hover { background: var(--bg-3); color: var(--text); border-left-color: var(--line-strong); }
+  .nav-item.active { background: var(--yellow-dim); color: var(--yellow); border-left-color: var(--yellow); font-weight: 700; text-shadow: var(--yellow-text-shadow); }
+  .nav-icon { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .nav-badge { margin-left: auto; font-size: 9px; color: var(--solid); }
+  .nav-badge-active { margin-left: auto; font-family: var(--font-pixel); font-size: 7px; color: var(--bg-0); background: var(--yellow); padding: 2px 6px; }
+  .nav-divider { height: 1px; background: var(--line); margin: 6px 16px; }
+
+  .sidebar-footer { padding: 12px 16px; border-top: 1px solid var(--line); }
+  .storage-bar { display: flex; gap: 2px; height: 8px; margin-bottom: 6px; }
+  .storage-block { flex: 1; height: 100%; background: var(--bg-5); }
+  .storage-block.filled { background: var(--yellow); }
+  .storage-block.filled-dim { background: var(--solid); }
+  .storage-label { font-size: 9px; color: var(--solid); }
+  .storage-label strong { color: var(--text-2); }
+
+  .user-row { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-top: 1px solid var(--line); }
+  .user-name { font-size: 11px; color: var(--text-2); font-weight: 700; }
+
+  /* Content */
+  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  .topbar {
+    display: flex; align-items: center; gap: 12px; padding: 12px 24px;
+    border-bottom: 1px solid var(--line); background: var(--bg-1);
+  }
+  .topbar-spacer { flex: 1; }
+  .search-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg-3); border: 1px solid var(--border); padding: 6px 12px; width: 300px;
+  }
+  .search-bar input { background: none; border: none; color: var(--text); font-size: 11px; outline: none; flex: 1; font-family: var(--font-body); }
+  .search-bar input::placeholder { color: var(--solid); }
+
+  .content-header { padding: 24px 24px 0; }
+  .pixel-header { font-family: var(--font-pixel); font-size: 16px; color: var(--yellow); text-shadow: var(--yellow-text-shadow); letter-spacing: 0.05em; margin-bottom: 4px; }
+  .page-sub { font-size: 11px; color: var(--solid); padding-bottom: 16px; }
+
+  .content-scroll { flex: 1; overflow-y: auto; padding: 0 24px 24px; }
+
+  /* Alert */
+  .alert-banner {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(229,72,77,0.08); border: 1px solid rgba(229,72,77,0.3);
+    padding: 12px 16px; margin-bottom: 20px;
+  }
+  .alert-icon {
+    flex-shrink: 0;
+  }
+  .alert-body { flex: 1; }
+  .alert-title { font-family: var(--font-pixel); font-size: 8px; color: var(--red-bright); animation: pulse-red 1.5s ease-in-out infinite; }
+  .alert-desc { font-size: 11px; color: var(--text-2); margin-top: 4px; }
+  .alert-action {
+    background: var(--red); color: #fff; border: none;
+    font-family: var(--font-pixel); font-size: 7px; padding: 8px 14px;
+    cursor: pointer; box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+  }
+
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+  /* Card */
+  .card {
+    background: var(--bg-1); border: 1px solid var(--border);
+    padding: 16px; margin-bottom: 20px;
+  }
+  .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .card-icon { flex-shrink: 0; }
+  .card-title { font-family: var(--font-pixel); font-size: 8px; color: var(--white); flex: 1; line-height: 1.6; }
+  .card-badge { font-family: var(--font-pixel); font-size: 6px; padding: 3px 8px; }
+  .badge-green { background: rgba(76,195,138,0.12); color: var(--green-bright); }
+  .badge-red { background: rgba(229,72,77,0.12); color: var(--red-bright); }
+  .badge-orange { background: rgba(247,107,21,0.12); color: var(--orange-bright); }
+  .badge-yellow { background: var(--yellow-dim); color: var(--yellow); }
+
+  /* Security Score */
+  .score-ring { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+  .ring-wrap { position: relative; width: 72px; height: 72px; flex-shrink: 0; }
+  .ring-wrap svg { width: 72px; height: 72px; transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: var(--bg-5); stroke-width: 6; }
+  .ring-fill { fill: none; stroke: var(--green); stroke-width: 6; stroke-linecap: butt; stroke-dasharray: 200; stroke-dashoffset: 50; }
+  .ring-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: var(--font-pixel); font-size: 14px; color: var(--green-bright); text-shadow: var(--green-glow); }
+
+  .score-items { flex: 1; }
+  .score-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 11px; }
+  .score-check { width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .s-label { color: var(--text-2); flex: 1; }
+  .s-label.done { color: var(--text); }
+
+  /* 2FA */
+  .tfa-status { margin-bottom: 14px; }
+  .tfa-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .tfa-desc { font-size: 10px; color: var(--solid); line-height: 1.5; }
+  .btn-sm { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; font-family: var(--font-pixel); font-size: 7px; border: none; cursor: pointer; box-shadow: 2px 2px 0 rgba(0,0,0,0.3); }
+  .btn-primary { background: var(--yellow); color: var(--bg-0); }
+  .btn-secondary { background: var(--bg-4); color: var(--text); border: 1px solid var(--border); box-shadow: none; font-family: var(--font-body); font-size: 11px; }
+  .btn-danger { background: rgba(229,72,77,0.12); color: var(--red-bright); border: 1px solid rgba(229,72,77,0.3); box-shadow: none; }
+
+  /* Sessions - retro table */
+  .sessions-table { width: 100%; border-collapse: collapse; }
+  .sessions-table th {
+    font-family: var(--font-pixel); font-size: 7px; color: var(--solid);
+    text-align: left; padding: 8px 8px; border-bottom: 1px solid var(--yellow-border);
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .sessions-table td {
+    font-size: 11px; padding: 10px 8px; border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+  }
+  .sessions-table tr:hover td { background: var(--bg-3); }
+
+  .device-cell { display: flex; align-items: center; gap: 8px; }
+  .device-icon { flex-shrink: 0; }
+  .device-name { font-weight: 700; }
+  .current-tag { font-family: var(--font-pixel); font-size: 6px; background: rgba(76,195,138,0.12); color: var(--green-bright); padding: 2px 6px; margin-left: 6px; }
+  .session-end { background: none; border: 1px solid var(--border); color: var(--text-2); padding: 4px 8px; font-size: 10px; cursor: pointer; font-family: var(--font-body); }
+  .session-end:hover { border-color: var(--red); color: var(--red-bright); }
+  .sessions-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; }
+
+  /* Activity */
+  .activity-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-pixel { width: 8px; height: 8px; margin-top: 4px; flex-shrink: 0; }
+  .activity-pixel.login { background: var(--green-bright); box-shadow: var(--green-glow); }
+  .activity-pixel.failed { background: var(--red-bright); box-shadow: 0 0 6px rgba(229,72,77,0.3); }
+  .activity-pixel.change { background: var(--orange-bright); box-shadow: 0 0 6px rgba(247,107,21,0.3); }
+  .activity-pixel.plan { background: var(--yellow); text-shadow: var(--yellow-text-shadow); }
+  .activity-body { flex: 1; }
+  .activity-desc { font-size: 11px; }
+  .activity-desc strong { font-weight: 700; }
+  .activity-time { font-size: 10px; color: var(--solid); margin-top: 2px; }
+
+  /* Footer */
+  .app-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 24px; border-top: 1px solid var(--line); background: var(--bg-1);
+    font-size: 10px; color: var(--solid); flex-shrink: 0;
+  }
+  .footer-left, .footer-right { display: flex; align-items: center; gap: 12px; }
+  .footer-sep { color: var(--border); }
+  .status-pixel { width: 8px; height: 8px; background: var(--green-bright); display: inline-block; box-shadow: var(--green-glow); }
+</style>
+</head>
+<body>
+<div class="crt-overlay"></div>
+<div class="app">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo">put<span>.</span>io</div>
+      <div class="logo-sub">cloud storage v2.0</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">LIBRARY</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="var(--text-2)"><rect x="1" y="3" width="6" height="2"/><rect x="1" y="5" width="14" height="10"/></svg></span>
+        Files
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="var(--text-2)"><rect x="7" y="0" width="4" height="2"/><rect x="6" y="2" width="4" height="2"/><rect x="5" y="4" width="4" height="2"/><rect x="4" y="6" width="8" height="2"/><rect x="7" y="8" width="4" height="2"/><rect x="8" y="10" width="2" height="2"/><rect x="7" y="12" width="2" height="2"/></svg></span>
+        Transfers
+        <span class="nav-badge-active">3</span>
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="var(--text-2)"><rect x="1" y="12" width="4" height="4"/><rect x="1" y="6" width="2" height="4"/><rect x="3" y="6" width="6" height="2"/><rect x="1" y="0" width="2" height="4"/><rect x="3" y="0" width="12" height="2"/></svg></span>
+        RSS Feeds
+      </button>
+      <div class="nav-divider"></div>
+      <div class="nav-section-label">MANAGE</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="var(--text-2)"><rect x="5" y="2" width="6" height="2"/><rect x="3" y="4" width="4" height="2"/><rect x="9" y="4" width="4" height="2"/><rect x="1" y="6" width="4" height="2"/><rect x="11" y="6" width="4" height="2"/><rect x="5" y="8" width="6" height="2"/></svg></span>
+        Sharing
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="var(--text-2)"><rect x="3" y="1" width="10" height="2"/><rect x="1" y="3" width="2" height="10"/><rect x="13" y="3" width="2" height="10"/><rect x="3" y="13" width="10" height="2"/><rect x="7" y="3" width="2" height="4"/><rect x="7" y="7" width="4" height="2"/></svg></span>
+        History
+      </button>
+      <div class="nav-divider"></div>
+      <button class="nav-item active">
+        <span class="nav-icon">
+          <!-- Pixel lock -->
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--yellow)">
+            <rect x="5" y="1" width="6" height="2"/><rect x="3" y="3" width="2" height="4"/>
+            <rect x="11" y="3" width="2" height="4"/><rect x="1" y="7" width="14" height="2"/>
+            <rect x="1" y="9" width="14" height="6"/><rect x="7" y="10" width="2" height="3"/>
+          </svg>
+        </span>
+        Security
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="var(--text-2)"><rect x="1" y="3" width="14" height="2"/><rect x="5" y="1" width="6" height="2"/><rect x="3" y="5" width="2" height="10"/><rect x="11" y="5" width="2" height="10"/><rect x="5" y="13" width="6" height="2"/></svg></span>
+        Trash
+        <span class="nav-badge">19.5G</span>
+      </button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="storage-bar">
+        <div class="storage-block filled"></div><div class="storage-block filled"></div><div class="storage-block filled"></div>
+        <div class="storage-block filled"></div><div class="storage-block filled"></div><div class="storage-block filled"></div>
+        <div class="storage-block filled-dim"></div><div class="storage-block filled-dim"></div>
+        <div class="storage-block"></div><div class="storage-block"></div>
+      </div>
+      <div class="storage-label"><strong>39 TB</strong> / 50 TB</div>
+    </div>
+    <div class="user-row">
+      <svg width="20" height="20" viewBox="0 0 16 16" fill="var(--yellow)">
+        <rect x="3" y="2" width="2" height="2"/><rect x="11" y="2" width="2" height="2"/>
+        <rect x="5" y="4" width="6" height="2"/><rect x="3" y="6" width="10" height="2"/>
+        <rect x="1" y="8" width="14" height="2"/><rect x="3" y="10" width="2" height="2"/>
+        <rect x="11" y="10" width="2" height="2"/>
+      </svg>
+      <span class="user-name">altay</span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <div class="topbar">
+      <div class="topbar-spacer"></div>
+      <div class="search-bar">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="var(--solid)">
+          <rect x="4" y="0" width="6" height="2"/><rect x="2" y="2" width="2" height="2"/><rect x="10" y="2" width="2" height="2"/>
+          <rect x="0" y="4" width="2" height="6"/><rect x="12" y="4" width="2" height="4"/><rect x="4" y="10" width="6" height="2"/>
+          <rect x="10" y="8" width="2" height="2"/><rect x="12" y="10" width="2" height="2"/><rect x="14" y="12" width="2" height="2"/>
+        </svg>
+        <input placeholder="search..." />
+      </div>
+    </div>
+
+    <div class="content-header">
+      <div class="pixel-header">SECURITY</div>
+      <p class="page-sub">Monitor account security and manage active sessions.</p>
+    </div>
+
+    <div class="content-scroll">
+
+      <!-- Alert -->
+      <div class="alert-banner">
+        <div class="alert-icon">
+          <!-- Pixel warning triangle -->
+          <svg width="24" height="24" viewBox="0 0 16 16" fill="var(--red-bright)">
+            <rect x="7" y="1" width="2" height="2"/><rect x="6" y="3" width="4" height="2"/>
+            <rect x="5" y="5" width="6" height="2"/><rect x="4" y="7" width="8" height="2"/>
+            <rect x="3" y="9" width="10" height="2"/><rect x="2" y="11" width="12" height="2"/>
+            <rect x="1" y="13" width="14" height="2"/><rect x="7" y="5" width="2" height="4" fill="var(--bg-0)"/>
+            <rect x="7" y="11" width="2" height="2" fill="var(--bg-0)"/>
+          </svg>
+        </div>
+        <div class="alert-body">
+          <div class="alert-title">! SUSPICIOUS LOGIN DETECTED !</div>
+          <div class="alert-desc">Login from Moscow, Russia attempted 2h ago. Secure your account now.</div>
+        </div>
+        <button class="alert-action">REVIEW</button>
+      </div>
+
+      <!-- Security Score + 2FA -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">
+              <!-- Pixel shield -->
+              <svg width="20" height="20" viewBox="0 0 16 16" fill="var(--green-bright)">
+                <rect x="5" y="0" width="6" height="2"/><rect x="3" y="2" width="2" height="2"/>
+                <rect x="11" y="2" width="2" height="2"/><rect x="1" y="4" width="2" height="6"/>
+                <rect x="13" y="4" width="2" height="6"/><rect x="3" y="10" width="2" height="2"/>
+                <rect x="11" y="10" width="2" height="2"/><rect x="5" y="12" width="2" height="2"/>
+                <rect x="9" y="12" width="2" height="2"/><rect x="7" y="14" width="2" height="2"/>
+              </svg>
+            </div>
+            <span class="card-title">SCORE</span>
+            <span class="card-badge badge-green">GOOD</span>
+          </div>
+          <div class="score-ring">
+            <div class="ring-wrap">
+              <svg viewBox="0 0 72 72">
+                <circle class="ring-bg" cx="36" cy="36" r="30"/>
+                <circle class="ring-fill" cx="36" cy="36" r="30"/>
+              </svg>
+              <span class="ring-label">75</span>
+            </div>
+            <div class="score-items">
+              <div class="score-item">
+                <div class="score-check"><svg width="10" height="10" viewBox="0 0 8 8" fill="var(--green-bright)"><rect x="0" y="0" width="8" height="8"/></svg></div>
+                <span class="s-label done">Strong password</span>
+              </div>
+              <div class="score-item">
+                <div class="score-check"><svg width="10" height="10" viewBox="0 0 8 8" fill="var(--orange-bright)"><rect x="0" y="0" width="8" height="8"/></svg></div>
+                <span class="s-label">2FA not enabled</span>
+              </div>
+              <div class="score-item">
+                <div class="score-check"><svg width="10" height="10" viewBox="0 0 8 8" fill="var(--green-bright)"><rect x="0" y="0" width="8" height="8"/></svg></div>
+                <span class="s-label done">Email verified</span>
+              </div>
+              <div class="score-item">
+                <div class="score-check"><svg width="10" height="10" viewBox="0 0 8 8" fill="var(--green-bright)"><rect x="0" y="0" width="8" height="8"/></svg></div>
+                <span class="s-label done">Unique password</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">
+              <!-- Pixel lock -->
+              <svg width="20" height="20" viewBox="0 0 16 16" fill="var(--yellow)">
+                <rect x="5" y="1" width="6" height="2"/><rect x="3" y="3" width="2" height="4"/>
+                <rect x="11" y="3" width="2" height="4"/><rect x="1" y="7" width="14" height="2"/>
+                <rect x="1" y="9" width="14" height="6"/><rect x="7" y="10" width="2" height="3"/>
+              </svg>
+            </div>
+            <span class="card-title">2FA</span>
+            <span class="card-badge badge-orange">OFF</span>
+          </div>
+          <div class="tfa-status">
+            <div class="tfa-title">Add extra protection</div>
+            <div class="tfa-desc">Use an authenticator app for one-time codes. Prevents unauthorized access even if password is compromised.</div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-sm btn-primary">ENABLE 2FA</button>
+            <button class="btn-sm btn-secondary">Learn More</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sessions as retro table -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg width="20" height="20" viewBox="0 0 16 16" fill="var(--blue)">
+              <rect x="1" y="1" width="14" height="2"/><rect x="1" y="3" width="2" height="8"/>
+              <rect x="13" y="3" width="2" height="8"/><rect x="1" y="11" width="14" height="2"/>
+              <rect x="5" y="13" width="6" height="2"/><rect x="7" y="11" width="2" height="2"/>
+            </svg>
+          </div>
+          <span class="card-title">ACTIVE SESSIONS</span>
+          <span class="card-badge badge-yellow">4</span>
+        </div>
+
+        <table class="sessions-table">
+          <thead>
+            <tr>
+              <th>DEVICE</th>
+              <th>LOCATION</th>
+              <th>IP</th>
+              <th>LAST SEEN</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="device-cell">
+                  <div class="device-icon">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--green-bright)"><rect x="1" y="1" width="14" height="10"/><rect x="5" y="13" width="6" height="2"/><rect x="7" y="11" width="2" height="2"/></svg>
+                  </div>
+                  <span class="device-name">Chrome/macOS</span>
+                  <span class="current-tag">THIS</span>
+                </div>
+              </td>
+              <td>Istanbul, TR</td>
+              <td style="font-size:10px;">78.160.xx.xx</td>
+              <td style="color:var(--green-bright);">Now</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="device-cell">
+                  <div class="device-icon">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--text-2)"><rect x="4" y="1" width="8" height="2"/><rect x="4" y="3" width="2" height="10"/><rect x="10" y="3" width="2" height="10"/><rect x="4" y="13" width="8" height="2"/><rect x="6" y="12" width="4" height="1"/></svg>
+                  </div>
+                  <span class="device-name">iOS App</span>
+                </div>
+              </td>
+              <td>Istanbul, TR</td>
+              <td style="font-size:10px;">78.160.xx.xx</td>
+              <td>3h ago</td>
+              <td><button class="session-end">END</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="device-cell">
+                  <div class="device-icon">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--text-2)"><rect x="1" y="1" width="14" height="10"/><rect x="5" y="13" width="6" height="2"/><rect x="7" y="11" width="2" height="2"/></svg>
+                  </div>
+                  <span class="device-name">Firefox/Win</span>
+                </div>
+              </td>
+              <td>Amsterdam, NL</td>
+              <td style="font-size:10px;">185.107.xx.xx</td>
+              <td>2d ago</td>
+              <td><button class="session-end">END</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="device-cell">
+                  <div class="device-icon">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--red-bright)"><rect x="1" y="1" width="14" height="10"/><rect x="5" y="13" width="6" height="2"/><rect x="7" y="11" width="2" height="2"/></svg>
+                  </div>
+                  <span class="device-name" style="color:var(--red-bright);">Chrome/Linux</span>
+                </div>
+              </td>
+              <td style="color:var(--red-bright);">Moscow, RU</td>
+              <td style="font-size:10px;color:var(--red-bright);">91.227.xx.xx</td>
+              <td style="color:var(--red-bright);">2h ago</td>
+              <td><button class="session-end" style="border-color:var(--red);color:var(--red-bright);">END</button></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="sessions-footer">
+          <span style="font-size: 10px; color: var(--solid);">Auto-terminate after 30 days</span>
+          <button class="btn-sm btn-danger">END ALL OTHERS</button>
+        </div>
+      </div>
+
+      <!-- Activity -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg width="20" height="20" viewBox="0 0 16 16" fill="var(--orange-bright)">
+              <rect x="3" y="1" width="10" height="2"/><rect x="1" y="3" width="2" height="10"/>
+              <rect x="13" y="3" width="2" height="10"/><rect x="3" y="13" width="10" height="2"/>
+              <rect x="7" y="3" width="2" height="4"/><rect x="7" y="7" width="4" height="2"/>
+            </svg>
+          </div>
+          <span class="card-title">ACTIVITY LOG</span>
+        </div>
+
+        <div class="activity-item">
+          <div class="activity-pixel failed"></div>
+          <div class="activity-body">
+            <div class="activity-desc"><strong>Failed login</strong> from Moscow, Russia</div>
+            <div class="activity-time">2h ago -- 91.227.xx.xx</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-pixel login"></div>
+          <div class="activity-body">
+            <div class="activity-desc"><strong>Login</strong> from Istanbul (Chrome/macOS)</div>
+            <div class="activity-time">5h ago -- 78.160.xx.xx</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-pixel plan"></div>
+          <div class="activity-body">
+            <div class="activity-desc"><strong>Plan upgrade attempted</strong> 1TB>10TB (blocked)</div>
+            <div class="activity-time">2h ago -- 91.227.xx.xx</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-pixel change"></div>
+          <div class="activity-body">
+            <div class="activity-desc"><strong>Password change attempted</strong> (blocked)</div>
+            <div class="activity-time">2h ago -- 91.227.xx.xx</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-pixel login"></div>
+          <div class="activity-body">
+            <div class="activity-desc"><strong>Login</strong> from Istanbul (iOS App)</div>
+            <div class="activity-time">Yesterday 14:22 -- 78.160.xx.xx</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-pixel change"></div>
+          <div class="activity-body">
+            <div class="activity-desc"><strong>Email confirmed</strong> -- altay@put.io</div>
+            <div class="activity-time">1 week ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-footer">
+      <div class="footer-left">
+        <span class="status-pixel"></span>
+        <span>4 sessions</span>
+        <span class="footer-sep">|</span>
+        <span>1 suspicious</span>
+      </div>
+      <div class="footer-right">
+        <span>put.io</span>
+        <span class="footer-sep">|</span>
+        <span>istanbul</span>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
