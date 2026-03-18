@@ -197,21 +197,24 @@
     </div>
   </div>
 
-  <div class="nav" id="nav">
-    <button class="nav-btn active" data-filter="all">All<span class="count">133</span></button>
-    <button class="nav-btn" data-filter="web">Web<span class="count">61</span></button>
-    <button class="nav-btn" data-filter="ios">iOS<span class="count">25</span></button>
-    <button class="nav-btn" data-filter="android">Android<span class="count">14</span></button>
-    <button class="nav-btn" data-filter="tv">TV<span class="count">17</span></button>
-    <button class="nav-btn" data-filter="other">Other<span class="count">8</span></button>
-    <button class="nav-btn" data-filter="marketing">Marketing<span class="count">6</span></button>
-    <div class="nav-sep"></div>
-    <button class="nav-btn" data-filter="clean">Clean</button>
-    <button class="nav-btn" data-filter="mono">Mono</button>
-    <button class="nav-btn" data-filter="brutalist">Brutalist</button>
-    <button class="nav-btn" data-filter="editorial">Editorial</button>
-    <button class="nav-btn" data-filter="native">Native</button>
-    <button class="nav-btn" data-filter="v3">v3</button>
+  <div class="nav" id="nav-platform">
+    <button class="nav-btn active" data-group="platform" data-filter="all">All</button>
+    <button class="nav-btn" data-group="platform" data-filter="web">Web</button>
+    <button class="nav-btn" data-group="platform" data-filter="ios">iOS</button>
+    <button class="nav-btn" data-group="platform" data-filter="android">Android</button>
+    <button class="nav-btn" data-group="platform" data-filter="tv">TV</button>
+    <button class="nav-btn" data-group="platform" data-filter="other">Other</button>
+    <button class="nav-btn" data-group="platform" data-filter="marketing">Marketing</button>
+  </div>
+  <div class="nav" id="nav-variant" style="border-bottom: none; padding-bottom: 0; margin-bottom: 24px;">
+    <button class="nav-btn active" data-group="variant" data-filter="all">All styles</button>
+    <button class="nav-btn" data-group="variant" data-filter="clean">Clean</button>
+    <button class="nav-btn" data-group="variant" data-filter="mono">Mono</button>
+    <button class="nav-btn" data-group="variant" data-filter="brutalist">Brutalist</button>
+    <button class="nav-btn" data-group="variant" data-filter="editorial">Editorial</button>
+    <button class="nav-btn" data-group="variant" data-filter="native">Native</button>
+    <button class="nav-btn" data-group="variant" data-filter="v1">v1</button>
+    <button class="nav-btn" data-group="variant" data-filter="v3">v3</button>
   </div>
 
   <div class="results-count" id="results-count"></div>
@@ -318,13 +321,21 @@ function getIconLetter(cat) {
   return m[cat] || '·';
 }
 
-function render(filter, search) {
+let activePlatform = 'all';
+let activeVariant = 'all';
+
+function render() {
   const filtered = files.filter(f => {
     const cat = getCategory(f);
     const variant = getVariant(f);
-    const matchFilter = filter === 'all' || cat === filter || variant === filter || (filter === 'v3' && f.includes('v3'));
-    const matchSearch = !search || f.toLowerCase().includes(search.toLowerCase());
-    return matchFilter && matchSearch;
+
+    const matchPlatform = activePlatform === 'all' || cat === activePlatform;
+    const matchVariant = activeVariant === 'all'
+      || variant === activeVariant
+      || (activeVariant === 'v3' && f.includes('v3'))
+      || (activeVariant === 'v1' && f.includes('-v1'));
+
+    return matchPlatform && matchVariant;
   });
 
   document.getElementById('results-count').textContent = filtered.length + ' screens';
@@ -361,16 +372,21 @@ function render(filter, search) {
   list.innerHTML = html;
 }
 
-document.getElementById('nav').addEventListener('click', e => {
-  const btn = e.target.closest('.nav-btn');
-  if (btn) {
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+document.querySelectorAll('.nav').forEach(nav => {
+  nav.addEventListener('click', e => {
+    const btn = e.target.closest('.nav-btn');
+    if (!btn) return;
+    const group = btn.dataset.group;
+    // Deactivate siblings in same group
+    nav.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    render(btn.dataset.filter, '');
-  }
+    if (group === 'platform') activePlatform = btn.dataset.filter;
+    if (group === 'variant') activeVariant = btn.dataset.filter;
+    render();
+  });
 });
 
-render('all', '');
+render();
 
 // Modal
 let currentFile = null;
