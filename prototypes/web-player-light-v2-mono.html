@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Video Player (Mono Light)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg-0: #FAFAF8;
+    --bg: #F5F5F2;
+    --bg-2: #EEEEEA;
+    --bg-3: #E6E6E2;
+    --bg-4: #DDDDD8;
+    --bg-5: #D0D0CC;
+    --line: #D8D8D4;
+    --border: #C4C4C0;
+    --focus: #AAAA A6;
+    --solid: #8888 84;
+    --text-3: #6A6A66;
+    --text-2: #4A4A46;
+    --text: #1A1A18;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.15);
+    --yellow-low: rgba(253,206,69,0.08);
+    --yellow-glow: rgba(253,206,69,0.4);
+    --green: #2A8A5C;
+    --green-dim: rgba(42,138,92,0.12);
+    --red: #CC3838;
+    --red-dim: rgba(204,56,56,0.12);
+    --blue: #3A6ACC;
+    --blue-dim: rgba(58,106,204,0.10);
+    --cyan: #1A8A7A;
+  }
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg-0);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; background: var(--bg); }
+
+  /* ======== COLLAPSED SIDEBAR ======== */
+  .sidebar {
+    width: 64px;
+    background: var(--bg-2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 0;
+    flex-shrink: 0;
+  }
+  .sidebar-logo { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; margin-bottom: 20px; }
+  .sidebar-logo span { color: var(--yellow); }
+  .sidebar-icon {
+    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+    color: var(--text-3); border-radius: 4px; cursor: pointer; margin-bottom: 2px; position: relative;
+  }
+  .sidebar-icon svg { width: 18px; height: 18px; }
+  .sidebar-icon:hover { background: var(--bg-3); color: var(--text); }
+  .sidebar-icon.active { background: var(--yellow-dim); color: var(--text); }
+  .sidebar-icon.active svg { stroke: var(--text); }
+  .sidebar-sep { width: 24px; height: 1px; background: var(--border); margin: 6px 0; }
+  .sidebar-kbd { position: absolute; bottom: 2px; right: 4px; font-size: 7px; color: var(--solid); }
+
+  .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .sidebar-avatar {
+    width: 32px; height: 32px; background: var(--bg-3); border-radius: 4px;
+    display: flex; align-items: center; justify-content: center; border: 1px solid var(--border);
+  }
+  .sidebar-avatar svg { width: 20px; height: 20px; }
+
+  /* ======== CONTENT ======== */
+  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  .breadcrumb-bar {
+    display: flex; align-items: center; gap: 0; padding: 10px 24px;
+    border-bottom: 1px solid var(--border); font-size: 11px; background: var(--bg); height: 38px;
+  }
+  .bc-item { color: var(--text-3); cursor: pointer; }
+  .bc-item:hover { color: var(--text); }
+  .bc-sep { margin: 0 6px; color: var(--solid); }
+  .bc-current { color: var(--text); font-weight: 500; }
+
+  .player-layout { display: flex; flex: 1; overflow: hidden; }
+
+  /* ---- Video Area ---- */
+  .video-area { flex: 1; display: flex; flex-direction: column; background: #000; position: relative; }
+  .video-container {
+    flex: 1;
+    background: linear-gradient(160deg, #0a0a14 0%, #0d1420 30%, #0a0f1a 60%, #080c14 100%);
+    display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
+  }
+
+  .play-overlay {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: rgba(253,206,69,0.12); border: 2px solid rgba(253,206,69,0.3);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .play-overlay svg { width: 28px; height: 28px; fill: var(--yellow); }
+
+  .video-container::after {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.008) 2px, rgba(255,255,255,0.008) 4px);
+    pointer-events: none;
+  }
+
+  .subtitle-line {
+    position: absolute; bottom: 76px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.75); color: #E8E8E8; padding: 5px 14px; border-radius: 2px;
+    font-size: 12px; font-family: inherit; border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .video-controls {
+    display: flex; align-items: center; gap: 12px; padding: 10px 20px;
+    background: rgba(0,0,0,0.85); border-top: 1px solid rgba(255,255,255,0.06);
+    position: relative; z-index: 2;
+  }
+  .ctrl-btn { background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; padding: 4px; display: flex; align-items: center; }
+  .ctrl-btn:hover { color: #fff; }
+  .ctrl-btn svg { width: 18px; height: 18px; }
+  .ctrl-btn.play svg { width: 22px; height: 22px; }
+
+  .time-display { font-size: 11px; color: rgba(255,255,255,0.5); font-family: inherit; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .time-display .current { color: var(--yellow); }
+
+  .progress-track { flex: 1; height: 4px; background: rgba(255,255,255,0.12); border-radius: 2px; cursor: pointer; position: relative; }
+  .progress-fill { height: 100%; background: var(--yellow); border-radius: 2px; width: 55%; box-shadow: 0 0 8px var(--yellow-glow); }
+  .progress-dot { width: 10px; height: 10px; background: var(--yellow); border-radius: 50%; position: absolute; top: -3px; left: 55%; transform: translateX(-50%); box-shadow: 0 0 6px var(--yellow-glow); }
+
+  .speed-btn {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.7); font-size: 10px; padding: 2px 7px; border-radius: 2px;
+    cursor: pointer; font-family: inherit; font-weight: 600;
+  }
+
+  /* ======== RIGHT PANEL ======== */
+  .right-panel {
+    width: 320px; background: var(--bg-2); border-left: 1px solid var(--border);
+    overflow-y: auto; flex-shrink: 0; display: flex; flex-direction: column;
+  }
+
+  .panel-section { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .panel-title { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--solid); margin-bottom: 12px; }
+
+  .info-table { display: flex; flex-direction: column; gap: 6px; }
+  .info-row { display: flex; align-items: baseline; font-size: 11px; line-height: 1.5; }
+  .info-key { width: 72px; flex-shrink: 0; color: var(--solid); }
+  .info-value { color: var(--text); }
+  .info-value.highlight { color: var(--text); font-weight: 500; }
+  .info-value.dimmed { color: var(--text-3); }
+
+  .action-list { display: flex; flex-direction: column; gap: 1px; }
+  .action-item {
+    display: flex; align-items: center; gap: 10px; padding: 7px 8px;
+    font-size: 11px; color: var(--text-2); cursor: pointer; border: none;
+    background: none; width: 100%; text-align: left; font-family: inherit; border-radius: 3px;
+  }
+  .action-item:hover { background: var(--bg-3); color: var(--text); }
+  .action-icon { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .action-icon svg { width: 14px; height: 14px; }
+  .action-label { flex: 1; }
+  .action-kbd { font-size: 9px; color: var(--solid); background: var(--bg); padding: 1px 4px; border-radius: 2px; border: 1px solid var(--border); font-family: inherit; }
+  .action-meta { font-size: 9px; color: var(--solid); }
+  .action-divider { height: 1px; background: var(--border); margin: 4px 0; }
+  .action-item.danger { color: var(--solid); }
+  .action-item.danger:hover { color: var(--red); background: var(--red-dim); }
+
+  .upnext-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .toggle-row { display: flex; align-items: center; gap: 8px; }
+  .toggle-label { font-size: 10px; color: var(--text-3); }
+  .toggle { width: 32px; height: 16px; background: var(--yellow); border-radius: 8px; position: relative; border: none; cursor: pointer; }
+  .toggle .thumb { width: 12px; height: 12px; background: var(--bg); border-radius: 50%; position: absolute; top: 2px; left: 18px; }
+
+  .upnext-item { display: flex; align-items: center; gap: 10px; padding: 6px 8px; cursor: pointer; border-radius: 3px; }
+  .upnext-item:hover { background: var(--bg-3); }
+  .upnext-thumb {
+    width: 48px; height: 28px; background: var(--bg-3); border-radius: 2px; border: 1px solid var(--border);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  }
+  .upnext-thumb svg { width: 14px; height: 14px; stroke: var(--solid); }
+  .upnext-info { flex: 1; min-width: 0; }
+  .upnext-name { font-size: 11px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .upnext-meta { font-size: 9px; color: var(--solid); margin-top: 1px; }
+  .upnext-kbd { font-size: 9px; color: var(--solid); flex-shrink: 0; }
+
+  .cast-btn {
+    display: flex; align-items: center; gap: 8px; background: var(--yellow); color: var(--text);
+    font-size: 11px; font-weight: 600; padding: 8px 14px; border-radius: 4px; border: none;
+    cursor: pointer; font-family: inherit; width: 100%; justify-content: center;
+  }
+  .cast-btn svg { width: 16px; height: 16px; }
+
+  /* ======== STATUS BAR ======== */
+  .statusbar {
+    display: flex; align-items: center; height: 26px; padding: 0 24px;
+    background: var(--bg-2); border-top: 1px solid var(--border);
+    font-size: 10px; color: var(--solid); flex-shrink: 0;
+  }
+  .status-section {
+    display: flex; align-items: center; gap: 6px; padding: 0 12px; height: 100%; border-right: 1px solid var(--border);
+  }
+  .status-section:first-child { padding-left: 0; }
+  .status-section:last-child { border-right: none; margin-left: auto; padding-right: 0; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .status-mode { background: var(--yellow); color: var(--text); padding: 1px 6px; font-weight: 700; font-size: 9px; letter-spacing: 0.05em; }
+  .status-yellow { color: var(--text); font-weight: 500; }
+  .status-kaomoji { color: var(--solid); font-size: 10px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-logo">p<span>.</span></div>
+    <div class="sidebar-icon active">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"><path d="M216,88V200a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H93.33a8,8,0,0,1,4.8,1.6L128,80h80A8,8,0,0,1,216,88Z"/></svg>
+      <span class="sidebar-kbd">1</span>
+    </div>
+    <div class="sidebar-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="16"><polyline points="96 48 176 128 96 208"/><line x1="40" y1="128" x2="176" y2="128"/><line x1="216" y1="40" x2="216" y2="216"/></svg>
+      <span class="sidebar-kbd">2</span>
+    </div>
+    <div class="sidebar-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="16"><path d="M32,128A96,96,0,0,0,224,128"/><path d="M32,56A96,96,0,0,0,224,56"/><path d="M32,200A96,96,0,0,0,224,200"/></svg>
+      <span class="sidebar-kbd">3</span>
+    </div>
+    <div class="sidebar-sep"></div>
+    <div class="sidebar-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="16"><path d="M64,105V40a8,8,0,0,1,8-8H184a8,8,0,0,1,8,8v65"/><line x1="128" y1="152" x2="128" y2="224"/><polyline points="96 184 128 152 160 184"/><path d="M24,105H232v55a8,8,0,0,1-8,8H176"/><path d="M80,168H32a8,8,0,0,1-8-8V105"/></svg>
+    </div>
+    <div class="sidebar-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="16"><circle cx="128" cy="128" r="96"/><polyline points="128 72 128 128 184 128"/></svg>
+    </div>
+    <div class="sidebar-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="16"><line x1="216" y1="56" x2="40" y2="56"/><line x1="200" y1="104" x2="56" y2="104"/><line x1="184" y1="152" x2="72" y2="152"/><line x1="168" y1="200" x2="88" y2="200"/></svg>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="sidebar-avatar">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="var(--yellow)">
+          <rect x="3" y="2" width="2" height="2"/><rect x="11" y="2" width="2" height="2"/>
+          <rect x="5" y="4" width="2" height="2"/><rect x="9" y="4" width="2" height="2"/>
+          <rect x="3" y="6" width="10" height="2"/>
+          <rect x="1" y="8" width="2" height="2"/><rect x="3" y="8" width="2" height="2"/><rect x="5" y="8" width="6" height="2"/><rect x="11" y="8" width="2" height="2"/><rect x="13" y="8" width="2" height="2"/>
+          <rect x="1" y="10" width="2" height="2"/><rect x="5" y="10" width="2" height="2"/><rect x="9" y="10" width="2" height="2"/><rect x="13" y="10" width="2" height="2"/>
+          <rect x="3" y="12" width="2" height="2"/><rect x="5" y="12" width="2" height="2"/><rect x="9" y="12" width="2" height="2"/><rect x="11" y="12" width="2" height="2"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="breadcrumb-bar">
+      <span class="bc-item">~</span><span class="bc-sep">/</span>
+      <span class="bc-item">files</span><span class="bc-sep">/</span>
+      <span class="bc-item">downloads</span><span class="bc-sep">/</span>
+      <span class="bc-current">Cosmos Laundromat.mp4</span>
+    </div>
+
+    <div class="player-layout">
+      <div class="video-area">
+        <div class="video-container">
+          <div class="play-overlay"><svg viewBox="0 0 24 24" fill="var(--yellow)"><polygon points="6,3 20,12 6,21"/></svg></div>
+          <div class="subtitle-line">"What are you doing in my laundromat?"</div>
+        </div>
+        <div class="video-controls">
+          <button class="ctrl-btn play"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 256 256" stroke="white" stroke-width="20"><line x1="96" y1="64" x2="96" y2="192"/><line x1="160" y1="64" x2="160" y2="192"/></svg></button>
+          <button class="ctrl-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 256 256" stroke="white" stroke-width="20"><polyline points="176 48 96 128 176 208"/></svg></button>
+          <button class="ctrl-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 256 256" stroke="white" stroke-width="20"><polyline points="80 48 160 128 80 208"/></svg></button>
+          <button class="ctrl-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 256 256" stroke="white" stroke-width="20"><path d="M80,168H32a8,8,0,0,1-8-8V96a8,8,0,0,1,8-8H80l72-56V224Z"/><line x1="192" y1="104" x2="192" y2="152"/><line x1="224" y1="88" x2="224" y2="168"/></svg></button>
+          <span class="time-display"><span class="current">06:50</span> / 12:10</span>
+          <div class="progress-track"><div class="progress-fill"></div><div class="progress-dot"></div></div>
+          <span class="time-display">-05:20</span>
+          <button class="speed-btn">1x</button>
+          <button class="ctrl-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 256 256" stroke="white" stroke-width="20"><rect x="24" y="56" width="208" height="144" rx="8"/><line x1="56" y1="132" x2="120" y2="132"/><line x1="136" y1="132" x2="200" y2="132"/><line x1="56" y1="164" x2="168" y2="164"/></svg></button>
+          <button class="ctrl-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 256 256" stroke="white" stroke-width="20"><rect x="24" y="56" width="208" height="144" rx="8"/><rect x="136" y="120" width="80" height="56" rx="4" fill="rgba(255,255,255,0.15)"/></svg></button>
+          <button class="ctrl-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 256 256" stroke="white" stroke-width="20"><polyline points="168 48 208 48 208 88"/><polyline points="88 208 48 208 48 168"/><polyline points="208 168 208 208 168 208"/><polyline points="48 88 48 48 88 48"/></svg></button>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="panel-section">
+          <button class="cast-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="20"><path d="M32,192a80,80,0,0,1,80,80"/><path d="M32,152a120,120,0,0,1,120,120"/><rect x="32" y="48" width="192" height="160" rx="8"/><circle cx="32" cy="272" r="8" fill="currentColor"/></svg>
+            cast to device
+          </button>
+        </div>
+        <div class="panel-section">
+          <div class="panel-title">File Info</div>
+          <div class="info-table">
+            <div class="info-row"><span class="info-key">title:</span><span class="info-value highlight">Cosmos Laundromat</span></div>
+            <div class="info-row"><span class="info-key">codec:</span><span class="info-value">H.264 / AAC</span></div>
+            <div class="info-row"><span class="info-key">res:</span><span class="info-value">1920x1080</span></div>
+            <div class="info-row"><span class="info-key">size:</span><span class="info-value">209.89 MB</span></div>
+            <div class="info-row"><span class="info-key">dur:</span><span class="info-value">12:10</span></div>
+            <div class="info-row"><span class="info-key">bitrate:</span><span class="info-value">2,341 kbps</span></div>
+            <div class="info-row"><span class="info-key">hash:</span><span class="info-value dimmed">8e7aaaa8</span></div>
+            <div class="info-row"><span class="info-key">sha1:</span><span class="info-value dimmed">25c14461...a78a74c1</span></div>
+          </div>
+        </div>
+        <div class="panel-section">
+          <div class="panel-title">Actions</div>
+          <div class="action-list">
+            <button class="action-item"><span class="action-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="20"><line x1="128" y1="24" x2="128" y2="168"/><polyline points="80 120 128 168 176 120"/><path d="M216,168v40a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V168"/></svg></span><span class="action-label">download</span><span class="action-meta">209.89 MB</span><span class="action-kbd">D</span></button>
+            <button class="action-item"><span class="action-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="20"><path d="M216,88V200a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H93.33a8,8,0,0,1,4.8,1.6L128,80h80A8,8,0,0,1,216,88Z"/></svg></span><span class="action-label">move to...</span><span class="action-kbd">M</span></button>
+            <button class="action-item"><span class="action-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="20"><circle cx="128" cy="128" r="96"/><line x1="128" y1="88" x2="128" y2="168"/><line x1="88" y1="128" x2="168" y2="128"/></svg></span><span class="action-label">share link</span><span class="action-kbd">S</span></button>
+            <div class="action-divider"></div>
+            <button class="action-item"><span class="action-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="20"><circle cx="128" cy="128" r="96"/><polyline points="128 72 128 128 184 128"/></svg></span><span class="action-label">mark unwatched</span><span class="action-kbd">U</span></button>
+            <button class="action-item"><span class="action-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="20"><rect x="24" y="56" width="208" height="144" rx="8"/><rect x="136" y="120" width="80" height="56" rx="4"/></svg></span><span class="action-label">pop out window</span><span class="action-kbd">P</span></button>
+            <div class="action-divider"></div>
+            <button class="action-item danger"><span class="action-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="20"><line x1="216" y1="56" x2="40" y2="56"/><line x1="200" y1="104" x2="56" y2="104"/><line x1="184" y1="152" x2="72" y2="152"/><line x1="168" y1="200" x2="88" y2="200"/></svg></span><span class="action-label">move to trash</span><span class="action-kbd">Del</span></button>
+          </div>
+        </div>
+        <div class="panel-section" style="border-bottom: none; flex: 1;">
+          <div class="upnext-header">
+            <div class="panel-title" style="margin-bottom:0">Up Next</div>
+            <div class="toggle-row"><span class="toggle-label">autoplay</span><button class="toggle"><div class="thumb"></div></button></div>
+          </div>
+          <div class="upnext-item"><div class="upnext-thumb"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="16"><polygon points="160 112 112 80 112 144 160 112"/><rect x="32" y="40" width="192" height="144" rx="8"/></svg></div><div class="upnext-info"><div class="upnext-name">Sintel.mp4</div><div class="upnext-meta">892.4 MB &middot; 14:48</div></div><span class="upnext-kbd">N</span></div>
+          <div class="upnext-item"><div class="upnext-thumb"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="16"><polygon points="160 112 112 80 112 144 160 112"/><rect x="32" y="40" width="192" height="144" rx="8"/></svg></div><div class="upnext-info"><div class="upnext-name">Big Buck Bunny.mp4</div><div class="upnext-meta">276.1 MB &middot; 09:56</div></div></div>
+          <div class="upnext-item"><div class="upnext-thumb"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="16"><polygon points="160 112 112 80 112 144 160 112"/><rect x="32" y="40" width="192" height="144" rx="8"/></svg></div><div class="upnext-info"><div class="upnext-name">Tears of Steel.mp4</div><div class="upnext-meta">571.8 MB &middot; 12:14</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="statusbar">
+      <div class="status-section"><span class="status-mode">PLAYER</span></div>
+      <div class="status-section"><span class="status-dot"></span><span>streaming</span></div>
+      <div class="status-section"><span>Cosmos Laundromat.mp4</span></div>
+      <div class="status-section"><span class="status-yellow">06:50 / 12:10</span></div>
+      <div class="status-section"><span>H.264 &middot; 1080p &middot; AAC</span></div>
+      <div class="status-section" style="border-right:none"><span style="color:var(--text-3)">spc:play</span><span style="color:var(--text-3)">f:full</span><span style="color:var(--text-3)">m:mute</span></div>
+      <div class="status-section" style="border-right:none"><span class="status-kaomoji">(=^-^=)</span></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

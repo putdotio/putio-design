@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Storage (v12 Kinetic)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #0B0B0F;
+    --bg-1: #101014;
+    --bg-2: #16161B;
+    --bg-3: #1C1C22;
+    --bg-4: #242430;
+    --bg-5: #2C2C38;
+    --border-subtle: rgba(255,255,255,0.06);
+    --border-default: rgba(255,255,255,0.10);
+    --text-primary: #EDEDF0;
+    --text-secondary: #A0A0AB;
+    --text-tertiary: #6C6C78;
+    --text-quaternary: #4A4A55;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --yellow-glow: rgba(253,206,69,0.20);
+    --green: #3ECF8E;
+    --red: #EF4444;
+    --blue: #60A5FA;
+    --purple: #A78BFA;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-0);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'cv11' 1, 'ss01' 1;
+  }
+
+  @keyframes bgShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .app {
+    display: flex; width: 1440px; height: 900px; overflow: hidden;
+    background: linear-gradient(135deg, #0B0B0F 0%, #0D0D14 25%, #0F0B14 50%, #0B0F14 75%, #0B0B0F 100%);
+    background-size: 400% 400%;
+    animation: bgShift 8s ease infinite;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px; background: rgba(16,16,20,0.85); backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border-subtle); display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .sidebar-header { padding: 28px 24px 24px; }
+  @keyframes logoPulse { 0%,100%{text-shadow:0 0 8px rgba(253,206,69,0)} 50%{text-shadow:0 0 16px rgba(253,206,69,0.3)} }
+  .logo { font-size: 20px; font-weight: 700; letter-spacing: -0.03em; }
+  .logo .dot { color: var(--yellow); animation: logoPulse 3s ease infinite; }
+  .sidebar-nav { flex: 1; padding: 0 10px; display: flex; flex-direction: column; gap: 2px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 11px; padding: 8px 12px;
+    font-size: 13px; font-weight: 400; color: var(--text-secondary);
+    cursor: pointer; border: none; background: none; width: 100%; text-align: left;
+    font-family: inherit; border-radius: 8px; line-height: 1; transition: all 0.2s;
+  }
+  .nav-item:hover { background: var(--bg-3); color: var(--text-primary); }
+  @keyframes activeGlow { 0%,100%{box-shadow:0 0 12px rgba(253,206,69,0.05)} 50%{box-shadow:0 0 20px rgba(253,206,69,0.12)} }
+  .nav-item.active { background: var(--bg-3); color: var(--text-primary); font-weight: 500; animation: activeGlow 3s ease infinite; }
+  .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .nav-icon svg { display: block; }
+  .nav-item .badge { margin-left: auto; font-size: 11px; color: var(--text-tertiary); }
+  @keyframes badgePulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+  .nav-item .badge-live { margin-left: auto; font-size: 11px; font-weight: 600; color: var(--yellow); background: var(--yellow-dim); padding: 2px 7px; border-radius: 6px; animation: badgePulse 2s ease infinite; }
+  .nav-sep { height: 1px; background: var(--border-subtle); margin: 6px 12px; }
+  .sidebar-footer { padding: 16px 24px; border-top: 1px solid var(--border-subtle); }
+  .storage-track { width: 100%; height: 3px; background: var(--bg-4); border-radius: 2px; overflow: hidden; }
+  @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(200%)} }
+  .storage-fill { height: 100%; background: var(--yellow); border-radius: 2px; position: relative; overflow: hidden; }
+  .storage-fill::after { content:''; position: absolute; top: 0; left: 0; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); animation: shimmer 2.5s ease-in-out infinite; }
+  .storage-label { font-size: 11px; color: var(--text-tertiary); margin-top: 8px; }
+  .user-row { display: flex; align-items: center; gap: 10px; padding: 12px 24px; cursor: pointer; }
+  .user-row:hover { background: var(--bg-3); }
+  .user-avatar { width: 28px; height: 28px; background: var(--bg-4); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .user-name { font-size: 13px; font-weight: 500; color: var(--text-secondary); flex: 1; }
+  .user-dots { color: var(--text-quaternary); font-size: 14px; letter-spacing: 1px; }
+
+  /* CONTENT */
+  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { display: flex; align-items: center; padding: 16px 32px; border-bottom: 1px solid var(--border-subtle); min-height: 52px; }
+  .breadcrumb { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+  .content-body { flex: 1; overflow-y: auto; padding: 32px; }
+
+  /* Hero */
+  @keyframes numberPop { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  .hero { margin-bottom: 28px; animation: numberPop 0.6s ease; }
+  .hero-stat { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+  .hero-number { font-size: 72px; font-weight: 700; letter-spacing: -0.05em; line-height: 1; }
+  .hero-unit { font-size: 28px; font-weight: 300; color: var(--text-tertiary); }
+  .hero-sub { font-size: 13px; color: var(--text-tertiary); }
+
+  /* Usage bar with shimmer */
+  .usage-bar { width: 100%; height: 8px; background: var(--bg-3); border-radius: 4px; display: flex; overflow: hidden; margin-bottom: 28px; position: relative; }
+  .usage-seg { height: 100%; position: relative; overflow: hidden; }
+  .usage-seg::after {
+    content: ''; position: absolute; top: 0; left: 0; width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+  .usage-seg.video { background: var(--yellow); }
+  .usage-seg.audio { background: var(--blue); }
+  .usage-seg.docs { background: var(--green); }
+  .usage-seg.images { background: var(--purple); }
+  .usage-seg.archives { background: var(--red); }
+  .usage-seg.other { background: var(--bg-5); }
+
+  /* Cards */
+  @keyframes cardSlide { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+  .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+  .card {
+    background: rgba(22,22,27,0.7); backdrop-filter: blur(10px);
+    border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;
+    animation: cardSlide 0.5s ease forwards;
+  }
+  .card:nth-child(2) { animation-delay: 0.1s; }
+  .card-title { font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+
+  /* Breakdown */
+  .breakdown-row { display: flex; align-items: center; padding: 7px 0; gap: 10px; cursor: pointer; }
+  .breakdown-row:hover .br-type { color: var(--yellow); }
+  @keyframes breathe { 0%,100%{opacity:0.5;transform:scale(0.8)} 50%{opacity:1;transform:scale(1)} }
+  .br-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; animation: breathe 2.5s ease infinite; }
+  .br-type { font-size: 13px; color: var(--text-primary); width: 90px; flex-shrink: 0; transition: color 0.15s; }
+  .br-size { font-size: 13px; color: var(--text-primary); width: 70px; }
+  .br-count { font-size: 12px; color: var(--text-tertiary); flex: 1; }
+  .br-pct { font-size: 12px; color: var(--text-tertiary); }
+
+  /* File list */
+  .file-row { display: flex; align-items: baseline; padding: 6px 0; cursor: pointer; }
+  .file-row:hover .fl-name { color: var(--yellow); text-shadow: 0 0 8px rgba(253,206,69,0.15); }
+  .fl-rank { font-size: 11px; color: var(--text-quaternary); width: 24px; }
+  .fl-ext { font-size: 11px; color: var(--text-tertiary); width: 36px; }
+  .fl-name { font-size: 13px; color: var(--text-primary); flex: 1; transition: all 0.15s; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fl-size { font-size: 12px; color: var(--text-tertiary); padding-left: 12px; }
+  .fl-date { font-size: 11px; color: var(--text-quaternary); padding-left: 12px; }
+
+  /* Stats */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .stat-card {
+    background: rgba(22,22,27,0.7); backdrop-filter: blur(10px);
+    border: 1px solid var(--border-subtle); border-radius: 12px; padding: 18px;
+    animation: cardSlide 0.6s ease forwards;
+    position: relative; overflow: hidden;
+  }
+  .stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--yellow), transparent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .stat-card:hover::before { opacity: 1; }
+  .stat-value { font-size: 24px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; margin-bottom: 4px; }
+  .stat-label { font-size: 11px; color: var(--text-tertiary); }
+
+  .content-body::-webkit-scrollbar { width: 4px; }
+  .content-body::-webkit-scrollbar-track { background: transparent; }
+  .content-body::-webkit-scrollbar-thumb { background: var(--bg-5); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header"><div class="logo">put<span class="dot">.</span>io</div></div>
+    <div class="sidebar-nav">
+      <button class="nav-item"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="#FDCE45"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg></span>Files</button>
+      <button class="nav-item"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7l-112,120a8,8,0,0,0,3,13l57.63,21.61L88.16,238.43a8,8,0,0,0,13.69,7l112-120A8,8,0,0,0,215.79,118.17Z"/></svg></span>Transfers<span class="badge-live">3</span></button>
+      <button class="nav-item"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M98.91,157.09A71.53,71.53,0,0,1,120,208a8,8,0,0,1-16,0,56,56,0,0,0-56-56,8,8,0,0,1,0-16A71.53,71.53,0,0,1,98.91,157.09ZM48,88a8,8,0,0,0,0,16,104,104,0,0,1,104,104,8,8,0,0,0,16,0A120,120,0,0,0,48,88Zm0-40a8,8,0,0,0,0,16,144,144,0,0,1,144,144,8,8,0,0,0,16,0A160,160,0,0,0,48,48Zm12,160a12,12,0,1,0-12-12A12,12,0,0,0,60,208Z"/></svg></span>RSS Feeds</button>
+      <div class="nav-sep"></div>
+      <button class="nav-item"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg></span>Shared</button>
+      <button class="nav-item"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"/></svg></span>History</button>
+      <button class="nav-item"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"/></svg></span>Trash<span class="badge">19.5 GB</span></button>
+      <div class="nav-sep"></div>
+      <button class="nav-item active"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,144H32V64H224V192ZM48,136a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H56A8,8,0,0,1,48,136Zm0-32a8,8,0,0,1,8-8H208a8,8,0,0,1,0,16H56A8,8,0,0,1,48,104Zm0,64a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H56A8,8,0,0,1,48,168Z"/></svg></span>Storage</button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="storage-track"><div class="storage-fill" style="width:78%"></div></div>
+      <div class="storage-label">39 TB of 50 TB used</div>
+    </div>
+    <div class="user-row">
+      <div class="user-avatar"><svg width="18" height="18" viewBox="0 0 16 16" fill="var(--text-secondary)"><rect x="3" y="2" width="2" height="2"/><rect x="11" y="2" width="2" height="2"/><rect x="5" y="4" width="2" height="2"/><rect x="9" y="4" width="2" height="2"/><rect x="3" y="6" width="10" height="2"/><rect x="1" y="8" width="2" height="2"/><rect x="3" y="8" width="2" height="2"/><rect x="5" y="8" width="6" height="2"/><rect x="11" y="8" width="2" height="2"/><rect x="13" y="8" width="2" height="2"/><rect x="1" y="10" width="2" height="2"/><rect x="5" y="10" width="2" height="2"/><rect x="9" y="10" width="2" height="2"/><rect x="13" y="10" width="2" height="2"/><rect x="3" y="12" width="2" height="2"/><rect x="5" y="12" width="2" height="2"/><rect x="9" y="12" width="2" height="2"/><rect x="11" y="12" width="2" height="2"/></svg></div>
+      <span class="user-name">altay</span><span class="user-dots">...</span>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="topbar"><span class="breadcrumb">Storage</span></div>
+    <div class="content-body">
+      <div class="hero">
+        <div class="hero-stat"><span class="hero-number">39</span><span class="hero-unit">TB used</span></div>
+        <div class="hero-sub">of 100 TB available</div>
+      </div>
+
+      <div class="usage-bar">
+        <div class="usage-seg video" style="width:62%"></div>
+        <div class="usage-seg audio" style="width:15%"></div>
+        <div class="usage-seg docs" style="width:8%"></div>
+        <div class="usage-seg images" style="width:6%"></div>
+        <div class="usage-seg archives" style="width:5%"></div>
+        <div class="usage-seg other" style="width:4%"></div>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-title">By File Type</div>
+          <div class="breakdown-row"><div class="br-dot" style="background:var(--yellow)"></div><span class="br-type">Video</span><span class="br-size">24.2 TB</span><span class="br-count">1,247 files</span><span class="br-pct">62%</span></div>
+          <div class="breakdown-row"><div class="br-dot" style="background:var(--blue);animation-delay:0.3s"></div><span class="br-type">Audio</span><span class="br-size">5.9 TB</span><span class="br-count">12,483 files</span><span class="br-pct">15%</span></div>
+          <div class="breakdown-row"><div class="br-dot" style="background:var(--green);animation-delay:0.6s"></div><span class="br-type">Documents</span><span class="br-size">3.1 TB</span><span class="br-count">841 files</span><span class="br-pct">8%</span></div>
+          <div class="breakdown-row"><div class="br-dot" style="background:var(--purple);animation-delay:0.9s"></div><span class="br-type">Images</span><span class="br-size">2.4 TB</span><span class="br-count">6,219 files</span><span class="br-pct">6%</span></div>
+          <div class="breakdown-row"><div class="br-dot" style="background:var(--red);animation-delay:1.2s"></div><span class="br-type">Archives</span><span class="br-size">1.8 TB</span><span class="br-count">394 files</span><span class="br-pct">5%</span></div>
+          <div class="breakdown-row"><div class="br-dot" style="background:var(--bg-5);animation-delay:1.5s"></div><span class="br-type">Other</span><span class="br-size">1.6 TB</span><span class="br-count">328 files</span><span class="br-pct">4%</span></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Largest Files</div>
+          <div class="file-row"><span class="fl-rank">01</span><span class="fl-ext">.mkv</span><span class="fl-name">oppenheimer</span><span class="fl-size">8.4 GB</span><span class="fl-date">5d</span></div>
+          <div class="file-row"><span class="fl-rank">02</span><span class="fl-ext">.mkv</span><span class="fl-name">killers of the flower moon</span><span class="fl-size">7.2 GB</span><span class="fl-date">3w</span></div>
+          <div class="file-row"><span class="fl-rank">03</span><span class="fl-ext">.mkv</span><span class="fl-name">napoleon directors cut</span><span class="fl-size">6.8 GB</span><span class="fl-date">1m</span></div>
+          <div class="file-row"><span class="fl-rank">04</span><span class="fl-ext">.mkv</span><span class="fl-name">dune part two</span><span class="fl-size">6.1 GB</span><span class="fl-date">3d</span></div>
+          <div class="file-row"><span class="fl-rank">05</span><span class="fl-ext">.mkv</span><span class="fl-name">poor things</span><span class="fl-size">5.3 GB</span><span class="fl-date">1w</span></div>
+          <div class="file-row"><span class="fl-rank">06</span><span class="fl-ext">.mkv</span><span class="fl-name">barbie</span><span class="fl-size">4.5 GB</span><span class="fl-date">2m</span></div>
+          <div class="file-row"><span class="fl-rank">07</span><span class="fl-ext">.mkv</span><span class="fl-name">anatomy of a fall</span><span class="fl-size">4.7 GB</span><span class="fl-date">2w</span></div>
+          <div class="file-row"><span class="fl-rank">08</span><span class="fl-ext">.mkv</span><span class="fl-name">blade runner 2049</span><span class="fl-size">4.2 GB</span><span class="fl-date">2d</span></div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-value">61 TB</div><div class="stat-label">Free Space</div></div>
+        <div class="stat-card" style="animation-delay:0.1s"><div class="stat-value">21,512</div><div class="stat-label">Total Files</div></div>
+        <div class="stat-card" style="animation-delay:0.2s"><div class="stat-value">247</div><div class="stat-label">Folders</div></div>
+        <div class="stat-card" style="animation-delay:0.3s"><div class="stat-value">78%</div><div class="stat-label">Capacity</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
