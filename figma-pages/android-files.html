@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=412">
+<title>put.io — Android Files (Material 3)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    /* Material 3 Dark — Yellow seed */
+    --md-surface: #141218;
+    --md-surface-container: #1D1B20;
+    --md-surface-container-high: #2B2930;
+    --md-surface-container-highest: #36343B;
+    --md-surface-variant: #49454F;
+    --md-on-surface: #E6E1E5;
+    --md-on-surface-variant: #CAC4D0;
+    --md-outline: #938F99;
+    --md-outline-variant: #49454F;
+    --md-primary: #FDCE45;
+    --md-on-primary: #3D2E00;
+    --md-primary-container: #574400;
+    --md-on-primary-container: #FFE17A;
+    --md-secondary: #D0C6A0;
+    --md-on-secondary: #353016;
+    --md-tertiary: #A3D1B8;
+    --md-error: #F2B8B5;
+    --md-on-error: #601410;
+    --md-inverse-surface: #E6E1E5;
+    --md-inverse-on-surface: #313033;
+    --md-inverse-primary: #6D5E00;
+    --green: #4CC38A;
+    --red: #FF6369;
+    --yellow: #FDCE45;
+  }
+  body {
+    font-family: 'Inter', 'Roboto', sans-serif;
+    background: var(--md-surface);
+    color: var(--md-on-surface);
+    -webkit-font-smoothing: antialiased;
+  }
+  .phone { width: 412px; height: 915px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 12px 24px 0;
+    font-size: 14px; font-weight: 500; height: 48px;
+  }
+  .status-bar .time { flex: 1; }
+  .status-bar .icons { display: flex; gap: 8px; align-items: center; }
+  .status-bar .icons svg { width: 16px; height: 16px; fill: var(--md-on-surface); }
+
+  /* Top App Bar — Material 3 Large */
+  .top-bar {
+    display: flex; align-items: center; padding: 8px 8px 0;
+    gap: 4px;
+  }
+  .top-bar-title {
+    padding: 20px 16px 16px;
+    font-size: 28px; font-weight: 700;
+    color: var(--md-on-surface);
+    letter-spacing: -0.02em;
+  }
+  .icon-btn {
+    width: 48px; height: 48px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: none; cursor: pointer;
+  }
+  .icon-btn svg { width: 24px; height: 24px; fill: var(--md-on-surface-variant); }
+  .icon-btn:hover { background: rgba(255,255,255,0.08); }
+  .top-bar .spacer { flex: 1; }
+  .avatar-btn {
+    width: 36px; height: 36px; border-radius: 999px;
+    background: var(--md-surface-container-highest);
+    display: flex; align-items: center; justify-content: center;
+    border: none; cursor: pointer; margin-right: 4px;
+  }
+  .avatar-btn svg { width: 24px; height: 24px; }
+
+  /* Search Bar — Material 3 */
+  .search-bar {
+    margin: 0 16px 12px; padding: 12px 16px;
+    background: var(--md-surface-container-high);
+    border-radius: 28px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 16px; color: var(--md-outline);
+  }
+  .search-bar svg { width: 20px; height: 20px; fill: var(--md-outline); flex-shrink: 0; }
+
+  /* Chip row */
+  .chip-row {
+    display: flex; gap: 8px; padding: 0 16px 14px;
+    overflow-x: auto;
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 16px; border-radius: 8px;
+    background: var(--md-surface-container-high);
+    border: 1px solid var(--md-outline-variant);
+    font-size: 14px; color: var(--md-on-surface-variant);
+    white-space: nowrap; cursor: pointer;
+  }
+  .chip.active {
+    background: var(--md-primary-container);
+    border-color: transparent;
+    color: var(--md-on-primary-container);
+  }
+  .chip svg { width: 18px; height: 18px; fill: currentColor; }
+
+  /* File list */
+  .file-list { flex: 1; overflow-y: auto; padding-bottom: 80px; }
+
+  .list-section-header {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--md-outline);
+    padding: 20px 16px 8px;
+  }
+
+  .list-item {
+    display: flex; align-items: center; gap: 16px;
+    padding: 12px 16px;
+    min-height: 64px;
+    cursor: pointer;
+  }
+  .list-item:hover { background: rgba(255,255,255,0.04); }
+  .list-item:active { background: rgba(255,255,255,0.08); }
+
+  .l-icon-wrap {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .l-icon-wrap.folder { background: rgba(253,206,69,0.12); }
+  .l-icon-wrap.video { background: rgba(76,195,138,0.12); }
+  .l-icon-wrap.audio { background: rgba(138,130,255,0.12); }
+  .l-icon-wrap.doc { background: rgba(100,160,255,0.12); }
+  .l-icon-wrap svg { width: 24px; height: 24px; }
+  .l-icon-wrap.folder svg { fill: var(--yellow); }
+  .l-icon-wrap.video svg { fill: var(--green); }
+  .l-icon-wrap.audio svg { fill: #8A82FF; }
+  .l-icon-wrap.doc svg { fill: #64A0FF; }
+
+  .l-info { flex: 1; min-width: 0; }
+  .l-headline {
+    font-size: 16px; font-weight: 500;
+    color: var(--md-on-surface);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .l-supporting {
+    font-size: 14px; color: var(--md-on-surface-variant);
+    margin-top: 2px;
+  }
+  .l-trailing {
+    display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+    flex-shrink: 0;
+  }
+  .l-trailing-text { font-size: 12px; color: var(--md-outline); }
+  .l-badge {
+    font-size: 11px; font-weight: 500;
+    background: rgba(253,206,69,0.15); color: var(--yellow);
+    padding: 2px 8px; border-radius: 100px;
+  }
+
+  .l-chevron { color: var(--md-outline); }
+  .l-chevron svg { width: 20px; height: 20px; fill: var(--md-outline); }
+
+  /* Material 3 Divider */
+  .divider { height: 1px; background: var(--md-outline-variant); margin: 0 16px; }
+
+  /* FAB — Material 3 */
+  .fab {
+    position: absolute;
+    bottom: 88px; right: 16px;
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    background: var(--md-primary);
+    color: var(--md-on-primary);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3), 0 6px 20px rgba(0,0,0,0.15);
+    border: none; cursor: pointer;
+    z-index: 10;
+  }
+  .fab svg { width: 28px; height: 28px; fill: var(--md-on-primary); }
+
+  /* Extended FAB label (hidden for compact, keeping only icon) */
+
+  /* Snackbar — Material 3 */
+  .snackbar {
+    position: absolute;
+    bottom: 80px; left: 16px; right: 80px;
+    background: var(--md-inverse-surface);
+    color: var(--md-inverse-on-surface);
+    border-radius: 4px;
+    padding: 14px 16px;
+    font-size: 14px; font-weight: 400;
+    display: flex; align-items: center; gap: 12px;
+    z-index: 9;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+  }
+  .snackbar-text { flex: 1; }
+  .snackbar-action {
+    font-size: 14px; font-weight: 600;
+    color: var(--md-inverse-primary);
+    background: none; border: none; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 0.02em;
+  }
+
+  /* Bottom Navigation — Material 3 */
+  .bottom-nav {
+    display: flex; background: var(--md-surface-container);
+    height: 80px; flex-shrink: 0;
+    border-top: none;
+    z-index: 10;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 4px; cursor: pointer;
+    position: relative;
+  }
+  .nav-indicator {
+    width: 64px; height: 32px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-item.active .nav-indicator {
+    background: var(--md-primary-container);
+  }
+  .nav-indicator svg { width: 24px; height: 24px; fill: var(--md-on-surface-variant); }
+  .nav-item.active .nav-indicator svg { fill: var(--md-on-primary-container); }
+  .nav-label {
+    font-size: 12px; font-weight: 500;
+    color: var(--md-on-surface-variant);
+  }
+  .nav-item.active .nav-label {
+    color: var(--md-on-surface); font-weight: 600;
+  }
+  .nav-badge {
+    position: absolute; top: 6px; right: calc(50% - 26px);
+    background: var(--yellow); color: var(--md-on-primary);
+    font-size: 10px; font-weight: 700;
+    width: 18px; height: 18px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">12:34</span>
+    <div class="icons">
+      <!-- WiFi -->
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <!-- Signal -->
+      <svg viewBox="0 0 24 24"><path d="M2 22h4V12H2v10zm6 0h4V7H8v15zm6 0h4V2h-4v20z"/></svg>
+      <!-- Battery -->
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4zM16 20H8V6h8v14z"/></svg>
+    </div>
+  </div>
+
+  <!-- Top App Bar -->
+  <div class="top-bar">
+    <div class="spacer"></div>
+    <!-- Search icon button -->
+    <div class="icon-btn">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    </div>
+    <!-- Profile avatar — pixel art space invader -->
+    <div class="avatar-btn">
+      <svg viewBox="0 0 24 24" fill="none">
+        <rect x="4" y="4" width="2" height="2" fill="#FDCE45"/>
+        <rect x="18" y="4" width="2" height="2" fill="#FDCE45"/>
+        <rect x="6" y="6" width="2" height="2" fill="#FDCE45"/>
+        <rect x="16" y="6" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="8" width="16" height="2" fill="#FDCE45"/>
+        <rect x="4" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="8" y="10" width="8" height="2" fill="#FDCE45"/>
+        <rect x="18" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="12" width="2" height="2" fill="#FDCE45"/>
+        <rect x="8" y="12" width="2" height="2" fill="#141218"/>
+        <rect x="14" y="12" width="2" height="2" fill="#141218"/>
+        <rect x="10" y="12" width="4" height="2" fill="#FDCE45"/>
+        <rect x="18" y="12" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="14" width="16" height="2" fill="#FDCE45"/>
+        <rect x="6" y="16" width="4" height="2" fill="#FDCE45"/>
+        <rect x="14" y="16" width="4" height="2" fill="#FDCE45"/>
+        <rect x="8" y="18" width="2" height="2" fill="#FDCE45"/>
+        <rect x="14" y="18" width="2" height="2" fill="#FDCE45"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Large title -->
+  <div class="top-bar-title">Files</div>
+
+  <!-- Search bar -->
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    Search your files
+  </div>
+
+  <!-- Filter chips -->
+  <div class="chip-row">
+    <div class="chip active">
+      <svg viewBox="0 0 24 24"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>
+      All
+    </div>
+    <div class="chip">Videos</div>
+    <div class="chip">Audio</div>
+    <div class="chip">Documents</div>
+  </div>
+
+  <!-- File List -->
+  <div class="file-list">
+    <!-- Folders -->
+    <div class="list-item">
+      <div class="l-icon-wrap folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">downloads</div>
+        <div class="l-supporting">21.78 GB -- 8 items</div>
+      </div>
+      <div class="l-chevron">
+        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">stuff</div>
+        <div class="l-supporting">4.16 GB -- a year ago</div>
+      </div>
+      <div class="l-chevron">
+        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">chill institute</div>
+        <div class="l-supporting">0 B -- 16 hours ago</div>
+      </div>
+      <div class="l-chevron">
+        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">__dev__</div>
+        <div class="l-supporting">6.6 GB -- 2 years ago</div>
+      </div>
+      <div class="l-chevron">
+        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">Items shared with you</div>
+        <div class="l-supporting">102.3 TB</div>
+      </div>
+      <div class="l-chevron">
+        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Section header -->
+    <div class="list-section-header">Recent Files</div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap video">
+        <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">Cosmos Laundromat</div>
+        <div class="l-supporting">209.89 MB -- 2 days ago</div>
+      </div>
+      <div class="l-trailing">
+        <span class="l-badge">720p</span>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap video">
+        <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">Sintel</div>
+        <div class="l-supporting">892.45 MB -- 3 days ago</div>
+      </div>
+      <div class="l-trailing">
+        <span class="l-badge">1080p</span>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap video">
+        <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">Big Buck Bunny</div>
+        <div class="l-supporting">1.22 GB -- 5 days ago</div>
+      </div>
+      <div class="l-trailing">
+        <span class="l-badge">4K</span>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap audio">
+        <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">podcast-episode-127.mp3</div>
+        <div class="l-supporting">45.2 MB -- 5 days ago</div>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap doc">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">ebook-design-systems.epub</div>
+        <div class="l-supporting">12.3 MB -- a week ago</div>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="l-icon-wrap video">
+        <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+      </div>
+      <div class="l-info">
+        <div class="l-headline">Tears of Steel</div>
+        <div class="l-supporting">578 MB -- 2 weeks ago</div>
+      </div>
+      <div class="l-trailing">
+        <span class="l-badge">1080p</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Snackbar -->
+  <div class="snackbar">
+    <span class="snackbar-text">Inception -- 2160p downloading -- 63%</span>
+    <button class="snackbar-action">View</button>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab">
+    <!-- Lightning bolt / new transfer -->
+    <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+  </button>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <div class="nav-item active">
+      <div class="nav-indicator">
+        <!-- Folder icon -->
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <span class="nav-label">Files</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-indicator">
+        <!-- Lightning -->
+        <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+      </div>
+      <span class="nav-label">Transfers</span>
+      <div class="nav-badge">3</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-indicator">
+        <!-- Download -->
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      </div>
+      <span class="nav-label">Downloads</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-indicator">
+        <!-- Settings gear -->
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.488.488 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      </div>
+      <span class="nav-label">Settings</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

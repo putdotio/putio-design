@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io — iOS Files v2 Mono</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000; --bg-2: #111111; --bg-3: #1A1A1A; --bg-4: #2A2A2A;
+    --line: #2A2A2A; --solid: #6B6B6B; --text-2: #999999; --text: #E0E0E0;
+    --yellow: #FDCE45; --green: #30D158; --red: #FF453A; --blue: #0A84FF;
+    --dim: #555555;
+  }
+  body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+  .phone { width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 12px 24px 0;
+    font-size: 13px; font-weight: 500; height: 54px; flex-shrink: 0;
+  }
+  .status-bar .time { flex: 1; letter-spacing: 0.05em; }
+  .status-bar .icons { display: flex; align-items: center; gap: 6px; }
+
+  /* Breadcrumb Path */
+  .breadcrumb {
+    padding: 8px 16px 4px; font-size: 12px; color: var(--dim); flex-shrink: 0;
+  }
+  .breadcrumb .sep { color: var(--yellow); margin: 0 2px; }
+
+  /* Nav Bar */
+  .nav-bar {
+    display: flex; align-items: center; padding: 4px 16px 12px; flex-shrink: 0;
+  }
+  .nav-title { font-size: 28px; font-weight: 700; flex: 1; letter-spacing: -0.02em; }
+  .nav-action {
+    width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Search */
+  .search-bar-ios {
+    margin: 0 16px 10px; padding: 8px 12px;
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 4px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--solid); flex-shrink: 0;
+  }
+
+  /* Segmented Control */
+  .segmented {
+    display: flex; margin: 0 16px 12px;
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 4px; padding: 2px;
+    flex-shrink: 0;
+  }
+  .seg-item {
+    flex: 1; text-align: center; padding: 6px 0;
+    font-size: 11px; font-weight: 500; color: var(--dim);
+    border-radius: 2px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .seg-item.active { background: var(--bg-4); color: var(--yellow); }
+
+  /* Transfer Banner - ASCII style */
+  .transfer-banner {
+    margin: 0 16px 12px; padding: 10px 12px;
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .transfer-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .transfer-top .t-dot { width: 8px; height: 8px; border-radius: 999px; background: var(--yellow); flex-shrink: 0; }
+  .transfer-top .t-name { font-size: 13px; font-weight: 500; color: var(--text); flex: 1; }
+  .transfer-top .t-percent { font-size: 13px; font-weight: 600; color: var(--yellow); }
+  .ascii-progress {
+    font-size: 11px; color: var(--dim); letter-spacing: 0;
+  }
+  .ascii-progress .filled { color: var(--yellow); }
+
+  /* File List */
+  .file-list-ios { flex: 1; overflow-y: auto; }
+  .list-section { margin-bottom: 16px; }
+  .list-section-header {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    color: var(--dim); padding: 6px 16px; letter-spacing: 0.12em;
+  }
+  .list-group { margin: 0 16px; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+  .list-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-bottom: 1px solid var(--line);
+    min-height: 48px;
+  }
+  .list-item:last-child { border-bottom: none; }
+  .list-item .l-icon { width: 28px; height: 28px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .list-item .l-info { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; }
+  .list-item .l-name { font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-item .l-size { font-size: 12px; color: var(--dim); white-space: nowrap; text-align: right; min-width: 72px; font-variant-numeric: tabular-nums; }
+  .list-item .l-chevron { color: var(--dim); flex-shrink: 0; }
+  .list-item .l-badge {
+    font-size: 10px; border: 1px solid rgba(253,206,69,0.3); color: var(--yellow);
+    padding: 1px 6px; border-radius: 2px; font-weight: 500; flex-shrink: 0;
+    letter-spacing: 0.04em;
+  }
+  .list-item .l-type {
+    font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; flex-shrink: 0;
+  }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex; background: var(--bg-2); border-top: 1px solid var(--line);
+    padding: 6px 0 34px; flex-shrink: 0;
+  }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 9px; color: var(--dim); padding: 4px 0; position: relative;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .tab-item.active { color: var(--yellow); }
+  .tab-item .t-icon { width: 22px; height: 22px; }
+  .tab-badge {
+    position: absolute; top: -2px; right: calc(50% - 22px);
+    background: var(--yellow); color: #000; font-size: 9px; font-weight: 700;
+    min-width: 16px; height: 16px; border-radius: 2px;
+    display: flex; align-items: center; justify-content: center; padding: 0 3px;
+  }
+
+  /* Space Invader */
+  .space-invader {
+    position: absolute; bottom: 98px; right: 20px; opacity: 0.05;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">09:41</span>
+    <div class="icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+        <rect x="0" y="8" width="3" height="4" rx="0.5" fill="#E0E0E0"/>
+        <rect x="4.5" y="5" width="3" height="7" rx="0.5" fill="#E0E0E0"/>
+        <rect x="9" y="2" width="3" height="10" rx="0.5" fill="#E0E0E0"/>
+        <rect x="13.5" y="0" width="3" height="12" rx="0.5" fill="#E0E0E0"/>
+      </svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+        <path d="M8 11.5a1.2 1.2 0 100-2.4 1.2 1.2 0 000 2.4z" fill="#E0E0E0"/>
+        <path d="M5 8.2a4.5 4.5 0 016 0" stroke="#E0E0E0" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M2.5 5.5a8 8 0 0111 0" stroke="#E0E0E0" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M0.5 2.8a11.5 11.5 0 0115 0" stroke="#E0E0E0" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <svg width="27" height="13" viewBox="0 0 27 13" fill="none">
+        <rect x="0.5" y="0.5" width="23" height="12" rx="2.5" stroke="#E0E0E0" stroke-opacity="0.35"/>
+        <rect x="2" y="2" width="20" height="9" rx="1.5" fill="#E0E0E0"/>
+        <path d="M25 4.5v4a2 2 0 000-4z" fill="#E0E0E0" fill-opacity="0.4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">~<span class="sep">/</span>files</div>
+
+  <!-- Nav -->
+  <div class="nav-bar">
+    <h1 class="nav-title">Files</h1>
+    <div class="nav-action">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 1v14M1 8h14" stroke="#FDCE45" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar-ios">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <circle cx="5.5" cy="5.5" r="4.5" stroke="#6B6B6B" stroke-width="1.2"/>
+      <path d="M9.5 9.5l3.5 3.5" stroke="#6B6B6B" stroke-width="1.2" stroke-linecap="round"/>
+    </svg>
+    grep -r
+  </div>
+
+  <!-- View Toggle -->
+  <div class="segmented">
+    <div class="seg-item active">list</div>
+    <div class="seg-item">grid</div>
+  </div>
+
+  <!-- Transfer Banner - ASCII Progress -->
+  <div class="transfer-banner">
+    <div class="transfer-top">
+      <div class="t-dot"></div>
+      <span class="t-name">Inception &#183; 2160p</span>
+      <span class="t-percent">63%</span>
+    </div>
+    <div class="ascii-progress">
+      [<span class="filled">================</span><span>----------</span>] 23m left
+    </div>
+  </div>
+
+  <!-- File List -->
+  <div class="file-list-ios">
+    <div class="list-section">
+      <div class="list-section-header">directories</div>
+      <div class="list-group">
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="22" height="20" viewBox="0 0 22 20" fill="none">
+              <path d="M1 3.5A1.5 1.5 0 012.5 2h5.59l2 2H19.5A1.5 1.5 0 0121 5.5V17a1.5 1.5 0 01-1.5 1.5h-17A1.5 1.5 0 011 17V3.5z" stroke="#FDCE45" stroke-width="1.2"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <span class="l-name">downloads/</span>
+            <span class="l-size">21.78 GB</span>
+          </div>
+          <span class="l-chevron"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#555" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="22" height="20" viewBox="0 0 22 20" fill="none">
+              <path d="M1 3.5A1.5 1.5 0 012.5 2h5.59l2 2H19.5A1.5 1.5 0 0121 5.5V17a1.5 1.5 0 01-1.5 1.5h-17A1.5 1.5 0 011 17V3.5z" stroke="#FDCE45" stroke-width="1.2"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <span class="l-name">stuff/</span>
+            <span class="l-size">4.16 GB</span>
+          </div>
+          <span class="l-chevron"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#555" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="22" height="20" viewBox="0 0 22 20" fill="none">
+              <path d="M1 3.5A1.5 1.5 0 012.5 2h5.59l2 2H19.5A1.5 1.5 0 0121 5.5V17a1.5 1.5 0 01-1.5 1.5h-17A1.5 1.5 0 011 17V3.5z" stroke="#FDCE45" stroke-width="1.2"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <span class="l-name">chill institute/</span>
+            <span class="l-size">0 B</span>
+          </div>
+          <span class="l-chevron"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#555" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="22" height="20" viewBox="0 0 22 20" fill="none">
+              <path d="M1 3.5A1.5 1.5 0 012.5 2h5.59l2 2H19.5A1.5 1.5 0 0121 5.5V17a1.5 1.5 0 01-1.5 1.5h-17A1.5 1.5 0 011 17V3.5z" stroke="#FDCE45" stroke-width="1.2"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <span class="l-name">__dev__/</span>
+            <span class="l-size">6.60 GB</span>
+          </div>
+          <span class="l-chevron"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#555" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="22" height="20" viewBox="0 0 22 20" fill="none">
+              <path d="M1 3.5A1.5 1.5 0 012.5 2h5.59l2 2H19.5A1.5 1.5 0 0121 5.5V17a1.5 1.5 0 01-1.5 1.5h-17A1.5 1.5 0 011 17V3.5z" stroke="#FDCE45" stroke-width="1.2"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <span class="l-name">shared/</span>
+            <span class="l-size">102.30 TB</span>
+          </div>
+          <span class="l-chevron"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#555" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="list-section">
+      <div class="list-section-header">recent files</div>
+      <div class="list-group">
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <rect x="1" y="3" width="20" height="16" rx="2" stroke="#FDCE45" stroke-width="1.2"/>
+              <polygon points="9,7 16,11 9,15" fill="#FDCE45"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <span class="l-name">Cosmos Laundromat</span>
+            <span class="l-size">209.89 MB</span>
+          </div>
+          <span class="l-type">mkv</span>
+          <span class="l-badge">720p</span>
+        </div>
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <rect x="1" y="3" width="20" height="16" rx="2" stroke="#FDCE45" stroke-width="1.2"/>
+              <polygon points="9,7 16,11 9,15" fill="#FDCE45"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <span class="l-name">Sintel</span>
+            <span class="l-size">892.45 MB</span>
+          </div>
+          <span class="l-type">mp4</span>
+          <span class="l-badge">1080p</span>
+        </div>
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <circle cx="11" cy="11" r="9" stroke="#FDCE45" stroke-width="1.2"/>
+              <path d="M8 7v8M11 5v12M14 8v6" stroke="#FDCE45" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <span class="l-name">podcast-ep-127.mp3</span>
+            <span class="l-size">45.20 MB</span>
+          </div>
+          <span class="l-type">mp3</span>
+        </div>
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <path d="M5 1h8.5L18 5.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V2a1 1 0 011-1z" stroke="#FDCE45" stroke-width="1.2"/>
+              <path d="M13.5 1v5H18" stroke="#FDCE45" stroke-width="1.2"/>
+              <path d="M7 11h8M7 14h5" stroke="#555" stroke-width="1" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <span class="l-name">design-systems.epub</span>
+            <span class="l-size">12.30 MB</span>
+          </div>
+          <span class="l-type">epub</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Space Invader -->
+  <div class="space-invader">
+    <svg width="33" height="24" viewBox="0 0 11 8" fill="none">
+      <rect x="2" y="0" width="1" height="1" fill="#E0E0E0"/>
+      <rect x="8" y="0" width="1" height="1" fill="#E0E0E0"/>
+      <rect x="3" y="1" width="1" height="1" fill="#E0E0E0"/>
+      <rect x="7" y="1" width="1" height="1" fill="#E0E0E0"/>
+      <rect x="2" y="2" width="7" height="1" fill="#E0E0E0"/>
+      <rect x="1" y="3" width="2" height="1" fill="#E0E0E0"/>
+      <rect x="4" y="3" width="3" height="1" fill="#E0E0E0"/>
+      <rect x="8" y="3" width="2" height="1" fill="#E0E0E0"/>
+      <rect x="0" y="4" width="11" height="1" fill="#E0E0E0"/>
+      <rect x="0" y="5" width="1" height="1" fill="#E0E0E0"/>
+      <rect x="2" y="5" width="7" height="1" fill="#E0E0E0"/>
+      <rect x="10" y="5" width="1" height="1" fill="#E0E0E0"/>
+      <rect x="0" y="6" width="1" height="1" fill="#E0E0E0"/>
+      <rect x="2" y="6" width="1" height="1" fill="#E0E0E0"/>
+      <rect x="8" y="6" width="1" height="1" fill="#E0E0E0"/>
+      <rect x="10" y="6" width="1" height="1" fill="#E0E0E0"/>
+      <rect x="3" y="7" width="2" height="1" fill="#E0E0E0"/>
+      <rect x="6" y="7" width="2" height="1" fill="#E0E0E0"/>
+    </svg>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item active">
+      <svg class="t-icon" width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <path d="M2 5.5A1.5 1.5 0 013.5 4h4.59l2 2H18.5A1.5 1.5 0 0120 7.5V17a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 012 17V5.5z" fill="#FDCE45"/>
+      </svg>
+      files
+    </div>
+    <div class="tab-item">
+      <svg class="t-icon" width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <path d="M12 2L3 12h8l-1 8 9-10h-8l1-8z" stroke="#555" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="tab-badge">3</span>
+      xfers
+    </div>
+    <div class="tab-item">
+      <svg class="t-icon" width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <path d="M11 3v10m0 0l-3.5-3.5m3.5 3.5l3.5-3.5" stroke="#555" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M4.5 15v2a1.5 1.5 0 001.5 1.5h10a1.5 1.5 0 001.5-1.5v-2" stroke="#555" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      dl
+    </div>
+    <div class="tab-item">
+      <svg class="t-icon" width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <circle cx="11" cy="11" r="2.5" stroke="#555" stroke-width="1.2"/>
+        <path d="M11 2v2m0 14v2m9-9h-2M4 11H2m15.07-6.07l-1.41 1.41M6.34 16.66l-1.41 1.41m12.14 0l-1.41-1.41M6.34 5.34L4.93 3.93" stroke="#555" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      cfg
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Files (Dark Mode)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --bg-5: #35353A; --line: #3E3E44; --border: #4B4B52; --focus: #65656D;
+    --solid: #7C7C85; --text-2: #ABABB2; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868;
+    --green-9: #30A46C; --green-11: #4CC38A;
+    --red-9: #E5484D; --red-11: #FF6369;
+  }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; }
+
+  /* ---- Top Bar ---- */
+  .topbar {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 32px; border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .logo { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+  .logo span { color: var(--yellow); }
+  .topbar-spacer { flex: 1; }
+  .search-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg-3); border: 1px solid var(--border); border-radius: 10px;
+    padding: 8px 14px; width: 360px;
+  }
+  .search-bar .icon { color: var(--solid); font-size: 14px; }
+  .search-bar input { background: none; border: none; color: var(--text); font-size: 13px; outline: none; flex: 1; font-family: inherit; }
+  .search-bar input::placeholder { color: var(--solid); }
+  .search-bar .shortcut { background: var(--bg-5); color: var(--solid); font-size: 10px; padding: 2px 6px; border-radius: 3px; font-family: 'SF Mono','Menlo',monospace; }
+  .btn-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--yellow); color: #111113; font-size: 13px; font-weight: 600;
+    padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* ---- Sidebar ---- */
+  .sidebar {
+    width: 240px; background: var(--bg-2); border-right: 1px solid var(--line);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .sidebar-nav { flex: 1; padding: 12px 0; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 20px; font-size: 14px; color: var(--text-2);
+    cursor: pointer; border: none; background: none; width: 100%; text-align: left;
+    font-family: inherit; border-radius: 0;
+  }
+  .nav-item:hover { background: var(--bg-3); color: var(--text); }
+  .nav-item.active { background: var(--bg-4); color: var(--text); font-weight: 500; }
+  .nav-item .nav-icon { width: 20px; text-align: center; font-size: 16px; }
+  .nav-item.active .nav-icon { filter: none; }
+  .nav-item .badge { margin-left: auto; font-size: 11px; color: var(--solid); font-family: 'SF Mono','Menlo',monospace; }
+  .nav-sep { height: 1px; background: var(--line); margin: 8px 16px; }
+  .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--line); }
+  .storage-track { width: 100%; height: 6px; background: var(--bg-5); border-radius: 3px; margin-bottom: 8px; overflow: hidden; }
+  .storage-fill { height: 100%; background: var(--yellow); border-radius: 3px; }
+  .storage-label { font-size: 12px; color: var(--text-2); }
+  .user-row { display: flex; align-items: center; gap: 10px; padding: 12px 20px; }
+  .user-avatar { width: 28px; height: 28px; background: var(--bg-5); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .user-name { font-size: 13px; color: var(--text-2); }
+
+  /* ---- Content ---- */
+  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .content-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 32px; border-bottom: 1px solid var(--line);
+  }
+  .page-heading { font-size: 24px; font-weight: 600; flex: 1; }
+  .toolbar { display: flex; gap: 8px; align-items: center; }
+  .toolbar-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--bg-3); border: 1px solid var(--border); border-radius: 8px;
+    padding: 7px 14px; font-size: 13px; color: var(--text-2); cursor: pointer;
+    font-family: inherit;
+  }
+  .toolbar-btn:hover { background: var(--bg-4); color: var(--text); border-color: var(--focus); }
+
+  /* ---- File List ---- */
+  .file-list-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 32px; background: var(--bg-2); border-bottom: 1px solid var(--line);
+    font-size: 12px; color: var(--solid); font-weight: 500;
+  }
+  .file-list-header .col-check { width: 24px; }
+  .file-list-header .col-icon { width: 36px; }
+  .file-list-header .col-name { flex: 1; }
+  .file-list-header .col-size { width: 100px; text-align: right; }
+  .file-list-header .col-date { width: 140px; text-align: right; }
+  .file-list-header .col-actions { width: 40px; }
+
+  .file-list-body { flex: 1; overflow-y: auto; }
+  .file-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 32px; border-bottom: 1px solid var(--line);
+    cursor: pointer;
+  }
+  .file-row:hover { background: var(--bg-3); }
+  .file-row .col-check { width: 24px; }
+  .file-row .checkbox { width: 16px; height: 16px; border: 1.5px solid var(--border); border-radius: 4px; }
+  .file-row .col-icon { width: 36px; font-size: 24px; text-align: center; }
+  .file-row .col-name { flex: 1; min-width: 0; }
+  .file-row .fname { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-row .col-size { width: 100px; text-align: right; font-size: 13px; color: var(--text-2); font-family: 'SF Mono','Menlo',monospace; }
+  .file-row .col-date { width: 140px; text-align: right; font-size: 13px; color: var(--solid); }
+  .file-row .col-actions { width: 40px; text-align: center; opacity: 0; }
+  .file-row:hover .col-actions { opacity: 1; }
+  .action-dot { background: none; border: none; color: var(--text-2); cursor: pointer; font-size: 16px; padding: 4px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div style="padding:20px 20px 12px;">
+      <div class="logo">put<span>.</span>io</div>
+    </div>
+    <div class="sidebar-nav">
+      <button class="nav-item active">
+        <span class="nav-icon">📁</span> Files
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon">⚡</span> Transfers
+        <span class="badge">3</span>
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon">📡</span> RSS Automation
+      </button>
+      <div class="nav-sep"></div>
+      <button class="nav-item">
+        <span class="nav-icon">🔗</span> Sharing
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon">📋</span> History
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon">🗑</span> Trash
+        <span class="badge">19.49 GB</span>
+      </button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="storage-track"><div class="storage-fill" style="width:78%;"></div></div>
+      <div class="storage-label">11 TB of 50 TB free</div>
+    </div>
+    <div class="user-row">
+      <div class="user-avatar">👾</div>
+      <span class="user-name">altay</span>
+      <span style="margin-left:auto; color:var(--solid); cursor:pointer;">⋯</span>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="topbar">
+      <div class="topbar-spacer"></div>
+      <div class="search-bar">
+        <span class="icon">🔍</span>
+        <input placeholder="Search in put.io" />
+        <span class="shortcut">/</span>
+      </div>
+      <button class="btn-cta">+ New Transfer</button>
+    </div>
+
+    <div class="content-header">
+      <h1 class="page-heading">Your Files</h1>
+      <div class="toolbar">
+        <button class="toolbar-btn">☐ Select all</button>
+        <button class="toolbar-btn">⚙ Actions ▾</button>
+        <button class="toolbar-btn">↕ Sort by Size ▾</button>
+        <button class="toolbar-btn" style="padding:7px 10px;">☰</button>
+        <button class="toolbar-btn" style="padding:7px 10px;">▦</button>
+      </div>
+    </div>
+
+    <div class="file-list-header">
+      <div class="col-check"></div>
+      <div class="col-icon"></div>
+      <div class="col-name">Name</div>
+      <div class="col-size">Size</div>
+      <div class="col-date">Modified</div>
+      <div class="col-actions"></div>
+    </div>
+
+    <div class="file-list-body">
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">📁</div>
+        <div class="col-name"><div class="fname">rss</div></div>
+        <div class="col-size">0 B</div>
+        <div class="col-date">a year ago</div>
+        <div class="col-actions"><button class="action-dot">⋯</button></div>
+      </div>
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">📁</div>
+        <div class="col-name"><div class="fname">chill institute</div></div>
+        <div class="col-size">0 B</div>
+        <div class="col-date">16 hours ago</div>
+        <div class="col-actions"><button class="action-dot">⋯</button></div>
+      </div>
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">📁</div>
+        <div class="col-name"><div class="fname">stuff</div></div>
+        <div class="col-size">4.16 GB</div>
+        <div class="col-date">a year ago</div>
+        <div class="col-actions"><button class="action-dot">⋯</button></div>
+      </div>
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">📁</div>
+        <div class="col-name"><div class="fname">__dev__</div></div>
+        <div class="col-size">6.6 GB</div>
+        <div class="col-date">2 years ago</div>
+        <div class="col-actions"><button class="action-dot">⋯</button></div>
+      </div>
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">📁</div>
+        <div class="col-name"><div class="fname">downloads</div></div>
+        <div class="col-size">21.78 GB</div>
+        <div class="col-date">a day ago</div>
+        <div class="col-actions"><button class="action-dot">⋯</button></div>
+      </div>
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">📁</div>
+        <div class="col-name"><div class="fname">__o-o__</div></div>
+        <div class="col-size">1.74 TB</div>
+        <div class="col-date">2 years ago</div>
+        <div class="col-actions"><button class="action-dot">⋯</button></div>
+      </div>
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">📁</div>
+        <div class="col-name"><div class="fname">Items shared with you</div></div>
+        <div class="col-size">102.3 TB</div>
+        <div class="col-date">6 years ago</div>
+        <div class="col-actions"><button class="action-dot">⋯</button></div>
+      </div>
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">🎬</div>
+        <div class="col-name"><div class="fname">Cosmos Laundromat.mp4</div></div>
+        <div class="col-size">209.89 MB</div>
+        <div class="col-date">2 days ago</div>
+        <div class="col-actions"><button class="action-dot">⋯</button></div>
+      </div>
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">🎬</div>
+        <div class="col-name"><div class="fname">Sintel.mp4</div></div>
+        <div class="col-size">892.45 MB</div>
+        <div class="col-date">3 days ago</div>
+        <div class="col-actions"><button class="action-dot">⋯</button></div>
+      </div>
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">🎵</div>
+        <div class="col-name"><div class="fname">podcast-episode-127.mp3</div></div>
+        <div class="col-size">45.2 MB</div>
+        <div class="col-date">5 days ago</div>
+        <div class="col-actions"><button class="action-dot">⋯</button></div>
+      </div>
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">📄</div>
+        <div class="col-name"><div class="fname">ebook-design-systems.epub</div></div>
+        <div class="col-size">12.3 MB</div>
+        <div class="col-date">a week ago</div>
+        <div class="col-actions"><button class="action-dot">⋯</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

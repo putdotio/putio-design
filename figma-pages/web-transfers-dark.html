@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Transfers (Dark Mode)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --bg-5: #35353A; --line: #3E3E44; --border: #4B4B52; --focus: #65656D;
+    --solid: #7C7C85; --text-2: #ABABB2; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868;
+    --green-9: #30A46C; --green-11: #4CC38A;
+    --red-9: #E5484D; --red-11: #FF6369;
+  }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; }
+  .sidebar { width: 240px; background: var(--bg-2); border-right: 1px solid var(--line); display: flex; flex-direction: column; flex-shrink: 0; }
+  .sidebar-nav { flex: 1; padding: 12px 0; }
+  .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; font-size: 14px; color: var(--text-2); cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-family: inherit; }
+  .nav-item:hover { background: var(--bg-3); color: var(--text); }
+  .nav-item.active { background: var(--bg-4); color: var(--text); font-weight: 500; }
+  .nav-item .nav-icon { width: 20px; text-align: center; font-size: 16px; }
+  .nav-item .badge { margin-left: auto; font-size: 11px; color: var(--solid); font-family: 'SF Mono','Menlo',monospace; }
+  .nav-sep { height: 1px; background: var(--line); margin: 8px 16px; }
+  .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--line); }
+  .storage-track { width: 100%; height: 6px; background: var(--bg-5); border-radius: 3px; margin-bottom: 8px; overflow: hidden; }
+  .storage-fill { height: 100%; background: var(--yellow); border-radius: 3px; }
+  .storage-label { font-size: 12px; color: var(--text-2); }
+  .user-row { display: flex; align-items: center; gap: 10px; padding: 12px 20px; }
+  .user-avatar { width: 28px; height: 28px; background: var(--bg-5); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .user-name { font-size: 13px; color: var(--text-2); }
+  .logo { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; padding: 20px 20px 12px; }
+  .logo span { color: var(--yellow); }
+  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { display: flex; align-items: center; gap: 16px; padding: 16px 32px; border-bottom: 1px solid var(--line); }
+  .topbar-spacer { flex: 1; }
+  .search-bar { display: flex; align-items: center; gap: 10px; background: var(--bg-3); border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px; width: 360px; }
+  .search-bar input { background: none; border: none; color: var(--text); font-size: 13px; outline: none; flex: 1; font-family: inherit; }
+  .search-bar input::placeholder { color: var(--solid); }
+  .search-bar .shortcut { background: var(--bg-5); color: var(--solid); font-size: 10px; padding: 2px 6px; border-radius: 3px; font-family: 'SF Mono','Menlo',monospace; }
+  .btn-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--yellow); color: #111113; font-size: 13px; font-weight: 600; padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-family: inherit; }
+  .content-header { display: flex; align-items: center; gap: 16px; padding: 20px 32px; border-bottom: 1px solid var(--line); }
+  .page-heading { font-size: 24px; font-weight: 600; flex: 1; }
+  .toolbar { display: flex; gap: 8px; align-items: center; }
+  .toolbar-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-3); border: 1px solid var(--border); border-radius: 8px; padding: 7px 14px; font-size: 13px; color: var(--text-2); cursor: pointer; font-family: inherit; }
+  .btn-clear { display: inline-flex; align-items: center; gap: 6px; background: none; border: 1px solid var(--border); border-radius: 8px; padding: 7px 14px; font-size: 13px; color: var(--text-2); cursor: pointer; font-family: inherit; }
+  .btn-clear:hover { border-color: var(--red-9); color: var(--red-11); }
+
+  .transfer-list { flex: 1; overflow-y: auto; }
+  .transfer-item { display: flex; align-items: flex-start; gap: 16px; padding: 20px 32px; border-bottom: 1px solid var(--line); }
+  .transfer-item:hover { background: var(--bg-3); }
+  .health-dot { width: 12px; height: 12px; border-radius: 999px; flex-shrink: 0; margin-top: 6px; }
+  .health-dot.green { background: var(--green-9); box-shadow: 0 0 8px rgba(48,164,108,0.4); }
+  .health-dot.yellow { background: var(--yellow); box-shadow: 0 0 8px rgba(253,206,69,0.4); }
+  .health-dot.red { background: var(--red-9); box-shadow: 0 0 8px rgba(229,72,77,0.4); }
+  .transfer-info { flex: 1; min-width: 0; }
+  .transfer-title-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .transfer-name { font-size: 15px; font-weight: 500; color: var(--text); }
+  .badge { display: inline-flex; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+  .badge-quality { background: rgba(253,206,69,0.15); color: var(--yellow); }
+  .badge-source { background: var(--bg-5); color: var(--text-2); }
+  .transfer-meta { font-size: 12px; color: var(--solid); margin-bottom: 8px; }
+  .progress-bar { width: 100%; height: 4px; background: var(--bg-5); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 2px; }
+  .progress-fill.green { background: var(--green-9); }
+  .progress-fill.yellow { background: var(--yellow); }
+  .progress-fill.red { background: var(--red-9); }
+  .transfer-actions { display: flex; gap: 8px; flex-shrink: 0; align-items: flex-start; margin-top: 2px; }
+  .btn-goto { display: inline-flex; align-items: center; gap: 6px; background: var(--green-9); color: white; font-size: 13px; font-weight: 500; padding: 7px 16px; border-radius: 8px; border: none; cursor: pointer; font-family: inherit; }
+  .btn-goto:hover { background: #3CB179; }
+  .btn-ghost-sm { background: none; border: none; color: var(--text-2); font-size: 13px; cursor: pointer; padding: 7px 12px; border-radius: 8px; font-family: inherit; }
+  .btn-ghost-sm:hover { background: var(--bg-4); color: var(--text); }
+  .btn-retry { background: none; border: 1px solid var(--red-9); color: var(--red-11); font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-family: inherit; }
+  .percent { font-size: 14px; font-weight: 600; color: var(--yellow); font-family: 'SF Mono','Menlo',monospace; min-width: 48px; text-align: right; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo">put<span>.</span>io</div>
+    <div class="sidebar-nav">
+      <button class="nav-item"><span class="nav-icon">📁</span> Files</button>
+      <button class="nav-item active"><span class="nav-icon">⚡</span> Transfers <span class="badge">3</span></button>
+      <button class="nav-item"><span class="nav-icon">📡</span> RSS Automation</button>
+      <div class="nav-sep"></div>
+      <button class="nav-item"><span class="nav-icon">🔗</span> Sharing</button>
+      <button class="nav-item"><span class="nav-icon">📋</span> History</button>
+      <button class="nav-item"><span class="nav-icon">🗑</span> Trash <span class="badge">19.49 GB</span></button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="storage-track"><div class="storage-fill" style="width:78%;"></div></div>
+      <div class="storage-label">11 TB of 50 TB free</div>
+    </div>
+    <div class="user-row"><div class="user-avatar">👾</div><span class="user-name">altay</span><span style="margin-left:auto; color:var(--solid);">⋯</span></div>
+  </div>
+
+  <div class="content">
+    <div class="topbar">
+      <div class="topbar-spacer"></div>
+      <div class="search-bar"><span style="color:var(--solid);">🔍</span><input placeholder="Search in put.io" /><span class="shortcut">/</span></div>
+      <button class="btn-cta">+ New Transfer</button>
+    </div>
+
+    <div class="content-header">
+      <h1 class="page-heading">Transfers</h1>
+      <div class="toolbar">
+        <button class="toolbar-btn">⚙ Actions ▾</button>
+        <button class="toolbar-btn">↕ Sort by Date Added ▾</button>
+        <button class="btn-clear">✕ Clear Completed</button>
+      </div>
+    </div>
+
+    <div class="transfer-list">
+      <!-- Completed -->
+      <div class="transfer-item">
+        <div class="health-dot green"></div>
+        <div class="transfer-info">
+          <div class="transfer-title-row">
+            <span class="transfer-name">Pose</span>
+            <span class="badge badge-quality">720p</span>
+            <span class="badge badge-source">WEBRip</span>
+          </div>
+          <div class="transfer-meta">Completed · 763.09 MB · seed time: 3m · ratio: 1.03</div>
+          <div class="progress-bar"><div class="progress-fill green" style="width:100%;"></div></div>
+        </div>
+        <div class="transfer-actions">
+          <button class="btn-goto">Go to File</button>
+        </div>
+      </div>
+
+      <!-- Completed -->
+      <div class="transfer-item">
+        <div class="health-dot green"></div>
+        <div class="transfer-info">
+          <div class="transfer-title-row">
+            <span class="transfer-name">Pose</span>
+            <span class="badge badge-quality">720p</span>
+            <span class="badge badge-source">WEBRip</span>
+            <span class="badge badge-source">LAMA</span>
+          </div>
+          <div class="transfer-meta">Completed · 735.88 MB · seed time: 12h 27m · ratio: 1.00</div>
+          <div class="progress-bar"><div class="progress-fill green" style="width:100%;"></div></div>
+        </div>
+        <div class="transfer-actions">
+          <button class="btn-goto">Go to File</button>
+        </div>
+      </div>
+
+      <!-- Downloading -->
+      <div class="transfer-item">
+        <div class="health-dot yellow"></div>
+        <div class="transfer-info">
+          <div class="transfer-title-row">
+            <span class="transfer-name">Inception</span>
+            <span class="badge badge-quality">2160p</span>
+            <span class="badge badge-source">BluRay</span>
+          </div>
+          <div class="transfer-meta">Downloading · 4.2 GB of 6.7 GB · 23 min remaining · 42 sources</div>
+          <div class="progress-bar"><div class="progress-fill yellow" style="width:63%;"></div></div>
+        </div>
+        <div class="percent">63%</div>
+      </div>
+
+      <!-- Downloading -->
+      <div class="transfer-item">
+        <div class="health-dot yellow"></div>
+        <div class="transfer-info">
+          <div class="transfer-title-row">
+            <span class="transfer-name">The Wolf of Wall Street</span>
+            <span class="badge badge-quality">1080p</span>
+          </div>
+          <div class="transfer-meta">Downloading · 1.45 GB of 2.22 GB · 8 min remaining · 87 sources</div>
+          <div class="progress-bar"><div class="progress-fill yellow" style="width:65%;"></div></div>
+        </div>
+        <div class="percent">65%</div>
+      </div>
+
+      <!-- Seeding -->
+      <div class="transfer-item">
+        <div class="health-dot green"></div>
+        <div class="transfer-info">
+          <div class="transfer-title-row">
+            <span class="transfer-name">Marty Supreme</span>
+            <span class="badge badge-quality">1080p</span>
+            <span class="badge badge-source">WEBRip</span>
+          </div>
+          <div class="transfer-meta">Seeding · 15.38 GB · ratio: 1.24 · 6 days remaining</div>
+          <div class="progress-bar"><div class="progress-fill green" style="width:100%;"></div></div>
+        </div>
+        <div class="transfer-actions">
+          <button class="btn-goto">Go to File</button>
+        </div>
+      </div>
+
+      <!-- Failed -->
+      <div class="transfer-item">
+        <div class="health-dot red"></div>
+        <div class="transfer-info">
+          <div class="transfer-title-row">
+            <span class="transfer-name">Rare Documentary 1987</span>
+            <span class="badge badge-quality">SD</span>
+          </div>
+          <div class="transfer-meta">Stalled · No sources found · Added 2 days ago</div>
+          <div class="progress-bar"><div class="progress-fill red" style="width:8%;"></div></div>
+        </div>
+        <div class="transfer-actions">
+          <button class="btn-retry">Retry</button>
+          <button class="btn-ghost-sm">✕</button>
+        </div>
+      </div>
+
+      <!-- Another completed -->
+      <div class="transfer-item">
+        <div class="health-dot green"></div>
+        <div class="transfer-info">
+          <div class="transfer-title-row">
+            <span class="transfer-name">Thor: Love and Thunder</span>
+            <span class="badge badge-quality">1080p</span>
+            <span class="badge badge-source">BluRay</span>
+          </div>
+          <div class="transfer-meta">Completed · 2.19 GB · seed time: 16h · ratio: 2.31</div>
+          <div class="progress-bar"><div class="progress-fill green" style="width:100%;"></div></div>
+        </div>
+        <div class="transfer-actions">
+          <button class="btn-goto">Go to File</button>
+        </div>
+      </div>
+
+      <!-- Recovery note -->
+      <div class="transfer-item" style="opacity:0.6;">
+        <div class="health-dot" style="background:var(--solid);"></div>
+        <div class="transfer-info">
+          <div class="transfer-title-row">
+            <span class="transfer-name">from put.io — files we couldn't recover</span>
+          </div>
+          <div class="transfer-meta">2025-10-02 · 2.26 KB · Expired</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

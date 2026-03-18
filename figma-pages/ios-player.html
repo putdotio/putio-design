@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io — iOS Video Player</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000; --bg-2: #1C1C1E; --bg-3: #2C2C2E; --bg-4: #3A3A3C;
+    --line: #38383A; --solid: #8E8E93; --text-2: #AEAEB2; --text: #FFFFFF;
+    --yellow: #FDCE45; --yellow-subtle: rgba(253, 206, 69, 0.15);
+    --green: #30D158; --red: #FF453A; --blue: #0A84FF;
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .phone {
+    width: 390px; height: 844px; overflow: hidden;
+    display: flex; flex-direction: column; position: relative;
+  }
+
+  /* ========= SCREEN 1: FULL VIDEO PLAYER ========= */
+  .player-screen {
+    width: 390px; height: 844px; position: relative; overflow: hidden;
+  }
+
+  /* Video background */
+  .video-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 40% 35%, rgba(22, 33, 62, 0.7) 0%, transparent 55%),
+      radial-gradient(ellipse at 65% 55%, rgba(26, 26, 46, 0.8) 0%, transparent 50%),
+      linear-gradient(180deg, #0d0d14 0%, #111128 40%, #0a1628 70%, #080810 100%);
+  }
+
+  /* Status bar */
+  .status-bar {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 50;
+    display: flex; align-items: center; padding: 14px 24px 0;
+    height: 54px;
+  }
+  .status-time {
+    flex: 1; font-size: 15px; font-weight: 600; color: #fff;
+  }
+  .status-icons {
+    display: flex; gap: 5px; align-items: center;
+  }
+
+  /* Top bar */
+  .top-bar {
+    position: absolute; top: 44px; left: 0; right: 0; z-index: 40;
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
+  }
+  .top-btn {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(12px);
+    border-radius: 50%; border: none;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; cursor: pointer;
+  }
+  .top-title-area { flex: 1; min-width: 0; }
+  .top-title {
+    font-size: 16px; font-weight: 600; color: #fff;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .top-meta {
+    font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 1px;
+  }
+
+  /* Subtitle overlay */
+  .subtitle-overlay {
+    position: absolute; bottom: 260px; left: 50%; transform: translateX(-50%);
+    z-index: 15; width: 340px; text-align: center;
+  }
+  .subtitle-text {
+    display: inline;
+    background: rgba(0,0,0,0.75);
+    color: #fff; font-size: 16px; font-weight: 400;
+    padding: 4px 14px; border-radius: 4px;
+    line-height: 1.6;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
+  /* Center play controls */
+  .center-controls {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    z-index: 20; display: flex; align-items: center; gap: 40px;
+  }
+  .center-btn {
+    background: none; border: none; color: rgba(255,255,255,0.85);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .center-btn.main-play {
+    width: 68px; height: 68px;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(16px);
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.2);
+  }
+  .center-btn .skip-num {
+    position: absolute; font-size: 11px; font-weight: 700;
+    color: rgba(255,255,255,0.85); margin-top: 2px;
+  }
+
+  /* Bottom controls */
+  .bottom-controls {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 30;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 70%, transparent 100%);
+    padding: 0 20px 40px;
+  }
+
+  /* Progress scrubber */
+  .scrubber-section { margin-bottom: 16px; }
+  .scrubber-times {
+    display: flex; justify-content: space-between; margin-bottom: 8px;
+  }
+  .scrubber-time {
+    font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.6);
+    font-variant-numeric: tabular-nums;
+  }
+  .scrubber-track {
+    width: 100%; height: 4px; background: rgba(255,255,255,0.2);
+    border-radius: 2px; position: relative;
+  }
+  .scrubber-fill {
+    height: 100%; background: var(--yellow); border-radius: 2px; width: 42%;
+    box-shadow: 0 0 8px rgba(253, 206, 69, 0.25);
+  }
+  .scrubber-dot {
+    width: 16px; height: 16px; background: var(--yellow);
+    border-radius: 50%; position: absolute; top: 50%; left: 42%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 12px rgba(253, 206, 69, 0.5), 0 0 3px rgba(253, 206, 69, 0.8);
+  }
+  .scrubber-loaded {
+    position: absolute; top: 0; left: 0; height: 100%;
+    background: rgba(255,255,255,0.12); border-radius: 2px; width: 65%;
+  }
+
+  /* Bottom actions row */
+  .bottom-actions {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .bottom-action-btn {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    padding: 8px;
+  }
+  .speed-pill {
+    font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.1); padding: 4px 10px;
+    border-radius: 6px; border: none; cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* Gesture hint */
+  .gesture-hint {
+    position: absolute; top: 100px; left: 50%; transform: translateX(-50%);
+    z-index: 35;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    opacity: 0.4;
+  }
+  .gesture-hint-text {
+    font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 500;
+  }
+
+  /* ========= SCREEN 2: LOCK SCREEN / DYNAMIC ISLAND ========= */
+  .lockscreen {
+    width: 390px; height: 844px; position: absolute; top: 0; left: 390px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #1a1a2e 0%, #0d0d18 50%, #0a0a10 100%);
+  }
+
+  /* Dynamic Island */
+  .dynamic-island {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    width: 200px; height: 44px;
+    background: #000; border-radius: 22px;
+    display: flex; align-items: center; padding: 0 14px;
+    gap: 10px; z-index: 60;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  }
+  .di-artwork {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: linear-gradient(135deg, var(--yellow), #e8a820);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .di-waveform {
+    flex: 1; display: flex; align-items: center; gap: 2px; height: 20px;
+  }
+  .di-bar {
+    width: 3px; border-radius: 2px; background: var(--yellow);
+  }
+
+  /* Lock screen content */
+  .ls-time-display {
+    text-align: center; padding-top: 80px; margin-bottom: 40px;
+  }
+  .ls-time {
+    font-size: 86px; font-weight: 300; color: #fff;
+    letter-spacing: -2px; line-height: 1;
+  }
+  .ls-date {
+    font-size: 20px; color: rgba(255,255,255,0.6); margin-top: 4px;
+  }
+
+  /* Now Playing widget */
+  .now-playing-widget {
+    margin: 0 24px; padding: 20px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(30px);
+    border-radius: 20px; border: 1px solid rgba(255,255,255,0.08);
+  }
+  .npw-header {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
+  }
+  .npw-artwork {
+    width: 56px; height: 56px; border-radius: 12px;
+    background: linear-gradient(135deg, #1a2a3e 0%, #0f1e35 50%, #162040 100%);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+  .npw-info { flex: 1; min-width: 0; }
+  .npw-title {
+    font-size: 16px; font-weight: 600; color: #fff;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .npw-subtitle {
+    font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 2px;
+  }
+  .npw-app-icon {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: var(--yellow); display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .npw-progress {
+    margin-bottom: 14px;
+  }
+  .npw-track {
+    width: 100%; height: 4px; background: rgba(255,255,255,0.15);
+    border-radius: 2px; position: relative;
+  }
+  .npw-fill {
+    height: 100%; background: var(--yellow); border-radius: 2px; width: 42%;
+    box-shadow: 0 0 6px rgba(253, 206, 69, 0.2);
+  }
+  .npw-times {
+    display: flex; justify-content: space-between; margin-top: 6px;
+  }
+  .npw-time {
+    font-size: 11px; color: rgba(255,255,255,0.4);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .npw-controls {
+    display: flex; align-items: center; justify-content: center; gap: 36px;
+  }
+  .npw-btn {
+    background: none; border: none; color: rgba(255,255,255,0.85);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Transfer progress notification */
+  .transfer-notif {
+    margin: 16px 24px 0; padding: 14px 16px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(30px);
+    border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .tn-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--yellow); display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .tn-info { flex: 1; min-width: 0; }
+  .tn-title {
+    font-size: 14px; font-weight: 600; color: #fff;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .tn-subtitle {
+    font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px;
+  }
+  .tn-progress {
+    height: 3px; background: rgba(255,255,255,0.1);
+    border-radius: 2px; margin-top: 6px; overflow: hidden;
+  }
+  .tn-progress .fill {
+    height: 100%; background: var(--yellow); border-radius: 2px;
+  }
+  .tn-percent {
+    font-size: 15px; font-weight: 700; color: var(--yellow);
+    font-variant-numeric: tabular-nums; flex-shrink: 0;
+  }
+
+  /* Lock screen bottom indicators */
+  .ls-bottom {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 0 50px 40px;
+    display: flex; justify-content: space-between;
+  }
+  .ls-shortcut {
+    width: 50px; height: 50px; border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .home-indicator {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 134px; height: 5px; background: rgba(255,255,255,0.3);
+    border-radius: 3px;
+  }
+
+  /* ========= LAYOUT: side by side ========= */
+  .dual-layout {
+    display: flex; gap: 60px; padding: 0;
+  }
+  .screen-wrapper {
+    position: relative; flex-shrink: 0;
+  }
+  .screen-label {
+    text-align: center; font-size: 14px; font-weight: 600;
+    color: var(--solid); margin-bottom: 16px; letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="dual-layout">
+
+  <!-- SCREEN 1: Video Player -->
+  <div class="screen-wrapper">
+    <div class="screen-label">Video Player</div>
+    <div class="phone" style="border-radius:44px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);">
+      <div class="player-screen">
+        <div class="video-bg"></div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+          <span class="status-time">9:41</span>
+          <div class="status-icons">
+            <!-- Signal bars -->
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="white"><rect x="0" y="9" width="3" height="3" rx="0.5"/><rect x="4.5" y="6" width="3" height="6" rx="0.5"/><rect x="9" y="3" width="3" height="9" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5"/></svg>
+            <!-- WiFi -->
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><path d="M8,11.5a1.5,1.5,0,1,0,0-3,1.5,1.5,0,0,0,0,3Z"/><path d="M4.93,7.56a4.5,4.5,0,0,1,6.14,0" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/><path d="M2.1,4.73a8,8,0,0,1,11.8,0" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <!-- Battery -->
+            <svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x="0.5" y="0.5" width="23" height="12" rx="3" stroke="white" stroke-opacity="0.35"/><rect x="2" y="2" width="18" height="9" rx="1.5" fill="white"/><path d="M25,4.5v4a2,2,0,0,0,0-4Z" fill="white" fill-opacity="0.4"/></svg>
+          </div>
+        </div>
+
+        <!-- Top Bar -->
+        <div class="top-bar">
+          <!-- Back button -->
+          <button class="top-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15,18 9,12 15,6"/>
+            </svg>
+          </button>
+          <div class="top-title-area">
+            <div class="top-title">The Wire</div>
+            <div class="top-meta">S03E04 &middot; 1080p</div>
+          </div>
+          <!-- AirPlay -->
+          <button class="top-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5,17H4a2,2,0,0,1-2-2V5A2,2,0,0,1,4,3H20a2,2,0,0,1,2,2V15a2,2,0,0,1-2,2H19"/>
+              <polygon points="12,15 17,21 7,21"/>
+            </svg>
+          </button>
+          <!-- PiP -->
+          <button class="top-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <rect x="12" y="9" width="8" height="6" rx="1" fill="rgba(255,255,255,0.3)"/>
+              <path d="M7,10L4,13" stroke-width="1.5"/>
+              <polyline points="4,10 4,13 7,13" stroke-width="1.5"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Subtitle -->
+        <div class="subtitle-overlay">
+          <span class="subtitle-text">You come at the king, you best not miss.</span>
+        </div>
+
+        <!-- Gesture hint (swipe down) -->
+        <div class="gesture-hint">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6,9 12,15 18,9"/>
+          </svg>
+          <span class="gesture-hint-text">Swipe for info</span>
+        </div>
+
+        <!-- Center Controls -->
+        <div class="center-controls">
+          <!-- Skip Back 15s -->
+          <button class="center-btn" style="position:relative;">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1,4V10H7"/>
+              <path d="M1,10A10,10,0,1,1,3.51,17.36"/>
+            </svg>
+            <span class="skip-num">15</span>
+          </button>
+
+          <!-- Play/Pause -->
+          <button class="center-btn main-play">
+            <svg width="32" height="32" viewBox="0 0 256 256" fill="currentColor">
+              <rect x="72" y="56" width="36" height="144" rx="6"/>
+              <rect x="148" y="56" width="36" height="144" rx="6"/>
+            </svg>
+          </button>
+
+          <!-- Skip Forward 15s -->
+          <button class="center-btn" style="position:relative;">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23,4V10H17"/>
+              <path d="M23,10A10,10,0,1,1,20.49,17.36"/>
+            </svg>
+            <span class="skip-num">15</span>
+          </button>
+        </div>
+
+        <!-- Bottom Controls -->
+        <div class="bottom-controls">
+          <!-- Scrubber -->
+          <div class="scrubber-section">
+            <div class="scrubber-times">
+              <span class="scrubber-time">22:14</span>
+              <span class="scrubber-time">-35:46</span>
+            </div>
+            <div class="scrubber-track">
+              <div class="scrubber-loaded"></div>
+              <div class="scrubber-fill"></div>
+              <div class="scrubber-dot"></div>
+            </div>
+          </div>
+
+          <!-- Bottom actions -->
+          <div class="bottom-actions">
+            <!-- Subtitles -->
+            <button class="bottom-action-btn">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="4" width="22" height="16" rx="2"/>
+                <line x1="5" y1="12" x2="11" y2="12"/>
+                <line x1="13" y1="12" x2="19" y2="12"/>
+                <line x1="5" y1="16" x2="15" y2="16"/>
+              </svg>
+            </button>
+
+            <!-- Audio -->
+            <button class="bottom-action-btn">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11,5 6,9 2,9 2,15 6,15 11,19"/>
+                <path d="M15.54,8.46a5,5,0,0,1,0,7.07"/>
+                <path d="M19.07,4.93a10,10,0,0,1,0,14.14"/>
+              </svg>
+            </button>
+
+            <!-- Speed -->
+            <button class="speed-pill">1.0x</button>
+
+            <!-- Lock -->
+            <button class="bottom-action-btn">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                <path d="M7,11V7a5,5,0,0,1,10,0v4"/>
+              </svg>
+            </button>
+
+            <!-- Fullscreen -->
+            <button class="bottom-action-btn">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15,3 21,3 21,9"/>
+                <polyline points="9,21 3,21 3,15"/>
+                <line x1="21" y1="3" x2="14" y2="10"/>
+                <line x1="3" y1="21" x2="10" y2="14"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Home indicator -->
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: Lock Screen + Dynamic Island -->
+  <div class="screen-wrapper">
+    <div class="screen-label">Lock Screen &middot; Now Playing</div>
+    <div class="phone" style="border-radius:44px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);">
+      <div class="lockscreen" style="position:relative;">
+        <!-- Dynamic Island -->
+        <div class="dynamic-island">
+          <div class="di-artwork">
+            <svg width="14" height="14" viewBox="0 0 256 256" fill="#000"><path d="M80,48V208l144-80Z"/></svg>
+          </div>
+          <div class="di-waveform">
+            <div class="di-bar" style="height:6px;"></div>
+            <div class="di-bar" style="height:14px;"></div>
+            <div class="di-bar" style="height:10px;"></div>
+            <div class="di-bar" style="height:18px;"></div>
+            <div class="di-bar" style="height:8px;"></div>
+            <div class="di-bar" style="height:16px;"></div>
+            <div class="di-bar" style="height:12px;"></div>
+            <div class="di-bar" style="height:6px;"></div>
+            <div class="di-bar" style="height:14px;"></div>
+            <div class="di-bar" style="height:10px;"></div>
+            <div class="di-bar" style="height:4px;"></div>
+          </div>
+          <!-- Pause icon in DI -->
+          <svg width="12" height="12" viewBox="0 0 256 256" fill="#FDCE45"><rect x="72" y="56" width="36" height="144" rx="6"/><rect x="148" y="56" width="36" height="144" rx="6"/></svg>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar" style="position:relative;">
+          <span class="status-time" style="visibility:hidden;">9:41</span>
+          <div class="status-icons">
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="white"><rect x="0" y="9" width="3" height="3" rx="0.5"/><rect x="4.5" y="6" width="3" height="6" rx="0.5"/><rect x="9" y="3" width="3" height="9" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5"/></svg>
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><path d="M8,11.5a1.5,1.5,0,1,0,0-3,1.5,1.5,0,0,0,0,3Z"/><path d="M4.93,7.56a4.5,4.5,0,0,1,6.14,0" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/><path d="M2.1,4.73a8,8,0,0,1,11.8,0" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x="0.5" y="0.5" width="23" height="12" rx="3" stroke="white" stroke-opacity="0.35"/><rect x="2" y="2" width="18" height="9" rx="1.5" fill="white"/><path d="M25,4.5v4a2,2,0,0,0,0-4Z" fill="white" fill-opacity="0.4"/></svg>
+          </div>
+        </div>
+
+        <!-- Time Display -->
+        <div class="ls-time-display">
+          <div class="ls-time">9:41</div>
+          <div class="ls-date">Wednesday, March 18</div>
+        </div>
+
+        <!-- Now Playing Widget -->
+        <div class="now-playing-widget">
+          <div class="npw-header">
+            <div class="npw-artwork">
+              <svg width="24" height="24" viewBox="0 0 256 256" fill="rgba(255,255,255,0.3)"><path d="M80,48V208l144-80Z"/></svg>
+            </div>
+            <div class="npw-info">
+              <div class="npw-title">The Wire &mdash; S03E04</div>
+              <div class="npw-subtitle">put.io</div>
+            </div>
+            <div class="npw-app-icon">
+              <span style="font-size:11px;font-weight:800;color:#000;letter-spacing:-0.02em;">p.</span>
+            </div>
+          </div>
+
+          <div class="npw-progress">
+            <div class="npw-track">
+              <div class="npw-fill"></div>
+            </div>
+            <div class="npw-times">
+              <span class="npw-time">22:14</span>
+              <span class="npw-time">58:00</span>
+            </div>
+          </div>
+
+          <div class="npw-controls">
+            <!-- Skip back -->
+            <button class="npw-btn" style="position:relative;">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1,4V10H7"/>
+                <path d="M1,10A10,10,0,1,1,3.51,17.36"/>
+              </svg>
+              <span style="position:absolute;font-size:9px;font-weight:700;color:rgba(255,255,255,0.85);">15</span>
+            </button>
+            <!-- Play -->
+            <button class="npw-btn">
+              <svg width="38" height="38" viewBox="0 0 256 256" fill="currentColor"><path d="M80,48V208l144-80Z"/></svg>
+            </button>
+            <!-- Skip forward -->
+            <button class="npw-btn" style="position:relative;">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23,4V10H17"/>
+                <path d="M23,10A10,10,0,1,1,20.49,17.36"/>
+              </svg>
+              <span style="position:absolute;font-size:9px;font-weight:700;color:rgba(255,255,255,0.85);">15</span>
+            </button>
+            <!-- AirPlay -->
+            <button class="npw-btn">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5,17H4a2,2,0,0,1-2-2V5A2,2,0,0,1,4,3H20a2,2,0,0,1,2,2V15a2,2,0,0,1-2,2H19"/>
+                <polygon points="12,15 17,21 7,21"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Transfer Progress Notification -->
+        <div class="transfer-notif">
+          <div class="tn-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="7,10 12,15 17,10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+              <path d="M21,15v4a2,2,0,0,1-2,2H5a2,2,0,0,1-2-2v-4"/>
+            </svg>
+          </div>
+          <div class="tn-info">
+            <div class="tn-title">Inception &middot; 2160p</div>
+            <div class="tn-subtitle">Transfer in progress</div>
+            <div class="tn-progress"><div class="fill" style="width:63%;"></div></div>
+          </div>
+          <span class="tn-percent">63%</span>
+        </div>
+
+        <!-- Bottom shortcuts -->
+        <div class="ls-bottom">
+          <!-- Flashlight -->
+          <div class="ls-shortcut">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9,2h6l1,7-2,2v11H10V11L8,9Z"/>
+              <circle cx="12" cy="15" r="1" fill="white"/>
+            </svg>
+          </div>
+          <!-- Camera -->
+          <div class="ls-shortcut">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23,19a2,2,0,0,1-2,2H3a2,2,0,0,1-2-2V8a2,2,0,0,1,2-2H7l2-3h6l2,3h4a2,2,0,0,1,2,2Z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Home indicator -->
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

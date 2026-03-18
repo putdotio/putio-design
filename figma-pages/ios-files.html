@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io — iOS Files</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000; --bg-2: #1C1C1E; --bg-3: #2C2C2E; --bg-4: #3A3A3C;
+    --line: #38383A; --solid: #8E8E93; --text-2: #AEAEB2; --text: #FFFFFF;
+    --yellow: #FDCE45; --green: #30D158; --red: #FF453A; --blue: #0A84FF;
+  }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+  .phone { width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 12px 24px 0;
+    font-size: 15px; font-weight: 600; height: 54px;
+  }
+  .status-bar .time { flex: 1; }
+  .status-bar .icons { display: flex; gap: 6px; font-size: 13px; color: var(--text); }
+
+  /* Nav Bar */
+  .nav-bar {
+    display: flex; align-items: center; padding: 8px 16px 12px;
+  }
+  .nav-title { font-size: 34px; font-weight: 700; flex: 1; }
+  .nav-action {
+    width: 36px; height: 36px; background: var(--bg-3); border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: var(--yellow);
+  }
+
+  /* Search */
+  .search-bar-ios {
+    margin: 0 16px 12px; padding: 10px 14px;
+    background: var(--bg-2); border-radius: 12px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 16px; color: var(--solid);
+  }
+
+  /* Segmented Control */
+  .segmented {
+    display: flex; margin: 0 16px 16px;
+    background: var(--bg-2); border-radius: 10px; padding: 2px;
+  }
+  .seg-item {
+    flex: 1; text-align: center; padding: 8px 0;
+    font-size: 13px; font-weight: 500; color: var(--text-2);
+    border-radius: 8px; cursor: pointer;
+  }
+  .seg-item.active { background: var(--bg-3); color: var(--text); font-weight: 600; }
+
+  /* File List */
+  .file-list-ios { flex: 1; overflow-y: auto; }
+  .list-section { margin-bottom: 20px; }
+  .list-section-header {
+    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    color: var(--solid); padding: 8px 16px; letter-spacing: 0.04em;
+  }
+  .list-group { background: var(--bg-2); margin: 0 16px; border-radius: 12px; overflow: hidden; }
+  .list-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px; border-bottom: 1px solid var(--line);
+    min-height: 56px;
+  }
+  .list-item:last-child { border-bottom: none; }
+  .list-item .l-icon { font-size: 28px; width: 36px; text-align: center; flex-shrink: 0; }
+  .list-item .l-info { flex: 1; min-width: 0; }
+  .list-item .l-name { font-size: 17px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-item .l-meta { font-size: 14px; color: var(--solid); margin-top: 2px; }
+  .list-item .l-chevron { color: var(--solid); font-size: 14px; }
+  .list-item .l-badge {
+    font-size: 11px; background: rgba(253,206,69,0.15); color: var(--yellow);
+    padding: 2px 8px; border-radius: 4px; font-weight: 500; margin-left: 8px;
+  }
+
+  /* Transfer Banner */
+  .transfer-banner {
+    margin: 0 16px 16px; padding: 14px 16px;
+    background: var(--bg-2); border-radius: 12px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .transfer-banner .t-dot { width: 10px; height: 10px; border-radius: 999px; background: var(--yellow); box-shadow: 0 0 8px rgba(253,206,69,0.4); flex-shrink: 0; }
+  .transfer-banner .t-info { flex: 1; }
+  .transfer-banner .t-name { font-size: 15px; font-weight: 500; color: var(--text); }
+  .transfer-banner .t-status { font-size: 13px; color: var(--solid); }
+  .transfer-banner .t-percent { font-size: 15px; font-weight: 600; color: var(--yellow); font-family: 'SF Mono','Menlo',monospace; }
+  .progress-mini { height: 3px; background: var(--bg-4); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+  .progress-mini .fill { height: 100%; background: var(--yellow); border-radius: 2px; }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex; background: rgba(28,28,30,0.95); backdrop-filter: blur(20px);
+    border-top: 1px solid var(--line); padding: 6px 0 34px; flex-shrink: 0;
+  }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 10px; color: var(--solid); padding: 4px 0;
+  }
+  .tab-item.active { color: var(--yellow); }
+  .tab-item .t-icon { font-size: 22px; }
+  .tab-item .t-badge {
+    position: relative; top: -4px; right: -8px;
+    background: var(--yellow); color: #000; font-size: 10px; font-weight: 700;
+    width: 18px; height: 18px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <span>📶</span> <span>📡</span> <span>🔋</span>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav-bar">
+    <h1 class="nav-title">Files</h1>
+    <div class="nav-action">+</div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar-ios">
+    🔍 Search
+  </div>
+
+  <!-- View Toggle -->
+  <div class="segmented">
+    <div class="seg-item active">List</div>
+    <div class="seg-item">Grid</div>
+  </div>
+
+  <!-- Transfer in Progress Banner -->
+  <div class="transfer-banner">
+    <div class="t-dot"></div>
+    <div class="t-info">
+      <div class="t-name">Inception · 2160p</div>
+      <div class="t-status">Downloading · 23 min left</div>
+      <div class="progress-mini"><div class="fill" style="width:63%;"></div></div>
+    </div>
+    <span class="t-percent">63%</span>
+  </div>
+
+  <!-- File List -->
+  <div class="file-list-ios">
+    <div class="list-section">
+      <div class="list-group">
+        <div class="list-item">
+          <span class="l-icon">📁</span>
+          <div class="l-info">
+            <div class="l-name">downloads</div>
+            <div class="l-meta">21.78 GB · 8 items</div>
+          </div>
+          <span class="l-chevron">›</span>
+        </div>
+        <div class="list-item">
+          <span class="l-icon">📁</span>
+          <div class="l-info">
+            <div class="l-name">stuff</div>
+            <div class="l-meta">4.16 GB · a year ago</div>
+          </div>
+          <span class="l-chevron">›</span>
+        </div>
+        <div class="list-item">
+          <span class="l-icon">📁</span>
+          <div class="l-info">
+            <div class="l-name">chill institute</div>
+            <div class="l-meta">0 B · 16 hours ago</div>
+          </div>
+          <span class="l-chevron">›</span>
+        </div>
+        <div class="list-item">
+          <span class="l-icon">📁</span>
+          <div class="l-info">
+            <div class="l-name">__dev__</div>
+            <div class="l-meta">6.6 GB · 2 years ago</div>
+          </div>
+          <span class="l-chevron">›</span>
+        </div>
+        <div class="list-item">
+          <span class="l-icon">📁</span>
+          <div class="l-info">
+            <div class="l-name">Items shared with you</div>
+            <div class="l-meta">102.3 TB</div>
+          </div>
+          <span class="l-chevron">›</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="list-section">
+      <div class="list-section-header">Recent Files</div>
+      <div class="list-group">
+        <div class="list-item">
+          <span class="l-icon">🎬</span>
+          <div class="l-info">
+            <div class="l-name">Cosmos Laundromat</div>
+            <div class="l-meta">209.89 MB · 2 days ago</div>
+          </div>
+          <span class="l-badge">720p</span>
+        </div>
+        <div class="list-item">
+          <span class="l-icon">🎬</span>
+          <div class="l-info">
+            <div class="l-name">Sintel</div>
+            <div class="l-meta">892.45 MB · 3 days ago</div>
+          </div>
+          <span class="l-badge">1080p</span>
+        </div>
+        <div class="list-item">
+          <span class="l-icon">🎵</span>
+          <div class="l-info">
+            <div class="l-name">podcast-episode-127.mp3</div>
+            <div class="l-meta">45.2 MB · 5 days ago</div>
+          </div>
+        </div>
+        <div class="list-item">
+          <span class="l-icon">📄</span>
+          <div class="l-info">
+            <div class="l-name">ebook-design-systems.epub</div>
+            <div class="l-meta">12.3 MB · a week ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item active">
+      <span class="t-icon">📁</span>
+      Files
+    </div>
+    <div class="tab-item">
+      <span class="t-icon">⚡</span>
+      <div style="display:flex; align-items:center;">Transfers<span class="t-badge">3</span></div>
+    </div>
+    <div class="tab-item">
+      <span class="t-icon">⬇</span>
+      Downloads
+    </div>
+    <div class="tab-item">
+      <span class="t-icon">⚙</span>
+      Settings
+    </div>
+  </div>
+</div>
+</body>
+</html>

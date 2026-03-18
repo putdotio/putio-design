@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>put.io — Android TV Player</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A0C; --bg-2: #141416; --bg-3: #1E1E22; --bg-4: #28282E;
+    --line: #333339; --border: #444450; --solid: #6C6C78;
+    --text-2: #9C9CA8; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868;
+    --yellow-subtle: rgba(253, 206, 69, 0.15);
+    --green-9: #30A46C; --green-11: #4CC38A;
+  }
+  body {
+    font-family: 'Inter', 'Roboto', sans-serif;
+    background: var(--bg); color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .tv-frame {
+    width: 1920px; height: 1080px; position: relative; overflow: hidden;
+  }
+
+  /* Video background */
+  .video-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 40% 35%, rgba(22, 33, 62, 0.7) 0%, transparent 55%),
+      radial-gradient(ellipse at 65% 55%, rgba(26, 26, 46, 0.8) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 85%, rgba(15, 52, 96, 0.4) 0%, transparent 40%),
+      linear-gradient(180deg, #0d0d12 0%, #111128 30%, #0a1628 60%, #080810 100%);
+  }
+
+  /* put.io watermark */
+  .watermark {
+    position: absolute; top: 40px; left: 60px; z-index: 5;
+    font-size: 22px; font-weight: 700; color: rgba(255,255,255,0.2);
+    letter-spacing: -0.02em;
+  }
+  .watermark span { color: rgba(253,206,69,0.35); }
+
+  /* D-pad hint overlay */
+  .dpad-hint {
+    position: absolute; top: 40px; right: 60px; z-index: 5;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+  }
+  .dpad-hint-item {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 16px; color: rgba(255,255,255,0.3);
+    background: rgba(0,0,0,0.3);
+    padding: 6px 14px; border-radius: 8px;
+  }
+  .dpad-hint-item svg { width: 18px; height: 18px; fill: rgba(255,255,255,0.3); }
+  .dpad-hint-item .key-label {
+    font-size: 13px; font-weight: 600;
+    background: rgba(255,255,255,0.1);
+    padding: 2px 8px; border-radius: 4px;
+    color: rgba(255,255,255,0.4);
+  }
+
+  /* Info panel (top overlay, triggered by D-pad up) */
+  .info-panel {
+    position: absolute; top: 0; left: 0; right: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.85) 80%, transparent 100%);
+    padding: 60px 90px 120px;
+    z-index: 30;
+    display: flex; gap: 80px;
+  }
+  .info-main { flex: 1; }
+  .info-title {
+    font-size: 52px; font-weight: 700; color: #fff;
+    margin-bottom: 8px; letter-spacing: -0.02em;
+  }
+  .info-episode {
+    font-size: 26px; font-weight: 500; color: rgba(255,255,255,0.6);
+    margin-bottom: 24px;
+  }
+  .info-badges {
+    display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap;
+  }
+  .badge {
+    font-size: 16px; font-weight: 600; padding: 6px 16px;
+    border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .badge-yellow { background: var(--yellow-subtle); color: var(--yellow); }
+  .badge-neutral { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+  .badge-green { background: rgba(48,164,108,0.15); color: var(--green-11); }
+  .info-filename {
+    font-size: 16px; color: rgba(255,255,255,0.35);
+    font-family: 'Inter', monospace;
+    word-break: break-all;
+  }
+
+  /* Track selectors */
+  .info-selectors { width: 400px; flex-shrink: 0; }
+  .selector-group { margin-bottom: 28px; }
+  .selector-label {
+    font-size: 15px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--solid); margin-bottom: 14px;
+  }
+  .selector-option {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px; background: rgba(255,255,255,0.06);
+    border-radius: 12px; margin-bottom: 6px;
+    border: 2px solid transparent; cursor: pointer;
+    font-size: 20px; color: rgba(255,255,255,0.7);
+    transition: all 0.15s;
+  }
+  .selector-option:hover { background: rgba(255,255,255,0.1); }
+  .selector-option.active {
+    border-color: var(--yellow);
+    background: rgba(253,206,69,0.08); color: #fff;
+  }
+  .selector-option.focused {
+    border-color: var(--yellow);
+    box-shadow: 0 0 0 3px rgba(253,206,69,0.25);
+    background: rgba(253,206,69,0.08); color: #fff;
+  }
+  .selector-check {
+    width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+  }
+  .selector-option-text { flex: 1; }
+  .selector-option-meta { font-size: 15px; color: var(--solid); }
+
+  /* Bottom controls overlay */
+  .controls-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 60%, transparent 100%);
+    padding: 0 90px 48px;
+    z-index: 20;
+  }
+
+  /* Filename display */
+  .now-playing {
+    margin-bottom: 16px;
+  }
+  .now-playing-title {
+    font-size: 28px; font-weight: 600; color: #fff;
+    margin-bottom: 4px;
+  }
+  .now-playing-subtitle {
+    font-size: 20px; color: rgba(255,255,255,0.5);
+  }
+
+  /* Progress bar */
+  .progress-section { margin-bottom: 24px; }
+  .time-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  .time-label {
+    font-size: 20px; font-weight: 500; color: rgba(255,255,255,0.6);
+    font-variant-numeric: tabular-nums;
+  }
+  .progress-track {
+    width: 100%; height: 6px; background: rgba(255,255,255,0.2);
+    border-radius: 3px; position: relative; cursor: pointer;
+  }
+  .progress-fill {
+    height: 100%; background: var(--yellow); border-radius: 3px;
+    box-shadow: 0 0 12px rgba(253,206,69,0.3);
+  }
+  .progress-dot {
+    width: 20px; height: 20px; background: var(--yellow);
+    border-radius: 50%; position: absolute; top: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 16px rgba(253,206,69,0.5), 0 0 4px rgba(253,206,69,0.8);
+  }
+
+  /* D-pad controls display */
+  .dpad-controls {
+    display: flex; align-items: center; justify-content: center; gap: 48px;
+  }
+  .ctrl-btn {
+    background: none; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.7);
+    transition: all 0.15s;
+    position: relative;
+  }
+  .ctrl-btn:hover { color: #fff; }
+  .ctrl-btn svg { display: block; }
+  .ctrl-btn.play-btn {
+    width: 84px; height: 84px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 50%;
+    backdrop-filter: blur(12px);
+    border: 2px solid rgba(255,255,255,0.15);
+  }
+  .ctrl-btn.play-btn.focused {
+    border-color: var(--yellow);
+    box-shadow: 0 0 0 3px rgba(253,206,69,0.3), 0 4px 24px rgba(253,206,69,0.2);
+    background: rgba(253,206,69,0.12);
+  }
+
+  /* Skip labels */
+  .skip-hint {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 16px; font-weight: 500; color: rgba(255,255,255,0.4);
+  }
+  .skip-hint svg { width: 24px; height: 24px; fill: currentColor; }
+
+  /* Side controls */
+  .side-controls-left, .side-controls-right {
+    position: absolute; bottom: 56px; display: flex; align-items: center; gap: 28px; z-index: 20;
+  }
+  .side-controls-left { left: 90px; }
+  .side-controls-right { right: 90px; }
+
+  /* Back button hint */
+  .back-hint {
+    position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+    font-size: 15px; color: rgba(255,255,255,0.2);
+    z-index: 20;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <!-- Video Background -->
+  <div class="video-bg"></div>
+
+  <!-- Watermark -->
+  <div class="watermark">put<span>.</span>io</div>
+
+  <!-- D-pad hints (top right) -->
+  <div class="dpad-hint">
+    <div class="dpad-hint-item">
+      <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+      <span class="key-label">UP</span>
+      Info
+    </div>
+    <div class="dpad-hint-item">
+      <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+      <span class="key-label">DOWN</span>
+      Controls
+    </div>
+  </div>
+
+  <!-- Info Panel (triggered by D-pad up) -->
+  <div class="info-panel">
+    <div class="info-main">
+      <div class="info-title">The Wire</div>
+      <div class="info-episode">Season 3, Episode 4 -- "Hamsterdam"</div>
+      <div class="info-badges">
+        <span class="badge badge-yellow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          1080p
+        </span>
+        <span class="badge badge-neutral">BluRay</span>
+        <span class="badge badge-neutral">x264</span>
+        <span class="badge badge-neutral">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8"/></svg>
+          MKV
+        </span>
+        <span class="badge badge-green">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+          DEMAND
+        </span>
+      </div>
+      <div class="info-filename">The.Wire.S03E04.1080p.BluRay.x264-DEMAND.mkv</div>
+    </div>
+
+    <div class="info-selectors">
+      <!-- Audio Track Selector -->
+      <div class="selector-group">
+        <div class="selector-label">Audio Track</div>
+        <div class="selector-option active">
+          <div class="selector-check">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FDCE45" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+          </div>
+          <span class="selector-option-text">English</span>
+          <span class="selector-option-meta">5.1 Surround</span>
+        </div>
+        <div class="selector-option">
+          <div class="selector-check"></div>
+          <span class="selector-option-text">English</span>
+          <span class="selector-option-meta">Stereo</span>
+        </div>
+        <div class="selector-option">
+          <div class="selector-check"></div>
+          <span class="selector-option-text">Spanish</span>
+          <span class="selector-option-meta">Stereo</span>
+        </div>
+      </div>
+
+      <!-- Subtitle Selector -->
+      <div class="selector-group">
+        <div class="selector-label">Subtitles</div>
+        <div class="selector-option focused">
+          <div class="selector-check">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FDCE45" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+          </div>
+          <span class="selector-option-text">English (SRT)</span>
+          <span class="selector-option-meta">Full</span>
+        </div>
+        <div class="selector-option">
+          <div class="selector-check"></div>
+          <span class="selector-option-text">English (SDH)</span>
+          <span class="selector-option-meta">Full</span>
+        </div>
+        <div class="selector-option">
+          <div class="selector-check"></div>
+          <span class="selector-option-text">Off</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Controls Overlay -->
+  <div class="controls-overlay">
+    <!-- Now Playing info -->
+    <div class="now-playing">
+      <div class="now-playing-title">The Wire -- S03E04</div>
+      <div class="now-playing-subtitle">Season 3, Episode 4 -- "Hamsterdam"</div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-section">
+      <div class="time-row">
+        <span class="time-label">22:14</span>
+        <span class="time-label">-35:46</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" style="width:38%;"></div>
+        <div class="progress-dot" style="left:38%;"></div>
+      </div>
+    </div>
+
+    <!-- D-pad transport controls -->
+    <div class="dpad-controls">
+      <!-- Subtitles -->
+      <button class="ctrl-btn" title="Subtitles">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="4" width="22" height="16" rx="2"/>
+          <line x1="5" y1="12" x2="11" y2="12"/>
+          <line x1="13" y1="12" x2="19" y2="12"/>
+          <line x1="5" y1="16" x2="15" y2="16"/>
+        </svg>
+      </button>
+
+      <!-- Skip Back -->
+      <div class="skip-hint">
+        <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/></svg>
+        10s
+      </div>
+
+      <!-- Play/Pause (center, focused) -->
+      <button class="ctrl-btn play-btn focused" title="Play/Pause">
+        <svg width="38" height="38" viewBox="0 0 256 256" fill="currentColor">
+          <rect x="72" y="56" width="36" height="144" rx="6"/>
+          <rect x="148" y="56" width="36" height="144" rx="6"/>
+        </svg>
+      </button>
+
+      <!-- Skip Forward -->
+      <div class="skip-hint">
+        10s
+        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+      </div>
+
+      <!-- Audio -->
+      <button class="ctrl-btn" title="Audio">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11,5 6,9 2,9 2,15 6,15 11,19"/>
+          <path d="M15.54,8.46a5,5,0,0,1,0,7.07"/>
+          <path d="M19.07,4.93a10,10,0,0,1,0,14.14"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Side controls left -->
+  <div class="side-controls-left">
+    <button class="ctrl-btn" title="Settings">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4,15a1.65,1.65,0,0,0,.33,1.82l.06.06a2,2,0,0,1-2.83,2.83l-.06-.06a1.65,1.65,0,0,0-1.82-.33,1.65,1.65,0,0,0-1,1.51V21a2,2,0,0,1-4,0v-.09A1.65,1.65,0,0,0,9,19.4a1.65,1.65,0,0,0-1.82.33l-.06.06a2,2,0,0,1-2.83-2.83l.06-.06A1.65,1.65,0,0,0,4.68,15a1.65,1.65,0,0,0-1.51-1H3a2,2,0,0,1,0-4h.09A1.65,1.65,0,0,0,4.6,9a1.65,1.65,0,0,0-.33-1.82l-.06-.06A2,2,0,0,1,7.04,4.29l.06.06A1.65,1.65,0,0,0,9,4.68a1.65,1.65,0,0,0,1-1.51V3a2,2,0,0,1,4,0v.09a1.65,1.65,0,0,0,1,1.51,1.65,1.65,0,0,0,1.82-.33l.06-.06a2,2,0,0,1,2.83,2.83l-.06.06A1.65,1.65,0,0,0,19.4,9a1.65,1.65,0,0,0,1.51,1H21a2,2,0,0,1,0,4h-.09A1.65,1.65,0,0,0,19.4,15Z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Side controls right -->
+  <div class="side-controls-right">
+    <button class="ctrl-btn" title="Speed" style="font-size:18px;font-weight:700;color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.08);padding:6px 14px;border-radius:8px;">
+      1.0x
+    </button>
+  </div>
+
+  <!-- Back button hint -->
+  <div class="back-hint">Press back to dismiss menu</div>
+</div>
+</body>
+</html>

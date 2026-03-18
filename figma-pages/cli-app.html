@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>put.io — CLI Terminal</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0A0A0C;
+    --bg-term: #0E0E12;
+    --bg-titlebar: #1A1A1F;
+    --bg-2: #16161A;
+    --bg-3: #1E1E24;
+    --line: #2A2A32;
+    --border: #3A3A44;
+    --solid: #5A5A68;
+    --text-3: #7A7A8A;
+    --text-2: #A0A0B0;
+    --text: #D0D0DA;
+    --white: #E8E8F0;
+
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.15);
+    --green: #4CC38A;
+    --green-dim: rgba(76, 195, 138, 0.15);
+    --red: #FF6369;
+    --red-dim: rgba(255, 99, 105, 0.15);
+    --blue: #6CB6FF;
+    --cyan: #22D3EE;
+    --purple: #A78BFA;
+
+    --font: 'JetBrains Mono', 'SF Mono', 'Menlo', 'Consolas', monospace;
+    --font-display: 'Inter', -apple-system, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: #18181B;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1200px;
+    height: 800px;
+  }
+
+  /* ================================================================
+     TERMINAL WINDOW
+     ================================================================ */
+  .terminal {
+    width: 1040px;
+    height: 680px;
+    background: var(--bg-term);
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,0.3),
+      0 8px 40px rgba(0,0,0,0.5),
+      0 2px 12px rgba(0,0,0,0.3);
+  }
+
+  /* ---- Title Bar ---- */
+  .titlebar {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--bg-titlebar);
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+    gap: 12px;
+  }
+  .titlebar-dots {
+    display: flex;
+    gap: 8px;
+  }
+  .dot-close { width: 12px; height: 12px; border-radius: 999px; background: #FF5F57; }
+  .dot-minimize { width: 12px; height: 12px; border-radius: 999px; background: #FEBC2E; }
+  .dot-maximize { width: 12px; height: 12px; border-radius: 999px; background: #28C840; }
+  .titlebar-text {
+    flex: 1;
+    text-align: center;
+    font-size: 12px;
+    color: var(--solid);
+    font-family: var(--font);
+  }
+  .titlebar-spacer { width: 68px; } /* Balance the dots */
+
+  /* ---- Terminal Body ---- */
+  .term-body {
+    flex: 1;
+    padding: 20px 24px;
+    overflow-y: auto;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  /* Prompt styling */
+  .prompt { color: var(--text-3); }
+  .prompt-cmd { color: var(--yellow); font-weight: 600; }
+  .prompt-path { color: var(--blue); }
+
+  /* Output colors */
+  .c-yellow { color: var(--yellow); }
+  .c-green { color: var(--green); }
+  .c-red { color: var(--red); }
+  .c-blue { color: var(--blue); }
+  .c-cyan { color: var(--cyan); }
+  .c-purple { color: var(--purple); }
+  .c-dim { color: var(--text-3); }
+  .c-solid { color: var(--solid); }
+  .c-text { color: var(--text); }
+  .c-white { color: var(--white); }
+  .c-bold { font-weight: 700; }
+
+  /* Line block */
+  .line {
+    white-space: pre;
+    font-family: var(--font);
+  }
+  .line-blank {
+    height: 22px;
+  }
+
+  /* Progress bar character styling */
+  .bar-fill { color: var(--yellow); }
+  .bar-empty { color: var(--bg-3); }
+  .bar-fill-green { color: var(--green); }
+  .bar-fill-red { color: var(--red); }
+
+  /* Section divider */
+  .term-divider {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 12px 0;
+  }
+
+  /* ---- Status Bar at bottom ---- */
+  .term-status {
+    display: flex;
+    align-items: center;
+    padding: 8px 24px;
+    background: var(--bg);
+    border-top: 1px solid var(--line);
+    font-size: 11px;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--solid);
+  }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px rgba(76, 195, 138, 0.4);
+  }
+  .status-value { color: var(--text-2); }
+  .status-spacer { flex: 1; }
+  .status-kaomoji { color: var(--yellow); font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="terminal">
+
+  <!-- Title Bar -->
+  <div class="titlebar">
+    <div class="titlebar-dots">
+      <div class="dot-close"></div>
+      <div class="dot-minimize"></div>
+      <div class="dot-maximize"></div>
+    </div>
+    <div class="titlebar-text">putio -- bash -- 120x40</div>
+    <div class="titlebar-spacer"></div>
+  </div>
+
+  <!-- Terminal Body -->
+  <div class="term-body">
+
+    <!-- Startup message -->
+    <div class="line"><span class="c-yellow c-bold">put.io CLI</span> <span class="c-dim">v2.4.0</span></div>
+    <div class="line"><span class="c-dim">connected to Istanbul-EU datacenter</span></div>
+    <div class="line"><span class="c-yellow">&#x1565;(&#xF2;_&#xF3;&#x02C7;)&#x1565; ready.</span></div>
+    <div class="line-blank"></div>
+
+    <!-- Command 1: Add transfer -->
+    <div class="line"><span class="prompt">$ </span><span class="prompt-cmd">putio</span> <span class="c-text">transfer add</span> <span class="c-dim">"magnet:?xt=urn:btih:a1b2c3d4..."</span></div>
+    <div class="line"><span class="c-yellow">&#x26A1;</span> <span class="c-text">Transfer started:</span> <span class="c-white c-bold">Inception (2025) 2160p BluRay</span></div>
+    <div class="line"><span class="c-dim">  hash: a1b2c3d4...e5f6  size: 67.4 GB  seeders: 142</span></div>
+    <div class="line-blank"></div>
+
+    <!-- Command 2: List files -->
+    <div class="line"><span class="prompt">$ </span><span class="prompt-cmd">putio</span> <span class="c-text">files ls</span> <span class="c-blue">~/downloads</span></div>
+    <div class="line-blank"></div>
+    <div class="line"><span class="c-yellow c-bold">  downloads/</span></div>
+    <div class="line"><span class="c-dim">  &#x251C;&#x2500;&#x2500;</span> <span class="c-white">Inception (2025) 2160p</span>    <span class="c-text">67.4 GB</span>  <span class="c-dim">3 days ago</span></div>
+    <div class="line"><span class="c-dim">  &#x251C;&#x2500;&#x2500;</span> <span class="c-white">The Wire S03/</span>             <span class="c-text">45.2 GB</span>  <span class="c-dim">6 months</span></div>
+    <div class="line"><span class="c-dim">  &#x2514;&#x2500;&#x2500;</span> <span class="c-white">Cosmos Laundromat.mp4</span>   <span class="c-text">209.8 MB</span>  <span class="c-dim">2 days ago</span></div>
+    <div class="line-blank"></div>
+    <div class="line"><span class="c-dim">  3 items, 112.8 GB total</span></div>
+    <div class="line-blank"></div>
+
+    <!-- Command 3: Transfers -->
+    <div class="line"><span class="prompt">$ </span><span class="prompt-cmd">putio</span> <span class="c-text">transfers</span></div>
+    <div class="line-blank"></div>
+    <div class="line"><span class="c-yellow">&#x25CF;</span> <span class="c-white">Inception</span>     <span class="bar-fill">&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;</span><span class="bar-empty">&#x2591;&#x2591;&#x2591;&#x2591;</span> <span class="c-yellow c-bold">63%</span>  <span class="c-text">42.3 MB/s</span>  <span class="c-dim">23m left</span></div>
+    <div class="line"><span class="c-yellow">&#x25CF;</span> <span class="c-white">Wolf of WS</span>    <span class="bar-fill">&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;</span><span class="bar-empty">&#x2591;&#x2591;&#x2591;&#x2591;</span> <span class="c-yellow c-bold">65%</span>  <span class="c-text">38.1 MB/s</span>  <span class="c-dim"> 8m left</span></div>
+    <div class="line"><span class="c-green">&#x2713;</span> <span class="c-white">Pose</span>          <span class="bar-fill-green">&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;</span> <span class="c-green c-bold">done</span>  <span class="c-dim">763 MB</span></div>
+    <div class="line-blank"></div>
+
+    <!-- Command 4: Storage -->
+    <div class="line"><span class="prompt">$ </span><span class="prompt-cmd">putio</span> <span class="c-text">storage</span></div>
+    <div class="line-blank"></div>
+    <div class="line"><span class="c-text">  </span><span class="bar-fill">&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;</span><span class="bar-empty">&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;</span> <span class="c-yellow c-bold">78%</span> <span class="c-dim">(39 TB / 50 TB)</span></div>
+    <div class="line-blank"></div>
+    <div class="line"><span class="c-dim">  breakdown:</span></div>
+    <div class="line"><span class="c-dim">    video</span>    <span class="bar-fill">&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;</span><span class="bar-empty">&#x2591;&#x2591;</span>  <span class="c-text">31.2 TB</span></div>
+    <div class="line"><span class="c-dim">    audio</span>    <span class="c-purple">&#x2588;&#x2588;</span><span class="bar-empty">&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;</span>  <span class="c-text"> 4.8 TB</span></div>
+    <div class="line"><span class="c-dim">    other</span>    <span class="c-blue">&#x2588;</span><span class="bar-empty">&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;</span>  <span class="c-text"> 3.0 TB</span></div>
+    <div class="line-blank"></div>
+
+    <!-- Command 5: Search -->
+    <div class="line"><span class="prompt">$ </span><span class="prompt-cmd">putio</span> <span class="c-text">search</span> <span class="c-dim">"cosmos"</span></div>
+    <div class="line-blank"></div>
+    <div class="line"><span class="c-dim">  found 2 results:</span></div>
+    <div class="line"><span class="c-text">  1.</span> <span class="c-white">Cosmos Laundromat.mp4</span>   <span class="c-dim">~/downloads/</span>   <span class="c-text">209.8 MB</span></div>
+    <div class="line"><span class="c-text">  2.</span> <span class="c-white">Cosmos S02E04.mkv</span>       <span class="c-dim">~/__o-o__/</span>    <span class="c-text">  1.4 GB</span></div>
+    <div class="line-blank"></div>
+
+    <!-- Command 6: Error example -->
+    <div class="line"><span class="prompt">$ </span><span class="prompt-cmd">putio</span> <span class="c-text">transfer add</span> <span class="c-dim">"magnet:?xt=urn:btih:deadbeef..."</span></div>
+    <div class="line"><span class="c-red">&#x2717;</span> <span class="c-red">Error:</span> <span class="c-text">No seeds available for this torrent</span></div>
+    <div class="line"><span class="c-dim">  hash: deadbeef...  seeders: 0  last seen: 3 months ago</span></div>
+    <div class="line-blank"></div>
+
+    <!-- Active prompt -->
+    <div class="line"><span class="prompt">$ </span><span class="prompt-cmd">putio</span> <span class="c-yellow" style="animation: blink 1s step-end infinite;">&#x2588;</span></div>
+
+  </div>
+
+  <!-- Status Bar -->
+  <div class="term-status">
+    <div class="status-item">
+      <div class="status-dot"></div>
+      <span class="status-value">Istanbul-EU</span>
+    </div>
+    <div class="status-item">
+      <span class="c-solid">transfers</span>
+      <span class="status-value c-yellow" style="color: var(--yellow);">2 active</span>
+    </div>
+    <div class="status-item">
+      <span class="c-solid">storage</span>
+      <span class="status-value">78%</span>
+    </div>
+    <div class="status-item">
+      <span class="c-solid">speed</span>
+      <span style="color: var(--green);">80.4 MB/s</span>
+    </div>
+    <div class="status-spacer"></div>
+    <div class="status-item">
+      <span class="c-solid">altay@put.io</span>
+    </div>
+    <div class="status-kaomoji">&#x1565;(&#xF2;_&#xF3;&#x02C7;)&#x1565;</div>
+  </div>
+
+</div>
+
+</body>
+</html>

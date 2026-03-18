@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — RSS Automation (Clean Modern)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #0C0C0E;
+    --bg-1: #111114;
+    --bg-2: #161619;
+    --bg-3: #1C1C20;
+    --bg-4: #232328;
+    --bg-5: #2A2A30;
+    --bg-hover: #1E1E23;
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-default: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.12);
+    --text-primary: #EDEDEF;
+    --text-secondary: #A0A0A8;
+    --text-tertiary: #6C6C76;
+    --text-quaternary: #4A4A52;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.12);
+    --yellow-hover: #FDD85C;
+    --green: #3ECF8E;
+    --green-dim: rgba(62, 207, 142, 0.12);
+    --red: #EF4444;
+    --red-dim: rgba(239, 68, 68, 0.12);
+    --blue: #60A5FA;
+    --orange: #F59E0B;
+    --orange-dim: rgba(245, 158, 11, 0.12);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-0);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' 1, 'ss01' 1;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 232px;
+    background: var(--bg-1);
+    border-right: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+    user-select: none;
+  }
+  .logo .dot { color: var(--yellow); }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 0 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .nav-section-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-quaternary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 20px 12px 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 12px;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    border-radius: 6px;
+    transition: background 0.1s ease, color 0.1s ease;
+    line-height: 1;
+  }
+  .nav-item:hover {
+    background: var(--bg-3);
+    color: var(--text-primary);
+  }
+  .nav-item.active {
+    background: var(--bg-3);
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .nav-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .nav-icon svg { display: block; }
+  .nav-item .badge {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+  }
+  .nav-item .badge-live {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--yellow);
+    background: var(--yellow-dim);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  .nav-sep {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 6px 12px;
+  }
+
+  .sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .storage-bar-wrap { margin-bottom: 8px; }
+  .storage-track {
+    width: 100%;
+    height: 3px;
+    background: var(--bg-4);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .storage-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+  .storage-label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    margin: 4px 0 0 0;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .user-row:hover { background: var(--bg-3); }
+
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    background: var(--bg-4);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .user-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    flex: 1;
+  }
+  .user-menu-dots {
+    color: var(--text-quaternary);
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg-0);
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-1);
+    min-height: 52px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-tertiary);
+  }
+  .breadcrumb-item {
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .breadcrumb-item:hover { color: var(--text-primary); }
+  .breadcrumb-item.current { color: var(--text-primary); }
+
+  .topbar-spacer { flex: 1; }
+
+  .search-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+    width: 220px;
+  }
+  .search-trigger:hover { border-color: var(--border-strong); }
+  .search-trigger .search-icon {
+    color: var(--text-quaternary);
+    display: flex;
+    align-items: center;
+  }
+  .search-trigger .search-text {
+    font-size: 12.5px;
+    color: var(--text-quaternary);
+    flex: 1;
+    font-family: inherit;
+  }
+  .search-trigger .search-shortcut {
+    font-size: 10px;
+    color: var(--text-quaternary);
+    background: var(--bg-4);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+    line-height: 1.4;
+  }
+
+  .btn-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--yellow);
+    color: #0C0C0E;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: -0.01em;
+    transition: background 0.1s ease;
+    line-height: 1;
+  }
+  .btn-cta:hover { background: var(--yellow-hover); }
+  .btn-cta svg { display: block; }
+
+  /* Content header */
+  .content-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 28px 16px;
+  }
+
+  .page-heading {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    flex: 1;
+  }
+
+  /* ===== RSS SPECIFIC ===== */
+  .rss-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 28px 28px;
+  }
+
+  .rss-content::-webkit-scrollbar { width: 6px; }
+  .rss-content::-webkit-scrollbar-track { background: transparent; }
+  .rss-content::-webkit-scrollbar-thumb { background: var(--bg-5); border-radius: 3px; }
+
+  /* Feeds list */
+  .feeds-header {
+    display: grid;
+    grid-template-columns: 28px 1fr 90px 120px 80px 36px;
+    align-items: center;
+    padding: 0 0 0 0;
+    height: 32px;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-quaternary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .col-right { text-align: right; }
+  .col-center { text-align: center; }
+
+  .feed-row {
+    display: grid;
+    grid-template-columns: 28px 1fr 90px 120px 80px 36px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: background 0.08s ease;
+    border-radius: 0;
+  }
+  .feed-row:hover { background: var(--bg-hover); }
+
+  .feed-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .feed-name {
+    font-size: 13.5px;
+    font-weight: 450;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 16px;
+  }
+  .feed-name-sub {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+
+  .feed-meta {
+    font-size: 12.5px;
+    color: var(--text-tertiary);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .feed-date {
+    font-size: 12.5px;
+    color: var(--text-quaternary);
+    text-align: right;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .status-badge.healthy {
+    color: var(--green);
+    background: var(--green-dim);
+  }
+  .status-badge.warning {
+    color: var(--orange);
+    background: var(--orange-dim);
+  }
+  .status-badge.error {
+    color: var(--red);
+    background: var(--red-dim);
+  }
+  .status-badge .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .feed-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+  }
+  .feed-row:hover .feed-actions { opacity: 1; }
+
+  .action-more {
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    letter-spacing: 2px;
+  }
+  .action-more:hover {
+    background: var(--bg-4);
+    color: var(--text-primary);
+  }
+
+  /* Expanded episodes */
+  .feed-expanded {
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 8px 0 8px 44px;
+  }
+
+  .episode-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    border-radius: 4px;
+  }
+  .episode-row:hover {
+    background: var(--bg-3);
+    color: var(--text-primary);
+  }
+  .episode-title {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .episode-date {
+    color: var(--text-quaternary);
+    font-size: 11.5px;
+    flex-shrink: 0;
+  }
+  .episode-icon {
+    color: var(--text-quaternary);
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  /* ShowRSS hint */
+  .hint-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--yellow-dim);
+    border: 1px solid rgba(253, 206, 69, 0.15);
+    border-radius: 8px;
+    margin-top: 16px;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+  }
+  .hint-bar svg { flex-shrink: 0; }
+  .hint-bar a {
+    color: var(--yellow);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .hint-bar a:hover { text-decoration: underline; }
+
+  /* Status bar */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 28px;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-1);
+    font-size: 11.5px;
+    color: var(--text-quaternary);
+    min-height: 34px;
+  }
+  .status-bar .status-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Action buttons row */
+  .feed-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12.5px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.1s ease;
+    font-weight: 450;
+  }
+  .toolbar-btn:hover {
+    background: var(--bg-3);
+    color: var(--text-secondary);
+  }
+  .toolbar-btn svg { display: block; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== SIDEBAR ===== -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="dot">.</span>io</div>
+    </div>
+
+    <div class="sidebar-nav">
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg>
+        </span>
+        Files
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7l-112,120a8,8,0,0,0,3,13l57.63,21.61L88.16,238.43a8,8,0,0,0,13.69,7l112-120A8,8,0,0,0,215.79,118.17Z"/></svg>
+        </span>
+        Transfers
+        <span class="badge-live">3</span>
+      </button>
+
+      <button class="nav-item active">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="#FDCE45"><path d="M98.91,157.09A71.53,71.53,0,0,1,120,208a8,8,0,0,1-16,0,56,56,0,0,0-56-56,8,8,0,0,1,0-16A71.53,71.53,0,0,1,98.91,157.09ZM48,88a8,8,0,0,0,0,16,104,104,0,0,1,104,104,8,8,0,0,0,16,0A120,120,0,0,0,48,88Zm0-40a8,8,0,0,0,0,16,144,144,0,0,1,144,144,8,8,0,0,0,16,0A160,160,0,0,0,48,48Zm12,160a12,12,0,1,0-12-12A12,12,0,0,0,60,208Z"/></svg>
+        </span>
+        RSS Feeds
+      </button>
+
+      <div class="nav-sep"></div>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg>
+        </span>
+        Shared
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"/></svg>
+        </span>
+        History
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"/></svg>
+        </span>
+        Trash
+        <span class="badge">19.5 GB</span>
+      </button>
+
+      <div class="nav-sep"></div>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.16,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.16-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,74,34.5a8,8,0,0,0-3.93,6L67.43,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.16,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.16,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.16,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.16-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.16,8,8,0,0,0-1.49-7.06Z"/></svg>
+        </span>
+        Settings
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="storage-bar-wrap">
+        <div class="storage-track">
+          <div class="storage-fill" style="width: 78%;"></div>
+        </div>
+      </div>
+      <div class="storage-label">39 TB of 50 TB used</div>
+    </div>
+
+    <div class="user-row">
+      <div class="user-avatar">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="var(--text-secondary)">
+          <rect x="3" y="2" width="2" height="2"/>
+          <rect x="11" y="2" width="2" height="2"/>
+          <rect x="5" y="4" width="2" height="2"/>
+          <rect x="9" y="4" width="2" height="2"/>
+          <rect x="3" y="6" width="10" height="2"/>
+          <rect x="1" y="8" width="2" height="2"/>
+          <rect x="3" y="8" width="2" height="2"/>
+          <rect x="5" y="8" width="6" height="2"/>
+          <rect x="11" y="8" width="2" height="2"/>
+          <rect x="13" y="8" width="2" height="2"/>
+          <rect x="1" y="10" width="2" height="2"/>
+          <rect x="5" y="10" width="2" height="2"/>
+          <rect x="9" y="10" width="2" height="2"/>
+          <rect x="13" y="10" width="2" height="2"/>
+          <rect x="3" y="12" width="2" height="2"/>
+          <rect x="5" y="12" width="2" height="2"/>
+          <rect x="9" y="12" width="2" height="2"/>
+          <rect x="11" y="12" width="2" height="2"/>
+        </svg>
+      </div>
+      <span class="user-name">altay</span>
+      <span class="user-menu-dots">...</span>
+    </div>
+  </div>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="content">
+
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="breadcrumb">
+        <span class="breadcrumb-item current">RSS Feeds</span>
+      </div>
+      <div class="topbar-spacer"></div>
+
+      <div class="search-trigger">
+        <span class="search-icon">
+          <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,218.34l-50.07-50.07a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.31ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>
+        </span>
+        <span class="search-text">Search...</span>
+        <span class="search-shortcut">/</span>
+      </div>
+
+      <button class="btn-cta">
+        <svg width="14" height="14" viewBox="0 0 256 256" fill="#0C0C0E"><path d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7l-112,120a8,8,0,0,0,3,13l57.63,21.61L88.16,238.43a8,8,0,0,0,13.69,7l112-120A8,8,0,0,0,215.79,118.17Z"/></svg>
+        New Transfer
+      </button>
+    </div>
+
+    <!-- Content header -->
+    <div class="content-header">
+      <h1 class="page-heading">RSS Feeds</h1>
+      <div class="feed-toolbar">
+        <button class="toolbar-btn">
+          <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M197.67,186.37,160,163.57V92.43l37.67-22.8A8,8,0,0,0,200,62.87V40a8,8,0,0,0-12.25-6.78L128,68.87,68.25,33.22A8,8,0,0,0,56,40V62.87a8,8,0,0,0,2.33,5.65L96,92.43v71.14L58.33,186.37A8,8,0,0,0,56,192v22.87a8,8,0,0,0,12.25,6.78L128,187.13l59.75,34.52A8,8,0,0,0,200,216V192A8,8,0,0,0,197.67,186.37Z"/></svg>
+          Filter
+        </button>
+        <button class="btn-cta" style="padding: 6px 14px; font-size: 12.5px;">
+          <svg width="13" height="13" viewBox="0 0 256 256" fill="#0C0C0E"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/></svg>
+          Add New Feed
+        </button>
+      </div>
+    </div>
+
+    <!-- RSS Content -->
+    <div class="rss-content">
+
+      <!-- Feed list header -->
+      <div class="feeds-header">
+        <div></div>
+        <div>Feed</div>
+        <div class="col-right">Episodes</div>
+        <div class="col-right">Last Check</div>
+        <div class="col-center">Status</div>
+        <div></div>
+      </div>
+
+      <!-- Feed 1: TV Shows via ShowRSS -->
+      <div class="feed-row">
+        <div class="feed-icon">
+          <svg width="16" height="16" viewBox="0 0 256 256" fill="var(--yellow)"><path d="M98.91,157.09A71.53,71.53,0,0,1,120,208a8,8,0,0,1-16,0,56,56,0,0,0-56-56,8,8,0,0,1,0-16A71.53,71.53,0,0,1,98.91,157.09ZM48,88a8,8,0,0,0,0,16,104,104,0,0,1,104,104,8,8,0,0,0,16,0A120,120,0,0,0,48,88Zm0-40a8,8,0,0,0,0,16,144,144,0,0,1,144,144,8,8,0,0,0,16,0A160,160,0,0,0,48,48Zm12,160a12,12,0,1,0-12-12A12,12,0,0,0,60,208Z"/></svg>
+        </div>
+        <div>
+          <div class="feed-name">ShowRSS - My Shows</div>
+          <div class="feed-name-sub">showrss.info/user/personal-feed</div>
+        </div>
+        <div class="feed-meta">247</div>
+        <div class="feed-date">12 min ago</div>
+        <div class="col-center">
+          <span class="status-badge healthy"><span class="dot"></span>OK</span>
+        </div>
+        <div class="feed-actions"><button class="action-more">...</button></div>
+      </div>
+
+      <!-- Expanded episodes for ShowRSS -->
+      <div class="feed-expanded">
+        <div class="episode-row">
+          <span class="episode-icon">
+            <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M232,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H224A8,8,0,0,1,232,128ZM40,72H224a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM224,184H40a8,8,0,0,0,0,16H224a8,8,0,0,0,0-16Z"/></svg>
+          </span>
+          <span class="episode-title">Severance S02E10 1080p WEB-DL</span>
+          <span class="episode-date">2 hours ago</span>
+        </div>
+        <div class="episode-row">
+          <span class="episode-icon">
+            <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M232,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H224A8,8,0,0,1,232,128ZM40,72H224a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM224,184H40a8,8,0,0,0,0,16H224a8,8,0,0,0,0-16Z"/></svg>
+          </span>
+          <span class="episode-title">The White Lotus S03E06 720p WEB-DL</span>
+          <span class="episode-date">1 day ago</span>
+        </div>
+        <div class="episode-row">
+          <span class="episode-icon">
+            <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M232,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H224A8,8,0,0,1,232,128ZM40,72H224a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM224,184H40a8,8,0,0,0,0,16H224a8,8,0,0,0,0-16Z"/></svg>
+          </span>
+          <span class="episode-title">Andor S02E04 2160p WEB-DL</span>
+          <span class="episode-date">3 days ago</span>
+        </div>
+      </div>
+
+      <!-- Feed 2: Linux ISOs -->
+      <div class="feed-row">
+        <div class="feed-icon">
+          <svg width="16" height="16" viewBox="0 0 256 256" fill="var(--text-tertiary)"><path d="M98.91,157.09A71.53,71.53,0,0,1,120,208a8,8,0,0,1-16,0,56,56,0,0,0-56-56,8,8,0,0,1,0-16A71.53,71.53,0,0,1,98.91,157.09ZM48,88a8,8,0,0,0,0,16,104,104,0,0,1,104,104,8,8,0,0,0,16,0A120,120,0,0,0,48,88Zm0-40a8,8,0,0,0,0,16,144,144,0,0,1,144,144,8,8,0,0,0,16,0A160,160,0,0,0,48,48Zm12,160a12,12,0,1,0-12-12A12,12,0,0,0,60,208Z"/></svg>
+        </div>
+        <div>
+          <div class="feed-name">Linux ISOs - Weekly</div>
+          <div class="feed-name-sub">linuxtracker.org/rss_feeds</div>
+        </div>
+        <div class="feed-meta">89</div>
+        <div class="feed-date">1 hour ago</div>
+        <div class="col-center">
+          <span class="status-badge healthy"><span class="dot"></span>OK</span>
+        </div>
+        <div class="feed-actions"><button class="action-more">...</button></div>
+      </div>
+
+      <!-- Feed 3: Podcasts -->
+      <div class="feed-row">
+        <div class="feed-icon">
+          <svg width="16" height="16" viewBox="0 0 256 256" fill="var(--text-tertiary)"><path d="M98.91,157.09A71.53,71.53,0,0,1,120,208a8,8,0,0,1-16,0,56,56,0,0,0-56-56,8,8,0,0,1,0-16A71.53,71.53,0,0,1,98.91,157.09ZM48,88a8,8,0,0,0,0,16,104,104,0,0,1,104,104,8,8,0,0,0,16,0A120,120,0,0,0,48,88Zm0-40a8,8,0,0,0,0,16,144,144,0,0,1,144,144,8,8,0,0,0,16,0A160,160,0,0,0,48,48Zm12,160a12,12,0,1,0-12-12A12,12,0,0,0,60,208Z"/></svg>
+        </div>
+        <div>
+          <div class="feed-name">Hardcore History Archive</div>
+          <div class="feed-name-sub">feeds.feedburner.com/dancarlin</div>
+        </div>
+        <div class="feed-meta">34</div>
+        <div class="feed-date">6 hours ago</div>
+        <div class="col-center">
+          <span class="status-badge healthy"><span class="dot"></span>OK</span>
+        </div>
+        <div class="feed-actions"><button class="action-more">...</button></div>
+      </div>
+
+      <!-- Feed 4: Documentaries (paused) -->
+      <div class="feed-row" style="opacity: 0.5;">
+        <div class="feed-icon">
+          <svg width="16" height="16" viewBox="0 0 256 256" fill="var(--text-quaternary)"><path d="M98.91,157.09A71.53,71.53,0,0,1,120,208a8,8,0,0,1-16,0,56,56,0,0,0-56-56,8,8,0,0,1,0-16A71.53,71.53,0,0,1,98.91,157.09ZM48,88a8,8,0,0,0,0,16,104,104,0,0,1,104,104,8,8,0,0,0,16,0A120,120,0,0,0,48,88Zm0-40a8,8,0,0,0,0,16,144,144,0,0,1,144,144,8,8,0,0,0,16,0A160,160,0,0,0,48,48Zm12,160a12,12,0,1,0-12-12A12,12,0,0,0,60,208Z"/></svg>
+        </div>
+        <div>
+          <div class="feed-name">Documentaries Collection</div>
+          <div class="feed-name-sub">Paused</div>
+        </div>
+        <div class="feed-meta">156</div>
+        <div class="feed-date">2 weeks ago</div>
+        <div class="col-center">
+          <span class="status-badge warning"><span class="dot"></span>Paused</span>
+        </div>
+        <div class="feed-actions"><button class="action-more">...</button></div>
+      </div>
+
+      <!-- Feed 5: Broken feed -->
+      <div class="feed-row">
+        <div class="feed-icon">
+          <svg width="16" height="16" viewBox="0 0 256 256" fill="var(--red)"><path d="M98.91,157.09A71.53,71.53,0,0,1,120,208a8,8,0,0,1-16,0,56,56,0,0,0-56-56,8,8,0,0,1,0-16A71.53,71.53,0,0,1,98.91,157.09ZM48,88a8,8,0,0,0,0,16,104,104,0,0,1,104,104,8,8,0,0,0,16,0A120,120,0,0,0,48,88Zm0-40a8,8,0,0,0,0,16,144,144,0,0,1,144,144,8,8,0,0,0,16,0A160,160,0,0,0,48,48Zm12,160a12,12,0,1,0-12-12A12,12,0,0,0,60,208Z"/></svg>
+        </div>
+        <div>
+          <div class="feed-name">Old Music Tracker</div>
+          <div class="feed-name-sub">Feed URL returned 404 for 3 days</div>
+        </div>
+        <div class="feed-meta">0</div>
+        <div class="feed-date">3 days ago</div>
+        <div class="col-center">
+          <span class="status-badge error"><span class="dot"></span>Error</span>
+        </div>
+        <div class="feed-actions"><button class="action-more">...</button></div>
+      </div>
+
+      <!-- ShowRSS hint -->
+      <div class="hint-bar">
+        <svg width="16" height="16" viewBox="0 0 256 256" fill="var(--yellow)"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,172Z"/></svg>
+        Tip: Use <a href="#">ShowRSS</a> to automatically track your favorite TV shows. Just pick what you watch, paste the feed URL here, and episodes download themselves.
+      </div>
+
+    </div>
+
+    <!-- Status bar -->
+    <div class="status-bar">
+      <span class="status-dot"></span>
+      <span>5 feeds</span>
+      <span style="color: var(--border-strong);">&middot;</span>
+      <span>4 active, 1 paused</span>
+      <span style="color: var(--border-strong);">&middot;</span>
+      <span>Last check: 12 min ago</span>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

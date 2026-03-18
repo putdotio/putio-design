@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>put.io — Android TV Home (Leanback)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A0C; --bg-2: #141416; --bg-3: #1E1E22; --bg-4: #28282E;
+    --line: #333339; --border: #444450; --solid: #6C6C78;
+    --text-2: #9C9CA8; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868;
+    --yellow-subtle: rgba(253, 206, 69, 0.15);
+    --green-9: #30A46C; --green-11: #4CC38A;
+    --red: #FF6369;
+  }
+  body { font-family: 'Inter', 'Roboto', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+  .tv-frame { width: 1920px; height: 1080px; overflow: hidden; display: flex; flex-direction: column; }
+
+  /* Top Header */
+  .atv-header {
+    display: flex; align-items: center; gap: 24px;
+    padding: 40px 80px 0;
+    flex-shrink: 0;
+  }
+  .atv-logo { font-size: 40px; font-weight: 700; letter-spacing: -0.02em; }
+  .atv-logo span { color: var(--yellow); }
+  .atv-spacer { flex: 1; }
+  .atv-header-btn {
+    width: 56px; height: 56px; border-radius: 999px;
+    background: var(--bg-3); border: 2px solid transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .atv-header-btn:hover { border-color: var(--border); }
+  .atv-header-btn svg { width: 28px; height: 28px; fill: var(--text-2); }
+  .atv-avatar {
+    width: 56px; height: 56px; border-radius: 999px;
+    background: var(--bg-3); border: 2px solid transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+
+  /* Channel rows area */
+  .channels { padding: 32px 0 0; flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 8px; }
+
+  /* Channel row */
+  .channel { flex-shrink: 0; }
+  .channel-title {
+    font-size: 24px; font-weight: 600; color: var(--text-2);
+    padding: 0 80px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .channel-title svg { width: 22px; height: 22px; fill: var(--solid); }
+  .channel-cards {
+    display: flex; gap: 20px; padding: 0 80px;
+    overflow: hidden;
+  }
+
+  /* Leanback Card */
+  .lb-card {
+    width: 260px; height: 180px; flex-shrink: 0;
+    background: var(--bg-2); border-radius: 8px;
+    overflow: hidden; cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.2s;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .lb-card:hover, .lb-card.focused {
+    border-color: #fff;
+    box-shadow: 0 8px 32px rgba(255,255,255,0.12), 0 0 0 1px rgba(255,255,255,0.15);
+    transform: scale(1.05);
+    z-index: 2;
+  }
+  .lb-card .lb-thumb {
+    flex: 1; background: var(--bg-3);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .lb-card .lb-thumb svg.lb-thumb-icon { width: 48px; height: 48px; }
+  .lb-card .lb-info {
+    padding: 10px 14px;
+    background: var(--bg-2);
+  }
+  .lb-card .lb-title {
+    font-size: 16px; font-weight: 500; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .lb-card .lb-meta {
+    font-size: 13px; color: var(--solid);
+    display: flex; gap: 6px; align-items: center;
+    margin-top: 2px;
+  }
+
+  /* Progress bar on cards */
+  .lb-progress {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 4px; background: rgba(255,255,255,0.1);
+  }
+  .lb-progress .fill { height: 100%; background: var(--yellow); }
+
+  /* Card badge */
+  .card-badge {
+    font-size: 11px; background: var(--yellow-subtle); color: var(--yellow);
+    padding: 2px 7px; border-radius: 4px; font-weight: 600;
+  }
+  .card-badge-neutral {
+    font-size: 11px; background: var(--bg-4); color: var(--text-2);
+    padding: 2px 7px; border-radius: 4px; font-weight: 500;
+  }
+
+  /* Transfer health dots */
+  .health-dot {
+    width: 8px; height: 8px; border-radius: 999px; flex-shrink: 0;
+  }
+  .health-dot.green { background: var(--green-9); box-shadow: 0 0 6px rgba(48,164,108,0.5); }
+  .health-dot.yellow { background: var(--yellow); box-shadow: 0 0 6px rgba(253,206,69,0.5); }
+  .health-dot.red { background: var(--red); box-shadow: 0 0 6px rgba(255,99,105,0.4); }
+
+  /* Focused card info panel (below card when focused) */
+  .lb-card.focused .lb-info {
+    background: #222228;
+  }
+
+  /* Folder thumb */
+  .lb-thumb.folder-bg {
+    background: linear-gradient(135deg, rgba(253,206,69,0.06), rgba(253,206,69,0.02));
+  }
+
+  /* Play overlay on focused card */
+  .lb-play-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.3);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: 0.2s;
+  }
+  .lb-card.focused .lb-play-overlay { opacity: 1; }
+
+  /* Transfer card variant */
+  .lb-card.transfer .lb-thumb {
+    padding: 16px;
+    display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 8px;
+  }
+  .lb-card.transfer .t-row {
+    display: flex; align-items: center; gap: 8px; width: 100%;
+  }
+  .lb-card.transfer .t-pct {
+    font-size: 28px; font-weight: 700; color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .lb-card.transfer .t-bar {
+    flex: 1; height: 4px; background: var(--bg-4); border-radius: 2px; overflow: hidden;
+  }
+  .lb-card.transfer .t-bar-fill { height: 100%; border-radius: 2px; }
+  .lb-card.transfer .t-detail {
+    font-size: 13px; color: var(--solid);
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <!-- Header -->
+  <div class="atv-header">
+    <div class="atv-logo">put<span>.</span>io</div>
+    <div class="atv-spacer"></div>
+    <!-- Search button -->
+    <div class="atv-header-btn">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    </div>
+    <!-- Settings button -->
+    <div class="atv-header-btn">
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+    </div>
+    <!-- Avatar -->
+    <div class="atv-avatar">
+      <svg viewBox="0 0 24 24" width="32" height="32" fill="none">
+        <rect x="4" y="4" width="2" height="2" fill="#FDCE45"/>
+        <rect x="18" y="4" width="2" height="2" fill="#FDCE45"/>
+        <rect x="6" y="6" width="2" height="2" fill="#FDCE45"/>
+        <rect x="16" y="6" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="8" width="16" height="2" fill="#FDCE45"/>
+        <rect x="4" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="8" y="10" width="8" height="2" fill="#FDCE45"/>
+        <rect x="18" y="10" width="2" height="2" fill="#FDCE45"/>
+        <rect x="4" y="12" width="16" height="2" fill="#FDCE45"/>
+        <rect x="6" y="14" width="4" height="2" fill="#FDCE45"/>
+        <rect x="14" y="14" width="4" height="2" fill="#FDCE45"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Channel Rows -->
+  <div class="channels">
+
+    <!-- Continue Watching -->
+    <div class="channel">
+      <div class="channel-title">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        Continue Watching
+      </div>
+      <div class="channel-cards">
+        <!-- Card 1 - Focused -->
+        <div class="lb-card focused">
+          <div class="lb-thumb" style="background:linear-gradient(135deg,#1a1a2e,#16213e);">
+            <svg class="lb-thumb-icon" viewBox="0 0 24 24" fill="rgba(255,255,255,0.12)"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+            <div class="lb-play-overlay">
+              <svg width="44" height="44" viewBox="0 0 256 256" fill="rgba(255,255,255,0.9)"><path d="M80,48V208l144-80Z"/></svg>
+            </div>
+            <div class="lb-progress"><div class="fill" style="width:55%;"></div></div>
+          </div>
+          <div class="lb-info">
+            <div class="lb-title">Cosmos Laundromat</div>
+            <div class="lb-meta">
+              <span class="card-badge">720p</span>
+              <span>6:50 left</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="lb-card">
+          <div class="lb-thumb" style="background:linear-gradient(135deg,#2d1b4e,#1b3a4b);">
+            <svg class="lb-thumb-icon" viewBox="0 0 24 24" fill="rgba(255,255,255,0.12)"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+            <div class="lb-progress"><div class="fill" style="width:35%;"></div></div>
+          </div>
+          <div class="lb-info">
+            <div class="lb-title">Sintel</div>
+            <div class="lb-meta">
+              <span class="card-badge">1080p</span>
+              <span>12:30 left</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="lb-card">
+          <div class="lb-thumb" style="background:linear-gradient(135deg,#1a3a2e,#0a2a1e);">
+            <svg class="lb-thumb-icon" viewBox="0 0 24 24" fill="rgba(255,255,255,0.12)"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+            <div class="lb-progress"><div class="fill" style="width:78%;"></div></div>
+          </div>
+          <div class="lb-info">
+            <div class="lb-title">The Wire S03E04</div>
+            <div class="lb-meta">
+              <span class="card-badge">1080p</span>
+              <span>18:22 left</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="lb-card">
+          <div class="lb-thumb" style="background:linear-gradient(135deg,#3a1a1a,#2a0a0a);">
+            <svg class="lb-thumb-icon" viewBox="0 0 24 24" fill="rgba(255,255,255,0.12)"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+            <div class="lb-progress"><div class="fill" style="width:15%;"></div></div>
+          </div>
+          <div class="lb-info">
+            <div class="lb-title">Tears of Steel</div>
+            <div class="lb-meta">
+              <span class="card-badge">1080p</span>
+              <span>45:00 left</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="lb-card">
+          <div class="lb-thumb" style="background:linear-gradient(135deg,#1b2e4e,#0a1e3e);">
+            <svg class="lb-thumb-icon" viewBox="0 0 24 24" fill="rgba(255,255,255,0.12)"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+          </div>
+          <div class="lb-info">
+            <div class="lb-title">Big Buck Bunny</div>
+            <div class="lb-meta">
+              <span class="card-badge">4K</span>
+              <span>Not started</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lb-card" style="opacity:0.4;">
+          <div class="lb-thumb" style="background:var(--bg-3);"></div>
+          <div class="lb-info">
+            <div class="lb-title" style="color:var(--solid);">More...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recently Added -->
+    <div class="channel">
+      <div class="channel-title">
+        <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+        Recently Added
+      </div>
+      <div class="channel-cards">
+        <!-- Folder -->
+        <div class="lb-card">
+          <div class="lb-thumb folder-bg">
+            <svg class="lb-thumb-icon" viewBox="0 0 24 24" fill="var(--yellow)" opacity="0.7"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+          </div>
+          <div class="lb-info">
+            <div class="lb-title">downloads</div>
+            <div class="lb-meta">21.78 GB -- 8 items</div>
+          </div>
+        </div>
+
+        <div class="lb-card">
+          <div class="lb-thumb folder-bg">
+            <svg class="lb-thumb-icon" viewBox="0 0 24 24" fill="var(--yellow)" opacity="0.7"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+          </div>
+          <div class="lb-info">
+            <div class="lb-title">chill institute</div>
+            <div class="lb-meta">0 B -- 16 hours ago</div>
+          </div>
+        </div>
+
+        <div class="lb-card">
+          <div class="lb-thumb" style="background:linear-gradient(135deg,#1b2b3b,#0b1b2b);">
+            <svg class="lb-thumb-icon" viewBox="0 0 24 24" fill="rgba(255,255,255,0.12)"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+          </div>
+          <div class="lb-info">
+            <div class="lb-title">Breaking Bad S05E16</div>
+            <div class="lb-meta">
+              <span class="card-badge">4K</span>
+              <span>8.72 GB</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lb-card">
+          <div class="lb-thumb folder-bg">
+            <svg class="lb-thumb-icon" viewBox="0 0 24 24" fill="var(--yellow)" opacity="0.7"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+          </div>
+          <div class="lb-info">
+            <div class="lb-title">stuff</div>
+            <div class="lb-meta">4.16 GB -- 12 items</div>
+          </div>
+        </div>
+
+        <div class="lb-card">
+          <div class="lb-thumb" style="background:linear-gradient(135deg,#2e1b2e,#1e0b1e);">
+            <svg class="lb-thumb-icon" viewBox="0 0 24 24" fill="rgba(255,255,255,0.12)"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+          </div>
+          <div class="lb-info">
+            <div class="lb-title">Marty Supreme</div>
+            <div class="lb-meta">
+              <span class="card-badge">1080p</span>
+              <span>15.38 GB</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lb-card" style="opacity:0.4;">
+          <div class="lb-thumb" style="background:var(--bg-3);"></div>
+          <div class="lb-info">
+            <div class="lb-title" style="color:var(--solid);">More...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transfers -->
+    <div class="channel">
+      <div class="channel-title">
+        <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+        Transfers
+      </div>
+      <div class="channel-cards">
+        <!-- Active transfer -->
+        <div class="lb-card transfer">
+          <div class="lb-thumb">
+            <div class="t-row">
+              <div class="health-dot yellow"></div>
+              <span class="lb-title" style="flex:1;">Inception</span>
+              <span class="card-badge">2160p</span>
+            </div>
+            <div class="t-row">
+              <span class="t-pct" style="color:var(--yellow);">63%</span>
+            </div>
+            <div class="t-row">
+              <div class="t-bar"><div class="t-bar-fill" style="width:63%; background:var(--yellow);"></div></div>
+            </div>
+            <span class="t-detail">4.2 GB of 6.7 GB -- 23 min left</span>
+          </div>
+          <div class="lb-info">
+            <div class="lb-meta">
+              <span class="card-badge-neutral">BluRay</span>
+              <span>42 sources</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active transfer 2 -->
+        <div class="lb-card transfer">
+          <div class="lb-thumb">
+            <div class="t-row">
+              <div class="health-dot yellow"></div>
+              <span class="lb-title" style="flex:1;">Wolf of Wall Street</span>
+              <span class="card-badge">1080p</span>
+            </div>
+            <div class="t-row">
+              <span class="t-pct" style="color:var(--yellow);">65%</span>
+            </div>
+            <div class="t-row">
+              <div class="t-bar"><div class="t-bar-fill" style="width:65%; background:var(--yellow);"></div></div>
+            </div>
+            <span class="t-detail">1.45 GB of 2.22 GB -- 8 min left</span>
+          </div>
+          <div class="lb-info">
+            <div class="lb-meta">
+              <span>87 sources</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Completed transfer -->
+        <div class="lb-card transfer">
+          <div class="lb-thumb">
+            <div class="t-row">
+              <div class="health-dot green"></div>
+              <span class="lb-title" style="flex:1;">Pose S01</span>
+              <span class="card-badge">720p</span>
+            </div>
+            <div class="t-row">
+              <span class="t-pct" style="color:var(--green-11);">Done</span>
+            </div>
+            <div class="t-row">
+              <div class="t-bar"><div class="t-bar-fill" style="width:100%; background:var(--green-9);"></div></div>
+            </div>
+            <span class="t-detail">763 MB -- ratio: 1.03</span>
+          </div>
+          <div class="lb-info">
+            <div class="lb-meta">
+              <span class="card-badge-neutral">WEBRip</span>
+              <span>Completed</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stalled -->
+        <div class="lb-card transfer">
+          <div class="lb-thumb">
+            <div class="t-row">
+              <div class="health-dot red"></div>
+              <span class="lb-title" style="flex:1;">Rare Documentary</span>
+            </div>
+            <div class="t-row">
+              <span class="t-pct" style="color:var(--red);">8%</span>
+            </div>
+            <div class="t-row">
+              <div class="t-bar"><div class="t-bar-fill" style="width:8%; background:var(--red);"></div></div>
+            </div>
+            <span class="t-detail">Stalled -- No sources</span>
+          </div>
+          <div class="lb-info">
+            <div class="lb-meta">
+              <span class="card-badge-neutral">SD</span>
+              <span style="color:var(--red);">No peers</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items Shared With You -->
+    <div class="channel">
+      <div class="channel-title">
+        <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+        Items Shared With You
+      </div>
+      <div class="channel-cards">
+        <div class="lb-card">
+          <div class="lb-thumb folder-bg">
+            <svg class="lb-thumb-icon" viewBox="0 0 24 24" fill="var(--yellow)" opacity="0.7"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+          </div>
+          <div class="lb-info">
+            <div class="lb-title">Music Collection</div>
+            <div class="lb-meta">Shared by deniz -- 48.2 GB</div>
+          </div>
+        </div>
+
+        <div class="lb-card">
+          <div class="lb-thumb" style="background:linear-gradient(135deg,#1a2a1e,#0a1a0e);">
+            <svg class="lb-thumb-icon" viewBox="0 0 24 24" fill="rgba(255,255,255,0.12)"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+          </div>
+          <div class="lb-info">
+            <div class="lb-title">Cooking Masterclass</div>
+            <div class="lb-meta">Shared by can -- 2.3 GB</div>
+          </div>
+        </div>
+
+        <div class="lb-card">
+          <div class="lb-thumb folder-bg">
+            <svg class="lb-thumb-icon" viewBox="0 0 24 24" fill="var(--yellow)" opacity="0.7"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+          </div>
+          <div class="lb-info">
+            <div class="lb-title">Holiday Photos 2025</div>
+            <div class="lb-meta">Shared by elif -- 12.8 GB</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

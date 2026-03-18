@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Landing (Mono/Terminal)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #0A0A0C;
+    --bg: #101012;
+    --bg-2: #141416;
+    --bg-3: #1A1A1E;
+    --bg-4: #222226;
+    --bg-5: #2A2A30;
+    --line: #2E2E36;
+    --border: #38383F;
+    --focus: #4A4A54;
+    --solid: #6A6A76;
+    --text-3: #8A8A96;
+    --text-2: #A8A8B4;
+    --text: #E4E4EA;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.12);
+    --yellow-low: rgba(253, 206, 69, 0.07);
+    --yellow-mid: rgba(253, 206, 69, 0.25);
+    --green: #4CC38A;
+    --green-dim: rgba(76, 195, 138, 0.12);
+    --red: #FF6369;
+    --blue: #6EB0FF;
+    --cyan: #56D7C3;
+    --purple: #A78BFA;
+  }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg-0);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .page {
+    width: 1440px;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ===== SCANLINES OVERLAY ===== */
+  .page::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* ===== NAV ===== */
+  .nav {
+    display: flex;
+    align-items: center;
+    padding: 20px 64px;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+    z-index: 10;
+  }
+  .logo {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .logo span { color: var(--yellow); }
+  .logo-tag {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--bg-0);
+    background: var(--yellow);
+    padding: 2px 6px;
+    border-radius: 2px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .nav-spacer { flex: 1; }
+  .nav-links {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+  .nav-link {
+    font-size: 12px;
+    color: var(--text-2);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .nav-link::before {
+    content: '~/';
+    color: var(--solid);
+  }
+  .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--yellow);
+    color: var(--bg-0);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 3px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    padding: 80px 64px 60px;
+    position: relative;
+    z-index: 1;
+    border-bottom: 1px solid var(--line);
+  }
+  .hero-prompt {
+    font-size: 12px;
+    color: var(--solid);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .hero-prompt .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    background: var(--yellow);
+    animation: blink 1.2s step-end infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  .hero-ascii {
+    font-size: 11px;
+    line-height: 1.3;
+    color: var(--yellow);
+    margin-bottom: 32px;
+    letter-spacing: 0.05em;
+    white-space: pre;
+  }
+  .hero h1 {
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    max-width: 700px;
+  }
+  .hero h1 .yellow { color: var(--yellow); }
+  .hero h1 .dim { color: var(--text-3); }
+  .hero .subtitle {
+    font-size: 14px;
+    color: var(--text-2);
+    max-width: 600px;
+    line-height: 1.8;
+    margin-bottom: 40px;
+  }
+  .hero .subtitle .comment {
+    color: var(--solid);
+  }
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--yellow);
+    color: var(--bg-0);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 3px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+  }
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-3);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 12px 24px;
+    border-radius: 3px;
+    border: 1px solid var(--line);
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+  }
+  .hero-meta {
+    margin-top: 32px;
+    font-size: 11px;
+    color: var(--solid);
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+  .hero-meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ===== SECTION SHARED ===== */
+  .section {
+    padding: 80px 64px;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+    z-index: 1;
+  }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .section-hash {
+    font-size: 14px;
+    color: var(--solid);
+    font-weight: 600;
+  }
+  .section-title {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .section-title .yellow { color: var(--yellow); }
+  .section-desc {
+    font-size: 13px;
+    color: var(--text-2);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-top: -32px;
+    margin-bottom: 48px;
+    margin-left: 36px;
+  }
+  .section-desc .comment { color: var(--solid); }
+
+  /* ===== WHAT WE ARE - README STYLE ===== */
+  .readme-block {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .readme-header {
+    background: var(--bg-3);
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .readme-header svg {
+    width: 14px;
+    height: 14px;
+    color: var(--solid);
+  }
+  .readme-body {
+    padding: 24px;
+  }
+  .readme-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .readme-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .readme-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--yellow-low);
+    border: 1px solid var(--yellow-dim);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .readme-icon svg {
+    width: 20px;
+    height: 20px;
+    color: var(--yellow);
+  }
+  .readme-item h4 {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .readme-item p {
+    font-size: 12px;
+    color: var(--text-3);
+    line-height: 1.6;
+  }
+
+  /* ===== HOW IT WORKS - COMMAND STYLE ===== */
+  .terminal-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .terminal-step {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .terminal-step-header {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--line);
+  }
+  .step-badge {
+    width: 24px;
+    height: 24px;
+    background: var(--yellow);
+    color: var(--bg-0);
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .terminal-step-header h3 {
+    font-size: 13px;
+    font-weight: 600;
+    flex: 1;
+  }
+  .terminal-step-header .step-status {
+    font-size: 11px;
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .terminal-step-body {
+    padding: 16px 20px;
+  }
+  .terminal-cmd {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--bg-0);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    margin-bottom: 8px;
+  }
+  .terminal-cmd .prompt {
+    color: var(--green);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .terminal-cmd .cmd {
+    color: var(--text);
+    font-size: 12px;
+  }
+  .terminal-cmd .flag {
+    color: var(--cyan);
+  }
+  .terminal-cmd .string {
+    color: var(--yellow);
+  }
+  .terminal-output {
+    font-size: 11px;
+    color: var(--text-3);
+    line-height: 1.6;
+    padding: 8px 14px;
+  }
+  .terminal-output .success { color: var(--green); }
+  .terminal-output .info { color: var(--blue); }
+  .terminal-output .highlight { color: var(--yellow); }
+
+  /* ===== PLATFORMS ===== */
+  .platforms-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+  .platform-card {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 20px 16px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .platform-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .platform-icon svg {
+    width: 24px;
+    height: 24px;
+    color: var(--text-3);
+  }
+  .platform-card span {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-3);
+  }
+  .platform-card .status {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .platform-card.highlight {
+    border-color: var(--yellow-mid);
+    background: var(--yellow-low);
+  }
+  .platform-card.highlight svg { color: var(--yellow); }
+  .platform-card.highlight span { color: var(--yellow); }
+
+  /* ===== TESTIMONIALS ===== */
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .testimonial {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 24px;
+  }
+  .testimonial-tag {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--solid);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .testimonial-tag svg {
+    width: 12px;
+    height: 12px;
+    color: var(--yellow);
+  }
+  .testimonial blockquote {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 16px;
+    font-style: normal;
+    padding-left: 12px;
+    border-left: 2px solid var(--yellow-mid);
+  }
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .testimonial-avatar {
+    width: 28px;
+    height: 28px;
+    background: var(--bg-4);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .testimonial-avatar svg {
+    width: 20px;
+    height: 20px;
+    color: var(--text-3);
+  }
+  .testimonial-name {
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .testimonial-handle {
+    font-size: 10px;
+    color: var(--solid);
+  }
+
+  /* ===== BOTTOM CTA ===== */
+  .bottom-cta {
+    text-align: center;
+    padding: 80px 64px;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+  .bottom-cta .cta-cmd {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 32px;
+  }
+  .bottom-cta .cta-cmd .prompt { color: var(--green); }
+  .bottom-cta .cta-cmd .string { color: var(--yellow); }
+  .bottom-cta h2 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .bottom-cta h2 .yellow { color: var(--yellow); }
+  .bottom-cta p {
+    font-size: 13px;
+    color: var(--text-2);
+    margin-bottom: 32px;
+    line-height: 1.7;
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    padding: 32px 64px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+  }
+  .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .footer-logo {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .footer-logo span { color: var(--yellow); }
+  .footer-pipe {
+    color: var(--line);
+  }
+  .footer-tagline {
+    color: var(--solid);
+  }
+  .footer-links {
+    display: flex;
+    gap: 20px;
+  }
+  .footer-link {
+    color: var(--text-3);
+    text-decoration: none;
+    font-size: 11px;
+  }
+  .footer-right {
+    color: var(--solid);
+    font-size: 11px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="logo">put<span>.</span>io</div>
+    <span class="logo-tag">v6.0</span>
+    <div class="nav-spacer"></div>
+    <div class="nav-links">
+      <a class="nav-link" href="#">features</a>
+      <a class="nav-link" href="#">pricing</a>
+      <a class="nav-link" href="#">apps</a>
+      <a class="nav-link" href="#">docs</a>
+      <a class="nav-cta" href="#">
+        $ go-to-app
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-prompt">
+      <span>$ cat README.md</span>
+      <span class="cursor"></span>
+    </div>
+    <div class="hero-ascii">
+ ____        _       _
+|  _ \ _   _| |_    (_) ___
+| |_) | | | | __|   | |/ _ \
+|  __/| |_| | |_ _  | | (_) |
+|_|    \__,_|\__(_) |_|\___/
+    </div>
+    <h1># Cloud storage that <span class="yellow">fetches for you</span></h1>
+    <p class="subtitle">
+      <span class="comment">// </span>Paste a link. We download at datacenter speed.<br>
+      <span class="comment">// </span>Stream or download on any device. That simple.<br>
+      <span class="comment">// </span>Since 2011, Istanbul. &#x1565;(o_o&#x02C7;)&#x1565;
+    </p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="#">
+        $ start --free-trial
+      </a>
+      <a class="btn-secondary" href="#">
+        $ man putio
+      </a>
+    </div>
+    <div class="hero-meta">
+      <span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        4.8 / 5.0 rating
+      </span>
+      <span>|</span>
+      <span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Since 2011
+      </span>
+      <span>|</span>
+      <span>Product Hunt #1</span>
+    </div>
+  </section>
+
+  <!-- WHAT WE ARE -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-hash">##</span>
+      <h2 class="section-title">What we <span class="yellow">are</span></h2>
+    </div>
+    <p class="section-desc">
+      <span class="comment">// </span>Other cloud storage makes you upload. We fetch.
+    </p>
+
+    <div class="readme-block">
+      <div class="readme-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+        FEATURES.md
+      </div>
+      <div class="readme-body">
+        <div class="readme-grid">
+          <div class="readme-item">
+            <div class="readme-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <div>
+              <h4>Lightning Fetch</h4>
+              <p>Datacenter-speed downloads. Up to 1 Gbps. Your home connection is the bottleneck -- ours isn't.</p>
+            </div>
+          </div>
+          <div class="readme-item">
+            <div class="readme-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <div>
+              <h4>Stream Anywhere</h4>
+              <p>Built-in player with subtitle support, Chromecast, and adaptive bitrate.</p>
+            </div>
+          </div>
+          <div class="readme-item">
+            <div class="readme-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div>
+              <h4>Private by Default</h4>
+              <p>No tracking. No data mining. We make money from subscriptions, not your data.</p>
+            </div>
+          </div>
+          <div class="readme-item">
+            <div class="readme-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </div>
+            <div>
+              <h4>Download Anytime</h4>
+              <p>Not everything needs streaming. Grab files to any device on your terms.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-hash">##</span>
+      <h2 class="section-title">How it <span class="yellow">works</span></h2>
+    </div>
+    <p class="section-desc">
+      <span class="comment">// </span>Three commands. That's the whole workflow.
+    </p>
+
+    <div class="terminal-steps">
+      <div class="terminal-step">
+        <div class="terminal-step-header">
+          <div class="step-badge">1</div>
+          <h3>Add a link</h3>
+          <div class="step-status">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            ready
+          </div>
+        </div>
+        <div class="terminal-step-body">
+          <div class="terminal-cmd">
+            <span class="prompt">$</span>
+            <span class="cmd">putio <span class="flag">transfer add</span> <span class="string">"magnet:?xt=urn:btih:abc123..."</span></span>
+          </div>
+          <div class="terminal-output">
+            <span class="success">+</span> Transfer created: <span class="highlight">ubuntu-24.04-desktop.iso</span><br>
+            <span class="info">i</span> Size: 4.7 GB | ETA: ~8 seconds
+          </div>
+        </div>
+      </div>
+      <div class="terminal-step">
+        <div class="terminal-step-header">
+          <div class="step-badge">2</div>
+          <h3>We fetch it</h3>
+          <div class="step-status">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            complete
+          </div>
+        </div>
+        <div class="terminal-step-body">
+          <div class="terminal-cmd">
+            <span class="prompt">$</span>
+            <span class="cmd">putio <span class="flag">transfer status</span></span>
+          </div>
+          <div class="terminal-output">
+            <span class="success">+</span> ubuntu-24.04-desktop.iso .............. <span class="success">DONE</span> (8.2s)<br>
+            <span class="info">i</span> Downloaded at <span class="highlight">573 MB/s</span> average
+          </div>
+        </div>
+      </div>
+      <div class="terminal-step">
+        <div class="terminal-step-header">
+          <div class="step-badge">3</div>
+          <h3>You stream</h3>
+          <div class="step-status">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            playing
+          </div>
+        </div>
+        <div class="terminal-step-body">
+          <div class="terminal-cmd">
+            <span class="prompt">$</span>
+            <span class="cmd">putio <span class="flag">files stream</span> <span class="string">"ubuntu-24.04-desktop.iso"</span></span>
+          </div>
+          <div class="terminal-output">
+            <span class="success">+</span> Streaming to: <span class="highlight">Apple TV (Living Room)</span><br>
+            <span class="info">i</span> Available on: Web, iOS, Android, tvOS, Roku, CLI
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLATFORMS -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-hash">##</span>
+      <h2 class="section-title">Supported <span class="yellow">platforms</span></h2>
+    </div>
+    <p class="section-desc">
+      <span class="comment">// </span>Native apps for every screen. $ putio --list-platforms
+    </p>
+
+    <div class="platforms-grid">
+      <div class="platform-card highlight">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <span>web</span>
+        <div class="status">ACTIVE</div>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <span>ios</span>
+        <div class="status">ACTIVE</div>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <span>android</span>
+        <div class="status">ACTIVE</div>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <span>tvos</span>
+        <div class="status">ACTIVE</div>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <span>android-tv</span>
+        <div class="status">ACTIVE</div>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <span>roku</span>
+        <div class="status">ACTIVE</div>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="1" width="12" height="22" rx="6"/><circle cx="12" cy="12" r="4"/></svg>
+        </div>
+        <span>watchos</span>
+        <div class="status">ACTIVE</div>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <span>visionos</span>
+        <div class="status">ACTIVE</div>
+      </div>
+      <div class="platform-card highlight">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+        </div>
+        <span>cli</span>
+        <div class="status">ACTIVE</div>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        </div>
+        <span>api</span>
+        <div class="status">OPEN</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-hash">##</span>
+      <h2 class="section-title">User <span class="yellow">reviews</span></h2>
+    </div>
+    <p class="section-desc">
+      <span class="comment">// </span>$ putio reviews --sort=stars --limit=3
+    </p>
+
+    <div class="testimonials-grid">
+      <div class="testimonial">
+        <div class="testimonial-tag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg>
+          5/5
+        </div>
+        <blockquote>"I cancelled Netflix. Between put.io and a good RSS feed, I have everything I need. The streaming quality is unreal."</blockquote>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">
+            <svg viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="2" width="2" height="2"/><rect x="12" y="2" width="2" height="2"/><rect x="4" y="4" width="2" height="2"/><rect x="10" y="4" width="2" height="2"/><rect x="2" y="6" width="12" height="2"/><rect x="1" y="8" width="2" height="2"/><rect x="5" y="8" width="2" height="2"/><rect x="9" y="8" width="2" height="2"/><rect x="13" y="8" width="2" height="2"/><rect x="2" y="10" width="12" height="2"/><rect x="2" y="12" width="2" height="2"/><rect x="6" y="12" width="2" height="2"/><rect x="12" y="12" width="2" height="2"/></svg>
+          </div>
+          <div>
+            <div class="testimonial-name">helen</div>
+            <div class="testimonial-handle">user since 2019</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <div class="testimonial-tag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg>
+          5/5
+        </div>
+        <blockquote>"It just works! I paste a magnet link, and 30 seconds later I'm watching it on my Apple TV. Actual magic."</blockquote>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">
+            <svg viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="1" width="2" height="2"/><rect x="11" y="1" width="2" height="2"/><rect x="2" y="3" width="12" height="2"/><rect x="1" y="5" width="14" height="2"/><rect x="1" y="7" width="2" height="2"/><rect x="4" y="7" width="2" height="2"/><rect x="10" y="7" width="2" height="2"/><rect x="13" y="7" width="2" height="2"/><rect x="1" y="9" width="14" height="2"/><rect x="3" y="11" width="4" height="2"/><rect x="9" y="11" width="4" height="2"/><rect x="1" y="13" width="2" height="2"/><rect x="13" y="13" width="2" height="2"/></svg>
+          </div>
+          <div>
+            <div class="testimonial-name">luc</div>
+            <div class="testimonial-handle">user since 2021</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <div class="testimonial-tag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg>
+          5/5
+        </div>
+        <blockquote>"Instant torrents. That's the best way to describe it. I add something and it's ready before I switch tabs."</blockquote>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">
+            <svg viewBox="0 0 16 16" fill="currentColor"><rect x="5" y="1" width="6" height="2"/><rect x="3" y="3" width="10" height="2"/><rect x="2" y="5" width="3" height="2"/><rect x="7" y="5" width="2" height="2"/><rect x="11" y="5" width="3" height="2"/><rect x="1" y="7" width="14" height="2"/><rect x="1" y="9" width="2" height="2"/><rect x="5" y="9" width="6" height="2"/><rect x="13" y="9" width="2" height="2"/><rect x="3" y="11" width="2" height="2"/><rect x="11" y="11" width="2" height="2"/></svg>
+          </div>
+          <div>
+            <div class="testimonial-name">marcus</div>
+            <div class="testimonial-handle">user since 2017</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA -->
+  <section class="bottom-cta">
+    <div class="cta-cmd">
+      <span class="prompt">$</span> putio <span class="string">--start-trial</span>
+    </div>
+    <h2>Ready to <span class="yellow">fetch</span>?</h2>
+    <p>Stop downloading. Start streaming. Join since 2011.</p>
+    <a class="btn-primary" href="#">
+      $ go-to-app --now
+    </a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-left">
+      <div class="footer-logo">put<span>.</span>io</div>
+      <span class="footer-pipe">|</span>
+      <span class="footer-tagline">cloud storage with a certain gravity // istanbul, 2011</span>
+    </div>
+    <div class="footer-links">
+      <a class="footer-link" href="#">privacy</a>
+      <a class="footer-link" href="#">terms</a>
+      <a class="footer-link" href="#">api</a>
+      <a class="footer-link" href="#">status</a>
+    </div>
+    <div class="footer-right">
+      EOF
+    </div>
+  </footer>
+</div>
+</body>
+</html>

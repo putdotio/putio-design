@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Files (Brutalist Light)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-page: #FFFFFF;
+    --bg-sidebar: #F9F9FB;
+    --bg-input: #F0F0F3;
+    --bg-hover: #F4F4F6;
+    --bg-active: #E8E8EC;
+    --line: #D8D8DE;
+    --line-strong: #CDCDD5;
+    --border: #B9B9C3;
+    --solid: #8B8B97;
+    --text-3: #60606C;
+    --text-2: #40404A;
+    --text: #1C1C22;
+    --black: #0A0A0E;
+
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.15);
+    --yellow-highlight: rgba(253, 206, 69, 0.35);
+    --yellow-border: rgba(253, 206, 69, 0.6);
+    --yellow-strong: #F0B800;
+    --yellow-text: #7A5600;
+
+    --green: #30A46C;
+    --green-bright: #2B9A66;
+    --red: #E5484D;
+    --red-bright: #DC3D43;
+    --blue: #3B82F6;
+    --cyan: #0E7490;
+    --purple: #7C3AED;
+
+    --font-display: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', 'Menlo', monospace;
+    --radius: 2px;
+  }
+
+  body {
+    font-family: var(--font-mono);
+    background: var(--bg-page);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* =============================================
+     DOT GRID BACKGROUND
+     ============================================= */
+  .app {
+    position: relative;
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 1px 1px, rgba(0,0,0,0.04) 1px, transparent 0);
+    background-size: 24px 24px;
+    background-position: 12px 12px;
+  }
+
+  .app > * { position: relative; z-index: 1; }
+
+  /* =============================================
+     SIDEBAR
+     ============================================= */
+  .sidebar {
+    width: 220px;
+    background: var(--bg-sidebar);
+    border-right: 2px solid var(--text);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo {
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--black);
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .logo span { color: var(--yellow-strong); }
+  .logo-sub {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--solid);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 8px 0;
+    overflow-y: auto;
+  }
+
+  .nav-section-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--solid);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 12px 16px 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-2);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    border-left: 2px solid transparent;
+    transition: all 0.1s;
+  }
+  .nav-item:hover {
+    background: var(--bg-hover);
+    color: var(--text);
+    border-left-color: var(--line-strong);
+  }
+  .nav-item.active {
+    background: var(--yellow-dim);
+    color: var(--black);
+    border-left-color: var(--yellow-strong);
+    font-weight: 600;
+  }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .nav-icon svg { width: 14px; height: 14px; }
+
+  .nav-shortcut {
+    margin-left: auto;
+    font-size: 9px;
+    color: var(--solid);
+    font-family: var(--font-mono);
+    background: var(--bg-input);
+    padding: 1px 4px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+  }
+
+  .nav-badge {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--yellow-text);
+    font-family: var(--font-mono);
+    font-weight: 600;
+  }
+
+  .nav-sep {
+    height: 1px;
+    background: var(--line);
+    margin: 6px 16px;
+  }
+
+  /* Sidebar footer */
+  .sidebar-storage {
+    padding: 12px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .storage-label-top {
+    font-size: 9px;
+    color: var(--solid);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .storage-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--bg-active);
+    border-radius: 0;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+  .storage-fill {
+    height: 100%;
+    background: var(--yellow);
+    transition: width 0.3s;
+  }
+  .storage-text {
+    font-size: 10px;
+    color: var(--text-3);
+    font-family: var(--font-mono);
+  }
+  .storage-text strong { color: var(--text-2); font-weight: 600; }
+
+  /* User block */
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    background: var(--bg-active);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--yellow-text);
+  }
+  .user-avatar svg { width: 16px; height: 16px; }
+  .user-name {
+    font-size: 11px;
+    color: var(--text-2);
+    font-family: var(--font-mono);
+  }
+  .user-status {
+    font-size: 9px;
+    color: var(--green);
+    font-family: var(--font-mono);
+  }
+
+  /* =============================================
+     MAIN CONTENT
+     ============================================= */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  /* ---- Top Bar ---- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 28px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-sidebar);
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--solid);
+  }
+  .breadcrumb a {
+    color: var(--text-3);
+    text-decoration: none;
+    transition: color 0.1s;
+  }
+  .breadcrumb a:hover { color: var(--yellow-text); }
+  .breadcrumb .sep { color: var(--line-strong); }
+  .breadcrumb .current { color: var(--text); font-weight: 600; }
+
+  .topbar-spacer { flex: 1; }
+
+  /* Search */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-page);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 6px 12px;
+    width: 320px;
+    transition: border-color 0.15s;
+  }
+  .search-bar:focus-within {
+    border-color: var(--text);
+    box-shadow: 0 0 0 1px var(--text);
+  }
+  .search-bar .search-icon { color: var(--solid); display: flex; }
+  .search-bar .search-icon svg { width: 14px; height: 14px; }
+  .search-bar input {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 12px;
+    outline: none;
+    flex: 1;
+    font-family: var(--font-mono);
+  }
+  .search-bar input::placeholder { color: var(--solid); font-style: italic; }
+  .search-shortcut {
+    font-size: 9px;
+    color: var(--solid);
+    background: var(--bg-input);
+    padding: 2px 5px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    font-family: var(--font-mono);
+  }
+
+  /* CTA button */
+  .btn-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--yellow);
+    color: var(--black);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 7px 14px;
+    border-radius: var(--radius);
+    border: 2px solid var(--black);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: all 0.1s;
+  }
+  .btn-cta:hover {
+    background: var(--yellow-strong);
+    box-shadow: 3px 3px 0 var(--black);
+    transform: translate(-1px, -1px);
+  }
+  .btn-cta svg { width: 12px; height: 12px; }
+
+  /* ---- Content Header ---- */
+  .content-header {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    padding: 28px 28px 20px;
+    border-bottom: 2px solid var(--text);
+  }
+
+  .page-heading {
+    font-family: var(--font-display);
+    font-size: 76px;
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    color: var(--black);
+    flex: 1;
+  }
+  .page-heading .heading-accent {
+    color: var(--black);
+    background: var(--yellow-highlight);
+    padding: 0 4px;
+  }
+
+  .heading-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--solid);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-bottom: 8px;
+  }
+  .heading-meta span { white-space: nowrap; }
+
+  .toolbar {
+    display: flex;
+    gap: 4px;
+    align-items: flex-end;
+    padding-bottom: 8px;
+  }
+  .toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 5px 10px;
+    font-size: 10px;
+    color: var(--text-3);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    transition: all 0.1s;
+  }
+  .toolbar-btn:hover {
+    border-color: var(--text);
+    color: var(--text);
+    background: var(--yellow-dim);
+  }
+  .toolbar-btn svg { width: 12px; height: 12px; }
+
+  /* ---- File List Header ---- */
+  .file-list-header {
+    display: grid;
+    grid-template-columns: 32px 28px 1fr 100px 120px 80px 100px 36px;
+    gap: 0;
+    align-items: center;
+    padding: 8px 28px;
+    background: var(--bg-sidebar);
+    border-bottom: 1px solid var(--line);
+    font-size: 9px;
+    color: var(--solid);
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  /* ---- File Rows ---- */
+  .file-list-body {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .file-row {
+    display: grid;
+    grid-template-columns: 32px 28px 1fr 100px 120px 80px 100px 36px;
+    gap: 0;
+    align-items: center;
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    transition: all 0.1s;
+    position: relative;
+  }
+  .file-row::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: transparent;
+    transition: background 0.1s;
+  }
+  .file-row:hover {
+    background: var(--bg-hover);
+  }
+  .file-row:hover::before {
+    background: var(--yellow);
+  }
+
+  /* Spacer between file groups */
+  .file-row-spacer {
+    height: 20px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-sidebar);
+    position: relative;
+  }
+  .file-row-spacer::after {
+    content: '';
+    position: absolute;
+    left: 28px;
+    right: 28px;
+    top: 50%;
+    height: 1px;
+    background: repeating-linear-gradient(90deg, var(--line-strong) 0, var(--line-strong) 4px, transparent 4px, transparent 8px);
+  }
+
+  /* Checkbox */
+  .col-check { display: flex; align-items: center; justify-content: center; }
+  .checkbox {
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color 0.1s;
+  }
+  .file-row:hover .checkbox { border-color: var(--text); }
+
+  .col-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .file-type-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .file-type-icon svg { width: 16px; height: 16px; }
+
+  .col-name { min-width: 0; }
+  .fname {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .file-row:hover .fname { color: var(--black); }
+  .fname-sub {
+    font-size: 10px;
+    color: var(--solid);
+    margin-top: 1px;
+  }
+
+  .col-size {
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .col-date {
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-3);
+  }
+
+  .col-codec {
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.05em;
+  }
+  .codec-tag {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: var(--radius);
+    border: 1px solid;
+    font-weight: 600;
+  }
+  .codec-video { color: var(--cyan); border-color: rgba(14,116,144,0.3); background: rgba(14,116,144,0.06); }
+  .codec-audio { color: var(--purple); border-color: rgba(124,58,237,0.3); background: rgba(124,58,237,0.06); }
+  .codec-folder { color: var(--yellow-text); border-color: var(--yellow-border); background: var(--yellow-dim); }
+  .codec-doc { color: var(--text-3); border-color: var(--line); background: var(--bg-input); }
+
+  .col-torrent {
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 10px;
+  }
+  .seeder-info {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+  .seed-count { color: var(--green); }
+  .leech-count { color: var(--red); }
+  .ratio-good { color: var(--green); }
+  .ratio-ok { color: var(--yellow-text); }
+
+  .col-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.1s;
+  }
+  .file-row:hover .col-actions { opacity: 1; }
+  .action-btn {
+    background: none;
+    border: none;
+    color: var(--text-3);
+    cursor: pointer;
+    padding: 2px;
+    display: flex;
+    transition: color 0.1s;
+  }
+  .action-btn:hover { color: var(--yellow-text); }
+  .action-btn svg { width: 14px; height: 14px; }
+
+  /* =============================================
+     STATUS BAR
+     ============================================= */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0;
+    background: var(--bg-sidebar);
+    border-top: 2px solid var(--text);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+  .status-section {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px;
+    height: 100%;
+    border-right: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  .status-section:last-child { border-right: none; }
+  .status-label { color: var(--solid); text-transform: uppercase; letter-spacing: 0.1em; font-size: 9px; }
+  .status-value { color: var(--text-2); }
+  .status-value.good { color: var(--green); }
+  .status-value.warn { color: var(--yellow-text); }
+  .status-value.bad { color: var(--red); }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+  }
+  .status-spacer { flex: 1; border-right: none !important; }
+
+  .status-gauge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .gauge-bar {
+    width: 60px;
+    height: 4px;
+    background: var(--bg-active);
+    border-radius: 0;
+    overflow: hidden;
+  }
+  .gauge-fill {
+    height: 100%;
+    transition: width 0.3s;
+  }
+  .gauge-fill.yellow { background: var(--yellow); }
+  .gauge-fill.green { background: var(--green); }
+
+  .kaomoji {
+    font-family: var(--font-mono);
+    color: var(--yellow-text);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  /* Scrollbar */
+  .file-list-body::-webkit-scrollbar { width: 6px; }
+  .file-list-body::-webkit-scrollbar-track { background: var(--bg-page); }
+  .file-list-body::-webkit-scrollbar-thumb { background: var(--bg-active); border-radius: 0; }
+  .file-list-body::-webkit-scrollbar-thumb:hover { background: var(--border); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============================================
+       SIDEBAR
+       ============================================ -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo">put<span>.</span>io</div>
+      <div class="logo-sub">cloud storage v3.0</div>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Navigate</div>
+
+      <button class="nav-item active">
+        <span class="nav-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="4" width="12" height="10" rx="1"/>
+            <path d="M2 6h5l1.5-2H14"/>
+          </svg>
+        </span>
+        Files
+        <span class="nav-shortcut">F</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M8 2v12M2 8l6-6 6 6"/>
+            <path d="M4 12h8"/>
+          </svg>
+        </span>
+        Transfers
+        <span class="nav-badge">3</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="8" cy="8" r="2"/>
+            <path d="M8 2v2M8 12v2M2 8h2M12 8h2M3.8 3.8l1.4 1.4M10.8 10.8l1.4 1.4M3.8 12.2l1.4-1.4M10.8 5.2l1.4-1.4"/>
+          </svg>
+        </span>
+        RSS Feeds
+        <span class="nav-shortcut">R</span>
+      </button>
+
+      <div class="nav-sep"></div>
+      <div class="nav-section-label">Library</div>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M6 3H3v10h10v-3"/>
+            <path d="M8 2h6v6"/>
+            <path d="M14 2L7 9"/>
+          </svg>
+        </span>
+        Shared
+        <span class="nav-shortcut">S</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="8" cy="8" r="6"/>
+            <path d="M8 4v4l3 2"/>
+          </svg>
+        </span>
+        History
+        <span class="nav-shortcut">H</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M3 4h10M5 4V3h6v1M4 4v9a1 1 0 001 1h6a1 1 0 001-1V4"/>
+            <path d="M7 7v4M9 7v4"/>
+          </svg>
+        </span>
+        Trash
+        <span class="nav-badge" style="color: var(--text-3);">19.5G</span>
+      </button>
+
+      <div class="nav-sep"></div>
+      <div class="nav-section-label">System</div>
+
+      <button class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="8" cy="8" r="3"/>
+            <path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.9 2.9l1.4 1.4M11.7 11.7l1.4 1.4M13.1 2.9l-1.4 1.4M4.3 11.7l-1.4 1.4"/>
+          </svg>
+        </span>
+        Settings
+        <span class="nav-shortcut">,</span>
+      </button>
+    </div>
+
+    <!-- Storage -->
+    <div class="sidebar-storage">
+      <div class="storage-label-top">Storage</div>
+      <div class="storage-bar">
+        <div class="storage-fill" style="width: 78%;"></div>
+      </div>
+      <div class="storage-text">
+        <strong>39 TB</strong> / 50 TB used
+      </div>
+    </div>
+
+    <!-- User -->
+    <div class="sidebar-user">
+      <div class="user-avatar">
+        <svg viewBox="0 0 16 16" fill="currentColor">
+          <rect x="3" y="3" width="2" height="2"/>
+          <rect x="11" y="3" width="2" height="2"/>
+          <rect x="5" y="5" width="6" height="2"/>
+          <rect x="3" y="7" width="10" height="2"/>
+          <rect x="2" y="9" width="3" height="2"/>
+          <rect x="6" y="9" width="4" height="2"/>
+          <rect x="11" y="9" width="3" height="2"/>
+          <rect x="3" y="11" width="2" height="2"/>
+          <rect x="11" y="11" width="2" height="2"/>
+        </svg>
+      </div>
+      <div>
+        <div class="user-name">altay</div>
+        <div class="user-status">online</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       MAIN CONTENT
+       ============================================ -->
+  <div class="content">
+
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="breadcrumb">
+        <a href="#">~</a>
+        <span class="sep">/</span>
+        <span class="current">root</span>
+      </div>
+      <div class="topbar-spacer"></div>
+      <div class="search-bar">
+        <span class="search-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="7" cy="7" r="4.5"/>
+            <path d="M10.5 10.5L14 14"/>
+          </svg>
+        </span>
+        <input placeholder="what are you looking for?" />
+        <span class="search-shortcut">/</span>
+      </div>
+      <button class="btn-cta">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 3v10M3 8h10"/>
+        </svg>
+        New Transfer
+      </button>
+    </div>
+
+    <!-- Content Header -->
+    <div class="content-header">
+      <h1 class="page-heading">Your<br><span class="heading-accent">Files</span></h1>
+      <div class="heading-meta">
+        <span>11 items</span>
+        <span>39 TB total</span>
+        <span style="color: var(--yellow-text);">78% capacity</span>
+      </div>
+      <div class="toolbar">
+        <button class="toolbar-btn">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="2" width="5" height="5"/>
+            <rect x="9" y="2" width="5" height="5"/>
+            <rect x="2" y="9" width="5" height="5"/>
+            <rect x="9" y="9" width="5" height="5"/>
+          </svg>
+          Grid
+        </button>
+        <button class="toolbar-btn">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M3 4h10M3 8h10M3 12h10"/>
+          </svg>
+          List
+        </button>
+        <button class="toolbar-btn">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 2v12M8 6v8M12 4v10"/>
+          </svg>
+          Sort
+        </button>
+      </div>
+    </div>
+
+    <!-- File list header -->
+    <div class="file-list-header">
+      <div></div>
+      <div></div>
+      <div>Name</div>
+      <div style="text-align:right;">Size</div>
+      <div style="text-align:right;">Modified</div>
+      <div style="text-align:right;">Type</div>
+      <div style="text-align:right;">Torrent</div>
+      <div></div>
+    </div>
+
+    <!-- File rows -->
+    <div class="file-list-body">
+
+      <!-- FOLDERS GROUP -->
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">
+          <div class="file-type-icon">
+            <svg viewBox="0 0 16 16" fill="var(--yellow)" stroke="none">
+              <rect x="1" y="3" width="14" height="11" rx="1"/>
+            </svg>
+          </div>
+        </div>
+        <div class="col-name">
+          <div class="fname">rss</div>
+          <div class="fname-sub">auto-feed directory</div>
+        </div>
+        <div class="col-size">0 B</div>
+        <div class="col-date">1y ago</div>
+        <div class="col-codec"><span class="codec-tag codec-folder">DIR</span></div>
+        <div class="col-torrent"><span style="color: var(--solid);">--</span></div>
+        <div class="col-actions">
+          <button class="action-btn">
+            <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">
+          <div class="file-type-icon">
+            <svg viewBox="0 0 16 16" fill="var(--yellow)" stroke="none">
+              <rect x="1" y="3" width="14" height="11" rx="1"/>
+            </svg>
+          </div>
+        </div>
+        <div class="col-name">
+          <div class="fname">chill institute</div>
+          <div class="fname-sub">music collection</div>
+        </div>
+        <div class="col-size">0 B</div>
+        <div class="col-date">16h ago</div>
+        <div class="col-codec"><span class="codec-tag codec-folder">DIR</span></div>
+        <div class="col-torrent"><span style="color: var(--solid);">--</span></div>
+        <div class="col-actions">
+          <button class="action-btn">
+            <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">
+          <div class="file-type-icon">
+            <svg viewBox="0 0 16 16" fill="var(--yellow)" stroke="none">
+              <rect x="1" y="3" width="14" height="11" rx="1"/>
+            </svg>
+          </div>
+        </div>
+        <div class="col-name">
+          <div class="fname">__dev__</div>
+          <div class="fname-sub">development tools</div>
+        </div>
+        <div class="col-size">6.60 GB</div>
+        <div class="col-date">2y ago</div>
+        <div class="col-codec"><span class="codec-tag codec-folder">DIR</span></div>
+        <div class="col-torrent"><span style="color: var(--solid);">--</span></div>
+        <div class="col-actions">
+          <button class="action-btn">
+            <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">
+          <div class="file-type-icon">
+            <svg viewBox="0 0 16 16" fill="var(--yellow)" stroke="none">
+              <rect x="1" y="3" width="14" height="11" rx="1"/>
+            </svg>
+          </div>
+        </div>
+        <div class="col-name">
+          <div class="fname">downloads</div>
+          <div class="fname-sub">default transfer target</div>
+        </div>
+        <div class="col-size">21.78 GB</div>
+        <div class="col-date">1d ago</div>
+        <div class="col-codec"><span class="codec-tag codec-folder">DIR</span></div>
+        <div class="col-torrent"><span style="color: var(--solid);">--</span></div>
+        <div class="col-actions">
+          <button class="action-btn">
+            <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">
+          <div class="file-type-icon">
+            <svg viewBox="0 0 16 16" fill="var(--yellow)" stroke="none">
+              <rect x="1" y="3" width="14" height="11" rx="1"/>
+            </svg>
+          </div>
+        </div>
+        <div class="col-name">
+          <div class="fname">__o-o__</div>
+          <div class="fname-sub">archive vault</div>
+        </div>
+        <div class="col-size">1.74 TB</div>
+        <div class="col-date">2y ago</div>
+        <div class="col-codec"><span class="codec-tag codec-folder">DIR</span></div>
+        <div class="col-torrent"><span style="color: var(--solid);">--</span></div>
+        <div class="col-actions">
+          <button class="action-btn">
+            <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">
+          <div class="file-type-icon">
+            <svg viewBox="0 0 16 16" fill="var(--yellow)" stroke="none">
+              <rect x="1" y="3" width="14" height="11" rx="1"/>
+            </svg>
+          </div>
+        </div>
+        <div class="col-name">
+          <div class="fname">Items shared with you</div>
+          <div class="fname-sub">from other users</div>
+        </div>
+        <div class="col-size">102.3 TB</div>
+        <div class="col-date">6y ago</div>
+        <div class="col-codec"><span class="codec-tag codec-folder">DIR</span></div>
+        <div class="col-torrent"><span style="color: var(--solid);">--</span></div>
+        <div class="col-actions">
+          <button class="action-btn">
+            <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- SPACER -->
+      <div class="file-row-spacer"></div>
+
+      <!-- VIDEO FILES -->
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">
+          <div class="file-type-icon">
+            <svg viewBox="0 0 16 16" fill="var(--cyan)" stroke="none">
+              <polygon points="4,2 14,8 4,14"/>
+            </svg>
+          </div>
+        </div>
+        <div class="col-name">
+          <div class="fname">Cosmos Laundromat.mp4</div>
+          <div class="fname-sub">1920x1080 -- 12:10 -- Blender Foundation</div>
+        </div>
+        <div class="col-size">209.89 MB</div>
+        <div class="col-date">2d ago</div>
+        <div class="col-codec"><span class="codec-tag codec-video">H.264</span></div>
+        <div class="col-torrent">
+          <div class="seeder-info">
+            <span class="seed-count">S:42</span>
+            <span class="leech-count">L:3</span>
+            <span class="ratio-good">2.1</span>
+          </div>
+        </div>
+        <div class="col-actions">
+          <button class="action-btn">
+            <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">
+          <div class="file-type-icon">
+            <svg viewBox="0 0 16 16" fill="var(--cyan)" stroke="none">
+              <polygon points="4,2 14,8 4,14"/>
+            </svg>
+          </div>
+        </div>
+        <div class="col-name">
+          <div class="fname">Sintel.mp4</div>
+          <div class="fname-sub">3840x2160 -- 14:48 -- Blender Foundation</div>
+        </div>
+        <div class="col-size">892.45 MB</div>
+        <div class="col-date">3d ago</div>
+        <div class="col-codec"><span class="codec-tag codec-video">HEVC</span></div>
+        <div class="col-torrent">
+          <div class="seeder-info">
+            <span class="seed-count">S:128</span>
+            <span class="leech-count">L:12</span>
+            <span class="ratio-good">5.4</span>
+          </div>
+        </div>
+        <div class="col-actions">
+          <button class="action-btn">
+            <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">
+          <div class="file-type-icon">
+            <svg viewBox="0 0 16 16" fill="var(--cyan)" stroke="none">
+              <polygon points="4,2 14,8 4,14"/>
+            </svg>
+          </div>
+        </div>
+        <div class="col-name">
+          <div class="fname">Big Buck Bunny (2008) [4K].mkv</div>
+          <div class="fname-sub">3840x2160 -- 9:56 -- Peach Project</div>
+        </div>
+        <div class="col-size">4.12 GB</div>
+        <div class="col-date">1w ago</div>
+        <div class="col-codec"><span class="codec-tag codec-video">AV1</span></div>
+        <div class="col-torrent">
+          <div class="seeder-info">
+            <span class="seed-count">S:891</span>
+            <span class="leech-count">L:47</span>
+            <span class="ratio-good">18.9</span>
+          </div>
+        </div>
+        <div class="col-actions">
+          <button class="action-btn">
+            <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- SPACER -->
+      <div class="file-row-spacer"></div>
+
+      <!-- AUDIO -->
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">
+          <div class="file-type-icon">
+            <svg viewBox="0 0 16 16" fill="var(--purple)" stroke="none">
+              <rect x="1" y="6" width="2" height="4" rx="0.5"/>
+              <rect x="4" y="3" width="2" height="10" rx="0.5"/>
+              <rect x="7" y="5" width="2" height="6" rx="0.5"/>
+              <rect x="10" y="2" width="2" height="12" rx="0.5"/>
+              <rect x="13" y="5" width="2" height="6" rx="0.5"/>
+            </svg>
+          </div>
+        </div>
+        <div class="col-name">
+          <div class="fname">podcast-episode-127.mp3</div>
+          <div class="fname-sub">stereo -- 1:42:30 -- 320 kbps</div>
+        </div>
+        <div class="col-size">45.20 MB</div>
+        <div class="col-date">5d ago</div>
+        <div class="col-codec"><span class="codec-tag codec-audio">MP3</span></div>
+        <div class="col-torrent">
+          <div class="seeder-info">
+            <span class="seed-count">S:7</span>
+            <span class="leech-count">L:1</span>
+            <span class="ratio-ok">1.0</span>
+          </div>
+        </div>
+        <div class="col-actions">
+          <button class="action-btn">
+            <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- DOCUMENT -->
+      <div class="file-row">
+        <div class="col-check"><div class="checkbox"></div></div>
+        <div class="col-icon">
+          <div class="file-type-icon">
+            <svg viewBox="0 0 16 16" fill="none" stroke="var(--text-3)" stroke-width="1.5">
+              <path d="M4 1h6l4 4v10H4z"/>
+              <path d="M10 1v4h4"/>
+              <path d="M6 8h4M6 10.5h3"/>
+            </svg>
+          </div>
+        </div>
+        <div class="col-name">
+          <div class="fname">ebook-design-systems.epub</div>
+          <div class="fname-sub">epub -- 342 pages</div>
+        </div>
+        <div class="col-size">12.30 MB</div>
+        <div class="col-date">1w ago</div>
+        <div class="col-codec"><span class="codec-tag codec-doc">EPUB</span></div>
+        <div class="col-torrent"><span style="color: var(--solid);">--</span></div>
+        <div class="col-actions">
+          <button class="action-btn">
+            <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ============================================
+         STATUS BAR
+         ============================================ -->
+    <div class="status-bar">
+      <div class="status-section">
+        <div class="status-dot"></div>
+        <span class="status-label">Conn</span>
+        <span class="status-value good">Istanbul-EU</span>
+      </div>
+      <div class="status-section">
+        <span class="status-label">Transfers</span>
+        <span class="status-value warn">3 active</span>
+      </div>
+      <div class="status-section">
+        <span class="status-label">DL</span>
+        <span class="status-value good">48.2 MB/s</span>
+      </div>
+      <div class="status-section">
+        <span class="status-label">UL</span>
+        <span class="status-value">12.1 MB/s</span>
+      </div>
+      <div class="status-section status-gauge">
+        <span class="status-label">Storage</span>
+        <div class="gauge-bar">
+          <div class="gauge-fill yellow" style="width: 78%;"></div>
+        </div>
+        <span class="status-value warn">78%</span>
+      </div>
+      <div class="status-section">
+        <span class="status-label">Uptime</span>
+        <span class="status-value">47d 13h</span>
+      </div>
+      <div class="status-section status-spacer"></div>
+      <div class="status-section" style="border-right: none;">
+        <span class="kaomoji">(^_^)/</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>put.io — tvOS Video Player</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A0C; --bg-2: #141416; --bg-3: #1E1E22; --bg-4: #28282E;
+    --line: #333339; --border: #444450; --solid: #6C6C78;
+    --text-2: #9C9CA8; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868;
+    --yellow-subtle: rgba(253, 206, 69, 0.15);
+    --green-9: #30A46C; --green-11: #4CC38A;
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .tv-frame {
+    width: 1920px; height: 1080px; position: relative; overflow: hidden;
+  }
+
+  /* Video background */
+  .video-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 40%, rgba(22, 33, 62, 0.8) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 60%, rgba(26, 26, 46, 0.9) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(15, 52, 96, 0.5) 0%, transparent 40%),
+      linear-gradient(180deg, #0d0d12 0%, #111128 30%, #0a1628 60%, #080810 100%);
+  }
+
+  /* Subtitle display */
+  .subtitle-container {
+    position: absolute; bottom: 180px; left: 50%; transform: translateX(-50%);
+    z-index: 10;
+  }
+  .subtitle-text {
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff; font-size: 32px; font-weight: 400;
+    padding: 10px 28px; border-radius: 6px;
+    text-align: center; line-height: 1.4;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    letter-spacing: 0.01em;
+  }
+
+  /* Bottom controls overlay */
+  .controls-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 60%, transparent 100%);
+    padding: 0 90px 48px;
+    z-index: 20;
+  }
+
+  /* Progress bar */
+  .progress-section {
+    margin-bottom: 20px;
+  }
+  .time-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  .time-label {
+    font-size: 20px; font-weight: 500; color: rgba(255,255,255,0.7);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+  .progress-track {
+    width: 100%; height: 6px; background: rgba(255,255,255,0.2);
+    border-radius: 3px; position: relative; cursor: pointer;
+  }
+  .progress-fill {
+    height: 100%; background: var(--yellow); border-radius: 3px; width: 38%;
+    box-shadow: 0 0 12px rgba(253, 206, 69, 0.3);
+  }
+  .progress-dot {
+    width: 20px; height: 20px; background: var(--yellow);
+    border-radius: 50%; position: absolute; top: 50%; left: 38%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 16px rgba(253, 206, 69, 0.5), 0 0 4px rgba(253, 206, 69, 0.8);
+  }
+  /* Chapter markers */
+  .chapter-marker {
+    position: absolute; top: 0; width: 3px; height: 100%;
+    background: rgba(255,255,255,0.35); border-radius: 1px;
+  }
+
+  /* Transport controls */
+  .transport-controls {
+    display: flex; align-items: center; justify-content: center;
+    gap: 48px;
+  }
+  .ctrl-btn {
+    background: none; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.85);
+    transition: all 0.15s;
+    position: relative;
+  }
+  .ctrl-btn:hover { color: #fff; }
+  .ctrl-btn svg { display: block; }
+
+  .ctrl-btn.play-btn {
+    width: 80px; height: 80px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 50%;
+    backdrop-filter: blur(12px);
+    border: 2px solid rgba(255,255,255,0.15);
+  }
+  .ctrl-btn.play-btn:hover {
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.3);
+  }
+  .ctrl-btn.play-btn.focused {
+    border-color: var(--yellow);
+    box-shadow: 0 0 0 3px rgba(253, 206, 69, 0.3), 0 4px 24px rgba(253, 206, 69, 0.2);
+    background: rgba(253, 206, 69, 0.12);
+  }
+
+  .skip-label {
+    font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.5);
+    position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%);
+  }
+
+  /* Side controls */
+  .side-controls-left, .side-controls-right {
+    position: absolute; bottom: 56px; display: flex; align-items: center; gap: 32px;
+  }
+  .side-controls-left { left: 90px; }
+  .side-controls-right { right: 90px; }
+
+  /* Info panel (swipe down state) */
+  .info-panel {
+    position: absolute; top: 0; left: 0; right: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.85) 80%, transparent 100%);
+    padding: 60px 90px 120px;
+    z-index: 30;
+    display: flex; gap: 80px;
+  }
+  .info-main { flex: 1; }
+  .info-title {
+    font-size: 56px; font-weight: 700; color: #fff;
+    margin-bottom: 12px; letter-spacing: -0.02em;
+  }
+  .info-episode {
+    font-size: 26px; font-weight: 500; color: rgba(255,255,255,0.6);
+    margin-bottom: 24px;
+  }
+  .info-badges {
+    display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap;
+  }
+  .badge {
+    font-size: 16px; font-weight: 600; padding: 6px 16px;
+    border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .badge-yellow {
+    background: var(--yellow-subtle); color: var(--yellow);
+  }
+  .badge-neutral {
+    background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7);
+  }
+  .badge-green {
+    background: rgba(48, 164, 108, 0.15); color: var(--green-11);
+  }
+
+  /* Track selectors */
+  .info-selectors { width: 420px; flex-shrink: 0; }
+  .selector-group { margin-bottom: 32px; }
+  .selector-label {
+    font-size: 16px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--solid); margin-bottom: 16px;
+  }
+  .selector-option {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 20px; background: rgba(255,255,255,0.06);
+    border-radius: 14px; margin-bottom: 8px;
+    border: 2px solid transparent; cursor: pointer;
+    font-size: 20px; color: rgba(255,255,255,0.7);
+    transition: all 0.15s;
+  }
+  .selector-option:hover {
+    background: rgba(255,255,255,0.1);
+  }
+  .selector-option.active {
+    border-color: var(--yellow);
+    background: rgba(253, 206, 69, 0.08);
+    color: #fff;
+  }
+  .selector-option.focused {
+    border-color: var(--yellow);
+    box-shadow: 0 0 0 3px rgba(253, 206, 69, 0.25);
+    background: rgba(253, 206, 69, 0.08);
+    color: #fff;
+  }
+  .selector-check {
+    width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  }
+  .selector-option-text { flex: 1; }
+  .selector-option-meta { font-size: 15px; color: var(--solid); }
+
+  /* Up Next overlay */
+  .upnext-overlay {
+    position: absolute; bottom: 160px; right: 90px;
+    width: 420px; z-index: 25;
+    background: rgba(20, 20, 22, 0.95);
+    backdrop-filter: blur(40px);
+    border-radius: 20px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+  }
+  .upnext-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 24px 0;
+  }
+  .upnext-label {
+    font-size: 16px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--solid);
+  }
+  .upnext-countdown {
+    font-size: 16px; font-weight: 600; color: var(--yellow);
+    font-variant-numeric: tabular-nums;
+  }
+  .upnext-content {
+    padding: 16px 24px 24px; display: flex; gap: 16px; align-items: center;
+  }
+  .upnext-thumb {
+    width: 120px; height: 68px; border-radius: 10px;
+    background: linear-gradient(135deg, #1a2a3e 0%, #162040 100%);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .upnext-info { flex: 1; min-width: 0; }
+  .upnext-title {
+    font-size: 20px; font-weight: 600; color: #fff;
+    margin-bottom: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .upnext-meta { font-size: 16px; color: var(--solid); }
+  .upnext-progress {
+    height: 3px; background: rgba(255,255,255,0.1);
+    margin: 0 24px 4px;
+  }
+  .upnext-progress .fill {
+    height: 100%; background: var(--yellow); width: 100%;
+    animation: upnextCountdown 15s linear;
+  }
+  @keyframes upnextCountdown {
+    from { width: 0%; }
+    to { width: 100%; }
+  }
+  .upnext-actions {
+    display: flex; border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .upnext-action {
+    flex: 1; padding: 16px; text-align: center;
+    font-size: 17px; font-weight: 600;
+    cursor: pointer; border: none; background: none;
+    color: rgba(255,255,255,0.5);
+    transition: all 0.15s;
+  }
+  .upnext-action:first-child {
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  .upnext-action.primary {
+    color: var(--yellow);
+  }
+  .upnext-action:hover {
+    background: rgba(255,255,255,0.04);
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <!-- Video Background -->
+  <div class="video-bg"></div>
+
+  <!-- Subtitle -->
+  <div class="subtitle-container">
+    <div class="subtitle-text">You come at the king, you best not miss.</div>
+  </div>
+
+  <!-- Info Panel (swipe-down state) -->
+  <div class="info-panel">
+    <div class="info-main">
+      <div class="info-title">The Wire</div>
+      <div class="info-episode">Season 3, Episode 4</div>
+      <div class="info-badges">
+        <span class="badge badge-yellow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          1080p
+        </span>
+        <span class="badge badge-neutral">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+          BluRay
+        </span>
+        <span class="badge badge-neutral">x264</span>
+        <span class="badge badge-neutral">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8"/></svg>
+          MKV
+        </span>
+        <span class="badge badge-green">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+          DEMAND
+        </span>
+      </div>
+    </div>
+
+    <div class="info-selectors">
+      <!-- Audio Track Selector -->
+      <div class="selector-group">
+        <div class="selector-label">Audio Track</div>
+        <div class="selector-option active">
+          <div class="selector-check">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FDCE45" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+          </div>
+          <span class="selector-option-text">English</span>
+          <span class="selector-option-meta">5.1 Surround</span>
+        </div>
+        <div class="selector-option">
+          <div class="selector-check"></div>
+          <span class="selector-option-text">English</span>
+          <span class="selector-option-meta">Stereo</span>
+        </div>
+        <div class="selector-option">
+          <div class="selector-check"></div>
+          <span class="selector-option-text">Spanish</span>
+          <span class="selector-option-meta">Stereo</span>
+        </div>
+      </div>
+
+      <!-- Subtitle Selector -->
+      <div class="selector-group">
+        <div class="selector-label">Subtitles</div>
+        <div class="selector-option focused">
+          <div class="selector-check">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FDCE45" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+          </div>
+          <span class="selector-option-text">English (SRT)</span>
+          <span class="selector-option-meta">Full</span>
+        </div>
+        <div class="selector-option">
+          <div class="selector-check"></div>
+          <span class="selector-option-text">English (SDH)</span>
+          <span class="selector-option-meta">Full</span>
+        </div>
+        <div class="selector-option">
+          <div class="selector-check"></div>
+          <span class="selector-option-text">Off</span>
+          <span class="selector-option-meta"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Up Next Overlay -->
+  <div class="upnext-overlay">
+    <div class="upnext-header">
+      <span class="upnext-label">Up Next</span>
+      <span class="upnext-countdown">15s</span>
+    </div>
+    <div class="upnext-content">
+      <div class="upnext-thumb">
+        <svg width="32" height="32" viewBox="0 0 256 256" fill="rgba(255,255,255,0.3)"><path d="M80,48V208l144-80Z"/></svg>
+      </div>
+      <div class="upnext-info">
+        <div class="upnext-title">S03E05 &mdash; Straight and True</div>
+        <div class="upnext-meta">The Wire &middot; 58 min</div>
+      </div>
+    </div>
+    <div class="upnext-progress"><div class="fill"></div></div>
+    <div class="upnext-actions">
+      <button class="upnext-action">Cancel</button>
+      <button class="upnext-action primary">Play Now</button>
+    </div>
+  </div>
+
+  <!-- Bottom Controls Overlay -->
+  <div class="controls-overlay">
+    <!-- Progress Bar -->
+    <div class="progress-section">
+      <div class="time-row">
+        <span class="time-label">22:14</span>
+        <span class="time-label">-35:46</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill"></div>
+        <div class="progress-dot"></div>
+        <!-- Chapter markers -->
+        <div class="chapter-marker" style="left: 15%;"></div>
+        <div class="chapter-marker" style="left: 48%;"></div>
+        <div class="chapter-marker" style="left: 72%;"></div>
+        <div class="chapter-marker" style="left: 89%;"></div>
+      </div>
+    </div>
+
+    <!-- Transport Controls -->
+    <div class="transport-controls">
+      <!-- Subtitles -->
+      <button class="ctrl-btn" title="Subtitles">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="4" width="22" height="16" rx="2"/>
+          <line x1="5" y1="12" x2="11" y2="12"/>
+          <line x1="13" y1="12" x2="19" y2="12"/>
+          <line x1="5" y1="16" x2="15" y2="16"/>
+        </svg>
+      </button>
+
+      <!-- Audio -->
+      <button class="ctrl-btn" title="Audio">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11,5 6,9 2,9 2,15 6,15 11,19"/>
+          <path d="M15.54,8.46a5,5,0,0,1,0,7.07"/>
+          <path d="M19.07,4.93a10,10,0,0,1,0,14.14"/>
+        </svg>
+      </button>
+
+      <!-- Skip Back 10s -->
+      <button class="ctrl-btn" title="Skip back 10s" style="position:relative;">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1,4V10H7"/>
+          <path d="M1,10A10,10,0,1,1,3.51,17.36"/>
+        </svg>
+        <span style="position:absolute;font-size:12px;font-weight:700;color:rgba(255,255,255,0.85);top:50%;left:50%;transform:translate(-50%,-50%);margin-top:2px;">10</span>
+      </button>
+
+      <!-- Pause (active state) -->
+      <button class="ctrl-btn play-btn focused" title="Pause">
+        <svg width="36" height="36" viewBox="0 0 256 256" fill="currentColor">
+          <rect x="72" y="56" width="36" height="144" rx="6"/>
+          <rect x="148" y="56" width="36" height="144" rx="6"/>
+        </svg>
+      </button>
+
+      <!-- Skip Forward 10s -->
+      <button class="ctrl-btn" title="Skip forward 10s" style="position:relative;">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23,4V10H17"/>
+          <path d="M23,10A10,10,0,1,1,20.49,17.36"/>
+        </svg>
+        <span style="position:absolute;font-size:12px;font-weight:700;color:rgba(255,255,255,0.85);top:50%;left:50%;transform:translate(-50%,-50%);margin-top:2px;">10</span>
+      </button>
+
+      <!-- Settings -->
+      <button class="ctrl-btn" title="Settings">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4,15a1.65,1.65,0,0,0,.33,1.82l.06.06a2,2,0,0,1-2.83,2.83l-.06-.06a1.65,1.65,0,0,0-1.82-.33,1.65,1.65,0,0,0-1,1.51V21a2,2,0,0,1-4,0v-.09A1.65,1.65,0,0,0,9,19.4a1.65,1.65,0,0,0-1.82.33l-.06.06a2,2,0,0,1-2.83-2.83l.06-.06A1.65,1.65,0,0,0,4.68,15a1.65,1.65,0,0,0-1.51-1H3a2,2,0,0,1,0-4h.09A1.65,1.65,0,0,0,4.6,9a1.65,1.65,0,0,0-.33-1.82l-.06-.06A2,2,0,0,1,7.04,4.29l.06.06A1.65,1.65,0,0,0,9,4.68a1.65,1.65,0,0,0,1-1.51V3a2,2,0,0,1,4,0v.09a1.65,1.65,0,0,0,1,1.51,1.65,1.65,0,0,0,1.82-.33l.06-.06a2,2,0,0,1,2.83,2.83l-.06.06A1.65,1.65,0,0,0,19.4,9a1.65,1.65,0,0,0,1.51,1H21a2,2,0,0,1,0,4h-.09A1.65,1.65,0,0,0,19.4,15Z"/>
+        </svg>
+      </button>
+
+      <!-- Playback Speed -->
+      <button class="ctrl-btn" title="Speed" style="font-size:18px;font-weight:700;color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.08);padding:6px 14px;border-radius:8px;">
+        1.0x
+      </button>
+    </div>
+  </div>
+
+  <!-- Side: put.io logo watermark -->
+  <div style="position:absolute;top:40px;left:60px;z-index:5;">
+    <span style="font-size:22px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:-0.02em;">put<span style="color:rgba(253,206,69,0.4);">.</span>io</span>
+  </div>
+</div>
+</body>
+</html>

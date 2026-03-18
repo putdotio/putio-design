@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Storage Dashboard</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0C0C0E; --bg-2: #141416; --bg-3: #1C1C20; --bg-4: #262629;
+    --bg-5: #303034; --line: #38383D; --border: #48484F;
+    --solid: #6E6E78; --text-2: #A0A0AB; --text: #EDEDF0;
+    --yellow: #FDCE45; --yellow-glow: rgba(253,206,69,0.12);
+    --green: #30A46C; --red: #E5484D; --blue: #3B82F6; --purple: #8B5CF6; --orange: #F59E0B;
+  }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+  .app { display: flex; width: 1440px; min-height: 900px; }
+
+  /* Sidebar */
+  .sidebar { width: 220px; background: var(--bg-2); border-right: 1px solid var(--line); display: flex; flex-direction: column; flex-shrink: 0; padding: 20px 0; }
+  .logo { padding: 0 20px 24px; font-size: 20px; font-weight: 700; letter-spacing: -0.03em; }
+  .logo .dot { color: var(--yellow); }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 20px; font-size: 13px; color: var(--text-2); cursor: pointer; }
+  .nav-item:hover { color: var(--text); background: var(--bg-3); }
+  .nav-item.active { color: var(--text); background: var(--bg-4); font-weight: 500; }
+  .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .nav-item.active svg { color: var(--yellow); }
+  .nav-sep { height: 1px; background: var(--line); margin: 8px 16px; }
+  .nav-badge { margin-left: auto; font-size: 11px; color: var(--solid); font-family: 'JetBrains Mono', monospace; }
+  .sidebar-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--line); }
+  .storage-micro { margin-bottom: 12px; }
+  .storage-micro-bar { height: 4px; background: var(--bg-5); border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
+  .storage-micro-fill { height: 100%; background: var(--yellow); border-radius: 2px; }
+  .storage-micro-label { font-size: 11px; color: var(--solid); font-family: 'JetBrains Mono', monospace; }
+  .user-row { display: flex; align-items: center; gap: 8px; }
+  .user-row svg { width: 24px; height: 24px; }
+  .user-name { font-size: 12px; color: var(--text-2); }
+
+  /* Content */
+  .content { flex: 1; overflow-y: auto; padding: 32px 40px; }
+  .page-header { margin-bottom: 40px; }
+  .page-title { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .page-subtitle { font-size: 14px; color: var(--text-2); }
+
+  /* Stats Row */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
+  .stat-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 20px 24px; }
+  .stat-label { font-size: 12px; color: var(--solid); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; font-weight: 500; }
+  .stat-value { font-size: 28px; font-weight: 700; font-family: 'JetBrains Mono', monospace; letter-spacing: -0.02em; }
+  .stat-value .unit { font-size: 14px; font-weight: 500; color: var(--text-2); margin-left: 4px; }
+  .stat-sub { font-size: 12px; color: var(--solid); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+
+  /* Big Storage Ring */
+  .dashboard-grid { display: grid; grid-template-columns: 380px 1fr; gap: 24px; margin-bottom: 40px; }
+  .ring-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px; padding: 32px; display: flex; flex-direction: column; align-items: center; }
+  .ring-container { position: relative; width: 240px; height: 240px; margin-bottom: 24px; }
+  .ring-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+  .ring-center .used { font-size: 36px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+  .ring-center .total { font-size: 14px; color: var(--solid); font-family: 'JetBrains Mono', monospace; }
+  .ring-legend { width: 100%; }
+  .legend-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 13px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .legend-label { flex: 1; color: var(--text-2); }
+  .legend-value { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text); }
+
+  /* File Type Breakdown */
+  .breakdown-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px; padding: 32px; }
+  .breakdown-title { font-size: 16px; font-weight: 600; margin-bottom: 24px; }
+  .breakdown-bar-group { margin-bottom: 20px; }
+  .breakdown-bar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .breakdown-bar-label { font-size: 13px; color: var(--text-2); display: flex; align-items: center; gap: 8px; }
+  .breakdown-bar-label svg { width: 16px; height: 16px; }
+  .breakdown-bar-value { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--text); }
+  .breakdown-track { height: 8px; background: var(--bg-5); border-radius: 4px; overflow: hidden; }
+  .breakdown-fill { height: 100%; border-radius: 4px; }
+
+  /* Insights */
+  .insights-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 40px; }
+  .insight-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 24px; position: relative; overflow: hidden; }
+  .insight-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .insight-card.yellow::before { background: var(--yellow); }
+  .insight-card.red::before { background: var(--red); }
+  .insight-card.green::before { background: var(--green); }
+  .insight-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+  .insight-icon svg { width: 20px; height: 20px; }
+  .insight-card.yellow .insight-icon { background: var(--yellow-glow); color: var(--yellow); }
+  .insight-card.red .insight-icon { background: rgba(229,72,77,0.12); color: var(--red); }
+  .insight-card.green .insight-icon { background: rgba(48,164,108,0.12); color: var(--green); }
+  .insight-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .insight-desc { font-size: 13px; color: var(--text-2); line-height: 1.5; margin-bottom: 16px; }
+  .insight-action { font-size: 13px; font-weight: 500; color: var(--yellow); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+
+  /* Recent Large Files */
+  .files-section { margin-bottom: 40px; }
+  .files-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .files-section-title { font-size: 16px; font-weight: 600; }
+  .files-section-action { font-size: 13px; color: var(--yellow); cursor: pointer; }
+  .files-table { width: 100%; background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .files-table-header { display: flex; padding: 10px 20px; font-size: 11px; font-weight: 600; color: var(--solid); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--line); }
+  .files-table-row { display: flex; align-items: center; padding: 12px 20px; border-bottom: 1px solid var(--line); }
+  .files-table-row:last-child { border-bottom: none; }
+  .files-table-row:hover { background: var(--bg-3); }
+  .col-name { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .col-name svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--yellow); }
+  .col-name span { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .col-size { width: 100px; text-align: right; font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--text-2); }
+  .col-type { width: 80px; text-align: center; }
+  .col-type .badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 500; font-family: 'JetBrains Mono', monospace; }
+  .col-age { width: 120px; text-align: right; font-size: 12px; color: var(--solid); }
+  .col-watched { width: 80px; text-align: center; font-size: 12px; }
+  .watched-yes { color: var(--green); }
+  .watched-no { color: var(--solid); }
+
+  /* Bottom quote */
+  .footer-quote { text-align: center; padding: 40px 0 20px; font-size: 13px; color: var(--solid); font-style: italic; }
+  .footer-quote .kaomoji { font-style: normal; color: var(--yellow); }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">put<span class="dot">.</span>io</div>
+    <div class="nav-item">
+      <svg viewBox="0 0 256 256" fill="currentColor"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg>
+      Files
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 256 256" fill="currentColor"><path d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7l-112,120a8,8,0,0,0,3,13l57.63,21.61L88.16,238.43a8,8,0,0,0,13.69,7l112-120A8,8,0,0,0,215.79,118.17Z"/></svg>
+      Transfers <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 256 256" fill="currentColor"><path d="M98.91,157.09A71.53,71.53,0,0,1,120,208a8,8,0,0,1-16,0,56,56,0,0,0-56-56,8,8,0,0,1,0-16A71.53,71.53,0,0,1,98.91,157.09ZM48,88a8,8,0,0,0,0,16,104,104,0,0,1,104,104,8,8,0,0,0,16,0A120,120,0,0,0,48,88Zm0-40a8,8,0,0,0,0,16,144,144,0,0,1,144,144,8,8,0,0,0,16,0A160,160,0,0,0,48,48Zm12,160a12,12,0,1,0-12-12A12,12,0,0,0,60,208Z"/></svg>
+      RSS
+    </div>
+    <div class="nav-sep"></div>
+    <div class="nav-item">
+      <svg viewBox="0 0 256 256" fill="currentColor"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg>
+      Sharing
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"/></svg>
+      History
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 256 256" fill="currentColor"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"/></svg>
+      Trash <span class="nav-badge">19.5G</span>
+    </div>
+    <div class="nav-sep"></div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 256 256" fill="currentColor"><path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,160H40V56H216V200ZM104,120v32a8,8,0,0,1-16,0V120a8,8,0,0,1,16,0Zm56-16v48a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm-28,32v16a8,8,0,0,1-16,0V136a8,8,0,0,1,16,0Zm56-48v64a8,8,0,0,1-16,0V88a8,8,0,0,1,16,0Z"/></svg>
+      Storage
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="storage-micro">
+        <div class="storage-micro-bar"><div class="storage-micro-fill" style="width:78%;"></div></div>
+        <div class="storage-micro-label">39 TB / 50 TB used</div>
+      </div>
+      <div class="user-row">
+        <svg viewBox="0 0 16 16" fill="var(--yellow)" width="24" height="24"><rect x="3" y="2" width="2" height="2"/><rect x="11" y="2" width="2" height="2"/><rect x="1" y="4" width="2" height="2"/><rect x="3" y="4" width="2" height="2"/><rect x="5" y="4" width="2" height="2"/><rect x="7" y="4" width="2" height="2"/><rect x="9" y="4" width="2" height="2"/><rect x="11" y="4" width="2" height="2"/><rect x="13" y="4" width="2" height="2"/><rect x="1" y="6" width="2" height="2"/><rect x="3" y="6" width="2" height="2"/><rect x="5" y="6" width="2" height="2"/><rect x="7" y="6" width="2" height="2"/><rect x="9" y="6" width="2" height="2"/><rect x="11" y="6" width="2" height="2"/><rect x="13" y="6" width="2" height="2"/><rect x="1" y="8" width="2" height="2"/><rect x="5" y="8" width="2" height="2"/><rect x="9" y="8" width="2" height="2"/><rect x="13" y="8" width="2" height="2"/><rect x="3" y="10" width="2" height="2"/><rect x="5" y="10" width="2" height="2"/><rect x="9" y="10" width="2" height="2"/><rect x="11" y="10" width="2" height="2"/></svg>
+        <span class="user-name">altay</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <div class="page-header">
+      <div class="page-title">Storage</div>
+      <div class="page-subtitle">What you're keeping, what's taking space, and what you might want to let go.</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Used</div>
+        <div class="stat-value">39<span class="unit">TB</span></div>
+        <div class="stat-sub">of 50 TB plan</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Files</div>
+        <div class="stat-value">14,847</div>
+        <div class="stat-sub">across 342 folders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Never Opened</div>
+        <div class="stat-value" style="color:var(--orange);">2.8<span class="unit">TB</span></div>
+        <div class="stat-sub">1,204 files · 7% of storage</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Shared</div>
+        <div class="stat-value">102.3<span class="unit">TB</span></div>
+        <div class="stat-sub">items shared with you</div>
+      </div>
+    </div>
+
+    <!-- Ring + Breakdown -->
+    <div class="dashboard-grid">
+      <div class="ring-card">
+        <div class="ring-container">
+          <svg viewBox="0 0 240 240" width="240" height="240">
+            <!-- Background ring -->
+            <circle cx="120" cy="120" r="100" fill="none" stroke="var(--bg-5)" stroke-width="20"/>
+            <!-- Video segment (62%) -->
+            <circle cx="120" cy="120" r="100" fill="none" stroke="var(--yellow)" stroke-width="20"
+              stroke-dasharray="390 628" stroke-dashoffset="-157" stroke-linecap="round"
+              transform="rotate(-90 120 120)"/>
+            <!-- Audio segment (15%) -->
+            <circle cx="120" cy="120" r="100" fill="none" stroke="var(--purple)" stroke-width="20"
+              stroke-dasharray="94 628" stroke-dashoffset="-547" stroke-linecap="round"
+              transform="rotate(-90 120 120)"/>
+            <!-- Documents segment (8%) -->
+            <circle cx="120" cy="120" r="100" fill="none" stroke="var(--blue)" stroke-width="20"
+              stroke-dasharray="50 628" stroke-dashoffset="-96" stroke-linecap="round"
+              transform="rotate(-90 120 120)"/>
+            <!-- Archives segment (5%) -->
+            <circle cx="120" cy="120" r="100" fill="none" stroke="var(--green)" stroke-width="20"
+              stroke-dasharray="31 628" stroke-dashoffset="-65" stroke-linecap="round"
+              transform="rotate(-90 120 120)"/>
+            <!-- Other segment (10%) -->
+            <circle cx="120" cy="120" r="100" fill="none" stroke="var(--solid)" stroke-width="20"
+              stroke-dasharray="62 628" stroke-dashoffset="-3" stroke-linecap="round"
+              transform="rotate(-90 120 120)"/>
+          </svg>
+          <div class="ring-center">
+            <div class="used">78%</div>
+            <div class="total">39 of 50 TB</div>
+          </div>
+        </div>
+        <div class="ring-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div><span class="legend-label">Video</span><span class="legend-value">24.2 TB</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div><span class="legend-label">Audio</span><span class="legend-value">5.9 TB</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div><span class="legend-label">Documents</span><span class="legend-value">3.1 TB</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div><span class="legend-label">Archives</span><span class="legend-value">2.0 TB</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--solid)"></div><span class="legend-label">Other</span><span class="legend-value">3.8 TB</span></div>
+        </div>
+      </div>
+
+      <div class="breakdown-card">
+        <div class="breakdown-title">File Type Breakdown</div>
+
+        <div class="breakdown-bar-group">
+          <div class="breakdown-bar-header">
+            <span class="breakdown-bar-label">
+              <svg viewBox="0 0 256 256" fill="var(--yellow)"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-36-84a8,8,0,0,1-3.71,6.74l-44,28A8,8,0,0,1,104,160V104a8,8,0,0,1,12.29-6.74l44,28A8,8,0,0,1,164,132Z"/></svg>
+              Video · 8,421 files
+            </span>
+            <span class="breakdown-bar-value">24.2 TB</span>
+          </div>
+          <div class="breakdown-track"><div class="breakdown-fill" style="width:62%; background:var(--yellow);"></div></div>
+        </div>
+
+        <div class="breakdown-bar-group">
+          <div class="breakdown-bar-header">
+            <span class="breakdown-bar-label">
+              <svg viewBox="0 0 256 256" fill="var(--purple)"><path d="M212.92,17.69a8,8,0,0,0-6.86-1.45l-128,32A8,8,0,0,0,72,56V166.08A36,36,0,1,0,88,196V70.25l112-28v99.83A36,36,0,1,0,216,172V24A8,8,0,0,0,212.92,17.69Z"/></svg>
+              Audio · 3,892 files
+            </span>
+            <span class="breakdown-bar-value">5.9 TB</span>
+          </div>
+          <div class="breakdown-track"><div class="breakdown-fill" style="width:15%; background:var(--purple);"></div></div>
+        </div>
+
+        <div class="breakdown-bar-group">
+          <div class="breakdown-bar-header">
+            <span class="breakdown-bar-label">
+              <svg viewBox="0 0 256 256" fill="var(--blue)"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-60-72H104a8,8,0,0,1,0-16h36a8,8,0,0,1,0,16Zm0,32H104a8,8,0,0,1,0-16h36a8,8,0,0,1,0,16Z"/></svg>
+              Documents · 1,892 files
+            </span>
+            <span class="breakdown-bar-value">3.1 TB</span>
+          </div>
+          <div class="breakdown-track"><div class="breakdown-fill" style="width:8%; background:var(--blue);"></div></div>
+        </div>
+
+        <div class="breakdown-bar-group">
+          <div class="breakdown-bar-header">
+            <span class="breakdown-bar-label">
+              <svg viewBox="0 0 256 256" fill="var(--green)"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-40-56a8,8,0,0,1-8,8H104a8,8,0,0,1,0-16h48A8,8,0,0,1,160,160Zm-60-28,12-12,12,12"/></svg>
+              Archives · 642 files
+            </span>
+            <span class="breakdown-bar-value">2.0 TB</span>
+          </div>
+          <div class="breakdown-track"><div class="breakdown-fill" style="width:5%; background:var(--green);"></div></div>
+        </div>
+
+        <div class="breakdown-bar-group">
+          <div class="breakdown-bar-header">
+            <span class="breakdown-bar-label" style="color:var(--solid);">
+              <svg viewBox="0 0 256 256" fill="var(--solid)"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34Z"/></svg>
+              Other
+            </span>
+            <span class="breakdown-bar-value">3.8 TB</span>
+          </div>
+          <div class="breakdown-track"><div class="breakdown-fill" style="width:10%; background:var(--solid);"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Insights -->
+    <div class="insights-row">
+      <div class="insight-card yellow">
+        <div class="insight-icon">
+          <svg viewBox="0 0 256 256" fill="currentColor"><path d="M176,232a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,232Zm40-128a87.55,87.55,0,0,1-33.64,69.21A16.24,16.24,0,0,0,176,186v6a16,16,0,0,1-16,16H96a16,16,0,0,1-16-16v-6a16,16,0,0,0-6.23-12.66A87.59,87.59,0,0,1,40,104.49C39.74,56.83,78.26,17.14,125.88,16A88,88,0,0,1,216,104Z"/></svg>
+        </div>
+        <div class="insight-title">Storage getting full</div>
+        <div class="insight-desc">You've used 78% of your 50 TB plan. At your current pace, you'll run out in ~4 months.</div>
+        <span class="insight-action">View upgrade options →</span>
+      </div>
+
+      <div class="insight-card red">
+        <div class="insight-icon">
+          <svg viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"/></svg>
+        </div>
+        <div class="insight-title">1,204 files never opened</div>
+        <div class="insight-desc">2.8 TB of files you've never watched, listened to, or opened. Want to review them?</div>
+        <span class="insight-action">Review unwatched files →</span>
+      </div>
+
+      <div class="insight-card green">
+        <div class="insight-icon">
+          <svg viewBox="0 0 256 256" fill="currentColor"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192Z"/></svg>
+        </div>
+        <div class="insight-title">Trash is 19.49 GB</div>
+        <div class="insight-desc">Empty your trash to reclaim space. Files expire automatically after 14 days.</div>
+        <span class="insight-action">Empty trash →</span>
+      </div>
+    </div>
+
+    <!-- Largest Files -->
+    <div class="files-section">
+      <div class="files-section-header">
+        <div class="files-section-title">Largest Files</div>
+        <span class="files-section-action">Sort by size →</span>
+      </div>
+      <div class="files-table">
+        <div class="files-table-header">
+          <div class="col-name" style="flex:1;">Name</div>
+          <div class="col-size">Size</div>
+          <div class="col-type">Type</div>
+          <div class="col-age">Added</div>
+          <div class="col-watched">Watched</div>
+        </div>
+        <div class="files-table-row">
+          <div class="col-name"><svg viewBox="0 0 256 256" fill="var(--yellow)" width="18" height="18"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-36-84a8,8,0,0,1-3.71,6.74l-44,28A8,8,0,0,1,104,160V104a8,8,0,0,1,12.29-6.74l44,28A8,8,0,0,1,164,132Z"/></svg><span>Inception (2025) 2160p BluRay</span></div>
+          <div class="col-size">67.4 GB</div>
+          <div class="col-type"><span class="badge" style="background:rgba(253,206,69,0.15); color:var(--yellow);">4K</span></div>
+          <div class="col-age">3 days ago</div>
+          <div class="col-watched watched-no">—</div>
+        </div>
+        <div class="files-table-row">
+          <div class="col-name"><svg viewBox="0 0 256 256" fill="var(--yellow)" width="18" height="18"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-36-84a8,8,0,0,1-3.71,6.74l-44,28A8,8,0,0,1,104,160V104a8,8,0,0,1,12.29-6.74l44,28A8,8,0,0,1,164,132Z"/></svg><span>The Wire Complete Series</span></div>
+          <div class="col-size">45.2 GB</div>
+          <div class="col-type"><span class="badge" style="background:rgba(253,206,69,0.15); color:var(--yellow);">1080p</span></div>
+          <div class="col-age">6 months</div>
+          <div class="col-watched watched-yes">S1–S3</div>
+        </div>
+        <div class="files-table-row">
+          <div class="col-name"><svg viewBox="0 0 256 256" fill="var(--yellow)" width="18" height="18"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-36-84a8,8,0,0,1-3.71,6.74l-44,28A8,8,0,0,1,104,160V104a8,8,0,0,1,12.29-6.74l44,28A8,8,0,0,1,164,132Z"/></svg><span>Marty Supreme (2025) 1080p</span></div>
+          <div class="col-size">15.4 GB</div>
+          <div class="col-type"><span class="badge" style="background:rgba(253,206,69,0.15); color:var(--yellow);">1080p</span></div>
+          <div class="col-age">16 hours</div>
+          <div class="col-watched watched-no">—</div>
+        </div>
+        <div class="files-table-row">
+          <div class="col-name"><svg viewBox="0 0 256 256" fill="var(--purple)" width="18" height="18"><path d="M212.92,17.69a8,8,0,0,0-6.86-1.45l-128,32A8,8,0,0,0,72,56V166.08A36,36,0,1,0,88,196V70.25l112-28v99.83A36,36,0,1,0,216,172V24A8,8,0,0,0,212.92,17.69Z"/></svg><span>Complete Discography — Radiohead</span></div>
+          <div class="col-size">12.8 GB</div>
+          <div class="col-type"><span class="badge" style="background:rgba(139,92,246,0.15); color:var(--purple);">FLAC</span></div>
+          <div class="col-age">2 years</div>
+          <div class="col-watched watched-yes">played</div>
+        </div>
+        <div class="files-table-row">
+          <div class="col-name"><svg viewBox="0 0 256 256" fill="var(--yellow)" width="18" height="18"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-36-84a8,8,0,0,1-3.71,6.74l-44,28A8,8,0,0,1,104,160V104a8,8,0,0,1,12.29-6.74l44,28A8,8,0,0,1,164,132Z"/></svg><span>Planet Earth II (2016) Complete</span></div>
+          <div class="col-size">11.2 GB</div>
+          <div class="col-type"><span class="badge" style="background:rgba(253,206,69,0.15); color:var(--yellow);">1080p</span></div>
+          <div class="col-age">1 year</div>
+          <div class="col-watched watched-yes">all</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-quote">
+      "I pay because I enjoy curating my collection" — Tobias, London <span class="kaomoji">ᕦ(ò_óˇ)ᕤ</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

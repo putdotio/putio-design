@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io — iOS Transfers (Clean Modern)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000; --bg-2: #1C1C1E; --bg-3: #2C2C2E; --bg-4: #3A3A3C;
+    --line: #38383A; --solid: #8E8E93; --text-2: #AEAEB2; --text: #FFFFFF;
+    --yellow: #FDCE45; --yellow-subtle: rgba(253, 206, 69, 0.15);
+    --green: #30D158; --green-subtle: rgba(48, 209, 88, 0.15);
+    --red: #FF453A; --red-subtle: rgba(255, 69, 58, 0.15);
+    --orange: #FF9F0A; --orange-subtle: rgba(255, 159, 10, 0.15);
+    --blue: #0A84FF;
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .phone {
+    width: 390px; height: 844px; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 14px 24px 0;
+    height: 54px; flex-shrink: 0;
+  }
+  .status-time { flex: 1; font-size: 15px; font-weight: 600; }
+  .status-icons { display: flex; gap: 5px; align-items: center; }
+
+  /* Nav */
+  .nav-bar {
+    display: flex; align-items: center; padding: 8px 16px 12px;
+    flex-shrink: 0;
+  }
+  .nav-title { font-size: 34px; font-weight: 700; flex: 1; }
+  .nav-actions { display: flex; gap: 8px; }
+  .nav-btn {
+    width: 36px; height: 36px; background: var(--bg-3); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    border: none; color: var(--yellow); cursor: pointer;
+  }
+
+  /* Health Banner */
+  .health-banner {
+    margin: 0 16px 12px; padding: 12px 16px;
+    background: var(--bg-2); border-radius: 12px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .health-dots { display: flex; gap: 6px; align-items: center; }
+  .health-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .health-dot.green { background: var(--green); box-shadow: 0 0 8px rgba(48,209,88,0.5); }
+  .health-dot.yellow { background: var(--yellow); box-shadow: 0 0 8px rgba(253,206,69,0.5); }
+  .health-dot.red { background: var(--red); box-shadow: 0 0 8px rgba(255,69,58,0.5); }
+  .health-text { font-size: 13px; color: var(--text-2); flex: 1; }
+  .health-count { font-size: 13px; font-weight: 600; color: var(--text); }
+
+  /* Filter */
+  .segmented {
+    display: flex; margin: 0 16px 16px;
+    background: var(--bg-2); border-radius: 10px; padding: 2px;
+    flex-shrink: 0;
+  }
+  .seg-item {
+    flex: 1; text-align: center; padding: 8px 0;
+    font-size: 13px; font-weight: 500; color: var(--text-2);
+    border-radius: 8px; cursor: pointer;
+  }
+  .seg-item.active { background: var(--bg-3); color: var(--text); font-weight: 600; }
+
+  /* Transfer List */
+  .transfer-list { flex: 1; overflow-y: auto; padding: 0 16px; }
+
+  .transfer-section-header {
+    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    color: var(--solid); padding: 8px 0 6px; letter-spacing: 0.04em;
+  }
+
+  .transfer-card {
+    background: var(--bg-2); border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 10px;
+  }
+  .tc-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .tc-status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .tc-status-dot.downloading { background: var(--yellow); box-shadow: 0 0 8px rgba(253,206,69,0.4); }
+  .tc-status-dot.seeding { background: var(--green); box-shadow: 0 0 8px rgba(48,209,88,0.4); }
+  .tc-status-dot.error { background: var(--red); box-shadow: 0 0 8px rgba(255,69,58,0.4); }
+  .tc-status-dot.completed { background: var(--green); box-shadow: 0 0 6px rgba(48,209,88,0.3); }
+
+  .tc-info { flex: 1; min-width: 0; }
+  .tc-name {
+    font-size: 15px; font-weight: 500; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .tc-meta {
+    font-size: 13px; color: var(--solid); margin-top: 2px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .tc-badge {
+    font-size: 11px; background: var(--yellow-subtle); color: var(--yellow);
+    padding: 1px 6px; border-radius: 4px; font-weight: 600;
+  }
+  .tc-badge.green { background: var(--green-subtle); color: var(--green); }
+  .tc-badge.red { background: var(--red-subtle); color: var(--red); }
+
+  .tc-percent {
+    font-size: 15px; font-weight: 700; color: var(--yellow);
+    font-variant-numeric: tabular-nums; flex-shrink: 0;
+  }
+
+  .tc-progress {
+    height: 4px; background: var(--bg-4); border-radius: 2px;
+    overflow: hidden; margin-top: 2px;
+  }
+  .tc-progress .fill {
+    height: 100%; border-radius: 2px; background: var(--yellow);
+  }
+
+  .tc-speed {
+    display: flex; gap: 12px; margin-top: 8px;
+    font-size: 12px; color: var(--solid);
+    font-variant-numeric: tabular-nums;
+  }
+  .tc-speed svg { margin-right: 3px; }
+
+  /* Completed card */
+  .tc-action {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+  .tc-action-btn {
+    flex: 1; padding: 8px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; border: none;
+    cursor: pointer; display: flex; align-items: center;
+    justify-content: center; gap: 6px;
+  }
+  .tc-action-btn.primary {
+    background: var(--yellow); color: #000;
+  }
+  .tc-action-btn.secondary {
+    background: var(--bg-3); color: var(--text-2);
+  }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex; background: rgba(28,28,30,0.95); backdrop-filter: blur(20px);
+    border-top: 1px solid var(--line); padding: 6px 0 34px; flex-shrink: 0;
+  }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 10px; color: var(--solid); padding: 4px 0;
+    position: relative; border: none; background: none; cursor: pointer;
+  }
+  .tab-item.active { color: var(--yellow); }
+  .tab-badge {
+    position: absolute; top: -2px; right: 50%; transform: translateX(16px);
+    background: var(--yellow); color: #000; font-size: 10px; font-weight: 700;
+    min-width: 18px; height: 18px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 4px;
+  }
+
+  .home-indicator {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 134px; height: 5px; background: rgba(255,255,255,0.3);
+    border-radius: 3px;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="white"><rect x="0" y="9" width="3" height="3" rx="0.5"/><rect x="4.5" y="6" width="3" height="6" rx="0.5"/><rect x="9" y="3" width="3" height="9" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><path d="M8,11.5a1.5,1.5,0,1,0,0-3,1.5,1.5,0,0,0,0,3Z"/><path d="M4.93,7.56a4.5,4.5,0,0,1,6.14,0" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/><path d="M2.1,4.73a8,8,0,0,1,11.8,0" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x="0.5" y="0.5" width="23" height="12" rx="3" stroke="white" stroke-opacity="0.35"/><rect x="2" y="2" width="18" height="9" rx="1.5" fill="white"/><path d="M25,4.5v4a2,2,0,0,0,0-4Z" fill="white" fill-opacity="0.4"/></svg>
+    </div>
+  </div>
+
+  <!-- Nav Bar -->
+  <div class="nav-bar">
+    <h1 class="nav-title">Transfers</h1>
+    <div class="nav-actions">
+      <button class="nav-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Health Banner -->
+  <div class="health-banner">
+    <div class="health-dots">
+      <div class="health-dot green"></div>
+      <div class="health-dot green"></div>
+      <div class="health-dot yellow"></div>
+      <div class="health-dot red"></div>
+    </div>
+    <span class="health-text">2 healthy, 1 slow, 1 error</span>
+    <span class="health-count">4 active</span>
+  </div>
+
+  <!-- Segmented Control -->
+  <div class="segmented">
+    <div class="seg-item active">All</div>
+    <div class="seg-item">Active</div>
+    <div class="seg-item">Done</div>
+  </div>
+
+  <!-- Transfer List -->
+  <div class="transfer-list">
+    <!-- Active Section -->
+    <div class="transfer-section-header">Active</div>
+
+    <!-- Transfer 1: Downloading -->
+    <div class="transfer-card">
+      <div class="tc-top">
+        <div class="tc-status-dot downloading"></div>
+        <div class="tc-info">
+          <div class="tc-name">Inception</div>
+          <div class="tc-meta">
+            <span>12.4 GB</span>
+            <span class="tc-badge">2160p</span>
+          </div>
+        </div>
+        <span class="tc-percent">63%</span>
+      </div>
+      <div class="tc-progress"><div class="fill" style="width:63%;"></div></div>
+      <div class="tc-speed">
+        <span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;"><polyline points="7,17 12,12 17,17"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+          4.2 MB/s
+        </span>
+        <span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;"><polyline points="7,7 12,12 17,7"/><line x1="12" y1="12" x2="12" y2="3"/></svg>
+          18.6 MB/s
+        </span>
+        <span>23 min left</span>
+      </div>
+    </div>
+
+    <!-- Transfer 2: Downloading (slow) -->
+    <div class="transfer-card">
+      <div class="tc-top">
+        <div class="tc-status-dot" style="background:var(--orange);box-shadow:0 0 8px rgba(255,159,10,0.4);"></div>
+        <div class="tc-info">
+          <div class="tc-name">The.Wire.S03.Complete</div>
+          <div class="tc-meta">
+            <span>38.7 GB</span>
+            <span class="tc-badge">1080p</span>
+          </div>
+        </div>
+        <span class="tc-percent" style="color:var(--orange);">21%</span>
+      </div>
+      <div class="tc-progress"><div class="fill" style="width:21%;background:var(--orange);"></div></div>
+      <div class="tc-speed">
+        <span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;"><polyline points="7,7 12,12 17,7"/><line x1="12" y1="12" x2="12" y2="3"/></svg>
+          340 KB/s
+        </span>
+        <span>Slow peers</span>
+      </div>
+    </div>
+
+    <!-- Transfer 3: Seeding -->
+    <div class="transfer-card">
+      <div class="tc-top">
+        <div class="tc-status-dot seeding"></div>
+        <div class="tc-info">
+          <div class="tc-name">Cosmos Laundromat</div>
+          <div class="tc-meta">
+            <span>209.89 MB</span>
+            <span class="tc-badge green">720p</span>
+          </div>
+        </div>
+        <span class="tc-percent" style="color:var(--green);">Seeding</span>
+      </div>
+      <div class="tc-speed">
+        <span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;"><polyline points="7,17 12,12 17,17"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+          1.8 MB/s
+        </span>
+        <span>Ratio 2.4</span>
+      </div>
+    </div>
+
+    <!-- Transfer 4: Error -->
+    <div class="transfer-card">
+      <div class="tc-top">
+        <div class="tc-status-dot error"></div>
+        <div class="tc-info">
+          <div class="tc-name">ubuntu-22.04-desktop.iso</div>
+          <div class="tc-meta">
+            <span>4.7 GB</span>
+            <span class="tc-badge red">Error</span>
+          </div>
+        </div>
+        <span class="tc-percent" style="color:var(--red);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </span>
+      </div>
+      <div class="tc-meta" style="font-size:12px;color:var(--red);padding-left:20px;">Tracker unreachable</div>
+    </div>
+
+    <!-- Completed Section -->
+    <div class="transfer-section-header" style="margin-top:8px;">Completed</div>
+
+    <div class="transfer-card">
+      <div class="tc-top">
+        <div class="tc-status-dot completed"></div>
+        <div class="tc-info">
+          <div class="tc-name">Sintel</div>
+          <div class="tc-meta">
+            <span>892.45 MB</span>
+            <span class="tc-badge green">1080p</span>
+          </div>
+        </div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+      </div>
+      <div class="tc-action">
+        <button class="tc-action-btn primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14,2H6A2,2,0,0,0,4,4V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V8Z"/><polyline points="14,2 14,8 20,8"/></svg>
+          Go to File
+        </button>
+        <button class="tc-action-btn secondary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19,6V20a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6M8,6V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="transfer-card">
+      <div class="tc-top">
+        <div class="tc-status-dot completed"></div>
+        <div class="tc-info">
+          <div class="tc-name">Big Buck Bunny</div>
+          <div class="tc-meta">
+            <span>276.13 MB</span>
+            <span class="tc-badge green">720p</span>
+          </div>
+        </div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+      </div>
+      <div class="tc-action">
+        <button class="tc-action-btn primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14,2H6A2,2,0,0,0,4,4V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V8Z"/><polyline points="14,2 14,8 20,8"/></svg>
+          Go to File
+        </button>
+        <button class="tc-action-btn secondary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19,6V20a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6M8,6V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Spacer for safe area -->
+    <div style="height:16px;"></div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22,19a2,2,0,0,1-2,2H4a2,2,0,0,1-2-2V5A2,2,0,0,1,4,3H9l2,3h9a2,2,0,0,1,2,2Z"/></svg>
+      Files
+    </div>
+    <div class="tab-item active" style="position:relative;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="13,17 18,12 13,7"/><polyline points="6,17 11,12 6,7"/></svg>
+      <span class="tab-badge">4</span>
+      Transfers
+    </div>
+    <div class="tab-item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/><path d="M21,15v4a2,2,0,0,1-2,2H5a2,2,0,0,1-2-2v-4"/></svg>
+      Downloads
+    </div>
+    <div class="tab-item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4,15a1.65,1.65,0,0,0,.33,1.82l.06.06a2,2,0,0,1-2.83,2.83l-.06-.06a1.65,1.65,0,0,0-1.82-.33,1.65,1.65,0,0,0-1,1.51V21a2,2,0,0,1-4,0v-.09A1.65,1.65,0,0,0,9,19.4a1.65,1.65,0,0,0-1.82.33l-.06.06a2,2,0,0,1-2.83-2.83l.06-.06A1.65,1.65,0,0,0,4.68,15a1.65,1.65,0,0,0-1.51-1H3a2,2,0,0,1,0-4h.09A1.65,1.65,0,0,0,4.6,9a1.65,1.65,0,0,0-.33-1.82l-.06-.06A2,2,0,0,1,7.04,4.29l.06.06A1.65,1.65,0,0,0,9,4.68,1.65,1.65,0,0,0,10,3.17V3a2,2,0,0,1,4,0v.09a1.65,1.65,0,0,0,1,1.51,1.65,1.65,0,0,0,1.82-.33l.06-.06a2,2,0,0,1,2.83,2.83l-.06.06A1.65,1.65,0,0,0,19.32,9a1.65,1.65,0,0,0,1.51,1H21a2,2,0,0,1,0,4h-.09A1.65,1.65,0,0,0,19.4,15Z"/></svg>
+      Settings
+    </div>
+  </div>
+</div>
+</body>
+</html>

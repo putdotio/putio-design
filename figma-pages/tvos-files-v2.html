@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>put.io — tvOS File Browser v2</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A0C;
+    --bg-2: #111114;
+    --bg-3: #18181C;
+    --bg-4: #222228;
+    --bg-hover: #1C1C22;
+    --line: #2A2A32;
+    --border: #3A3A44;
+    --solid: #6C6C78;
+    --text-3: #808090;
+    --text-2: #A0A0AE;
+    --text: #EEEEF0;
+    --white: #FFFFFF;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.08);
+    --yellow-subtle: rgba(253, 206, 69, 0.15);
+    --yellow-glow: rgba(253, 206, 69, 0.06);
+    --green: #30A46C;
+    --blue: #3B82F6;
+    --red: #EF4444;
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── Side Rail ── */
+  .side-rail {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--bg-2);
+    border-right: 1px solid var(--line);
+    padding: 48px 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tv-logo {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    padding: 0 32px;
+    margin-bottom: 44px;
+  }
+  .tv-logo span { color: var(--yellow); }
+
+  .rail-nav { padding: 0 16px; }
+
+  .rail-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text-3);
+    cursor: pointer;
+    border-radius: 12px;
+    margin-bottom: 2px;
+    transition: all 0.15s;
+  }
+  .rail-item:hover {
+    color: var(--text-2);
+    background: var(--bg-3);
+  }
+  .rail-item.active {
+    color: var(--white);
+    font-weight: 600;
+    background: var(--bg-4);
+  }
+  .rail-item .r-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .rail-item .r-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+
+  .rail-spacer { flex: 1; }
+
+  .rail-storage {
+    padding: 0 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    margin: 0 16px;
+  }
+  .rail-storage-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--solid);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .rail-storage-amount {
+    font-size: 16px;
+    color: var(--text-2);
+    margin-bottom: 10px;
+  }
+  .rail-storage-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--bg-4);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .rail-storage-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+
+  .rail-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 32px 0;
+    margin-top: 20px;
+  }
+  .rail-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--bg-4);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .rail-username {
+    font-size: 17px;
+    color: var(--text-2);
+    font-weight: 500;
+  }
+
+  /* ── Main Content ── */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 48px 60px;
+    overflow: hidden;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .breadcrumb-item {
+    font-size: 20px;
+    color: var(--solid);
+    cursor: pointer;
+    font-weight: 400;
+  }
+  .breadcrumb-item:hover { color: var(--text-2); }
+  .breadcrumb-item.current {
+    color: var(--text);
+    font-weight: 500;
+    cursor: default;
+  }
+  .breadcrumb-sep {
+    display: flex;
+    align-items: center;
+  }
+  .breadcrumb-sep svg {
+    width: 18px;
+    height: 18px;
+    fill: var(--solid);
+  }
+
+  /* Page Title */
+  .page-title {
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--white);
+    margin-bottom: 32px;
+  }
+
+  /* Action Bar */
+  .action-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .item-count {
+    font-size: 18px;
+    color: var(--solid);
+    font-weight: 400;
+    flex: 1;
+  }
+  .sort-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text-3);
+    background: transparent;
+    border: 2px solid transparent;
+    padding: 8px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .sort-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+  .sort-btn:hover {
+    color: var(--text-2);
+    background: var(--bg-3);
+  }
+  .sort-btn.active {
+    color: var(--yellow);
+    background: var(--yellow-dim);
+  }
+
+  /* ── File List ── */
+  .file-list {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* Column Header */
+  .list-header {
+    display: grid;
+    grid-template-columns: 52px 1fr 120px 180px 44px;
+    gap: 16px;
+    align-items: center;
+    padding: 0 24px;
+    height: 44px;
+    margin-bottom: 4px;
+  }
+  .list-header span {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--solid);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .list-header .col-right {
+    text-align: right;
+  }
+
+  /* List Row */
+  .list-row {
+    display: grid;
+    grid-template-columns: 52px 1fr 120px 180px 44px;
+    gap: 16px;
+    align-items: center;
+    padding: 0 24px;
+    height: 72px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .list-row:hover {
+    background: var(--bg-hover);
+  }
+
+  /* Focused row */
+  .list-row.focused {
+    background: var(--bg-3);
+    border-left: 3px solid var(--yellow);
+    padding-left: 21px;
+  }
+  .list-row.focused .row-name {
+    color: var(--white);
+    font-size: 30px;
+  }
+  .list-row.focused .row-parsed-title {
+    font-size: 30px;
+    color: var(--white);
+  }
+
+  /* Row Icon */
+  .row-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+  .row-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+  .row-icon.folder svg { fill: var(--yellow); }
+  .row-icon.video svg { fill: var(--text-3); }
+  .row-icon.audio svg { fill: var(--text-3); }
+  .row-icon.archive svg { fill: var(--text-3); }
+  .row-icon.document svg { fill: var(--text-3); }
+
+  /* Row Name */
+  .row-name-area {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .row-name {
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .row-parsed-title {
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .row-episode {
+    color: var(--text-2);
+    font-weight: 400;
+  }
+  .row-subtitle {
+    font-size: 18px;
+    color: var(--solid);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Inline badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+  }
+  .badge-quality {
+    background: var(--yellow-subtle);
+    color: var(--yellow);
+  }
+  .badge-format {
+    background: var(--bg-4);
+    color: var(--text-3);
+  }
+
+  /* Eye (watched) icon */
+  .watched-icon {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 4px;
+    flex-shrink: 0;
+  }
+  .watched-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--solid);
+  }
+
+  /* Row meta columns */
+  .row-size {
+    font-size: 22px;
+    color: var(--text-2);
+    text-align: right;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+  }
+  .row-date {
+    font-size: 20px;
+    color: var(--solid);
+    text-align: right;
+    font-weight: 400;
+  }
+
+  /* Chevron */
+  .row-chevron {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .row-chevron svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--border);
+  }
+  .list-row:hover .row-chevron svg,
+  .list-row.focused .row-chevron svg {
+    fill: var(--text-2);
+  }
+
+  /* Folder item count */
+  .folder-count {
+    font-size: 18px;
+    color: var(--solid);
+    font-weight: 400;
+  }
+
+  /* Divider between folders and files */
+  .list-divider {
+    height: 1px;
+    background: var(--line);
+    margin: 8px 24px;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- ── Side Rail ── -->
+  <div class="side-rail">
+    <div class="tv-logo">put<span>.</span>io</div>
+
+    <div class="rail-nav">
+      <div class="rail-item">
+        <span class="r-icon">
+          <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        </span> Home
+      </div>
+      <div class="rail-item active">
+        <span class="r-icon">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </span> Files
+      </div>
+      <div class="rail-item">
+        <span class="r-icon">
+          <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        </span> Search
+      </div>
+      <div class="rail-item">
+        <span class="r-icon">
+          <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+        </span> Transfers
+      </div>
+      <div class="rail-item">
+        <span class="r-icon">
+          <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        </span> Settings
+      </div>
+    </div>
+
+    <div class="rail-spacer"></div>
+
+    <div class="rail-storage">
+      <div class="rail-storage-label">Storage</div>
+      <div class="rail-storage-amount">39 TB of 50 TB used</div>
+      <div class="rail-storage-bar"><div class="rail-storage-fill" style="width:78%;"></div></div>
+    </div>
+
+    <div class="rail-user">
+      <div class="rail-avatar">
+        <!-- Space Invader pixel art -->
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none">
+          <rect x="4" y="4" width="2" height="2" fill="#FDCE45"/>
+          <rect x="18" y="4" width="2" height="2" fill="#FDCE45"/>
+          <rect x="6" y="6" width="2" height="2" fill="#FDCE45"/>
+          <rect x="16" y="6" width="2" height="2" fill="#FDCE45"/>
+          <rect x="4" y="8" width="16" height="2" fill="#FDCE45"/>
+          <rect x="4" y="10" width="2" height="2" fill="#FDCE45"/>
+          <rect x="8" y="10" width="8" height="2" fill="#FDCE45"/>
+          <rect x="18" y="10" width="2" height="2" fill="#FDCE45"/>
+          <rect x="4" y="12" width="16" height="2" fill="#FDCE45"/>
+          <rect x="6" y="14" width="4" height="2" fill="#FDCE45"/>
+          <rect x="14" y="14" width="4" height="2" fill="#FDCE45"/>
+        </svg>
+      </div>
+      <span class="rail-username">altay</span>
+    </div>
+  </div>
+
+  <!-- ── Main Content ── -->
+  <div class="main-content">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <span class="breadcrumb-item">Your Files</span>
+      <span class="breadcrumb-sep"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>
+      <span class="breadcrumb-item">downloads</span>
+      <span class="breadcrumb-sep"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>
+      <span class="breadcrumb-item current">TV Shows</span>
+    </div>
+
+    <!-- Page Title -->
+    <div class="page-title">TV Shows</div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <span class="item-count">14 items</span>
+      <button class="sort-btn active">
+        <svg viewBox="0 0 24 24"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>
+        Name
+      </button>
+      <button class="sort-btn">
+        <svg viewBox="0 0 24 24"><path d="M2 20h20V4H2v16zm2-2V6h16v12H4z"/><path d="M11 8H7v2h4V8zm6 0h-4v2h4V8zm-6 4H7v2h4v-2zm6 0h-4v2h4v-2z"/></svg>
+        Size
+      </button>
+      <button class="sort-btn">
+        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+        Date
+      </button>
+    </div>
+
+    <!-- File List -->
+    <div class="file-list">
+
+      <!-- Column Headers -->
+      <div class="list-header">
+        <span></span>
+        <span>Name</span>
+        <span class="col-right">Size</span>
+        <span class="col-right">Modified</span>
+        <span></span>
+      </div>
+
+      <!-- ── Folders ── -->
+
+      <!-- Season 1 -->
+      <div class="list-row">
+        <div class="row-icon folder">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="row-name-area">
+          <span class="row-name">Season 1</span>
+          <span class="folder-count">13 episodes</span>
+        </div>
+        <span class="row-size">18.4 GB</span>
+        <span class="row-date">2 weeks ago</span>
+        <div class="row-chevron">
+          <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </div>
+      </div>
+
+      <!-- Season 2 -->
+      <div class="list-row">
+        <div class="row-icon folder">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="row-name-area">
+          <span class="row-name">Season 2</span>
+          <span class="folder-count">12 episodes</span>
+        </div>
+        <span class="row-size">16.9 GB</span>
+        <span class="row-date">2 weeks ago</span>
+        <div class="row-chevron">
+          <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </div>
+      </div>
+
+      <!-- Season 3 - active/open context -->
+      <div class="list-row">
+        <div class="row-icon folder">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="row-name-area">
+          <span class="row-name">Season 3</span>
+          <span class="folder-count">12 episodes</span>
+        </div>
+        <span class="row-size">19.2 GB</span>
+        <span class="row-date">3 days ago</span>
+        <div class="row-chevron">
+          <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </div>
+      </div>
+
+      <div class="list-divider"></div>
+
+      <!-- ── Files ── -->
+
+      <!-- The Wire S03E03 - watched -->
+      <div class="list-row">
+        <div class="row-icon video">
+          <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+        </div>
+        <div class="row-name-area">
+          <span class="row-parsed-title">
+            The Wire <span class="row-episode">-- S03E03</span>
+            <span class="badge badge-quality">1080p</span>
+            <span class="watched-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </span>
+          </span>
+        </div>
+        <span class="row-size">4.18 GB</span>
+        <span class="row-date">Yesterday</span>
+        <div class="row-chevron">
+          <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </div>
+      </div>
+
+      <!-- The Wire S03E04 - FOCUSED -->
+      <div class="list-row focused">
+        <div class="row-icon video">
+          <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+        </div>
+        <div class="row-name-area">
+          <span class="row-parsed-title">
+            The Wire <span class="row-episode">-- S03E04</span>
+            <span class="badge badge-quality">1080p</span>
+          </span>
+        </div>
+        <span class="row-size">4.21 GB</span>
+        <span class="row-date">Yesterday</span>
+        <div class="row-chevron">
+          <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </div>
+      </div>
+
+      <!-- The Wire S03E05 -->
+      <div class="list-row">
+        <div class="row-icon video">
+          <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+        </div>
+        <div class="row-name-area">
+          <span class="row-parsed-title">
+            The Wire <span class="row-episode">-- S03E05</span>
+            <span class="badge badge-quality">1080p</span>
+          </span>
+        </div>
+        <span class="row-size">3.98 GB</span>
+        <span class="row-date">Yesterday</span>
+        <div class="row-chevron">
+          <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </div>
+      </div>
+
+      <!-- The Wire S03E06 -->
+      <div class="list-row">
+        <div class="row-icon video">
+          <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+        </div>
+        <div class="row-name-area">
+          <span class="row-parsed-title">
+            The Wire <span class="row-episode">-- S03E06</span>
+            <span class="badge badge-quality">1080p</span>
+          </span>
+        </div>
+        <span class="row-size">4.05 GB</span>
+        <span class="row-date">Yesterday</span>
+        <div class="row-chevron">
+          <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </div>
+      </div>
+
+      <!-- Breaking Bad -->
+      <div class="list-row">
+        <div class="row-icon video">
+          <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+        </div>
+        <div class="row-name-area">
+          <span class="row-parsed-title">
+            Breaking Bad <span class="row-episode">-- S05E16</span>
+            <span class="badge badge-quality">4K</span>
+            <span class="watched-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </span>
+          </span>
+        </div>
+        <span class="row-size">8.72 GB</span>
+        <span class="row-date">3 days ago</span>
+        <div class="row-chevron">
+          <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </div>
+      </div>
+
+      <!-- Sopranos -->
+      <div class="list-row">
+        <div class="row-icon video">
+          <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+        </div>
+        <div class="row-name-area">
+          <span class="row-parsed-title">
+            The Sopranos <span class="row-episode">-- S06E21</span>
+            <span class="badge badge-quality">720p</span>
+            <span class="watched-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </span>
+          </span>
+        </div>
+        <span class="row-size">1.92 GB</span>
+        <span class="row-date">Last week</span>
+        <div class="row-chevron">
+          <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </div>
+      </div>
+
+      <!-- .nfo file (misc file type) -->
+      <div class="list-row">
+        <div class="row-icon document">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+        </div>
+        <div class="row-name-area">
+          <span class="row-name">RARBG.txt</span>
+        </div>
+        <span class="row-size">1 KB</span>
+        <span class="row-date">Yesterday</span>
+        <div class="row-chevron">
+          <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

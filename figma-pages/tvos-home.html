@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>put.io — tvOS Home</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A0C; --bg-2: #141416; --bg-3: #1E1E22; --bg-4: #28282E;
+    --line: #333339; --border: #444450; --solid: #6C6C78;
+    --text-2: #9C9CA8; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868;
+    --green-9: #30A46C;
+  }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+  .tv-frame { width: 1920px; height: 1080px; padding: 60px 90px; display: flex; }
+
+  /* Side Rail */
+  .side-rail {
+    width: 300px; flex-shrink: 0; padding-right: 60px;
+    display: flex; flex-direction: column;
+  }
+  .tv-logo {
+    font-size: 36px; font-weight: 700; margin-bottom: 48px;
+    letter-spacing: -0.02em;
+  }
+  .tv-logo span { color: var(--yellow); }
+  .rail-item {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 0; font-size: 24px; color: var(--text-2);
+    cursor: pointer;
+  }
+  .rail-item:hover { color: var(--text); }
+  .rail-item.active {
+    color: var(--text); font-weight: 600;
+    padding: 16px 24px; margin: 0 -24px;
+    background: var(--bg-3); border-radius: 16px;
+  }
+  .rail-item .r-icon { font-size: 28px; width: 36px; text-align: center; }
+  .rail-spacer { flex: 1; }
+  .rail-storage {
+    font-size: 18px; color: var(--solid);
+    padding-top: 24px; border-top: 1px solid var(--line);
+  }
+  .rail-storage-bar { width: 100%; height: 6px; background: var(--bg-4); border-radius: 3px; margin-top: 12px; overflow: hidden; }
+  .rail-storage-fill { height: 100%; background: var(--yellow); border-radius: 3px; }
+  .rail-user { display: flex; align-items: center; gap: 12px; margin-top: 24px; }
+  .rail-avatar { width: 48px; height: 48px; background: var(--bg-4); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .rail-username { font-size: 20px; color: var(--text-2); }
+
+  /* Content Area */
+  .tv-content { flex: 1; overflow: hidden; }
+
+  /* Section */
+  .tv-section { margin-bottom: 48px; }
+  .tv-section-title {
+    font-size: 28px; font-weight: 600; color: var(--text);
+    margin-bottom: 24px;
+  }
+
+  /* Card Row */
+  .card-row { display: flex; gap: 24px; overflow: hidden; }
+
+  /* File Card */
+  .file-card {
+    width: 260px; flex-shrink: 0;
+    background: var(--bg-2); border-radius: 16px;
+    overflow: hidden; cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .file-card:hover, .file-card.focused {
+    border-color: var(--yellow);
+    transform: scale(1.05);
+    box-shadow: 0 8px 32px rgba(253,206,69,0.2);
+  }
+  .file-card .card-thumb {
+    height: 146px; background: var(--bg-3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px; position: relative;
+  }
+  .file-card .card-thumb .play-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.3);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: 0.2s;
+  }
+  .file-card:hover .card-thumb .play-overlay,
+  .file-card.focused .card-thumb .play-overlay { opacity: 1; }
+  .file-card .card-body { padding: 16px 20px; }
+  .file-card .card-title {
+    font-size: 20px; font-weight: 500; color: var(--text);
+    margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .file-card .card-meta {
+    font-size: 16px; color: var(--solid);
+    display: flex; gap: 8px; align-items: center;
+  }
+  .file-card .card-badge {
+    font-size: 13px; background: rgba(253,206,69,0.15); color: var(--yellow);
+    padding: 2px 8px; border-radius: 4px; font-weight: 500;
+  }
+  .file-card .progress-mini {
+    height: 3px; background: var(--bg-4); border-radius: 2px; margin-top: 10px;
+  }
+  .file-card .progress-mini .fill { height: 100%; background: var(--yellow); border-radius: 2px; }
+
+  /* Folder Card */
+  .folder-card {
+    width: 260px; flex-shrink: 0;
+    background: var(--bg-2); border-radius: 16px;
+    padding: 24px; cursor: pointer;
+    border: 3px solid transparent;
+    display: flex; align-items: center; gap: 16px;
+    transition: all 0.2s;
+  }
+  .folder-card:hover { border-color: var(--yellow); transform: scale(1.05); box-shadow: 0 8px 32px rgba(253,206,69,0.2); }
+  .folder-card .f-icon { font-size: 40px; }
+  .folder-card .f-info { flex: 1; min-width: 0; }
+  .folder-card .f-name { font-size: 22px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .folder-card .f-meta { font-size: 16px; color: var(--solid); }
+
+  /* Transfer Card */
+  .transfer-card {
+    width: 320px; flex-shrink: 0;
+    background: var(--bg-2); border-radius: 16px;
+    padding: 24px; cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .transfer-card:hover { border-color: var(--yellow); transform: scale(1.05); }
+  .transfer-card .t-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .transfer-card .t-dot { width: 12px; height: 12px; border-radius: 999px; flex-shrink: 0; }
+  .transfer-card .t-dot.green { background: var(--green-9); box-shadow: 0 0 8px rgba(48,164,108,0.4); }
+  .transfer-card .t-dot.yellow { background: var(--yellow); box-shadow: 0 0 8px rgba(253,206,69,0.4); }
+  .transfer-card .t-name { font-size: 20px; font-weight: 500; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .transfer-card .t-badges { display: flex; gap: 6px; margin-bottom: 8px; }
+  .transfer-card .t-meta { font-size: 16px; color: var(--solid); margin-bottom: 12px; }
+  .transfer-card .t-progress { height: 4px; background: var(--bg-4); border-radius: 2px; overflow: hidden; }
+  .transfer-card .t-progress .fill { height: 100%; border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <!-- Side Rail Navigation -->
+  <div class="side-rail">
+    <div class="tv-logo">put<span>.</span>io</div>
+
+    <div class="rail-item active">
+      <span class="r-icon">🏠</span> Home
+    </div>
+    <div class="rail-item">
+      <span class="r-icon">📁</span> Files
+    </div>
+    <div class="rail-item">
+      <span class="r-icon">🔍</span> Search
+    </div>
+    <div class="rail-item">
+      <span class="r-icon">⚡</span> Transfers
+    </div>
+    <div class="rail-item">
+      <span class="r-icon">⚙</span> Settings
+    </div>
+
+    <div class="rail-spacer"></div>
+
+    <div class="rail-storage">
+      11 TB of 50 TB free
+      <div class="rail-storage-bar"><div class="rail-storage-fill" style="width:78%;"></div></div>
+    </div>
+
+    <div class="rail-user">
+      <div class="rail-avatar">👾</div>
+      <span class="rail-username">altay</span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="tv-content">
+    <!-- Continue Watching -->
+    <div class="tv-section">
+      <div class="tv-section-title">Continue Watching</div>
+      <div class="card-row">
+        <div class="file-card focused">
+          <div class="card-thumb" style="background:linear-gradient(135deg,#1a1a2e,#16213e);">
+            🎬
+            <div class="card-thumb play-overlay" style="opacity:1;">
+              <span style="font-size:40px; color:white;">▶</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-title">Cosmos Laundromat</div>
+            <div class="card-meta">
+              <span class="card-badge">720p</span>
+              <span>6:50 left</span>
+            </div>
+            <div class="progress-mini"><div class="fill" style="width:55%;"></div></div>
+          </div>
+        </div>
+
+        <div class="file-card">
+          <div class="card-thumb" style="background:linear-gradient(135deg,#2d1b4e,#1b3a4b);">🎬</div>
+          <div class="card-body">
+            <div class="card-title">Sintel</div>
+            <div class="card-meta">
+              <span class="card-badge">1080p</span>
+              <span>12:30 left</span>
+            </div>
+            <div class="progress-mini"><div class="fill" style="width:35%;"></div></div>
+          </div>
+        </div>
+
+        <div class="file-card">
+          <div class="card-thumb" style="background:linear-gradient(135deg,#1a3a2e,#0a2a1e);">🎬</div>
+          <div class="card-body">
+            <div class="card-title">Big Buck Bunny</div>
+            <div class="card-meta">
+              <span class="card-badge">4K</span>
+              <span>Not started</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="file-card">
+          <div class="card-thumb" style="background:linear-gradient(135deg,#3a1a1a,#2a0a0a);">🎬</div>
+          <div class="card-body">
+            <div class="card-title">Tears of Steel</div>
+            <div class="card-meta">
+              <span class="card-badge">1080p</span>
+              <span>45:00 left</span>
+            </div>
+            <div class="progress-mini"><div class="fill" style="width:20%;"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recently Added -->
+    <div class="tv-section">
+      <div class="tv-section-title">Recently Added</div>
+      <div class="card-row">
+        <div class="folder-card">
+          <span class="f-icon">📁</span>
+          <div class="f-info">
+            <div class="f-name">downloads</div>
+            <div class="f-meta">21.78 GB · 8 items</div>
+          </div>
+        </div>
+        <div class="folder-card">
+          <span class="f-icon">📁</span>
+          <div class="f-info">
+            <div class="f-name">chill institute</div>
+            <div class="f-meta">0 B · 16 hours ago</div>
+          </div>
+        </div>
+        <div class="folder-card">
+          <span class="f-icon">📁</span>
+          <div class="f-info">
+            <div class="f-name">stuff</div>
+            <div class="f-meta">4.16 GB · 12 items</div>
+          </div>
+        </div>
+        <div class="folder-card">
+          <span class="f-icon">📁</span>
+          <div class="f-info">
+            <div class="f-name">Items shared with you</div>
+            <div class="f-meta">102.3 TB</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transfers in Progress -->
+    <div class="tv-section">
+      <div class="tv-section-title">Transfers</div>
+      <div class="card-row">
+        <div class="transfer-card">
+          <div class="t-header">
+            <div class="t-dot yellow"></div>
+            <span class="t-name">Inception</span>
+          </div>
+          <div class="t-badges">
+            <span class="card-badge">2160p</span>
+            <span style="font-size:13px; background:var(--bg-4); color:var(--text-2); padding:2px 8px; border-radius:4px;">BluRay</span>
+          </div>
+          <div class="t-meta">63% · 4.2 GB of 6.7 GB · 23 min left</div>
+          <div class="t-progress"><div class="fill" style="width:63%; background:var(--yellow);"></div></div>
+        </div>
+
+        <div class="transfer-card">
+          <div class="t-header">
+            <div class="t-dot green"></div>
+            <span class="t-name">Pose — Season 1</span>
+          </div>
+          <div class="t-badges">
+            <span class="card-badge">720p</span>
+            <span style="font-size:13px; background:var(--bg-4); color:var(--text-2); padding:2px 8px; border-radius:4px;">WEBRip</span>
+          </div>
+          <div class="t-meta">Complete · 763 MB</div>
+          <div class="t-progress"><div class="fill" style="width:100%; background:var(--green-9);"></div></div>
+        </div>
+
+        <div class="transfer-card">
+          <div class="t-header">
+            <div class="t-dot yellow"></div>
+            <span class="t-name">The Wolf of Wall Street</span>
+          </div>
+          <div class="t-badges">
+            <span class="card-badge">1080p</span>
+          </div>
+          <div class="t-meta">65% · 1.45 GB of 2.22 GB</div>
+          <div class="t-progress"><div class="fill" style="width:65%; background:var(--yellow);"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

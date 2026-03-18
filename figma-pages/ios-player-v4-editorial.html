@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io — iOS Player (Editorial)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0E0E10; --bg-2: #131315; --bg-3: #1A1A1D; --bg-4: #222226;
+    --line: #28282D; --border: #38383E; --solid: #6E6E78;
+    --text-2: #9E9EA8; --text-3: #B8B8C0; --text: #E8E8EC;
+    --yellow: #FDCE45; --yellow-dim: rgba(253, 206, 69, 0.08);
+    --yellow-glow: rgba(253, 206, 69, 0.15);
+    --amber: #F0A030;
+    --green: #30A46C;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'Inter', -apple-system, sans-serif;
+  }
+  body {
+    font-family: var(--sans); background: var(--bg); color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .phone {
+    width: 390px; height: 844px; overflow: hidden; position: relative;
+  }
+
+  /* Warm cinematic video background */
+  .video-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 40% 25%, rgba(60, 40, 20, 0.5) 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 55%, rgba(30, 20, 50, 0.5) 0%, transparent 45%),
+      radial-gradient(ellipse at 30% 70%, rgba(40, 30, 15, 0.4) 0%, transparent 40%),
+      linear-gradient(180deg, #121008 0%, #1a1510 30%, #120e18 60%, #0a0808 100%);
+  }
+
+  /* Warm film grain overlay */
+  .film-grain {
+    position: absolute; inset: 0; z-index: 1;
+    background:
+      radial-gradient(1px 1px at 80px 120px, rgba(240,160,48,0.15) 0%, transparent 100%),
+      radial-gradient(1px 1px at 200px 300px, rgba(253,206,69,0.1) 0%, transparent 100%),
+      radial-gradient(1px 1px at 310px 180px, rgba(240,160,48,0.12) 0%, transparent 100%),
+      radial-gradient(1px 1px at 150px 500px, rgba(253,206,69,0.08) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  /* Status Bar */
+  .status-bar {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 50;
+    display: flex; align-items: center; padding: 14px 24px 0; height: 54px;
+  }
+  .status-time { flex: 1; font-size: 15px; font-weight: 600; color: #fff; }
+  .status-icons { display: flex; gap: 5px; align-items: center; }
+
+  /* Top bar - editorial warmth */
+  .top-bar {
+    position: absolute; top: 44px; left: 0; right: 0; z-index: 40;
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px;
+    background: linear-gradient(to bottom, rgba(14,14,16,0.8) 0%, transparent 100%);
+  }
+  .top-btn {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-radius: 50%; border: none;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.8); cursor: pointer;
+  }
+  .top-title-area { flex: 1; min-width: 0; }
+  .top-title {
+    font-family: var(--serif); font-size: 20px; font-weight: 400;
+    color: #fff; letter-spacing: -0.01em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .top-meta {
+    font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Subtitle overlay - warmer, serif-touched */
+  .subtitle-overlay {
+    position: absolute; bottom: 280px; left: 50%; transform: translateX(-50%);
+    z-index: 15; width: 340px; text-align: center;
+  }
+  .subtitle-text {
+    display: inline;
+    background: rgba(14,14,16,0.8);
+    color: rgba(255,255,255,0.95); font-size: 17px; font-weight: 400;
+    font-style: italic;
+    padding: 5px 16px; border-radius: 4px;
+    line-height: 1.7;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    border-bottom: 1px solid rgba(253,206,69,0.2);
+  }
+
+  /* Center controls */
+  .center-controls {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    z-index: 20; display: flex; align-items: center; gap: 40px;
+  }
+  .center-btn {
+    background: none; border: none; color: rgba(255,255,255,0.8);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .center-btn.main-play {
+    width: 72px; height: 72px;
+    background: rgba(253,206,69,0.1);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border-radius: 50%;
+    border: 1.5px solid rgba(253,206,69,0.25);
+    box-shadow: 0 0 30px rgba(253,206,69,0.08);
+  }
+  .skip-num {
+    position: absolute; font-size: 11px; font-weight: 700;
+    color: rgba(255,255,255,0.8); margin-top: 2px;
+  }
+
+  /* Bottom controls */
+  .bottom-controls {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 30;
+    background: linear-gradient(to top, rgba(14,14,16,0.95) 0%, rgba(14,14,16,0.6) 60%, transparent 100%);
+    padding: 0 20px 30px;
+  }
+
+  /* Scrubber */
+  .scrubber-section { margin-bottom: 16px; }
+  .scrubber-times {
+    display: flex; justify-content: space-between; margin-bottom: 8px;
+  }
+  .scrubber-time {
+    font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.45);
+    font-variant-numeric: tabular-nums;
+  }
+  .scrubber-track {
+    width: 100%; height: 3px; background: rgba(255,255,255,0.15);
+    border-radius: 2px; position: relative;
+  }
+  .scrubber-loaded {
+    position: absolute; top: 0; left: 0; height: 100%;
+    background: rgba(255,255,255,0.08); border-radius: 2px; width: 72%;
+  }
+  .scrubber-fill {
+    height: 100%; background: var(--yellow); border-radius: 2px; width: 45%;
+    position: relative; z-index: 1;
+    box-shadow: 0 0 10px rgba(253, 206, 69, 0.3);
+  }
+  .scrubber-dot {
+    width: 14px; height: 14px; background: var(--yellow);
+    border-radius: 50%; position: absolute; top: 50%; left: 45%;
+    transform: translate(-50%, -50%); z-index: 2;
+    box-shadow: 0 0 16px rgba(253, 206, 69, 0.5), 0 0 4px rgba(253, 206, 69, 0.9);
+  }
+
+  /* Bottom actions */
+  .bottom-actions {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .bottom-action-btn {
+    background: none; border: none; color: rgba(255,255,255,0.6);
+    cursor: pointer; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 3px;
+    padding: 6px 8px;
+  }
+  .bottom-action-label {
+    font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.35);
+    letter-spacing: 0.02em;
+  }
+  .speed-pill {
+    font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.06); padding: 4px 10px;
+    border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);
+    cursor: pointer; font-family: inherit;
+  }
+
+  /* Up Next card */
+  .up-next {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);
+    padding: 12px 14px; display: flex; align-items: center; gap: 12px;
+  }
+  .up-next-thumb {
+    width: 52px; height: 32px; border-radius: 6px; flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(60,40,20,0.6) 0%, rgba(30,20,15,0.8) 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .up-next-info { flex: 1; min-width: 0; }
+  .up-next-label {
+    font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.3);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .up-next-title {
+    font-family: var(--serif); font-size: 14px; color: rgba(255,255,255,0.8);
+    margin-top: 1px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .up-next-play {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(253,206,69,0.12); border: 1px solid rgba(253,206,69,0.2);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Subtle quote */
+  .subtle-quote {
+    position: absolute; top: 130px; right: 20px; z-index: 10;
+    max-width: 180px; text-align: right;
+  }
+  .subtle-quote-text {
+    font-family: var(--serif); font-style: italic;
+    font-size: 11px; color: rgba(255,255,255,0.12);
+    line-height: 1.5;
+  }
+
+  .home-indicator {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 134px; height: 5px; background: rgba(255,255,255,0.25);
+    border-radius: 3px; z-index: 50;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="video-bg"></div>
+  <div class="film-grain"></div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="white"><rect x="0" y="9" width="3" height="3" rx="0.5"/><rect x="4.5" y="6" width="3" height="6" rx="0.5"/><rect x="9" y="3" width="3" height="9" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><path d="M8,11.5a1.5,1.5,0,1,0,0-3,1.5,1.5,0,0,0,0,3Z"/><path d="M4.93,7.56a4.5,4.5,0,0,1,6.14,0" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/><path d="M2.1,4.73a8,8,0,0,1,11.8,0" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x="0.5" y="0.5" width="23" height="12" rx="3" stroke="white" stroke-opacity="0.35"/><rect x="2" y="2" width="18" height="9" rx="1.5" fill="white"/><path d="M25,4.5v4a2,2,0,0,0,0-4Z" fill="white" fill-opacity="0.4"/></svg>
+    </div>
+  </div>
+
+  <!-- Subtle quote -->
+  <div class="subtle-quote">
+    <p class="subtle-quote-text">"I cancelled Netflix and Amazon Prime"</p>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <!-- Back -->
+    <button class="top-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15,18 9,12 15,6"/>
+      </svg>
+    </button>
+    <div class="top-title-area">
+      <div class="top-title">Cosmos Laundromat</div>
+      <div class="top-meta">720p &middot; Blender Foundation</div>
+    </div>
+    <!-- AirPlay -->
+    <button class="top-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5,17H4a2,2,0,0,1-2-2V5A2,2,0,0,1,4,3H20a2,2,0,0,1,2,2V15a2,2,0,0,1-2,2H19"/>
+        <polygon points="12,15 17,21 7,21"/>
+      </svg>
+    </button>
+    <!-- PiP -->
+    <button class="top-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="3" width="20" height="14" rx="2"/>
+        <rect x="12" y="9" width="8" height="6" rx="1" fill="rgba(255,255,255,0.2)"/>
+        <path d="M7,10L4,13" stroke-width="1.5"/>
+        <polyline points="4,10 4,13 7,13" stroke-width="1.5"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Subtitle -->
+  <div class="subtitle-overlay">
+    <span class="subtitle-text">The cosmos is all that is, or ever was, or ever will be.</span>
+  </div>
+
+  <!-- Center Controls -->
+  <div class="center-controls">
+    <!-- Skip Back 15s -->
+    <button class="center-btn">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M1,4V10H7"/>
+        <path d="M1,10A10,10,0,1,1,3.51,17.36"/>
+      </svg>
+      <span class="skip-num">15</span>
+    </button>
+
+    <!-- Play -->
+    <button class="center-btn main-play">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8,5.14V19.14L19,12.14Z"/>
+      </svg>
+    </button>
+
+    <!-- Skip Forward 15s -->
+    <button class="center-btn">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M23,4V10H17"/>
+        <path d="M23,10A10,10,0,1,1,20.49,17.36"/>
+      </svg>
+      <span class="skip-num">15</span>
+    </button>
+  </div>
+
+  <!-- Bottom Controls -->
+  <div class="bottom-controls">
+    <!-- Scrubber -->
+    <div class="scrubber-section">
+      <div class="scrubber-times">
+        <span class="scrubber-time">05:24</span>
+        <span class="scrubber-time">-06:36</span>
+      </div>
+      <div class="scrubber-track">
+        <div class="scrubber-loaded"></div>
+        <div class="scrubber-fill"></div>
+        <div class="scrubber-dot"></div>
+      </div>
+    </div>
+
+    <!-- Bottom actions -->
+    <div class="bottom-actions">
+      <!-- Subtitles -->
+      <button class="bottom-action-btn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="4" width="22" height="16" rx="2"/>
+          <line x1="5" y1="12" x2="11" y2="12"/>
+          <line x1="13" y1="12" x2="19" y2="12"/>
+          <line x1="5" y1="16" x2="15" y2="16"/>
+        </svg>
+        <span class="bottom-action-label">Subs</span>
+      </button>
+
+      <!-- Audio -->
+      <button class="bottom-action-btn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11,5 6,9 2,9 2,15 6,15 11,19"/>
+          <path d="M15.54,8.46a5,5,0,0,1,0,7.07"/>
+          <path d="M19.07,4.93a10,10,0,0,1,0,14.14"/>
+        </svg>
+        <span class="bottom-action-label">Audio</span>
+      </button>
+
+      <!-- Speed -->
+      <button class="speed-pill">1.0x</button>
+
+      <!-- Lock -->
+      <button class="bottom-action-btn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7,11V7a5,5,0,0,1,10,0v4"/>
+        </svg>
+        <span class="bottom-action-label">Lock</span>
+      </button>
+    </div>
+
+    <!-- Up Next Card -->
+    <div class="up-next">
+      <div class="up-next-thumb">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8,5.14V19.14L19,12.14Z"/></svg>
+      </div>
+      <div class="up-next-info">
+        <div class="up-next-label">Up Next</div>
+        <div class="up-next-title">Sintel</div>
+      </div>
+      <div class="up-next-play">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--yellow)"><path d="M8,5.14V19.14L19,12.14Z"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Home indicator -->
+  <div class="home-indicator"></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io — iOS Files v2 Clean</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000; --bg-2: #1C1C1E; --bg-3: #2C2C2E; --bg-4: #3A3A3C;
+    --line: #38383A; --solid: #8E8E93; --text-2: #AEAEB2; --text: #FFFFFF;
+    --yellow: #FDCE45; --green: #30D158; --red: #FF453A; --blue: #0A84FF;
+  }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+  .phone { width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 12px 24px 0;
+    font-size: 15px; font-weight: 600; height: 54px; flex-shrink: 0;
+  }
+  .status-bar .time { flex: 1; }
+  .status-bar .icons { display: flex; align-items: center; gap: 6px; }
+
+  /* Nav Bar */
+  .nav-bar {
+    display: flex; align-items: center; padding: 8px 16px 12px; flex-shrink: 0;
+  }
+  .nav-title { font-size: 34px; font-weight: 700; flex: 1; }
+  .nav-action {
+    width: 36px; height: 36px; background: var(--bg-3); border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Search */
+  .search-bar-ios {
+    margin: 0 16px 12px; padding: 10px 14px;
+    background: var(--bg-2); border-radius: 12px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 16px; color: var(--solid); flex-shrink: 0;
+  }
+
+  /* Segmented Control */
+  .segmented {
+    display: flex; margin: 0 16px 16px;
+    background: var(--bg-2); border-radius: 10px; padding: 2px; flex-shrink: 0;
+  }
+  .seg-item {
+    flex: 1; text-align: center; padding: 8px 0;
+    font-size: 13px; font-weight: 500; color: var(--text-2);
+    border-radius: 8px; cursor: pointer;
+  }
+  .seg-item.active { background: var(--bg-3); color: var(--text); font-weight: 600; }
+
+  /* Transfer Banner */
+  .transfer-banner {
+    margin: 0 16px 16px; padding: 14px 16px;
+    background: var(--bg-2); border-radius: 12px;
+    display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+  }
+  .transfer-banner .t-dot { width: 10px; height: 10px; border-radius: 999px; background: var(--yellow); box-shadow: 0 0 8px rgba(253,206,69,0.4); flex-shrink: 0; }
+  .transfer-banner .t-info { flex: 1; }
+  .transfer-banner .t-name { font-size: 15px; font-weight: 500; color: var(--text); }
+  .transfer-banner .t-status { font-size: 13px; color: var(--solid); }
+  .transfer-banner .t-percent { font-size: 15px; font-weight: 600; color: var(--yellow); font-family: 'SF Mono','Menlo',monospace; }
+  .progress-mini { height: 3px; background: var(--bg-4); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+  .progress-mini .fill { height: 100%; background: var(--yellow); border-radius: 2px; }
+
+  /* File List */
+  .file-list-ios { flex: 1; overflow-y: auto; }
+  .list-section { margin-bottom: 20px; }
+  .list-section-header {
+    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    color: var(--solid); padding: 8px 16px; letter-spacing: 0.04em;
+  }
+  .list-group { background: var(--bg-2); margin: 0 16px; border-radius: 12px; overflow: hidden; }
+  .list-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px; border-bottom: 1px solid var(--line);
+    min-height: 56px;
+  }
+  .list-item:last-child { border-bottom: none; }
+  .list-item .l-icon { width: 36px; height: 36px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .list-item .l-info { flex: 1; min-width: 0; }
+  .list-item .l-name { font-size: 17px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-item .l-meta { font-size: 14px; color: var(--solid); margin-top: 2px; }
+  .list-item .l-chevron { color: var(--solid); flex-shrink: 0; }
+  .list-item .l-badge {
+    font-size: 11px; background: rgba(253,206,69,0.15); color: var(--yellow);
+    padding: 2px 8px; border-radius: 4px; font-weight: 500; margin-left: 8px; flex-shrink: 0;
+  }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex; background: rgba(28,28,30,0.95); backdrop-filter: blur(20px);
+    border-top: 1px solid var(--line); padding: 6px 0 34px; flex-shrink: 0;
+  }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 10px; color: var(--solid); padding: 4px 0; position: relative;
+  }
+  .tab-item.active { color: var(--yellow); }
+  .tab-item .t-icon { width: 24px; height: 24px; }
+  .tab-badge {
+    position: absolute; top: -2px; right: calc(50% - 22px);
+    background: var(--yellow); color: #000; font-size: 10px; font-weight: 700;
+    min-width: 18px; height: 18px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center; padding: 0 4px;
+  }
+
+  /* Space Invader */
+  .space-invader {
+    position: absolute; bottom: 98px; right: 22px; opacity: 0.06;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <!-- Signal -->
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+        <rect x="0" y="8" width="3" height="4" rx="0.5" fill="white"/>
+        <rect x="4.5" y="5" width="3" height="7" rx="0.5" fill="white"/>
+        <rect x="9" y="2" width="3" height="10" rx="0.5" fill="white"/>
+        <rect x="13.5" y="0" width="3" height="12" rx="0.5" fill="white"/>
+      </svg>
+      <!-- WiFi -->
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+        <path d="M8 11.5a1.2 1.2 0 100-2.4 1.2 1.2 0 000 2.4z" fill="white"/>
+        <path d="M5 8.2a4.5 4.5 0 016 0" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M2.5 5.5a8 8 0 0111 0" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M0.5 2.8a11.5 11.5 0 0115 0" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <!-- Battery -->
+      <svg width="27" height="13" viewBox="0 0 27 13" fill="none">
+        <rect x="0.5" y="0.5" width="23" height="12" rx="2.5" stroke="white" stroke-opacity="0.35"/>
+        <rect x="2" y="2" width="20" height="9" rx="1.5" fill="white"/>
+        <path d="M25 4.5v4a2 2 0 000-4z" fill="white" fill-opacity="0.4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav-bar">
+    <h1 class="nav-title">Files</h1>
+    <div class="nav-action">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M9 2v14M2 9h14" stroke="#FDCE45" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar-ios">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="6.5" cy="6.5" r="5.5" stroke="#8E8E93" stroke-width="1.5"/>
+      <path d="M11 11l4 4" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    Search
+  </div>
+
+  <!-- View Toggle -->
+  <div class="segmented">
+    <div class="seg-item active">
+      <span style="display:inline-flex;align-items:center;gap:4px;">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="1" y="1" width="12" height="3" rx="1" fill="white"/>
+          <rect x="1" y="5.5" width="12" height="3" rx="1" fill="white"/>
+          <rect x="1" y="10" width="12" height="3" rx="1" fill="white"/>
+        </svg>
+        List
+      </span>
+    </div>
+    <div class="seg-item">
+      <span style="display:inline-flex;align-items:center;gap:4px;">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="1" y="1" width="5" height="5" rx="1" fill="#AEAEB2"/>
+          <rect x="8" y="1" width="5" height="5" rx="1" fill="#AEAEB2"/>
+          <rect x="1" y="8" width="5" height="5" rx="1" fill="#AEAEB2"/>
+          <rect x="8" y="8" width="5" height="5" rx="1" fill="#AEAEB2"/>
+        </svg>
+        Grid
+      </span>
+    </div>
+  </div>
+
+  <!-- Transfer in Progress Banner -->
+  <div class="transfer-banner">
+    <div class="t-dot"></div>
+    <div class="t-info">
+      <div class="t-name">Inception  &#183; 2160p</div>
+      <div class="t-status">Downloading &#183; 23 min left</div>
+      <div class="progress-mini"><div class="fill" style="width:63%;"></div></div>
+    </div>
+    <span class="t-percent">63%</span>
+  </div>
+
+  <!-- File List -->
+  <div class="file-list-ios">
+    <div class="list-section">
+      <div class="list-group">
+        <!-- Folder: downloads -->
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="28" height="24" viewBox="0 0 28 24" fill="none">
+              <path d="M1 4a2 2 0 012-2h8l3 3h12a2 2 0 012 2v13a2 2 0 01-2 2H3a2 2 0 01-2-2V4z" fill="#FDCE45"/>
+              <path d="M1 8h26v12a2 2 0 01-2 2H3a2 2 0 01-2-2V8z" fill="#E5B93D"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">downloads</div>
+            <div class="l-meta">21.78 GB &#183; 8 items</div>
+          </div>
+          <span class="l-chevron"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+        <!-- Folder: stuff -->
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="28" height="24" viewBox="0 0 28 24" fill="none">
+              <path d="M1 4a2 2 0 012-2h8l3 3h12a2 2 0 012 2v13a2 2 0 01-2 2H3a2 2 0 01-2-2V4z" fill="#FDCE45"/>
+              <path d="M1 8h26v12a2 2 0 01-2 2H3a2 2 0 01-2-2V8z" fill="#E5B93D"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">stuff</div>
+            <div class="l-meta">4.16 GB &#183; a year ago</div>
+          </div>
+          <span class="l-chevron"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+        <!-- Folder: chill institute -->
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="28" height="24" viewBox="0 0 28 24" fill="none">
+              <path d="M1 4a2 2 0 012-2h8l3 3h12a2 2 0 012 2v13a2 2 0 01-2 2H3a2 2 0 01-2-2V4z" fill="#FDCE45"/>
+              <path d="M1 8h26v12a2 2 0 01-2 2H3a2 2 0 01-2-2V8z" fill="#E5B93D"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">chill institute</div>
+            <div class="l-meta">0 B &#183; 16 hours ago</div>
+          </div>
+          <span class="l-chevron"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+        <!-- Folder: __dev__ -->
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="28" height="24" viewBox="0 0 28 24" fill="none">
+              <path d="M1 4a2 2 0 012-2h8l3 3h12a2 2 0 012 2v13a2 2 0 01-2 2H3a2 2 0 01-2-2V4z" fill="#FDCE45"/>
+              <path d="M1 8h26v12a2 2 0 01-2 2H3a2 2 0 01-2-2V8z" fill="#E5B93D"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">__dev__</div>
+            <div class="l-meta">6.6 GB &#183; 2 years ago</div>
+          </div>
+          <span class="l-chevron"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+        <!-- Folder: Shared -->
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="28" height="24" viewBox="0 0 28 24" fill="none">
+              <path d="M1 4a2 2 0 012-2h8l3 3h12a2 2 0 012 2v13a2 2 0 01-2 2H3a2 2 0 01-2-2V4z" fill="#FDCE45"/>
+              <path d="M1 8h26v12a2 2 0 01-2 2H3a2 2 0 01-2-2V8z" fill="#E5B93D"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Items shared with you</div>
+            <div class="l-meta">102.3 TB</div>
+          </div>
+          <span class="l-chevron"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="list-section">
+      <div class="list-section-header">Recent Files</div>
+      <div class="list-group">
+        <!-- Video: Cosmos Laundromat -->
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <rect x="1" y="4" width="26" height="20" rx="3" fill="#3A3A3C"/>
+              <polygon points="11,9 21,14 11,19" fill="#FDCE45"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Cosmos Laundromat</div>
+            <div class="l-meta">209.89 MB &#183; 2 days ago</div>
+          </div>
+          <span class="l-badge">720p</span>
+        </div>
+        <!-- Video: Sintel -->
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <rect x="1" y="4" width="26" height="20" rx="3" fill="#3A3A3C"/>
+              <polygon points="11,9 21,14 11,19" fill="#FDCE45"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">Sintel</div>
+            <div class="l-meta">892.45 MB &#183; 3 days ago</div>
+          </div>
+          <span class="l-badge">1080p</span>
+        </div>
+        <!-- Audio: Podcast -->
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <rect x="2" y="2" width="24" height="24" rx="6" fill="#3A3A3C"/>
+              <path d="M10 8v12M14 5v18M18 9v10M22 12v4M6 12v4" stroke="#FDCE45" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">podcast-episode-127.mp3</div>
+            <div class="l-meta">45.2 MB &#183; 5 days ago</div>
+          </div>
+        </div>
+        <!-- Document: ebook -->
+        <div class="list-item">
+          <div class="l-icon">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <path d="M6 2h11l7 7v17a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z" fill="#3A3A3C"/>
+              <path d="M17 2v7h7" fill="#4A4A4E"/>
+              <path d="M17 2l7 7h-5a2 2 0 01-2-2V2z" fill="#555"/>
+              <rect x="8" y="14" width="12" height="1.5" rx="0.75" fill="#8E8E93"/>
+              <rect x="8" y="18" width="9" height="1.5" rx="0.75" fill="#8E8E93"/>
+              <rect x="8" y="22" width="10" height="1.5" rx="0.75" fill="#8E8E93"/>
+            </svg>
+          </div>
+          <div class="l-info">
+            <div class="l-name">ebook-design-systems.epub</div>
+            <div class="l-meta">12.3 MB &#183; a week ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Space Invader (subtle pixel art) -->
+  <div class="space-invader">
+    <svg width="33" height="24" viewBox="0 0 11 8" fill="none">
+      <rect x="2" y="0" width="1" height="1" fill="white"/>
+      <rect x="8" y="0" width="1" height="1" fill="white"/>
+      <rect x="3" y="1" width="1" height="1" fill="white"/>
+      <rect x="7" y="1" width="1" height="1" fill="white"/>
+      <rect x="2" y="2" width="7" height="1" fill="white"/>
+      <rect x="1" y="3" width="2" height="1" fill="white"/>
+      <rect x="4" y="3" width="3" height="1" fill="white"/>
+      <rect x="8" y="3" width="2" height="1" fill="white"/>
+      <rect x="0" y="4" width="11" height="1" fill="white"/>
+      <rect x="0" y="5" width="1" height="1" fill="white"/>
+      <rect x="2" y="5" width="7" height="1" fill="white"/>
+      <rect x="10" y="5" width="1" height="1" fill="white"/>
+      <rect x="0" y="6" width="1" height="1" fill="white"/>
+      <rect x="2" y="6" width="1" height="1" fill="white"/>
+      <rect x="8" y="6" width="1" height="1" fill="white"/>
+      <rect x="10" y="6" width="1" height="1" fill="white"/>
+      <rect x="3" y="7" width="2" height="1" fill="white"/>
+      <rect x="6" y="7" width="2" height="1" fill="white"/>
+    </svg>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item active">
+      <svg class="t-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M3 7a2 2 0 012-2h5l2 2h7a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" fill="#FDCE45"/>
+      </svg>
+      Files
+    </div>
+    <div class="tab-item">
+      <svg class="t-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="tab-badge">3</span>
+      Transfers
+    </div>
+    <div class="tab-item">
+      <svg class="t-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 3v12m0 0l-4-4m4 4l4-4" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M5 17v2a2 2 0 002 2h10a2 2 0 002-2v-2" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Downloads
+    </div>
+    <div class="tab-item">
+      <svg class="t-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="3" stroke="#8E8E93" stroke-width="1.5"/>
+        <path d="M12 1v2m0 18v2m11-11h-2M3 12H1m18.07-7.07l-1.41 1.41M6.34 17.66l-1.41 1.41m14.14 0l-1.41-1.41M6.34 6.34L4.93 4.93" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Settings
+    </div>
+  </div>
+</div>
+</body>
+</html>

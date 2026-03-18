@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=412">
+<title>put.io — Android Transfers (Material 3)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --md-surface: #141218;
+    --md-surface-dim: #141218;
+    --md-surface-container: #1D1B20;
+    --md-surface-container-low: #1D1B20;
+    --md-surface-container-high: #2B2930;
+    --md-surface-container-highest: #36343B;
+    --md-surface-variant: #49454F;
+    --md-on-surface: #E6E1E5;
+    --md-on-surface-variant: #CAC4D0;
+    --md-outline: #938F99;
+    --md-outline-variant: #49454F;
+    --md-primary: #FDCE45;
+    --md-on-primary: #3D2E00;
+    --md-primary-container: #574400;
+    --md-on-primary-container: #FFE17A;
+    --md-secondary-container: #4A4458;
+    --md-on-secondary-container: #E8DEF8;
+    --md-inverse-surface: #E6E1E5;
+    --md-inverse-on-surface: #313033;
+    --green: #4CC38A;
+    --green-container: #0F3424;
+    --red: #FF6369;
+    --red-container: #3B1012;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.15);
+  }
+  body {
+    font-family: 'Inter', 'Roboto', sans-serif;
+    background: var(--md-surface);
+    color: var(--md-on-surface);
+    -webkit-font-smoothing: antialiased;
+  }
+  .phone { width: 412px; height: 915px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 12px 24px 0;
+    font-size: 14px; font-weight: 500; height: 48px;
+  }
+  .status-bar .time { flex: 1; }
+  .status-bar .icons { display: flex; gap: 8px; align-items: center; }
+  .status-bar .icons svg { width: 16px; height: 16px; fill: var(--md-on-surface); }
+
+  /* Notification area */
+  .notification-area {
+    padding: 8px 12px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .notification {
+    background: var(--md-surface-container-high);
+    border-radius: 16px;
+    padding: 14px 16px;
+    overflow: hidden;
+  }
+  .notif-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 8px;
+  }
+  .notif-app-icon {
+    width: 20px; height: 20px; border-radius: 4px;
+    background: var(--yellow);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .notif-app-icon svg { width: 12px; height: 12px; fill: var(--md-on-primary); }
+  .notif-app-name {
+    font-size: 12px; font-weight: 500; color: var(--md-on-surface-variant);
+    flex: 1;
+  }
+  .notif-time {
+    font-size: 12px; color: var(--md-outline);
+  }
+  .notif-expand svg { width: 16px; height: 16px; fill: var(--md-outline); }
+  .notif-title {
+    font-size: 14px; font-weight: 600;
+    color: var(--md-on-surface);
+    margin-bottom: 4px;
+  }
+  .notif-body {
+    font-size: 13px; color: var(--md-on-surface-variant);
+    margin-bottom: 10px;
+  }
+  .notif-progress-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+  }
+  .notif-progress-bar {
+    flex: 1; height: 4px; background: var(--md-surface-variant);
+    border-radius: 2px; overflow: hidden;
+  }
+  .notif-progress-fill {
+    height: 100%; border-radius: 2px;
+    background: var(--yellow);
+  }
+  .notif-percent {
+    font-size: 13px; font-weight: 600; color: var(--yellow);
+    font-family: 'Inter', monospace;
+    min-width: 36px; text-align: right;
+  }
+  .notif-actions {
+    display: flex; gap: 4px; margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--md-outline-variant);
+  }
+  .notif-btn {
+    flex: 1;
+    font-size: 13px; font-weight: 600;
+    color: var(--md-on-primary-container);
+    background: none; border: none; cursor: pointer;
+    padding: 8px 12px; border-radius: 8px;
+    font-family: inherit; text-align: center;
+    letter-spacing: 0.02em;
+  }
+  .notif-btn:hover { background: rgba(255,255,255,0.06); }
+  .notif-btn.primary { color: var(--yellow); }
+
+  /* Done notification */
+  .notif-done-icon {
+    width: 20px; height: 20px; border-radius: 999px;
+    background: var(--green);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .notif-done-icon svg { width: 12px; height: 12px; fill: #fff; }
+  .notif-done-row {
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  /* Top App Bar */
+  .top-bar {
+    display: flex; align-items: center; padding: 4px 8px;
+    gap: 4px;
+  }
+  .icon-btn {
+    width: 48px; height: 48px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: none; cursor: pointer;
+  }
+  .icon-btn svg { width: 24px; height: 24px; fill: var(--md-on-surface-variant); }
+  .top-bar .spacer { flex: 1; }
+  .top-bar-title {
+    padding: 4px 16px 12px;
+    font-size: 24px; font-weight: 700;
+    color: var(--md-on-surface);
+    letter-spacing: -0.02em;
+  }
+
+  /* Transfer list */
+  .transfer-list { flex: 1; overflow-y: auto; }
+
+  .transfer-item {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 16px;
+    cursor: pointer;
+  }
+  .transfer-item:hover { background: rgba(255,255,255,0.04); }
+  .transfer-item + .transfer-item {
+    border-top: 1px solid var(--md-outline-variant);
+    margin: 0 16px;
+    padding-left: 0; padding-right: 0;
+  }
+  .transfer-item:first-child { margin: 0; }
+
+  .health-dot {
+    width: 10px; height: 10px; border-radius: 999px;
+    flex-shrink: 0; margin-top: 7px;
+  }
+  .health-dot.green { background: var(--green); box-shadow: 0 0 8px rgba(76,195,138,0.4); }
+  .health-dot.yellow { background: var(--yellow); box-shadow: 0 0 8px rgba(253,206,69,0.4); }
+  .health-dot.red { background: var(--red); box-shadow: 0 0 6px rgba(255,99,105,0.4); }
+
+  .t-info { flex: 1; min-width: 0; }
+  .t-title-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+  .t-name { font-size: 16px; font-weight: 500; color: var(--md-on-surface); }
+  .t-badge {
+    display: inline-flex; padding: 2px 8px; border-radius: 100px;
+    font-size: 11px; font-weight: 500;
+  }
+  .t-badge-quality { background: var(--yellow-dim); color: var(--yellow); }
+  .t-badge-source { background: var(--md-surface-container-highest); color: var(--md-on-surface-variant); }
+  .t-meta { font-size: 13px; color: var(--md-outline); margin-bottom: 8px; }
+
+  .t-progress { width: 100%; height: 4px; background: var(--md-surface-variant); border-radius: 2px; overflow: hidden; }
+  .t-progress-fill { height: 100%; border-radius: 2px; }
+  .t-progress-fill.green { background: var(--green); }
+  .t-progress-fill.yellow { background: var(--yellow); }
+  .t-progress-fill.red { background: var(--red); }
+
+  .t-right {
+    display: flex; flex-direction: column; align-items: flex-end;
+    gap: 4px; flex-shrink: 0;
+  }
+  .t-percent {
+    font-size: 14px; font-weight: 600; color: var(--yellow);
+    font-family: 'Inter', monospace;
+  }
+  .t-action-chip {
+    font-size: 12px; font-weight: 600;
+    color: var(--green); background: none;
+    border: 1px solid var(--green);
+    padding: 4px 14px; border-radius: 100px;
+    cursor: pointer; font-family: inherit;
+    white-space: nowrap;
+  }
+  .t-action-chip.retry {
+    color: var(--red);
+    border-color: var(--red);
+  }
+
+  /* Bottom Navigation */
+  .bottom-nav {
+    display: flex; background: var(--md-surface-container);
+    height: 80px; flex-shrink: 0;
+    z-index: 10;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 4px; cursor: pointer;
+    position: relative;
+  }
+  .nav-indicator {
+    width: 64px; height: 32px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-item.active .nav-indicator {
+    background: var(--md-primary-container);
+  }
+  .nav-indicator svg { width: 24px; height: 24px; fill: var(--md-on-surface-variant); }
+  .nav-item.active .nav-indicator svg { fill: var(--md-on-primary-container); }
+  .nav-label {
+    font-size: 12px; font-weight: 500;
+    color: var(--md-on-surface-variant);
+  }
+  .nav-item.active .nav-label {
+    color: var(--md-on-surface); font-weight: 600;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">12:34</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M2 22h4V12H2v10zm6 0h4V7H8v15zm6 0h4V2h-4v20z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4zM16 20H8V6h8v14z"/></svg>
+    </div>
+  </div>
+
+  <!-- Notification Area -->
+  <div class="notification-area">
+    <!-- Downloading notification -->
+    <div class="notification">
+      <div class="notif-header">
+        <div class="notif-app-icon">
+          <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+        </div>
+        <span class="notif-app-name">put.io</span>
+        <span class="notif-time">now</span>
+      </div>
+      <div class="notif-title">Downloading Inception (2160p)</div>
+      <div class="notif-body">4.2 GB of 6.7 GB -- 23 min remaining</div>
+      <div class="notif-progress-row">
+        <div class="notif-progress-bar">
+          <div class="notif-progress-fill" style="width: 63%;"></div>
+        </div>
+        <span class="notif-percent">63%</span>
+      </div>
+      <div class="notif-actions">
+        <button class="notif-btn">Cancel</button>
+        <button class="notif-btn primary">Pause</button>
+      </div>
+    </div>
+
+    <!-- Transfer complete notification -->
+    <div class="notification">
+      <div class="notif-header">
+        <div class="notif-app-icon">
+          <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+        </div>
+        <span class="notif-app-name">put.io</span>
+        <span class="notif-time">2m ago</span>
+      </div>
+      <div class="notif-done-row">
+        <div class="notif-done-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        </div>
+        <div>
+          <div class="notif-title" style="margin-bottom:0;">Transfer complete</div>
+          <div class="notif-body" style="margin-bottom:0; margin-top:2px;">Pose (720p) -- 763 MB</div>
+        </div>
+      </div>
+      <div class="notif-actions">
+        <button class="notif-btn primary">Open</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top App Bar -->
+  <div class="top-bar">
+    <div class="icon-btn">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    </div>
+    <div class="spacer"></div>
+    <div class="icon-btn">
+      <svg viewBox="0 0 24 24"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>
+    </div>
+    <div class="icon-btn">
+      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+    </div>
+  </div>
+  <div class="top-bar-title">Transfers</div>
+
+  <!-- Transfer List -->
+  <div class="transfer-list">
+    <!-- Completed -->
+    <div class="transfer-item">
+      <div class="health-dot green"></div>
+      <div class="t-info">
+        <div class="t-title-row">
+          <span class="t-name">Pose</span>
+          <span class="t-badge t-badge-quality">720p</span>
+          <span class="t-badge t-badge-source">WEBRip</span>
+        </div>
+        <div class="t-meta">Completed -- 763.09 MB -- ratio: 1.03</div>
+        <div class="t-progress"><div class="t-progress-fill green" style="width:100%;"></div></div>
+      </div>
+      <div class="t-right">
+        <button class="t-action-chip">Go to file</button>
+      </div>
+    </div>
+
+    <!-- Downloading 1 -->
+    <div class="transfer-item" style="margin: 0 16px; padding-left: 0; padding-right: 0; border-top: 1px solid var(--md-outline-variant);">
+      <div class="health-dot yellow"></div>
+      <div class="t-info">
+        <div class="t-title-row">
+          <span class="t-name">Inception</span>
+          <span class="t-badge t-badge-quality">2160p</span>
+          <span class="t-badge t-badge-source">BluRay</span>
+        </div>
+        <div class="t-meta">4.2 GB of 6.7 GB -- 23 min -- 42 sources</div>
+        <div class="t-progress"><div class="t-progress-fill yellow" style="width:63%;"></div></div>
+      </div>
+      <div class="t-right">
+        <span class="t-percent">63%</span>
+      </div>
+    </div>
+
+    <!-- Downloading 2 -->
+    <div class="transfer-item" style="margin: 0 16px; padding-left: 0; padding-right: 0; border-top: 1px solid var(--md-outline-variant);">
+      <div class="health-dot yellow"></div>
+      <div class="t-info">
+        <div class="t-title-row">
+          <span class="t-name">The Wolf of Wall Street</span>
+          <span class="t-badge t-badge-quality">1080p</span>
+        </div>
+        <div class="t-meta">1.45 GB of 2.22 GB -- 8 min -- 87 sources</div>
+        <div class="t-progress"><div class="t-progress-fill yellow" style="width:65%;"></div></div>
+      </div>
+      <div class="t-right">
+        <span class="t-percent">65%</span>
+      </div>
+    </div>
+
+    <!-- Seeding -->
+    <div class="transfer-item" style="margin: 0 16px; padding-left: 0; padding-right: 0; border-top: 1px solid var(--md-outline-variant);">
+      <div class="health-dot green"></div>
+      <div class="t-info">
+        <div class="t-title-row">
+          <span class="t-name">Marty Supreme</span>
+          <span class="t-badge t-badge-quality">1080p</span>
+          <span class="t-badge t-badge-source">WEBRip</span>
+        </div>
+        <div class="t-meta">Seeding -- 15.38 GB -- ratio: 1.24</div>
+        <div class="t-progress"><div class="t-progress-fill green" style="width:100%;"></div></div>
+      </div>
+      <div class="t-right">
+        <button class="t-action-chip">Go to file</button>
+      </div>
+    </div>
+
+    <!-- Stalled / Failed -->
+    <div class="transfer-item" style="margin: 0 16px; padding-left: 0; padding-right: 0; border-top: 1px solid var(--md-outline-variant);">
+      <div class="health-dot red"></div>
+      <div class="t-info">
+        <div class="t-title-row">
+          <span class="t-name">Rare Documentary 1987</span>
+          <span class="t-badge t-badge-source">SD</span>
+        </div>
+        <div class="t-meta">Stalled -- No sources -- Added 2 days ago</div>
+        <div class="t-progress"><div class="t-progress-fill red" style="width:8%;"></div></div>
+      </div>
+      <div class="t-right">
+        <button class="t-action-chip retry">Retry</button>
+      </div>
+    </div>
+
+    <!-- Another completed -->
+    <div class="transfer-item" style="margin: 0 16px; padding-left: 0; padding-right: 0; border-top: 1px solid var(--md-outline-variant);">
+      <div class="health-dot green"></div>
+      <div class="t-info">
+        <div class="t-title-row">
+          <span class="t-name">Thor: Love and Thunder</span>
+          <span class="t-badge t-badge-quality">1080p</span>
+          <span class="t-badge t-badge-source">BluRay</span>
+        </div>
+        <div class="t-meta">Completed -- 2.19 GB -- ratio: 2.31</div>
+        <div class="t-progress"><div class="t-progress-fill green" style="width:100%;"></div></div>
+      </div>
+      <div class="t-right">
+        <button class="t-action-chip">Go to file</button>
+      </div>
+    </div>
+
+    <!-- Completed older -->
+    <div class="transfer-item" style="margin: 0 16px; padding-left: 0; padding-right: 0; border-top: 1px solid var(--md-outline-variant); opacity: 0.5;">
+      <div class="health-dot" style="background: var(--md-outline);"></div>
+      <div class="t-info">
+        <div class="t-title-row">
+          <span class="t-name">from put.io -- files we couldn't recover</span>
+        </div>
+        <div class="t-meta">2025-10-02 -- 2.26 KB -- Expired</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <div class="nav-item">
+      <div class="nav-indicator">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <span class="nav-label">Files</span>
+    </div>
+    <div class="nav-item active">
+      <div class="nav-indicator">
+        <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+      </div>
+      <span class="nav-label">Transfers</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-indicator">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      </div>
+      <span class="nav-label">Downloads</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-indicator">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.488.488 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      </div>
+      <span class="nav-label">Settings</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

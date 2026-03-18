@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Video Player (Dark Mode)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --bg-5: #35353A; --line: #3E3E44; --border: #4B4B52; --focus: #65656D;
+    --solid: #7C7C85; --text-2: #ABABB2; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868;
+    --green-9: #30A46C; --green-11: #4CC38A;
+  }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; }
+
+  /* Sidebar (compact) */
+  .sidebar {
+    width: 64px; background: var(--bg-2); border-right: 1px solid var(--line);
+    display: flex; flex-direction: column; align-items: center; padding: 16px 0;
+    flex-shrink: 0;
+  }
+  .sidebar .logo { font-size: 16px; font-weight: 700; margin-bottom: 24px; }
+  .sidebar .logo span { color: var(--yellow); }
+  .sidebar-icon {
+    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: var(--text-2); border-radius: 8px; cursor: pointer;
+    margin-bottom: 4px;
+  }
+  .sidebar-icon:hover { background: var(--bg-3); }
+  .sidebar-icon.active { background: var(--bg-4); color: var(--yellow); }
+  .sidebar-sep { width: 24px; height: 1px; background: var(--line); margin: 8px 0; }
+
+  /* Content */
+  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Breadcrumbs */
+  .breadcrumbs-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 32px; border-bottom: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .breadcrumbs-bar a { color: var(--text-2); text-decoration: none; }
+  .breadcrumbs-bar a:hover { color: var(--text); }
+  .breadcrumbs-bar .sep { color: var(--solid); }
+  .breadcrumbs-bar .current { color: var(--text); font-weight: 500; }
+
+  /* Player Layout */
+  .player-layout { display: flex; flex: 1; overflow: hidden; }
+
+  /* Video Area */
+  .video-area { flex: 1; display: flex; flex-direction: column; }
+  .video-container {
+    flex: 1; background: #000; position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .video-placeholder {
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.3); font-size: 64px;
+  }
+  .video-controls {
+    display: flex; align-items: center; gap: 16px;
+    padding: 12px 24px; background: rgba(0,0,0,0.8);
+    position: absolute; bottom: 0; left: 0; right: 0;
+  }
+  .ctrl-btn {
+    background: none; border: none; color: white; cursor: pointer;
+    font-size: 18px; padding: 4px; opacity: 0.8;
+  }
+  .ctrl-btn:hover { opacity: 1; }
+  .play-btn { font-size: 22px; }
+  .time { font-size: 12px; color: rgba(255,255,255,0.7); font-family: 'SF Mono','Menlo',monospace; white-space: nowrap; }
+  .progress-track {
+    flex: 1; height: 4px; background: rgba(255,255,255,0.2);
+    border-radius: 2px; cursor: pointer; position: relative;
+  }
+  .progress-fill { height: 100%; background: var(--yellow); border-radius: 2px; width: 55%; }
+  .progress-dot {
+    width: 12px; height: 12px; background: var(--yellow); border-radius: 50%;
+    position: absolute; top: -4px; left: 55%; transform: translateX(-50%);
+  }
+  .speed-btn {
+    background: var(--bg-5); border: none; color: white; font-size: 11px;
+    padding: 2px 8px; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: 600;
+  }
+
+  /* Right Panel */
+  .right-panel {
+    width: 320px; background: var(--bg-2); border-left: 1px solid var(--line);
+    overflow-y: auto; flex-shrink: 0;
+  }
+  .panel-section { padding: 20px 24px; border-bottom: 1px solid var(--line); }
+  .panel-section-title {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--solid); margin-bottom: 16px;
+  }
+
+  /* Primary Action */
+  .primary-action {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--yellow); color: #111113; border-radius: 10px;
+    padding: 14px 20px; cursor: pointer; border: none; width: 100%;
+    font-family: inherit; font-size: 14px; font-weight: 600;
+  }
+  .primary-action .icon { font-size: 20px; }
+
+  /* Up Next */
+  .upnext-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; cursor: pointer;
+  }
+  .upnext-thumb {
+    width: 56px; height: 32px; background: var(--bg-5); border-radius: 4px;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .upnext-name { font-size: 13px; color: var(--text); flex: 1; }
+  .upnext-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .upnext-toggle .label { font-size: 13px; color: var(--text-2); }
+  .toggle { width: 40px; height: 22px; background: var(--yellow); border-radius: 999px; position: relative; border: none; cursor: pointer; }
+  .toggle .thumb { width: 16px; height: 16px; background: #111113; border-radius: 999px; position: absolute; top: 3px; left: 21px; }
+
+  /* Action List */
+  .action-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; font-size: 13px; color: var(--text-2);
+    cursor: pointer; border: none; background: none; width: 100%;
+    text-align: left; font-family: inherit;
+  }
+  .action-item:hover { color: var(--text); }
+  .action-item .a-icon { width: 20px; text-align: center; font-size: 16px; }
+  .action-item .a-label { flex: 1; }
+  .action-item .a-meta { font-size: 11px; color: var(--solid); font-family: 'SF Mono','Menlo',monospace; }
+  .action-divider { height: 1px; background: var(--line); margin: 4px 0; }
+
+  /* Subtitle indicator */
+  .subtitle-line {
+    position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.7); color: white; padding: 6px 16px;
+    border-radius: 4px; font-size: 14px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Collapsed Sidebar -->
+  <div class="sidebar">
+    <div class="logo">p<span>.</span></div>
+    <div class="sidebar-icon active">📁</div>
+    <div class="sidebar-icon">⚡</div>
+    <div class="sidebar-icon">📡</div>
+    <div class="sidebar-sep"></div>
+    <div class="sidebar-icon">🔗</div>
+    <div class="sidebar-icon">📋</div>
+    <div class="sidebar-icon">🗑</div>
+  </div>
+
+  <div class="content">
+    <!-- Breadcrumbs -->
+    <div class="breadcrumbs-bar">
+      <a href="#">Your Files</a>
+      <span class="sep">›</span>
+      <a href="#">downloads</a>
+      <span class="sep">›</span>
+      <span class="current">Cosmos Laundromat.mp4</span>
+    </div>
+
+    <div class="player-layout">
+      <!-- Video -->
+      <div class="video-area">
+        <div class="video-container">
+          <div class="video-placeholder">▶</div>
+          <div class="subtitle-line">Hello, I'm Big Buck Bunny</div>
+          <div class="video-controls">
+            <button class="ctrl-btn play-btn">⏸</button>
+            <button class="ctrl-btn">🔊</button>
+            <span class="time">6:50</span>
+            <div class="progress-track">
+              <div class="progress-fill"></div>
+              <div class="progress-dot"></div>
+            </div>
+            <span class="time">-5:20</span>
+            <button class="speed-btn">1x</button>
+            <button class="ctrl-btn" title="Picture-in-Picture">⧉</button>
+            <button class="ctrl-btn" title="Aspect Ratio">⊡</button>
+            <button class="ctrl-btn" title="Fullscreen">⛶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="right-panel">
+        <!-- Primary: Cast -->
+        <div class="panel-section">
+          <button class="primary-action">
+            <span class="icon">📺</span>
+            Play on Chromecast
+          </button>
+        </div>
+
+        <!-- Up Next -->
+        <div class="panel-section">
+          <div class="panel-section-title">Up Next</div>
+          <div class="upnext-toggle">
+            <span class="label">Autoplay</span>
+            <button class="toggle"><div class="thumb"></div></button>
+          </div>
+          <div class="upnext-item">
+            <div class="upnext-thumb">🎬</div>
+            <span class="upnext-name">Sintel.mp4</span>
+          </div>
+          <div class="upnext-item">
+            <div class="upnext-thumb">🎬</div>
+            <span class="upnext-name">Big Buck Bunny.mp4</span>
+          </div>
+        </div>
+
+        <!-- Primary Actions -->
+        <div class="panel-section">
+          <div class="panel-section-title">Actions</div>
+          <button class="action-item">
+            <span class="a-icon">⬇</span>
+            <span class="a-label">Download to device</span>
+            <span class="a-meta">209.89 MB</span>
+          </button>
+          <button class="action-item">
+            <span class="a-icon">📁</span>
+            <span class="a-label">Move to...</span>
+          </button>
+          <button class="action-item">
+            <span class="a-icon">🔗</span>
+            <span class="a-label">Share</span>
+          </button>
+          <div class="action-divider"></div>
+          <button class="action-item">
+            <span class="a-icon">👁</span>
+            <span class="a-label">Mark as unwatched</span>
+          </button>
+          <button class="action-item">
+            <span class="a-icon">⧉</span>
+            <span class="a-label">Open in popup window</span>
+          </button>
+        </div>
+
+        <!-- Secondary Actions (collapsed by default) -->
+        <div class="panel-section">
+          <div class="panel-section-title">Advanced</div>
+          <button class="action-item">
+            <span class="a-icon">🔗</span>
+            <span class="a-label">Stream link</span>
+          </button>
+          <button class="action-item">
+            <span class="a-icon">📋</span>
+            <span class="a-label">VLC playlist</span>
+          </button>
+          <button class="action-item">
+            <span class="a-icon">ℹ</span>
+            <span class="a-label">Show media info</span>
+          </button>
+          <button class="action-item">
+            <span class="a-icon">🔒</span>
+            <span class="a-label">Exclusive access</span>
+          </button>
+          <div class="action-divider"></div>
+          <div style="font-size:11px; color:var(--solid); font-family:'SF Mono','Menlo',monospace; line-height:1.8; padding:8px 0;">
+            CRC32: 8e7aaaa8<br>
+            SHA1: 25c14461...a78a74c1
+          </div>
+        </div>
+
+        <!-- Trash (separated, deemphasized) -->
+        <div class="panel-section">
+          <button class="action-item" style="color:var(--solid);">
+            <span class="a-icon">🗑</span>
+            <span class="a-label" style="color:inherit;">Move to Trash</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
