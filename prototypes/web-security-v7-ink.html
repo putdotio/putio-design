@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Security (Minimal Ink)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0E0E0E;
+    --text: #E8E8E8;
+    --muted: #666666;
+    --dim: #333333;
+    --yellow: #FDCE45;
+    --green: #30A46C;
+    --red: #E5484D;
+    --orange: #F76B15;
+    --mono: 'IBM Plex Mono', 'iA Writer Quattro', 'Menlo', 'Consolas', monospace;
+  }
+
+  body {
+    font-family: var(--mono);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 24px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .frame {
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Nav */
+  .nav {
+    width: 640px;
+    padding: 48px 0 0;
+  }
+
+  .nav-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .nav-brand {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    margin-right: auto;
+  }
+
+  .nav-link {
+    color: var(--muted);
+    font-size: 13px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .nav-link:hover { color: var(--yellow); }
+  .nav-link.active { color: var(--text); }
+
+  .nav-sep {
+    color: var(--dim);
+    font-size: 13px;
+    user-select: none;
+  }
+
+  /* Content */
+  .content {
+    width: 640px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-top: 56px;
+    overflow-y: auto;
+  }
+
+  .page-title {
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 36px;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .page-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 40px;
+  }
+
+  /* Alert as text */
+  .alert-block {
+    padding: 16px 0;
+    border-top: 1px solid var(--red);
+    border-bottom: 1px solid var(--dim);
+    margin-bottom: 32px;
+  }
+
+  .alert-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--red);
+    margin-bottom: 4px;
+  }
+
+  .alert-desc {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .alert-action {
+    color: var(--red);
+    font-size: 13px;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .alert-action:hover { text-decoration: underline; }
+
+  /* Section */
+  .section {
+    margin-bottom: 32px;
+  }
+
+  .section-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--dim);
+  }
+
+  /* Score as text */
+  .score-block {
+    margin-bottom: 24px;
+  }
+
+  .score-big {
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--green);
+    margin-bottom: 12px;
+  }
+
+  .score-big .score-label {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 8px;
+  }
+
+  .check-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .check-item {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .check-item.done { color: var(--text); }
+  .check-item .status-ok { color: var(--green); }
+  .check-item .status-warn { color: var(--orange); }
+
+  /* 2FA as text toggle */
+  .tfa-block {
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--dim);
+  }
+
+  .tfa-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .tfa-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .tfa-status {
+    font-size: 13px;
+    color: var(--orange);
+    font-weight: 500;
+  }
+
+  .tfa-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 22px;
+    margin-bottom: 8px;
+  }
+
+  .tfa-action {
+    color: var(--yellow);
+    font-size: 13px;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .tfa-action:hover { text-decoration: underline; }
+
+  /* Sessions as text lines */
+  .session-line {
+    display: flex;
+    align-items: baseline;
+    padding: 6px 0;
+    font-size: 13px;
+  }
+
+  .session-device {
+    color: var(--text);
+    font-weight: 500;
+    width: 180px;
+    flex-shrink: 0;
+  }
+
+  .session-device.danger { color: var(--red); }
+
+  .session-location {
+    color: var(--muted);
+    width: 160px;
+    flex-shrink: 0;
+  }
+
+  .session-ip {
+    color: var(--muted);
+    width: 130px;
+    flex-shrink: 0;
+    font-size: 12px;
+  }
+
+  .session-time {
+    color: var(--muted);
+    flex: 1;
+    text-align: right;
+  }
+
+  .session-time.now { color: var(--green); }
+  .session-time.danger { color: var(--red); }
+
+  .session-tag {
+    color: var(--green);
+    font-size: 12px;
+    margin-left: 8px;
+    font-weight: 500;
+  }
+
+  .session-end-link {
+    color: var(--muted);
+    font-size: 12px;
+    margin-left: 12px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .session-end-link:hover { color: var(--red); }
+
+  .sessions-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid var(--dim);
+    margin-top: 8px;
+  }
+
+  .sessions-note {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .end-all-link {
+    color: var(--red);
+    font-size: 13px;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .end-all-link:hover { text-decoration: underline; }
+
+  /* Activity as timestamped text log */
+  .activity-line {
+    display: flex;
+    align-items: baseline;
+    padding: 4px 0;
+    font-size: 13px;
+  }
+
+  .activity-time {
+    color: var(--muted);
+    width: 140px;
+    flex-shrink: 0;
+    font-size: 12px;
+  }
+
+  .activity-type {
+    width: 12px;
+    flex-shrink: 0;
+    margin-right: 8px;
+    font-size: 12px;
+    text-align: center;
+  }
+  .activity-type.ok { color: var(--green); }
+  .activity-type.fail { color: var(--red); }
+  .activity-type.warn { color: var(--orange); }
+  .activity-type.info { color: var(--yellow); }
+
+  .activity-desc {
+    color: var(--text);
+    flex: 1;
+  }
+
+  .activity-desc .ip {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  /* Footer */
+  .footer {
+    width: 640px;
+    padding: 48px 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .footer-brand {
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  .footer-storage {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .kaomoji {
+    color: #2a2a2a;
+    font-size: 11px;
+    margin-left: 16px;
+  }
+</style>
+</head>
+<body>
+
+<div class="frame">
+
+  <!-- Nav -->
+  <nav class="nav">
+    <div class="nav-row">
+      <a class="nav-brand" href="#">put.io</a>
+      <a class="nav-link" href="#">files</a>
+      <span class="nav-sep">&middot;</span>
+      <a class="nav-link" href="#">transfers</a>
+      <span class="nav-sep">&middot;</span>
+      <a class="nav-link" href="#">sharing</a>
+      <span class="nav-sep">&middot;</span>
+      <a class="nav-link active" href="#">security</a>
+      <span class="nav-sep">&middot;</span>
+      <a class="nav-link" href="#">settings</a>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <main class="content">
+    <h1 class="page-title">Security</h1>
+    <p class="page-sub">monitor your account security and manage sessions</p>
+
+    <!-- Alert -->
+    <div class="alert-block">
+      <div class="alert-title">suspicious login detected</div>
+      <div class="alert-desc">a login from Moscow, Russia was attempted 2 hours ago using your credentials. if this wasn't you, secure your account.</div>
+      <a class="alert-action" href="#">review activity --></a>
+    </div>
+
+    <!-- Security Score -->
+    <div class="section">
+      <div class="section-title">security score</div>
+      <div class="score-block">
+        <div class="score-big">75<span class="score-label">/ 100 -- good</span></div>
+        <div class="check-list">
+          <div class="check-item done"><span class="status-ok">+</span> strong password</div>
+          <div class="check-item"><span class="status-warn">-</span> 2fa not enabled</div>
+          <div class="check-item done"><span class="status-ok">+</span> email verified</div>
+          <div class="check-item done"><span class="status-ok">+</span> unique password</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2FA -->
+    <div class="tfa-block">
+      <div class="tfa-row">
+        <span class="tfa-label">two-factor authentication</span>
+        <span class="tfa-status">off</span>
+      </div>
+      <div class="tfa-desc">use an authenticator app for one-time codes. prevents unauthorized access even if your password is compromised.</div>
+      <a class="tfa-action" href="#">enable 2fa --></a>
+    </div>
+
+    <!-- Sessions -->
+    <div class="section">
+      <div class="section-title">active sessions (4)</div>
+
+      <div class="session-line">
+        <span class="session-device">Chrome on macOS</span>
+        <span class="session-location">Istanbul, Turkey</span>
+        <span class="session-ip">78.160.xx.xx</span>
+        <span class="session-time now">now</span>
+        <span class="session-tag">this device</span>
+      </div>
+
+      <div class="session-line">
+        <span class="session-device">put.io iOS App</span>
+        <span class="session-location">Istanbul, Turkey</span>
+        <span class="session-ip">78.160.xx.xx</span>
+        <span class="session-time">3h ago</span>
+        <a class="session-end-link" href="#">end</a>
+      </div>
+
+      <div class="session-line">
+        <span class="session-device">Firefox on Windows</span>
+        <span class="session-location">Amsterdam, NL</span>
+        <span class="session-ip">185.107.xx.xx</span>
+        <span class="session-time">2d ago</span>
+        <a class="session-end-link" href="#">end</a>
+      </div>
+
+      <div class="session-line">
+        <span class="session-device danger">Chrome on Linux</span>
+        <span class="session-location" style="color: var(--red);">Moscow, Russia</span>
+        <span class="session-ip" style="color: var(--red);">91.227.xx.xx</span>
+        <span class="session-time danger">2h ago</span>
+        <a class="session-end-link" href="#" style="color: var(--red);">end</a>
+      </div>
+
+      <div class="sessions-actions">
+        <span class="sessions-note">auto-terminate after 30 days</span>
+        <a class="end-all-link" href="#">end all other sessions</a>
+      </div>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="section">
+      <div class="section-title">recent activity</div>
+
+      <div class="activity-line">
+        <span class="activity-time">2h ago</span>
+        <span class="activity-type fail">x</span>
+        <span class="activity-desc">failed login from Moscow, Russia <span class="ip">91.227.xx.xx</span></span>
+      </div>
+
+      <div class="activity-line">
+        <span class="activity-time">5h ago</span>
+        <span class="activity-type ok">+</span>
+        <span class="activity-desc">login from Istanbul (Chrome/macOS) <span class="ip">78.160.xx.xx</span></span>
+      </div>
+
+      <div class="activity-line">
+        <span class="activity-time">2h ago</span>
+        <span class="activity-type info">!</span>
+        <span class="activity-desc">plan upgrade attempted 1TB > 10TB (blocked) <span class="ip">91.227.xx.xx</span></span>
+      </div>
+
+      <div class="activity-line">
+        <span class="activity-time">2h ago</span>
+        <span class="activity-type warn">~</span>
+        <span class="activity-desc">password change attempted (blocked) <span class="ip">91.227.xx.xx</span></span>
+      </div>
+
+      <div class="activity-line">
+        <span class="activity-time">yesterday 14:22</span>
+        <span class="activity-type ok">+</span>
+        <span class="activity-desc">login from Istanbul (iOS App) <span class="ip">78.160.xx.xx</span></span>
+      </div>
+
+      <div class="activity-line">
+        <span class="activity-time">2d ago</span>
+        <span class="activity-type ok">+</span>
+        <span class="activity-desc">login from Amsterdam (Firefox/Win) <span class="ip">185.107.xx.xx</span></span>
+      </div>
+
+      <div class="activity-line">
+        <span class="activity-time">1w ago</span>
+        <span class="activity-type warn">~</span>
+        <span class="activity-desc">email confirmed -- altay@put.io</span>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <span class="footer-brand">put.io<span class="kaomoji">&nbsp;&nbsp;&#x1566;(&#xF2;_&#xF3;&#x2C7;)&#x1564;</span></span>
+    <span class="footer-storage">39 TB / 50 TB</span>
+  </footer>
+
+</div>
+
+</body>
+</html>

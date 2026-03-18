@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Sharing (Minimal Ink)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0E0E0E;
+    --text: #E8E8E8;
+    --muted: #666666;
+    --dim: #333333;
+    --yellow: #FDCE45;
+    --green: #30A46C;
+    --red: #E5484D;
+    --blue: #3B82F6;
+    --purple: #A78BFA;
+    --mono: 'IBM Plex Mono', 'iA Writer Quattro', 'Menlo', 'Consolas', monospace;
+  }
+
+  body {
+    font-family: var(--mono);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 24px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .frame {
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Nav */
+  .nav {
+    width: 640px;
+    padding: 48px 0 0;
+  }
+
+  .nav-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .nav-brand {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    margin-right: auto;
+  }
+
+  .nav-link {
+    color: var(--muted);
+    font-size: 13px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .nav-link:hover { color: var(--yellow); }
+  .nav-link.active { color: var(--text); }
+
+  .nav-sep {
+    color: var(--dim);
+    font-size: 13px;
+    user-select: none;
+  }
+
+  /* Content */
+  .content {
+    width: 640px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-top: 56px;
+    overflow-y: auto;
+  }
+
+  .page-title {
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 36px;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin-bottom: 40px;
+  }
+
+  /* Tab nav as text */
+  .tab-nav {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--dim);
+  }
+
+  .tab-link {
+    color: var(--muted);
+    font-size: 13px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .tab-link:hover { color: var(--text); }
+  .tab-link.active { color: var(--text); font-weight: 500; }
+  .tab-link .count { color: var(--muted); font-weight: 400; }
+
+  /* Share with Mom */
+  .mom-line {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--dim);
+  }
+
+  .mom-line strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .mom-create {
+    color: var(--yellow);
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .mom-create:hover { text-decoration: underline; }
+
+  /* Section headers */
+  .section-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Share list - pure text */
+  .share-list {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 32px;
+  }
+
+  .share-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 0;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .share-item:hover .share-item-name {
+    color: var(--yellow);
+  }
+
+  .share-item-name {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 400;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .share-item-name.folder {
+    font-weight: 500;
+  }
+
+  .share-item-meta {
+    color: var(--muted);
+    font-size: 13px;
+    white-space: nowrap;
+    margin-left: 24px;
+    flex-shrink: 0;
+  }
+
+  /* Type indicators as colored text */
+  .type-follow { color: var(--blue); font-size: 12px; margin-left: 16px; }
+  .type-collab { color: var(--purple); font-size: 12px; margin-left: 16px; }
+  .type-link { color: var(--green); font-size: 12px; margin-left: 16px; }
+  .type-expired { color: var(--muted); font-size: 12px; margin-left: 16px; opacity: 0.5; }
+
+  /* Footer */
+  .footer {
+    width: 640px;
+    padding: 48px 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .footer-brand {
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  .footer-storage {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .kaomoji {
+    color: #2a2a2a;
+    font-size: 11px;
+    margin-left: 16px;
+  }
+</style>
+</head>
+<body>
+
+<div class="frame">
+
+  <!-- Nav -->
+  <nav class="nav">
+    <div class="nav-row">
+      <a class="nav-brand" href="#">put.io</a>
+      <a class="nav-link" href="#">files</a>
+      <span class="nav-sep">&middot;</span>
+      <a class="nav-link" href="#">transfers</a>
+      <span class="nav-sep">&middot;</span>
+      <a class="nav-link" href="#">rss</a>
+      <span class="nav-sep">&middot;</span>
+      <a class="nav-link active" href="#">sharing</a>
+      <span class="nav-sep">&middot;</span>
+      <a class="nav-link" href="#">history</a>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <main class="content">
+    <h1 class="page-title">Sharing</h1>
+
+    <!-- Text tabs -->
+    <div class="tab-nav">
+      <a class="tab-link active" href="#">following <span class="count">4</span></a>
+      <span style="color: var(--dim);">&middot;</span>
+      <a class="tab-link" href="#">collaborative <span class="count">2</span></a>
+      <span style="color: var(--dim);">&middot;</span>
+      <a class="tab-link" href="#">links <span class="count">7</span></a>
+    </div>
+
+    <!-- Share with Mom -->
+    <div class="mom-line">
+      <strong>share with mom</strong> -- create a simple download link, no account needed. <a class="mom-create" href="#">create link</a>
+    </div>
+
+    <!-- Following -->
+    <div class="section-label">folders you follow</div>
+
+    <div class="share-list">
+      <div class="share-item">
+        <span class="share-item-name folder">Movie Night Picks/</span>
+        <span class="share-item-meta">deniz &nbsp; 2h ago</span>
+        <span class="type-follow">following</span>
+      </div>
+      <div class="share-item">
+        <span class="share-item-name folder">Documentary Archive/</span>
+        <span class="share-item-meta">kerem &nbsp; 1d ago</span>
+        <span class="type-follow">following</span>
+      </div>
+      <div class="share-item">
+        <span class="share-item-name folder">Music Discovery/</span>
+        <span class="share-item-meta">ece &nbsp; 3d ago</span>
+        <span class="type-follow">following</span>
+      </div>
+      <div class="share-item">
+        <span class="share-item-name folder">Podcast Backlog/</span>
+        <span class="share-item-meta">baris &nbsp; 1w ago</span>
+        <span class="type-follow">following</span>
+      </div>
+    </div>
+
+    <!-- Collaborative -->
+    <div class="section-label">collaborative folders</div>
+
+    <div class="share-list">
+      <div class="share-item">
+        <span class="share-item-name folder">Chill Institute/</span>
+        <span class="share-item-meta">you + deniz, kerem &nbsp; 16h ago</span>
+        <span class="type-collab">collab</span>
+      </div>
+      <div class="share-item">
+        <span class="share-item-name folder">Family Photos 2025/</span>
+        <span class="share-item-meta">you + mom &nbsp; 2d ago</span>
+        <span class="type-collab">collab</span>
+      </div>
+    </div>
+
+    <!-- Shared links -->
+    <div class="section-label">shared links</div>
+
+    <div class="share-list">
+      <div class="share-item">
+        <span class="share-item-name">Cosmos Laundromat.mp4</span>
+        <span class="share-item-meta">expires 5d &nbsp; 2d ago</span>
+        <span class="type-link">active</span>
+      </div>
+      <div class="share-item">
+        <span class="share-item-name">Big Buck Bunny (2008).mkv</span>
+        <span class="share-item-meta">expires 12d &nbsp; 1w ago</span>
+        <span class="type-link">active</span>
+      </div>
+      <div class="share-item" style="opacity: 0.4;">
+        <span class="share-item-name">podcast-episode-127.mp3</span>
+        <span class="share-item-meta">expired 3d ago &nbsp; 2w ago</span>
+        <span class="type-expired">expired</span>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <span class="footer-brand">put.io<span class="kaomoji">&nbsp;&nbsp;&#x1566;(&#xF2;_&#xF3;&#x2C7;)&#x1564;</span></span>
+    <span class="footer-storage">39 TB / 50 TB</span>
+  </footer>
+
+</div>
+
+</body>
+</html>
