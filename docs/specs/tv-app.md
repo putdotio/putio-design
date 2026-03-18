@@ -449,6 +449,40 @@ Fire TV specifically: back button must dismiss playback menu/overlay before exit
 
 ---
 
+## Pagination
+
+All list endpoints use cursor-based pagination. Never load everything at once.
+
+### Pattern
+```
+Request:  GET /files/list?parent_id=0&per_page=50
+Response: { files: [...], cursor: "abc123" }
+
+Next page: GET /files/list?parent_id=0&per_page=50&cursor=abc123
+Last page: { files: [...], cursor: null }
+```
+
+### Implementation
+- **Infinite scroll** on all list screens (files, search results, history, trash)
+- Load first page on screen mount
+- Load next page when user scrolls within 5 items of the bottom
+- Show inline loading indicator at bottom of list while fetching next page
+- Keep all loaded pages in memory (append, don't replace)
+- `per_page` default: 50 (tunable via remote config)
+- On error loading next page: show inline "Load more" retry button at bottom, don't break existing list
+
+### Platform notes
+- tvOS: `List` with `.onAppear` on a sentinel item near the bottom triggers next page
+- Android TV: `LazyColumn` with `LazyListState` monitoring last visible index
+- Both: D-pad scrolling should feel smooth — prefetch aggressively
+
+### Cursor usage
+- Cursor is opaque — don't parse or store it beyond the current session
+- Cursor is also used for bulk operations (e.g., "restore all trash" sends cursor instead of individual IDs)
+- On sort change: reset cursor, reload from page 1
+
+---
+
 ## API Dependencies
 
 | Endpoint | Used by |
