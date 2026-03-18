@@ -1,4 +1,4 @@
-# put.io Design System
+# put.io Design Exploration
 
 ## Quick start
 

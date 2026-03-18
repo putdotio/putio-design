@@ -1,4 +1,4 @@
-# put.io Design System
+# put.io Design Exploration
 
 Design exploration for [put.io](https://put.io) — a cloud storage and transfer service across every platform.
 
