@@ -43,7 +43,7 @@ Web · iOS · Android · tvOS · Android TV · Roku · watchOS · visionOS · CL
 {platform}-{screen}-{variant}-{iteration}.html
 ```
 
-`-v3` suffix = latest iteration. Start there.
+`-v3` suffix = latest iteration. Start there
 
 ## Context
 
