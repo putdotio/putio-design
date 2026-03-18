@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>put.io -- iOS Files v14 Wire</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000;
+    --text: #EEEEF0;
+    --text-2: rgba(255,255,255,0.45);
+    --text-3: rgba(255,255,255,0.25);
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.1);
+    --stroke: rgba(255,255,255,0.12);
+    --stroke-yellow: rgba(253,206,69,0.25);
+  }
+  body {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .phone {
+    width: 390px; height: 844px; overflow: hidden;
+    display: flex; flex-direction: column; position: relative;
+    background: var(--bg);
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 14px 24px 8px;
+    font-size: 14px; font-weight: 500; height: 54px; flex-shrink: 0;
+  }
+  .status-bar .time { flex: 1; color: var(--text); letter-spacing: 0.02em; }
+  .status-bar .icons { display: flex; align-items: center; gap: 6px; }
+
+  /* Nav Bar */
+  .nav-bar {
+    display: flex; align-items: center; padding: 8px 20px 16px; flex-shrink: 0;
+    border-bottom: 1px solid var(--stroke);
+  }
+  .nav-title {
+    font-size: 28px; font-weight: 700; flex: 1;
+    letter-spacing: -0.02em;
+    color: var(--yellow);
+  }
+  .nav-action {
+    width: 38px; height: 38px;
+    border: 1px solid var(--stroke-yellow);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    background: none;
+  }
+
+  /* Search */
+  .search-bar {
+    margin: 16px 20px; padding: 10px 14px;
+    background: none;
+    border: 1px solid var(--stroke);
+    border-radius: 8px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; font-weight: 400; color: var(--text-3); flex-shrink: 0;
+  }
+
+  /* Transfer Card */
+  .transfer-card {
+    margin: 0 20px 16px; padding: 14px;
+    background: none;
+    border: 1px solid var(--stroke-yellow);
+    border-radius: 8px; flex-shrink: 0;
+  }
+  .transfer-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .transfer-indicator {
+    width: 8px; height: 8px;
+    border: 1.5px solid var(--yellow);
+    border-radius: 50%;
+  }
+  .transfer-name { flex: 1; font-size: 12px; font-weight: 500; color: var(--text); }
+  .transfer-pct { font-size: 13px; font-weight: 700; color: var(--yellow); font-variant-numeric: tabular-nums; }
+  .progress-track { height: 1px; background: var(--stroke); overflow: hidden; }
+  .progress-fill { height: 100%; width: 63%; background: var(--yellow); }
+  .transfer-meta { font-size: 11px; color: var(--text-3); margin-top: 8px; letter-spacing: 0.01em; }
+
+  /* File List */
+  .file-list { flex: 1; overflow-y: auto; padding: 0 20px 8px; }
+
+  .section-label {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--text-3);
+    padding: 12px 0 8px;
+  }
+
+  .file-group {
+    border: 1px solid var(--stroke);
+    border-radius: 8px; overflow: hidden; margin-bottom: 16px;
+  }
+
+  .file-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--stroke);
+  }
+  .file-row:last-child { border-bottom: none; }
+
+  .file-icon {
+    width: 36px; height: 36px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px;
+    border: 1px solid var(--stroke);
+  }
+  .file-icon.folder { border-color: var(--stroke-yellow); }
+
+  .file-info { flex: 1; min-width: 0; }
+  .file-name {
+    font-size: 13px; font-weight: 500; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .file-meta { font-size: 11px; font-weight: 400; color: var(--text-3); margin-top: 2px; }
+  .file-size { font-size: 11px; font-weight: 500; color: var(--text-3); flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex; background: var(--bg);
+    border-top: 1px solid var(--stroke);
+    padding: 6px 0 34px; flex-shrink: 0;
+  }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font-size: 9px; font-weight: 500; color: var(--text-3); padding: 4px 0;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .tab-item.active { color: var(--yellow); }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+        <rect x="0" y="8" width="3" height="4" rx="0.5" stroke="white" stroke-opacity="0.5" fill="none"/>
+        <rect x="4.5" y="5" width="3" height="7" rx="0.5" stroke="white" stroke-opacity="0.5" fill="none"/>
+        <rect x="9" y="2" width="3" height="10" rx="0.5" stroke="white" stroke-opacity="0.5" fill="none"/>
+        <rect x="13.5" y="0" width="3" height="12" rx="0.5" stroke="white" fill="none"/>
+      </svg>
+      <svg width="27" height="13" viewBox="0 0 27 13" fill="none">
+        <rect x="0.5" y="0.5" width="23" height="12" rx="2" stroke="white" stroke-opacity="0.35"/>
+        <rect x="2" y="2" width="18" height="9" rx="1" stroke="white" stroke-opacity="0.5" fill="none"/>
+        <rect x="25" y="4" width="2" height="5" fill="white" fill-opacity="0.4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav-bar">
+    <h1 class="nav-title">files_</h1>
+    <div class="nav-action">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 1v14M1 8h14" stroke="#FDCE45" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <circle cx="5.5" cy="5.5" r="4.5" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+      <path d="M9.5 9.5l3 3" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-linecap="round"/>
+    </svg>
+    grep --files
+  </div>
+
+  <!-- Transfer -->
+  <div class="transfer-card">
+    <div class="transfer-header">
+      <div class="transfer-indicator"></div>
+      <span class="transfer-name">inception_2160p.mkv</span>
+      <span class="transfer-pct">63%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill"></div></div>
+    <div class="transfer-meta">12.4 MB/s -- eta 23m</div>
+  </div>
+
+  <!-- File List -->
+  <div class="file-list">
+    <div class="section-label">// directories</div>
+    <div class="file-group">
+      <div class="file-row">
+        <div class="file-icon folder">
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+            <path d="M1 1h5l2 2h9v10H1z" stroke="#FDCE45" stroke-width="1" fill="none"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Movies/</div>
+          <div class="file-meta">24 items -- 142 GB</div>
+        </div>
+        <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(253,206,69,0.3)" stroke-width="1" stroke-linecap="round"/></svg>
+      </div>
+      <div class="file-row">
+        <div class="file-icon folder">
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+            <path d="M1 1h5l2 2h9v10H1z" stroke="#FDCE45" stroke-width="1" fill="none"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">TV_Shows/</div>
+          <div class="file-meta">156 items -- 89 GB</div>
+        </div>
+        <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(253,206,69,0.3)" stroke-width="1" stroke-linecap="round"/></svg>
+      </div>
+      <div class="file-row">
+        <div class="file-icon folder">
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+            <path d="M1 1h5l2 2h9v10H1z" stroke="#FDCE45" stroke-width="1" fill="none"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Music/</div>
+          <div class="file-meta">2,841 items -- 18 GB</div>
+        </div>
+        <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(253,206,69,0.3)" stroke-width="1" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+
+    <div class="section-label">// recent</div>
+    <div class="file-group">
+      <div class="file-row">
+        <div class="file-icon">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+            <rect x="0.5" y="0.5" width="15" height="11" rx="1.5" stroke="rgba(255,255,255,0.25)" fill="none"/>
+            <polygon points="6,3 11,6 6,9" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" fill="none"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">blade_runner_2049.mkv</div>
+          <div class="file-meta">2h ago</div>
+        </div>
+        <span class="file-size">4.2G</span>
+      </div>
+      <div class="file-row">
+        <div class="file-icon">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+            <rect x="0.5" y="0.5" width="15" height="11" rx="1.5" stroke="rgba(255,255,255,0.25)" fill="none"/>
+            <polygon points="6,3 11,6 6,9" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" fill="none"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">the_bear_s03e08.mp4</div>
+          <div class="file-meta">1d ago</div>
+        </div>
+        <span class="file-size">1.8G</span>
+      </div>
+      <div class="file-row">
+        <div class="file-icon">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+            <rect x="0.5" y="0.5" width="15" height="11" rx="1.5" stroke="rgba(255,255,255,0.25)" fill="none"/>
+            <polygon points="6,3 11,6 6,9" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" fill="none"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">dune_part_two.mkv</div>
+          <div class="file-meta">3d ago</div>
+        </div>
+        <span class="file-size">6.1G</span>
+      </div>
+      <div class="file-row">
+        <div class="file-icon">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+            <rect x="0.5" y="0.5" width="15" height="11" rx="1.5" stroke="rgba(255,255,255,0.25)" fill="none"/>
+            <polygon points="6,3 11,6 6,9" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" fill="none"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">severance_s02e10.mp4</div>
+          <div class="file-meta">7d ago</div>
+        </div>
+        <span class="file-size">2.3G</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item active">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <path d="M2 6h6l2 2h10v11H2z" stroke="#FDCE45" stroke-width="1.2" fill="none"/>
+      </svg>
+      files
+    </div>
+    <div class="tab-item">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <path d="M12 2l-2 7h5l-3 11 2-7H9l3-11z" stroke="rgba(255,255,255,0.25)" stroke-width="1.2" fill="none"/>
+      </svg>
+      xfers
+    </div>
+    <div class="tab-item">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <path d="M11 4v11M7 11l4 4 4-4" stroke="rgba(255,255,255,0.25)" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M4 17h14" stroke="rgba(255,255,255,0.25)" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      down
+    </div>
+    <div class="tab-item">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <circle cx="11" cy="11" r="3" stroke="rgba(255,255,255,0.25)" stroke-width="1.2"/>
+        <path d="M11 3v2M11 17v2M3 11h2M17 11h2" stroke="rgba(255,255,255,0.25)" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      conf
+    </div>
+  </div>
+</div>
+</body>
+</html>

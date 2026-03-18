@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io — Tabbed File Manager (Clean)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113;
+    --bg-2: #19191B;
+    --bg-3: #222225;
+    --border: #4B4B52;
+    --border-subtle: #2E2E33;
+    --text: #EEEEF0;
+    --text-2: #ABABB2;
+    --text-3: #76767E;
+    --yellow: #FDCE45;
+    --green: #30A46C;
+    --red: #E5484D;
+    --blue: #3B82F6;
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .app {
+    width: 1440px;
+    height: 900px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex;
+    align-items: flex-end;
+    background: var(--bg);
+    padding: 0 8px;
+    height: 42px;
+    border-bottom: 1px solid var(--border-subtle);
+    gap: 1px;
+    flex-shrink: 0;
+  }
+  .tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    height: 36px;
+    border-radius: 8px 8px 0 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-2);
+    cursor: pointer;
+    position: relative;
+    background: transparent;
+    transition: background 0.15s, color 0.15s;
+    min-width: 120px;
+    max-width: 220px;
+  }
+  .tab:hover { background: var(--bg-2); color: var(--text); }
+  .tab.active {
+    background: var(--bg-2);
+    color: var(--text);
+  }
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    background: var(--yellow);
+    border-radius: 2px 2px 0 0;
+  }
+  .tab-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+  .tab-label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tab-close {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.15s;
+    flex-shrink: 0;
+  }
+  .tab:hover .tab-close,
+  .tab.active .tab-close { opacity: 0.5; }
+  .tab-close:hover { opacity: 1 !important; background: var(--bg-3); }
+  .tab-close svg { width: 10px; height: 10px; }
+  .tab-new {
+    width: 32px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-3);
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+    flex-shrink: 0;
+  }
+  .tab-new:hover { color: var(--text-2); background: var(--bg-2); }
+  .tab-new svg { width: 14px; height: 14px; }
+
+  /* Breadcrumb / Toolbar */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 44px;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--border-subtle);
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .nav-buttons {
+    display: flex;
+    gap: 2px;
+  }
+  .nav-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: var(--text-2);
+    cursor: pointer;
+  }
+  .nav-btn:hover { background: var(--bg-3); color: var(--text); }
+  .nav-btn.disabled { color: var(--text-3); cursor: default; }
+  .nav-btn svg { width: 14px; height: 14px; }
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    flex: 1;
+  }
+  .breadcrumb-item {
+    color: var(--text-2);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .breadcrumb-item:hover { background: var(--bg-3); color: var(--text); }
+  .breadcrumb-item.current { color: var(--text); font-weight: 500; }
+  .breadcrumb-sep { color: var(--text-3); font-size: 11px; }
+  .toolbar-actions {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .toolbar-btn {
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-2);
+    cursor: pointer;
+    border: 1px solid var(--border-subtle);
+    background: transparent;
+  }
+  .toolbar-btn:hover { background: var(--bg-3); color: var(--text); border-color: var(--border); }
+  .toolbar-btn svg { width: 14px; height: 14px; }
+  .toolbar-btn.primary {
+    background: var(--yellow);
+    color: #111113;
+    border-color: var(--yellow);
+  }
+  .toolbar-btn.primary:hover { filter: brightness(1.1); }
+  .view-toggle {
+    display: flex;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .view-btn {
+    width: 28px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-3);
+    cursor: pointer;
+  }
+  .view-btn.active { background: var(--bg-3); color: var(--text); }
+  .view-btn svg { width: 14px; height: 14px; }
+
+  /* Split Pane Container */
+  .pane-container {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+  .pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+  }
+  .pane-header {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 36px;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .pane-header svg { width: 14px; height: 14px; color: var(--yellow); }
+  .pane-header .count {
+    color: var(--text-3);
+    font-weight: 400;
+    margin-left: auto;
+  }
+  .split-handle {
+    width: 5px;
+    background: var(--border-subtle);
+    cursor: col-resize;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .split-handle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 3px;
+    height: 40px;
+    border-radius: 2px;
+    background: var(--text-3);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .split-handle:hover::after { opacity: 1; }
+
+  /* File List */
+  .file-list {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--bg-2);
+  }
+  .file-list-header {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 32px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--border-subtle);
+    position: sticky;
+    top: 0;
+    background: var(--bg-2);
+    z-index: 1;
+  }
+  .file-list-header .col-name { flex: 1; }
+  .file-list-header .col-size { width: 80px; text-align: right; }
+  .file-list-header .col-date { width: 120px; text-align: right; }
+  .file-list-header .col-type { width: 80px; text-align: right; }
+
+  .file-row {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 40px;
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+    transition: background 0.1s;
+  }
+  .file-row:hover { background: var(--bg-3); }
+  .file-row.selected { background: rgba(253, 206, 69, 0.08); }
+  .file-row.dragging { opacity: 0.5; }
+
+  .file-check {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .file-row.selected .file-check {
+    background: var(--yellow);
+    border-color: var(--yellow);
+  }
+  .file-row.selected .file-check svg { display: block; }
+  .file-check svg { display: none; width: 10px; height: 10px; color: #111113; }
+
+  .file-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .file-icon svg { width: 18px; height: 18px; }
+  .file-icon.folder svg { color: var(--yellow); }
+  .file-icon.video svg { color: var(--blue); }
+  .file-icon.audio svg { color: var(--green); }
+  .file-icon.image svg { color: #A78BFA; }
+  .file-icon.archive svg { color: var(--text-2); }
+  .file-icon.doc svg { color: #F97316; }
+
+  .file-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .file-name {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .file-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+  .badge-4k { background: rgba(253, 206, 69, 0.15); color: var(--yellow); }
+  .badge-1080p { background: rgba(59, 130, 246, 0.15); color: var(--blue); }
+  .badge-720p { background: rgba(48, 164, 108, 0.15); color: var(--green); }
+  .badge-hdr { background: rgba(167, 139, 250, 0.15); color: #A78BFA; }
+  .badge-flac { background: rgba(48, 164, 108, 0.15); color: var(--green); }
+  .badge-hevc { background: rgba(249, 115, 22, 0.15); color: #F97316; }
+
+  .file-size {
+    width: 80px;
+    text-align: right;
+    font-size: 12px;
+    color: var(--text-2);
+    flex-shrink: 0;
+  }
+  .file-date {
+    width: 120px;
+    text-align: right;
+    font-size: 12px;
+    color: var(--text-3);
+    flex-shrink: 0;
+  }
+
+  /* Bottom Bar */
+  .bottom-bar {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 32px;
+    background: var(--bg);
+    border-top: 1px solid var(--border-subtle);
+    font-size: 11px;
+    color: var(--text-3);
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .bottom-bar .segment {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .bottom-bar svg { width: 12px; height: 12px; }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+  .transfer-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .transfer-progress {
+    width: 120px;
+    height: 3px;
+    background: var(--bg-3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .transfer-progress-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+    width: 68%;
+  }
+  .spacer { flex: 1; }
+  .storage-bar {
+    width: 80px;
+    height: 3px;
+    background: var(--bg-3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .storage-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+    width: 42%;
+  }
+  .shortcuts {
+    display: flex;
+    gap: 12px;
+    font-size: 10px;
+    color: var(--text-3);
+  }
+  .shortcut {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .kbd {
+    background: var(--bg-3);
+    border: 1px solid var(--border-subtle);
+    border-radius: 3px;
+    padding: 0 4px;
+    font-size: 9px;
+    font-family: 'Inter', sans-serif;
+    line-height: 16px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab active">
+      <svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4.5V12a1.5 1.5 0 001.5 1.5h9A1.5 1.5 0 0014 12V6.5A1.5 1.5 0 0012.5 5H8L6.5 3H3.5A1.5 1.5 0 002 4.5z"/></svg>
+      <span class="tab-label">downloads</span>
+      <span class="tab-close"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l6 6M8 2l-6 6"/></svg></span>
+    </div>
+    <div class="tab">
+      <svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4.5V12a1.5 1.5 0 001.5 1.5h9A1.5 1.5 0 0014 12V6.5A1.5 1.5 0 0012.5 5H8L6.5 3H3.5A1.5 1.5 0 002 4.5z"/></svg>
+      <span class="tab-label">stuff</span>
+      <span class="tab-close"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l6 6M8 2l-6 6"/></svg></span>
+    </div>
+    <div class="tab">
+      <svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4.5V12a1.5 1.5 0 001.5 1.5h9A1.5 1.5 0 0014 12V6.5A1.5 1.5 0 0012.5 5H8L6.5 3H3.5A1.5 1.5 0 002 4.5z"/></svg>
+      <span class="tab-label">__dev__</span>
+      <span class="tab-close"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l6 6M8 2l-6 6"/></svg></span>
+    </div>
+    <div class="tab">
+      <svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7.5l2.5 2.5L10 5"/><circle cx="8" cy="8" r="6"/></svg>
+      <span class="tab-label">Items shared with you</span>
+      <span class="tab-close"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l6 6M8 2l-6 6"/></svg></span>
+    </div>
+    <div class="tab-new">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2v10M2 7h10"/></svg>
+    </div>
+  </div>
+
+  <!-- Toolbar / Breadcrumb -->
+  <div class="toolbar">
+    <div class="nav-buttons">
+      <div class="nav-btn disabled"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2L4 7l5 5"/></svg></div>
+      <div class="nav-btn"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2l5 5-5 5"/></svg></div>
+    </div>
+    <div class="breadcrumb">
+      <span class="breadcrumb-item">Your Files</span>
+      <span class="breadcrumb-sep"><svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2.5 1l3 3-3 3"/></svg></span>
+      <span class="breadcrumb-item current">downloads</span>
+    </div>
+    <div class="toolbar-actions">
+      <div class="view-toggle">
+        <div class="view-btn active"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 3h10M2 7h10M2 11h10"/></svg></div>
+        <div class="view-btn"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="2" width="4" height="4" rx="1"/><rect x="8" y="2" width="4" height="4" rx="1"/><rect x="2" y="8" width="4" height="4" rx="1"/><rect x="8" y="8" width="4" height="4" rx="1"/></svg></div>
+      </div>
+      <div class="toolbar-btn">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="4" height="10" rx="1"/><rect x="8" y="2" width="4" height="10" rx="1"/></svg>
+        Split
+      </div>
+      <div class="toolbar-btn">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="4"/><path d="M9 9l3 3"/></svg>
+        Search
+      </div>
+      <div class="toolbar-btn primary">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2v10M2 7h10"/></svg>
+        Upload
+      </div>
+    </div>
+  </div>
+
+  <!-- Split Pane Content -->
+  <div class="pane-container">
+    <!-- Left Pane: downloads -->
+    <div class="pane">
+      <div class="pane-header">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 3.5V10.5a1.5 1.5 0 001.5 1.5h8a1.5 1.5 0 001.5-1.5V5.5a1.5 1.5 0 00-1.5-1.5H7L5.5 2.5H3A1.5 1.5 0 001.5 3.5z"/></svg>
+        downloads
+        <span class="count">8 items</span>
+      </div>
+      <div class="file-list">
+        <div class="file-list-header">
+          <span class="col-name">Name</span>
+          <span class="col-size">Size</span>
+          <span class="col-date">Modified</span>
+        </div>
+        <div class="file-row selected">
+          <div class="file-check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          <div class="file-icon video"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="12" rx="2"/><path d="M8 8l5 3-5 3V8z" fill="currentColor" stroke="none"/></svg></div>
+          <div class="file-info">
+            <span class="file-name">Dune Part Two</span>
+            <span class="file-badge badge-4k">4K</span>
+            <span class="file-badge badge-hdr">HDR</span>
+          </div>
+          <span class="file-size">18.4 GB</span>
+          <span class="file-date">Mar 15</span>
+        </div>
+        <div class="file-row">
+          <div class="file-check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          <div class="file-icon video"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="12" rx="2"/><path d="M8 8l5 3-5 3V8z" fill="currentColor" stroke="none"/></svg></div>
+          <div class="file-info">
+            <span class="file-name">The Bear S03E01 - Tomorrow</span>
+            <span class="file-badge badge-1080p">1080p</span>
+            <span class="file-badge badge-hevc">HEVC</span>
+          </div>
+          <span class="file-size">4.2 GB</span>
+          <span class="file-date">Mar 14</span>
+        </div>
+        <div class="file-row">
+          <div class="file-check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          <div class="file-icon video"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="12" rx="2"/><path d="M8 8l5 3-5 3V8z" fill="currentColor" stroke="none"/></svg></div>
+          <div class="file-info">
+            <span class="file-name">The Bear S03E02 - Next</span>
+            <span class="file-badge badge-1080p">1080p</span>
+            <span class="file-badge badge-hevc">HEVC</span>
+          </div>
+          <span class="file-size">3.8 GB</span>
+          <span class="file-date">Mar 14</span>
+        </div>
+        <div class="file-row">
+          <div class="file-check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          <div class="file-icon audio"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="14" r="3"/><circle cx="15" cy="12" r="3"/><path d="M10 14V4l8-2v10"/></svg></div>
+          <div class="file-info">
+            <span class="file-name">Nils Frahm - All Melody</span>
+            <span class="file-badge badge-flac">FLAC</span>
+          </div>
+          <span class="file-size">890 MB</span>
+          <span class="file-date">Mar 12</span>
+        </div>
+        <div class="file-row">
+          <div class="file-check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          <div class="file-icon video"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="12" rx="2"/><path d="M8 8l5 3-5 3V8z" fill="currentColor" stroke="none"/></svg></div>
+          <div class="file-info">
+            <span class="file-name">Oppenheimer</span>
+            <span class="file-badge badge-4k">4K</span>
+          </div>
+          <span class="file-size">22.1 GB</span>
+          <span class="file-date">Mar 10</span>
+        </div>
+        <div class="file-row">
+          <div class="file-check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          <div class="file-icon folder"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5.5V15a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2H10L8 4H4a2 2 0 00-2 2z"/></svg></div>
+          <div class="file-info">
+            <span class="file-name">Severance S02</span>
+          </div>
+          <span class="file-size">38.6 GB</span>
+          <span class="file-date">Mar 8</span>
+        </div>
+        <div class="file-row">
+          <div class="file-check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          <div class="file-icon image"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="16" height="14" rx="2"/><circle cx="7" cy="8" r="2"/><path d="M2 14l4-4 3 3 3-3 6 6"/></svg></div>
+          <div class="file-info">
+            <span class="file-name">wallpapers-collection.zip</span>
+          </div>
+          <span class="file-size">245 MB</span>
+          <span class="file-date">Mar 5</span>
+        </div>
+        <div class="file-row">
+          <div class="file-check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          <div class="file-icon archive"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h12a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V4a2 2 0 012-2z"/><path d="M8 2v16M10 4h-2M10 8h-2M10 12h-2"/></svg></div>
+          <div class="file-info">
+            <span class="file-name">fonts-inter-v4.tar.gz</span>
+          </div>
+          <span class="file-size">12 MB</span>
+          <span class="file-date">Mar 1</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Split Handle -->
+    <div class="split-handle"></div>
+
+    <!-- Right Pane: stuff -->
+    <div class="pane">
+      <div class="pane-header">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 3.5V10.5a1.5 1.5 0 001.5 1.5h8a1.5 1.5 0 001.5-1.5V5.5a1.5 1.5 0 00-1.5-1.5H7L5.5 2.5H3A1.5 1.5 0 001.5 3.5z"/></svg>
+        stuff
+        <span class="count">6 items</span>
+      </div>
+      <div class="file-list">
+        <div class="file-list-header">
+          <span class="col-name">Name</span>
+          <span class="col-size">Size</span>
+          <span class="col-date">Modified</span>
+        </div>
+        <div class="file-row">
+          <div class="file-check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          <div class="file-icon folder"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5.5V15a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2H10L8 4H4a2 2 0 00-2 2z"/></svg></div>
+          <div class="file-info">
+            <span class="file-name">project-assets</span>
+          </div>
+          <span class="file-size">1.2 GB</span>
+          <span class="file-date">Mar 16</span>
+        </div>
+        <div class="file-row">
+          <div class="file-check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          <div class="file-icon doc"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2h7l4 4v10a2 2 0 01-2 2H5a2 2 0 01-2-2V4a2 2 0 012-2z"/><path d="M12 2v4h4"/><path d="M7 10h6M7 13h4"/></svg></div>
+          <div class="file-info">
+            <span class="file-name">meeting-notes-q1.pdf</span>
+          </div>
+          <span class="file-size">4.8 MB</span>
+          <span class="file-date">Mar 14</span>
+        </div>
+        <div class="file-row">
+          <div class="file-check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          <div class="file-icon video"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="12" rx="2"/><path d="M8 8l5 3-5 3V8z" fill="currentColor" stroke="none"/></svg></div>
+          <div class="file-info">
+            <span class="file-name">screen-recording-2024.mp4</span>
+            <span class="file-badge badge-720p">720p</span>
+          </div>
+          <span class="file-size">320 MB</span>
+          <span class="file-date">Mar 11</span>
+        </div>
+        <div class="file-row">
+          <div class="file-check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          <div class="file-icon image"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="16" height="14" rx="2"/><circle cx="7" cy="8" r="2"/><path d="M2 14l4-4 3 3 3-3 6 6"/></svg></div>
+          <div class="file-info">
+            <span class="file-name">vacation-photos.zip</span>
+          </div>
+          <span class="file-size">2.1 GB</span>
+          <span class="file-date">Mar 7</span>
+        </div>
+        <div class="file-row">
+          <div class="file-check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          <div class="file-icon audio"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="14" r="3"/><circle cx="15" cy="12" r="3"/><path d="M10 14V4l8-2v10"/></svg></div>
+          <div class="file-info">
+            <span class="file-name">podcast-ep42-final.mp3</span>
+          </div>
+          <span class="file-size">185 MB</span>
+          <span class="file-date">Mar 3</span>
+        </div>
+        <div class="file-row">
+          <div class="file-check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          <div class="file-icon archive"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h12a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V4a2 2 0 012-2z"/><path d="M8 2v16M10 4h-2M10 8h-2M10 12h-2"/></svg></div>
+          <div class="file-info">
+            <span class="file-name">backup-jan-2024.tar.gz</span>
+          </div>
+          <span class="file-size">8.4 GB</span>
+          <span class="file-date">Feb 28</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="bottom-bar">
+    <div class="segment">
+      <div class="status-dot"></div>
+      Connected
+    </div>
+    <div class="segment transfer-bar">
+      <svg viewBox="0 0 12 12" fill="none" stroke="var(--yellow)" stroke-width="1.5"><path d="M6 2v8M3 7l3 3 3-3"/></svg>
+      <span style="color: var(--text-2)">Downloading 2 files</span>
+      <div class="transfer-progress"><div class="transfer-progress-fill"></div></div>
+      <span>68%</span>
+      <span style="color: var(--text-2)">14.2 MB/s</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="shortcuts">
+      <div class="shortcut"><span class="kbd">Cmd+T</span> New tab</div>
+      <div class="shortcut"><span class="kbd">Cmd+W</span> Close</div>
+      <div class="shortcut"><span class="kbd">Cmd+[</span><span class="kbd">]</span> Switch</div>
+    </div>
+    <div class="segment">
+      <div class="storage-bar"><div class="storage-fill"></div></div>
+      42.3 / 100 GB
+    </div>
+  </div>
+</div>
+</body>
+</html>
