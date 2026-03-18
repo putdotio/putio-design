@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>put.io — Roku Files (Swiss)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0C0C0C;
+    --surface: #151515;
+    --border: #252525;
+    --text: #FFFFFF;
+    --text-2: #888888;
+    --text-3: #555555;
+    --yellow: #FDCE45;
+    --green: #4CC38A;
+  }
+  body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+  .tv-frame { width: 1280px; height: 720px; overflow: hidden; display: flex; flex-direction: column; }
+
+  /* Top Bar */
+  .top-bar {
+    display: flex; align-items: center;
+    padding: 28px 48px 0;
+    flex-shrink: 0;
+  }
+  .logo { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; }
+  .logo span { color: var(--yellow); }
+  .top-spacer { flex: 1; }
+  .top-bar-btn {
+    width: 44px; height: 44px;
+    background: transparent;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .top-bar-btn svg { width: 22px; height: 22px; fill: var(--text-2); }
+
+  /* Content */
+  .content { flex: 1; padding: 24px 48px 20px; display: flex; flex-direction: column; overflow: hidden; }
+
+  .page-header {
+    display: flex; align-items: baseline; margin-bottom: 16px;
+  }
+  .page-title { font-size: 42px; font-weight: 700; letter-spacing: -0.03em; }
+  .page-spacer { flex: 1; }
+  .page-count { font-size: 18px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+
+  /* Column headers */
+  .col-headers {
+    display: flex; align-items: center; gap: 16px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px; font-weight: 500; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.12em;
+    margin-bottom: 4px; flex-shrink: 0;
+  }
+  .col-headers .col-icon { width: 40px; flex-shrink: 0; }
+  .col-headers .col-name { flex: 1; }
+  .col-headers .col-size { width: 100px; text-align: right; flex-shrink: 0; }
+  .col-headers .col-arrow { width: 28px; flex-shrink: 0; }
+
+  /* File list */
+  .file-list { flex: 1; display: flex; flex-direction: column; gap: 1px; overflow: hidden; }
+
+  .file-row {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  .file-row:hover { background: var(--surface); }
+  .file-row.focused {
+    background: var(--surface);
+  }
+  .file-row.focused::before {
+    content: '';
+    display: block; width: 3px; height: 32px;
+    background: var(--yellow);
+    position: absolute; left: 48px;
+  }
+  .file-row { position: relative; }
+
+  .f-icon {
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .f-icon svg { width: 26px; height: 26px; }
+  .f-icon.folder svg { fill: var(--yellow); }
+  .f-icon.video svg { fill: var(--green); }
+  .f-icon.audio svg { fill: var(--text-2); }
+
+  .f-name {
+    flex: 1; font-size: 22px; font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .f-badge {
+    font-size: 13px; font-weight: 500; color: var(--text-2);
+    flex-shrink: 0;
+  }
+
+  .f-size {
+    font-size: 18px; color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0; width: 100px; text-align: right;
+  }
+
+  .f-chevron svg { width: 22px; height: 22px; fill: var(--text-3); }
+  .file-row.focused .f-chevron svg { fill: var(--text); }
+
+  /* Storage */
+  .storage-row {
+    display: flex; align-items: center; gap: 16px;
+    padding: 12px 20px 0;
+    flex-shrink: 0;
+  }
+  .storage-bar { flex: 1; height: 2px; background: var(--border); }
+  .storage-fill { height: 100%; background: var(--yellow); }
+  .storage-label { font-size: 14px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+
+  /* Footer */
+  .footer-hint {
+    display: flex; align-items: center; justify-content: center; gap: 28px;
+    padding: 12px 0 0; flex-shrink: 0;
+    font-size: 14px; color: var(--text-3);
+    letter-spacing: 0.04em;
+  }
+  .hint-key { display: inline-flex; align-items: center; gap: 6px; }
+  .key-box {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 28px; height: 24px; padding: 0 6px;
+    border: 1px solid var(--border);
+    font-size: 12px; font-weight: 500; color: var(--text-2);
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">put<span>.</span>io</div>
+    <div class="top-spacer"></div>
+    <div class="top-bar-btn">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <div class="page-header">
+      <div class="page-title">Files</div>
+      <div class="page-spacer"></div>
+      <div class="page-count">9 items</div>
+    </div>
+
+    <div class="col-headers">
+      <div class="col-icon"></div>
+      <div class="col-name">Name</div>
+      <div class="col-size">Size</div>
+      <div class="col-arrow"></div>
+    </div>
+
+    <div class="file-list">
+      <div class="file-row focused">
+        <div class="f-icon folder">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="f-name">downloads</div>
+        <div class="f-size">21.8 GB</div>
+        <div class="f-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+
+      <div class="file-row">
+        <div class="f-icon folder">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="f-name">TV Shows</div>
+        <div class="f-size">42.6 GB</div>
+        <div class="f-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+
+      <div class="file-row">
+        <div class="f-icon folder">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="f-name">Music</div>
+        <div class="f-size">18.4 GB</div>
+        <div class="f-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+
+      <div class="file-row">
+        <div class="f-icon folder">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="f-name">chill institute</div>
+        <div class="f-size">6.8 GB</div>
+        <div class="f-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+
+      <div class="file-row">
+        <div class="f-icon video">
+          <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+        </div>
+        <div class="f-name">Big.Buck.Bunny.2008.4K.x265.mkv</div>
+        <div class="f-badge">4K</div>
+        <div class="f-size">6.72 GB</div>
+        <div class="f-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+
+      <div class="file-row">
+        <div class="f-icon video">
+          <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+        </div>
+        <div class="f-name">Sintel.2010.1080p.BluRay.mp4</div>
+        <div class="f-badge">1080p</div>
+        <div class="f-size">4.21 GB</div>
+        <div class="f-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+
+      <div class="file-row">
+        <div class="f-icon video">
+          <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+        </div>
+        <div class="f-name">Tears.of.Steel.2012.720p.WEBRip.mkv</div>
+        <div class="f-badge">720p</div>
+        <div class="f-size">763 MB</div>
+        <div class="f-chevron"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+    </div>
+
+    <div class="storage-row">
+      <div class="storage-bar"><div class="storage-fill" style="width: 78%;"></div></div>
+      <div class="storage-label">39 / 50 TB</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-hint">
+      <span class="hint-key">
+        <span class="key-box">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+        </span>
+        <span class="key-box">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+        </span>
+        Browse
+      </span>
+      <span class="hint-key">
+        <span class="key-box">OK</span>
+        Open
+      </span>
+      <span class="hint-key">
+        <span class="key-box">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </span>
+        Back
+      </span>
+    </div>
+  </div>
+</div>
+</body>
+</html>
