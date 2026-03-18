@@ -491,18 +491,13 @@ function scaleFrame() {
   if (frame.classList.contains('frame-mobile') || frame.classList.contains('frame-android')) maxScale = 0.85;
   if (frame.classList.contains('frame-extension')) maxScale = 0.85;
   if (frame.classList.contains('frame-watch') || frame.classList.contains('frame-wearos')) maxScale = 0.9;
-  // Account for borders in available space
-  const scale = Math.min((availW - bw) / iw, (availH - bh) / ih, maxScale);
+  const scale = Math.min(availW / (iw + bw), availH / (ih + bh), maxScale);
 
-  // Size frame first, then scale iframe to fit exactly inside
-  const fw = Math.round(iw * scale);
-  const fh = Math.round(ih * scale);
-  frame.style.width = fw + 'px';
-  frame.style.height = fh + 'px';
-  // Scale iframe to match frame interior exactly
-  const innerScale = Math.min(fw / iw, fh / ih);
-  iframe.style.transform = `scale(${innerScale})`;
+  // Scale iframe inside the frame, size frame to match
+  iframe.style.transform = `scale(${scale})`;
   iframe.style.transformOrigin = '0 0';
+  frame.style.width = (iw * scale) + 'px';
+  frame.style.height = (ih * scale) + 'px';
 }
 
 function openModal(file) {
