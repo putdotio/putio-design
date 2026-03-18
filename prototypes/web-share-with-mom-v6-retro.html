@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Shared File (Retro)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #0A0A0A;
+    --bg-1: #0E0E0E;
+    --bg-2: #141414;
+    --bg-3: #1A1A1A;
+    --bg-4: #222222;
+    --bg-5: #2A2A2A;
+    --line: #2E2E2E;
+    --border: #444444;
+    --solid: #666666;
+    --text-2: #AAAAAA;
+    --text: #D0D0D0;
+    --white: #E8E8E8;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.08);
+    --yellow-border: rgba(253, 206, 69, 0.3);
+    --yellow-text-shadow: 0 0 8px rgba(253, 206, 69, 0.4), 0 0 2px rgba(253, 206, 69, 0.2);
+    --green: #30A46C;
+    --green-bright: #4CC38A;
+    --red: #E5484D;
+    --amber: #F0A030;
+    --font-pixel: 'Press Start 2P', monospace;
+    --font-body: 'Space Mono', 'Courier New', monospace;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg-0);
+    color: var(--text);
+    -webkit-font-smoothing: none;
+    image-rendering: pixelated;
+  }
+
+  .crt-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 1px,
+      rgba(0,0,0,0.06) 1px, rgba(0,0,0,0.06) 2px
+    );
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  @keyframes countdown-pulse {
+    0%, 100% { color: var(--amber); }
+    50% { color: var(--yellow); text-shadow: 0 0 8px rgba(253,206,69,0.5); }
+  }
+
+  .page {
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--bg-0);
+    position: relative;
+  }
+
+  /* Nav */
+  .nav {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 20px 60px;
+    border-bottom: 1px solid var(--yellow-border);
+    flex-shrink: 0;
+  }
+
+  .logo {
+    font-family: var(--font-pixel);
+    font-size: 12px;
+    color: var(--white);
+    text-shadow: var(--yellow-text-shadow);
+  }
+  .logo span { color: var(--yellow); }
+
+  .nav-spacer { flex: 1; }
+
+  .nav-link {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--solid);
+    text-decoration: none;
+    margin-left: 28px;
+  }
+  .nav-link:hover { color: var(--text); }
+
+  .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--yellow);
+    color: var(--bg-0);
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    padding: 10px 16px;
+    border: none;
+    cursor: pointer;
+    margin-left: 20px;
+    text-decoration: none;
+    text-shadow: none;
+  }
+
+  /* Main content */
+  .share-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 60px 0;
+    position: relative;
+  }
+
+  /* Pixel header */
+  .pixel-header {
+    font-family: var(--font-pixel);
+    font-size: 18px;
+    color: var(--yellow);
+    text-shadow: var(--yellow-text-shadow);
+    margin-bottom: 8px;
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+
+  .shared-by {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .shared-avatar {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .shared-text {
+    font-size: 11px;
+    color: var(--solid);
+  }
+  .shared-name { color: var(--text-2); font-weight: 700; }
+
+  /* Video preview */
+  .video-preview {
+    width: 760px;
+    background: var(--bg-1);
+    border: 2px solid var(--yellow-border);
+    margin-bottom: 20px;
+    flex-shrink: 0;
+  }
+
+  .video-canvas {
+    width: 100%;
+    height: 340px;
+    background: linear-gradient(135deg, #0A0A14 0%, #141428 50%, #0A1428 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .video-canvas::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(253,206,69,0.06) 0%, transparent 60%);
+  }
+
+  /* Pixel art play button */
+  .play-button {
+    width: 56px;
+    height: 56px;
+    background: var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+  }
+
+  .video-duration {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--yellow);
+    background: rgba(0,0,0,0.7);
+    padding: 6px 10px;
+    border: 1px solid var(--yellow-border);
+    text-shadow: var(--yellow-text-shadow);
+  }
+
+  /* File info */
+  .file-info {
+    width: 760px;
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 16px;
+  }
+
+  .file-details { flex: 1; }
+
+  .file-title {
+    font-family: var(--font-pixel);
+    font-size: 11px;
+    color: var(--white);
+    margin-bottom: 10px;
+    line-height: 1.6;
+  }
+
+  .file-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--solid);
+  }
+
+  .quality-tag {
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--bg-0);
+    background: var(--yellow);
+    padding: 3px 8px;
+  }
+
+  .meta-sep { color: var(--border); }
+
+  .file-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  /* Block download button */
+  .download-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--yellow);
+    color: var(--bg-0);
+    font-family: var(--font-pixel);
+    font-size: 9px;
+    padding: 14px 28px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+    text-shadow: none;
+  }
+
+  .download-btn:hover {
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+    transform: translate(2px, 2px);
+  }
+
+  .stream-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: transparent;
+    color: var(--text-2);
+    font-family: var(--font-body);
+    font-size: 11px;
+    padding: 10px 28px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+  }
+
+  /* Pixel countdown timer */
+  .countdown-bar {
+    width: 760px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    margin-bottom: 20px;
+  }
+
+  .countdown-label {
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--solid);
+    letter-spacing: 0.05em;
+  }
+
+  .countdown-time {
+    font-family: var(--font-pixel);
+    font-size: 10px;
+    color: var(--amber);
+    animation: countdown-pulse 2s ease-in-out infinite;
+    letter-spacing: 0.05em;
+  }
+
+  .countdown-spacer { flex: 1; }
+
+  /* Block progress bar */
+  .block-bar {
+    display: flex;
+    gap: 3px;
+    height: 10px;
+  }
+  .block {
+    width: 12px;
+    height: 100%;
+    background: var(--bg-5);
+  }
+  .block.filled { background: var(--amber); }
+  .block.filled-yellow { background: var(--yellow); box-shadow: 0 0 4px rgba(253,206,69,0.3); }
+
+  /* Pitch section */
+  .pitch-section {
+    width: 760px;
+    background: var(--bg-1);
+    border: 1px solid var(--yellow-border);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .pitch-icon {
+    flex-shrink: 0;
+  }
+
+  .pitch-content { flex: 1; }
+  .pitch-title {
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--yellow);
+    margin-bottom: 6px;
+    line-height: 1.6;
+    text-shadow: var(--yellow-text-shadow);
+  }
+  .pitch-desc {
+    font-size: 11px;
+    color: var(--solid);
+    line-height: 1.5;
+  }
+
+  .pitch-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    color: var(--yellow);
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    padding: 10px 16px;
+    border: 1px solid var(--yellow-border);
+    cursor: pointer;
+    flex-shrink: 0;
+    text-decoration: none;
+  }
+
+  /* Footer */
+  .share-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 60px;
+    font-size: 10px;
+    color: var(--solid);
+    gap: 16px;
+    flex-shrink: 0;
+    border-top: 1px solid var(--line);
+    width: 100%;
+  }
+
+  .footer-sep { color: var(--border); }
+
+  .share-footer a {
+    color: var(--text-2);
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+<div class="crt-overlay"></div>
+<div class="page">
+
+  <!-- Nav -->
+  <div class="nav">
+    <div class="logo">put<span>.</span>io</div>
+    <div class="nav-spacer"></div>
+    <a class="nav-link" href="#">What is put.io?</a>
+    <a class="nav-link" href="#">Pricing</a>
+    <a class="nav-cta" href="#">SIGN UP</a>
+  </div>
+
+  <!-- Content -->
+  <div class="share-content">
+
+    <div class="pixel-header">SHARED FILE</div>
+
+    <div class="shared-by">
+      <div class="shared-avatar">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="var(--yellow)">
+          <rect x="3" y="2" width="2" height="2"/><rect x="11" y="2" width="2" height="2"/>
+          <rect x="5" y="4" width="6" height="2"/><rect x="3" y="6" width="10" height="2"/>
+          <rect x="1" y="8" width="14" height="2"/>
+          <rect x="3" y="10" width="2" height="2"/><rect x="11" y="10" width="2" height="2"/>
+        </svg>
+      </div>
+      <span class="shared-text"><span class="shared-name">altay</span> shared a file with you</span>
+    </div>
+
+    <!-- Video preview -->
+    <div class="video-preview">
+      <div class="video-canvas">
+        <!-- Pixel terrain -->
+        <svg style="position:absolute;bottom:0;left:0;right:0;height:100px;" viewBox="0 0 760 100" preserveAspectRatio="none">
+          <rect x="0" y="60" width="760" height="40" fill="rgba(253,206,69,0.03)"/>
+          <rect x="0" y="70" width="100" height="30" fill="rgba(253,206,69,0.04)"/>
+          <rect x="150" y="50" width="80" height="50" fill="rgba(253,206,69,0.04)"/>
+          <rect x="300" y="55" width="120" height="45" fill="rgba(253,206,69,0.03)"/>
+          <rect x="500" y="45" width="60" height="55" fill="rgba(253,206,69,0.05)"/>
+          <rect x="620" y="65" width="140" height="35" fill="rgba(253,206,69,0.03)"/>
+        </svg>
+        <div class="play-button">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#0A0A0A">
+            <polygon points="8,4 20,12 8,20"/>
+          </svg>
+        </div>
+        <span class="video-duration">02:46:33</span>
+      </div>
+    </div>
+
+    <!-- File info -->
+    <div class="file-info">
+      <div class="file-details">
+        <div class="file-title">Dune: Part Two (2024)</div>
+        <div class="file-meta">
+          <span class="quality-tag">4K</span>
+          <span>WEB-DL</span>
+          <span class="meta-sep">|</span>
+          <span>x265 HEVC</span>
+          <span class="meta-sep">|</span>
+          <span>36.2 GB</span>
+          <span class="meta-sep">|</span>
+          <span>2h 46m</span>
+        </div>
+      </div>
+      <div class="file-actions">
+        <button class="download-btn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--bg-0)">
+            <rect x="1" y="12" width="14" height="2"/>
+            <rect x="7" y="2" width="2" height="8"/>
+            <rect x="5" y="8" width="2" height="2"/>
+            <rect x="9" y="8" width="2" height="2"/>
+          </svg>
+          DOWNLOAD
+        </button>
+        <button class="stream-btn">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polygon points="5,3 13,8 5,13"/>
+          </svg>
+          Stream in browser
+        </button>
+      </div>
+    </div>
+
+    <!-- Pixel countdown timer -->
+    <div class="countdown-bar">
+      <span class="countdown-label">EXPIRES IN:</span>
+      <span class="countdown-time">47:23:00</span>
+      <span class="countdown-spacer"></span>
+      <div class="block-bar">
+        <div class="block filled-yellow"></div>
+        <div class="block filled-yellow"></div>
+        <div class="block filled-yellow"></div>
+        <div class="block filled"></div>
+        <div class="block filled"></div>
+        <div class="block filled"></div>
+        <div class="block filled"></div>
+        <div class="block"></div>
+        <div class="block"></div>
+        <div class="block"></div>
+      </div>
+    </div>
+
+    <!-- Pitch -->
+    <div class="pitch-section">
+      <div class="pitch-icon">
+        <!-- Pixel lightning -->
+        <svg width="28" height="28" viewBox="0 0 16 16" fill="var(--yellow)">
+          <rect x="7" y="0" width="4" height="2"/>
+          <rect x="6" y="2" width="4" height="2"/>
+          <rect x="5" y="4" width="4" height="2"/>
+          <rect x="4" y="6" width="8" height="2"/>
+          <rect x="7" y="8" width="4" height="2"/>
+          <rect x="8" y="10" width="2" height="2"/>
+          <rect x="7" y="12" width="2" height="2"/>
+          <rect x="6" y="14" width="2" height="2"/>
+        </svg>
+      </div>
+      <div class="pitch-content">
+        <div class="pitch-title">WANT INSTANT ACCESS?</div>
+        <div class="pitch-desc">put.io fetches, stores, and streams any file from the cloud. No waiting, no limits.</div>
+      </div>
+      <a class="pitch-cta" href="#">LEARN MORE ></a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="share-footer">
+    <span>put.io</span>
+    <span class="footer-sep">|</span>
+    <span>Istanbul</span>
+    <span class="footer-sep">|</span>
+    <span>Since 2011</span>
+    <span class="footer-sep">|</span>
+    <a href="#">Privacy</a>
+    <span class="footer-sep">|</span>
+    <a href="#">Terms</a>
+  </div>
+
+</div>
+</body>
+</html>
