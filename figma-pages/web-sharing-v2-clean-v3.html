@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>put.io -- Sharing v3 (Generous Sharing)</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #09090B;
+    --bg-1: #0F0F12;
+    --bg-2: #141418;
+    --bg-3: #1A1A1F;
+    --bg-4: #212127;
+    --bg-5: #28282F;
+    --bg-hover: rgba(255, 255, 255, 0.03);
+    --bg-hover-strong: rgba(255, 255, 255, 0.05);
+
+    --border-subtle: rgba(255, 255, 255, 0.05);
+    --border-default: rgba(255, 255, 255, 0.07);
+    --border-strong: rgba(255, 255, 255, 0.10);
+
+    --text-primary: #F0F0F2;
+    --text-secondary: #A1A1AA;
+    --text-tertiary: #71717A;
+    --text-quaternary: #52525B;
+    --text-quinary: #3F3F46;
+
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.08);
+    --yellow-hover: rgba(253, 206, 69, 0.12);
+    --yellow-glow: rgba(253, 206, 69, 0.06);
+
+    --green: #34D399;
+    --green-dim: rgba(52, 211, 153, 0.10);
+    --red: #F87171;
+    --red-dim: rgba(248, 113, 113, 0.10);
+    --blue: #60A5FA;
+    --blue-dim: rgba(96, 165, 250, 0.10);
+    --purple: #A78BFA;
+    --purple-dim: rgba(167, 139, 250, 0.10);
+    --amber: #FBBF24;
+    --amber-dim: rgba(251, 191, 36, 0.10);
+    --pink: #F472B6;
+    --pink-dim: rgba(244, 114, 182, 0.10);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-0);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' 1, 'ss01' 1, 'cv01' 1;
+  }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 56px; background: var(--bg-1);
+    border-right: 1px solid var(--border-subtle);
+    display: flex; flex-direction: column; align-items: center;
+    flex-shrink: 0; padding: 16px 0 12px; gap: 2px;
+  }
+  .sidebar-logo {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px; cursor: pointer;
+  }
+  .sidebar-icon {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border: none; background: none; color: var(--text-quaternary);
+    cursor: pointer; border-radius: 8px;
+    transition: color 0.15s ease, background 0.15s ease;
+    position: relative;
+  }
+  .sidebar-icon:hover { color: var(--text-secondary); background: var(--bg-hover-strong); }
+  .sidebar-icon.active { color: var(--text-primary); background: var(--bg-3); }
+  .sidebar-icon.active::before {
+    content: ''; position: absolute; left: -10px; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 16px; background: var(--yellow); border-radius: 0 2px 2px 0;
+  }
+  .sidebar-icon svg { display: block; }
+  .sidebar-icon .notif {
+    position: absolute; top: 4px; right: 4px;
+    width: 8px; height: 8px; background: var(--yellow);
+    border-radius: 50%; border: 2px solid var(--bg-1);
+  }
+  .sidebar-spacer { flex: 1; }
+  .sidebar-avatar {
+    width: 32px; height: 32px; background: var(--bg-4); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .sidebar-avatar:hover { background: var(--bg-5); }
+
+  /* ===== MAIN ===== */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Command bar */
+  .command-bar-area {
+    display: flex; align-items: center; padding: 12px 24px;
+    background: var(--bg-1); border-bottom: 1px solid var(--border-subtle);
+  }
+  .command-trigger {
+    flex: 1; display: flex; align-items: center; gap: 10px;
+    background: var(--bg-2); border: 1px solid var(--border-default);
+    border-radius: 10px; padding: 8px 14px; cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease; max-width: 560px;
+  }
+  .command-trigger:hover { border-color: var(--border-strong); background: var(--bg-3); }
+  .command-trigger-icon { color: var(--text-quaternary); display: flex; align-items: center; flex-shrink: 0; }
+  .command-trigger-text { font-size: 13px; color: var(--text-quaternary); flex: 1; font-family: inherit; letter-spacing: -0.01em; }
+  .key-badge {
+    font-size: 10px; color: var(--text-quinary); background: var(--bg-4);
+    padding: 2px 6px; border-radius: 4px; font-family: 'SF Mono', 'Menlo', monospace;
+    line-height: 1.4; font-weight: 500; border: 1px solid var(--border-subtle);
+  }
+  .command-bar-right { display: flex; align-items: center; gap: 8px; margin-left: auto; padding-left: 16px; }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 6px; background: var(--yellow);
+    color: var(--bg-0); font-size: 12.5px; font-weight: 600; padding: 7px 14px;
+    border-radius: 8px; border: none; cursor: pointer; font-family: inherit;
+    letter-spacing: -0.01em; transition: all 0.12s ease; line-height: 1;
+  }
+  .btn-primary:hover { filter: brightness(1.1); box-shadow: 0 0 16px var(--yellow-glow); }
+  .btn-primary svg { display: block; }
+
+  /* Content scroll */
+  .content-scroll { flex: 1; overflow-y: auto; padding: 0 24px 32px; }
+  .content-scroll::-webkit-scrollbar { width: 6px; }
+  .content-scroll::-webkit-scrollbar-track { background: transparent; }
+  .content-scroll::-webkit-scrollbar-thumb { background: var(--bg-5); border-radius: 3px; }
+
+  /* Content header */
+  .content-header {
+    display: flex; align-items: center; gap: 16px; padding: 16px 0 12px;
+    position: sticky; top: 0; z-index: 3;
+  }
+  .page-title { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
+  .header-spacer { flex: 1; }
+
+  /* Share type tabs */
+  .share-tabs {
+    display: flex; align-items: center; gap: 2px;
+    background: var(--bg-2); border-radius: 10px; padding: 3px;
+    border: 1px solid var(--border-subtle);
+  }
+  .share-tab {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 500; color: var(--text-quaternary);
+    padding: 6px 14px; border-radius: 7px; border: none; background: none;
+    cursor: pointer; font-family: inherit; transition: all 0.1s ease;
+  }
+  .share-tab:hover { color: var(--text-secondary); }
+  .share-tab.active { color: var(--text-primary); background: var(--bg-4); }
+  .share-tab svg { display: block; }
+  .share-tab .tab-count {
+    font-size: 10px; font-weight: 600; background: var(--bg-5);
+    color: var(--text-tertiary); padding: 1px 5px; border-radius: 3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .share-tab.active .tab-count {
+    background: var(--yellow-dim); color: var(--yellow);
+  }
+
+  /* ===== HERO CTA -- "Share with Mom" ===== */
+  .share-hero {
+    background: var(--bg-2);
+    border: 1px solid var(--border-default);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin: 16px 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .share-hero::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--yellow), var(--pink), var(--purple));
+  }
+  .share-hero-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--yellow-dim), var(--pink-dim));
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .share-hero-icon svg { display: block; }
+  .share-hero-content { flex: 1; }
+  .share-hero-title {
+    font-size: 16px; font-weight: 700; color: var(--text-primary);
+    letter-spacing: -0.02em; margin-bottom: 4px;
+  }
+  .share-hero-desc {
+    font-size: 13px; color: var(--text-tertiary); line-height: 1.5;
+  }
+  .share-hero-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--yellow); color: var(--bg-0);
+    font-size: 13px; font-weight: 600; padding: 10px 20px;
+    border-radius: 10px; border: none; cursor: pointer; font-family: inherit;
+    letter-spacing: -0.01em; transition: all 0.12s ease;
+    flex-shrink: 0;
+  }
+  .share-hero-btn:hover { filter: brightness(1.1); box-shadow: 0 0 20px var(--yellow-glow); }
+  .share-hero-btn svg { display: block; }
+
+  /* Section header */
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px; margin-top: 4px;
+  }
+  .section-title {
+    font-size: 13px; font-weight: 600; color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+  .section-action {
+    font-size: 11.5px; font-weight: 500; color: var(--text-quaternary);
+    cursor: pointer; background: none; border: none; font-family: inherit;
+    transition: color 0.1s ease;
+  }
+  .section-action:hover { color: var(--text-tertiary); }
+
+  /* ===== SHARED LINKS ===== */
+  .shared-links-grid { display: flex; flex-direction: column; gap: 1px; margin-bottom: 20px; }
+
+  .link-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 16px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: background 0.08s ease, border-color 0.15s ease;
+  }
+  .link-row:first-child { border-radius: 10px 10px 0 0; }
+  .link-row:last-child { border-radius: 0 0 10px 10px; }
+  .link-row:only-child { border-radius: 10px; }
+  .link-row:hover { background: var(--bg-3); border-color: var(--border-default); }
+
+  .link-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .link-icon svg { display: block; }
+  .link-icon.file { background: var(--yellow-dim); color: var(--yellow); }
+  .link-icon.folder { background: var(--blue-dim); color: var(--blue); }
+
+  .link-info { flex: 1; min-width: 0; }
+  .link-name {
+    font-size: 13px; font-weight: 500; color: var(--text-primary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+  }
+  .link-meta {
+    font-size: 11px; color: var(--text-quaternary); margin-top: 2px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .link-meta-sep { color: var(--text-quinary); }
+
+  /* Expiry countdown */
+  .link-expiry {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10.5px; font-weight: 600; padding: 3px 8px;
+    border-radius: 5px; flex-shrink: 0;
+  }
+  .link-expiry.safe { background: var(--green-dim); color: var(--green); }
+  .link-expiry.warning { background: var(--amber-dim); color: var(--amber); }
+  .link-expiry.urgent { background: var(--red-dim); color: var(--red); }
+  .link-expiry.never { background: var(--bg-4); color: var(--text-tertiary); }
+  .link-expiry svg { display: block; }
+
+  .link-views {
+    font-size: 11px; color: var(--text-quaternary);
+    font-variant-numeric: tabular-nums; flex-shrink: 0;
+    min-width: 64px; text-align: right;
+    display: flex; align-items: center; gap: 4px; justify-content: flex-end;
+  }
+  .link-views svg { display: block; }
+
+  .link-actions {
+    display: flex; align-items: center; gap: 2px;
+    opacity: 0; transition: opacity 0.1s ease;
+  }
+  .link-row:hover .link-actions { opacity: 1; }
+  .link-action-btn {
+    width: 28px; height: 28px; border: none; background: none;
+    color: var(--text-tertiary); cursor: pointer; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.1s ease;
+  }
+  .link-action-btn:hover { background: var(--bg-4); color: var(--text-primary); }
+  .link-action-btn svg { display: block; }
+
+  /* ===== COLLABORATIVE FOLDERS ===== */
+  .collab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+
+  .collab-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+    position: relative;
+  }
+  .collab-card:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+
+  .collab-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  }
+  .collab-folder-icon {
+    width: 28px; height: 28px; border-radius: 7px;
+    background: var(--yellow-dim); display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .collab-folder-icon svg { display: block; }
+  .collab-title {
+    font-size: 13px; font-weight: 600; color: var(--text-primary);
+    letter-spacing: -0.01em; flex: 1;
+  }
+
+  /* Presence dots */
+  .presence-dots {
+    display: flex; align-items: center;
+  }
+  .presence-dot {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; color: #fff;
+    margin-left: -6px; border: 2px solid var(--bg-2);
+    position: relative;
+  }
+  .presence-dot:first-child { margin-left: 0; }
+  .presence-dot .online-ring {
+    position: absolute; bottom: -1px; right: -1px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green); border: 2px solid var(--bg-2);
+  }
+
+  .collab-stats {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 11px; color: var(--text-quaternary);
+  }
+  .collab-stat {
+    display: flex; align-items: center; gap: 4px;
+  }
+  .collab-stat svg { display: block; }
+
+  /* People shared with section */
+  .people-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+
+  .person-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+  .person-card:hover { border-color: var(--border-strong); }
+
+  .person-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700; color: #fff;
+    position: relative;
+  }
+  .person-avatar .online-ring {
+    position: absolute; bottom: 0; right: 0;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--green); border: 2px solid var(--bg-2);
+  }
+
+  .person-name {
+    font-size: 12.5px; font-weight: 600; color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+  .person-detail {
+    font-size: 10.5px; color: var(--text-quaternary); text-align: center;
+  }
+
+  /* Status bar */
+  .status-bar {
+    display: flex; align-items: center; gap: 12px; padding: 6px 24px;
+    border-top: 1px solid var(--border-subtle); background: var(--bg-1); min-height: 32px;
+  }
+  .status-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; flex-shrink: 0; }
+  .status-text { font-size: 11px; color: var(--text-quaternary); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .status-sep { width: 1px; height: 10px; background: var(--border-subtle); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" fill="var(--bg-4)" stroke="var(--border-strong)" stroke-width="1"/>
+        <circle cx="12" cy="12" r="4" fill="#FDCE45"/>
+      </svg>
+    </div>
+    <button class="sidebar-icon" title="Files">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg>
+    </button>
+    <button class="sidebar-icon" title="Transfers">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7l-112,120a8,8,0,0,0,3,13l57.63,21.61L88.16,238.43a8,8,0,0,0,13.69,7l112-120A8,8,0,0,0,215.79,118.17Z"/></svg>
+      <span class="notif"></span>
+    </button>
+    <button class="sidebar-icon" title="RSS">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M98.91,157.09A71.53,71.53,0,0,1,120,208a8,8,0,0,1-16,0,56,56,0,0,0-56-56,8,8,0,0,1,0-16A71.53,71.53,0,0,1,98.91,157.09ZM48,88a8,8,0,0,0,0,16,104,104,0,0,1,104,104,8,8,0,0,0,16,0A120,120,0,0,0,48,88Zm0-40a8,8,0,0,0,0,16,144,144,0,0,1,144,144,8,8,0,0,0,16,0A160,160,0,0,0,48,48Zm12,160a12,12,0,1,0-12-12A12,12,0,0,0,60,208Z"/></svg>
+    </button>
+    <button class="sidebar-icon" title="Storage">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM112,152H48V104h64Zm96,0H128V104h80Zm-160,16h64v40H48Zm80,0h80v40H128ZM208,88H48V48H208Z"/></svg>
+    </button>
+    <!-- Sharing - active -->
+    <button class="sidebar-icon active" title="Sharing">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg>
+    </button>
+    <button class="sidebar-icon" title="Settings">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.16,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.16-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,74,34.5a8,8,0,0,0-3.93,6L67.43,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.16,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.16,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.16,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.16-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.16,8,8,0,0,0-1.49-7.06Z"/></svg>
+    </button>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-avatar">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="var(--text-tertiary)">
+        <rect x="3" y="2" width="2" height="2"/><rect x="11" y="2" width="2" height="2"/>
+        <rect x="5" y="4" width="2" height="2"/><rect x="9" y="4" width="2" height="2"/>
+        <rect x="3" y="6" width="10" height="2"/>
+        <rect x="1" y="8" width="2" height="2"/><rect x="3" y="8" width="2" height="2"/>
+        <rect x="5" y="8" width="6" height="2"/><rect x="11" y="8" width="2" height="2"/>
+        <rect x="13" y="8" width="2" height="2"/>
+        <rect x="1" y="10" width="2" height="2"/><rect x="5" y="10" width="2" height="2"/>
+        <rect x="9" y="10" width="2" height="2"/><rect x="13" y="10" width="2" height="2"/>
+        <rect x="3" y="12" width="2" height="2"/><rect x="5" y="12" width="2" height="2"/>
+        <rect x="9" y="12" width="2" height="2"/><rect x="11" y="12" width="2" height="2"/>
+      </svg>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- Command bar -->
+    <div class="command-bar-area">
+      <div class="command-trigger">
+        <span class="command-trigger-icon">
+          <svg width="15" height="15" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,218.34l-50.07-50.07a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.31ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>
+        </span>
+        <span class="command-trigger-text">Search shared files, links, or people...</span>
+        <span class="key-badge">&#8984;K</span>
+      </div>
+      <div class="command-bar-right">
+        <button class="btn-primary">
+          <svg width="13" height="13" viewBox="0 0 256 256" fill="currentColor"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg>
+          Share File
+        </button>
+      </div>
+    </div>
+
+    <div class="content-scroll">
+
+      <!-- Content header -->
+      <div class="content-header">
+        <span class="page-title">Sharing</span>
+        <div class="header-spacer"></div>
+
+        <!-- 3-type model tabs -->
+        <div class="share-tabs">
+          <button class="share-tab active">
+            <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"/></svg>
+            Links
+            <span class="tab-count">6</span>
+          </button>
+          <button class="share-tab">
+            <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg>
+            Folders
+            <span class="tab-count">3</span>
+          </button>
+          <button class="share-tab">
+            <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"/></svg>
+            People
+            <span class="tab-count">5</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Hero CTA: Share with Mom -->
+      <div class="share-hero">
+        <div class="share-hero-icon">
+          <svg width="28" height="28" viewBox="0 0 256 256" fill="var(--yellow)"><path d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.62,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z"/></svg>
+        </div>
+        <div class="share-hero-content">
+          <div class="share-hero-title">Share with Mom</div>
+          <div class="share-hero-desc">Create a simple, no-login-needed link anyone can stream from. Perfect for sharing movies with family.</div>
+        </div>
+        <button class="share-hero-btn">
+          <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M212,200a36,36,0,1,1-69.85-12.19l-53.3-30.75a36,36,0,1,1,0-58.12l53.3-30.75a36,36,0,1,1,8,13.86l-53.3,30.75a36.08,36.08,0,0,1,0,30.44l53.3,30.75A36,36,0,0,1,212,200Z"/></svg>
+          Create Share Link
+        </button>
+      </div>
+
+      <!-- Shared Links section -->
+      <div class="section-header">
+        <span class="section-title">Active Links</span>
+        <button class="section-action">Manage All</button>
+      </div>
+
+      <div class="shared-links-grid">
+        <div class="link-row">
+          <div class="link-icon file">
+            <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-36-84a8,8,0,0,1-3.71,6.74l-44,28A8,8,0,0,1,104,160V104a8,8,0,0,1,12.29-6.74l44,28A8,8,0,0,1,164,132Z"/></svg>
+          </div>
+          <div class="link-info">
+            <div class="link-name">Dune: Part Two (2024) 2160p HDR</div>
+            <div class="link-meta">
+              Shared 3 hours ago
+              <span class="link-meta-sep">--</span>
+              18.4 GB
+              <span class="link-meta-sep">--</span>
+              Streamable
+            </div>
+          </div>
+          <div class="link-expiry safe">
+            <svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor"><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Z"/></svg>
+            29 days left
+          </div>
+          <div class="link-views">
+            <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,123.97,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.29A169.46,169.46,0,0,1,24.57,128,169.46,169.46,0,0,1,48.07,97.29C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.29A169.46,169.46,0,0,1,231.43,128C223.79,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"/></svg>
+            14 views
+          </div>
+          <div class="link-actions">
+            <button class="link-action-btn" title="Copy link">
+              <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"/></svg>
+            </button>
+            <button class="link-action-btn" title="More">
+              <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="link-row">
+          <div class="link-icon folder">
+            <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg>
+          </div>
+          <div class="link-info">
+            <div class="link-name">chill institute</div>
+            <div class="link-meta">
+              Shared 2 days ago
+              <span class="link-meta-sep">--</span>
+              Folder with 24 items
+              <span class="link-meta-sep">--</span>
+              Download + Stream
+            </div>
+          </div>
+          <div class="link-expiry warning">
+            <svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor"><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Z"/></svg>
+            3 days left
+          </div>
+          <div class="link-views">
+            <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,123.97,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.29A169.46,169.46,0,0,1,24.57,128,169.46,169.46,0,0,1,48.07,97.29C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.29A169.46,169.46,0,0,1,231.43,128C223.79,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"/></svg>
+            42 views
+          </div>
+          <div class="link-actions">
+            <button class="link-action-btn" title="Copy link"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"/></svg></button>
+            <button class="link-action-btn" title="More"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg></button>
+          </div>
+        </div>
+
+        <div class="link-row">
+          <div class="link-icon file">
+            <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-36-84a8,8,0,0,1-3.71,6.74l-44,28A8,8,0,0,1,104,160V104a8,8,0,0,1,12.29-6.74l44,28A8,8,0,0,1,164,132Z"/></svg>
+          </div>
+          <div class="link-info">
+            <div class="link-name">Oppenheimer (2023) 2160p Remux</div>
+            <div class="link-meta">
+              Shared 1 week ago
+              <span class="link-meta-sep">--</span>
+              62.3 GB
+              <span class="link-meta-sep">--</span>
+              Download only
+            </div>
+          </div>
+          <div class="link-expiry urgent">
+            <svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor"><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Z"/></svg>
+            6 hours left
+          </div>
+          <div class="link-views">
+            <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,123.97,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.29A169.46,169.46,0,0,1,24.57,128,169.46,169.46,0,0,1,48.07,97.29C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.29A169.46,169.46,0,0,1,231.43,128C223.79,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"/></svg>
+            8 views
+          </div>
+          <div class="link-actions">
+            <button class="link-action-btn" title="Copy link"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"/></svg></button>
+            <button class="link-action-btn" title="More"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg></button>
+          </div>
+        </div>
+
+        <div class="link-row">
+          <div class="link-icon file">
+            <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Z"/></svg>
+          </div>
+          <div class="link-info">
+            <div class="link-name">podcast-episode-127.mp3</div>
+            <div class="link-meta">
+              Shared 2 weeks ago
+              <span class="link-meta-sep">--</span>
+              45 MB
+              <span class="link-meta-sep">--</span>
+              Streamable
+            </div>
+          </div>
+          <div class="link-expiry never">Never expires</div>
+          <div class="link-views">
+            <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,123.97,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.29A169.46,169.46,0,0,1,24.57,128,169.46,169.46,0,0,1,48.07,97.29C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.29A169.46,169.46,0,0,1,231.43,128C223.79,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"/></svg>
+            203 views
+          </div>
+          <div class="link-actions">
+            <button class="link-action-btn" title="Copy link"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"/></svg></button>
+            <button class="link-action-btn" title="More"><svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M112,60a16,16,0,1,1,16,16A16,16,0,0,1,112,60Zm16,52a16,16,0,1,0,16,16A16,16,0,0,0,128,112Zm0,68a16,16,0,1,0,16,16A16,16,0,0,0,128,180Z"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collaborative Folders -->
+      <div class="section-header">
+        <span class="section-title">Collaborative Folders</span>
+      </div>
+
+      <div class="collab-grid">
+        <div class="collab-card">
+          <div class="collab-header">
+            <div class="collab-folder-icon">
+              <svg width="16" height="16" viewBox="0 0 256 256" fill="var(--yellow)"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg>
+            </div>
+            <span class="collab-title">Movie Night</span>
+            <div class="presence-dots">
+              <div class="presence-dot" style="background: #8B5CF6;">H<span class="online-ring"></span></div>
+              <div class="presence-dot" style="background: #EC4899;">A</div>
+              <div class="presence-dot" style="background: #06B6D4;">M<span class="online-ring"></span></div>
+            </div>
+          </div>
+          <div class="collab-stats">
+            <div class="collab-stat">
+              <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34Z"/></svg>
+              12 files
+            </div>
+            <div class="collab-stat">
+              <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Z"/></svg>
+              148.6 GB
+            </div>
+            <div class="collab-stat">
+              <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Z"/></svg>
+              Updated 2h ago
+            </div>
+          </div>
+        </div>
+
+        <div class="collab-card">
+          <div class="collab-header">
+            <div class="collab-folder-icon">
+              <svg width="16" height="16" viewBox="0 0 256 256" fill="var(--yellow)"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40Z"/></svg>
+            </div>
+            <span class="collab-title">Music Collection</span>
+            <div class="presence-dots">
+              <div class="presence-dot" style="background: #F59E0B;">D<span class="online-ring"></span></div>
+              <div class="presence-dot" style="background: #10B981;">S</div>
+            </div>
+          </div>
+          <div class="collab-stats">
+            <div class="collab-stat">
+              <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34Z"/></svg>
+              847 files
+            </div>
+            <div class="collab-stat">
+              <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Z"/></svg>
+              28.4 GB
+            </div>
+            <div class="collab-stat">
+              <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Z"/></svg>
+              Updated 1d ago
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- People section -->
+      <div class="section-header">
+        <span class="section-title">People You Share With</span>
+      </div>
+
+      <div class="people-grid">
+        <div class="person-card">
+          <div class="person-avatar" style="background: #8B5CF6;">
+            H
+            <span class="online-ring"></span>
+          </div>
+          <div class="person-name">Hasan</div>
+          <div class="person-detail">3 shared folders, 8 links</div>
+        </div>
+        <div class="person-card">
+          <div class="person-avatar" style="background: #EC4899;">A</div>
+          <div class="person-name">Aysun</div>
+          <div class="person-detail">1 shared folder, 2 links</div>
+        </div>
+        <div class="person-card">
+          <div class="person-avatar" style="background: #06B6D4;">
+            M
+            <span class="online-ring"></span>
+          </div>
+          <div class="person-name">Mehmet</div>
+          <div class="person-detail">2 shared folders, 5 links</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Status bar -->
+    <div class="status-bar">
+      <span class="status-dot"></span>
+      <span class="status-text">Connected</span>
+      <span class="status-sep"></span>
+      <span class="status-text">6 active links</span>
+      <span class="status-sep"></span>
+      <span class="status-text">3 collaborative folders</span>
+      <span class="status-sep"></span>
+      <span class="status-text">267 total views</span>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
