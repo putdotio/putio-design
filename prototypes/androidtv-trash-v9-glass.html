@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#111113">
+<title>put.io — Android TV Trash (Glass)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --glass: rgba(255,255,255,0.05); --glass-hover: rgba(255,255,255,0.08);
+    --glass-active: rgba(255,255,255,0.10);
+    --glass-border: rgba(255,255,255,0.08); --glass-border-strong: rgba(255,255,255,0.12);
+    --glass-inset: inset 0 1px 1px rgba(255,255,255,0.04);
+    --text: #EEEEF0; --text-2: #ABABB2; --text-3: #77777F; --text-4: #55555E;
+    --yellow: #FDCE45; --yellow-dim: rgba(253,206,69,0.12); --yellow-glow: rgba(253,206,69,0.20);
+    --green: #30A46C; --red: #E5484D;
+    --blur-heavy: blur(40px); --blur-medium: blur(24px); --blur-light: blur(16px);
+    --radius: 16px; --radius-sm: 10px;
+  }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+  .tv-frame { width: 1920px; height: 1080px; overflow: hidden; display: flex; position: relative; background: var(--bg); }
+  .tv-frame::before { content: ''; position: absolute; top: -150px; right: 200px; width: 700px; height: 700px; background: radial-gradient(circle, rgba(253,206,69,0.06) 0%, rgba(253,206,69,0.015) 40%, transparent 70%); pointer-events: none; z-index: 0; }
+  .tv-frame::after { content: ''; position: absolute; bottom: -180px; left: 300px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(253,206,69,0.04) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+
+  .side-rail { width: 88px; flex-shrink: 0; background: var(--glass); backdrop-filter: var(--blur-heavy); -webkit-backdrop-filter: var(--blur-heavy); border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; padding: 32px 0; gap: 8px; position: relative; z-index: 2; box-shadow: var(--glass-inset); }
+  .rail-logo { font-size: 18px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 24px; }
+  .rail-logo .dot { color: var(--yellow); text-shadow: 0 0 12px var(--yellow-glow); }
+  .rail-item { width: 56px; height: 56px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid transparent; }
+  .rail-item svg { width: 24px; height: 24px; fill: var(--text-3); }
+  .rail-item.active { background: var(--glass-active); border-color: var(--yellow); box-shadow: 0 0 20px var(--yellow-glow), var(--glass-inset); }
+  .rail-item.active svg { fill: var(--yellow); }
+  .rail-spacer { flex: 1; }
+  .rail-avatar { width: 40px; height: 40px; border-radius: 10px; background: var(--glass-hover); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; }
+
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; z-index: 1; padding: 48px 64px 0; }
+
+  .header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-shrink: 0; }
+  .header-title { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
+  .empty-trash-btn {
+    display: flex; align-items: center; gap: 8px;
+    color: var(--red); font-size: 16px; font-weight: 600;
+    padding: 10px 24px; border: 1px solid var(--red); border-radius: var(--radius-sm);
+    background: rgba(229,72,77,0.08); font-family: inherit; cursor: pointer;
+    backdrop-filter: var(--blur-light); -webkit-backdrop-filter: var(--blur-light);
+  }
+  .empty-trash-btn svg { width: 18px; height: 18px; fill: var(--red); }
+
+  .trash-list { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+  .trash-row {
+    display: flex; align-items: center; height: 72px; padding: 0 20px;
+    border: 2px solid transparent; border-radius: var(--radius-sm);
+    cursor: pointer; margin-bottom: 2px; flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .trash-row:hover { background: var(--glass-hover); }
+  .trash-row.focused { border-color: var(--yellow); background: var(--glass); box-shadow: 0 0 20px var(--yellow-glow), var(--glass-inset); }
+  .trash-row.focused .t-name { color: #fff; }
+
+  .t-icon { width: 24px; height: 24px; flex-shrink: 0; margin-right: 16px; display: flex; align-items: center; justify-content: center; }
+  .t-icon svg { width: 24px; height: 24px; fill: var(--red); }
+  .t-name { flex: 1; font-size: 20px; font-weight: 500; color: var(--text-2); min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .t-badge { font-size: 12px; font-weight: 600; text-transform: uppercase; background: var(--glass-hover); border: 1px solid var(--glass-border); color: var(--text-2); padding: 3px 10px; border-radius: 6px; margin-left: 12px; flex-shrink: 0; }
+  .t-date { font-size: 16px; color: var(--text-4); margin-left: 20px; flex-shrink: 0; min-width: 180px; text-align: right; }
+  .t-size { font-size: 16px; color: var(--text-4); margin-left: 20px; flex-shrink: 0; min-width: 70px; text-align: right; font-variant-numeric: tabular-nums; }
+  .t-restore { font-size: 16px; font-weight: 600; color: var(--green); margin-left: 28px; flex-shrink: 0; }
+
+  .bottom-bar {
+    display: flex; align-items: center; padding: 0 64px; height: 48px; flex-shrink: 0;
+    border-top: 1px solid var(--glass-border);
+    background: var(--glass); backdrop-filter: var(--blur-medium); -webkit-backdrop-filter: var(--blur-medium);
+    font-size: 14px; color: var(--text-4); box-shadow: var(--glass-inset);
+  }
+  .bottom-left { display: flex; align-items: center; gap: 24px; }
+  .bottom-center { flex: 1; text-align: center; color: var(--text-3); }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <div class="side-rail">
+    <div class="rail-logo">put<span class="dot">.</span>io</div>
+    <div class="rail-item"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+    <div class="rail-item active"><svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></div>
+    <div class="rail-item"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></div>
+    <div class="rail-item"><svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg></div>
+    <div class="rail-item"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></div>
+    <div class="rail-spacer"></div>
+    <div class="rail-avatar"><svg width="20" height="20" viewBox="0 0 16 16" fill="var(--text-3)"><rect x="3" y="2" width="2" height="2"/><rect x="11" y="2" width="2" height="2"/><rect x="5" y="4" width="2" height="2"/><rect x="9" y="4" width="2" height="2"/><rect x="3" y="6" width="10" height="2"/><rect x="1" y="8" width="2" height="2"/><rect x="3" y="8" width="2" height="2"/><rect x="5" y="8" width="6" height="2"/><rect x="11" y="8" width="2" height="2"/><rect x="13" y="8" width="2" height="2"/><rect x="1" y="10" width="2" height="2"/><rect x="5" y="10" width="2" height="2"/><rect x="9" y="10" width="2" height="2"/><rect x="13" y="10" width="2" height="2"/><rect x="3" y="12" width="2" height="2"/><rect x="5" y="12" width="2" height="2"/><rect x="9" y="12" width="2" height="2"/><rect x="11" y="12" width="2" height="2"/></svg></div>
+  </div>
+
+  <div class="main">
+    <div class="header-row">
+      <div class="header-title">Trash</div>
+      <button class="empty-trash-btn">
+        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        Empty Trash
+      </button>
+    </div>
+
+    <div class="trash-list">
+      <div class="trash-row focused">
+        <div class="t-icon"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></div>
+        <div class="t-name">Old Project Files</div><span class="t-badge">Folder</span>
+        <div class="t-date">Deleted 1 hour ago</div><div class="t-size">4.2 GB</div><div class="t-restore">Restore</div>
+      </div>
+      <div class="trash-row">
+        <div class="t-icon"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></div>
+        <div class="t-name">The Wire</div><span class="t-badge">S2 &middot; E12</span><span class="t-badge">1080p</span>
+        <div class="t-date">Deleted 2 days ago</div><div class="t-size">1.9 GB</div><div class="t-restore">Restore</div>
+      </div>
+      <div class="trash-row">
+        <div class="t-icon"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></div>
+        <div class="t-name">Duplicate Movie</div><span class="t-badge">720p</span>
+        <div class="t-date">Deleted 3 days ago</div><div class="t-size">2.1 GB</div><div class="t-restore">Restore</div>
+      </div>
+      <div class="trash-row">
+        <div class="t-icon"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></div>
+        <div class="t-name">readme.txt</div><span class="t-badge">TXT</span>
+        <div class="t-date">Deleted 5 days ago</div><div class="t-size">12 KB</div><div class="t-restore">Restore</div>
+      </div>
+      <div class="trash-row">
+        <div class="t-icon"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></div>
+        <div class="t-name">Screenshot.png</div><span class="t-badge">IMG</span>
+        <div class="t-date">Deleted 1 week ago</div><div class="t-size">4.8 MB</div><div class="t-restore">Restore</div>
+      </div>
+      <div class="trash-row">
+        <div class="t-icon"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></div>
+        <div class="t-name">Old Podcast</div><span class="t-badge">MP3</span>
+        <div class="t-date">Deleted 2 weeks ago</div><div class="t-size">89 MB</div><div class="t-restore">Restore</div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="bottom-left"><span>&#x25B2;&#x25BC; Navigate</span><span>OK Restore</span><span>&#x25C0; Back</span></div>
+      <div class="bottom-center">6 items &middot; 8.3 GB</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

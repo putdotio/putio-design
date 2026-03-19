@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#111113">
+<title>put.io — tvOS Player (Glass)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --glass: rgba(255,255,255,0.05); --glass-hover: rgba(255,255,255,0.08);
+    --glass-active: rgba(255,255,255,0.10);
+    --glass-border: rgba(255,255,255,0.08); --glass-border-strong: rgba(255,255,255,0.12);
+    --glass-inset: inset 0 1px 1px rgba(255,255,255,0.04);
+    --text: #EEEEF0; --text-2: #ABABB2; --text-3: #77777F; --text-4: #55555E;
+    --yellow: #FDCE45; --yellow-dim: rgba(253,206,69,0.12); --yellow-glow: rgba(253,206,69,0.20);
+    --green: #30A46C; --red: #E5484D;
+    --blur-heavy: blur(40px); --blur-medium: blur(24px); --blur-light: blur(16px);
+    --radius: 16px; --radius-sm: 10px;
+  }
+  body { font-family: 'Inter', -apple-system, sans-serif; color: var(--text); background: #000; -webkit-font-smoothing: antialiased; }
+
+  .tv-frame { width: 1920px; height: 1080px; position: relative; overflow: hidden; }
+
+  .video-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #0a0a1a 0%, #141428 40%, #0a0a1a 100%); }
+
+  .title-bar {
+    position: absolute; top: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.4); backdrop-filter: var(--blur-medium);
+    -webkit-backdrop-filter: var(--blur-medium);
+    padding: 22px 80px; display: flex; align-items: center; gap: 18px; z-index: 10;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    background-image: linear-gradient(to bottom, rgba(255,255,255,0.03) 0%, transparent 100%);
+  }
+  .title-bar-name { font-size: 24px; font-weight: 600; color: #fff; }
+  .title-bar-badges { display: flex; align-items: center; gap: 9px; }
+  .title-badge {
+    font-size: 14px; font-weight: 600; text-transform: uppercase;
+    background: var(--glass-active); color: var(--text-2);
+    padding: 3px 12px; border-radius: 6px;
+  }
+  .title-bar-spacer { flex: 1; }
+  .title-bar-meta { font-size: 18px; color: var(--text-2); }
+
+  .subtitle-container { position: absolute; bottom: 260px; left: 50%; transform: translateX(-50%); z-index: 10; }
+  .subtitle-text { color: #fff; font-size: 34px; font-weight: 500; text-align: center; line-height: 1.4; text-shadow: 0 3px 12px rgba(0,0,0,0.8); }
+
+  .transport-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.4); backdrop-filter: var(--blur-heavy);
+    -webkit-backdrop-filter: var(--blur-heavy);
+    padding: 28px 80px 36px; z-index: 20;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    background-image: linear-gradient(to top, rgba(255,255,255,0.03) 0%, transparent 100%);
+    box-shadow: var(--glass-inset);
+  }
+  .scrubber-row { display: flex; align-items: center; gap: 21px; margin-bottom: 28px; }
+  .time-label { font-size: 20px; font-weight: 500; color: #fff; font-variant-numeric: tabular-nums; min-width: 60px; }
+  .time-label-right { font-size: 20px; font-weight: 500; color: var(--text-2); font-variant-numeric: tabular-nums; min-width: 72px; text-align: right; }
+  .progress-track { flex: 1; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; position: relative; }
+  .progress-fill { height: 100%; width: 42%; background: var(--yellow); border-radius: 3px; box-shadow: 0 0 12px var(--yellow-glow); }
+  .progress-dot {
+    width: 18px; height: 18px; background: #fff; border-radius: 50%;
+    position: absolute; top: 50%; left: 42%; transform: translate(-50%,-50%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 12px var(--yellow-glow);
+  }
+
+  .controls-row { display: flex; align-items: center; justify-content: center; gap: 48px; }
+  .ctrl-btn {
+    background: var(--glass); backdrop-filter: var(--blur-light);
+    -webkit-backdrop-filter: var(--blur-light);
+    border: 1px solid var(--glass-border); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.85); width: 48px; height: 48px;
+    border-radius: 50%; position: relative; box-shadow: var(--glass-inset);
+  }
+  .ctrl-btn svg { display: block; }
+  .ctrl-btn.play-btn {
+    width: 64px; height: 64px; background: rgba(255,255,255,0.1);
+    border: 2px solid var(--yellow); color: #fff;
+    box-shadow: 0 0 0 4px var(--yellow-glow), var(--glass-inset), 0 4px 16px rgba(0,0,0,0.3);
+    backdrop-filter: var(--blur-medium); -webkit-backdrop-filter: var(--blur-medium);
+    background-image: linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, transparent 50%);
+  }
+  .ctrl-btn-text {
+    background: none; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.85); font-family: inherit; font-size: 20px; font-weight: 600;
+    height: 42px; position: relative;
+  }
+  .controls-gap { width: 72px; }
+
+  .info-panel {
+    position: absolute; top: 0; right: 0; bottom: 0; width: 500px;
+    background: rgba(0,0,0,0.5); backdrop-filter: var(--blur-heavy);
+    -webkit-backdrop-filter: var(--blur-heavy);
+    padding: 72px 42px; z-index: 15;
+    border-left: 1px solid var(--glass-border);
+    display: flex; flex-direction: column;
+    background-image: linear-gradient(to right, transparent, rgba(255,255,255,0.02));
+    box-shadow: var(--glass-inset);
+  }
+  .info-panel-header { margin-bottom: 36px; }
+  .info-panel-title { font-size: 26px; font-weight: 600; color: #fff; margin-bottom: 12px; }
+  .info-panel-badges { display: flex; align-items: center; gap: 9px; }
+  .info-badge { font-size: 14px; font-weight: 600; text-transform: uppercase; background: var(--glass-active); color: var(--text-2); padding: 3px 12px; border-radius: 6px; }
+  .info-row { display: flex; align-items: baseline; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid var(--glass-border); }
+  .info-row:last-child { border-bottom: none; }
+  .info-label { font-size: 18px; font-weight: 500; color: var(--text-2); flex-shrink: 0; }
+  .info-value { font-size: 20px; font-weight: 500; color: #fff; text-align: right; }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <div class="video-bg"></div>
+  <div class="title-bar">
+    <span class="title-bar-name">The Wire</span>
+    <div class="title-bar-badges"><span class="title-badge">S3 &middot; E2</span><span class="title-badge">1080p</span></div>
+    <div class="title-bar-spacer"></div>
+    <span class="title-bar-meta">1.9 GB &middot; MKV</span>
+  </div>
+  <div class="subtitle-container"><div class="subtitle-text">You come at the king, you best not miss.</div></div>
+  <div class="info-panel">
+    <div class="info-panel-header">
+      <div class="info-panel-title">The Wire</div>
+      <div class="info-panel-badges"><span class="info-badge">S3 &middot; E2</span><span class="info-badge">1080p</span><span class="info-badge">MKV</span></div>
+    </div>
+    <div class="info-row"><span class="info-label">Duration</span><span class="info-value">55:00</span></div>
+    <div class="info-row"><span class="info-label">Resolution</span><span class="info-value">1920&times;1080</span></div>
+    <div class="info-row"><span class="info-label">Size</span><span class="info-value">1.9 GB</span></div>
+    <div class="info-row"><span class="info-label">Format</span><span class="info-value">MKV / H.264</span></div>
+    <div class="info-row"><span class="info-label">Audio</span><span class="info-value">English 5.1, English 2.0</span></div>
+    <div class="info-row"><span class="info-label">Subtitles</span><span class="info-value">English, Turkish, Spanish</span></div>
+  </div>
+  <div class="transport-bar">
+    <div class="scrubber-row">
+      <span class="time-label">23:14</span>
+      <div class="progress-track"><div class="progress-fill"></div><div class="progress-dot"></div></div>
+      <span class="time-label-right">-31:46</span>
+    </div>
+    <div class="controls-row">
+      <button class="ctrl-btn" title="Skip back 10s"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M1 10a10 10 0 1 1 2.51 7.36"/></svg><span style="position:absolute;font-size:11px;font-weight:700;color:currentColor;top:50%;left:50%;transform:translate(-50%,-50%);margin-top:1px;">10</span></button>
+      <button class="ctrl-btn" title="Previous"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="5" width="3" height="14" rx="1"/><path d="M20 5.5v13a1 1 0 0 1-1.54.84l-9-6.5a1 1 0 0 1 0-1.68l9-6.5A1 1 0 0 1 20 5.5z"/></svg></button>
+      <button class="ctrl-btn play-btn" title="Play"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l15 8-15 8V4z"/></svg></button>
+      <button class="ctrl-btn" title="Next"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><rect x="18" y="5" width="3" height="14" rx="1"/><path d="M4 18.5v-13a1 1 0 0 1 1.54-.84l9 6.5a1 1 0 0 1 0 1.68l-9 6.5A1 1 0 0 1 4 18.5z"/></svg></button>
+      <button class="ctrl-btn" title="Skip forward 10s"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M23 10A10 10 0 1 0 20.49 17.36"/></svg><span style="position:absolute;font-size:11px;font-weight:700;color:currentColor;top:50%;left:50%;transform:translate(-50%,-50%);margin-top:1px;">10</span></button>
+      <div class="controls-gap"></div>
+      <button class="ctrl-btn" title="Subtitles"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="5" y1="12" x2="11" y2="12"/><line x1="13" y1="12" x2="19" y2="12"/><line x1="5" y1="16" x2="15" y2="16"/></svg></button>
+      <button class="ctrl-btn" title="Audio"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11,5 6,9 2,9 2,15 6,15 11,19"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <button class="ctrl-btn-text" title="More">&middot;&middot;&middot;</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

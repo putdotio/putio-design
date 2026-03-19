@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#111113">
+<title>put.io — Web TV Up Next (Glass)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --glass: rgba(255,255,255,0.05); --glass-hover: rgba(255,255,255,0.08);
+    --glass-border: rgba(255,255,255,0.08); --glass-border-strong: rgba(255,255,255,0.12);
+    --glass-inset: inset 0 1px 1px rgba(255,255,255,0.04);
+    --text: #EEEEF0; --text-2: #ABABB2; --text-3: #77777F; --text-4: #55555E;
+    --yellow: #FDCE45; --yellow-dim: rgba(253,206,69,0.12); --yellow-glow: rgba(253,206,69,0.20);
+    --green: #30A46C; --red: #E5484D;
+    --blur-heavy: blur(40px); --blur-medium: blur(24px); --blur-light: blur(16px);
+    --radius: 16px; --radius-sm: 10px;
+    --badge-bg: rgba(255,255,255,0.08);
+  }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text); background: var(--bg);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' 1, 'ss01' 1;
+  }
+
+  .tv-frame { width: 1920px; height: 1080px; position: relative; overflow: hidden; }
+
+  .video-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #0a0a1a 0%, #0d1525 40%, #0a0a0c 100%);
+  }
+  .overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .bottom-gradient {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 400px;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.85) 100%);
+    z-index: 2;
+  }
+
+  /* Ambient glow */
+  .glow-orb {
+    position: absolute; top: 60px; left: 200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(253,206,69,0.05) 0%, transparent 60%);
+    pointer-events: none; z-index: 3;
+  }
+
+  .just-watched { position: absolute; top: 72px; left: 72px; z-index: 10; }
+  .just-watched-label { font-size: 16px; font-weight: 500; color: var(--text-4); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+  .just-watched-title { font-size: 28px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+  .just-watched-meta { display: flex; align-items: center; gap: 12px; }
+  .badge {
+    font-size: 14px; font-weight: 600; text-transform: uppercase;
+    background: var(--badge-bg); color: var(--text-2);
+    padding: 4px 12px; border-radius: 6px; line-height: 1.4;
+    backdrop-filter: var(--blur-light); -webkit-backdrop-filter: var(--blur-light);
+  }
+  .just-watched-detail { font-size: 18px; color: var(--text-2); }
+
+  .bottom-section {
+    position: absolute; bottom: 72px; left: 72px; right: 72px;
+    z-index: 10;
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 48px;
+  }
+
+  .up-next-area { flex-shrink: 0; width: 700px; }
+  .up-next-label { font-size: 18px; font-weight: 600; color: var(--yellow); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 14px; text-shadow: 0 0 12px var(--yellow-glow); }
+  .up-next-card {
+    display: flex; flex-direction: row;
+    background: var(--glass);
+    backdrop-filter: var(--blur-medium); -webkit-backdrop-filter: var(--blur-medium);
+    border-radius: var(--radius); overflow: hidden;
+    border: 2px solid var(--glass-border-strong);
+    box-shadow: var(--glass-inset), 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .card-thumbnail {
+    width: 240px; height: 135px; flex-shrink: 0;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-thumbnail svg { width: 36px; height: 36px; opacity: 0.2; }
+  .card-info { padding: 20px 24px; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+  .card-title { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .card-badges { display: flex; align-items: center; gap: 8px; }
+  .card-meta { font-size: 16px; color: var(--text-2); margin-top: 8px; }
+
+  .right-side { display: flex; flex-direction: column; align-items: flex-end; gap: 16px; flex-shrink: 0; }
+  .countdown { display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; }
+  .countdown-text { font-size: 24px; font-weight: 600; color: var(--yellow); font-variant-numeric: tabular-nums; text-shadow: 0 0 24px rgba(253,206,69,0.3); }
+  .countdown-ring { margin-top: 12px; width: 48px; height: 48px; position: relative; }
+  .countdown-ring svg { width: 48px; height: 48px; transform: rotate(-90deg); }
+  .countdown-ring-track { fill: none; stroke: var(--glass-border); stroke-width: 3; }
+  .countdown-ring-progress { fill: none; stroke: var(--yellow); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 126; stroke-dashoffset: 32; filter: drop-shadow(0 0 4px var(--yellow-glow)); }
+
+  .btn-play {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 18px 48px; border-radius: var(--radius);
+    border: 2px solid var(--yellow);
+    background: var(--glass);
+    backdrop-filter: var(--blur-medium); -webkit-backdrop-filter: var(--blur-medium);
+    font-size: 22px; font-weight: 600; color: var(--text); cursor: pointer;
+    white-space: nowrap;
+    box-shadow: var(--glass-inset), 0 0 24px rgba(253,206,69,0.12);
+  }
+  .btn-play svg { width: 16px; height: 16px; fill: var(--text); flex-shrink: 0; }
+  .btn-cancel {
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px 48px; border-radius: var(--radius);
+    border: 2px solid var(--glass-border-strong);
+    background: var(--glass);
+    backdrop-filter: var(--blur-medium); -webkit-backdrop-filter: var(--blur-medium);
+    font-size: 20px; font-weight: 500; color: var(--text-2); cursor: pointer;
+    white-space: nowrap;
+    box-shadow: var(--glass-inset);
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <div class="video-bg"></div>
+  <div class="overlay"></div>
+  <div class="bottom-gradient"></div>
+  <div class="glow-orb"></div>
+
+  <div class="just-watched">
+    <div class="just-watched-label">Just finished</div>
+    <div class="just-watched-title">The Wire</div>
+    <div class="just-watched-meta">
+      <span class="badge">S3 · E4</span>
+      <span class="just-watched-detail">51 min · 1080p</span>
+    </div>
+  </div>
+
+  <div class="bottom-section">
+    <div class="up-next-area">
+      <div class="up-next-label">Up Next</div>
+      <div class="up-next-card">
+        <div class="card-thumbnail">
+          <svg viewBox="0 0 36 36" fill="none"><polygon points="12,6 30,18 12,30" fill="rgba(255,255,255,0.2)"/></svg>
+        </div>
+        <div class="card-info">
+          <div class="card-title">The Wire</div>
+          <div class="card-badges">
+            <span class="badge">S3 · E5</span>
+            <span class="badge">1080p</span>
+          </div>
+          <div class="card-meta">1.7 GB · 48 min</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-side">
+      <div class="countdown">
+        <span class="countdown-text">Playing in 8...</span>
+        <div class="countdown-ring">
+          <svg viewBox="0 0 48 48">
+            <circle class="countdown-ring-track" cx="24" cy="24" r="20"/>
+            <circle class="countdown-ring-progress" cx="24" cy="24" r="20"/>
+          </svg>
+        </div>
+      </div>
+      <button class="btn-play">
+        <svg viewBox="0 0 16 16"><polygon points="3,1 14,8 3,15"/></svg>
+        Play Now
+      </button>
+      <button class="btn-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

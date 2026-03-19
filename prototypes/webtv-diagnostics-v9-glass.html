@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#111113">
+<title>put.io — TV Diagnostics (Glass)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --glass: rgba(255,255,255,0.05); --glass-hover: rgba(255,255,255,0.08);
+    --glass-border: rgba(255,255,255,0.08); --glass-border-strong: rgba(255,255,255,0.12);
+    --glass-inset: inset 0 1px 1px rgba(255,255,255,0.04);
+    --text: #EEEEF0; --text-2: #ABABB2; --text-3: #77777F; --text-4: #55555E;
+    --yellow: #FDCE45; --yellow-dim: rgba(253,206,69,0.12); --yellow-glow: rgba(253,206,69,0.20);
+    --green: #30A46C; --blue: #3B82F6; --red: #E5484D;
+    --blur-heavy: blur(40px); --blur-medium: blur(24px); --blur-light: blur(16px);
+    --radius: 16px; --radius-sm: 10px; --radius-xs: 6px;
+  }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text); background: var(--bg);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' 1, 'ss01' 1;
+  }
+
+  .tv-frame {
+    width: 1920px; height: 1080px; overflow: hidden;
+    display: flex; flex-direction: column;
+    position: relative; background: var(--bg);
+  }
+  .tv-frame::before {
+    content: ''; position: absolute; top: -180px; right: 200px;
+    width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(253,206,69,0.08) 0%, rgba(253,206,69,0.02) 40%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  .tv-frame::after {
+    content: ''; position: absolute; bottom: -200px; left: 200px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(253,206,69,0.05) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .top-bar {
+    display: flex; align-items: center; padding: 0 72px; height: 84px; flex-shrink: 0;
+    background: var(--glass); backdrop-filter: var(--blur-medium); -webkit-backdrop-filter: var(--blur-medium);
+    border-bottom: 1px solid var(--glass-border); box-shadow: var(--glass-inset);
+    position: relative; z-index: 1;
+  }
+  .logo { font-size: 27px; font-weight: 700; letter-spacing: -0.02em; white-space: nowrap; }
+  .logo span { color: var(--yellow); text-shadow: 0 0 12px var(--yellow-glow); }
+  .nav-pills { display: flex; align-items: center; gap: 6px; margin: 0 auto; }
+  .nav-pill { font-size: 20px; font-weight: 500; color: var(--text-2); padding: 10px 28px; border-radius: 30px; background: transparent; white-space: nowrap; cursor: pointer; border: 2px solid transparent; }
+  .nav-pill.active { background: var(--yellow); color: #111113; font-weight: 600; box-shadow: 0 0 20px var(--yellow-glow); }
+  .top-right { display: flex; align-items: center; gap: 18px; white-space: nowrap; flex-shrink: 0; }
+  .storage-wrap { display: flex; align-items: center; gap: 12px; }
+  .storage-label { font-size: 16px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+  .storage-bar { width: 90px; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+  .storage-bar-fill { width: 78%; height: 100%; background: var(--yellow); border-radius: 2px; box-shadow: 0 0 8px var(--yellow-glow); }
+  .user-icon { width: 42px; height: 42px; border-radius: 50%; background: var(--glass); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; }
+  .user-icon svg { width: 24px; height: 24px; fill: var(--text-2); }
+
+  .breadcrumb {
+    display: flex; align-items: center; gap: 10px;
+    padding: 16px 72px; font-size: 18px; flex-shrink: 0;
+    position: relative; z-index: 1;
+  }
+  .breadcrumb-link { color: var(--text-2); cursor: pointer; }
+  .breadcrumb-sep { color: var(--text-3); }
+  .breadcrumb-current { color: var(--text); font-weight: 600; }
+
+  .content {
+    flex: 1; padding: 20px 72px 0;
+    display: flex; flex-direction: column; overflow: hidden;
+    position: relative; z-index: 1;
+  }
+  .page-title { font-size: 28px; font-weight: 600; margin-bottom: 24px; }
+
+  .diag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .diag-card {
+    background: var(--glass);
+    backdrop-filter: var(--blur-medium); -webkit-backdrop-filter: var(--blur-medium);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius); padding: 28px;
+    box-shadow: var(--glass-inset);
+  }
+  .diag-card-title { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+
+  .diag-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--glass-border); }
+  .diag-row:last-child { border-bottom: none; }
+  .diag-row-left { display: flex; align-items: center; gap: 12px; }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .status-dot.green { background: var(--green); box-shadow: 0 0 8px rgba(48,164,108,0.5); }
+  .diag-label { font-size: 18px; color: var(--text); }
+  .diag-value { font-size: 18px; color: var(--text); font-variant-numeric: tabular-nums; }
+  .info-label { font-size: 18px; color: var(--text-2); }
+  .info-value { font-size: 18px; color: var(--text); }
+
+  .action-bar { display: flex; justify-content: center; margin-top: 24px; flex-shrink: 0; }
+  .btn-copy {
+    border: 2px solid var(--yellow);
+    background: var(--glass);
+    backdrop-filter: var(--blur-light); -webkit-backdrop-filter: var(--blur-light);
+    color: var(--text); padding: 16px 48px; border-radius: var(--radius-sm);
+    font-size: 20px; font-weight: 600; font-family: inherit; cursor: pointer;
+    box-shadow: 0 0 20px rgba(253,206,69,0.1);
+  }
+
+  .bottom-bar {
+    display: flex; align-items: center; justify-content: center; gap: 48px;
+    padding: 15px 72px 36px; flex-shrink: 0;
+    font-size: 16px; color: var(--text-3);
+    position: relative; z-index: 1;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <div class="top-bar">
+    <div class="logo">put<span>.</span>io</div>
+    <div class="nav-pills">
+      <div class="nav-pill">Home</div>
+      <div class="nav-pill">Browse</div>
+      <div class="nav-pill">Transfers</div>
+      <div class="nav-pill">Search</div>
+      <div class="nav-pill active">Settings</div>
+    </div>
+    <div class="top-right">
+      <div class="storage-wrap">
+        <div class="storage-bar"><div class="storage-bar-fill"></div></div>
+        <span class="storage-label">39.2 / 50 TB</span>
+      </div>
+      <div class="user-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="breadcrumb">
+    <span class="breadcrumb-link">Settings</span>
+    <span class="breadcrumb-sep">&#x203A;</span>
+    <span class="breadcrumb-current">Diagnostics</span>
+  </div>
+
+  <div class="content">
+    <div class="page-title">Diagnostics</div>
+    <div class="diag-grid">
+      <div class="diag-card">
+        <div class="diag-card-title">Connection</div>
+        <div class="diag-row"><div class="diag-row-left"><div class="status-dot green"></div><span class="diag-label">API</span></div><span class="diag-value">42 ms</span></div>
+        <div class="diag-row"><div class="diag-row-left"><div class="status-dot green"></div><span class="diag-label">CDN</span></div><span class="diag-value">18 ms</span></div>
+        <div class="diag-row"><div class="diag-row-left"><div class="status-dot green"></div><span class="diag-label">Streaming</span></div><span class="diag-value">Ready</span></div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-card-title">Playback</div>
+        <div class="diag-row"><div class="diag-row-left"><div class="status-dot green"></div><span class="diag-label">Video Decoder</span></div><span class="diag-value">H.264, H.265, VP9</span></div>
+        <div class="diag-row"><div class="diag-row-left"><div class="status-dot green"></div><span class="diag-label">Audio Decoder</span></div><span class="diag-value">AAC, AC3, DTS</span></div>
+        <div class="diag-row"><div class="diag-row-left"><div class="status-dot green"></div><span class="diag-label">Subtitles</span></div><span class="diag-value">SRT, ASS, VTT</span></div>
+        <div class="diag-row"><div class="diag-row-left"><div class="status-dot green"></div><span class="diag-label">HDMI</span></div><span class="diag-value">4K@60Hz</span></div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-card-title">Device</div>
+        <div class="diag-row"><span class="info-label">Platform</span><span class="info-value">Samsung Tizen</span></div>
+        <div class="diag-row"><span class="info-label">Model</span><span class="info-value">QN65QN85C</span></div>
+        <div class="diag-row"><span class="info-label">OS Version</span><span class="info-value">Tizen 7.0</span></div>
+        <div class="diag-row"><span class="info-label">App Version</span><span class="info-value">tv.put.io 2.1.0</span></div>
+        <div class="diag-row"><span class="info-label">Screen</span><span class="info-value">3840 &times; 2160</span></div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-card-title">Network</div>
+        <div class="diag-row"><span class="info-label">Connection</span><span class="info-value">Wi-Fi (5 GHz)</span></div>
+        <div class="diag-row"><span class="info-label">Local IP</span><span class="info-value">192.168.1.42</span></div>
+        <div class="diag-row"><span class="info-label">Public IP</span><span class="info-value">203.0.113.45</span></div>
+        <div class="diag-row"><span class="info-label">CDN Region</span><span class="info-value">Amsterdam (AMS)</span></div>
+        <div class="diag-row"><span class="info-label">DNS</span><span class="info-value">1.1.1.1</span></div>
+      </div>
+    </div>
+    <div class="action-bar"><button class="btn-copy">Copy All</button></div>
+  </div>
+
+  <div class="bottom-bar">
+    <span>&#x25B2;&#x25BC; Navigate</span>
+    <span>OK Select</span>
+    <span>&#x25C0; Back</span>
+  </div>
+
+</div>
+</body>
+</html>

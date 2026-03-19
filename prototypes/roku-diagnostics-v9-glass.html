@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#111113">
+<title>put.io — Roku Diagnostics (Glass)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --glass: rgba(255,255,255,0.05); --glass-hover: rgba(255,255,255,0.08);
+    --glass-border: rgba(255,255,255,0.08); --glass-border-strong: rgba(255,255,255,0.12);
+    --glass-inset: inset 0 1px 1px rgba(255,255,255,0.04);
+    --text: #EEEEF0; --text-2: #ABABB2; --text-3: #77777F;
+    --yellow: #FDCE45; --yellow-dim: rgba(253,206,69,0.12); --yellow-glow: rgba(253,206,69,0.20);
+    --green: #30A46C; --red: #E5484D;
+    --blur-heavy: blur(40px); --blur-medium: blur(24px);
+    --radius: 16px; --radius-sm: 10px;
+  }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; font-feature-settings: 'cv11' 1, 'ss01' 1; }
+  .tv-frame { width: 1920px; height: 1080px; overflow: hidden; display: flex; position: relative; background: var(--bg); }
+  .tv-frame::before { content: ''; position: absolute; top: -150px; right: 400px; width: 700px; height: 700px; background: radial-gradient(circle, rgba(253,206,69,0.08) 0%, rgba(253,206,69,0.02) 40%, transparent 70%); pointer-events: none; z-index: 0; }
+  .tv-frame::after { content: ''; position: absolute; bottom: -180px; left: 300px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(253,206,69,0.05) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+
+  .left-rail { width: 260px; flex-shrink: 0; background: var(--glass); backdrop-filter: var(--blur-heavy); -webkit-backdrop-filter: var(--blur-heavy); border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; padding: 60px 0; position: relative; z-index: 1; box-shadow: var(--glass-inset); }
+  .rail-logo { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; padding: 0 32px; margin-bottom: 48px; }
+  .rail-logo .dot { color: var(--yellow); text-shadow: 0 0 12px var(--yellow-glow); }
+  .rail-nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  .rail-item { display: flex; align-items: center; gap: 14px; padding: 14px 32px; font-size: 18px; font-weight: 500; color: var(--text-2); cursor: pointer; }
+  .rail-item svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
+  .rail-item.active { background: var(--yellow); color: #111113; font-weight: 600; box-shadow: 0 0 20px var(--yellow-glow); }
+  .rail-item.active svg { fill: #111113; }
+  .rail-storage { padding: 0 32px; margin-top: auto; }
+  .storage-bar { width: 100%; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-bottom: 10px; }
+  .storage-fill { height: 100%; width: 78%; background: var(--yellow); border-radius: 2px; box-shadow: 0 0 10px var(--yellow-glow); }
+  .storage-label { font-size: 14px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+
+  .main-content { flex: 1; padding: 20px 48px 0; display: flex; flex-direction: column; overflow: hidden; position: relative; z-index: 1; }
+
+  .breadcrumb { display: flex; align-items: center; gap: 10px; font-size: 18px; flex-shrink: 0; margin-bottom: 16px; }
+  .breadcrumb-link { color: var(--text-3); cursor: pointer; }
+  .breadcrumb-sep { color: var(--text-3); }
+  .breadcrumb-current { color: var(--text); font-weight: 600; }
+
+  .page-title { font-size: 28px; font-weight: 600; margin-bottom: 24px; }
+
+  .diag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .diag-card {
+    background: var(--glass); backdrop-filter: var(--blur-medium); -webkit-backdrop-filter: var(--blur-medium);
+    border: 1px solid var(--glass-border); border-radius: var(--radius);
+    padding: 28px; box-shadow: var(--glass-inset);
+  }
+  .diag-card-title { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+  .diag-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--glass-border); }
+  .diag-row:last-child { border-bottom: none; }
+  .diag-row-left { display: flex; align-items: center; gap: 12px; }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .status-dot.green { background: var(--green); box-shadow: 0 0 8px rgba(48,164,108,0.5); }
+  .diag-label { font-size: 18px; color: var(--text); }
+  .diag-value { font-size: 18px; color: var(--text); font-variant-numeric: tabular-nums; }
+  .info-label { font-size: 18px; color: var(--text-2); }
+  .info-value { font-size: 18px; color: var(--text); }
+
+  .action-bar { display: flex; justify-content: center; margin-top: 24px; flex-shrink: 0; }
+  .btn-copy {
+    border: 2px solid var(--yellow); background: var(--glass);
+    backdrop-filter: var(--blur-medium); -webkit-backdrop-filter: var(--blur-medium);
+    color: var(--text); padding: 16px 48px; border-radius: var(--radius-sm);
+    font-size: 20px; font-weight: 600; font-family: inherit; cursor: pointer;
+    box-shadow: var(--glass-inset), 0 0 16px var(--yellow-glow);
+  }
+
+  .bottom-bar { display: flex; align-items: center; justify-content: center; gap: 48px; padding: 15px 48px; flex-shrink: 0; font-size: 15px; color: var(--text-3); margin-top: auto; }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <div class="left-rail">
+    <div class="rail-logo">put<span class="dot">.</span>io</div>
+    <div class="rail-nav">
+      <div class="rail-item"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home</div>
+      <div class="rail-item"><svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>Files</div>
+      <div class="rail-item"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>Search</div>
+      <div class="rail-item"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>History</div>
+      <div class="rail-item"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Trash</div>
+      <div class="rail-item active"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Settings</div>
+    </div>
+    <div class="rail-storage"><div class="storage-bar"><div class="storage-fill"></div></div><div class="storage-label">39.2 / 50 TB</div></div>
+  </div>
+
+  <div class="main-content">
+    <div class="breadcrumb"><span class="breadcrumb-link">Settings</span><span class="breadcrumb-sep">&#x203A;</span><span class="breadcrumb-current">Diagnostics</span></div>
+    <div class="page-title">Diagnostics</div>
+    <div class="diag-grid">
+      <div class="diag-card">
+        <div class="diag-card-title">Connection</div>
+        <div class="diag-row"><div class="diag-row-left"><div class="status-dot green"></div><span class="diag-label">API</span></div><span class="diag-value">42 ms</span></div>
+        <div class="diag-row"><div class="diag-row-left"><div class="status-dot green"></div><span class="diag-label">CDN</span></div><span class="diag-value">18 ms</span></div>
+        <div class="diag-row"><div class="diag-row-left"><div class="status-dot green"></div><span class="diag-label">Streaming</span></div><span class="diag-value">Ready</span></div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-card-title">Playback</div>
+        <div class="diag-row"><div class="diag-row-left"><div class="status-dot green"></div><span class="diag-label">Video Decoder</span></div><span class="diag-value">H.264, H.265, VP9</span></div>
+        <div class="diag-row"><div class="diag-row-left"><div class="status-dot green"></div><span class="diag-label">Audio Decoder</span></div><span class="diag-value">AAC, AC3, DTS</span></div>
+        <div class="diag-row"><div class="diag-row-left"><div class="status-dot green"></div><span class="diag-label">Subtitles</span></div><span class="diag-value">SRT, ASS, VTT</span></div>
+        <div class="diag-row"><div class="diag-row-left"><div class="status-dot green"></div><span class="diag-label">HDMI</span></div><span class="diag-value">4K@60Hz</span></div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-card-title">Device</div>
+        <div class="diag-row"><span class="info-label">Platform</span><span class="info-value">Roku</span></div>
+        <div class="diag-row"><span class="info-label">Model</span><span class="info-value">Roku Ultra 4802</span></div>
+        <div class="diag-row"><span class="info-label">OS Version</span><span class="info-value">Roku OS 12.5</span></div>
+        <div class="diag-row"><span class="info-label">App Version</span><span class="info-value">tv.put.io 2.1.0</span></div>
+        <div class="diag-row"><span class="info-label">Screen</span><span class="info-value">3840 &times; 2160</span></div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-card-title">Network</div>
+        <div class="diag-row"><span class="info-label">Connection</span><span class="info-value">Wi-Fi (5 GHz)</span></div>
+        <div class="diag-row"><span class="info-label">Local IP</span><span class="info-value">192.168.1.42</span></div>
+        <div class="diag-row"><span class="info-label">Public IP</span><span class="info-value">203.0.113.45</span></div>
+        <div class="diag-row"><span class="info-label">CDN Region</span><span class="info-value">Amsterdam (AMS)</span></div>
+        <div class="diag-row"><span class="info-label">DNS</span><span class="info-value">1.1.1.1</span></div>
+      </div>
+    </div>
+    <div class="action-bar"><button class="btn-copy">Copy All</button></div>
+    <div class="bottom-bar"><span>&#x25B2;&#x25BC; Navigate</span><span>OK Select</span><span>&#x25C0; Back</span></div>
+  </div>
+</div>
+</body>
+</html>

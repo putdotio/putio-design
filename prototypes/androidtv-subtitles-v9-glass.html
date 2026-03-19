@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#111113">
+<title>put.io — Android TV Subtitles (Glass)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --glass: rgba(255,255,255,0.05); --glass-hover: rgba(255,255,255,0.08);
+    --glass-border: rgba(255,255,255,0.08); --glass-border-strong: rgba(255,255,255,0.12);
+    --glass-inset: inset 0 1px 1px rgba(255,255,255,0.04);
+    --text: #EEEEF0; --text-2: #ABABB2; --text-3: #77777F; --text-4: #55555E;
+    --yellow: #FDCE45; --yellow-dim: rgba(253,206,69,0.12); --yellow-glow: rgba(253,206,69,0.20);
+    --green: #30A46C; --red: #E5484D;
+    --blur-heavy: blur(40px); --blur-medium: blur(24px); --blur-light: blur(16px);
+    --radius: 16px; --radius-sm: 10px;
+  }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--text); background: #000; -webkit-font-smoothing: antialiased; }
+  .tv-frame { width: 1920px; height: 1080px; position: relative; overflow: hidden; }
+  .video-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #0a0a1a 0%, #141428 40%, #0a0a1a 100%); }
+
+  .subtitle-container { position: absolute; bottom: 200px; left: 50%; transform: translateX(-50%); z-index: 10; }
+  .subtitle-text { color: #fff; font-size: 32px; font-weight: 500; text-align: center; line-height: 1.4; text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.5); }
+
+  .transport-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+    background: rgba(0,0,0,0.5); backdrop-filter: var(--blur-medium); -webkit-backdrop-filter: var(--blur-medium);
+    border-top: 1px solid var(--glass-border);
+    padding: 0 72px; z-index: 20;
+    display: flex; align-items: center; gap: 18px;
+    box-shadow: var(--glass-inset);
+  }
+  .time-label { font-size: 16px; font-weight: 500; color: #fff; font-variant-numeric: tabular-nums; min-width: 50px; }
+  .time-label-right { font-size: 16px; font-weight: 500; color: var(--text-2); font-variant-numeric: tabular-nums; min-width: 56px; text-align: right; }
+  .progress-track { flex: 1; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; position: relative; }
+  .progress-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 42%; background: var(--yellow); border-radius: 2px; box-shadow: 0 0 8px var(--yellow-glow); }
+
+  /* Panel */
+  .panel {
+    position: absolute; top: 0; right: 0; bottom: 0; width: 480px;
+    background: rgba(0,0,0,0.6); backdrop-filter: var(--blur-heavy); -webkit-backdrop-filter: var(--blur-heavy);
+    border-left: 1px solid var(--glass-border);
+    padding: 48px 32px; z-index: 30;
+    box-shadow: var(--glass-inset);
+  }
+  .tabs { display: flex; gap: 28px; }
+  .tab { font-size: 20px; font-weight: 500; color: var(--text-3); padding-bottom: 8px; border-bottom: 2px solid transparent; }
+  .tab.active { font-weight: 600; color: var(--text); border-bottom-color: var(--yellow); text-shadow: 0 0 8px var(--yellow-glow); }
+
+  .subtitle-list { margin-top: 24px; display: flex; flex-direction: column; gap: 4px; }
+  .subtitle-item {
+    display: flex; align-items: center; padding: 14px 18px;
+    border-radius: var(--radius-sm); border: 2px solid transparent; cursor: default;
+  }
+  .subtitle-item.focused {
+    border-color: var(--yellow); background: var(--glass);
+    box-shadow: 0 0 16px var(--yellow-glow), var(--glass-inset);
+  }
+  .subtitle-item.selected { background: var(--yellow-dim); }
+  .check-area { width: 22px; height: 22px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-right: 12px; }
+  .subtitle-name { font-size: 18px; font-weight: 500; color: var(--text); flex: 1; }
+  .subtitle-item.selected .subtitle-name { color: var(--yellow); }
+  .source-badge {
+    font-size: 11px; font-weight: 600;
+    background: var(--glass-hover); border: 1px solid var(--glass-border);
+    color: var(--text-2); padding: 3px 10px; border-radius: 4px; margin-left: 12px; flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <div class="video-bg"></div>
+
+  <div class="subtitle-container">
+    <div class="subtitle-text">You come at the king, you best not miss.</div>
+  </div>
+
+  <div class="transport-bar">
+    <span class="time-label">23:14</span>
+    <div class="progress-track"><div class="progress-fill"></div></div>
+    <span class="time-label-right">-31:46</span>
+  </div>
+
+  <div class="panel">
+    <div class="tabs">
+      <div class="tab active">Subtitles</div>
+      <div class="tab">Audio</div>
+    </div>
+    <div class="subtitle-list">
+      <div class="subtitle-item"><div class="check-area"></div><span class="subtitle-name">Off</span></div>
+      <div class="subtitle-item selected focused">
+        <div class="check-area"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><polyline points="20,6 9,17 4,12" stroke="var(--yellow)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <span class="subtitle-name">English</span>
+        <span class="source-badge">Embedded</span>
+      </div>
+      <div class="subtitle-item"><div class="check-area"></div><span class="subtitle-name">Turkish</span><span class="source-badge">OpenSubtitles</span></div>
+      <div class="subtitle-item"><div class="check-area"></div><span class="subtitle-name">Spanish</span><span class="source-badge">Embedded</span></div>
+      <div class="subtitle-item"><div class="check-area"></div><span class="subtitle-name">French</span><span class="source-badge">ASS</span></div>
+      <div class="subtitle-item"><div class="check-area"></div><span class="subtitle-name">Arabic</span><span class="source-badge">OpenSubtitles</span></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

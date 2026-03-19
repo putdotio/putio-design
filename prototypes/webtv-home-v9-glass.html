@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#111113">
+<title>put.io — TV Home (Glass)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --glass: rgba(255,255,255,0.05); --glass-hover: rgba(255,255,255,0.08);
+    --glass-active: rgba(255,255,255,0.10);
+    --glass-border: rgba(255,255,255,0.08); --glass-border-strong: rgba(255,255,255,0.12);
+    --glass-inset: inset 0 1px 1px rgba(255,255,255,0.04);
+    --text: #EEEEF0; --text-2: #ABABB2; --text-3: #77777F; --text-4: #55555E;
+    --yellow: #FDCE45; --yellow-dim: rgba(253,206,69,0.12); --yellow-glow: rgba(253,206,69,0.20);
+    --green: #30A46C; --blue: #3B82F6; --red: #E5484D;
+    --blur-heavy: blur(40px); --blur-medium: blur(24px); --blur-light: blur(16px);
+    --radius: 16px; --radius-sm: 10px; --radius-xs: 6px;
+    --badge-bg: rgba(255,255,255,0.08);
+    --yellow-subtle: rgba(253,206,69,0.15);
+  }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text); background: var(--bg);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' 1, 'ss01' 1;
+  }
+
+  .tv-frame {
+    width: 1920px; height: 1080px; overflow: hidden;
+    display: flex; flex-direction: column;
+    position: relative; background: var(--bg);
+  }
+  .tv-frame::before {
+    content: ''; position: absolute;
+    top: -180px; right: 200px;
+    width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(253,206,69,0.08) 0%, rgba(253,206,69,0.02) 40%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  .tv-frame::after {
+    content: ''; position: absolute;
+    bottom: -200px; left: 200px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(253,206,69,0.05) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* Top Bar */
+  .top-bar {
+    display: flex; align-items: center;
+    padding: 0 72px; height: 84px; flex-shrink: 0;
+    background: var(--glass);
+    backdrop-filter: var(--blur-medium);
+    -webkit-backdrop-filter: var(--blur-medium);
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: var(--glass-inset);
+    position: relative; z-index: 1;
+  }
+  .logo { font-size: 27px; font-weight: 700; letter-spacing: -0.02em; white-space: nowrap; }
+  .logo span { color: var(--yellow); text-shadow: 0 0 12px var(--yellow-glow); }
+
+  .nav-pills { display: flex; align-items: center; gap: 6px; margin: 0 auto; }
+  .nav-pill {
+    font-size: 20px; font-weight: 500; color: var(--text-2);
+    padding: 10px 28px; border-radius: 30px;
+    background: transparent; white-space: nowrap;
+    cursor: pointer; border: 2px solid transparent;
+  }
+  .nav-pill.active {
+    background: var(--yellow); color: #111113; font-weight: 600;
+    box-shadow: 0 0 20px var(--yellow-glow);
+  }
+  .nav-pill.focused {
+    border-color: var(--yellow);
+    background: var(--glass);
+  }
+
+  .top-right { display: flex; align-items: center; gap: 18px; white-space: nowrap; flex-shrink: 0; }
+  .storage-wrap { display: flex; align-items: center; gap: 12px; }
+  .storage-label { font-size: 16px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+  .storage-bar {
+    width: 90px; height: 4px;
+    background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden;
+  }
+  .storage-bar-fill {
+    width: 78%; height: 100%;
+    background: var(--yellow); border-radius: 2px;
+    box-shadow: 0 0 8px var(--yellow-glow);
+  }
+  .user-icon {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .user-icon svg { width: 24px; height: 24px; fill: var(--text-2); }
+
+  /* Content Area */
+  .content {
+    flex: 1; padding: 30px 72px 0;
+    display: flex; flex-direction: column;
+    overflow: hidden; position: relative; z-index: 1;
+  }
+
+  .section-header {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .section-title { font-size: 24px; font-weight: 600; }
+  .section-link { font-size: 16px; color: var(--text-2); cursor: pointer; }
+
+  .badge {
+    font-size: 14px; font-weight: 600; text-transform: uppercase;
+    background: var(--badge-bg); color: var(--text-2);
+    padding: 3px 12px; border-radius: 6px; white-space: nowrap; line-height: 1.4;
+  }
+  .badge.yellow { background: var(--yellow-subtle); color: var(--yellow); }
+
+  /* Continue Watching */
+  .cw-row { display: flex; gap: 21px; margin-bottom: 30px; flex-shrink: 0; }
+  .cw-card {
+    width: 372px; flex-shrink: 0;
+    background: var(--glass);
+    backdrop-filter: var(--blur-medium);
+    -webkit-backdrop-filter: var(--blur-medium);
+    border-radius: var(--radius);
+    border: 2px solid var(--glass-border);
+    overflow: hidden; cursor: pointer;
+    box-shadow: var(--glass-inset);
+  }
+  .cw-card.focused {
+    border-color: var(--yellow);
+    background: var(--glass-hover);
+    box-shadow: var(--glass-inset), 0 0 24px rgba(253,206,69,0.1);
+  }
+  .cw-thumb { width: 100%; height: 210px; position: relative; overflow: hidden; }
+  .cw-thumb-gradient { width: 100%; height: 100%; }
+  .cw-thumb .play-icon {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 54px; height: 54px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: var(--blur-light);
+    -webkit-backdrop-filter: var(--blur-light);
+    border: 1px solid var(--glass-border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cw-thumb .play-icon svg { width: 27px; height: 27px; fill: #fff; }
+  .cw-progress { height: 4px; background: rgba(255,255,255,0.06); }
+  .cw-progress-fill { height: 100%; background: var(--yellow); box-shadow: 0 0 8px var(--yellow-glow); }
+  .cw-info { padding: 12px 15px; display: flex; flex-direction: column; gap: 6px; }
+  .cw-title { font-size: 21px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cw-meta { display: flex; align-items: center; gap: 9px; font-size: 16px; color: var(--text-2); }
+
+  /* Your Files */
+  .files-row { display: flex; gap: 21px; margin-bottom: 30px; flex-shrink: 0; }
+  .folder-card {
+    width: 225px; height: 165px; flex-shrink: 0;
+    background: var(--glass);
+    backdrop-filter: var(--blur-medium);
+    -webkit-backdrop-filter: var(--blur-medium);
+    border-radius: var(--radius);
+    border: 2px solid var(--glass-border);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 9px; cursor: pointer;
+    box-shadow: var(--glass-inset);
+  }
+  .folder-card.focused {
+    border-color: var(--yellow);
+    background: var(--glass-hover);
+    box-shadow: var(--glass-inset), 0 0 24px rgba(253,206,69,0.1);
+  }
+  .folder-card svg { width: 42px; height: 42px; fill: var(--yellow); filter: drop-shadow(0 0 8px var(--yellow-glow)); }
+  .folder-name { font-size: 21px; font-weight: 600; color: #fff; }
+  .folder-meta { font-size: 16px; color: var(--text-2); }
+
+  /* Transfers */
+  .transfers-row { display: flex; gap: 21px; margin-bottom: 30px; flex-shrink: 0; }
+  .transfer-card {
+    width: 390px; height: 117px; flex-shrink: 0;
+    background: var(--glass);
+    backdrop-filter: var(--blur-medium);
+    -webkit-backdrop-filter: var(--blur-medium);
+    border-radius: var(--radius);
+    border: 2px solid var(--glass-border);
+    padding: 15px 21px;
+    display: flex; flex-direction: column; justify-content: center; gap: 12px;
+    cursor: pointer;
+    box-shadow: var(--glass-inset);
+  }
+  .transfer-card.focused {
+    border-color: var(--yellow);
+    background: var(--glass-hover);
+    box-shadow: var(--glass-inset), 0 0 24px rgba(253,206,69,0.1);
+  }
+  .transfer-top { display: flex; align-items: center; gap: 12px; }
+  .transfer-name { flex: 1; font-size: 21px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .transfer-health { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 500; flex-shrink: 0; white-space: nowrap; }
+  .transfer-health .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .transfer-health.downloading .dot { background: var(--yellow); box-shadow: 0 0 8px var(--yellow-glow); }
+  .transfer-health.downloading { color: var(--yellow); }
+  .transfer-health.sharing .dot { background: var(--blue); box-shadow: 0 0 8px rgba(59,130,246,0.4); }
+  .transfer-health.sharing { color: var(--blue); }
+  .transfer-health.ready .dot { background: var(--green); box-shadow: 0 0 8px rgba(48,164,108,0.4); }
+  .transfer-health.ready { color: var(--green); }
+  .transfer-bottom { display: flex; align-items: center; gap: 12px; }
+  .transfer-progress { flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; }
+  .transfer-progress-fill { height: 100%; border-radius: 2px; }
+  .transfer-progress-fill.downloading { background: var(--yellow); box-shadow: 0 0 8px var(--yellow-glow); }
+  .transfer-progress-fill.ready { background: var(--green); }
+  .transfer-progress-fill.sharing { background: var(--blue); }
+  .transfer-speed { font-size: 16px; color: var(--text-2); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+
+  /* Recently Added */
+  .recent-row { display: flex; gap: 15px; flex-shrink: 0; }
+  .recent-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--glass);
+    backdrop-filter: var(--blur-medium);
+    -webkit-backdrop-filter: var(--blur-medium);
+    border: 2px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: 12px 18px; cursor: pointer; white-space: nowrap;
+    box-shadow: var(--glass-inset);
+  }
+  .recent-item.focused {
+    border-color: var(--yellow);
+    background: var(--glass-hover);
+    box-shadow: var(--glass-inset), 0 0 24px rgba(253,206,69,0.1);
+  }
+  .recent-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .recent-icon.video { background: var(--glass-hover); }
+  .recent-icon.video svg { fill: var(--text-2); width: 21px; height: 21px; }
+  .recent-icon.audio { background: rgba(48,164,108,0.12); }
+  .recent-icon.audio svg { fill: var(--green); width: 21px; height: 21px; }
+  .recent-icon.file { background: rgba(59,130,246,0.12); }
+  .recent-icon.file svg { fill: var(--blue); width: 21px; height: 21px; }
+  .recent-name { font-size: 20px; font-weight: 600; color: #fff; }
+  .recent-size { font-size: 16px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+  /* Bottom Bar */
+  .bottom-bar {
+    display: flex; align-items: center; justify-content: center; gap: 48px;
+    padding: 15px 72px 36px; flex-shrink: 0;
+    font-size: 16px; color: var(--text-4);
+    position: relative; z-index: 1;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">put<span>.</span>io</div>
+    <div class="nav-pills">
+      <div class="nav-pill active">Home</div>
+      <div class="nav-pill">Browse</div>
+      <div class="nav-pill">Transfers</div>
+      <div class="nav-pill">Search</div>
+      <div class="nav-pill">Settings</div>
+    </div>
+    <div class="top-right">
+      <div class="storage-wrap">
+        <div class="storage-bar"><div class="storage-bar-fill"></div></div>
+        <span class="storage-label">39.2 / 50 TB</span>
+      </div>
+      <div class="user-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Continue Watching -->
+    <div class="section-header">
+      <div class="section-title">Continue Watching</div>
+      <div class="section-link">See all</div>
+    </div>
+    <div class="cw-row">
+      <div class="cw-card focused">
+        <div class="cw-thumb">
+          <div class="cw-thumb-gradient" style="background: linear-gradient(135deg, #2a1f0a 0%, #1a2810 50%, #0f1a20 100%);"></div>
+          <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <div class="cw-progress"><div class="cw-progress-fill" style="width: 65%;"></div></div>
+        <div class="cw-info">
+          <div class="cw-title">Big Buck Bunny</div>
+          <div class="cw-meta"><span class="badge yellow">4K</span><span>6.72 GB</span></div>
+        </div>
+      </div>
+      <div class="cw-card">
+        <div class="cw-thumb">
+          <div class="cw-thumb-gradient" style="background: linear-gradient(135deg, #1a0f22 0%, #20101a 50%, #0f1520 100%);"></div>
+          <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <div class="cw-progress"><div class="cw-progress-fill" style="width: 35%;"></div></div>
+        <div class="cw-info">
+          <div class="cw-title">Sintel</div>
+          <div class="cw-meta"><span class="badge">1080p</span><span>4.21 GB</span></div>
+        </div>
+      </div>
+      <div class="cw-card">
+        <div class="cw-thumb">
+          <div class="cw-thumb-gradient" style="background: linear-gradient(135deg, #101820 0%, #181818 50%, #101014 100%);"></div>
+          <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <div class="cw-progress"><div class="cw-progress-fill" style="width: 12%;"></div></div>
+        <div class="cw-info">
+          <div class="cw-title">The Wire</div>
+          <div class="cw-meta"><span class="badge">S3 &middot; E4</span><span>1.43 GB</span></div>
+        </div>
+      </div>
+      <div class="cw-card">
+        <div class="cw-thumb">
+          <div class="cw-thumb-gradient" style="background: linear-gradient(135deg, #0a0f22 0%, #0a1828 50%, #10101a 100%);"></div>
+          <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <div class="cw-progress"><div class="cw-progress-fill" style="width: 88%;"></div></div>
+        <div class="cw-info">
+          <div class="cw-title">Cosmos</div>
+          <div class="cw-meta"><span class="badge">E2</span><span class="badge">1080p</span><span>2.89 GB</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Your Files -->
+    <div class="section-header">
+      <div class="section-title">Your Files</div>
+      <div class="section-link">See all</div>
+    </div>
+    <div class="files-row">
+      <div class="folder-card">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        <div class="folder-name">Downloads</div>
+        <div class="folder-meta">24 items &middot; 21.8 GB</div>
+      </div>
+      <div class="folder-card">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        <div class="folder-name">TV Shows</div>
+        <div class="folder-meta">12 items &middot; 42.6 GB</div>
+      </div>
+      <div class="folder-card">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        <div class="folder-name">Movies</div>
+        <div class="folder-meta">8 items &middot; 38.1 GB</div>
+      </div>
+      <div class="folder-card">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        <div class="folder-name">Music</div>
+        <div class="folder-meta">156 items &middot; 18.4 GB</div>
+      </div>
+      <div class="folder-card">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        <div class="folder-name">Documents</div>
+        <div class="folder-meta">31 items &middot; 1.2 GB</div>
+      </div>
+    </div>
+
+    <!-- Active Transfers -->
+    <div class="section-header">
+      <div class="section-title">Active Transfers</div>
+      <div class="section-link">See all</div>
+    </div>
+    <div class="transfers-row">
+      <div class="transfer-card">
+        <div class="transfer-top">
+          <div class="transfer-name">Ubuntu 24.04</div>
+          <span class="badge">ISO</span>
+          <div class="transfer-health downloading"><span class="dot"></span>Downloading</div>
+        </div>
+        <div class="transfer-bottom">
+          <div class="transfer-progress"><div class="transfer-progress-fill downloading" style="width: 73%;"></div></div>
+          <div class="transfer-speed">12.4 MB/s</div>
+        </div>
+      </div>
+      <div class="transfer-card">
+        <div class="transfer-top">
+          <div class="transfer-name">Podcast Feed</div>
+          <div class="transfer-health ready"><span class="dot"></span>Ready</div>
+        </div>
+        <div class="transfer-bottom">
+          <div class="transfer-progress"><div class="transfer-progress-fill ready" style="width: 100%;"></div></div>
+          <div class="transfer-speed">18.2 MB</div>
+        </div>
+      </div>
+      <div class="transfer-card">
+        <div class="transfer-top">
+          <div class="transfer-name">Game of Thrones</div>
+          <span class="badge">S1</span>
+          <div class="transfer-health sharing"><span class="dot"></span>Sharing</div>
+        </div>
+        <div class="transfer-bottom">
+          <div class="transfer-progress"><div class="transfer-progress-fill sharing" style="width: 100%;"></div></div>
+          <div class="transfer-speed">2.1 MB/s</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recently Added -->
+    <div class="section-header">
+      <div class="section-title">Recently Added</div>
+      <div class="section-link">See all</div>
+    </div>
+    <div class="recent-row">
+      <div class="recent-item">
+        <div class="recent-icon video"><svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg></div>
+        <div class="recent-name">Movie</div>
+        <span class="badge">2024</span>
+        <span class="badge">4K</span>
+        <div class="recent-size">18.3 GB</div>
+      </div>
+      <div class="recent-item">
+        <div class="recent-icon audio"><svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div>
+        <div class="recent-name">Album</div>
+        <span class="badge">FLAC</span>
+        <div class="recent-size">48.2 MB</div>
+      </div>
+      <div class="recent-item">
+        <div class="recent-icon file"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/></svg></div>
+        <div class="recent-name">Document</div>
+        <span class="badge">PDF</span>
+        <div class="recent-size">2.4 MB</div>
+      </div>
+      <div class="recent-item">
+        <div class="recent-icon audio"><svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div>
+        <div class="recent-name">Soundtrack</div>
+        <span class="badge">FLAC</span>
+        <div class="recent-size">450 MB</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="bottom-bar">
+    <span>&#x25B2;&#x25BC; Browse</span>
+    <span>OK Select</span>
+    <span>&#x25C0; Back</span>
+  </div>
+
+</div>
+</body>
+</html>

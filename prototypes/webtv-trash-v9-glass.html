@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#111113">
+<title>put.io — Web TV Trash (Glass)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --glass: rgba(255,255,255,0.05); --glass-hover: rgba(255,255,255,0.08);
+    --glass-border: rgba(255,255,255,0.08); --glass-border-strong: rgba(255,255,255,0.12);
+    --glass-inset: inset 0 1px 1px rgba(255,255,255,0.04);
+    --text: #EEEEF0; --text-2: #ABABB2; --text-3: #77777F; --text-4: #55555E;
+    --yellow: #FDCE45; --yellow-dim: rgba(253,206,69,0.12); --yellow-glow: rgba(253,206,69,0.20);
+    --green: #30A46C; --blue: #3B82F6; --red: #E5484D;
+    --blur-heavy: blur(40px); --blur-medium: blur(24px); --blur-light: blur(16px);
+    --radius: 16px; --radius-sm: 10px; --radius-xs: 6px;
+    --badge-bg: rgba(255,255,255,0.08);
+  }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text); background: var(--bg);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' 1, 'ss01' 1;
+  }
+
+  .tv-frame {
+    width: 1920px; height: 1080px; overflow: hidden;
+    display: flex; flex-direction: column;
+    position: relative; background: var(--bg);
+  }
+  .tv-frame::before {
+    content: ''; position: absolute; top: -180px; right: 200px;
+    width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(253,206,69,0.08) 0%, rgba(253,206,69,0.02) 40%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  .tv-frame::after {
+    content: ''; position: absolute; bottom: -200px; left: 200px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(253,206,69,0.05) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .top-bar {
+    display: flex; align-items: center; padding: 0 72px; height: 84px; flex-shrink: 0;
+    background: var(--glass); backdrop-filter: var(--blur-medium); -webkit-backdrop-filter: var(--blur-medium);
+    border-bottom: 1px solid var(--glass-border); box-shadow: var(--glass-inset);
+    position: relative; z-index: 1;
+  }
+  .logo { font-size: 27px; font-weight: 700; letter-spacing: -0.02em; flex-shrink: 0; }
+  .logo span { color: var(--yellow); text-shadow: 0 0 12px var(--yellow-glow); }
+  .nav-pills { display: flex; align-items: center; gap: 6px; margin: 0 auto; }
+  .nav-pill { font-size: 20px; font-weight: 500; color: var(--text-2); padding: 10px 28px; border-radius: 20px; border: 2px solid transparent; }
+  .top-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+  .storage-indicator { font-size: 16px; color: var(--text-2); display: flex; align-items: center; gap: 10px; }
+  .storage-bar-wrap { width: 80px; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+  .storage-bar-fill { width: 78%; height: 100%; background: var(--yellow); border-radius: 2px; box-shadow: 0 0 8px var(--yellow-glow); }
+  .user-icon { width: 42px; height: 42px; border-radius: 50%; background: var(--glass); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .user-icon svg { width: 22px; height: 22px; fill: var(--text-3); }
+
+  .content { flex: 1; padding: 30px 72px; display: flex; flex-direction: column; overflow: hidden; position: relative; z-index: 1; }
+
+  .header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-shrink: 0; }
+  .header-title { font-size: 28px; font-weight: 600; }
+  .empty-trash-btn {
+    display: flex; align-items: center; gap: 8px;
+    color: var(--red); font-size: 18px; font-weight: 600;
+    padding: 10px 24px; border: 2px solid var(--red); border-radius: var(--radius-sm);
+    background: rgba(229,72,77,0.08); font-family: inherit;
+    backdrop-filter: var(--blur-light); -webkit-backdrop-filter: var(--blur-light);
+  }
+  .empty-trash-btn svg { width: 20px; height: 20px; fill: var(--red); }
+
+  .trash-list { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+  .trash-row {
+    display: flex; align-items: center; height: 78px; padding: 0 16px;
+    border: 2px solid transparent; border-radius: var(--radius-sm);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .trash-row.focused {
+    border-color: var(--yellow); background: var(--glass-hover);
+    box-shadow: var(--glass-inset), 0 0 20px rgba(253,206,69,0.08);
+  }
+  .trash-row.focused .t-name { color: #fff; }
+  .trash-row.focused { border-bottom-color: var(--yellow); }
+
+  .t-icon { width: 24px; height: 24px; flex-shrink: 0; margin-right: 16px; display: flex; align-items: center; justify-content: center; }
+  .t-icon svg { width: 24px; height: 24px; fill: var(--red); }
+  .t-name { flex: 1; font-size: 21px; font-weight: 600; color: var(--text-2); min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .t-badge { font-size: 14px; font-weight: 600; text-transform: uppercase; background: var(--badge-bg); color: var(--text-2); padding: 3px 10px; border-radius: 4px; margin-left: 12px; flex-shrink: 0; line-height: 1.4; }
+  .t-date { font-size: 18px; color: var(--text-3); margin-left: 24px; flex-shrink: 0; min-width: 200px; text-align: right; }
+  .t-size { font-size: 18px; color: var(--text-3); margin-left: 24px; flex-shrink: 0; min-width: 80px; text-align: right; font-variant-numeric: tabular-nums; }
+  .t-restore { font-size: 18px; font-weight: 600; color: var(--green); margin-left: 32px; flex-shrink: 0; }
+
+  .bottom-bar {
+    display: flex; align-items: center; padding: 0 72px; height: 48px; flex-shrink: 0;
+    border-top: 1px solid var(--glass-border);
+    background: var(--glass); backdrop-filter: var(--blur-medium); -webkit-backdrop-filter: var(--blur-medium);
+    box-shadow: var(--glass-inset);
+    font-size: 16px; color: var(--text-3);
+    position: relative; z-index: 1;
+  }
+  .bottom-left { display: flex; align-items: center; gap: 24px; }
+  .bottom-center { flex: 1; text-align: center; color: var(--text-2); font-size: 16px; }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <div class="top-bar">
+    <div class="logo">put<span>.</span>io</div>
+    <div class="nav-pills">
+      <div class="nav-pill">Home</div>
+      <div class="nav-pill">Browse</div>
+      <div class="nav-pill">Transfers</div>
+      <div class="nav-pill">Search</div>
+      <div class="nav-pill">Settings</div>
+    </div>
+    <div class="top-right">
+      <div class="storage-indicator">
+        <div class="storage-bar-wrap"><div class="storage-bar-fill"></div></div>
+        39.2 / 50 TB
+      </div>
+      <div class="user-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="header-row">
+      <div class="header-title">Trash</div>
+      <button class="empty-trash-btn">
+        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        Empty Trash
+      </button>
+    </div>
+    <div class="trash-list">
+      <div class="trash-row focused">
+        <div class="t-icon"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></div>
+        <div class="t-name">Old Project Files</div>
+        <div class="t-badge">Folder</div>
+        <div class="t-date">Deleted 1 hour ago</div>
+        <div class="t-size">4.2 GB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+      <div class="trash-row">
+        <div class="t-icon"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></div>
+        <div class="t-name">The Wire</div>
+        <div class="t-badge">S2 &middot; E12</div>
+        <div class="t-badge">1080p</div>
+        <div class="t-date">Deleted 2 days ago</div>
+        <div class="t-size">1.9 GB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+      <div class="trash-row">
+        <div class="t-icon"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></div>
+        <div class="t-name">Duplicate Movie</div>
+        <div class="t-badge">720p</div>
+        <div class="t-date">Deleted 3 days ago</div>
+        <div class="t-size">2.1 GB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+      <div class="trash-row">
+        <div class="t-icon"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></div>
+        <div class="t-name">readme.txt</div>
+        <div class="t-badge">TXT</div>
+        <div class="t-date">Deleted 5 days ago</div>
+        <div class="t-size">12 KB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+      <div class="trash-row">
+        <div class="t-icon"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></div>
+        <div class="t-name">Screenshot.png</div>
+        <div class="t-badge">IMG</div>
+        <div class="t-date">Deleted 1 week ago</div>
+        <div class="t-size">4.8 MB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+      <div class="trash-row">
+        <div class="t-icon"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></div>
+        <div class="t-name">Old Podcast</div>
+        <div class="t-badge">MP3</div>
+        <div class="t-date">Deleted 2 weeks ago</div>
+        <div class="t-size">89 MB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="bottom-left">
+      <span>&#x25B2;&#x25BC; Navigate</span>
+      <span>OK Restore</span>
+      <span>&#x25C0; Back</span>
+    </div>
+    <div class="bottom-center">6 items &middot; 8.3 GB</div>
+  </div>
+
+</div>
+</body>
+</html>

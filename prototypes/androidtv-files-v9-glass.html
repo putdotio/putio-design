@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#111113">
+<title>put.io — Android TV Files (Glass)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --glass: rgba(255,255,255,0.05); --glass-hover: rgba(255,255,255,0.08);
+    --glass-active: rgba(255,255,255,0.10);
+    --glass-border: rgba(255,255,255,0.08); --glass-border-strong: rgba(255,255,255,0.12);
+    --glass-inset: inset 0 1px 1px rgba(255,255,255,0.04);
+    --text: #EEEEF0; --text-2: #ABABB2; --text-3: #77777F; --text-4: #55555E;
+    --yellow: #FDCE45; --yellow-dim: rgba(253,206,69,0.12); --yellow-glow: rgba(253,206,69,0.20);
+    --green: #30A46C; --red: #E5484D; --blue: #3B82F6;
+    --blur-heavy: blur(40px); --blur-medium: blur(24px); --blur-light: blur(16px);
+    --radius: 16px; --radius-sm: 10px;
+  }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+  .tv-frame { width: 1920px; height: 1080px; overflow: hidden; display: flex; position: relative; background: var(--bg); }
+  .tv-frame::before { content: ''; position: absolute; top: -150px; right: 200px; width: 700px; height: 700px; background: radial-gradient(circle, rgba(253,206,69,0.06) 0%, rgba(253,206,69,0.015) 40%, transparent 70%); pointer-events: none; z-index: 0; }
+  .tv-frame::after { content: ''; position: absolute; bottom: -180px; left: 300px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(253,206,69,0.04) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+
+  .side-rail { width: 88px; flex-shrink: 0; background: var(--glass); backdrop-filter: var(--blur-heavy); -webkit-backdrop-filter: var(--blur-heavy); border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; padding: 32px 0; gap: 8px; position: relative; z-index: 2; box-shadow: var(--glass-inset); }
+  .rail-logo { font-size: 18px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 24px; }
+  .rail-logo .dot { color: var(--yellow); text-shadow: 0 0 12px var(--yellow-glow); }
+  .rail-item { width: 56px; height: 56px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid transparent; }
+  .rail-item svg { width: 24px; height: 24px; fill: var(--text-3); }
+  .rail-item:hover { background: var(--glass-hover); }
+  .rail-item.active { background: var(--glass-active); border-color: var(--yellow); box-shadow: 0 0 20px var(--yellow-glow), var(--glass-inset); }
+  .rail-item.active svg { fill: var(--yellow); }
+  .rail-spacer { flex: 1; }
+  .rail-avatar { width: 40px; height: 40px; border-radius: 10px; background: var(--glass-hover); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; }
+
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; z-index: 1; }
+
+  /* Breadcrumb */
+  .breadcrumb-bar {
+    padding: 24px 64px 0; font-size: 18px; flex-shrink: 0;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .bc-item { color: var(--text-3); cursor: pointer; }
+  .bc-item:hover { color: var(--text-2); }
+  .bc-sep { color: var(--text-4); }
+  .bc-current { color: var(--text); font-weight: 600; }
+
+  /* Sort bar */
+  .sort-bar { padding: 16px 64px 0; display: flex; gap: 4px; flex-shrink: 0; }
+  .sort-pill {
+    font-size: 15px; font-weight: 500; color: var(--text-3);
+    padding: 6px 18px; border-radius: 999px; cursor: pointer;
+    background: transparent; border: none; font-family: inherit;
+  }
+  .sort-pill.active { color: var(--yellow); font-weight: 600; }
+
+  /* File List */
+  .file-list { flex: 1; overflow: hidden; display: flex; flex-direction: column; padding: 16px 64px 0; }
+  .list-divider { height: 20px; flex-shrink: 0; border-bottom: 1px solid var(--glass-border); margin-bottom: 8px; }
+
+  .file-row {
+    display: flex; align-items: center; height: 72px; padding: 0 20px;
+    border: 2px solid transparent; border-radius: var(--radius-sm);
+    cursor: pointer; transition: all 0.12s; margin-bottom: 2px; flex-shrink: 0;
+  }
+  .file-row:hover { background: var(--glass-hover); }
+  .file-row.focused {
+    border-color: var(--yellow); background: var(--glass);
+    box-shadow: 0 0 20px var(--yellow-glow), var(--glass-inset);
+  }
+  .file-row.focused .f-name { color: #fff; }
+
+  .f-icon { width: 28px; height: 28px; flex-shrink: 0; margin-right: 16px; display: flex; align-items: center; justify-content: center; }
+  .f-icon svg { width: 28px; height: 28px; }
+  .f-icon.folder svg { fill: var(--yellow); filter: drop-shadow(0 0 4px var(--yellow-glow)); }
+  .f-icon.video svg { fill: var(--blue); }
+  .f-icon.audio svg { fill: var(--green); }
+  .f-icon.other svg { fill: var(--text-3); }
+  .f-name { flex: 1; font-size: 20px; font-weight: 500; color: var(--text); min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .f-badge { font-size: 12px; font-weight: 600; text-transform: uppercase; background: var(--glass-hover); border: 1px solid var(--glass-border); color: var(--text-2); padding: 3px 10px; border-radius: 6px; margin-left: 12px; flex-shrink: 0; }
+  .f-items { font-size: 16px; color: var(--text-3); margin-left: 16px; flex-shrink: 0; min-width: 90px; }
+  .f-size { font-size: 16px; color: var(--text-3); margin-left: 16px; flex-shrink: 0; min-width: 90px; text-align: right; font-variant-numeric: tabular-nums; }
+  .f-duration { font-size: 16px; color: var(--text-4); margin-left: 16px; flex-shrink: 0; min-width: 70px; text-align: right; }
+  .f-progress { width: 100px; height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-left: 16px; flex-shrink: 0; overflow: hidden; }
+  .f-progress-fill { height: 100%; background: var(--yellow); border-radius: 2px; box-shadow: 0 0 6px var(--yellow-glow); }
+  .f-chevron { font-size: 18px; color: var(--text-4); margin-left: 16px; flex-shrink: 0; }
+
+  /* Bottom bar */
+  .bottom-bar {
+    display: flex; align-items: center; padding: 0 64px; height: 56px; flex-shrink: 0;
+    border-top: 1px solid var(--glass-border);
+    background: var(--glass); backdrop-filter: var(--blur-medium); -webkit-backdrop-filter: var(--blur-medium);
+    font-size: 14px; color: var(--text-4); box-shadow: var(--glass-inset);
+  }
+  .bottom-left { display: flex; align-items: center; gap: 24px; }
+  .bottom-center { flex: 1; text-align: center; color: var(--text-3); }
+  .bottom-right { display: flex; align-items: center; gap: 10px; }
+  .bottom-storage { width: 80px; height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+  .bottom-storage-fill { width: 78%; height: 100%; background: var(--yellow); border-radius: 2px; box-shadow: 0 0 6px var(--yellow-glow); }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <div class="side-rail">
+    <div class="rail-logo">put<span class="dot">.</span>io</div>
+    <div class="rail-item" title="Home"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+    <div class="rail-item active" title="Files"><svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></div>
+    <div class="rail-item" title="Search"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></div>
+    <div class="rail-item" title="History"><svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg></div>
+    <div class="rail-item" title="Settings"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></div>
+    <div class="rail-spacer"></div>
+    <div class="rail-avatar"><svg width="20" height="20" viewBox="0 0 16 16" fill="var(--text-3)"><rect x="3" y="2" width="2" height="2"/><rect x="11" y="2" width="2" height="2"/><rect x="5" y="4" width="2" height="2"/><rect x="9" y="4" width="2" height="2"/><rect x="3" y="6" width="10" height="2"/><rect x="1" y="8" width="2" height="2"/><rect x="3" y="8" width="2" height="2"/><rect x="5" y="8" width="6" height="2"/><rect x="11" y="8" width="2" height="2"/><rect x="13" y="8" width="2" height="2"/><rect x="1" y="10" width="2" height="2"/><rect x="5" y="10" width="2" height="2"/><rect x="9" y="10" width="2" height="2"/><rect x="13" y="10" width="2" height="2"/><rect x="3" y="12" width="2" height="2"/><rect x="5" y="12" width="2" height="2"/><rect x="9" y="12" width="2" height="2"/><rect x="11" y="12" width="2" height="2"/></svg></div>
+  </div>
+
+  <div class="main">
+    <div class="breadcrumb-bar">
+      <span class="bc-item">Your Files</span><span class="bc-sep">&#x203A;</span>
+      <span class="bc-item">Downloads</span><span class="bc-sep">&#x203A;</span>
+      <span class="bc-item">TV Shows</span><span class="bc-sep">&#x203A;</span>
+      <span class="bc-current">The Wire</span>
+    </div>
+
+    <div class="sort-bar">
+      <div class="sort-pill active">Name &#x25BE;</div>
+      <div class="sort-pill">Size</div>
+      <div class="sort-pill">Date</div>
+      <div class="sort-pill">Type</div>
+    </div>
+
+    <div class="file-list">
+      <div class="file-row focused">
+        <div class="f-icon folder"><svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></div>
+        <div class="f-name">Season 1</div>
+        <div class="f-items">12 items</div>
+        <div class="f-size">18.4 GB</div>
+        <div class="f-chevron">&#x203A;</div>
+      </div>
+      <div class="file-row">
+        <div class="f-icon folder"><svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></div>
+        <div class="f-name">Season 2</div>
+        <div class="f-items">10 items</div>
+        <div class="f-size">16.2 GB</div>
+        <div class="f-chevron">&#x203A;</div>
+      </div>
+      <div class="file-row">
+        <div class="f-icon folder"><svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></div>
+        <div class="f-name">Season 3</div>
+        <div class="f-items">8 items</div>
+        <div class="f-size">14.8 GB</div>
+        <div class="f-chevron">&#x203A;</div>
+      </div>
+      <div class="file-row">
+        <div class="f-icon folder"><svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></div>
+        <div class="f-name">Extras</div>
+        <div class="f-items">3 items</div>
+        <div class="f-size">2.1 GB</div>
+        <div class="f-chevron">&#x203A;</div>
+      </div>
+
+      <div class="list-divider"></div>
+
+      <div class="file-row">
+        <div class="f-icon video"><svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg></div>
+        <div class="f-name">The Wire</div>
+        <span class="f-badge">S3 &middot; E1</span>
+        <span class="f-badge">1080p</span>
+        <div class="f-size">1.8 GB</div>
+        <div class="f-duration">52 min</div>
+      </div>
+      <div class="file-row">
+        <div class="f-icon video"><svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg></div>
+        <div class="f-name">The Wire</div>
+        <span class="f-badge">S3 &middot; E2</span>
+        <span class="f-badge">1080p</span>
+        <div class="f-size">1.9 GB</div>
+        <div class="f-duration">55 min</div>
+        <div class="f-progress"><div class="f-progress-fill" style="width: 35%"></div></div>
+      </div>
+      <div class="file-row">
+        <div class="f-icon video"><svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg></div>
+        <div class="f-name">The Wire</div>
+        <span class="f-badge">S3 &middot; E3</span>
+        <span class="f-badge">1080p</span>
+        <div class="f-size">1.7 GB</div>
+        <div class="f-duration">48 min</div>
+      </div>
+      <div class="file-row">
+        <div class="f-icon video"><svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg></div>
+        <div class="f-name">The Wire</div>
+        <span class="f-badge">S3 &middot; E4</span>
+        <span class="f-badge">1080p</span>
+        <div class="f-size">1.8 GB</div>
+        <div class="f-duration">51 min</div>
+      </div>
+      <div class="file-row">
+        <div class="f-icon audio"><svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div>
+        <div class="f-name">Soundtrack</div>
+        <span class="f-badge">FLAC</span>
+        <div class="f-size">450 MB</div>
+      </div>
+      <div class="file-row">
+        <div class="f-icon other"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg></div>
+        <div class="f-name">Subtitles (English)</div>
+        <span class="f-badge">SRT</span>
+        <div class="f-size">82 KB</div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="bottom-left">
+        <span>&#x25B2;&#x25BC; Navigate</span>
+        <span>OK Open</span>
+        <span>&#x25C0; Back</span>
+      </div>
+      <div class="bottom-center">8 items &middot; 52.3 GB</div>
+      <div class="bottom-right">
+        <span>39.2 / 50 TB</span>
+        <div class="bottom-storage"><div class="bottom-storage-fill"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

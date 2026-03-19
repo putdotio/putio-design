@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#111113">
+<title>put.io — Android TV Audio Player (Glass)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --glass: rgba(255,255,255,0.05); --glass-hover: rgba(255,255,255,0.08);
+    --glass-active: rgba(255,255,255,0.10);
+    --glass-border: rgba(255,255,255,0.08); --glass-border-strong: rgba(255,255,255,0.12);
+    --glass-inset: inset 0 1px 1px rgba(255,255,255,0.04);
+    --text: #EEEEF0; --text-2: #ABABB2; --text-3: #77777F; --text-4: #55555E;
+    --yellow: #FDCE45; --yellow-dim: rgba(253,206,69,0.12); --yellow-glow: rgba(253,206,69,0.20);
+    --green: #30A46C; --red: #E5484D;
+    --blur-heavy: blur(40px); --blur-medium: blur(24px); --blur-light: blur(16px);
+    --radius: 16px; --radius-sm: 10px;
+  }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+  .tv-frame { width: 1920px; height: 1080px; overflow: hidden; display: flex; position: relative; background: var(--bg); }
+  .tv-frame::before { content: ''; position: absolute; top: -150px; right: 200px; width: 700px; height: 700px; background: radial-gradient(circle, rgba(253,206,69,0.06) 0%, rgba(253,206,69,0.015) 40%, transparent 70%); pointer-events: none; z-index: 0; }
+  .tv-frame::after { content: ''; position: absolute; bottom: -180px; left: 300px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(253,206,69,0.04) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+
+  .side-rail { width: 88px; flex-shrink: 0; background: var(--glass); backdrop-filter: var(--blur-heavy); -webkit-backdrop-filter: var(--blur-heavy); border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; padding: 32px 0; gap: 8px; position: relative; z-index: 2; box-shadow: var(--glass-inset); }
+  .rail-logo { font-size: 18px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 24px; }
+  .rail-logo .dot { color: var(--yellow); text-shadow: 0 0 12px var(--yellow-glow); }
+  .rail-item { width: 56px; height: 56px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid transparent; }
+  .rail-item svg { width: 24px; height: 24px; fill: var(--text-3); }
+  .rail-item.active { background: var(--glass-active); border-color: var(--yellow); box-shadow: 0 0 20px var(--yellow-glow), var(--glass-inset); }
+  .rail-item.active svg { fill: var(--yellow); }
+  .rail-spacer { flex: 1; }
+  .rail-avatar { width: 40px; height: 40px; border-radius: 10px; background: var(--glass-hover); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; }
+
+  .main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; position: relative; z-index: 1; }
+
+  .album-art {
+    width: 320px; height: 320px; border-radius: 20px;
+    background: linear-gradient(135deg, #1a2a1e, #0a1a28);
+    border: 1px solid var(--glass-border-strong);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(253,206,69,0.05), var(--glass-inset);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .album-art svg { width: 72px; height: 72px; fill: rgba(255,255,255,0.12); }
+
+  .track-info { margin-top: 32px; text-align: center; }
+  .track-title { font-size: 26px; font-weight: 600; color: var(--text); }
+  .track-artist { font-size: 18px; color: var(--text-2); margin-top: 8px; }
+  .track-badges { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 12px; }
+  .badge {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    background: var(--glass-hover); border: 1px solid var(--glass-border);
+    color: var(--text-2); padding: 3px 10px; border-radius: 6px; line-height: 1.4;
+  }
+  .track-size { font-size: 13px; color: var(--text-3); }
+
+  .progress-row { display: flex; align-items: center; gap: 14px; margin-top: 32px; width: 560px; }
+  .time-current { font-size: 16px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; min-width: 44px; text-align: right; }
+  .time-remaining { font-size: 16px; font-weight: 500; color: var(--text-2); font-variant-numeric: tabular-nums; min-width: 44px; }
+  .progress-track { flex: 1; height: 5px; background: rgba(255,255,255,0.06); border-radius: 3px; position: relative; }
+  .progress-fill { height: 100%; width: 35%; background: var(--yellow); border-radius: 3px; box-shadow: 0 0 8px var(--yellow-glow); }
+  .progress-dot { width: 13px; height: 13px; background: #fff; border-radius: 50%; position: absolute; top: 50%; left: 35%; transform: translate(-50%, -50%); box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+
+  .transport-controls { display: flex; align-items: center; justify-content: center; gap: 36px; margin-top: 28px; }
+  .ctrl-btn {
+    background: none; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.7); position: relative;
+  }
+  .skip-btn {
+    width: 44px; height: 44px;
+    background: var(--glass); backdrop-filter: var(--blur-light); -webkit-backdrop-filter: var(--blur-light);
+    border: 1px solid var(--glass-border);
+    border-radius: 50%; position: relative; box-shadow: var(--glass-inset);
+  }
+  .skip-btn svg { width: 18px; height: 18px; }
+  .skip-label { position: absolute; font-size: 8px; font-weight: 700; color: rgba(255,255,255,0.7); bottom: 7px; left: 50%; transform: translateX(-50%); }
+  .nav-btn { width: 28px; height: 28px; }
+  .nav-btn svg { width: 28px; height: 28px; }
+  .play-btn {
+    width: 64px; height: 64px;
+    background: var(--glass); backdrop-filter: var(--blur-medium); -webkit-backdrop-filter: var(--blur-medium);
+    border: 2px solid var(--yellow); border-radius: 50%;
+    color: #fff; box-shadow: 0 0 20px var(--yellow-glow), var(--glass-inset);
+  }
+  .play-btn svg { width: 26px; height: 26px; }
+
+  .speed-selector { display: flex; align-items: center; justify-content: center; gap: 0; margin-top: 20px; }
+  .speed-option {
+    font-size: 14px; font-weight: 500; color: var(--text-4);
+    padding: 5px 14px; border-radius: 6px; cursor: pointer;
+  }
+  .speed-option.active {
+    color: var(--yellow); font-weight: 600;
+    background: var(--yellow-dim); border: 1px solid rgba(253,206,69,0.15);
+    box-shadow: 0 0 8px rgba(253,206,69,0.1);
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <div class="side-rail">
+    <div class="rail-logo">put<span class="dot">.</span>io</div>
+    <div class="rail-item"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+    <div class="rail-item"><svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></div>
+    <div class="rail-item"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></div>
+    <div class="rail-item"><svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg></div>
+    <div class="rail-item"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></div>
+    <div class="rail-spacer"></div>
+    <div class="rail-avatar"><svg width="20" height="20" viewBox="0 0 16 16" fill="var(--text-3)"><rect x="3" y="2" width="2" height="2"/><rect x="11" y="2" width="2" height="2"/><rect x="5" y="4" width="2" height="2"/><rect x="9" y="4" width="2" height="2"/><rect x="3" y="6" width="10" height="2"/><rect x="1" y="8" width="2" height="2"/><rect x="3" y="8" width="2" height="2"/><rect x="5" y="8" width="6" height="2"/><rect x="11" y="8" width="2" height="2"/><rect x="13" y="8" width="2" height="2"/><rect x="1" y="10" width="2" height="2"/><rect x="5" y="10" width="2" height="2"/><rect x="9" y="10" width="2" height="2"/><rect x="13" y="10" width="2" height="2"/><rect x="3" y="12" width="2" height="2"/><rect x="5" y="12" width="2" height="2"/><rect x="9" y="12" width="2" height="2"/><rect x="11" y="12" width="2" height="2"/></svg></div>
+  </div>
+
+  <div class="main">
+    <div class="album-art">
+      <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+    </div>
+    <div class="track-info">
+      <div class="track-title">Cosmos Laundromat -- Original Score</div>
+      <div class="track-artist">Blender Foundation -- Soundtrack</div>
+      <div class="track-badges"><span class="badge">FLAC</span><span class="track-size">48.2 MB</span></div>
+    </div>
+    <div class="progress-row">
+      <span class="time-current">2:34</span>
+      <div class="progress-track"><div class="progress-fill"></div><div class="progress-dot"></div></div>
+      <span class="time-remaining">-4:48</span>
+    </div>
+    <div class="transport-controls">
+      <button class="ctrl-btn skip-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:-4px"><path d="M12.5 8L8 12l4.5 4"/><path d="M20 12a8 8 0 1 1-4.4-7.2"/></svg><span class="skip-label">10</span></button>
+      <button class="ctrl-btn nav-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+      <button class="ctrl-btn play-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+      <button class="ctrl-btn nav-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+      <button class="ctrl-btn skip-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:-4px"><path d="M11.5 8L16 12l-4.5 4"/><path d="M4 12a8 8 0 1 0 4.4-7.2"/></svg><span class="skip-label">10</span></button>
+    </div>
+    <div class="speed-selector">
+      <span class="speed-option">0.5x</span>
+      <span class="speed-option">0.75x</span>
+      <span class="speed-option active">1x</span>
+      <span class="speed-option">1.25x</span>
+      <span class="speed-option">1.5x</span>
+      <span class="speed-option">2x</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

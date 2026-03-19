@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#111113">
+<title>put.io — tvOS Audio Player (Glass)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #111113; --bg-2: #19191B; --bg-3: #222225; --bg-4: #2C2C30;
+    --glass: rgba(255,255,255,0.05); --glass-hover: rgba(255,255,255,0.08);
+    --glass-active: rgba(255,255,255,0.10);
+    --glass-border: rgba(255,255,255,0.08); --glass-border-strong: rgba(255,255,255,0.12);
+    --glass-inset: inset 0 1px 1px rgba(255,255,255,0.04);
+    --text: #EEEEF0; --text-2: #ABABB2; --text-3: #77777F; --text-4: #55555E;
+    --yellow: #FDCE45; --yellow-dim: rgba(253,206,69,0.12); --yellow-glow: rgba(253,206,69,0.20);
+    --green: #30A46C; --red: #E5484D;
+    --blur-heavy: blur(40px); --blur-medium: blur(24px); --blur-light: blur(16px);
+    --radius: 16px; --radius-sm: 10px;
+  }
+  body { font-family: 'Inter', -apple-system, sans-serif; color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+
+  .tv-frame { width: 1920px; height: 1080px; overflow: hidden; position: relative; background: var(--bg); display: flex; }
+  .tv-frame::before { content: ''; position: absolute; top: -200px; right: 200px; width: 800px; height: 800px; background: radial-gradient(circle, rgba(253,206,69,0.08) 0%, rgba(253,206,69,0.02) 40%, transparent 70%); pointer-events: none; z-index: 0; }
+  .tv-frame::after { content: ''; position: absolute; bottom: -200px; left: 400px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(253,206,69,0.05) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+
+  .side-rail { width: 300px; flex-shrink: 0; padding: 60px 0 60px 80px; display: flex; flex-direction: column; position: relative; z-index: 1; }
+  .tv-logo { font-size: 38px; font-weight: 700; margin-bottom: 48px; letter-spacing: -0.02em; }
+  .tv-logo span { color: var(--yellow); text-shadow: 0 0 16px var(--yellow-glow); }
+  .rail-item { display: flex; align-items: center; gap: 16px; padding: 16px 0; font-size: 24px; color: var(--text-2); cursor: pointer; }
+  .rail-item .r-icon { width: 36px; display: flex; align-items: center; justify-content: center; }
+  .rail-item .r-icon svg { width: 28px; height: 28px; fill: currentColor; }
+  .rail-spacer { flex: 1; }
+  .rail-storage { font-size: 18px; color: var(--text-3); padding-top: 24px; border-top: 1px solid var(--glass-border); }
+  .rail-storage-bar { width: 100%; height: 6px; background: var(--glass); border-radius: 3px; margin-top: 12px; overflow: hidden; }
+  .rail-storage-fill { height: 100%; background: var(--yellow); border-radius: 3px; box-shadow: 0 0 10px var(--yellow-glow); }
+  .rail-user { display: flex; align-items: center; gap: 12px; margin-top: 24px; }
+  .rail-avatar { width: 48px; height: 48px; background: var(--glass); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--glass-border); }
+  .rail-username { font-size: 20px; color: var(--text-2); }
+
+  .tv-content {
+    flex: 1; padding: 60px 80px 60px 48px;
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+
+  .album-art {
+    width: 340px; height: 340px; border-radius: 24px;
+    background: linear-gradient(135deg, #1a2a1e, #0a1a28);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.5), var(--glass-inset);
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: var(--blur-light); -webkit-backdrop-filter: var(--blur-light);
+    background-image: linear-gradient(to bottom, rgba(255,255,255,0.06) 0%, transparent 30%);
+  }
+  .album-art svg { width: 80px; height: 80px; fill: rgba(255,255,255,0.12); }
+
+  .track-info { margin-top: 36px; text-align: center; }
+  .track-title { font-size: 30px; font-weight: 600; color: var(--text); }
+  .track-artist { font-size: 20px; color: var(--text-2); margin-top: 8px; }
+  .track-badges { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 14px; }
+  .badge { font-size: 14px; font-weight: 600; text-transform: uppercase; background: var(--glass-active); color: var(--text-2); padding: 4px 12px; border-radius: 6px; }
+  .track-size { font-size: 14px; color: var(--text-3); }
+
+  .progress-row { display: flex; align-items: center; gap: 16px; margin-top: 36px; width: 600px; }
+  .time-current { font-size: 18px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; min-width: 48px; text-align: right; }
+  .time-remaining { font-size: 18px; font-weight: 500; color: var(--text-2); font-variant-numeric: tabular-nums; min-width: 48px; }
+  .progress-track { flex: 1; height: 6px; background: var(--glass-active); border-radius: 3px; position: relative; }
+  .progress-fill { height: 100%; width: 35%; background: var(--yellow); border-radius: 3px; box-shadow: 0 0 10px var(--yellow-glow); }
+  .progress-dot { width: 16px; height: 16px; background: #fff; border-radius: 50%; position: absolute; top: 50%; left: 35%; transform: translate(-50%,-50%); box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 10px var(--yellow-glow); }
+
+  .transport-controls { display: flex; align-items: center; justify-content: center; gap: 40px; margin-top: 32px; }
+  .ctrl-btn {
+    background: var(--glass); backdrop-filter: var(--blur-light); -webkit-backdrop-filter: var(--blur-light);
+    border: 1px solid var(--glass-border); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.8); position: relative; border-radius: 50%;
+    box-shadow: var(--glass-inset);
+  }
+  .ctrl-btn svg { display: block; }
+  .skip-btn { width: 52px; height: 52px; }
+  .skip-btn svg { width: 20px; height: 20px; }
+  .nav-btn { width: 44px; height: 44px; }
+  .nav-btn svg { width: 24px; height: 24px; }
+  .play-btn {
+    width: 76px; height: 76px;
+    background: rgba(255,255,255,0.08); border: 2px solid var(--yellow);
+    color: #fff;
+    box-shadow: 0 0 0 4px var(--yellow-glow), var(--glass-inset), 0 4px 16px rgba(0,0,0,0.3);
+    background-image: linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, transparent 50%);
+    backdrop-filter: var(--blur-medium); -webkit-backdrop-filter: var(--blur-medium);
+  }
+  .play-btn svg { width: 28px; height: 28px; }
+
+  .speed-selector { display: flex; align-items: center; justify-content: center; gap: 0; margin-top: 28px; }
+  .speed-option {
+    font-size: 16px; font-weight: 500; color: var(--text-4);
+    padding: 8px 18px; border-radius: 8px; cursor: pointer;
+  }
+  .speed-option.active {
+    color: var(--yellow); font-weight: 600;
+    background: var(--yellow-dim);
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <div class="side-rail">
+    <div class="tv-logo">put<span>.</span>io</div>
+    <div class="rail-item"><span class="r-icon"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></span> Home</div>
+    <div class="rail-item"><span class="r-icon"><svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></span> Files</div>
+    <div class="rail-item"><span class="r-icon"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></span> Search</div>
+    <div class="rail-item"><span class="r-icon"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg></span> History</div>
+    <div class="rail-item"><span class="r-icon"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></span> Settings</div>
+    <div class="rail-spacer"></div>
+    <div class="rail-storage">39 TB of 50 TB used<div class="rail-storage-bar"><div class="rail-storage-fill" style="width:78%;"></div></div></div>
+    <div class="rail-user"><div class="rail-avatar"><svg viewBox="0 0 24 24" width="28" height="28" fill="none"><rect x="4" y="4" width="2" height="2" fill="#FDCE45"/><rect x="18" y="4" width="2" height="2" fill="#FDCE45"/><rect x="6" y="6" width="2" height="2" fill="#FDCE45"/><rect x="16" y="6" width="2" height="2" fill="#FDCE45"/><rect x="4" y="8" width="16" height="2" fill="#FDCE45"/><rect x="4" y="10" width="2" height="2" fill="#FDCE45"/><rect x="8" y="10" width="8" height="2" fill="#FDCE45"/><rect x="18" y="10" width="2" height="2" fill="#FDCE45"/><rect x="4" y="12" width="16" height="2" fill="#FDCE45"/><rect x="6" y="14" width="4" height="2" fill="#FDCE45"/><rect x="14" y="14" width="4" height="2" fill="#FDCE45"/></svg></div><span class="rail-username">alex</span></div>
+  </div>
+
+  <div class="tv-content">
+    <div class="album-art"><svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div>
+    <div class="track-info">
+      <div class="track-title">Cosmos Laundromat -- Original Score</div>
+      <div class="track-artist">Blender Foundation -- Soundtrack</div>
+      <div class="track-badges"><span class="badge">FLAC</span><span class="track-size">48.2 MB</span></div>
+    </div>
+    <div class="progress-row">
+      <span class="time-current">2:34</span>
+      <div class="progress-track"><div class="progress-fill"></div><div class="progress-dot"></div></div>
+      <span class="time-remaining">-4:48</span>
+    </div>
+    <div class="transport-controls">
+      <button class="ctrl-btn skip-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 8L8 12l4.5 4"/><path d="M20 12a8 8 0 1 1-4.4-7.2"/></svg></button>
+      <button class="ctrl-btn nav-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+      <button class="ctrl-btn play-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+      <button class="ctrl-btn nav-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+      <button class="ctrl-btn skip-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 8L16 12l-4.5 4"/><path d="M4 12a8 8 0 1 0 4.4-7.2"/></svg></button>
+    </div>
+    <div class="speed-selector">
+      <span class="speed-option">0.5x</span>
+      <span class="speed-option">0.75x</span>
+      <span class="speed-option active">1x</span>
+      <span class="speed-option">1.25x</span>
+      <span class="speed-option">1.5x</span>
+      <span class="speed-option">2x</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>
