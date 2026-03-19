@@ -93,7 +93,6 @@
   .tag.clean { background: rgba(59,130,246,0.1); color: #60A5FA; }
   .tag.mono { background: rgba(139,92,246,0.1); color: #A78BFA; }
   .tag.editorial { background: rgba(244,114,182,0.1); color: #F472B6; }
-  .tag.native { background: rgba(52,211,153,0.1); color: #34D399; }
   .tag.v3 { background: rgba(251,146,60,0.1); color: #FB923C; }
   .tag.light { background: rgba(250,250,250,0.08); color: #D4D4D8; }
   .tag.geometric { background: rgba(56,189,248,0.1); color: #38BDF8; }
@@ -256,7 +255,6 @@
         <button class="nav-btn" data-group="variant" data-filter="clean">Clean</button>
         <button class="nav-btn" data-group="variant" data-filter="mono">Mono</button>
         <button class="nav-btn" data-group="variant" data-filter="editorial">Editorial</button>
-        <button class="nav-btn" data-group="variant" data-filter="native">Native</button>
         <button class="nav-btn" data-group="variant" data-filter="retro">Retro</button>
         <button class="nav-btn" data-group="variant" data-filter="ink">Ink</button>
         <button class="nav-btn" data-group="variant" data-filter="neubr">Neubr</button>
@@ -307,7 +305,6 @@ function getCategory(n) {
 }
 
 function getVariant(n) {
-  if (n.includes('native') || n.includes('m3-v3') || n.includes('tvos26') || n.includes('googletv') || n.includes('-ios26') || n.includes('-m3.') || n.includes('sequoia') || n.includes('windows11') || n.includes('watchos11') || n.includes('persona')) return 'native';
   if (n.includes('v16-dense') || n.includes('-dense')) return 'dense';
   if (n.includes('v15-mesh') || n.includes('-mesh')) return 'mesh';
   if (n.includes('v14-wire') || n.includes('-wire')) return 'wire';
@@ -323,78 +320,77 @@ function getVariant(n) {
   if (n.includes('-editorial')) return 'editorial';
   if (n.includes('-mono')) return 'mono';
   if (n.includes('-clean') || n.includes('v2-clean')) return 'clean';
-  if (n.startsWith('webtv-')) return 'clean';
+  // Platform-native styles → clean (native is not a separate design style)
+  if (n.includes('native') || n.includes('m3-v3') || n.includes('tvos26') || n.includes('googletv') || n.includes('-ios26') || n.includes('-m3.') || n.includes('sequoia') || n.includes('windows11') || n.includes('watchos11') || n.includes('persona')) return 'clean';
+  if (n.startsWith('webtv-') || n.startsWith('landing-starry')) return 'clean';
   return '';
 }
 
 function getScreen(n) {
   const s = n.replace('.html','');
-  const parts = s.split('-');
-  // Extract the core screen name
-  if (s.includes('webtv-auth')) return 'Auth';
-  if (s.includes('webtv-resume')) return 'Resume Prompt';
-  if (s.includes('webtv-subtitles')) return 'Subtitle Picker';
-  if (s.includes('webtv-audio-player')) return 'Audio Player';
-  if (s.includes('webtv-up-next')) return 'Up Next';
-  if (s.includes('webtv-conversion')) return 'Conversion';
-  if (s.includes('webtv-diagnostics')) return 'Diagnostics';
-  if (s.includes('webtv-error')) return 'Error States';
-  if (s.includes('webtv-trash')) return 'Trash';
+  // Match screen names across all platforms (order matters — specific before general)
+  if (s.includes('audio-player') || s.includes('now-playing')) return 'Audio Player';
+  if (s.includes('up-next')) return 'Up Next';
+  if (s.includes('share-with-mom')) return 'Share with Mom';
+  if (s.includes('share-extension')) return 'Share Extension';
+  if (s.includes('sharing-redesign')) return 'Sharing';
+  if (s.includes('cross-platform')) return 'Cross-Platform';
+  if (s.includes('empty-states')) return 'Empty States';
+  if (s.includes('feature-discovery')) return 'Feature Discovery';
+  if (s.includes('command-palette') || s.includes('command')) return 'Command Palette';
+  if (s.includes('browser-extension')) return 'Browser Extension';
+  if (s.includes('link-device')) return 'Link Device';
+  if (s.includes('plan-change')) return 'Plan Change';
+  if (s.includes('mobile-files')) return 'Mobile Web';
+  if (s.includes('storage-dashboard')) return 'Storage Dashboard';
+  if (s.includes('security-dashboard')) return 'Security Dashboard';
+  if (s.includes('legal-privacy')) return 'Privacy Policy';
+  if (s.includes('legal-terms')) return 'Terms';
+  if (s.includes('files-light')) return 'Files (Light)';
+  if (s.includes('files-grid') || s.includes('-grid')) return 'Files (Grid)';
   if (s.includes('tabbed')) return 'Files (Tabbed)';
   if (s.includes('nested')) return 'Files (Tree)';
   if (s.includes('split')) return 'Files (Split)';
   if (s.includes('column')) return 'Files (Column)';
+  if (s.includes('telegram')) return 'Files (Telegram)';
   if (s.includes('menubar')) return 'Menu Bar';
-  if (s.includes('telegram')) return 'Files (Native)';
-  if (parts.includes('files') || parts.includes('filebrowser')) return 'Files';
-  if (parts.includes('transfers')) return 'Transfers';
-  if (parts.includes('player')) return 'Player';
-  if (parts.includes('storage')) return 'Storage';
-  if (parts.includes('settings')) return 'Settings';
-  if (parts.includes('history')) return 'History';
-  if (s.includes('share-with-mom')) return 'Share with Mom';
-  if (s.includes('sharing-redesign')) return 'Sharing';
-  if (parts.includes('sharing')) return 'Sharing';
-  if (parts.includes('rss')) return 'RSS';
-  if (parts.includes('onboarding')) return 'Onboarding';
-  if (parts.includes('pricing')) return 'Pricing';
-  if (parts.includes('home')) return 'Home';
-  if (parts.includes('search')) return 'Search';
-  if (parts.includes('landing')) return 'Landing';
-  if (s.includes('legal-privacy')) return 'Privacy Policy';
-  if (s.includes('legal-terms')) return 'Terms';
-  if (s.includes('legal-')) return 'Legal';
-  if (parts.includes('about')) return 'About';
-  if (parts.includes('downloads')) return 'Downloads';
-  if (parts.includes('widgets')) return 'Widgets';
-  if (parts.includes('browse')) return 'Browse';
-  if (s.includes('now-playing')) return 'Now Playing';
-  if (s.includes('audio')) return 'Audio Player';
-  if (s.includes('command')) return 'Command Palette';
   if (s.includes('changelog') || s.includes('whats-new')) return 'Changelog';
-  if (s.includes('cross-platform')) return 'Cross-Platform Flow';
-  if (s.includes('empty-states')) return 'Empty States';
-  if (s.includes('grid')) return 'Files (Grid)';
-  if (s.includes('tokens')) return 'Tokens';
-  if (s.includes('components')) return 'Components';
-  if (s.includes('cli')) return 'CLI';
-  if (s.includes('visionos')) return 'visionOS Player';
-  if (s.includes('watchos')) return 'watchOS';
-  if (s.includes('roku')) return 'Roku Files';
+  if (s.includes('player-light')) return 'Player (Light)';
+  if (s.includes('transfers-light')) return 'Transfers (Light)';
+  if (s.includes('auth')) return 'Auth';
+  if (s.includes('resume')) return 'Resume Prompt';
+  if (s.includes('subtitles')) return 'Subtitle Picker';
+  if (s.includes('conversion')) return 'Conversion';
+  if (s.includes('diagnostics')) return 'Diagnostics';
+  if (s.includes('error')) return 'Error States';
+  if (s.includes('trash')) return 'Trash';
+  if (s.includes('files') || s.includes('filebrowser')) return 'Files';
+  if (s.includes('transfers')) return 'Transfers';
+  if (s.includes('player')) return 'Player';
+  if (s.includes('storage')) return 'Storage';
+  if (s.includes('settings')) return 'Settings';
+  if (s.includes('history')) return 'History';
+  if (s.includes('sharing')) return 'Sharing';
+  if (s.includes('pricing')) return 'Pricing';
+  if (s.includes('home')) return 'Home';
+  if (s.includes('search')) return 'Search';
+  if (s.includes('browse')) return 'Browse';
+  if (s.includes('landing') || s.includes('starry')) return 'Landing';
+  if (s.includes('about')) return 'About';
+  if (s.includes('onboarding')) return 'Onboarding';
+  if (s.includes('downloads')) return 'Downloads';
+  if (s.includes('widgets')) return 'Widgets';
   if (s.includes('login')) return 'Login';
   if (s.includes('signup')) return 'Sign Up';
   if (s.includes('2fa')) return '2FA';
-  if (s.includes('link-device')) return 'Link Device';
-  if (s.includes('share-extension')) return 'Share Extension';
+  if (s.includes('rss')) return 'RSS';
   if (s.includes('security')) return 'Security';
-  if (s.includes('plan-change')) return 'Plan Change';
   if (s.includes('family')) return 'Family';
   if (s.includes('notification')) return 'Notifications';
-  if (s.includes('feature-discovery')) return 'Feature Discovery';
-  if (s.includes('browser-extension')) return 'Browser Extension';
-  if (s.includes('mobile-files')) return 'Mobile Web';
   if (s.includes('ipad')) return 'iPad';
+  if (s.includes('watchos')) return 'watchOS';
   if (s.includes('wearos')) return 'Wear OS';
+  if (s.includes('sequoia') || s.includes('windows11')) return 'Files';
   return s;
 }
 
