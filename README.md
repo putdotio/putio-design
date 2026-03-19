@@ -18,16 +18,6 @@ Prototypes are deployed to Vercel automatically on push. For local browsing:
 npx serve prototypes
 ```
 
-## Docs
-
-| Doc | What |
-|-----|------|
-| [Design Brief](docs/design-brief.md) | Product context, personas, principles |
-| [Design System](docs/design-system.md) | Current UI audit, brand constants |
-| [Platform Strategy](docs/platform-strategy.md) | Architecture, native vs hybrid, agent workflow |
-| [TV App Spec](docs/specs/tv-app.md) | Complete TV app spec — the first platform to ship |
-| [Research](docs/research.md) | Raw interview data backing all decisions |
-
 ## Structure
 
 ```
