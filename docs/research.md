@@ -57,7 +57,7 @@ Event promoter (spiritual/ayahuasca events). 1TB account, archivist mindset. Pay
 (No notes captured)
 
 ### User 15
-Analyst. Bangkok-born, gay, TV junkie. Learned English from TV shows. 100GB account, laptop viewer. No TV ever. Didn't know ShowRSS or ecosystem apps. No notable design insights.
+Analyst. TV junkie. Learned English from TV shows. 100GB account, laptop viewer. No TV ever. Didn't know ShowRSS or ecosystem apps. No notable design insights.
 
 ### User 16
 Old friend of put.io (pilli network era). Laptop user. Knows ecosystem apps, doesn't know ShowRSS.
