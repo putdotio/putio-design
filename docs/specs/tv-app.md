@@ -534,4 +534,257 @@ TV hardware is weak. Lists must be virtualized — only render what's on screen 
 
 ---
 
+---
+
+## Shared Contracts
+
+These are the cross-platform contracts that keep native apps consistent without shared code.
+
+### Design Tokens
+
+Single source of truth: `putio-design/tokens/`. Generated into platform-specific formats.
+
+```yaml
+colors:
+  brand-yellow: "#FDCE45"
+  brand-yellow-hover:
+    dark: "#FCBE03"
+    light: "#FDD868"
+  background:
+    dark: { app: "gray1", html: "black" }
+    light: { app: "white", html: "gray2" }
+  text: { dark: "gray12", light: "gray12" }
+  text-secondary: { dark: "gray11", light: "gray11" }
+  health-good: "green9"
+  health-warning: "yellow9"
+  health-error: "red9"
+  overlay-inline: { dark: "blackA9", light: "blackA3" }
+  overlay-full: { dark: "blackA11", light: "blackA9" }
+
+# Color system: Radix UI semantic scale (gray, green, red, yellow)
+# Each color has 12 steps. Use step names from Radix conventions.
+# Brand yellow (#FDCE45) overrides yellow.solid on both themes.
+
+typography:
+  font-family: "GT America"
+  font-family-mono: "GT America Mono"
+  weights: { regular: 400, medium: 500, bold: 700 }
+  # TV sizes are larger than mobile/web (viewed from 3m+ distance)
+  tv:
+    heading: { size: 64, weight: medium, family: gt-america }
+    label: { size: 48, weight: medium, family: gt-america }
+    body: { size: 36, weight: regular, family: gt-america }
+    caption: { size: 32, weight: regular, family: gt-america }
+    smol: { size: 24, weight: regular, family: gt-america }
+
+spacing:
+  # TV spacing is larger than mobile/web
+  tv: { xxs: 4, xs: 8, sm: 16, md: 32, lg: 64, xl: 128, xxl: 256 }
+
+radii:
+  default: 12
+
+overscan-safe-margins:
+  # TV overscan: 2% vertical, 4% horizontal
+  top: 2%
+  bottom: 2%
+  left: 4%
+  right: 4%
+```
+
+**Generated outputs:**
+- Swift: `Colors.swift`, `Typography.swift`, `Spacing.swift` (enums/structs)
+- Kotlin: `Colors.kt`, `Typography.kt`, `Spacing.kt` (objects)
+- CSS: `tokens.css` (custom properties)
+- JSON: `tokens.json` (for tools and documentation)
+
+### i18n Strings
+
+Single source: `putio-design/i18n/en.json` (English as base language).
+
+```json
+{
+  "home_your_files": "Your Files",
+  "home_search": "Search",
+  "home_history": "History",
+  "home_account": "Account",
+  "home_continue_watching": "Continue Watching",
+  "home_recent_files": "Recent Files",
+  "home_pinned_folders": "Pinned Folders",
+
+  "files_empty_title": "This folder is empty",
+  "files_sort_name": "Name",
+  "files_sort_date_added": "Date Added",
+  "files_sort_date_modified": "Date Modified",
+  "files_sort_size": "Size",
+  "files_sort_type": "Type",
+
+  "search_placeholder": "Search your files",
+  "search_no_results": "No results for \"%1$s\"",
+  "search_clear_history": "Clear search history",
+
+  "player_continue_from": "Continue playing from %1$s",
+  "player_start_beginning": "Start from the beginning",
+  "player_subtitles": "Subtitles",
+  "player_audio_track": "Audio Track",
+  "player_playback_speed": "Playback Speed",
+
+  "trash_empty_title": "Trash is empty",
+  "trash_empty_message": "Nothing to see here ✓",
+  "trash_restore": "Restore",
+  "trash_delete_permanently": "Delete permanently",
+  "trash_empty_all": "Empty trash",
+
+  "settings_tunnel_route": "Tunnel Route",
+  "settings_remember_position": "Remember playback position",
+  "settings_show_subtitles": "Show subtitles",
+  "settings_dont_autoselect_subtitles": "Don't auto-select subtitles",
+  "settings_playback_type": "Playback type",
+  "settings_buffer_size": "Buffer size",
+  "settings_logout": "Sign out",
+  "settings_diagnostics": "Diagnostics",
+  "settings_about": "About",
+
+  "error_network": "Can't connect to put.io",
+  "error_network_recovery": "Check your internet connection",
+  "error_session_expired": "Session expired",
+  "error_session_expired_recovery": "Please sign in again",
+  "error_rate_limit": "Too many requests",
+  "error_rate_limit_recovery": "Please try again in a moment",
+  "error_timeout": "Request timed out",
+  "error_timeout_recovery": "Check your connection and try again",
+  "error_not_found": "File not found",
+  "error_not_found_recovery": "This file may have been deleted",
+  "error_server": "Something went wrong on our end",
+  "error_server_recovery": "Try again in a few minutes",
+  "error_unknown": "Something unexpected happened",
+  "error_unknown_recovery": "Error ID: %1$s",
+
+  "auth_enter_code": "Go to put.io/link and enter the code",
+  "auth_waiting": "Waiting for authentication...",
+  "auth_try_again": "Try again",
+
+  "generic_retry": "Try Again",
+  "generic_cancel": "Cancel",
+  "generic_confirm": "Confirm",
+  "generic_loading": "Loading..."
+}
+```
+
+**Rules:**
+- Key naming: `{screen}_{element}_{variant}` — e.g., `player_continue_from`
+- Parameterized strings use `%1$s`, `%2$s` (Android convention, portable)
+- English is the source of truth. Other languages are translations of these keys.
+- TV apps start English-only. Add languages based on user demand.
+- The current codebase has 1110 translation keys. TV app needs ~60-80 (subset above).
+
+### SDK Types
+
+The TypeScript SDK defines canonical API types. Native SDKs mirror them.
+
+```typescript
+// Core types that all platforms must implement
+interface File {
+  id: number
+  name: string
+  file_type: 'FOLDER' | 'VIDEO' | 'AUDIO' | 'IMAGE' | 'PDF' | 'TEXT' | 'ARCHIVE' | 'OTHER'
+  size: number
+  created_at: string
+  updated_at: string
+  parent_id: number
+  screenshot: string | null
+  start_from: number
+  need_convert: boolean
+  sort_by: string
+  media_info: MediaInfo | null
+}
+
+interface AccountInfo {
+  user_id: number
+  username: string
+  email: string
+  avatar_url: string
+  disk: { used: number, size: number }
+  plan: { name: string }
+}
+
+interface HistoryEvent {
+  id: number
+  file_id: number
+  file_name: string
+  type: string
+  created_at: string
+}
+
+interface SubtitleTrack {
+  language_code: string
+  name: string
+  url: string
+  source: 'embedded' | 'opensubtitles'
+}
+
+interface TunnelRoute {
+  name: string
+  display_name: string
+}
+
+interface ConversionStatus {
+  status: 'NOT_NEEDED' | 'IN_QUEUE' | 'CONVERTING' | 'COMPLETED' | 'ERROR'
+  percent: number | null
+}
+
+// Paginated response
+interface PaginatedResponse<T> {
+  items: T[]
+  cursor: string | null
+}
+```
+
+**Rule:** If a field exists in the TypeScript SDK type, it must exist in the Swift and Kotlin SDK types with the same name and semantics. JSON field names are the canonical names.
+
+### Error Map (shared data, not code)
+
+```yaml
+errors:
+  - code: network_error
+    message_key: error_network
+    recovery_key: error_network_recovery
+    recovery_action: retry
+
+  - code: auth_401
+    message_key: error_session_expired
+    recovery_key: error_session_expired_recovery
+    recovery_action: auth
+
+  - code: rate_limit_429
+    message_key: error_rate_limit
+    recovery_key: error_rate_limit_recovery
+    recovery_action: retry
+
+  - code: timeout
+    message_key: error_timeout
+    recovery_key: error_timeout_recovery
+    recovery_action: retry
+
+  - code: not_found_404
+    message_key: error_not_found
+    recovery_key: error_not_found_recovery
+    recovery_action: none
+
+  - code: server_5xx
+    message_key: error_server
+    recovery_key: error_server_recovery
+    recovery_action: retry
+
+  - code: unknown
+    message_key: error_unknown
+    recovery_key: error_unknown_recovery
+    recovery_action: none
+    include_trace_id: true
+```
+
+Each platform's error localizer reads this map and renders using platform-native UI. The mapping is shared, the rendering is native.
+
+---
+
 *This spec is the contract. Agents implement it. Humans review it. The spec is the product.*
