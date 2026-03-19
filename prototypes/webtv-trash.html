@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#0A0A0C">
+<title>put.io — Web TV Trash</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A0C;
+    --bg-2: #131315;
+    --bg-3: #1A1A1E;
+    --bg-4: #26262C;
+    --text: #EEEEF0;
+    --text-2: #9C9CA8;
+    --solid: #6C6C78;
+    --line: rgba(255,255,255,0.06);
+    --yellow: #FDCE45;
+    --green: #30A46C;
+    --blue: #3B82F6;
+    --red: #FF6369;
+    --badge-bg: rgba(255,255,255,0.08);
+    --row-focus-bg: rgba(255,255,255,0.06);
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Top Bar ── */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    padding: 0 72px;
+    height: 84px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .logo {
+    font-size: 27px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+  }
+  .logo span { color: var(--yellow); }
+
+  .nav-pills {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 auto;
+  }
+  .nav-pill {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text-2);
+    padding: 10px 28px;
+    border-radius: 20px;
+    border: 2px solid transparent;
+  }
+
+  .top-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .storage-indicator {
+    font-size: 16px;
+    color: var(--text-2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .storage-bar-wrap {
+    width: 80px;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .storage-bar-fill {
+    width: 78%;
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+  .user-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--bg-4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .user-icon svg {
+    width: 22px;
+    height: 22px;
+    fill: var(--solid);
+  }
+
+  /* ── Content Area ── */
+  .content {
+    flex: 1;
+    padding: 30px 72px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Header Row ── */
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+  }
+  .header-title {
+    font-size: 28px;
+    font-weight: 600;
+  }
+  .empty-trash-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--red);
+    font-size: 18px;
+    font-weight: 600;
+    padding: 10px 24px;
+    border: 2px solid var(--red);
+    border-radius: 8px;
+    background: transparent;
+    font-family: inherit;
+  }
+  .empty-trash-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--red);
+  }
+
+  /* ── Trash List ── */
+  .trash-list {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .trash-row {
+    display: flex;
+    align-items: center;
+    height: 78px;
+    padding: 0 16px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .trash-row.focused {
+    border-color: var(--yellow);
+    background: var(--row-focus-bg);
+  }
+  .trash-row.focused .t-name { color: #fff; }
+
+  /* Row separator — override border-bottom when focused */
+  .trash-row.focused {
+    border-bottom-color: var(--yellow);
+  }
+
+  /* Icon */
+  .t-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    margin-right: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .t-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--red);
+  }
+
+  /* Name */
+  .t-name {
+    flex: 1;
+    font-size: 21px;
+    font-weight: 600;
+    color: var(--text-2);
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Badge */
+  .t-badge {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: var(--badge-bg);
+    color: var(--text-2);
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-left: 12px;
+    flex-shrink: 0;
+    line-height: 1.4;
+  }
+
+  /* Date deleted */
+  .t-date {
+    font-size: 18px;
+    color: var(--solid);
+    margin-left: 24px;
+    flex-shrink: 0;
+    min-width: 200px;
+    text-align: right;
+  }
+
+  /* Size */
+  .t-size {
+    font-size: 18px;
+    color: var(--solid);
+    margin-left: 24px;
+    flex-shrink: 0;
+    min-width: 80px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Restore action */
+  .t-restore {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--green);
+    margin-left: 32px;
+    flex-shrink: 0;
+  }
+
+  /* ── Bottom Bar ── */
+  .bottom-bar {
+    display: flex;
+    align-items: center;
+    padding: 0 72px;
+    height: 48px;
+    flex-shrink: 0;
+    border-top: 1px solid var(--line);
+    font-size: 16px;
+    color: var(--solid);
+  }
+  .bottom-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .bottom-center {
+    flex: 1;
+    text-align: center;
+    color: var(--text-2);
+    font-size: 16px;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">put<span>.</span>io</div>
+    <div class="nav-pills">
+      <div class="nav-pill">Home</div>
+      <div class="nav-pill">Browse</div>
+      <div class="nav-pill">Transfers</div>
+      <div class="nav-pill">Search</div>
+      <div class="nav-pill">Settings</div>
+    </div>
+    <div class="top-right">
+      <div class="storage-indicator">
+        <div class="storage-bar-wrap"><div class="storage-bar-fill"></div></div>
+        39.2 / 50 TB
+      </div>
+      <div class="user-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="content">
+
+    <!-- Header Row -->
+    <div class="header-row">
+      <div class="header-title">Trash</div>
+      <button class="empty-trash-btn">
+        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        Empty Trash
+      </button>
+    </div>
+
+    <!-- Trash List -->
+    <div class="trash-list">
+
+      <!-- Row 1 (focused) -->
+      <div class="trash-row focused">
+        <div class="t-icon">
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </div>
+        <div class="t-name">Old Project Files</div>
+        <div class="t-badge">Folder</div>
+        <div class="t-date">Deleted 1 hour ago</div>
+        <div class="t-size">4.2 GB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="trash-row">
+        <div class="t-icon">
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </div>
+        <div class="t-name">The Wire</div>
+        <div class="t-badge">S2 &middot; E12</div>
+        <div class="t-badge">1080p</div>
+        <div class="t-date">Deleted 2 days ago</div>
+        <div class="t-size">1.9 GB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="trash-row">
+        <div class="t-icon">
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </div>
+        <div class="t-name">Duplicate Movie</div>
+        <div class="t-badge">720p</div>
+        <div class="t-date">Deleted 3 days ago</div>
+        <div class="t-size">2.1 GB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+
+      <!-- Row 4 -->
+      <div class="trash-row">
+        <div class="t-icon">
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </div>
+        <div class="t-name">readme.txt</div>
+        <div class="t-badge">TXT</div>
+        <div class="t-date">Deleted 5 days ago</div>
+        <div class="t-size">12 KB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+
+      <!-- Row 5 -->
+      <div class="trash-row">
+        <div class="t-icon">
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </div>
+        <div class="t-name">Screenshot.png</div>
+        <div class="t-badge">IMG</div>
+        <div class="t-date">Deleted 1 week ago</div>
+        <div class="t-size">4.8 MB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+
+      <!-- Row 6 -->
+      <div class="trash-row">
+        <div class="t-icon">
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </div>
+        <div class="t-name">Old Podcast</div>
+        <div class="t-badge">MP3</div>
+        <div class="t-date">Deleted 2 weeks ago</div>
+        <div class="t-size">89 MB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="bottom-bar">
+    <div class="bottom-left">
+      <span>&#x25B2;&#x25BC; Navigate</span>
+      <span>OK Restore</span>
+      <span>&#x25C0; Back</span>
+    </div>
+    <div class="bottom-center">6 items &middot; 8.3 GB</div>
+  </div>
+
+</div>
+</body>
+</html>

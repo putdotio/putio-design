@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#323232">
+<title>put.io — Web TV Audio Player</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A0C; --bg-2: #131315; --bg-3: #1A1A1E; --bg-4: #26262C;
+    --line: rgba(255,255,255,0.06); --solid: #6C6C78;
+    --text-2: #9C9CA8; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868;
+    --yellow-subtle: rgba(253, 206, 69, 0.15);
+    --green: #30A46C; --blue: #3B82F6; --red: #FF6369;
+    --badge-bg: rgba(255,255,255,0.08);
+  }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+  .tv-frame { width: 1920px; height: 1080px; overflow: hidden; display: flex; flex-direction: column; }
+
+  /* ── Top Bar ── */
+  .top-bar {
+    display: flex; align-items: center;
+    padding: 0 72px;
+    height: 84px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .logo { font-size: 27px; font-weight: 700; letter-spacing: -0.02em; white-space: nowrap; }
+  .logo span { color: var(--yellow); }
+
+  .nav-pills {
+    display: flex; align-items: center; gap: 6px;
+    margin: 0 auto;
+  }
+  .nav-pill {
+    font-size: 20px; font-weight: 500; color: var(--text-2);
+    padding: 10px 28px; border-radius: 30px;
+    background: transparent;
+    white-space: nowrap;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+
+  .top-right {
+    display: flex; align-items: center; gap: 18px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .storage-wrap {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .storage-label {
+    font-size: 16px; color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .storage-bar {
+    width: 90px; height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px; overflow: hidden;
+  }
+  .storage-bar-fill {
+    width: 78%; height: 100%;
+    background: var(--yellow); border-radius: 2px;
+  }
+  .user-icon {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: var(--bg-4);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .user-icon svg { width: 24px; height: 24px; fill: var(--text-2); }
+
+  /* ── Content Area ── */
+  .content {
+    flex: 1;
+    padding: 30px 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* ── Album Art ── */
+  .album-art {
+    width: 340px; height: 340px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #1a2a1e, #0a1a28);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .album-art svg {
+    width: 80px; height: 80px;
+    fill: rgba(255,255,255,0.15);
+  }
+
+  /* ── Track Info ── */
+  .track-info {
+    margin-top: 36px;
+    text-align: center;
+  }
+  .track-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .track-artist {
+    font-size: 20px;
+    color: var(--text-2);
+    margin-top: 8px;
+  }
+  .track-badges {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .badge {
+    font-size: 14px; font-weight: 600;
+    text-transform: uppercase;
+    background: var(--badge-bg);
+    color: var(--text-2);
+    padding: 4px 12px; border-radius: 6px;
+    white-space: nowrap;
+    line-height: 1.4;
+  }
+  .track-size {
+    font-size: 14px;
+    color: var(--text-2);
+  }
+
+  /* ── Progress Bar ── */
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 36px;
+    width: 600px;
+  }
+  .time-current {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    min-width: 48px;
+    text-align: right;
+  }
+  .time-remaining {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    min-width: 48px;
+  }
+  .progress-track {
+    flex: 1;
+    height: 6px;
+    background: var(--bg-4);
+    border-radius: 3px;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 35%;
+    background: var(--yellow);
+    border-radius: 3px;
+  }
+  .progress-dot {
+    width: 14px; height: 14px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 35%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  /* ── Transport Controls ── */
+  .transport-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 32px;
+  }
+
+  .ctrl-btn {
+    background: none; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.8);
+    position: relative;
+  }
+  .ctrl-btn svg { display: block; }
+
+  .skip-btn {
+    width: 48px; height: 48px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+    position: relative;
+  }
+  .skip-btn svg {
+    width: 20px; height: 20px;
+  }
+  .skip-label {
+    position: absolute;
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.8);
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .nav-btn {
+    width: 32px; height: 32px;
+  }
+  .nav-btn svg {
+    width: 32px; height: 32px;
+  }
+
+  .play-btn {
+    width: 72px; height: 72px;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid var(--yellow);
+    border-radius: 50%;
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(253,206,69,0.15);
+  }
+  .play-btn svg {
+    width: 28px; height: 28px;
+  }
+
+  /* ── Speed Selector ── */
+  .speed-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-top: 24px;
+  }
+  .speed-option {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--solid);
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .speed-option.active {
+    color: var(--yellow);
+    font-weight: 600;
+    background: var(--yellow-subtle);
+  }
+
+  /* ── Bottom Bar ── */
+  .bottom-bar {
+    display: flex; align-items: center; justify-content: center; gap: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border-top: 1px solid var(--line);
+    font-size: 16px; color: var(--solid);
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">put<span>.</span>io</div>
+    <div class="nav-pills">
+      <div class="nav-pill">Home</div>
+      <div class="nav-pill">Browse</div>
+      <div class="nav-pill">Transfers</div>
+      <div class="nav-pill">Search</div>
+      <div class="nav-pill">Settings</div>
+    </div>
+    <div class="top-right">
+      <div class="storage-wrap">
+        <div class="storage-bar"><div class="storage-bar-fill"></div></div>
+        <span class="storage-label">39.2 / 50 TB</span>
+      </div>
+      <div class="user-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Album Art -->
+    <div class="album-art">
+      <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+    </div>
+
+    <!-- Track Info -->
+    <div class="track-info">
+      <div class="track-title">Cosmos Laundromat — Original Score</div>
+      <div class="track-artist">Blender Foundation · Soundtrack</div>
+      <div class="track-badges">
+        <span class="badge">FLAC</span>
+        <span class="track-size">48.2 MB</span>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-row">
+      <span class="time-current">2:34</span>
+      <div class="progress-track">
+        <div class="progress-fill"></div>
+        <div class="progress-dot"></div>
+      </div>
+      <span class="time-remaining">-4:48</span>
+    </div>
+
+    <!-- Transport Controls -->
+    <div class="transport-controls">
+      <!-- Skip Back 10s -->
+      <button class="ctrl-btn skip-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:-4px"><path d="M12.5 8L8 12l4.5 4"/><path d="M18 4l-2 4h4l-2-4z" fill="none" stroke="none"/><path d="M20 12a8 8 0 1 1-4.4-7.2" /></svg>
+        <span class="skip-label">10</span>
+      </button>
+
+      <!-- Previous Track -->
+      <button class="ctrl-btn nav-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+      </button>
+
+      <!-- Play/Pause (Focused) -->
+      <button class="ctrl-btn play-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+
+      <!-- Next Track -->
+      <button class="ctrl-btn nav-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+      </button>
+
+      <!-- Skip Forward 10s -->
+      <button class="ctrl-btn skip-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:-4px"><path d="M11.5 8L16 12l-4.5 4"/><path d="M4 12a8 8 0 1 0 4.4-7.2"/></svg>
+        <span class="skip-label">10</span>
+      </button>
+    </div>
+
+    <!-- Speed Selector -->
+    <div class="speed-selector">
+      <span class="speed-option">0.5x</span>
+      <span class="speed-option">0.75x</span>
+      <span class="speed-option active">1x</span>
+      <span class="speed-option">1.25x</span>
+      <span class="speed-option">1.5x</span>
+      <span class="speed-option">2x</span>
+    </div>
+
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="bottom-bar">
+    <span>&#x25B2;&#x25BC; Navigate</span>
+    <span>OK Play/Pause</span>
+    <span>&#x25C0; Back</span>
+  </div>
+
+</div>
+</body>
+</html>
