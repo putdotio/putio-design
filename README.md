@@ -39,10 +39,6 @@ prototypes/        HTML design screens + gallery index
 moodboard/         visual references and inspiration
 ```
 
-## Platforms
-
-Web · iOS · Android · tvOS · Android TV · Fire TV · Tizen · LG webOS · Roku · watchOS · visionOS
-
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
