@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#0A0A0C">
+<title>put.io — tvOS Trash</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A0C; --bg-2: #141416; --bg-3: #1E1E22; --bg-4: #28282E;
+    --line: #333339; --border: #444450; --solid: #6C6C78;
+    --text-2: #9C9CA8; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868;
+    --yellow-subtle: rgba(253, 206, 69, 0.15);
+    --green: #30A46C; --green-light: #4CC38A;
+    --red: #FF6369;
+  }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+  .tv-frame { width: 1920px; height: 1080px; padding: 60px 80px; display: flex; }
+
+  /* Side Rail */
+  .side-rail {
+    width: 300px; flex-shrink: 0; padding-right: 48px;
+    display: flex; flex-direction: column;
+  }
+  .tv-logo { font-size: 38px; font-weight: 700; margin-bottom: 48px; letter-spacing: -0.02em; }
+  .tv-logo span { color: var(--yellow); }
+  .rail-item {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 0; font-size: 24px; color: var(--text-2); cursor: pointer;
+  }
+  .rail-item:hover { color: var(--text); }
+  .rail-item.active {
+    color: var(--text); font-weight: 600;
+    padding: 16px 24px; margin: 0 -24px;
+    background: var(--bg-3); border-radius: 16px;
+  }
+  .rail-item .r-icon { width: 36px; display: flex; align-items: center; justify-content: center; }
+  .rail-item .r-icon svg { width: 28px; height: 28px; fill: currentColor; }
+  .rail-spacer { flex: 1; }
+  .rail-storage {
+    font-size: 18px; color: var(--solid);
+    padding-top: 24px; border-top: 1px solid var(--line);
+  }
+  .rail-storage-bar { width: 100%; height: 6px; background: var(--bg-4); border-radius: 3px; margin-top: 12px; overflow: hidden; }
+  .rail-storage-fill { height: 100%; background: var(--yellow); border-radius: 3px; }
+  .rail-user { display: flex; align-items: center; gap: 12px; margin-top: 24px; }
+  .rail-avatar {
+    width: 48px; height: 48px; background: var(--bg-4); border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rail-username { font-size: 20px; color: var(--text-2); }
+
+  /* Content Area */
+  .tv-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+
+  /* Page Header */
+  .page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .page-title { font-size: 36px; font-weight: 700; }
+
+  .empty-trash-btn {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--red); font-size: 20px; font-weight: 600;
+    padding: 14px 28px; border: 2px solid var(--red);
+    border-radius: 12px; background: transparent;
+    font-family: inherit; cursor: pointer;
+  }
+  .empty-trash-btn svg { width: 22px; height: 22px; fill: var(--red); }
+
+  /* Trash List */
+  .trash-section { background: var(--bg-2); border-radius: 16px; overflow: hidden; }
+
+  .trash-row {
+    display: flex; align-items: center; gap: 16px;
+    padding: 22px 28px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer; transition: background 0.1s;
+  }
+  .trash-row:last-child { border-bottom: none; }
+  .trash-row:hover { background: var(--bg-3); }
+  .trash-row.focused {
+    background: var(--bg-3);
+    border-left: 4px solid var(--yellow);
+    padding-left: 24px;
+  }
+
+  .t-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,99,105,0.12); flex-shrink: 0;
+  }
+  .t-icon svg { width: 22px; height: 22px; fill: var(--red); }
+
+  .t-info { flex: 1; min-width: 0; }
+  .t-name { font-size: 28px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .t-meta { font-size: 20px; color: var(--solid); margin-top: 2px; }
+
+  .t-badges { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .badge {
+    font-size: 14px; font-weight: 600; text-transform: uppercase;
+    background: var(--bg-4); color: var(--text-2);
+    padding: 4px 12px; border-radius: 6px; white-space: nowrap;
+  }
+
+  .t-size {
+    font-size: 22px; color: var(--text-2); font-weight: 500;
+    flex-shrink: 0; min-width: 100px; text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .t-restore {
+    font-size: 20px; font-weight: 600; color: var(--green);
+    flex-shrink: 0; margin-left: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <!-- Side Rail Navigation -->
+  <div class="side-rail">
+    <div class="tv-logo">put<span>.</span>io</div>
+
+    <div class="rail-item">
+      <span class="r-icon">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      </span> Home
+    </div>
+    <div class="rail-item">
+      <span class="r-icon">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </span> Files
+    </div>
+    <div class="rail-item">
+      <span class="r-icon">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      </span> Search
+    </div>
+    <div class="rail-item">
+      <span class="r-icon">
+        <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+      </span> Transfers
+    </div>
+    <div class="rail-item active">
+      <span class="r-icon">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      </span> Settings
+    </div>
+
+    <div class="rail-spacer"></div>
+
+    <div class="rail-storage">
+      11 TB of 50 TB free
+      <div class="rail-storage-bar"><div class="rail-storage-fill" style="width:78%;"></div></div>
+    </div>
+
+    <div class="rail-user">
+      <div class="rail-avatar">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none">
+          <rect x="4" y="4" width="2" height="2" fill="#FDCE45"/>
+          <rect x="18" y="4" width="2" height="2" fill="#FDCE45"/>
+          <rect x="6" y="6" width="2" height="2" fill="#FDCE45"/>
+          <rect x="16" y="6" width="2" height="2" fill="#FDCE45"/>
+          <rect x="4" y="8" width="16" height="2" fill="#FDCE45"/>
+          <rect x="4" y="10" width="2" height="2" fill="#FDCE45"/>
+          <rect x="8" y="10" width="8" height="2" fill="#FDCE45"/>
+          <rect x="18" y="10" width="2" height="2" fill="#FDCE45"/>
+          <rect x="4" y="12" width="16" height="2" fill="#FDCE45"/>
+          <rect x="6" y="14" width="4" height="2" fill="#FDCE45"/>
+          <rect x="14" y="14" width="4" height="2" fill="#FDCE45"/>
+        </svg>
+      </div>
+      <span class="rail-username">alex</span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="tv-content">
+    <div class="page-header">
+      <div class="page-title">Trash</div>
+      <button class="empty-trash-btn">
+        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        Empty Trash
+      </button>
+    </div>
+
+    <div class="trash-section">
+      <!-- Row 1 — focused -->
+      <div class="trash-row focused">
+        <div class="t-icon">
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </div>
+        <div class="t-info">
+          <div class="t-name">Old Project Files</div>
+          <div class="t-meta">Deleted 1 hour ago</div>
+        </div>
+        <div class="t-badges">
+          <span class="badge">Folder</span>
+        </div>
+        <div class="t-size">4.2 GB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="trash-row">
+        <div class="t-icon">
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </div>
+        <div class="t-info">
+          <div class="t-name">The Wire</div>
+          <div class="t-meta">Deleted 2 days ago</div>
+        </div>
+        <div class="t-badges">
+          <span class="badge">S2&middot;E12</span>
+          <span class="badge">1080p</span>
+        </div>
+        <div class="t-size">1.9 GB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="trash-row">
+        <div class="t-icon">
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </div>
+        <div class="t-info">
+          <div class="t-name">Duplicate Movie</div>
+          <div class="t-meta">Deleted 3 days ago</div>
+        </div>
+        <div class="t-badges">
+          <span class="badge">720p</span>
+        </div>
+        <div class="t-size">2.1 GB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+
+      <!-- Row 4 -->
+      <div class="trash-row">
+        <div class="t-icon">
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </div>
+        <div class="t-info">
+          <div class="t-name">readme.txt</div>
+          <div class="t-meta">Deleted 5 days ago</div>
+        </div>
+        <div class="t-badges">
+          <span class="badge">TXT</span>
+        </div>
+        <div class="t-size">12 KB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+
+      <!-- Row 5 -->
+      <div class="trash-row">
+        <div class="t-icon">
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </div>
+        <div class="t-info">
+          <div class="t-name">Screenshot.png</div>
+          <div class="t-meta">Deleted 1 week ago</div>
+        </div>
+        <div class="t-badges">
+          <span class="badge">IMG</span>
+        </div>
+        <div class="t-size">4.8 MB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+
+      <!-- Row 6 -->
+      <div class="trash-row">
+        <div class="t-icon">
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </div>
+        <div class="t-info">
+          <div class="t-name">Old Podcast</div>
+          <div class="t-meta">Deleted 2 weeks ago</div>
+        </div>
+        <div class="t-badges">
+          <span class="badge">MP3</span>
+        </div>
+        <div class="t-size">89 MB</div>
+        <div class="t-restore">Restore</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

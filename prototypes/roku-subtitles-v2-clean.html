@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#0A0A0C">
+<title>put.io — Roku Subtitles (Clean)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A0C; --bg-2: #131315; --bg-3: #1A1A1E; --bg-4: #26262C;
+    --yellow: #FDCE45; --green: #30A46C;
+    --text: #EEEEF0; --text-2: #9C9CA8; --solid: #6C6C78;
+    --badge-bg: rgba(255,255,255,0.08);
+  }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #000; color: var(--text); -webkit-font-smoothing: antialiased; }
+
+  .tv-frame { width: 1920px; height: 1080px; position: relative; overflow: hidden; }
+
+  /* Video background */
+  .video-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #0a0a1a 0%, #141428 40%, #0a0a1a 100%);
+  }
+
+  /* Subtitle text */
+  .subtitle-container {
+    position: absolute; bottom: 240px; left: 50%; transform: translateX(-50%);
+    z-index: 10;
+  }
+  .subtitle-text {
+    color: #fff; font-size: 32px; font-weight: 500;
+    text-align: center; line-height: 1.4;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.5);
+    white-space: nowrap;
+  }
+
+  /* Transport bar */
+  .transport-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 100px;
+    background: rgba(0,0,0,0.7);
+    padding: 0 72px;
+    z-index: 20;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .scrubber-row {
+    display: flex; align-items: center; gap: 18px;
+    margin-bottom: 16px;
+  }
+  .time-label {
+    font-size: 18px; font-weight: 500; color: #fff;
+    font-variant-numeric: tabular-nums; min-width: 54px;
+  }
+  .time-label-right {
+    font-size: 18px; font-weight: 500; color: var(--text-2);
+    font-variant-numeric: tabular-nums; min-width: 60px; text-align: right;
+  }
+  .progress-track {
+    flex: 1; height: 4px; background: rgba(255,255,255,0.15);
+    border-radius: 2px; position: relative;
+  }
+  .progress-fill {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 42%; background: var(--yellow); border-radius: 2px;
+  }
+  .transport-controls {
+    display: flex; align-items: center; justify-content: center; gap: 28px;
+  }
+  .transport-btn {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+  }
+  .transport-btn.large { width: 36px; height: 36px; }
+
+  /* Right panel — flat, no blur */
+  .panel {
+    position: absolute; top: 0; right: 0; bottom: 0;
+    width: 500px;
+    background: var(--bg-2);
+    border-left: 1px solid rgba(255,255,255,0.08);
+    padding: 48px 36px;
+    z-index: 30;
+  }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 32px; }
+  .tab {
+    font-size: 22px; font-weight: 500; color: var(--solid);
+    padding-bottom: 8px;
+    border-bottom: 2px solid transparent;
+    cursor: default;
+  }
+  .tab.active {
+    font-weight: 600; color: var(--text);
+    border-bottom-color: var(--yellow);
+  }
+
+  /* Subtitle list */
+  .subtitle-list {
+    margin-top: 28px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .subtitle-item {
+    display: flex; align-items: center;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    cursor: default;
+  }
+  .subtitle-item.focused {
+    border-color: var(--yellow);
+    background: var(--bg-3);
+  }
+  .subtitle-item.selected {
+    background: rgba(253,206,69,0.06);
+  }
+
+  .check-area {
+    width: 24px; height: 24px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    margin-right: 14px;
+  }
+  .subtitle-name {
+    font-size: 20px; font-weight: 500; color: var(--text); flex: 1;
+  }
+  .subtitle-item.selected .subtitle-name { color: var(--yellow); }
+
+  .source-badge {
+    font-size: 12px; font-weight: 600;
+    background: var(--badge-bg);
+    color: var(--text-2);
+    padding: 3px 10px; border-radius: 4px;
+    margin-left: 12px; flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <div class="video-bg"></div>
+
+  <!-- Subtitle text -->
+  <div class="subtitle-container">
+    <div class="subtitle-text">You come at the king, you best not miss.</div>
+  </div>
+
+  <!-- Transport bar -->
+  <div class="transport-bar">
+    <div class="scrubber-row">
+      <span class="time-label">23:14</span>
+      <div class="progress-track">
+        <div class="progress-fill"></div>
+      </div>
+      <span class="time-label-right">-31:46</span>
+    </div>
+    <div class="transport-controls">
+      <div class="transport-btn"></div>
+      <div class="transport-btn"></div>
+      <div class="transport-btn large"></div>
+      <div class="transport-btn"></div>
+      <div class="transport-btn"></div>
+    </div>
+  </div>
+
+  <!-- Right panel — flat surface -->
+  <div class="panel">
+    <div class="tabs">
+      <div class="tab active">Subtitles</div>
+      <div class="tab">Audio</div>
+    </div>
+
+    <div class="subtitle-list">
+      <div class="subtitle-item">
+        <div class="check-area"></div>
+        <span class="subtitle-name">Off</span>
+      </div>
+
+      <div class="subtitle-item selected focused">
+        <div class="check-area">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <polyline points="20,6 9,17 4,12" stroke="var(--yellow)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+        <span class="subtitle-name">English</span>
+        <span class="source-badge">Embedded</span>
+      </div>
+
+      <div class="subtitle-item">
+        <div class="check-area"></div>
+        <span class="subtitle-name">Turkish</span>
+        <span class="source-badge">OpenSubtitles</span>
+      </div>
+
+      <div class="subtitle-item">
+        <div class="check-area"></div>
+        <span class="subtitle-name">Spanish</span>
+        <span class="source-badge">Embedded</span>
+      </div>
+
+      <div class="subtitle-item">
+        <div class="check-area"></div>
+        <span class="subtitle-name">French</span>
+        <span class="source-badge">ASS</span>
+      </div>
+
+      <div class="subtitle-item">
+        <div class="check-area"></div>
+        <span class="subtitle-name">Arabic</span>
+        <span class="source-badge">OpenSubtitles</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#0A0A0C">
+<title>put.io — tvOS Conversion</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A0C; --bg-2: #141416; --bg-3: #1E1E22; --bg-4: #28282E;
+    --line: #333339; --border: #444450; --solid: #6C6C78;
+    --text-2: #9C9CA8; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868;
+    --yellow-subtle: rgba(253, 206, 69, 0.15);
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .tv-frame {
+    width: 1920px; height: 1080px; position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Cinematic background */
+  .video-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 40%, rgba(22, 33, 62, 0.8) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 60%, rgba(26, 26, 46, 0.9) 0%, transparent 50%),
+      linear-gradient(180deg, #0d0d12 0%, #111128 30%, #0a1628 60%, #080810 100%);
+  }
+
+  /* Dark overlay */
+  .overlay {
+    position: absolute; inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  /* put.io watermark */
+  .watermark {
+    position: absolute; top: 40px; left: 60px; z-index: 5;
+    font-size: 22px; font-weight: 700;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: -0.02em;
+  }
+  .watermark span { color: rgba(253,206,69,0.4); }
+
+  /* Centered content */
+  .content {
+    position: relative; z-index: 10;
+    display: flex; flex-direction: column; align-items: center;
+    max-width: 600px; width: 100%;
+  }
+
+  /* Poster */
+  .poster {
+    width: 320px; height: 180px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* File Info */
+  .file-info {
+    margin-top: 32px;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 14px;
+  }
+  .file-title {
+    font-size: 36px; font-weight: 700; color: #fff;
+    line-height: 1.2; letter-spacing: -0.02em;
+  }
+  .file-badges {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .badge {
+    font-size: 16px; font-weight: 600;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.08);
+    color: var(--text-2);
+    padding: 6px 16px; border-radius: 8px;
+    line-height: 1.4;
+  }
+
+  /* Progress Section */
+  .progress-section {
+    margin-top: 40px;
+    display: flex; flex-direction: column; align-items: center;
+    width: 100%;
+  }
+  .progress-percentage {
+    font-size: 60px; font-weight: 700; color: var(--yellow);
+    line-height: 1.1;
+    text-shadow: 0 0 32px rgba(253, 206, 69, 0.2);
+  }
+  .progress-bar-track {
+    width: 480px; height: 8px;
+    background: var(--bg-4);
+    border-radius: 4px;
+    margin-top: 22px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    width: 63%; height: 100%;
+    background: var(--yellow);
+    border-radius: 4px;
+    box-shadow: 0 0 12px rgba(253,206,69,0.3);
+  }
+  .progress-label {
+    font-size: 22px; color: var(--text-2);
+    margin-top: 18px;
+    text-align: center;
+  }
+
+  /* Spinner Row */
+  .spinner-row {
+    margin-top: 10px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--bg-4);
+    border-top-color: var(--yellow);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+  .spinner-text {
+    font-size: 16px; color: var(--solid);
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Cancel Button */
+  .cancel-btn {
+    margin-top: 44px;
+    font-family: inherit;
+    font-size: 20px; font-weight: 600;
+    color: var(--text-2);
+    background: transparent;
+    border: 2px solid var(--solid);
+    border-radius: 14px;
+    padding: 16px 56px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .cancel-btn:focus {
+    outline: none;
+    border-color: var(--yellow);
+    background: rgba(253, 206, 69, 0.06);
+    box-shadow: 0 0 0 3px rgba(253, 206, 69, 0.2);
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <!-- Background -->
+  <div class="video-bg"></div>
+  <div class="overlay"></div>
+
+  <!-- put.io watermark -->
+  <div class="watermark">put<span>.</span>io</div>
+
+  <!-- Content -->
+  <div class="content">
+    <!-- Poster -->
+    <div class="poster">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <path d="M18 12L38 24L18 36V12Z" fill="rgba(255,255,255,0.2)"/>
+      </svg>
+    </div>
+
+    <!-- File Info -->
+    <div class="file-info">
+      <div class="file-title">The Wire</div>
+      <div class="file-badges">
+        <span class="badge">S03 · E04</span>
+        <span class="badge">1080p</span>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-section">
+      <div class="progress-percentage">63%</div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill"></div>
+      </div>
+      <div class="progress-label">Converting your file...</div>
+    </div>
+
+    <!-- Spinner -->
+    <div class="spinner-row">
+      <div class="spinner"></div>
+      <span class="spinner-text">This may take a few minutes</span>
+    </div>
+
+    <!-- Cancel -->
+    <button class="cancel-btn">Cancel</button>
+  </div>
+</div>
+</body>
+</html>

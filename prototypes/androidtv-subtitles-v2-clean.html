@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#0A0A0C">
+<title>put.io — Android TV Subtitles</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A0C; --bg-2: #141416; --bg-3: #1E1E22; --bg-4: #28282E;
+    --line: #333339; --border: #444450; --solid: #6C6C78;
+    --text-2: #9C9CA8; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868;
+    --yellow-subtle: rgba(253, 206, 69, 0.15);
+  }
+  body {
+    font-family: 'Inter', 'Roboto', sans-serif;
+    background: var(--bg); color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .tv-frame {
+    width: 1920px; height: 1080px; position: relative; overflow: hidden;
+  }
+
+  /* Video background */
+  .video-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 40% 35%, rgba(22, 33, 62, 0.7) 0%, transparent 55%),
+      radial-gradient(ellipse at 65% 55%, rgba(26, 26, 46, 0.8) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 85%, rgba(15, 52, 96, 0.4) 0%, transparent 40%),
+      linear-gradient(180deg, #0d0d12 0%, #111128 30%, #0a1628 60%, #080810 100%);
+  }
+
+  /* put.io watermark */
+  .watermark {
+    position: absolute; top: 40px; left: 60px; z-index: 5;
+    font-size: 22px; font-weight: 700; color: rgba(255,255,255,0.2);
+    letter-spacing: -0.02em;
+  }
+  .watermark span { color: rgba(253,206,69,0.35); }
+
+  /* Subtitle overlay text */
+  .subtitle-container {
+    position: absolute; bottom: 180px; left: 50%; transform: translateX(-50%);
+    z-index: 10;
+  }
+  .subtitle-text {
+    color: #fff; font-size: 32px; font-weight: 500;
+    text-align: center; line-height: 1.4;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.5);
+    white-space: nowrap;
+  }
+
+  /* Bottom controls overlay */
+  .controls-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 60%, transparent 100%);
+    padding: 0 90px 48px;
+    z-index: 15;
+  }
+
+  /* Progress bar */
+  .progress-section { margin-bottom: 24px; }
+  .time-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  .time-label {
+    font-size: 20px; font-weight: 500; color: rgba(255,255,255,0.6);
+    font-variant-numeric: tabular-nums;
+  }
+  .progress-track {
+    width: 100%; height: 6px; background: rgba(255,255,255,0.2);
+    border-radius: 3px; position: relative;
+  }
+  .progress-fill {
+    height: 100%; background: var(--yellow); border-radius: 3px;
+    box-shadow: 0 0 12px rgba(253,206,69,0.3);
+  }
+  .progress-dot {
+    width: 20px; height: 20px; background: var(--yellow);
+    border-radius: 50%; position: absolute; top: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 16px rgba(253,206,69,0.5), 0 0 4px rgba(253,206,69,0.8);
+  }
+
+  /* Transport controls */
+  .dpad-controls {
+    display: flex; align-items: center; justify-content: center; gap: 48px;
+  }
+  .ctrl-btn {
+    background: none; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.7);
+    transition: all 0.15s;
+  }
+  .ctrl-btn:hover { color: #fff; }
+  .ctrl-btn svg { display: block; }
+  .ctrl-btn.play-btn {
+    width: 84px; height: 84px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 50%;
+    backdrop-filter: blur(12px);
+    border: 2px solid rgba(255,255,255,0.15);
+  }
+  .skip-hint {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 16px; font-weight: 500; color: rgba(255,255,255,0.4);
+  }
+  .skip-hint svg { width: 24px; height: 24px; fill: currentColor; }
+
+  /* Right-side panel */
+  .panel {
+    position: absolute; top: 0; right: 0; bottom: 0;
+    width: 520px;
+    background: rgba(10,10,12,0.92);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border-left: 1px solid rgba(255,255,255,0.08);
+    padding: 56px 40px;
+    z-index: 30;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex; gap: 36px;
+  }
+  .tab {
+    font-size: 24px; font-weight: 500; color: var(--solid);
+    padding-bottom: 10px;
+    border-bottom: 3px solid transparent;
+    cursor: default;
+  }
+  .tab.active {
+    font-weight: 600; color: var(--text);
+    border-bottom-color: var(--yellow);
+  }
+
+  /* Subtitle list */
+  .subtitle-list {
+    margin-top: 32px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+
+  .subtitle-item {
+    display: flex; align-items: center;
+    padding: 18px 22px;
+    border-radius: 14px;
+    border: 2px solid transparent;
+    cursor: default;
+    transition: all 0.15s;
+  }
+  .subtitle-item.focused {
+    border-color: var(--yellow);
+    background: rgba(253,206,69,0.08);
+    box-shadow: 0 0 0 3px rgba(253,206,69,0.25);
+  }
+  .subtitle-item.selected {
+    background: rgba(253,206,69,0.06);
+  }
+
+  .check-area {
+    width: 26px; height: 26px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    margin-right: 16px;
+  }
+
+  .subtitle-name {
+    font-size: 22px; font-weight: 500; color: var(--text);
+    flex: 1;
+  }
+  .subtitle-item.selected .subtitle-name {
+    color: var(--yellow);
+  }
+
+  .source-badge {
+    font-size: 14px; font-weight: 600;
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.7);
+    padding: 4px 12px;
+    border-radius: 6px;
+    margin-left: 14px;
+    flex-shrink: 0;
+  }
+
+  /* Back hint */
+  .back-hint {
+    position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+    font-size: 15px; color: rgba(255,255,255,0.2);
+    z-index: 40;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- Video Background -->
+  <div class="video-bg"></div>
+
+  <!-- Watermark -->
+  <div class="watermark">put<span>.</span>io</div>
+
+  <!-- Subtitle overlay text -->
+  <div class="subtitle-container">
+    <div class="subtitle-text">You come at the king, you best not miss.</div>
+  </div>
+
+  <!-- Bottom Controls Overlay -->
+  <div class="controls-overlay">
+    <div class="progress-section">
+      <div class="time-row">
+        <span class="time-label">23:14</span>
+        <span class="time-label">-31:46</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" style="width:42%;"></div>
+        <div class="progress-dot" style="left:42%;"></div>
+      </div>
+    </div>
+
+    <div class="dpad-controls">
+      <button class="ctrl-btn" title="Subtitles">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="4" width="22" height="16" rx="2"/>
+          <line x1="5" y1="12" x2="11" y2="12"/>
+          <line x1="13" y1="12" x2="19" y2="12"/>
+          <line x1="5" y1="16" x2="15" y2="16"/>
+        </svg>
+      </button>
+
+      <div class="skip-hint">
+        <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/></svg>
+        10s
+      </div>
+
+      <button class="ctrl-btn play-btn" title="Play/Pause">
+        <svg width="38" height="38" viewBox="0 0 256 256" fill="currentColor">
+          <rect x="72" y="56" width="36" height="144" rx="6"/>
+          <rect x="148" y="56" width="36" height="144" rx="6"/>
+        </svg>
+      </button>
+
+      <div class="skip-hint">
+        10s
+        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+      </div>
+
+      <button class="ctrl-btn" title="Audio">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11,5 6,9 2,9 2,15 6,15 11,19"/>
+          <path d="M15.54,8.46a5,5,0,0,1,0,7.07"/>
+          <path d="M19.07,4.93a10,10,0,0,1,0,14.14"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Right-side panel -->
+  <div class="panel">
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active">Subtitles</div>
+      <div class="tab">Audio</div>
+    </div>
+
+    <!-- Subtitle list -->
+    <div class="subtitle-list">
+
+      <!-- Off -->
+      <div class="subtitle-item">
+        <div class="check-area"></div>
+        <span class="subtitle-name">Off</span>
+      </div>
+
+      <!-- English (selected + focused) -->
+      <div class="subtitle-item selected focused">
+        <div class="check-area">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <polyline points="20,6 9,17 4,12" stroke="#FDCE45" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+        <span class="subtitle-name">English</span>
+        <span class="source-badge">Embedded</span>
+      </div>
+
+      <!-- Turkish -->
+      <div class="subtitle-item">
+        <div class="check-area"></div>
+        <span class="subtitle-name">Turkish</span>
+        <span class="source-badge">OpenSubtitles</span>
+      </div>
+
+      <!-- Spanish -->
+      <div class="subtitle-item">
+        <div class="check-area"></div>
+        <span class="subtitle-name">Spanish</span>
+        <span class="source-badge">Embedded</span>
+      </div>
+
+      <!-- French -->
+      <div class="subtitle-item">
+        <div class="check-area"></div>
+        <span class="subtitle-name">French</span>
+        <span class="source-badge">ASS</span>
+      </div>
+
+      <!-- Arabic -->
+      <div class="subtitle-item">
+        <div class="check-area"></div>
+        <span class="subtitle-name">Arabic</span>
+        <span class="source-badge">OpenSubtitles</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Back hint -->
+  <div class="back-hint">Press back to dismiss menu</div>
+
+</div>
+</body>
+</html>

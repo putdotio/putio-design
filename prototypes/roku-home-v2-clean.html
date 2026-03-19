@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#0A0A0C">
+<title>put.io — Roku Home (Clean)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A0C;
+    --bg-2: #131315;
+    --bg-3: #1A1A1E;
+    --bg-4: #26262C;
+    --line: rgba(255,255,255,0.06);
+    --solid: #6C6C78;
+    --text-2: #9C9CA8;
+    --text: #EEEEF0;
+    --yellow: #FDCE45;
+    --yellow-subtle: rgba(253, 206, 69, 0.15);
+    --green: #30A46C;
+    --blue: #3B82F6;
+    --red: #FF6369;
+    --badge-bg: rgba(255,255,255,0.08);
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: flex;
+  }
+
+  /* ── Left Rail ── */
+  .left-rail {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--bg-2);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    padding: 60px 0;
+  }
+  .rail-logo {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    padding: 0 32px;
+    margin-bottom: 48px;
+  }
+  .rail-logo .dot { color: var(--yellow); }
+
+  .rail-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+  .rail-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 32px;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-2);
+    cursor: pointer;
+  }
+  .rail-item svg {
+    width: 22px;
+    height: 22px;
+    fill: var(--text-2);
+    flex-shrink: 0;
+  }
+  .rail-item.active {
+    background: var(--yellow);
+    color: #0A0A0C;
+    font-weight: 600;
+  }
+  .rail-item.active svg {
+    fill: #0A0A0C;
+  }
+
+  .rail-storage {
+    padding: 0 32px;
+    margin-top: auto;
+  }
+  .storage-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--bg-4);
+    margin-bottom: 10px;
+  }
+  .storage-fill {
+    height: 100%;
+    width: 78%;
+    background: var(--yellow);
+  }
+  .storage-label {
+    font-size: 14px;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Main Content ── */
+  .main-content {
+    flex: 1;
+    padding: 60px 90px 60px 48px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Section Header */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 22px;
+    font-weight: 600;
+  }
+  .section-link {
+    font-size: 15px;
+    color: var(--text-2);
+    cursor: pointer;
+  }
+
+  /* Badge */
+  .badge {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: var(--badge-bg);
+    color: var(--text-2);
+    padding: 3px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    line-height: 1.4;
+  }
+  .badge.yellow {
+    background: var(--yellow-subtle);
+    color: var(--yellow);
+  }
+
+  /* ── Continue Watching Row ── */
+  .cw-row {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 28px;
+    flex-shrink: 0;
+  }
+  .cw-card {
+    width: 340px;
+    flex-shrink: 0;
+    background: var(--bg-2);
+    border: 2px solid var(--line);
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .cw-card.focused {
+    border-color: var(--yellow);
+    background: var(--bg-3);
+  }
+  .cw-thumb {
+    width: 100%;
+    height: 190px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cw-thumb-gradient {
+    width: 100%;
+    height: 100%;
+  }
+  .cw-thumb .play-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 48px;
+    height: 48px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cw-thumb .play-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: #fff;
+  }
+  .cw-progress {
+    height: 4px;
+    background: #333;
+  }
+  .cw-progress-fill {
+    height: 100%;
+    background: var(--yellow);
+  }
+  .cw-info {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .cw-title {
+    font-size: 19px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cw-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    color: var(--text-2);
+  }
+
+  /* ── Your Files Row ── */
+  .files-row {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 28px;
+    flex-shrink: 0;
+  }
+  .folder-card {
+    width: 200px;
+    height: 148px;
+    flex-shrink: 0;
+    background: var(--bg-2);
+    border: 2px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .folder-card.focused {
+    border-color: var(--yellow);
+    background: var(--bg-3);
+  }
+  .folder-card svg {
+    width: 36px;
+    height: 36px;
+    fill: var(--yellow);
+  }
+  .folder-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .folder-meta {
+    font-size: 14px;
+    color: var(--text-2);
+  }
+
+  /* ── Active Transfers Row ── */
+  .transfers-row {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 28px;
+    flex-shrink: 0;
+  }
+  .transfer-card {
+    width: 360px;
+    flex-shrink: 0;
+    background: var(--bg-2);
+    border: 2px solid var(--line);
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .transfer-card.focused {
+    border-color: var(--yellow);
+    background: var(--bg-3);
+  }
+  .transfer-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .transfer-name {
+    flex: 1;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .transfer-health {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 15px;
+    font-weight: 500;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .transfer-health .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .transfer-health.downloading .dot { background: var(--yellow); }
+  .transfer-health.downloading { color: var(--yellow); }
+  .transfer-health.sharing .dot { background: var(--blue); }
+  .transfer-health.sharing { color: var(--blue); }
+  .transfer-health.ready .dot { background: var(--green); }
+  .transfer-health.ready { color: var(--green); }
+  .transfer-bottom {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .transfer-progress {
+    flex: 1;
+    height: 4px;
+    background: #333;
+  }
+  .transfer-progress-fill {
+    height: 100%;
+  }
+  .transfer-progress-fill.downloading { background: var(--yellow); }
+  .transfer-progress-fill.ready { background: var(--green); }
+  .transfer-progress-fill.sharing { background: var(--blue); }
+  .transfer-speed {
+    font-size: 14px;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+
+  /* ── Recently Added Row ── */
+  .recent-row {
+    display: flex;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+  .recent-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-2);
+    border: 2px solid var(--line);
+    padding: 10px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .recent-item.focused {
+    border-color: var(--yellow);
+    background: var(--bg-3);
+  }
+  .recent-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .recent-icon.video { background: var(--bg-4); }
+  .recent-icon.video svg { fill: var(--text-2); width: 20px; height: 20px; }
+  .recent-icon.audio { background: rgba(48,164,108,0.12); }
+  .recent-icon.audio svg { fill: var(--green); width: 20px; height: 20px; }
+  .recent-icon.file { background: rgba(59,130,246,0.12); }
+  .recent-icon.file svg { fill: var(--blue); width: 20px; height: 20px; }
+  .recent-name { font-size: 18px; font-weight: 600; color: #fff; }
+  .recent-size { font-size: 15px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+  /* ── Footer Hints ── */
+  .footer-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 36px;
+    padding: 16px 0 0;
+    flex-shrink: 0;
+    font-size: 15px;
+    color: var(--solid);
+    margin-top: auto;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- Left Rail -->
+  <div class="left-rail">
+    <div class="rail-logo">put<span class="dot">.</span>io</div>
+    <div class="rail-nav">
+      <div class="rail-item active">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        Home
+      </div>
+      <div class="rail-item">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        Files
+      </div>
+      <div class="rail-item">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        Search
+      </div>
+      <div class="rail-item">
+        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+        History
+      </div>
+      <div class="rail-item">
+        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        Trash
+      </div>
+      <div class="rail-item">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        Settings
+      </div>
+    </div>
+    <div class="rail-storage">
+      <div class="storage-bar"><div class="storage-fill"></div></div>
+      <div class="storage-label">39.2 / 50 TB</div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- Continue Watching -->
+    <div class="section-header">
+      <div class="section-title">Continue Watching</div>
+      <div class="section-link">See all</div>
+    </div>
+    <div class="cw-row">
+      <div class="cw-card focused">
+        <div class="cw-thumb">
+          <div class="cw-thumb-gradient" style="background: linear-gradient(135deg, #2a1f0a 0%, #1a2810 50%, #0f1a20 100%);"></div>
+          <div class="play-icon">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+        <div class="cw-progress"><div class="cw-progress-fill" style="width: 65%;"></div></div>
+        <div class="cw-info">
+          <div class="cw-title">Big Buck Bunny</div>
+          <div class="cw-meta">
+            <span class="badge yellow">4K</span>
+            <span>6.72 GB</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cw-card">
+        <div class="cw-thumb">
+          <div class="cw-thumb-gradient" style="background: linear-gradient(135deg, #1a0f22 0%, #20101a 50%, #0f1520 100%);"></div>
+          <div class="play-icon">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+        <div class="cw-progress"><div class="cw-progress-fill" style="width: 35%;"></div></div>
+        <div class="cw-info">
+          <div class="cw-title">Sintel</div>
+          <div class="cw-meta">
+            <span class="badge">1080p</span>
+            <span>4.21 GB</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cw-card">
+        <div class="cw-thumb">
+          <div class="cw-thumb-gradient" style="background: linear-gradient(135deg, #101820 0%, #181818 50%, #101014 100%);"></div>
+          <div class="play-icon">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+        <div class="cw-progress"><div class="cw-progress-fill" style="width: 12%;"></div></div>
+        <div class="cw-info">
+          <div class="cw-title">The Wire</div>
+          <div class="cw-meta">
+            <span class="badge">S3 &middot; E4</span>
+            <span>1.43 GB</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cw-card">
+        <div class="cw-thumb">
+          <div class="cw-thumb-gradient" style="background: linear-gradient(135deg, #0a0f22 0%, #0a1828 50%, #10101a 100%);"></div>
+          <div class="play-icon">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+        <div class="cw-progress"><div class="cw-progress-fill" style="width: 88%;"></div></div>
+        <div class="cw-info">
+          <div class="cw-title">Cosmos</div>
+          <div class="cw-meta">
+            <span class="badge">E2</span>
+            <span class="badge">1080p</span>
+            <span>2.89 GB</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Your Files -->
+    <div class="section-header">
+      <div class="section-title">Your Files</div>
+      <div class="section-link">See all</div>
+    </div>
+    <div class="files-row">
+      <div class="folder-card">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        <div class="folder-name">Downloads</div>
+        <div class="folder-meta">24 items &middot; 21.8 GB</div>
+      </div>
+      <div class="folder-card">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        <div class="folder-name">TV Shows</div>
+        <div class="folder-meta">12 items &middot; 42.6 GB</div>
+      </div>
+      <div class="folder-card">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        <div class="folder-name">Movies</div>
+        <div class="folder-meta">8 items &middot; 38.1 GB</div>
+      </div>
+      <div class="folder-card">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        <div class="folder-name">Music</div>
+        <div class="folder-meta">156 items &middot; 18.4 GB</div>
+      </div>
+      <div class="folder-card">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        <div class="folder-name">Documents</div>
+        <div class="folder-meta">31 items &middot; 1.2 GB</div>
+      </div>
+    </div>
+
+    <!-- Active Transfers -->
+    <div class="section-header">
+      <div class="section-title">Active Transfers</div>
+      <div class="section-link">See all</div>
+    </div>
+    <div class="transfers-row">
+      <div class="transfer-card">
+        <div class="transfer-top">
+          <div class="transfer-name">Ubuntu 24.04</div>
+          <span class="badge">ISO</span>
+          <div class="transfer-health downloading">
+            <span class="dot"></span>
+            Downloading
+          </div>
+        </div>
+        <div class="transfer-bottom">
+          <div class="transfer-progress"><div class="transfer-progress-fill downloading" style="width: 73%;"></div></div>
+          <div class="transfer-speed">12.4 MB/s</div>
+        </div>
+      </div>
+
+      <div class="transfer-card">
+        <div class="transfer-top">
+          <div class="transfer-name">Podcast Feed</div>
+          <div class="transfer-health ready">
+            <span class="dot"></span>
+            Ready
+          </div>
+        </div>
+        <div class="transfer-bottom">
+          <div class="transfer-progress"><div class="transfer-progress-fill ready" style="width: 100%;"></div></div>
+          <div class="transfer-speed">18.2 MB</div>
+        </div>
+      </div>
+
+      <div class="transfer-card">
+        <div class="transfer-top">
+          <div class="transfer-name">Game of Thrones</div>
+          <span class="badge">S1</span>
+          <div class="transfer-health sharing">
+            <span class="dot"></span>
+            Sharing
+          </div>
+        </div>
+        <div class="transfer-bottom">
+          <div class="transfer-progress"><div class="transfer-progress-fill sharing" style="width: 100%;"></div></div>
+          <div class="transfer-speed">2.1 MB/s</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recently Added -->
+    <div class="section-header">
+      <div class="section-title">Recently Added</div>
+      <div class="section-link">See all</div>
+    </div>
+    <div class="recent-row">
+      <div class="recent-item">
+        <div class="recent-icon video">
+          <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+        </div>
+        <div class="recent-name">Movie</div>
+        <span class="badge">2024</span>
+        <span class="badge">4K</span>
+        <div class="recent-size">18.3 GB</div>
+      </div>
+      <div class="recent-item">
+        <div class="recent-icon audio">
+          <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        </div>
+        <div class="recent-name">Album</div>
+        <span class="badge">FLAC</span>
+        <div class="recent-size">48.2 MB</div>
+      </div>
+      <div class="recent-item">
+        <div class="recent-icon file">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/></svg>
+        </div>
+        <div class="recent-name">Document</div>
+        <span class="badge">PDF</span>
+        <div class="recent-size">2.4 MB</div>
+      </div>
+      <div class="recent-item">
+        <div class="recent-icon audio">
+          <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        </div>
+        <div class="recent-name">Soundtrack</div>
+        <span class="badge">FLAC</span>
+        <div class="recent-size">450 MB</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-hint">
+      <span>&#x25B2;&#x25BC; Browse</span>
+      <span>OK Select</span>
+      <span>&#x25C0; Back</span>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

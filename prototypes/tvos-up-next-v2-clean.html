@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#0A0A0C">
+<title>put.io — tvOS Up Next</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0A0A0C; --bg-2: #141416; --bg-3: #1E1E22; --bg-4: #28282E;
+    --line: #333339; --border: #444450; --solid: #6C6C78;
+    --text-2: #9C9CA8; --text: #EEEEF0;
+    --yellow: #FDCE45; --yellow-hover: #FDD868;
+    --yellow-subtle: rgba(253, 206, 69, 0.15);
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .tv-frame {
+    width: 1920px; height: 1080px; position: relative; overflow: hidden;
+  }
+
+  /* Video background */
+  .video-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 40%, rgba(22, 33, 62, 0.8) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 60%, rgba(26, 26, 46, 0.9) 0%, transparent 50%),
+      linear-gradient(180deg, #0d0d12 0%, #111128 30%, #0a1628 60%, #080810 100%);
+  }
+
+  /* Dark overlay */
+  .overlay {
+    position: absolute; inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+  }
+
+  /* Bottom gradient */
+  .bottom-gradient {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 400px;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.85) 100%);
+    z-index: 2;
+  }
+
+  /* put.io watermark */
+  .watermark {
+    position: absolute; top: 40px; left: 60px; z-index: 5;
+    font-size: 22px; font-weight: 700;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: -0.02em;
+  }
+  .watermark span { color: rgba(253,206,69,0.4); }
+
+  /* Just Finished info — top left */
+  .just-watched {
+    position: absolute; top: 72px; left: 90px;
+    z-index: 10;
+  }
+
+  .just-watched-label {
+    font-size: 16px; font-weight: 600;
+    color: var(--solid);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 14px;
+  }
+
+  .just-watched-title {
+    font-size: 32px; font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+
+  .just-watched-meta {
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .badge {
+    font-size: 16px; font-weight: 600;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.08);
+    color: var(--text-2);
+    padding: 6px 16px; border-radius: 8px;
+    line-height: 1.4;
+  }
+
+  .just-watched-detail {
+    font-size: 20px; color: var(--text-2);
+  }
+
+  /* Bottom section */
+  .bottom-section {
+    position: absolute; bottom: 72px; left: 90px; right: 90px;
+    z-index: 10;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 48px;
+  }
+
+  /* Up Next card area */
+  .up-next-area {
+    flex-shrink: 0;
+    width: 720px;
+  }
+
+  .up-next-label {
+    font-size: 18px; font-weight: 600;
+    color: var(--yellow);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
+  }
+
+  .up-next-card {
+    display: flex; flex-direction: row;
+    background: rgba(20, 20, 22, 0.95);
+    backdrop-filter: blur(40px);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+  }
+
+  /* Thumbnail */
+  .card-thumbnail {
+    width: 260px; height: 146px; flex-shrink: 0;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Card info */
+  .card-info {
+    padding: 22px 28px;
+    display: flex; flex-direction: column; justify-content: center;
+    min-width: 0;
+  }
+
+  .card-title {
+    font-size: 24px; font-weight: 600;
+    color: #fff;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+
+  .card-badges {
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .card-meta {
+    font-size: 18px; color: var(--text-2);
+    margin-top: 10px;
+  }
+
+  /* Right side — countdown + buttons */
+  .right-side {
+    display: flex; flex-direction: column;
+    align-items: flex-end;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+
+  /* Countdown */
+  .countdown {
+    display: flex; flex-direction: column;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .countdown-text {
+    font-size: 26px; font-weight: 600;
+    color: var(--yellow);
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 24px rgba(253, 206, 69, 0.3);
+  }
+
+  .countdown-ring {
+    margin-top: 14px;
+    width: 52px; height: 52px;
+  }
+
+  .countdown-ring svg {
+    width: 52px; height: 52px;
+    transform: rotate(-90deg);
+  }
+
+  .countdown-ring-track {
+    fill: none;
+    stroke: rgba(255,255,255,0.08);
+    stroke-width: 3;
+  }
+
+  .countdown-ring-progress {
+    fill: none;
+    stroke: var(--yellow);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 126;
+    stroke-dashoffset: 32;
+  }
+
+  /* Buttons */
+  .btn-play {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 20px 52px;
+    border-radius: 14px;
+    border: 2px solid var(--yellow);
+    background: rgba(253, 206, 69, 0.08);
+    font-family: inherit;
+    font-size: 22px; font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 0 0 3px rgba(253, 206, 69, 0.2);
+    transition: all 0.15s;
+  }
+
+  .btn-play svg {
+    width: 16px; height: 16px;
+    fill: #fff;
+    flex-shrink: 0;
+  }
+
+  .btn-cancel {
+    display: flex; align-items: center; justify-content: center;
+    padding: 18px 52px;
+    border-radius: 14px;
+    border: 2px solid rgba(255,255,255,0.1);
+    background: transparent;
+    font-family: inherit;
+    font-size: 20px; font-weight: 500;
+    color: var(--text-2);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+  <!-- Video background -->
+  <div class="video-bg"></div>
+  <div class="overlay"></div>
+  <div class="bottom-gradient"></div>
+
+  <!-- put.io watermark -->
+  <div class="watermark">put<span>.</span>io</div>
+
+  <!-- Just Finished info -->
+  <div class="just-watched">
+    <div class="just-watched-label">Just finished</div>
+    <div class="just-watched-title">The Wire</div>
+    <div class="just-watched-meta">
+      <span class="badge">S3 · E4</span>
+      <span class="just-watched-detail">51 min · 1080p</span>
+    </div>
+  </div>
+
+  <!-- Bottom section -->
+  <div class="bottom-section">
+    <!-- Up Next card -->
+    <div class="up-next-area">
+      <div class="up-next-label">Up Next</div>
+      <div class="up-next-card">
+        <div class="card-thumbnail">
+          <svg width="36" height="36" viewBox="0 0 256 256" fill="rgba(255,255,255,0.2)"><path d="M80,48V208l144-80Z"/></svg>
+        </div>
+        <div class="card-info">
+          <div class="card-title">The Wire</div>
+          <div class="card-badges">
+            <span class="badge">S3 · E5</span>
+            <span class="badge">1080p</span>
+          </div>
+          <div class="card-meta">1.7 GB · 48 min</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right side: countdown + buttons -->
+    <div class="right-side">
+      <div class="countdown">
+        <span class="countdown-text">Playing in 8...</span>
+        <div class="countdown-ring">
+          <svg viewBox="0 0 52 52">
+            <circle class="countdown-ring-track" cx="26" cy="26" r="20" />
+            <circle class="countdown-ring-progress" cx="26" cy="26" r="20" />
+          </svg>
+        </div>
+      </div>
+
+      <button class="btn-play">
+        <svg viewBox="0 0 16 16">
+          <polygon points="3,1 14,8 3,15" />
+        </svg>
+        Play Now
+      </button>
+
+      <button class="btn-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
