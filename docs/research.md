@@ -78,7 +78,7 @@ No-show. Would have been the first female user interviewed.
 Frontend dev at Just Eat. Apple TV user, knows ecosystem apps. Happy with everything — no actionable feedback.
 
 ### User 22
-Developer at Deliveroo. French, moved to London recently. Private tracker user, amateur photographer. Pitched idea: "GitHub for photo editing" — a cloud where edits are stored as data, originals preserved, API-driven. Apple TV + ecosystem apps user. Recruited at least 3 French friends. Found put.io searching "safe torrenting" because of France's Hadopi law.
+Developer at Deliveroo. French, moved to London recently. Private tracker user, amateur photographer. Pitched idea: "GitHub for photo editing" — a cloud where edits are stored as data, originals preserved, API-driven. Apple TV + ecosystem apps user. Recruited at least 3 French friends. Found put.io searching "safe torrenting" because of France's anti-piracy law.
 
 ### User 23
 Developer at The Times. Didn't even know about pilli or sosyomat (put.io's parent company history). No insights.
@@ -93,7 +93,7 @@ Paris visitor. Works at Adobe (marketing solutions). Extreme quantified-self gee
 Designer (interaction, installation). 
 
 ### User 27
-Works at Whole Foods. Football streaming via AceStream.
+Works at Whole Foods. Football streaming via a streaming tool.
 
 ### User 28a, User 28b, User 28c, User 28d, User 28e, User 28f, User 28g, User 28h, User 28i, User 28j
 Contact details collected, minimal interview notes. Scheduled for follow-up or brief encounters.
@@ -148,7 +148,7 @@ Turkish software engineer, sick and couldn't meet properly. Family account user.
 Android engineer at Blinkist. Brazil → Berlin. Discovered put.io as an exchange student in the US. 100GB yearly one-time. Downloads to MacBook, HDMI to TV. Uses torrent sites. Didn't know ecosystem apps or ShowRSS. Friends mentioned a competitor service. Brought voucher back next meeting. "I wish my company did user meetings like this." Strong meetup/contact-based acquisition advocacy.
 
 ### User 42
-Linux admin, ex-Research Gate. US → Berlin. Burnout, traveling. 100GB monthly subscription. Had advanced Kodi + own VPS setup in US, simplified to put.io in Berlin. Mac mini connected to TV. Downloads locally for quality, wants sync tool. Uses Magno for torrents. Joked about cops at a put.io meetup. LinkedIn connected, vouchers given.
+Linux admin, ex-Research Gate. US → Berlin. Burnout, traveling. 100GB monthly subscription. Had advanced Kodi + own VPS setup in US, simplified to put.io in Berlin. Mac mini connected to TV. Downloads locally for quality, wants sync tool. Uses a torrent tool for torrents. Joked about cops at a put.io meetup. LinkedIn connected, vouchers given.
 
 ### User 43
 Lead Technical PM at AppLift. Russia → Berlin. Found put.io searching for seedbox alternatives. NAS + Plex setup, doesn't use put.io's own apps much. Has experience building TV streaming apps (Tizen, webOS, Apple TV) — technically relevant background. Suggested Dropbox-style referral system (invite friends → earn storage). Had simit and tea, praised local Turkish markets.
@@ -206,7 +206,7 @@ Product designer at Zalando. Turkish. **User ID 177** — one of the first 50 us
 - **Browser extension opportunity** — "Visit a page and see everything put.io can download from it." Underexplored growth vector
 - **rclone integration** — PR to add put.io API to rclone, replacing WebDAV dependency. Enables easier mounting + Plex
 
-### Sharing Vision (from Notion — Hasan's thinking)
+### Sharing Vision (from Notion — the founder's thinking)
 
 "Sharing bizim gizli silahımız." Three types identified:
 
@@ -289,7 +289,7 @@ Model: Give friends 1 free month, get $9.99 credit for each who stay. Requires c
 ### Good Copy/Design References (internal moodboard)
 - Dead Happy Life Insurance — [image in Notion]
 - Rogue Amoeba — "Strange name. Great software." (https://rogueamoeba.com/company/)
-- Twitter testimonial collections: https://twitter.com/putdotio/timelines/546273235483242496 (homepage), https://twitter.com/putdotio/timelines/969500554400534528 (pricing)
+- Twitter testimonial collections: [internal link] (homepage), [internal link] (pricing)
 
 ### Repository Strategy
 Design tokens will live in `putdotio/putio-design`:
@@ -366,7 +366,7 @@ Design tokens will live in `putdotio/putio-design`:
 - SUP-182: Graphic visualization for music playback
 
 **Sharing & integration:**
-- SUP-127: iOS Files integration (assigned to Altay)
+- SUP-127: iOS Files integration (assigned to the frontend lead)
 - SUP-189: Batch download shared files
 - SUP-83: Password-protected folders (To Be Discussed)
 - SUP-188: Put-Sync custom folder location (To Be Discussed)

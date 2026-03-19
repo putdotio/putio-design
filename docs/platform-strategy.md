@@ -17,7 +17,7 @@ Architecture, implementation approach, and engineering decisions for the put.io 
 
 ## Where We Are
 
-- Altay leads all frontend + native apps **solo**
+- The frontend lead manages all frontend + native apps **solo**
 - No dedicated designer, no dedicated platform engineers
 - **Code is cheap now.** AI coding agents (Codex, Claude Code) can implement specs across platforms in parallel
 - Web app: React + theme-ui + Emotion, migrating to Tailwind/CVA
@@ -73,7 +73,7 @@ putio-cli/           → terminal client
 
 **"Spec maintenance is a full-time job"** — Specs ARE the product. When you change a spec, agents propagate the change. The spec repo is the monorepo of intent. Make it open source and the community helps maintain it.
 
-**"Need platform knowledge across 4+ stacks"** — Agents have it. You need one person who understands the platform well enough to review. That person is Altay.
+**"Need platform knowledge across 4+ stacks"** — Agents have it. You need one person who understands the platform well enough to review. That person is the frontend lead.
 
 **"SDK-first is deceptively hard"** — The TypeScript SDK rewrite is already in progress (Effect-based). Swift and Kotlin SDKs are well-understood patterns. Open-source them and the community helps.
 

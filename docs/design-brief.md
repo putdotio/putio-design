@@ -36,8 +36,8 @@ It's not a media library. It's not Netflix. It's a content-agnostic cloud utilit
 ### The team
 
 - ~6 people total
-- Altay Aydemir leads all frontend + native apps solo
-- Hasan (founder) is design-aware, shares typography and design references, cares about craft
+- the frontend lead leads all frontend + native apps solo
+- The founder is design-aware, shares typography and design references, cares about craft
 - No dedicated designer has ever been on the team
 - "Design as we code" has been the approach for 15 years
 - Internal #design Slack channel is a moodboard of inspiration, not a design process
@@ -202,7 +202,7 @@ Built from real in-person interviews in London (39 users) and Berlin (22 users) 
 **Problem:** Sharing page has three confusing sections (Friends, put.io friends, special people). Friendship feature killed in 2019 but data persists. Family sharing exists but most users don't know about it.
 
 **Design needs:**
-- **Redesign sharing as a first-class feature** — Hasan's vision: folder following (subscribe to someone's collection), collaborative folders (multiple maintainers), casual one-time sharing (time-limited links)
+- **Redesign sharing as a first-class feature** — the founder's vision: folder following (subscribe to someone's collection), collaborative folders (multiple maintainers), casual one-time sharing (time-limited links)
 - **Share with Mom redesign** — the existing feature for sharing with non-users. Needs: clearer UX, no put.io account required for recipient, beautiful preview page that sells the product ("Sign up and this is yours instantly")
 - **Referral flow** — digital equivalent of the voucher card moment. Personalized share link, track who converted, reward both parties. The Monzo/Calm model
 - **Family feature visibility** — users who'd benefit most have no idea it exists. Surface during plan selection and when users share content
@@ -415,7 +415,7 @@ The team cares deeply about type:
 - Mixed content types in the same space (video, audio, documents, archives)
 - Cloud storage mental model, not a media library
 - Cross-platform: web, iOS, tvOS, Android, Android TV — what works on one must translate
-- One frontend engineer (Altay) + AI coding agents — see [Platform Strategy](platform-strategy.md)
+- One frontend engineer (the frontend lead) + AI coding agents — see [Platform Strategy](platform-strategy.md)
 - Open source direction — SDKs and potentially apps
 - Current stack: React (web), Swift (iOS/tvOS), Kotlin (Android) — see [Design System](design-system.md) for codebase analysis
 - Design tokens need to work cross-platform — see shared contracts in [TV App Spec](specs/tv-app.md#shared-contracts)
@@ -441,7 +441,7 @@ Scope has evolved into a full platform strategy. See [Platform Strategy](platfor
 
 - Part-time / freelance (roughly 10h/week)
 - Hourly, with a test run period before committing long-term
-- Direct collaboration with engineering (Altay + team)
+- Direct collaboration with engineering (the frontend lead + team)
 - Figma as the design tool
 - Design decisions documented alongside code (design system lives in `putio-design` repo)
 

@@ -106,7 +106,7 @@ Use Claude with Figma MCP to generate a complete put.io design system with examp
 4. **Audio player** — persistent mini-player, full player view
 5. **Transfers** — health indicators instead of jargon, clean filename parsing
 6. **RSS Automation** — feed management, empty state with personality
-7. **Sharing** — redesigned with Hasan's 3-type model (follow, collaborate, one-time)
+7. **Sharing** — redesigned with the founder's 3-type model (follow, collaborate, one-time)
 8. **History** — filterable, grouped, "continue watching" section
 9. **Settings** — current is good, minor refinements
 10. **Storage dashboard** — new screen: what types, what's old, what's unwatched

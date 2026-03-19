@@ -78,7 +78,7 @@ Current state of put.io's visual system: what exists, what works, what doesn't.
 - Shared folder: __o-o__ "Shared with all of your friends"
 - "Files shared with special people: You don't have any shared links"
 - "INVITE YOUR FRIENDS!" button
-- **Assessment:** Wait — 72 friends? This is Altay's account. The "friendship" feature was supposedly killed in Oct 2019 but the data persists? The three-section layout is confusing. "Special people" vs "friends" vs "put.io friends" — three sharing concepts on one page.
+- **Assessment:** Wait — 72 friends? This is the owner's account. The "friendship" feature was supposedly killed in Oct 2019 but the data persists? The three-section layout is confusing. "Special people" vs "friends" vs "put.io friends" — three sharing concepts on one page.
 
 ### Web App — History
 - Extremely long page — hundreds of entries
@@ -116,13 +116,13 @@ Current state of put.io's visual system: what exists, what works, what doesn't.
 - "Hello, We're pilli. A 26 year old web company hailing from Istanbul."
 - Company history: web design shop (2000) → own products (2005) → PilliNetwork (community blogs, Spotify model before Spotify) → Sosyomat (social tagging, 400k users) → put.io
 - Team: 7 people with photos and personality descriptions
-  - Hasan Yalçınkaya — "veteran web worker," business + product + support
-  - Ceren Akış — manager, "actually a very entertaining person"
-  - Ömer Murat Yıldırım — dev, "His favorite show is still Seinfeld"
-  - Altay — dev, "His favorite The Office character is Creed"
-  - Çiğdem Çabuker — support, "obsessed with dystopias and feeds on memes"
-  - Berkan Teber — dev, "believes he can exhaust the Internet"
-  - Zeynep Yazıcı — support, "likes long and boring movies"
+  - the founder — "veteran web worker," business + product + support
+  - team member — manager, "actually a very entertaining person"
+  - team member — dev, "His favorite show is still Seinfeld"
+  - the frontend lead — dev, "His favorite The Office character is Creed"
+  - team member — support, "obsessed with dystopias and feeds on memes"
+  - team member — dev, "believes he can exhaust the Internet"
+  - team member — support, "likes long and boring movies"
 - Special Thanks section with alumni names
 - Company details: PUTiO Internet Hizmetleri AS., Istanbul
 - **Assessment:** This page has more personality than the entire web app. The team descriptions are wonderful. "We don't have a bounty program, but if your discovery leads to an action on our part we will mention you here" — peak put.io voice. This warmth needs to infuse the product itself.
@@ -221,7 +221,7 @@ packages/
   features    — shared feature modules (account, auth, files, billing, etc.)
   sdk         — legacy JS SDK
   translations — typed i18n strings
-  starry-night — canvas animation (landing hero, by Ateş Goral)
+  starry-night — canvas animation (landing hero, by [contributor])
   utilities   — shared utils
 ```
 
@@ -317,7 +317,7 @@ Features: Files, History, Home, Search, Settings
 5. **The landing site is completely separate** from the web app design system. Different build, different styles, different era.
 6. **iOS app is pure UIKit** — no SwiftUI yet, no shared design tokens from the web color system.
 7. **TV apps are split** — web-based TV (React) and React Native TV coexist. Different component libraries.
-8. **The starry-night package** is a bespoke canvas animation by Ateş Goral — one of the most distinctive brand elements, living as a proper package.
+8. **The starry-night package** is a bespoke canvas animation by [contributor] — one of the most distinctive brand elements, living as a proper package.
 9. **Button is the design system in miniature:** yellow/gold primary, green positive, red negative, ghost, and a clever "secondary" variant that inverts text/bg colors.
 10. **4px spacing grid** is consistent but the scale jumps aggressively (0,4,8,16,32,64,128...) — fine for layout, potentially limiting for component-level spacing.
 
