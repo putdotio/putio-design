@@ -22,9 +22,10 @@ prototypes/        HTML design screens + gallery index
 - Yellow `#FDCE45` is sacred. Never change it.
 - Icons: inline SVG (Phosphor-style). No emoji.
 - TV apps are file browsers — list views, not media card grids.
-- Chill Institute is out of scope.
+- Ecosystem apps are out of scope.
 - Check `docs/assets/` screenshots before designing platform screens.
 - Never stop to ask — loop autonomously when iterating.
+- When writing or updating docs: never include customer PII (real names, emails, employers). Use anonymous IDs (e.g. "User 01"). Never reference third-party apps by name — use generic descriptions instead.
 
 ## Design variants
 

@@ -19,9 +19,8 @@ Generate put.io design prototypes from references or briefs.
 
 - Inline SVG icons only — no emoji
 - `#FDCE45` yellow is sacred
-- Include `<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>`
 - TV apps are list-based file browsers — no media card grids
-- Chill Institute is out of scope
+- Ecosystem apps are out of scope
 - Produce 3-5 variations per request
 - Use subagents for parallel work
 

@@ -1,17 +1,24 @@
-# put.io design
+<div align="center">
+  <p>
+    <img src="https://static.put.io/images/putio-boncuk.png" width="72">
+  </p>
 
-Design system, specs, and prototypes for [put.io](https://put.io).
+  <h1>put.io design</h1>
 
-## Browse prototypes
+  <p>Design system, specs, and prototypes for <a href="https://put.io">put.io</a></p>
+</div>
+
+<br />
+
+## Browse
+
+Prototypes are deployed to Vercel automatically on push. For local browsing:
 
 ```bash
-cd prototypes && python3 -m http.server 8765
-# → http://localhost:8765
+npx serve prototypes
 ```
 
 ## Docs
-
-See [`docs/README.md`](docs/README.md) for the full index.
 
 | Doc | What |
 |-----|------|
@@ -29,17 +36,21 @@ docs/specs/        feature specs (tv-app.md is the big one)
 docs/archive/      historical files
 docs/assets/       screenshots of current app
 prototypes/        HTML design screens + gallery index
+moodboard/         visual references and inspiration
 ```
 
 ## Platforms
 
 Web · iOS · Android · tvOS · Android TV · Fire TV · Tizen · LG webOS · Roku · watchOS · visionOS
 
-## Key constants
+## Contributing
 
-- Yellow `#FDCE45` — sacred, never changes
-- Font: GT America (Standard + Mono)
-- Icons: SVG only (Phosphor-style), no emoji
-- TV apps are file browsers, not media apps
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-ᕦ(ò_óˇ)ᕤ
+## Security
+
+See [SECURITY.md](SECURITY.md).
+
+## License
+
+[MIT](LICENSE)

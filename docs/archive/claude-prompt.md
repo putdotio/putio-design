@@ -44,7 +44,7 @@ Only after reading ALL of the above should you start designing.
 
 **What users actually said:**
 - "It just works!" — but they can't find features
-- "Chill looked like a ready-made template, didn't feel secure" — design = trust
+- "ecosystem apps looked like a ready-made template, didn't feel secure" — design = trust
 - "Just one button: Download to put.io" — simplify ruthlessly
 - "The ⬇️ icon made me think it'd download to my computer" — icons lie
 - "I thought you were a British company with 100 people" — perception gap is huge

@@ -91,7 +91,7 @@ Figma: https://www.figma.com/design/fSGN6KSI5USS2GdTRBha4L/design-system
 - "Your Library" framing — folders have personality subtitles
 - Transfer ticker: "Inception is almost ready — 63%, about 23 minutes to go"
 - Player as private cinema — film title card overlay, programme/playbill right panel
-- Helen Stead quote as pullquote: "put.io does everything I need, and it's mine"
+- User 32 quote as pullquote: "put.io does everything I need, and it's mine"
 - Failed transfers empathetic: "We couldn't find sources. It happens sometimes."
 - Storage as "Your Digital Attic" — warm colors, conversational insights
 - Footer quotes the 10th birthday email: "Can you frakking believe this?"
