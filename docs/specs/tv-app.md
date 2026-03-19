@@ -14,6 +14,25 @@ No conversion flow. No HLS dependency. Play anything natively.
 
 ---
 
+## Table of Contents
+
+**Features:**
+Auth · Home Screen · File Browser · Search · Video Player · Audio Player · Continue Watching · History · Trash · Favorites · Diagnostics · Settings · Tunnel · Resume Prompt
+
+**Cross-cutting:**
+Error States · Pagination · Virtualized Lists · Remote Config · Sentry · Update Notifier · App Lock
+
+**Platform & Design:**
+10-Foot UI Principles · Platform-Specific Notes · Design References · Competitive Reference (Infuse) · User Requests (Linear)
+
+**Shared Contracts:**
+Design Tokens · i18n Strings · SDK Types · Error Map
+
+**Flows:**
+Auth Flow · File Browsing Flow · Video Playback Flow · Search Flow · Video Conversion Flow · Settings Flow · Error Recovery Flow
+
+---
+
 ## Auth
 
 - Device code pairing: show code on TV → user enters at `put.io/link`
@@ -907,9 +926,9 @@ Each platform's error localizer reads this map and renders using platform-native
 
 *This spec is the contract. Agents implement it. Humans review it. The spec is the product.*
 
-# Auth Flow
+## Auth Flow
 
-## Happy Path
+### Happy Path
 
 ```
 App Launch
@@ -924,7 +943,7 @@ App Launch
        └─ Alternative: "Enter token manually" (hidden, for debugging)
 ```
 
-## States
+### States
 
 | State | Screen | Focus | Transition |
 |-------|--------|-------|------------|
@@ -934,14 +953,14 @@ App Launch
 | `error` | Auth screen with error message | Retry button (focused) | Press → new code → polling |
 | `authenticated` | Home screen | First row, first item | Fade transition |
 
-## Edge Cases
+### Edge Cases
 
 - **Network drops during polling** — show inline "No connection" below code, keep polling. Don't navigate away.
 - **Token revoked after auth** — API returns 401 on any request → clear token → back to Auth screen with "Session expired" message.
 - **Multiple TVs same account** — each TV gets its own device code, same account token. No conflict.
 - **App backgrounded during polling** — resume polling on foreground. Don't reset code unless 10min elapsed.
 
-## Multi-Account (SUP-179)
+### Multi-Account (SUP-179)
 
 - After auth, store token with account label (username)
 - Settings → Accounts → list of authenticated accounts
@@ -950,15 +969,15 @@ App Launch
 - "Remove account" → confirm → delete token from keychain
 - Active account indicator in Settings header
 
-## Focus Behavior
+### Focus Behavior
 
 - On auth screen: nothing focusable until timeout (code is display-only)
 - On timeout: Retry button auto-focused
 - On transition to Home: first item in Continue Watching (or Your Files if empty)
 
-# File Browsing Flow
+## File Browsing Flow
 
-## Happy Path
+### Happy Path
 
 ```
 Home Screen
@@ -976,7 +995,7 @@ Home Screen
        └─ Sort button → Sort Modal → reload list
 ```
 
-## States
+### States
 
 | State | Screen | Focus | Data |
 |-------|--------|-------|------|
@@ -986,7 +1005,7 @@ Home Screen
 | `empty` | Empty state | Back button / parent nav | No files in folder |
 | `error` | Error state | Retry button | API failure |
 
-## Navigation Stack
+### Navigation Stack
 
 ```
 Home → Files(0) → Files(123) → Files(456) → Player
@@ -1007,7 +1026,7 @@ Home → Files(0) → Files(123) → Files(456) → Player
 - Sort change → reset cursor, reload from page 1
 - Pull-to-refresh: N/A on TV. Use "Refresh" button in file actions bar.
 
-## Focus Behavior
+### Focus Behavior
 
 - **Enter folder**: focus first item
 - **Return to folder** (back from subfolder/player): focus the item user previously selected
@@ -1015,7 +1034,7 @@ Home → Files(0) → Files(123) → Files(456) → Player
 - **Empty folder**: focus back button / parent navigation
 - **Long-press action sheet**: focus first action. Dismiss → return focus to item.
 
-## File Type Handling
+### File Type Handling
 
 | File type | D-pad select | Long-press |
 |-----------|-------------|------------|
@@ -1025,7 +1044,7 @@ Home → Files(0) → Files(123) → Files(456) → Player
 | Image | → Full-screen preview | Action sheet (info, delete) |
 | PDF/Text/Archive/Other | → File Info modal | Action sheet (info, delete) |
 
-## Edge Cases
+### Edge Cases
 
 - **Token expires while browsing** — 401 → Auth flow. On re-auth, return to Home (don't try to restore deep nav stack).
 - **File deleted by another client** — 404 on file access → show toast "File not found", stay in current folder, refresh list.
@@ -1033,11 +1052,11 @@ Home → Files(0) → Files(123) → Files(456) → Player
 - **Network drop while loading page** — show error state with retry. Keep previously loaded items visible.
 - **Filename parsing** — always attempt parse. If parse fails, show raw filename. Never show "Unknown" or blank.
 
-# Video Playback Flow
+## Video Playback Flow
 
 The most complex and most important flow. Every decision here affects the core experience.
 
-## Happy Path
+### Happy Path
 
 ```
 File selected (video)
@@ -1092,7 +1111,7 @@ Player
        └─ No next file → return to file browser
 ```
 
-## Position Saving
+### Position Saving
 
 - Save position to API every 10 seconds during playback
 - Also save on: pause, exit, app background, overlay open
@@ -1101,7 +1120,7 @@ Player
 - Mark as "completed" when position > 95% of duration → remove from Continue Watching
 - On player exit (back button), always save current position
 
-## Subtitle Flow
+### Subtitle Flow
 
 ```
 Player → Subtitles button
@@ -1125,7 +1144,7 @@ Subtitle selected → apply immediately
 - **Android TV**: VLC-kit/libVLC renders subtitles. Respect user font size/color settings.
 - **.ass/.ssa support**: VLC-kit handles natively. Render styled subtitles as-is.
 
-## Audio Track Flow
+### Audio Track Flow
 
 ```
 Player → Audio button
@@ -1140,7 +1159,7 @@ HDMI passthrough:
   └─ Setting in Settings → Playback → "Audio passthrough" (on/off)
 ```
 
-## Seek & Scrubbing
+### Seek & Scrubbing
 
 | Input | Action |
 |-------|--------|
@@ -1156,7 +1175,7 @@ HDMI passthrough:
 - VLC-kit supports thumbnail extraction at position
 - Fallback: just show timestamp, no thumbnail
 
-## Error Handling During Playback
+### Error Handling During Playback
 
 | Error | Behavior |
 |-------|----------|
@@ -1169,7 +1188,7 @@ HDMI passthrough:
 | Subtitle load fails | Toast "Couldn't load subtitles" → continue without subs (non-blocking) |
 | Network loss during playback | Buffer runs out → "Connection lost" → Retry/Back. If network returns within buffer window, seamless resume. |
 
-## Focus Behavior
+### Focus Behavior
 
 | Context | Focus |
 |---------|-------|
@@ -1182,7 +1201,7 @@ HDMI passthrough:
 | Up Next screen | "Play" button |
 | Error screen | Retry button (or Back if no retry) |
 
-## Platform-Specific
+### Platform-Specific
 
 ### tvOS (Siri Remote)
 - Swipe on trackpad → scrub
@@ -1196,9 +1215,9 @@ HDMI passthrough:
 - Back button → dismiss overlay first, then exit player (ref UI-1528)
 - Media keys (play/pause/stop/ffwd/rew) → map directly to player actions
 
-# Search Flow
+## Search Flow
 
-## Happy Path
+### Happy Path
 
 ```
 Home → Search
@@ -1226,7 +1245,7 @@ Home → Search
        └─ Query saved to recent searches on submit
 ```
 
-## States
+### States
 
 | State | Screen | Focus |
 |-------|--------|-------|
@@ -1237,7 +1256,7 @@ Home → Search
 | `empty_results` | "No results" message | Back to keyboard |
 | `error` | Error state | Retry button |
 
-## Voice Search Integration
+### Voice Search Integration
 
 ```
 System voice search (Siri / Google Assistant / Alexa)
@@ -1248,7 +1267,7 @@ System voice search (Siri / Google Assistant / Alexa)
        └─ Results shown immediately
 ```
 
-## Focus Behavior
+### Focus Behavior
 
 - Enter search: focus keyboard (if no recent searches) or first recent item
 - Submit query: focus moves to first result
@@ -1256,7 +1275,7 @@ System voice search (Siri / Google Assistant / Alexa)
 - Back from result detail: focus the result item user selected
 - Clear search: focus keyboard
 
-## Edge Cases
+### Edge Cases
 
 - **Empty query submit** — ignore, stay on keyboard
 - **Very long query** — truncate display at ~50 chars, send full to API
@@ -1264,9 +1283,9 @@ System voice search (Siri / Google Assistant / Alexa)
 - **Search while previous search loading** — cancel previous request, start new
 - **Offline** — show cached recent searches. On search submit, show network error.
 
-# Video Conversion Flow
+## Video Conversion Flow
 
-## Context
+### Context
 
 put.io's server-side conversion generates HLS streams from uploaded files. This is required for:
 - **Web app** — browser `<video>` can't play MKV/x265/DTS natively
@@ -1274,7 +1293,7 @@ put.io's server-side conversion generates HLS streams from uploaded files. This 
 
 **Native apps (iOS, tvOS, Android, Android TV) skip this flow entirely** thanks to VLC-kit/libVLC.
 
-## Conversion States
+### Conversion States
 
 ```
 File uploaded / transfer completed
@@ -1288,7 +1307,7 @@ File uploaded / transfer completed
             └─ ERROR → "Conversion failed" → Retry button → re-trigger conversion
 ```
 
-## States
+### States
 
 | State | UI | Actions |
 |-------|-----|---------|
@@ -1299,13 +1318,13 @@ File uploaded / transfer completed
 | `COMPLETED` | Hidden — go straight to player | — |
 | `ERROR` | Poster + "Conversion failed" | Retry button, Back button |
 
-## Polling
+### Polling
 
 - Poll `GET /files/{id}/mp4` every 5 seconds while `IN_QUEUE` or `CONVERTING`
 - Stop polling on: `COMPLETED`, `ERROR`, `NOT_AVAILABLE`, user navigates away
 - On `COMPLETED` → auto-transition to player (don't make user press play again)
 
-## Conversion Screen UI
+### Conversion Screen UI
 
 ```
 ┌──────────────────────────────────────────┐
@@ -1323,7 +1342,7 @@ File uploaded / transfer completed
 └──────────────────────────────────────────┘
 ```
 
-## Edge Cases
+### Edge Cases
 
 - **User navigates away during conversion** — conversion continues server-side. On return, check status and resume from current state.
 - **Conversion takes very long (>30min)** — show estimated time if API provides it. Otherwise just spinner + percentage.
@@ -1331,7 +1350,7 @@ File uploaded / transfer completed
 - **Multiple files need conversion** — each file independent. No batch conversion UI on TV.
 - **Network drop during polling** — show "Can't check conversion status" with retry. Don't assume conversion failed.
 
-## Native App Behavior
+### Native App Behavior
 
 On native apps (VLC-kit/libVLC), the `withConversionStatus` wrapper is removed entirely:
 
@@ -1347,7 +1366,7 @@ No conversion check, no waiting, no progress screen. The `need_convert` field is
 3. Offer: "Try on web at put.io" (show QR code to the file's web URL)
 4. Do NOT fall back to conversion flow on native — it defeats the purpose
 
-## API
+### API
 
 | Endpoint | Purpose |
 |----------|---------|
@@ -1355,9 +1374,9 @@ No conversion check, no waiting, no progress screen. The `need_convert` field is
 | `POST /files/{id}/mp4` | Trigger conversion |
 | `DELETE /files/{id}/mp4` | Cancel conversion |
 
-# Settings Flow
+## Settings Flow
 
-## Structure
+### Structure
 
 ```
 Home → Account
@@ -1398,7 +1417,7 @@ Home → Account
             └─ Remove account → confirm → delete token
 ```
 
-## Setting Changes
+### Setting Changes
 
 All settings changes are **immediate** — no "Save" button. Toggle = instant apply. Picker selection = instant apply.
 
@@ -1415,7 +1434,7 @@ All settings changes are **immediate** — no "Save" button. Toggle = instant ap
 | Default playback speed | Local storage | Per-device |
 | App Lock PIN | Platform keychain | Per-device |
 
-## Tunnel Route Picker
+### Tunnel Route Picker
 
 ```
 Settings → Tunnel Route
@@ -1426,7 +1445,7 @@ Settings → Tunnel Route
        └─ Back → return to settings
 ```
 
-## Diagnostics Flow
+### Diagnostics Flow
 
 ```
 Settings → Diagnostics
@@ -1440,7 +1459,7 @@ Settings → Diagnostics
        └─ "Copy All" → clipboard (for support tickets)
 ```
 
-## Focus Behavior
+### Focus Behavior
 
 - Enter settings: focus first item in Playback Settings
 - After toggle change: stay focused on same item
@@ -1448,18 +1467,18 @@ Settings → Diagnostics
 - Sign Out: confirmation dialog → "Yes" focused
 - Back: return to Home, focus "Account" row
 
-## Edge Cases
+### Edge Cases
 
 - **API failure on setting change** — show toast "Couldn't save setting", revert toggle to previous state
 - **Tunnel route change during playback** — doesn't affect current stream. New route applies to next playback.
 - **Sign out with app lock enabled** — clear PIN along with token
 - **Disk usage near 100%** — progress bar turns red, show warning text
 
-# Error Recovery Flow
+## Error Recovery Flow
 
 Every error has a defined recovery path. The user should never be stuck.
 
-## Error → Recovery Matrix
+### Error → Recovery Matrix
 
 | Error | Where it happens | What user sees | Recovery action | Where user ends up |
 |-------|-----------------|----------------|-----------------|-------------------|
@@ -1484,7 +1503,7 @@ Every error has a defined recovery path. The user should never be stuck.
 | **Unknown error** | Anywhere | "Something unexpected happened. Error ID: [id]" | Retry / Back | Same screen |
 | **App crash recovery** | App relaunch | Normal launch | None | Home screen (state restored from API) |
 
-## Recovery Principles
+### Recovery Principles
 
 1. **Never leave the user stuck** — every error screen has at least one actionable button (Retry or Back)
 2. **Non-blocking errors are toasts** — subtitle/audio failures don't interrupt playback
@@ -1496,7 +1515,7 @@ Every error has a defined recovery path. The user should never be stuck.
 8. **Include error ID for unknowns** — Sentry trace ID in the message so support can look it up
 9. **Degrade gracefully** — network drop during browse shows stale data + error banner, not empty screen
 
-## Offline / Degraded Network
+### Offline / Degraded Network
 
 ```
 Network drops
@@ -1520,7 +1539,7 @@ Network returns
   └─ No user action needed
 ```
 
-## Toast vs Full-Screen Error Decision
+### Toast vs Full-Screen Error Decision
 
 ```
 Is the user's primary task blocked?
