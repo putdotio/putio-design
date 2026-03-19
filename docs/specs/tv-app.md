@@ -906,3 +906,626 @@ Each platform's error localizer reads this map and renders using platform-native
 ---
 
 *This spec is the contract. Agents implement it. Humans review it. The spec is the product.*
+
+# Auth Flow
+
+## Happy Path
+
+```
+App Launch
+  ├─ Has valid token? → Home Screen
+  └─ No token → Auth Screen
+       ├─ Display device code + QR code
+       │    ├─ Code: large, high-contrast, 6 chars
+       │    └─ QR: links to put.io/link?code=XXXXXX
+       ├─ Poll API every 5s for token
+       │    ├─ Token received → Store in keychain → Home Screen
+       │    └─ 10min timeout → "Code expired" → Retry button → new code
+       └─ Alternative: "Enter token manually" (hidden, for debugging)
+```
+
+## States
+
+| State | Screen | Focus | Transition |
+|-------|--------|-------|------------|
+| `no_token` | Auth screen with code + QR | Retry button (initially hidden) | Auto-transitions on token |
+| `polling` | Same screen, "Waiting..." spinner | No interactive focus needed | 5s interval API poll |
+| `timeout` | Same screen, "Code expired" | Retry button (focused) | Press → new code → polling |
+| `error` | Auth screen with error message | Retry button (focused) | Press → new code → polling |
+| `authenticated` | Home screen | First row, first item | Fade transition |
+
+## Edge Cases
+
+- **Network drops during polling** — show inline "No connection" below code, keep polling. Don't navigate away.
+- **Token revoked after auth** — API returns 401 on any request → clear token → back to Auth screen with "Session expired" message.
+- **Multiple TVs same account** — each TV gets its own device code, same account token. No conflict.
+- **App backgrounded during polling** — resume polling on foreground. Don't reset code unless 10min elapsed.
+
+## Multi-Account (SUP-179)
+
+- After auth, store token with account label (username)
+- Settings → Accounts → list of authenticated accounts
+- "Add account" → new device code flow
+- "Switch account" → select from list → reload Home with new token
+- "Remove account" → confirm → delete token from keychain
+- Active account indicator in Settings header
+
+## Focus Behavior
+
+- On auth screen: nothing focusable until timeout (code is display-only)
+- On timeout: Retry button auto-focused
+- On transition to Home: first item in Continue Watching (or Your Files if empty)
+
+# File Browsing Flow
+
+## Happy Path
+
+```
+Home Screen
+  └─ "Your Files" → File Browser (root, id=0)
+       ├─ Folder → File Browser (folder id)
+       │    ├─ Subfolder → deeper...
+       │    ├─ Video file → Playback Flow
+       │    ├─ Audio file → Audio Player
+       │    └─ Other file → File Info modal
+       ├─ Long-press any item → Action Sheet
+       │    ├─ Play (video/audio)
+       │    ├─ Info (size, format, date)
+       │    ├─ Add to Favorites / Remove
+       │    └─ Delete (→ Trash)
+       └─ Sort button → Sort Modal → reload list
+```
+
+## States
+
+| State | Screen | Focus | Data |
+|-------|--------|-------|------|
+| `loading` | Activity indicator | None | Fetching first page |
+| `loaded` | File list | First item (or last focused on return) | Files + cursor |
+| `loading_more` | File list + bottom spinner | Current item | Fetching next page |
+| `empty` | Empty state | Back button / parent nav | No files in folder |
+| `error` | Error state | Retry button | API failure |
+
+## Navigation Stack
+
+```
+Home → Files(0) → Files(123) → Files(456) → Player
+  ↑       ↑           ↑            ↑
+  back    back        back         back (exit player)
+```
+
+- Each folder push adds to the stack
+- Back pops one level
+- Breadcrumb shows: "Files > Movies > 2026"
+- Back from root folder → Home screen
+
+## Pagination
+
+- First page loads on screen mount (50 items)
+- Scroll near bottom (5 items from end) → fetch next page
+- Append to list, don't replace
+- Sort change → reset cursor, reload from page 1
+- Pull-to-refresh: N/A on TV. Use "Refresh" button in file actions bar.
+
+## Focus Behavior
+
+- **Enter folder**: focus first item
+- **Return to folder** (back from subfolder/player): focus the item user previously selected
+- **After sort change**: focus first item
+- **Empty folder**: focus back button / parent navigation
+- **Long-press action sheet**: focus first action. Dismiss → return focus to item.
+
+## File Type Handling
+
+| File type | D-pad select | Long-press |
+|-----------|-------------|------------|
+| Folder | Navigate into | Action sheet (info, favorite, delete) |
+| Video | → Playback Flow | Action sheet (play, info, favorite, delete) |
+| Audio | → Audio Player | Action sheet (play, info, delete) |
+| Image | → Full-screen preview | Action sheet (info, delete) |
+| PDF/Text/Archive/Other | → File Info modal | Action sheet (info, delete) |
+
+## Edge Cases
+
+- **Token expires while browsing** — 401 → Auth flow. On re-auth, return to Home (don't try to restore deep nav stack).
+- **File deleted by another client** — 404 on file access → show toast "File not found", stay in current folder, refresh list.
+- **Folder with 10,000+ files** — pagination handles this. Virtualized list keeps memory bounded.
+- **Network drop while loading page** — show error state with retry. Keep previously loaded items visible.
+- **Filename parsing** — always attempt parse. If parse fails, show raw filename. Never show "Unknown" or blank.
+
+# Video Playback Flow
+
+The most complex and most important flow. Every decision here affects the core experience.
+
+## Happy Path
+
+```
+File selected (video)
+  └─ Has saved position? (start_from > 0 AND < 95%)
+       ├─ Yes → Resume Prompt
+       │    ├─ "Continue from 42:17" → Player (seek to 42:17)
+       │    └─ "Start from beginning" → Player (seek to 0)
+       └─ No → Player (start from 0)
+
+Player
+  ├─ Playing (controls hidden after 5s)
+  │    ├─ Any D-pad press → Show controls overlay
+  │    ├─ D-pad left/right → Skip -10s / +10s
+  │    ├─ D-pad left/right (hold) → Fast seek
+  │    ├─ Play/pause button → Toggle playback
+  │    ├─ Select/OK button → Show controls overlay
+  │    └─ Menu/Back → Exit player (save position)
+  │
+  ├─ Controls Overlay (visible)
+  │    ├─ Progress bar (focused) → D-pad left/right to scrub
+  │    ├─ Subtitles button → Subtitle Picker
+  │    ├─ Audio Track button → Audio Track Picker
+  │    ├─ Speed button → Speed Picker
+  │    ├─ Info button → toggle file info display
+  │    └─ Auto-hide after 5s of no input
+  │
+  ├─ Subtitle Picker (modal overlay)
+  │    ├─ "Off" option
+  │    ├─ Embedded tracks (from file)
+  │    ├─ External tracks (from API/OpenSubtitles)
+  │    ├─ Select → apply immediately, dismiss picker
+  │    └─ Back → dismiss picker, return to controls
+  │
+  ├─ Audio Track Picker (modal overlay)
+  │    ├─ List all tracks: "English 5.1 (AC3)", "English 2.0 (AAC)", "Commentary"
+  │    ├─ Select → apply immediately, dismiss picker
+  │    └─ Back → dismiss picker, return to controls
+  │
+  ├─ Speed Picker (modal overlay)
+  │    ├─ Options: 0.5x, 0.75x, 1x, 1.25x, 1.5x, 2x, 3x
+  │    ├─ Current speed highlighted
+  │    ├─ Select → apply immediately, dismiss picker
+  │    └─ Back → dismiss picker, return to controls
+  │
+  └─ End of Playback
+       ├─ Auto-save position (mark as completed if >95%)
+       ├─ "Up Next" screen (10s countdown)
+       │    ├─ Next file in folder (alphabetical)
+       │    ├─ "Play" → start next file
+       │    ├─ "Cancel" / Back → return to file browser
+       │    └─ Countdown expires → auto-play next (if enabled in settings)
+       └─ No next file → return to file browser
+```
+
+## Position Saving
+
+- Save position to API every 10 seconds during playback
+- Also save on: pause, exit, app background, overlay open
+- Debounce: don't fire more than once per 10s (avoid excessive API calls — ref UI-1462)
+- Position syncs across all devices (start on TV, continue on phone)
+- Mark as "completed" when position > 95% of duration → remove from Continue Watching
+- On player exit (back button), always save current position
+
+## Subtitle Flow
+
+```
+Player → Subtitles button
+  └─ Fetch subtitle list (API + embedded)
+       ├─ Loading → show spinner in picker
+       ├─ Available → show list
+       │    ├─ Embedded: from VLC-kit track enumeration
+       │    ├─ External: from /files/{id}/subtitles API
+       │    ├─ Merged list, grouped by language
+       │    └─ Full names shown (no truncation — ref SUP-158)
+       └─ None available → show "No subtitles available"
+
+Subtitle selected → apply immediately
+  ├─ Remember preference: last selected language stored per-user
+  ├─ Next video: auto-select same language if available
+  └─ Subtitle offset: ±0.5s increments via setting (ref SUP-155)
+```
+
+### Subtitle rendering
+- **tvOS**: use native system subtitle style (what Infuse does — users expect it)
+- **Android TV**: VLC-kit/libVLC renders subtitles. Respect user font size/color settings.
+- **.ass/.ssa support**: VLC-kit handles natively. Render styled subtitles as-is.
+
+## Audio Track Flow
+
+```
+Player → Audio button
+  └─ Enumerate tracks from VLC-kit/libVLC
+       ├─ Show: language, channel layout (5.1/2.0/7.1), codec (AAC/AC3/DTS/TrueHD)
+       ├─ Currently active track highlighted
+       └─ Select → switch immediately (brief buffer is OK)
+
+HDMI passthrough:
+  ├─ DTS-HD, TrueHD, Atmos → pass through HDMI bitstream
+  ├─ Fallback: if receiver doesn't support → decode to PCM
+  └─ Setting in Settings → Playback → "Audio passthrough" (on/off)
+```
+
+## Seek & Scrubbing
+
+| Input | Action |
+|-------|--------|
+| D-pad left (tap) | Skip back 10s |
+| D-pad right (tap) | Skip forward 10s |
+| D-pad left (hold) | Fast rewind (accelerating: 2x → 4x → 8x) |
+| D-pad right (hold) | Fast forward (accelerating: 2x → 4x → 8x) |
+| Siri Remote swipe (tvOS) | Scrub through progress bar |
+| Progress bar focused + D-pad | Precise scrub |
+
+### Thumbnail preview (SUP-152)
+- If file has I-frames / seek thumbnails: show preview above progress bar during scrub
+- VLC-kit supports thumbnail extraction at position
+- Fallback: just show timestamp, no thumbnail
+
+## Error Handling During Playback
+
+| Error | Behavior |
+|-------|----------|
+| Buffering > 10s | Show spinner + "Buffering..." |
+| Buffering > 30s | Show "Playback stalled. Check your connection." + Retry/Back buttons |
+| Stream URL expired | Auto-retry once (fetch new URL). If fails → "Link expired" + Back button |
+| VLC-kit crash | Catch, log to Sentry, show "Playback error" + Back button. Don't crash the app. |
+| Codec unsupported (rare with VLC) | "Can't play this format" → suggest web playback |
+| Audio track switch fails | Toast "Couldn't switch audio" → stay on current track |
+| Subtitle load fails | Toast "Couldn't load subtitles" → continue without subs (non-blocking) |
+| Network loss during playback | Buffer runs out → "Connection lost" → Retry/Back. If network returns within buffer window, seamless resume. |
+
+## Focus Behavior
+
+| Context | Focus |
+|---------|-------|
+| Resume prompt | "Continue from..." button |
+| Player (controls hidden) | N/A — full-screen video, any press shows controls |
+| Controls overlay | Progress bar |
+| Subtitle picker | Currently selected subtitle (or "Off") |
+| Audio picker | Currently selected track |
+| Speed picker | Current speed |
+| Up Next screen | "Play" button |
+| Error screen | Retry button (or Back if no retry) |
+
+## Platform-Specific
+
+### tvOS (Siri Remote)
+- Swipe on trackpad → scrub
+- Click trackpad → play/pause
+- Menu button → show/hide controls (first press), exit player (second press)
+- Play/Pause button on remote → always play/pause regardless of overlay state
+
+### Android TV / Fire TV (D-pad remote)
+- Center button → play/pause when controls hidden, select when controls visible
+- Double-tap left/right → 10s skip (ref SUP-191, SUP-61)
+- Back button → dismiss overlay first, then exit player (ref UI-1528)
+- Media keys (play/pause/stop/ffwd/rew) → map directly to player actions
+
+# Search Flow
+
+## Happy Path
+
+```
+Home → Search
+  └─ Search Screen
+       ├─ Recent searches shown (last 10, stored locally)
+       │    ├─ Select recent → execute search
+       │    └─ Delete recent → remove from list (swipe tvOS, long-press Android)
+       │
+       ├─ Keyboard input
+       │    ├─ tvOS: system keyboard + Siri dictation
+       │    ├─ Android TV: system keyboard + voice button
+       │    └─ Fire TV: system keyboard + Alexa voice
+       │
+       ├─ Submit query
+       │    ├─ API: GET /files/search?query=...&per_page=50
+       │    ├─ Loading: activity indicator replaces results area
+       │    ├─ Results: file list (same component as File Browser)
+       │    │    ├─ Select folder → File Browsing Flow
+       │    │    ├─ Select video → Playback Flow
+       │    │    ├─ Select audio → Audio Player
+       │    │    └─ Pagination: cursor-based, load more on scroll
+       │    ├─ No results: "No results for '[query]'"
+       │    └─ Error: standard error state with retry
+       │
+       └─ Query saved to recent searches on submit
+```
+
+## States
+
+| State | Screen | Focus |
+|-------|--------|-------|
+| `idle` | Recent searches list | First recent item (or keyboard if none) |
+| `typing` | Keyboard active + live input | Keyboard |
+| `loading` | Spinner replacing results | None (non-interactive during load) |
+| `results` | File list | First result |
+| `empty_results` | "No results" message | Back to keyboard |
+| `error` | Error state | Retry button |
+
+## Voice Search Integration
+
+```
+System voice search (Siri / Google Assistant / Alexa)
+  └─ "Search put.io for [query]"
+       ├─ App registered as search provider
+       ├─ Receives intent with query string
+       ├─ Opens app → Search screen → pre-filled query → auto-execute
+       └─ Results shown immediately
+```
+
+## Focus Behavior
+
+- Enter search: focus keyboard (if no recent searches) or first recent item
+- Submit query: focus moves to first result
+- No results: focus returns to keyboard input
+- Back from result detail: focus the result item user selected
+- Clear search: focus keyboard
+
+## Edge Cases
+
+- **Empty query submit** — ignore, stay on keyboard
+- **Very long query** — truncate display at ~50 chars, send full to API
+- **Special characters in query** — URL-encode, API handles
+- **Search while previous search loading** — cancel previous request, start new
+- **Offline** — show cached recent searches. On search submit, show network error.
+
+# Video Conversion Flow
+
+## Context
+
+put.io's server-side conversion generates HLS streams from uploaded files. This is required for:
+- **Web app** — browser `<video>` can't play MKV/x265/DTS natively
+- **TV-web** (Tizen, LG, Vizio) — same browser limitation
+
+**Native apps (iOS, tvOS, Android, Android TV) skip this flow entirely** thanks to VLC-kit/libVLC.
+
+## Conversion States
+
+```
+File uploaded / transfer completed
+  └─ file.need_convert?
+       ├─ false → CONVERSION_NOT_NEEDED → Play immediately (MP4/HLS direct)
+       └─ true → Check conversion status
+            ├─ NOT_AVAILABLE → "Can't convert this file" → offer download instead
+            ├─ IN_QUEUE → "Waiting to convert..." (position in queue if available)
+            ├─ CONVERTING → "Converting... X%" (progress bar)
+            ├─ COMPLETED → Play (HLS ready)
+            └─ ERROR → "Conversion failed" → Retry button → re-trigger conversion
+```
+
+## States
+
+| State | UI | Actions |
+|-------|-----|---------|
+| `CONVERSION_NOT_NEEDED` | Hidden — go straight to player | — |
+| `NOT_AVAILABLE` | "This file can't be converted" | "Download original" button |
+| `IN_QUEUE` | Poster + "Waiting to convert..." + spinner | Cancel button, position indicator |
+| `CONVERTING` | Poster + progress bar + percentage | Cancel button |
+| `COMPLETED` | Hidden — go straight to player | — |
+| `ERROR` | Poster + "Conversion failed" | Retry button, Back button |
+
+## Polling
+
+- Poll `GET /files/{id}/mp4` every 5 seconds while `IN_QUEUE` or `CONVERTING`
+- Stop polling on: `COMPLETED`, `ERROR`, `NOT_AVAILABLE`, user navigates away
+- On `COMPLETED` → auto-transition to player (don't make user press play again)
+
+## Conversion Screen UI
+
+```
+┌──────────────────────────────────────────┐
+│                                          │
+│         [File poster/screenshot]         │
+│                                          │
+│          "The Wire · S03E04"             │
+│                                          │
+│     ████████████░░░░░░░░░░  63%          │
+│                                          │
+│        Converting your file...           │
+│                                          │
+│           [ Cancel ]                     │
+│                                          │
+└──────────────────────────────────────────┘
+```
+
+## Edge Cases
+
+- **User navigates away during conversion** — conversion continues server-side. On return, check status and resume from current state.
+- **Conversion takes very long (>30min)** — show estimated time if API provides it. Otherwise just spinner + percentage.
+- **File is both convertible and directly playable** — prefer direct play (MP4 stream). Only show conversion flow for HLS if MP4 isn't available.
+- **Multiple files need conversion** — each file independent. No batch conversion UI on TV.
+- **Network drop during polling** — show "Can't check conversion status" with retry. Don't assume conversion failed.
+
+## Native App Behavior
+
+On native apps (VLC-kit/libVLC), the `withConversionStatus` wrapper is removed entirely:
+
+```
+File selected → Player (immediate)
+```
+
+No conversion check, no waiting, no progress screen. The `need_convert` field is ignored. VLC plays the original file directly.
+
+**Fallback:** If VLC-kit fails to play a file (extremely rare):
+1. Log error to Sentry
+2. Show "Can't play this file" 
+3. Offer: "Try on web at put.io" (show QR code to the file's web URL)
+4. Do NOT fall back to conversion flow on native — it defeats the purpose
+
+## API
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /files/{id}/mp4` | Check conversion status |
+| `POST /files/{id}/mp4` | Trigger conversion |
+| `DELETE /files/{id}/mp4` | Cancel conversion |
+
+# Settings Flow
+
+## Structure
+
+```
+Home → Account
+  └─ Account Screen
+       ├─ Header: avatar + username + disk usage bar + Sign Out button
+       │
+       ├─ Section: Playback Settings
+       │    ├─ Tunnel Route → Route Picker (list of routes)
+       │    ├─ Remember playback position (toggle)
+       │    ├─ Show subtitles (toggle)
+       │    ├─ Don't auto-select subtitles (toggle, visible only if show subtitles = on)
+       │    ├─ Subtitle offset → ±0.5s increment picker
+       │    ├─ Subtitle appearance → size (S/M/L), background (on/off)
+       │    ├─ Audio passthrough (toggle) — HDMI bitstream for HD codecs
+       │    ├─ Auto-play next file (toggle)
+       │    └─ Default playback speed → speed picker
+       │
+       ├─ Section: Storage
+       │    ├─ Disk usage: used / total with progress bar
+       │    └─ (Future: storage breakdown by type)
+       │
+       ├─ Section: Security
+       │    ├─ App Lock → PIN setup / change / disable
+       │    └─ (Future: per-folder PIN)
+       │
+       ├─ Section: App Info
+       │    ├─ App version + build number
+       │    ├─ Device model + OS version
+       │    ├─ VLC-kit/libVLC version
+       │    ├─ Diagnostics → Diagnostics screen
+       │    ├─ Open source licenses
+       │    └─ "Manage account at put.io" + QR code
+       │
+       └─ Section: Accounts (multi-account)
+            ├─ Current account (highlighted)
+            ├─ Other accounts (switch)
+            ├─ Add account → Auth flow
+            └─ Remove account → confirm → delete token
+```
+
+## Setting Changes
+
+All settings changes are **immediate** — no "Save" button. Toggle = instant apply. Picker selection = instant apply.
+
+| Setting | Storage | Sync |
+|---------|---------|------|
+| Tunnel route | API (`/settings`) | Synced across devices |
+| Remember position | API (`use_start_from`) | Synced |
+| Show subtitles | API (`hide_subtitles`) | Synced |
+| Don't auto-select subtitles | API (`dont_autoselect_subtitles`) | Synced |
+| Subtitle offset | Local storage | Per-device |
+| Subtitle appearance | Local storage | Per-device |
+| Audio passthrough | Local storage | Per-device |
+| Auto-play next | Local storage | Per-device |
+| Default playback speed | Local storage | Per-device |
+| App Lock PIN | Platform keychain | Per-device |
+
+## Tunnel Route Picker
+
+```
+Settings → Tunnel Route
+  └─ List of available routes (from API)
+       ├─ Each row: route display name (e.g., "Amsterdam", "London")
+       ├─ Current route: checkmark icon
+       ├─ Select → API call → immediate effect
+       └─ Back → return to settings
+```
+
+## Diagnostics Flow
+
+```
+Settings → Diagnostics
+  └─ Diagnostics Screen
+       ├─ Connection Test → ping API, show latency (ms)
+       ├─ Playback Test → play known test file
+       │    ├─ Success: show codec info, resolution, bitrate
+       │    └─ Failure: show error details
+       ├─ Device Info: model, OS, app version, VLC version
+       ├─ Network Info: connection type, IP, CDN endpoint
+       └─ "Copy All" → clipboard (for support tickets)
+```
+
+## Focus Behavior
+
+- Enter settings: focus first item in Playback Settings
+- After toggle change: stay focused on same item
+- After picker selection: return focus to the setting row
+- Sign Out: confirmation dialog → "Yes" focused
+- Back: return to Home, focus "Account" row
+
+## Edge Cases
+
+- **API failure on setting change** — show toast "Couldn't save setting", revert toggle to previous state
+- **Tunnel route change during playback** — doesn't affect current stream. New route applies to next playback.
+- **Sign out with app lock enabled** — clear PIN along with token
+- **Disk usage near 100%** — progress bar turns red, show warning text
+
+# Error Recovery Flow
+
+Every error has a defined recovery path. The user should never be stuck.
+
+## Error → Recovery Matrix
+
+| Error | Where it happens | What user sees | Recovery action | Where user ends up |
+|-------|-----------------|----------------|-----------------|-------------------|
+| **No network** | Any screen | "Can't connect to put.io" | Retry button | Same screen (retry request) |
+| **Network drops mid-browse** | File browser | "Connection lost" + loaded items still visible | Retry button (load more) | Same folder, same scroll position |
+| **Network drops mid-playback** | Player | Buffer depletes → "Connection lost" | Retry / Back | Retry = resume playback. Back = file browser. |
+| **401 Unauthorized** | Any API call | "Session expired" | Auto-redirect | Auth screen (clear token) |
+| **401 during playback** | Player | Playback stops | Save position → Auth screen | Auth → Home (don't restore player) |
+| **404 File not found** | File action / playback | "File not found" | Toast + stay | Current screen, refresh list |
+| **404 Folder** | File browser | "Folder not found" | Auto-navigate | Parent folder |
+| **429 Rate limit** | Any API call | "Too many requests" | Auto-retry after delay | Same screen (transparent to user if retry succeeds) |
+| **429 persistent** | Multiple calls | "Slow down. Try again in a moment." | Manual retry button | Same screen |
+| **5xx Server error** | Any API call | "Something went wrong on our end" | Retry button | Same screen |
+| **VLC-kit playback failure** | Player | "Can't play this file" | "Try on web" (QR) / Back | QR screen or file browser |
+| **Subtitle load failure** | Player (subtitle fetch) | Toast: "Couldn't load subtitles" | None (non-blocking) | Player continues without subs |
+| **Audio track switch failure** | Player (track switch) | Toast: "Couldn't switch audio" | None (non-blocking) | Player continues with current track |
+| **Conversion failure** | Conversion screen (web only) | "Conversion failed" | Retry / Back | Retry = re-trigger. Back = file browser. |
+| **Stream URL expired** | Player | Brief stall | Auto-retry (fetch new URL) | Player resumes (transparent) |
+| **Stream URL expired (retry fails)** | Player | "Playback link expired" | Back button | File browser |
+| **Timeout (10s)** | Any API call | "Request timed out" | Retry button | Same screen |
+| **Buffering timeout (30s)** | Player | "Playback stalled" | Retry / Back / Change route | Player retry or file browser |
+| **Unknown error** | Anywhere | "Something unexpected happened. Error ID: [id]" | Retry / Back | Same screen |
+| **App crash recovery** | App relaunch | Normal launch | None | Home screen (state restored from API) |
+
+## Recovery Principles
+
+1. **Never leave the user stuck** — every error screen has at least one actionable button (Retry or Back)
+2. **Non-blocking errors are toasts** — subtitle/audio failures don't interrupt playback
+3. **Blocking errors are full-screen** — network loss, auth expiry, server errors replace content
+4. **Auto-retry before showing error** — rate limits and expired URLs get one silent retry
+5. **Preserve context when possible** — after retry success, user is exactly where they were
+6. **Auth errors are nuclear** — clear token, go to auth screen. Don't try to be clever.
+7. **Save playback position on every error** — user never loses their place
+8. **Include error ID for unknowns** — Sentry trace ID in the message so support can look it up
+9. **Degrade gracefully** — network drop during browse shows stale data + error banner, not empty screen
+
+## Offline / Degraded Network
+
+```
+Network drops
+  ├─ Currently on Home → show banner "No connection" above rows
+  │    └─ Continue Watching / Recent: show cached data (stale but visible)
+  │
+  ├─ Currently in File Browser → show banner + keep loaded items
+  │    └─ Load more / refresh: show error inline at bottom
+  │
+  ├─ Currently in Player → buffer depletes
+  │    └─ Show "Connection lost" overlay after buffer runs out
+  │    └─ Auto-retry every 5s silently
+  │    └─ If network returns within buffer: seamless resume
+  │
+  └─ Currently in Settings → show banner
+       └─ Setting changes queued locally, synced when online (toggle stays visual)
+
+Network returns
+  └─ Banner dismisses automatically
+  └─ Pending requests retry automatically
+  └─ No user action needed
+```
+
+## Toast vs Full-Screen Error Decision
+
+```
+Is the user's primary task blocked?
+  ├─ Yes → Full-screen error (Retry/Back buttons)
+  │    Examples: can't load files, can't authenticate, playback failed
+  └─ No → Toast notification (auto-dismiss after 5s)
+       Examples: subtitle load failed, audio switch failed, setting save failed
+```
