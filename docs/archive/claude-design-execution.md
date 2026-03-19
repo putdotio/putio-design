@@ -222,7 +222,7 @@ When executing this plan:
 1. **Read `docs/design.md` first** — it's 1133 lines of context. Every design decision should trace back to this document
 2. **Reference the screenshots** in `docs/assets/` — these are the "before" state
 3. **Use the existing color system** as a starting point — don't reinvent, refine
-4. **Brand personality matters** — put.io is nerdy, warm, self-aware. Not corporate. The about page and discount codes (HEISENBERGHAT, SOMOSBANDIDOS) are the voice. Design should feel like that
+4. **Brand personality matters** — put.io is nerdy, warm, self-aware. Not corporate. The about page and discount codes ([discount code], [discount code]) are the voice. Design should feel like that
 5. **Typography does the heavy lifting** — in a content-agnostic product without posters, type IS the design
 6. **Every screen needs light + dark mode**
 7. **Name layers and components cleanly** — this will be exported to code

@@ -31,7 +31,7 @@ Only after reading ALL of the above should you start designing.
 **Brand identity:**
 - Primary color: yellow #FDCE45 — sacred, don't change it
 - Typography: GT America Standard + Mono (Grilli Type)
-- Voice: nerdy, warm, self-aware. Discount codes are named HEISENBERGHAT and SOMOSBANDIDOS. The about page has personality. The app doesn't — fix that gap
+- Voice: nerdy, warm, self-aware. Discount codes are named [discount code] and [discount code]. The about page has personality. The app doesn't — fix that gap
 - Dark mode is the default. Light mode exists
 - Kaomoji in the UI (ᕦ(ò_óˇ)ᕤ), space invader avatars, rainbow iOS icon — these are brand signatures
 

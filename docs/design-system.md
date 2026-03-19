@@ -44,7 +44,7 @@ Current state of put.io's visual system: what exists, what works, what doesn't.
 - Gold "Choose" buttons
 - Feature comparison: storage, downloads, seeding ratio, active transfers, family invites
 - "No friction money-back guarantee during your first week"
-- **Assessment:** Clean but only two plans. The gap from 100GB to 1TB with nothing in between validates Tobias's complaint. No 10TB plan visible here (exists but not shown?). The "seeding ratio" language is torrent jargon that casual users won't understand.
+- **Assessment:** Clean but only two plans. The gap from 100GB to 1TB with nothing in between validates user complaints about the pricing gap. No 10TB plan visible here (exists but not shown?). The "seeding ratio" language is torrent jargon that casual users won't understand.
 
 ### Web App — Files
 - Dark mode (appears to be default)

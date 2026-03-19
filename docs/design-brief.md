@@ -225,7 +225,7 @@ Built from real in-person interviews in London (39 users) and Berlin (22 users) 
 - **Middle tier** — 250-500GB plan at ~$14.99. User 46 and User 13 both independently asked for this
 - **Remove torrent jargon from pricing** — "seeding ratio 2.00/10 days" means nothing to a casual user. Translate to benefits: "Downloads stay available for 10 days" or similar
 - **In-app upsell context** — when a 100GB user is constantly cleaning up storage, show "Based on your usage, 1TB would save you X hours of cleanup per month." Not currently done
-- **Turkey-specific pricing visibility** — 35% discount auto-triggers by IP but users miss the popup. The discount code is literally "NEOLACAKBUDOLARINHALI." Make it unmissable
+- **Turkey-specific pricing visibility** — 35% discount auto-triggers by IP but users miss the popup. The discount code is literally "[discount code]." Make it unmissable
 
 ### H. Trust & Security UX
 
@@ -259,7 +259,7 @@ Each platform has its own interaction model, constraints, and user expectations.
 - **Widgets** — storage usage, active transfers, "continue watching"
 
 #### Android
-- **Official app quality gap** — third-party apps (Steven's) can't handle subtitles properly, VPN breaks Chromecast. Users resort to responsive web on Chrome. The official app needs to be definitively better
+- **Official app quality gap** — third-party apps can't handle subtitles properly, VPN breaks Chromecast. Users resort to responsive web on Chrome. The official app needs to be definitively better
 - **Material You theming** — dynamic color from wallpaper, follow Material 3 conventions
 - **Chromecast first-class** — casting is the primary TV-watching flow for Android users. Must work seamlessly with VPN on
 - **Download to device** — clear distinction between "save to put.io cloud" and "download to this phone." Icon ambiguity is even worse on mobile

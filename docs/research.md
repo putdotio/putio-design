@@ -21,7 +21,7 @@ Designer. $499 yearly, 10TB. Uses WebDAV + Infuse — Netflix-like poster browsi
 Devops at a bank. OG user since early days. Has Synology NAS, downloads via links. Complained about mp4 file selection bug (fixed on the spot).
 
 ### User 03
-Entrepreneur (lesalon.com). Long-time $4.99 user, downloads and deletes. Lived in China, used put.io through Hong Kong tunnel. Tries to tell friends but "they don't know what a torrent is." Uses ShowRSS, doesn't use ecosystem apps.
+Entrepreneur ([personal site]). Long-time $4.99 user, downloads and deletes. Lived in China, used put.io through Hong Kong tunnel. Tries to tell friends but "they don't know what a torrent is." Uses ShowRSS, doesn't use ecosystem apps.
 
 ### User 04
 Systems architect at William Hill. Lives on a river boat in a canal. Generates own electricity. Internet via multiple Vinnn devices bonded together. Found put.io through YCombinator. "It just works!" Suggested branding: "Instant Torrents."
@@ -33,7 +33,7 @@ Lead dev at Plum Guide. User since pilli days (ID ~300). Downloads 4K originals 
 3D artist. Most budget-conscious user imaginable — lives as a guardian in an empty Fitzrovia building. No TV, watches on computer. Internet via Vinnn. Same story: tried to tell friends, they don't know what torrents are.
 
 ### User 07
-Product and brand designer (thisisgrey.com). Works on daisie.com with [public figure] (Arya Stark). Spent the interview pitching his own project — follow-up email sent. His project: aggregating creator monetization channels.
+Product and brand designer ([personal site]). Works on [personal site] with [public figure] (Arya Stark). Spent the interview pitching his own project — follow-up email sent. His project: aggregating creator monetization channels.
 
 ### User 08
 (No notes captured)
@@ -69,7 +69,7 @@ No-show. Resurfaced wanting to meet during quarantine.
 Works at Financial Times. OG user since the beginning. Extremely happy, no change requests. No actionable design insights.
 
 ### User 19
-Tech journalist at Bloomberg, podcast creator (Tech's Message). Content creator himself — philosophically conflicted about piracy but can't justify iTunes pricing (£22/season for Simpsons, £15/season for Friends). Downloads 80s documentaries from TVChaosUK private tracker. Interesting perspective: even people who create content pirate when pricing is unreasonable.
+Tech journalist at Bloomberg, podcast creator (Tech's Message). Content creator himself — philosophically conflicted about piracy but can't justify iTunes pricing (£22/season for Simpsons, £15/season for Friends). Downloads 80s documentaries from a private tracker. Interesting perspective: even people who create content pirate when pricing is unreasonable.
 
 ### User 20
 No-show. Would have been the first female user interviewed.
@@ -90,7 +90,7 @@ Paris visitor. Works at Adobe (marketing solutions). Extreme quantified-self gee
 3D artist. Game of Thrones screening parties, Magic Leap interest. Projector setup.
 
 ### User 26
-Designer (interaction, installation). Username: ausername.
+Designer (interaction, installation). 
 
 ### User 27
 Works at Whole Foods. Football streaming via AceStream.
@@ -99,7 +99,7 @@ Works at Whole Foods. Football streaming via AceStream.
 Contact details collected, minimal interview notes. Scheduled for follow-up or brief encounters.
 
 ### User 29
-37, works in medicine. Found put.io searching for VPS/seedbox alternatives. Uses RSS → Chromecast or Cyberduck → Plex server. Sources: magnetdl, ecosystem apps, limetorrents, torrentz2, eztv.
+37, works in medicine. Found put.io searching for VPS/seedbox alternatives. Uses RSS → Chromecast or Cyberduck → Plex server. Sources: various torrent sites, ecosystem apps.
 
 **Detailed feature requests (rare — most users just said "it works"):**
 1. Netflix-style skin/GUI with Plex-like sorting (sees put.io as cheaper Plex VPS alternative)
@@ -112,24 +112,24 @@ This user sees put.io as a potential Plex+seedbox replacement if the UI caught u
 ## Appendix B: Raw Interview Notes (Berlin)
 
 ### User 30
-Freelance software engineer. 1TB monthly. Friend's recommendation. Main pain: no sync tool for poor internet (download at office, watch at home). Uses Web, iOS, Apple TV. Loves posters/metadata via Plex/Watchio. Cancelled Netflix when House of Cards rights moved to SKY in Germany. ShowRSS known but unused (too many episodes, cleanup annoying). Ecosystem apps feedback: good for known searches, but yts.am is better for discovery because of posters/metadata. Suggested abstracting seeder/size into a "health" indicator.
+Freelance software engineer. 1TB monthly. Friend's recommendation. Main pain: no sync tool for poor internet (download at office, watch at home). Uses Web, iOS, Apple TV. Loves posters/metadata via Plex/Watchio. Cancelled Netflix when House of Cards rights moved to SKY in Germany. ShowRSS known but unused (too many episodes, cleanup annoying). Ecosystem apps feedback: good for known searches, but a torrent site is better for discovery because of posters/metadata. Suggested abstracting seeder/size into a "health" indicator.
 
 ### User 31
 Software engineer at Thoughtworks. Java since '99. Israel → Berlin. Uses put.io because some content is legally unavailable even when paying (Big Bang Theory only German subs on Prime). Intermittent subscriber — pays for a month, binge-downloads, leaves. Wants drag-and-drop file organization like Google Drive. Watches on web only. Recently divorced, downloads stuff for his son on Fire TV. Loved ecosystem apps, bookmarked it immediately.
 
 ### User 32
-Web designer at Contentful. UK → Berlin. Started via Tolga's recommendation + ecosystem apps. Cancelled Netflix and Prime. MacBook + OnePlus 6. Downloads to computer, transfers via USB for flights. Android user who does offline the hard way. Thinks put.io is cute and simple. Conversion/instant download feels "magical."
+Web designer at Contentful. UK → Berlin. Started via a friend's recommendation + ecosystem apps. Cancelled Netflix and Prime. MacBook + OnePlus 6. Downloads to computer, transfers via USB for flights. Android user who does offline the hard way. Thinks put.io is cute and simple. Conversion/instant download feels "magical."
 
 ### User 33
 Technical lead at nu3. Beta user who left when it went paid, came back 3 years ago when Berlin's anti-piracy laws scared him. MacBook, iPhone, old Apple TV via AirPlay. ShowRSS known but unused. **"ecosystem apps looked like a ready-made template, didn't feel secure."** Didn't know put.io built it. Wants collapsible sidebar, more icon-driven UI. Suggested marketing put.io through a different angle or bundling with legal content.
 
 ### User 34
-CTO at logistics company. 6 years in Berlin. Previously ran own VPS for torrents, switched to put.io on a Turkish friend's recommendation. 100GB monthly. Netflix + Prime alongside. Web, iOS, Mac mini → 55" TV. iOS offline download is favorite feature. Uses ThePirateBay. Wife loves the magnet-link-auto-opens-in-putio flow. **Didn't know about ShowRSS or ecosystem apps despite checking the Favorite Tools page once.** ecosystem apps requiring login felt wrong. Voucher handoff was the most excited user reaction in all interviews.
+CTO at logistics company. 6 years in Berlin. Previously ran own VPS for torrents, switched to put.io on a Turkish friend's recommendation. 100GB monthly. Netflix + Prime alongside. Web, iOS, Mac mini → 55" TV. iOS offline download is favorite feature. Uses a torrent site. Wife loves the magnet-link-auto-opens-in-putio flow. **Didn't know about ShowRSS or ecosystem apps despite checking the Favorite Tools page once.** ecosystem apps requiring login felt wrong. Voucher handoff was the most excited user reaction in all interviews.
 
 ### User 35
 Software engineer (iOS) at Zalando. 4 years Berlin. Friend's recommendation. 100GB monthly. MacBook, iPhone, iPad, HDMI to TV. Also downloads ePubs. Netflix shared account, barely uses it. Didn't know ecosystem apps, ShowRSS, YouTube-DL. **Loved ecosystem apps instantly** — "Google cache'inden TPB kullanmak bıktırıyor." iOS filename truncation pain — tilts phone to read. Suggested long-press file info popup. "Word of mouth from a friend at lunch was more impactful than any online ad could be." Thought put.io was British with 100 employees.
 
-### Andrej Guran
+### User 36
 CTO at Gebraucht.de. No-show — emergency Hamburg trip. Rescheduling.
 
 ### User 37
@@ -139,13 +139,13 @@ Maker/designer. Most eclectic user. Unemployed, living on benefits, makes games 
 UI designer at EyeEm. Australia → Berlin. Friend evangelism chain. 100GB yearly. Shares with girlfriend. MacBook only, no other devices. Friends wanted put.io to find torrents for them → ecosystem apps was the answer. **"Just one button: Download to put.io. Remove the other three."** ecosystem apps streaming made him feel like doing something illegal. Suggested measuring click counts on nav/action items and hiding the bottom 50%. Noted: VLC playlist trick for avoiding conversion wait should be surfaced by the product, not discovered by accident.
 
 ### User 39
-Senior iOS engineer at Zalando. Nepal → Berlin. User 35's colleague, heard about put.io from him. 100GB monthly one-time. Most technically aware user of how the product works. MacBook, iPhone, iPad, new Apple TV. Uses 1337x for torrents. Downloads audio, PDF, ePub too — wants "open in other apps" on mobile even if native viewing isn't supported. Suggested dev meetup sponsorship with cards + weekly voucher allocations.
+Senior iOS engineer at Zalando. Nepal → Berlin. User 35's colleague, heard about put.io from him. 100GB monthly one-time. Most technically aware user of how the product works. MacBook, iPhone, iPad, new Apple TV. Uses a torrent site for torrents. Downloads audio, PDF, ePub too — wants "open in other apps" on mobile even if native viewing isn't supported. Suggested dev meetup sponsorship with cards + weekly voucher allocations.
 
 ### User 40
 Turkish software engineer, sick and couldn't meet properly. Family account user. No interview data.
 
 ### User 41
-Android engineer at Blinkist. Brazil → Berlin. Discovered put.io as an exchange student in the US. 100GB yearly one-time. Downloads to MacBook, HDMI to TV. Uses ThePirateBay and rarbg. Didn't know ecosystem apps or ShowRSS. Friends mentioned a competitor: real-debrid.com. Brought voucher back next meeting. "I wish my company did user meetings like this." Strong meetup/contact-based acquisition advocacy.
+Android engineer at Blinkist. Brazil → Berlin. Discovered put.io as an exchange student in the US. 100GB yearly one-time. Downloads to MacBook, HDMI to TV. Uses torrent sites. Didn't know ecosystem apps or ShowRSS. Friends mentioned a competitor service. Brought voucher back next meeting. "I wish my company did user meetings like this." Strong meetup/contact-based acquisition advocacy.
 
 ### User 42
 Linux admin, ex-Research Gate. US → Berlin. Burnout, traveling. 100GB monthly subscription. Had advanced Kodi + own VPS setup in US, simplified to put.io in Berlin. Mac mini connected to TV. Downloads locally for quality, wants sync tool. Uses Magno for torrents. Joked about cops at a put.io meetup. LinkedIn connected, vouchers given.
@@ -154,7 +154,7 @@ Linux admin, ex-Research Gate. US → Berlin. Burnout, traveling. 100GB monthly 
 Lead Technical PM at AppLift. Russia → Berlin. Found put.io searching for seedbox alternatives. NAS + Plex setup, doesn't use put.io's own apps much. Has experience building TV streaming apps (Tizen, webOS, Apple TV) — technically relevant background. Suggested Dropbox-style referral system (invite friends → earn storage). Had simit and tea, praised local Turkish markets.
 
 ### User 44
-Backend developer at HelloFresh. Romania/Italy → Berlin. Friend recommendation. 100GB monthly subscription. Daily user. XPS laptop + HDMI + Steven's Android app (thought put.io made it). Uses private tracker. Firefox Quantum broke drag-and-drop torrent upload — was uploading .torrent files manually for a long time instead of using browser extension. Didn't know about ANY features (ShowRSS, ecosystem apps, YouTube-DL, browser extension). "Share with Mom" fan. Voucher handoff moment was powerful — immediately knew who to give them to.
+Backend developer at HelloFresh. Romania/Italy → Berlin. Friend recommendation. 100GB monthly subscription. Daily user. XPS laptop + HDMI + a third-party Android app (thought put.io made it). Uses private tracker. Firefox Quantum broke drag-and-drop torrent upload — was uploading .torrent files manually for a long time instead of using browser extension. Didn't know about ANY features (ShowRSS, ecosystem apps, YouTube-DL, browser extension). "Share with Mom" fan. Voucher handoff moment was powerful — immediately knew who to give them to.
 
 ### User 45
 Mobile security team lead at Adjust.com. Syria → Malaysia → Berlin. 100GB monthly subscription. At least 5 put.io users at his office. Wife is Turkish, they both love put.io. MacBook + HDMI to TV. Doesn't install mobile apps — responsive web on Android Chrome is "good enough." Had built his own YouTube-DL tool on a VPS. Suggested tech meetup talks about interesting engineering problems behind put.io's simple interface.
@@ -163,7 +163,7 @@ Mobile security team lead at Adjust.com. Syria → Malaysia → Berlin. 100GB mo
 Software engineer at ImmobilienScout24. Australia → Berlin. HackerNews discovery. Subscriber since 2015 (monthly), 2017 (yearly). No Netflix. **100GB sometimes not enough, 1TB too much — wants a middle tier.** Uses Infuse on Apple TV, Fetch on mobile. Knows both ShowRSS and ecosystem apps — first Berlin user who knew both. Suggested promoting open-source projects around put.io on HackerNews.
 
 ### User 47
-Agile team lead at N26. German. User 38's colleague Eric (EyeEm, whose tweet is on landing page) also joined. Shared account. **Loves put.io's humor and copy** — quotes "Did we take your money in vain?" to friends. Stalked the About page. Once considered applying to work at put.io and moving to Istanbul. Started using ecosystem apps after Jesse mentioned it. Noted that RSS automation and favorite tools page descriptions aren't clear enough. Asked about longer trial period. Asked deep questions about the company's future.
+Agile team lead at N26. German. User 38's colleague (whose tweet is on landing page) also joined. Shared account. **Loves put.io's humor and copy** — quotes "Did we take your money in vain?" to friends. Stalked the About page. Once considered applying to work at put.io and moving to Istanbul. Started using ecosystem apps after User 38 mentioned it. Noted that RSS automation and favorite tools page descriptions aren't clear enough. Asked about longer trial period. Asked deep questions about the company's future.
 
 ### User 48
 Managing Director at evenly (mobile dev agency). 100GB monthly subscription since 2013. Biggest client: Berlin Philharmonic Orchestra — builds their iOS/tvOS apps. Uses ecosystem apps, iPhone, Apple TV. "You cover everything I need functionally." Had enthusiastic technical discussions about iOS/tvOS ecosystem — people at the next table left because of the noise. Invited to WWDC watch party at their office.
@@ -172,10 +172,10 @@ Managing Director at evenly (mobile dev agency). 100GB monthly subscription sinc
 Maker, ex-Ukraine. Builds JIRA plugins full-time. 100GB yearly one-time. Found put.io by comparing seedbox services — best storage/price ratio. Favorite features: instant download, generous seeding for private trackers. Lives outside Berlin with better internet (200 Mbit), downloads originals and watches via VLC. Wants sync tool. Suggested targeted campaigns for less technical users with custom landing pages. Also suggested referral rewards for both referrer and referee.
 
 ### User 50
-Entrepreneur, native Berliner. Dating app infrastructure company. Discovered put.io 5+ years ago while researching adult content streaming (Spotify-like model). Uses ThePirateBay. Tried looking at Favorite Tools page but "too much content, hard to choose" — suggested App Store-style showcasing with detailed reviews. Trial idea: free tier with 10-minute streaming limit, then paywall. Offered to help with affiliate program design. Suggested advertising on warez/adult sites.
+Entrepreneur, native Berliner. Dating app infrastructure company. Discovered put.io 5+ years ago while researching adult content streaming (Spotify-like model). Uses a torrent site. Tried looking at Favorite Tools page but "too much content, hard to choose" — suggested App Store-style showcasing with detailed reviews. Trial idea: free tier with 10-minute streaming limit, then paywall. Offered to help with affiliate program design. Suggested advertising on warez/adult sites.
 
 ### User 51
-Product designer at Zalando. Turkish. **User ID 177** — one of the first 50 users. Former journalist (Galatasaray University), worked at verkac.com (pilli's old football site), wrote for Bant Mag. Uses 1337x. Saw ecosystem apps but didn't trust it until explained. Web, Android (responsive), Android TV, LG webOS. Many UI suggestions. Suggested more aggressive landing page copy and campaign-specific landing pages. **Offered to do some design work in spare time** — potential quarter-time design partner candidate.
+Product designer at Zalando. Turkish. **User ID 177** — one of the first 50 users. Former journalist (Galatasaray University), worked at [company site] (pilli's old football site), wrote for Bant Mag. Uses a torrent site. Saw ecosystem apps but didn't trust it until explained. Web, Android (responsive), Android TV, LG webOS. Many UI suggestions. Suggested more aggressive landing page copy and campaign-specific landing pages. **Offered to do some design work in spare time** — potential quarter-time design partner candidate.
 
 ---
 
@@ -269,10 +269,10 @@ This voice should inform the design system's microcopy patterns.
 ### Discount & Retention Copy (design-relevant)
 
 Discount codes reveal brand personality and pricing psychology:
-- **HEISENBERGHAT** (15%) — loyalty discount for returning users
-- **SOMOSBANDIDOS** (25%) — for 1+ year users on 1TB/10TB plans ("We are bandits" in Spanish)
-- **NEOLACAKBUDOLARINHALI** (35%) — Turkey-specific, auto-triggered by Turkish IP ("What's going to happen to these dollars" — a Turkish economic joke)
-- **10TBABY** ($100 off) — first-time 10TB yearly upgrade
+- **[discount code]** (15%) — loyalty discount for returning users
+- **[discount code]** (25%) — for 1+ year users on 1TB/10TB plans ("We are bandits" in Spanish)
+- **[discount code]** (35%) — Turkey-specific, auto-triggered by Turkish IP ("What's going to happen to these dollars" — a Turkish economic joke)
+- **[discount code]** ($100 off) — first-time 10TB yearly upgrade
 
 The naming convention alone tells you about the brand: playful, multilingual, self-aware about the legal grey zone. This voice should carry into the design system's microcopy.
 
