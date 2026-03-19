@@ -6,7 +6,9 @@ updated: 2026-03-19
 
 # put.io — User Research
 
-Raw interview notes, behavioral patterns, Notion context, notable quotes, and Linear issues. Data backing the design brief.
+Raw interview notes, behavioral patterns, Notion context, notable quotes, and Linear issues.
+
+This is the backing data for [Design Brief](design-brief.md) — personas and needs are distilled there. Linear issues relevant to the TV rewrite are triaged in [TV App Spec → User Requests](specs/tv-app.md#user-requests-from-linear).
 
 ---
 

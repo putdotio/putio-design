@@ -1,12 +1,17 @@
 ---
-title: "The Future of put.io UI — Platform Strategy & Design System"
+title: "put.io — Platform Strategy"
 created: 2026-03-19
-status: draft — open for discussion
+status: draft
 ---
 
-# The Future of put.io UI
+# put.io — Platform Strategy
 
-A combined design + engineering strategy document. Not a decision — a discussion starter.
+Architecture, implementation approach, and engineering decisions for the put.io rewrite.
+
+**Related docs:**
+- [Design Brief](design-brief.md) — product context, personas, principles
+- [TV App Spec](specs/tv-app.md) — complete spec for the first platform (tvOS + Android TV)
+- [Design System](design-system.md) — current state audit
 
 ---
 
@@ -98,68 +103,9 @@ This alone justifies a native tvOS rewrite. And if it works on tvOS, it works on
 
 Inspired by OpenAI Symphony. The spec repo is the single source of truth.
 
-### Design Tokens (machine-readable)
-```yaml
-colors:
-  brand-yellow: "#FDCE45"
-  surface-primary: {dark: "#0A0A0A", light: "#FFFFFF"}
-  surface-secondary: {dark: "#141414", light: "#F5F5F5"}
-  text-primary: {dark: "#FFFFFF", light: "#0A0A0A"}
-  health-good: "#22C55E"
-  health-warning: "#EAB308"
-  health-error: "#EF4444"
+Full spec with design tokens, i18n strings, SDK types, component specs, flow specs, and error maps: **[TV App Spec → Shared Contracts](specs/tv-app.md#shared-contracts)**
 
-typography:
-  heading-1: {family: "GT America", weight: 700, size: 28, lineHeight: 34}
-  body: {family: "GT America", weight: 400, size: 14, lineHeight: 20}
-  mono: {family: "GT America Mono", weight: 400, size: 13, lineHeight: 18}
-
-spacing: {xs: 4, sm: 8, md: 16, lg: 24, xl: 32}
-
-motion:
-  duration-fast: 150ms
-  duration-normal: 250ms
-  easing-default: cubic-bezier(0.4, 0, 0.2, 1)
-```
-
-### Component Specs (human + machine readable)
-```yaml
-TransferCard:
-  description: Shows a single transfer's status
-  props:
-    title: string          # parsed filename or raw
-    progress: 0-100
-    speed: string | null   # "2.4 MB/s"
-    health: low | medium | high
-    status: downloading | seeding | completed | error
-  states:
-    idle: shows progress bar, speed, health dot
-    error: red health dot, error message, retry action
-    completed: checkmark, "Ready to stream" or file size
-  actions:
-    tap: navigate to file
-    long-press: context menu (pause, remove, retry)
-  platform notes:
-    ios: UICollectionViewCell, swipe actions for pause/remove
-    android: Material 3 card, RecyclerView item
-    tv-native: focusable row, D-pad select = navigate, long-press = options
-    tv-web: focusable div, remote OK = navigate, back = exit menu
-    web: table row (list view) or card (grid view) depending on viewport
-```
-
-### Flow Specs (state machines)
-```yaml
-Onboarding:
-  steps:
-    1. auth: login or signup
-    2. plan_select: show tiers, allow skip for trial
-    3. first_transfer: prompt magnet link or URL
-    4. done: redirect to files
-  rules:
-    - returning user skips to files
-    - plan_select is skippable (trial auto-assigned)
-    - first_transfer shows example magnet link as placeholder
-```
+The pattern: define tokens/types/strings once in `putio-design`, generate platform-specific outputs (Swift enums, Kotlin objects, CSS vars, JSON). Each native app consumes generated artifacts, not shared code.
 
 ---
 

@@ -1,15 +1,18 @@
 ---
-title: "put.io Design — Master Document"
+title: "put.io — Design Brief"
 created: 2026-03-18
-updated: 2026-03-18
-tags: [putio, design, system, brief, personas, interviews, tokens]
+updated: 2026-03-19
 ---
 
 # put.io — Design Brief
 
-Product context, user research, personas, design principles, and scope. The "why" and "who" behind every design decision.
+Product context, user research, personas, design principles, and scope.
 
-Start here if you're new to put.io design.
+**Related docs:**
+- [Design System](design-system.md) — current UI audit, codebase analysis, brand constants
+- [Platform Strategy](platform-strategy.md) — native vs hybrid, architecture, agent workflow
+- [Research](research.md) — raw interview notes, behavioral patterns, Notion context
+- [TV App Spec](specs/tv-app.md) — complete spec for tvOS + Android TV rewrite
 
 ---
 
@@ -411,48 +414,26 @@ The team cares deeply about type:
 - No reliable metadata — can't depend on posters, descriptions, ratings
 - Mixed content types in the same space (video, audio, documents, archives)
 - Cloud storage mental model, not a media library
-- Cross-platform: web, iOS, tvOS, Android, Android TV, Roku — what works on one must translate
-- Small engineering team — the design system must be implementable by one frontend dev
-- Open source direction — the design will be public
-- Current stack: React (web), Swift (iOS/tvOS), Kotlin (Android)
-- Design tokens need to work cross-platform (DTCG spec → Style Dictionary)
+- Cross-platform: web, iOS, tvOS, Android, Android TV — what works on one must translate
+- One frontend engineer (Altay) + AI coding agents — see [Platform Strategy](platform-strategy.md)
+- Open source direction — SDKs and potentially apps
+- Current stack: React (web), Swift (iOS/tvOS), Kotlin (Android) — see [Design System](design-system.md) for codebase analysis
+- Design tokens need to work cross-platform — see shared contracts in [TV App Spec](specs/tv-app.md#shared-contracts)
 
 ---
 
 ## 9. Scope
 
-### Phase 1: Foundation — Design System & Identity
-- Visual identity refresh (colors, typography, iconography, motion language)
-- Design tokens in DTCG spec → Style Dictionary pipeline for ALL platforms
-- Core component patterns per platform family:
-  - **Touch** (iOS, Android) — buttons, lists, navigation bars, sheets, context menus
-  - **Focus/Remote** (tvOS, Android TV, Fire TV, Roku) — focus states, grids, player controls
-  - **Pointer** (Web, macOS) — sidebar, tables, dropdowns, tooltips, keyboard shortcuts
-  - **Glanceable** (watchOS) — complications, notifications
-  - **Spatial** (visionOS) — windows, volumes, immersive player
-- Information architecture audit across ALL platforms — not just web. Map every screen on every app, identify inconsistencies
-- User journey mapping for each persona on each platform they use
-- Icon system that works everywhere — SVG source, exported per platform
+Scope has evolved into a full platform strategy. See [Platform Strategy](platform-strategy.md) for the architecture and implementation plan.
 
-### Phase 2: Platform-by-Platform Implementation
-Not a single "reference implementation" — design for every platform simultaneously. Priority order based on user base:
-1. **Web** — most users, most features, most design debt
-2. **iOS / tvOS** — Apple ecosystem is the dominant put.io user base (Apple TV mentioned in nearly every interview)
-3. **Android / Android TV / Fire TV** — quality gap is the biggest pain point
-4. **Roku** — constrained but has users
-5. **watchOS** — small surface, high value (glanceable transfer status)
-6. **visionOS** — future-facing, spatial video is a natural fit
+**Summary:** Spec-driven native apps. Agents implement specs across platforms in parallel. One human reviews. The spec is the product.
 
-Each platform gets:
-- Native component library following platform conventions
-- Shared design tokens (colors, type, spacing) but platform-native implementation
-- Platform-specific patterns documented (not just "adapt from web")
-
-### Phase 3: Living System
-- Onboarding redesign across all platforms
-- Referral/sharing flow (cross-platform — share from phone, watch on TV)
-- Ongoing iteration as new features ship
-- Design system documentation site (Storybook for web, equivalent references for native)
+**Priority order:**
+1. **tvOS + Android TV** — native rewrite with VLC-kit/libVLC (spec: [tv-app.md](specs/tv-app.md))
+2. **iOS + Android** — native rewrite sharing SDK with TV apps
+3. **Web** — evolve existing React app with new design system
+4. **TV-web** (Tizen, LG, Vizio) — new lightweight web app
+5. **Everything else** — deferred (Roku, Xbox, visionOS, watchOS)
 
 ---
 
@@ -482,30 +463,24 @@ Each platform gets:
 
 ---
 
+## Appendix: Design Decisions
 
-# Design Decisions
+Key decisions made during design exploration. For TV-specific decisions, see [TV App Spec](specs/tv-app.md).
 
-Decisions made during the design exploration, with reasoning.
+| Decision | Reasoning |
+|----------|-----------|
+| **SVG icons only (Phosphor)** | Emoji renders differently across platforms. SVGs give full control. Phosphor has the right warmth. |
+| **TV = list browsing, not card grids** | No metadata/posters to depend on. Typography carries the experience. |
+| **Chill Institute out of scope** | Separate product, separate design concerns. |
+| **Yellow #FDCE45 sacred** | The one constant across all variants and platforms. |
+| **Kaomoji ᕦ(ò_óˇ)ᕤ preserved** | Brand personality in empty states and footers. |
+| **Icon disambiguation** | cloud+upload = save to put.io, device+arrow = download, play = stream. Three distinct metaphors. |
+| **Transfer health dots** | Green/yellow/red replace torrent jargon. |
+| **Filename parsing** | Raw torrent names → clean titles + quality badges. |
+| **Storage dashboard** | New screen for Archivist persona — file type breakdown, insights, largest files. |
+| **4 persona-based pricing tiers** | Trial / Casual / Plus / Power. No jargon. |
 
-## Icons
-
-**Use inline SVG icons only — no emoji.** Phosphor-style, outlined + filled variants.
-
-Why: Emoji as icon placeholders look amateur and render differently across platforms. SVGs give full control over size, color, and stroke weight. Phosphor covers put.io's needs (cloud ops, media, files) and has a warmer personality than Lucide.
-
-## TV Apps
-
-**TV screens use list-based file browsing, not media card grids.**
-
-Why: put.io is content-agnostic — no posters, no metadata, no album art. The current TV app is a list of folders and files with yellow folder icons, and that's correct. Typography and spacing carry the experience, not imagery. Always check existing screenshots before designing platform screens.
-
-## Scope
-
-**Chill Institute is out of scope.** It's a separate product with its own design concerns. Focus only on put.io's own surfaces: web app, native apps, landing, about, browser extension.
-
-## Design Variants
-
-Four directions explored to find put.io's voice:
+### Design Variants Explored
 
 | Variant | Type stack | Reference | Persona fit |
 |---------|-----------|-----------|-------------|
@@ -514,18 +489,4 @@ Four directions explored to find put.io's voice:
 | Brutalist | Inter Black + JetBrains Mono | Oxide Computer | Bold statement |
 | Editorial | DM Serif Display + Inter | Letterboxd, Are.na | Warmth, soul |
 
-## Brand
-
-- **Yellow #FDCE45 is sacred** — the one constant across all variants and platforms
-- **Kaomoji preserved** — ᕦ(ò_óˇ)ᕤ in empty states and footers
-- **Space invader avatars** — pixel-art SVG, brand signature
-- **put.io voice** — nerdy, warm, self-aware. Not corporate. Not sterile.
-
-## Key UX Decisions
-
-- **Icon disambiguation**: cloud+upload = save to put.io, device+arrow = download to device, play triangle = stream. Three visually distinct metaphors.
-- **Transfer health indicators**: green/yellow/red dots replace torrent jargon
-- **Filename parsing**: raw torrent names → clean title + quality/source badges
-- **Collapsible sidebar**: YouTube-style, per user research. v3 uses 56px icon strip.
-- **Storage dashboard**: invented new screen addressing Archivist persona
-- **Pricing restructured**: 4 persona-based tiers, jargon removed
+376 HTML prototypes across 11 variants in `prototypes/`.

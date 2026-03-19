@@ -1,32 +1,38 @@
-# put.io Design — Docs Index
+# put.io Design — Docs
 
-## Start Here
-
-| Doc | What | Lines |
-|-----|------|-------|
-| `design-brief.md` | Product context, personas, interviews, principles, scope, design decisions | ~530 |
-| `design-system.md` | Current UI audit, codebase analysis, brand constants | ~330 |
-| `platform-strategy.md` | Platform architecture, native vs hybrid decision, agent workflow, feature flags | ~340 |
-| `research.md` | Raw interview notes (London + Berlin), behavioral patterns, Notion context, quotes, Linear issues | ~390 |
-
-## Specs
-
-| Doc | What | Lines |
-|-----|------|-------|
-| `specs/tv-app.md` | Complete TV app spec — features, flows, errors, pagination, shared contracts, design principles | ~1530 |
-
-## Archive
+## Docs
 
 | Doc | What |
 |-----|------|
-| `archive/claude-design-execution.md` | Claude overnight execution plan (historical) |
-| `archive/claude-prompt.md` | Claude boot prompt (historical) |
-| `archive/progress.md` | Claude progress tracking (historical) |
+| [design-brief.md](design-brief.md) | Product context, personas, principles, scope, design decisions |
+| [design-system.md](design-system.md) | Current UI audit, codebase analysis, brand constants |
+| [platform-strategy.md](platform-strategy.md) | Native vs hybrid, architecture, agent workflow, feature flags |
+| [research.md](research.md) | Raw interview notes (61 interviews), behavioral patterns, Notion, Linear |
+| [specs/tv-app.md](specs/tv-app.md) | **Complete TV app spec** — features, flows, errors, shared contracts, design principles |
+
+## How They Connect
+
+```
+design-brief.md          → WHY we're redesigning, WHO we're designing for
+  ↓
+platform-strategy.md     → HOW we'll build it (native, agents, VLC-kit)
+  ↓
+specs/tv-app.md          → WHAT exactly to build (features, flows, errors, tokens)
+  ↓
+prototypes/              → WHAT it looks like (376 HTML files, 11 variants)
+
+design-system.md         → WHERE we are today (audit of current apps)
+research.md              → backing data for all decisions
+```
 
 ## Prototypes
 
-376 HTML prototypes in `prototypes/` — 11 design variants across 9 platforms. See `design-brief.md` for variant descriptions.
+376 HTML prototypes in `prototypes/` — 11 design variants across 9 platforms.
 
 ## Assets
 
 Screenshots and reference images in `assets/`.
+
+## Archive
+
+Historical Claude execution files in `archive/`.
