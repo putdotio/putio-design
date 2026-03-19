@@ -536,6 +536,124 @@ TV hardware is weak. Lists must be virtualized — only render what's on screen 
 
 ---
 
+## User Requests (from Linear)
+
+Real feature requests from users and internal backlog. Prioritized by relevance to TV rewrite.
+
+### Must address in rewrite
+- **SUP-179: Multi-account login on TV** — ability to switch between accounts without re-pairing. Family household use case.
+- **SUP-166: QR login for TV apps** — scan QR with phone instead of typing code. Already in spec, confirm implementation.
+- **SUP-86: Subtitle settings on TV player** — font size, color, position. Users explicitly asked for this.
+- **SUP-155: Subtitle offset** — manual timing adjustment (±0.5s increments). Essential for out-of-sync subs.
+- **SUP-55: .ass subtitle support** — Advanced SubStation Alpha. VLC-kit handles this natively. Free win.
+- **SUP-154: Multi-audio on tv.put.io** — select between audio tracks. Already in spec, confirm VLC-kit supports it.
+- **SUP-61: Android TV fast forward/backward** — double-tap for 10s/30s skip. Already in spec.
+- **SUP-51: Android TV autoplay** — play next file in folder. Already in spec as "Up Next."
+- **UI-1528: Fire TV back button** — already in spec with full state machine.
+- **SUP-118: Lock TV apps** — PIN/passcode to open app. Parental control. NEW — add to spec.
+- **SUP-158: Truncated subtitle names** — subtitle picker must show full names, scrollable if needed.
+
+### Nice to have
+- **SUP-152: Video preview when seeking** — thumbnail scrubbing on progress bar. VLC-kit may support this.
+- **SUP-111: Share with mom on TV** — generate a share link from TV, show QR code. Nice UX.
+- **SUP-48: Add to queue** — queue system for sequential playback. Goes beyond "Up Next."
+- **SUP-132: Multiple thumbnails/chapters** — chapter markers in progress bar. VLC-kit supports chapters.
+- **SUP-156: 3x playback speed** — extend speed options beyond 2x.
+- **SUP-182: Music visualization** — visual effects during audio playback. Low priority but cool.
+- **SUP-49: Android TV 10-bit decoding** — VLC-kit/libVLC handles this natively. Free win.
+- **SUP-60: Subtitles from "subs" folder** — scan sibling folders for subtitle files. API-level feature.
+- **SUP-104: Better Arabic subtitle fonts** — font selection per language in subtitle settings.
+
+### Won't do on TV
+- SUP-194: Split downloads — web/mobile feature
+- SUP-189: Batch download — web/mobile feature
+- SUP-175: Convert multiple videos — irrelevant with VLC-kit
+- SUP-176: Download without converting — irrelevant with VLC-kit
+- SUP-71: IPTV support — separate product concern
+- SUP-96: iPlayer support — separate product concern
+
+---
+
+## App Lock / Parental Controls (from SUP-118)
+
+- PIN code required to open app (4-6 digits)
+- Set PIN from Settings → Security
+- Enter PIN on every app launch (or after 30min of inactivity)
+- Option to require PIN for specific actions: delete, settings change
+- PIN stored in platform keychain (not plain text)
+- "Forgot PIN" → re-authenticate via put.io/link (device code flow)
+- Future: per-folder PIN lock (hide adult content folders)
+
+---
+
+## 10-Foot UI Design Principles
+
+Based on Apple HIG for tvOS, Google TV design guidelines, and industry best practices.
+
+### Viewing Distance
+- Users sit 3+ meters (10 feet) from screen
+- Minimum body text: 36px (already in our tokens — TV body is 36)
+- Minimum touch target equivalent: 80x80px focused area
+- Test on real TV from real distance, not on desktop simulator
+
+### Focus Management
+- **One focused item at all times** — never leave user without a focus indicator
+- **Focus should be predictable** — D-pad up/down/left/right goes where user expects
+- **Remember focus position** — when returning to a screen, focus the same item they left
+- **Focus ring/highlight** — clear, high-contrast. Yellow ring on dark background. Scale-up animation (tvOS convention) or border highlight (Android TV convention).
+- **Don't trap focus** — every screen must have a way out via back button
+
+### Layout
+- **Horizontal rows for browsing** — Continue Watching, Recent Files, Pinned Folders
+- **Vertical lists for content** — File browser, search results, history
+- **One primary action per screen** — don't clutter
+- **Generous whitespace** — what feels "empty" on desktop feels clean on TV
+- **Safe area margins** — 2% vertical, 4% horizontal for overscan
+- **No scrollbars** — use visual cues (fade at edge, partial items) to indicate more content
+
+### Text & Readability
+- Sans-serif fonts only (GT America is correct)
+- High contrast: white text on dark backgrounds
+- Avoid light gray text — use `text-secondary` sparingly
+- Filename parsing is critical — raw torrent names are unreadable from 3 meters
+- Truncate with ellipsis, never wrap to multiple lines for list items
+
+### Animation & Motion
+- Keep animations short: 150-250ms
+- Use easing (not linear) for all transitions
+- Focus transitions: scale up 1.05x (tvOS) or border highlight (Android TV)
+- Page transitions: fade, not slide (TV convention)
+- Avoid parallax effects (tvOS has these but they're distracting for a utility app)
+- Player controls: fade in/out, not slide
+
+### Accessibility
+- VoiceOver (tvOS) / TalkBack (Android TV) support for all screens
+- Meaningful labels for all interactive elements
+- Don't rely on color alone — use icons + color for health indicators
+- High contrast mode support
+- Reduced motion support (respect system setting)
+
+---
+
+## Competitive Reference: What Infuse Gets Right
+
+Infuse (by Firecore) is the closest competitor in the "play any file format" space on Apple TV. What they nail:
+
+1. **Direct play, no transcoding** — exactly what VLC-kit gives us
+2. **Native tvOS subtitle rendering** — uses system subtitle style, not custom overlay
+3. **Minimal clicks to play** — browse → select → playing. Three taps max.
+4. **Metadata enrichment** — auto-fetches movie/show info, posters, descriptions. put.io could do filename parsing instead (lighter, no external API dependency)
+5. **Chapter support** — shows chapter markers on seek bar
+6. **Dolby Vision / Atmos passthrough** — VLC-kit supports this too
+
+What Infuse gets wrong (put.io's opportunity):
+1. **Requires media server setup** (Plex/Emby/Jellyfin) — put.io is the server
+2. **Subscription fatigue** — Infuse Pro is $10/year on top of Plex/server costs
+3. **No cloud storage** — it's just a player, not a storage solution
+4. **No transfer/download management** — put.io fetches content for you
+
+---
+
 ## Shared Contracts
 
 These are the cross-platform contracts that keep native apps consistent without shared code.
