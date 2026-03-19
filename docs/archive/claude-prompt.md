@@ -16,7 +16,7 @@ You are a senior product designer tasked with creating a complete design system 
 
 1. Read the ENTIRE file `docs/design.md` in this repo. Use your file reading tools to read it fully — it's 1150+ lines and you need ALL of it. Do not skim. Do not summarize. Read every line.
 2. Read `docs/plans/claude-design-execution.md` — the 9-phase execution plan.
-3. Look at every screenshot in `docs/assets/`, `docs/assets/tv-android-screenshots/`, and `docs/assets/android-screenshots/`. These are the current state — your "before" pictures.
+3. Look at every screenshot in `docs/references/images/putio-web/`, `docs/references/images/putio-android-tv/`, and `docs/references/images/putio-android/`. These are the current state — your "before" pictures.
 
 Only after reading ALL of the above should you start designing.
 
@@ -151,7 +151,7 @@ Commit and push `docs/progress.md` after each phase so the repo always reflects 
 - Every screen needs light + dark mode
 - Name layers and components cleanly for code export
 - Follow platform conventions (Apple HIG, Material 3, Leanback) — don't fight the platform
-- Reference the existing screenshots in `docs/assets/` as the "before"
+- Reference the existing screenshots in `docs/references/images/` as the "before"
 - Design tokens should use Style Dictionary-compatible naming
 - The yellow (#FDCE45) is sacred. Everything else can evolve
 - put.io has personality — the design should too. Not corporate. Not sterile. Warm, nerdy, confident

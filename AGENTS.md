@@ -12,7 +12,7 @@ Read these in order:
 ```
 docs/              design docs, specs, research
 docs/specs/        feature specs
-docs/assets/       screenshots of current app
+docs/references/   platform UI guides, reference images
 prototypes/        HTML design screens + gallery index
 ```
 
@@ -23,7 +23,7 @@ prototypes/        HTML design screens + gallery index
 - Icons: inline SVG (Phosphor-style). No emoji.
 - TV apps are file browsers — list views, not media card grids.
 - Ecosystem apps are out of scope.
-- Check `docs/assets/` screenshots before designing platform screens.
+- Check `docs/references/images/` screenshots before designing platform screens.
 - Never stop to ask — loop autonomously when iterating.
 - When writing or updating docs: never include customer PII (real names, emails, employers). Use anonymous IDs (e.g. "User 01"). Never reference third-party apps by name — use generic descriptions instead.
 

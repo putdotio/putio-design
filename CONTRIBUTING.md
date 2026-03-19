@@ -39,4 +39,4 @@ Read `docs/design-brief.md` and `docs/platform-strategy.md` before adding new pr
 
 - Keep changes focused and explicit.
 - Read the relevant spec before designing a new screen.
-- Check `docs/assets/` screenshots before designing platform screens.
+- Check `docs/references/images/` screenshots before designing platform screens.

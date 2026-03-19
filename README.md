@@ -34,7 +34,7 @@ npx serve prototypes
 docs/              design docs, specs, research
 docs/specs/        feature specs (tv-app.md is the big one)
 docs/archive/      historical files
-docs/assets/       screenshots of current app
+docs/references/   platform UI guides, reference images
 prototypes/        HTML design screens + gallery index
 moodboard/         visual references and inspiration
 ```
