@@ -12,7 +12,7 @@
 
 ## Browse
 
-Prototypes are deployed to Vercel automatically on push. For local browsing:
+Prototypes are deployed automatically on push. For local browsing:
 
 ```bash
 npx serve prototypes
