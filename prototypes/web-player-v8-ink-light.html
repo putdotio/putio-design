@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>put.io — Player (Ink Light)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #FAFAFA;
+      --bg-2: #F0F0F2;
+      --bg-3: #E4E4E7;
+      --border: #C4C4CA;
+      --border-dim: #DCDCE0;
+      --text: #111113;
+      --text-2: #5C5C66;
+      --text-3: #8C8C96;
+      --yellow: #D4A017;
+      --yellow-dim: rgba(212, 160, 23, 0.08);
+      --green: #1A7F4B;
+      --red: #CD2B31;
+      --blue: #2563EB;
+      --purple: #7C3AED;
+      --mono: 'IBM Plex Mono', 'Menlo', monospace;
+    }
+
+    html, body {
+      width: 1440px;
+      height: 900px;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ── Layout shell ─────────────────────────────── */
+
+    .shell {
+      display: flex;
+      flex-direction: column;
+      width: 1440px;
+      height: 900px;
+    }
+
+    .workspace {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ──────────────────────────────────── */
+
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--bg-2);
+      border-right: 1px solid var(--border-dim);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 0 0;
+    }
+
+    .sidebar-brand {
+      padding: 0 24px 28px;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .sidebar-brand .dot {
+      color: var(--yellow);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 0 12px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      font-size: 13px;
+      color: var(--text-3);
+      cursor: pointer;
+      border-radius: 3px;
+      transition: color 0.15s ease;
+      text-decoration: none;
+      user-select: none;
+    }
+
+    .nav-item:hover {
+      color: var(--text-2);
+    }
+
+    .nav-item.active {
+      color: var(--yellow);
+    }
+
+    .nav-prefix {
+      width: 14px;
+      flex-shrink: 0;
+      text-align: right;
+      font-size: 12px;
+    }
+
+    .nav-sep {
+      height: 1px;
+      background: var(--border-dim);
+      margin: 8px 12px;
+    }
+
+    .sidebar-footer {
+      padding: 20px 24px 24px;
+      border-top: 1px solid var(--border-dim);
+    }
+
+    .storage-bar-text {
+      font-size: 11px;
+      color: var(--yellow);
+      letter-spacing: 0.02em;
+      margin-bottom: 6px;
+      font-family: var(--mono);
+    }
+
+    .storage-label {
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.02em;
+      margin-bottom: 14px;
+    }
+
+    .sidebar-user {
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.02em;
+    }
+
+    /* ── Main player area ─────────────────────────── */
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      overflow-y: auto;
+      align-items: center;
+    }
+
+    .main::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .main::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .main::-webkit-scrollbar-thumb {
+      background: var(--border-dim);
+      border-radius: 2px;
+    }
+
+    /* ── Video placeholder ────────────────────────── */
+
+    .video-wrap {
+      width: 100%;
+      max-width: 900px;
+      padding: 32px 0 0;
+      flex-shrink: 0;
+    }
+
+    .video-surface {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: var(--bg-3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    .video-play {
+      font-size: 48px;
+      color: var(--text-3);
+      line-height: 1;
+      user-select: none;
+    }
+
+    .video-label {
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.02em;
+    }
+
+    /* ── Progress bar ─────────────────────────────── */
+
+    .progress-wrap {
+      width: 100%;
+      max-width: 900px;
+      padding: 12px 0 0;
+      flex-shrink: 0;
+    }
+
+    .progress-time {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.02em;
+      margin-bottom: 6px;
+    }
+
+    .progress-time .current {
+      color: var(--text-2);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 2px;
+      background: var(--border-dim);
+      position: relative;
+      cursor: pointer;
+      border-radius: 1px;
+    }
+
+    .progress-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 57%;
+      background: var(--yellow);
+      border-radius: 1px;
+    }
+
+    .progress-dot {
+      position: absolute;
+      right: -3px;
+      top: -2px;
+      width: 6px;
+      height: 6px;
+      background: var(--yellow);
+      border-radius: 50%;
+    }
+
+    /* ── Transport controls ───────────────────────── */
+
+    .controls-wrap {
+      width: 100%;
+      max-width: 900px;
+      padding: 16px 0 0;
+      flex-shrink: 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .transport {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      user-select: none;
+    }
+
+    .transport-btn {
+      font-size: 16px;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: color 0.15s ease;
+      background: none;
+      border: none;
+      font-family: var(--mono);
+      padding: 4px;
+      line-height: 1;
+    }
+
+    .transport-btn:hover {
+      color: var(--yellow);
+    }
+
+    .transport-btn.play {
+      font-size: 20px;
+    }
+
+    /* ── Info section ─────────────────────────────── */
+
+    .info-wrap {
+      width: 100%;
+      max-width: 640px;
+      padding: 28px 0 0;
+      flex-shrink: 0;
+    }
+
+    .info-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .info-meta {
+      font-size: 12px;
+      color: var(--text-3);
+      letter-spacing: 0.02em;
+      margin-bottom: 16px;
+    }
+
+    .info-description {
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    /* ── Track selectors (subtitle / audio) ───────── */
+
+    .track-selectors {
+      width: 100%;
+      max-width: 640px;
+      padding: 0 0 24px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .track-row {
+      font-size: 12px;
+      color: var(--text-3);
+      letter-spacing: 0.02em;
+    }
+
+    .track-row .track-label {
+      color: var(--text-3);
+    }
+
+    .track-option {
+      cursor: pointer;
+      transition: color 0.15s ease;
+    }
+
+    .track-option:hover {
+      color: var(--yellow);
+    }
+
+    .track-option.active {
+      color: var(--yellow);
+    }
+
+    .track-sep {
+      margin: 0 2px;
+      user-select: none;
+    }
+
+    /* ── Up Next section ──────────────────────────── */
+
+    .up-next-wrap {
+      width: 100%;
+      max-width: 640px;
+      padding: 0 0 32px;
+      flex-shrink: 0;
+    }
+
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 12px;
+      padding-top: 4px;
+      border-top: 1px solid var(--border-dim);
+      padding-top: 16px;
+    }
+
+    .up-next-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-dim);
+      cursor: pointer;
+      transition: color 0.15s ease;
+    }
+
+    .up-next-row:hover .up-next-title {
+      color: var(--yellow);
+    }
+
+    .up-next-title {
+      font-size: 13px;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      transition: color 0.15s ease;
+    }
+
+    .up-next-meta {
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.02em;
+      flex-shrink: 0;
+      margin-left: 16px;
+    }
+
+    /* ── Status bar ───────────────────────────────── */
+
+    .statusbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 30px;
+      border-top: 1px solid var(--border-dim);
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+
+    .status-left,
+    .status-right {
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.03em;
+    }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ── Workspace row ─────────────────────────── -->
+  <div class="workspace">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">put<span class="dot">.</span>io</div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-item active">
+          <span class="nav-prefix">*</span>
+          Files
+        </a>
+        <a class="nav-item">
+          <span class="nav-prefix"></span>
+          Transfers
+        </a>
+        <a class="nav-item">
+          <span class="nav-prefix"></span>
+          RSS Feeds
+        </a>
+
+        <div class="nav-sep"></div>
+
+        <a class="nav-item">
+          <span class="nav-prefix"></span>
+          Shared
+        </a>
+        <a class="nav-item">
+          <span class="nav-prefix"></span>
+          History
+        </a>
+        <a class="nav-item">
+          <span class="nav-prefix"></span>
+          Trash
+        </a>
+
+        <div class="nav-sep"></div>
+
+        <a class="nav-item">
+          <span class="nav-prefix"></span>
+          Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="storage-bar-text">[################....]&nbsp; 78%</div>
+        <div class="storage-label">39 TB of 50 TB</div>
+        <div class="sidebar-user">alex</div>
+      </div>
+    </aside>
+
+    <!-- Main player area -->
+    <main class="main">
+
+      <!-- Video placeholder -->
+      <div class="video-wrap">
+        <div class="video-surface">
+          <div class="video-play">&#9654;</div>
+          <div class="video-label">2001: A Space Odyssey (1968)</div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-wrap">
+        <div class="progress-time">
+          <span class="current">1:24:30</span>
+          <span>2:29:00</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill">
+            <div class="progress-dot"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transport controls -->
+      <div class="controls-wrap">
+        <div class="transport">
+          <button class="transport-btn" title="Previous">|&#9665;</button>
+          <button class="transport-btn" title="Rewind">&#9665;&#9665;</button>
+          <button class="transport-btn play" title="Play">&#9654;</button>
+          <button class="transport-btn" title="Fast forward">&#9655;&#9655;</button>
+          <button class="transport-btn" title="Next">&#9655;|</button>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="info-wrap">
+        <div class="info-title">2001: A Space Odyssey</div>
+        <div class="info-meta">1968 &middot; 2h 29m &middot; 2160p &middot; HDR &middot; 42.7 GB</div>
+        <div class="info-description">
+          A monolith is unearthed on the Moon, prompting a crewed mission to Jupiter
+          guided by the sentient computer HAL 9000. Stanley Kubrick and Arthur C. Clarke's
+          landmark collaboration remade the language of science fiction cinema.
+        </div>
+      </div>
+
+      <!-- Subtitle / Audio selectors -->
+      <div class="track-selectors">
+        <div class="track-row">
+          <span class="track-label">subtitles:</span>
+          <span class="track-option active">english</span>
+          <span class="track-sep">&middot;</span>
+          <span class="track-option">t&uuml;rk&ccedil;e</span>
+          <span class="track-sep">&middot;</span>
+          <span class="track-option">off</span>
+        </div>
+        <div class="track-row">
+          <span class="track-label">audio:</span>
+          <span class="track-option active">dts-hd</span>
+          <span class="track-sep">&middot;</span>
+          <span class="track-option">aac</span>
+          <span class="track-sep">&middot;</span>
+          <span class="track-option">original</span>
+        </div>
+      </div>
+
+      <!-- Up Next -->
+      <div class="up-next-wrap">
+        <div class="section-label">Up Next</div>
+        <div class="up-next-row">
+          <span class="up-next-title">Alien</span>
+          <span class="up-next-meta">1h 57m &middot; 38.2 GB</span>
+        </div>
+        <div class="up-next-row">
+          <span class="up-next-title">Solaris</span>
+          <span class="up-next-meta">2h 47m &middot; 31.4 GB</span>
+        </div>
+        <div class="up-next-row">
+          <span class="up-next-title">Stalker</span>
+          <span class="up-next-meta">2h 43m &middot; 29.8 GB</span>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+  <!-- /workspace -->
+
+  <!-- Status bar -->
+  <div class="statusbar">
+    <span class="status-left">playing &mdash; 2160p HDR &mdash; DTS-HD MA</span>
+    <span class="status-right">put.io</span>
+  </div>
+
+</div>
+<!-- /shell -->
+
+</body>
+</html>

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#111113">
+<title>put.io — Files (Ink v8)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #111113;
+    --bg-2: #19191B;
+    --bg-3: #222225;
+    --border: #4B4B52;
+    --border-dim: #333338;
+    --text: #EEEEF0;
+    --text-2: #ABABB2;
+    --text-3: #77777F;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.10);
+    --green: #30A46C;
+    --red: #E5484D;
+    --blue: #60A5FA;
+    --purple: #A78BFA;
+    --mono: 'IBM Plex Mono', 'Menlo', monospace;
+  }
+
+  body {
+    font-family: var(--mono);
+    font-size: 14px;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px; background: var(--bg-2); border-right: 1px solid var(--border-dim);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .sidebar-brand { padding: 24px 20px 20px; }
+  .logo { font-size: 16px; font-weight: 700; color: var(--text); }
+  .logo span { color: var(--yellow); }
+
+  .sidebar-nav { flex: 1; padding: 4px 0; }
+  .nav-item {
+    display: block; padding: 6px 20px; font-size: 13px; color: var(--text-2); cursor: pointer;
+    border: none; background: none; width: 100%; text-align: left; font-family: var(--mono);
+    transition: color 0.1s; line-height: 1.6;
+  }
+  .nav-item:hover { color: var(--text); }
+  .nav-item.active { color: var(--yellow); }
+  .nav-item.active::before { content: '* '; }
+  .nav-sep { height: 1px; background: var(--border-dim); margin: 8px 20px; }
+
+  .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border-dim); }
+  .storage-text { font-size: 12px; color: var(--text-3); line-height: 1.6; }
+  .storage-bar { font-size: 12px; color: var(--yellow); letter-spacing: 0; }
+
+  .user-row { padding: 10px 20px 16px; font-size: 12px; color: var(--text-3); }
+
+  /* CONTENT */
+  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
+
+  .topbar {
+    display: flex; align-items: center; gap: 12px; padding: 12px 0;
+    margin: 0 auto; width: 640px; border-bottom: 1px solid var(--border-dim);
+  }
+  .topbar-spacer { flex: 1; }
+  .search-input {
+    background: none; border: 1px solid var(--border-dim); color: var(--text);
+    font-size: 12px; font-family: var(--mono); padding: 5px 10px; width: 200px; outline: none;
+    transition: border-color 0.1s;
+  }
+  .search-input:focus { border-color: var(--yellow); }
+  .search-input::placeholder { color: var(--text-3); }
+
+  .btn-transfer {
+    background: none; border: 1px solid var(--yellow); color: var(--yellow);
+    font-size: 12px; font-family: var(--mono); padding: 5px 12px; cursor: pointer; font-weight: 600;
+    transition: background 0.1s, color 0.1s;
+  }
+  .btn-transfer:hover { background: var(--yellow); color: var(--bg); }
+
+  /* 640px column */
+  .ink-column {
+    flex: 1; overflow-y: auto; max-width: 640px; width: 640px; margin: 0 auto; padding: 0 0 40px;
+  }
+  .ink-column::-webkit-scrollbar { width: 4px; }
+  .ink-column::-webkit-scrollbar-track { background: transparent; }
+  .ink-column::-webkit-scrollbar-thumb { background: var(--border-dim); }
+
+  .page-heading { font-size: 20px; font-weight: 700; color: var(--text); padding: 24px 0 4px; letter-spacing: -0.02em; }
+
+  /* Breadcrumb */
+  .breadcrumb { font-size: 12px; color: var(--text-3); padding: 8px 0 16px; }
+  .breadcrumb a {
+    color: var(--text-3); text-decoration: none; transition: color 0.1s;
+  }
+  .breadcrumb a:hover { color: var(--text); }
+  .breadcrumb .crumb-active { color: var(--text); }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-dim);
+    font-size: 13px;
+  }
+  .view-toggles { display: flex; align-items: center; gap: 0; }
+  .sort-toggles { display: flex; align-items: center; gap: 0; margin-left: 20px; }
+  .toggle-item {
+    color: var(--text-3); cursor: pointer; padding: 0; background: none; border: none;
+    font-family: var(--mono); font-size: 13px; transition: color 0.1s;
+  }
+  .toggle-item:hover { color: var(--text); }
+  .toggle-item.active { color: var(--yellow); }
+  .toggle-sep { color: var(--border-dim); margin: 0 8px; }
+  .toolbar-spacer { flex: 1; }
+  .toolbar-count { font-size: 12px; color: var(--text-3); }
+
+  /* Section labels */
+  .section-label {
+    font-size: 12px; font-weight: 600; color: var(--text-3); text-transform: uppercase;
+    letter-spacing: 0.06em; margin-bottom: 8px; padding-top: 20px;
+  }
+
+  /* Folder rows */
+  .folder-row {
+    display: flex; align-items: baseline; padding: 6px 0; border-bottom: 1px solid rgba(51,51,56,0.5);
+    cursor: pointer; line-height: 1.6;
+  }
+  .folder-name {
+    font-size: 14px; font-weight: 500; color: var(--text); flex: 1;
+    transition: color 0.1s;
+  }
+  .folder-row:hover .folder-name { color: var(--yellow); }
+  .folder-count { font-size: 12px; color: var(--text-3); flex-shrink: 0; }
+
+  /* File rows */
+  .file-row {
+    display: flex; align-items: baseline; padding: 6px 0; border-bottom: 1px solid rgba(51,51,56,0.5);
+    cursor: pointer; line-height: 1.6;
+  }
+  .file-name {
+    font-size: 14px; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis; transition: color 0.1s;
+  }
+  .file-row:hover .file-name { color: var(--yellow); }
+  .file-size { font-size: 12px; color: var(--text-3); width: 80px; flex-shrink: 0; text-align: right; }
+  .file-date { font-size: 12px; color: var(--text-3); width: 90px; flex-shrink: 0; text-align: right; }
+
+  /* Active / selected file */
+  .file-row.active {
+    background: var(--yellow-dim);
+    border-left: 2px solid var(--yellow);
+    padding-left: 10px;
+    margin-left: -12px;
+    padding-right: 12px;
+  }
+
+  /* Status bar */
+  .status-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    max-width: 640px; width: 640px; margin: 0 auto; padding: 8px 0;
+    border-top: 1px solid var(--border-dim); font-size: 11px; color: var(--text-3);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-brand"><div class="logo">put<span>.</span>io</div></div>
+    <div class="sidebar-nav">
+      <button class="nav-item active">Files</button>
+      <button class="nav-item">Transfers</button>
+      <button class="nav-item">RSS Feeds</button>
+      <div class="nav-sep"></div>
+      <button class="nav-item">Shared</button>
+      <button class="nav-item">History</button>
+      <button class="nav-item">Trash</button>
+      <div class="nav-sep"></div>
+      <button class="nav-item">Settings</button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="storage-bar">[################....] 78%</div>
+      <div class="storage-text">39 TB of 50 TB</div>
+    </div>
+    <div class="user-row">alex</div>
+  </div>
+
+  <div class="content">
+    <div class="topbar">
+      <div class="topbar-spacer"></div>
+      <input class="search-input" placeholder="search..." />
+      <button class="btn-transfer">+ new transfer</button>
+    </div>
+
+    <div class="ink-column">
+      <h1 class="page-heading">Files</h1>
+
+      <div class="breadcrumb">
+        <a href="#">~</a> / <a href="#">Movies</a> / <span class="crumb-active">Sci-Fi</span>
+      </div>
+
+      <div class="toolbar">
+        <div class="view-toggles">
+          <button class="toggle-item active">list</button>
+          <span class="toggle-sep">/</span>
+          <button class="toggle-item">grid</button>
+        </div>
+        <div class="sort-toggles">
+          <button class="toggle-item active">name</button>
+          <span class="toggle-sep">/</span>
+          <button class="toggle-item">size</button>
+          <span class="toggle-sep">/</span>
+          <button class="toggle-item">date</button>
+          <span class="toggle-sep">/</span>
+          <button class="toggle-item">added</button>
+        </div>
+        <div class="toolbar-spacer"></div>
+        <span class="toolbar-count">14 items</span>
+      </div>
+
+      <div class="section-label">Folders</div>
+
+      <div class="folder-row">
+        <span class="folder-name">Blade Runner 2049/</span>
+        <span class="folder-count">12 items</span>
+      </div>
+      <div class="folder-row">
+        <span class="folder-name">Interstellar/</span>
+        <span class="folder-count">8 items</span>
+      </div>
+      <div class="folder-row">
+        <span class="folder-name">Arrival/</span>
+        <span class="folder-count">3 items</span>
+      </div>
+      <div class="folder-row">
+        <span class="folder-name">Dune Part Two/</span>
+        <span class="folder-count">6 items</span>
+      </div>
+      <div class="folder-row">
+        <span class="folder-name">Ex Machina/</span>
+        <span class="folder-count">2 items</span>
+      </div>
+
+      <div class="section-label">Files</div>
+
+      <div class="file-row active">
+        <span class="file-name">2001.A.Space.Odyssey.2160p.mkv</span>
+        <span class="file-size">42.7 GB</span>
+        <span class="file-date">Mar 15</span>
+      </div>
+      <div class="file-row">
+        <span class="file-name">Alien.1979.Remastered.mkv</span>
+        <span class="file-size">3.8 GB</span>
+        <span class="file-date">Feb 22</span>
+      </div>
+      <div class="file-row">
+        <span class="file-name">The.Matrix.1999.2160p.HDR.mkv</span>
+        <span class="file-size">18.1 GB</span>
+        <span class="file-date">Jan 08</span>
+      </div>
+      <div class="file-row">
+        <span class="file-name">Solaris.1972.Criterion.mkv</span>
+        <span class="file-size">1.9 GB</span>
+        <span class="file-date">Dec 14</span>
+      </div>
+      <div class="file-row">
+        <span class="file-name">Stalker.1979.Restored.mkv</span>
+        <span class="file-size">2.3 GB</span>
+        <span class="file-date">Nov 30</span>
+      </div>
+      <div class="file-row">
+        <span class="file-name">Annihilation.2018.1080p.mkv</span>
+        <span class="file-size">4.1 GB</span>
+        <span class="file-date">Nov 12</span>
+      </div>
+      <div class="file-row">
+        <span class="file-name">Under.The.Skin.2013.mkv</span>
+        <span class="file-size">3.2 GB</span>
+        <span class="file-date">Oct 28</span>
+      </div>
+      <div class="file-row">
+        <span class="file-name">Primer.2004.720p.mkv</span>
+        <span class="file-size">0.7 GB</span>
+        <span class="file-date">Oct 15</span>
+      </div>
+      <div class="file-row">
+        <span class="file-name">Moon.2009.1080p.mkv</span>
+        <span class="file-size">2.8 GB</span>
+        <span class="file-date">Sep 20</span>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <span>5 folders, 9 files -- 79.6 GB</span>
+      <span>put.io -- istanbul -- since 2011</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

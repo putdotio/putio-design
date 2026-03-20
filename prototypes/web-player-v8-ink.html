@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>put.io — Player (Ink v8)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #111113;
+      --bg-2: #19191B;
+      --bg-3: #222225;
+      --border: #4B4B52;
+      --border-dim: #333338;
+      --text: #EEEEF0;
+      --text-2: #ABABB2;
+      --text-3: #77777F;
+      --yellow: #FDCE45;
+      --yellow-dim: rgba(253, 206, 69, 0.10);
+      --green: #30A46C;
+      --red: #E5484D;
+      --blue: #60A5FA;
+      --purple: #A78BFA;
+      --mono: 'IBM Plex Mono', 'Menlo', monospace;
+    }
+
+    html, body {
+      width: 1440px;
+      height: 900px;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-dim);
+      border-radius: 2px;
+    }
+
+    /* ── Layout shell ─────────────────────────────── */
+
+    .shell {
+      display: flex;
+      width: 1440px;
+      height: 900px;
+    }
+
+    /* ── Sidebar ──────────────────────────────────── */
+
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--bg-2);
+      border-right: 1px solid var(--border-dim);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-brand {
+      padding: 28px 24px 28px;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .sidebar-brand .dot {
+      color: var(--yellow);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 0;
+    }
+
+    .nav-item {
+      display: block;
+      padding: 7px 24px;
+      font-size: 13px;
+      color: var(--text-3);
+      cursor: pointer;
+      transition: color 0.15s ease;
+      text-decoration: none;
+      background: none;
+      border: none;
+      font-family: var(--mono);
+      text-align: left;
+      width: 100%;
+      line-height: 1.5;
+    }
+
+    .nav-item:hover {
+      color: var(--yellow);
+    }
+
+    .nav-item.active {
+      color: var(--yellow);
+    }
+
+    .nav-item.active::before {
+      content: '* ';
+    }
+
+    .nav-sep {
+      height: 1px;
+      background: var(--border-dim);
+      margin: 8px 20px;
+    }
+
+    .sidebar-footer {
+      padding: 20px 24px 24px;
+    }
+
+    .storage-ascii {
+      font-size: 12px;
+      color: var(--yellow);
+      margin-bottom: 6px;
+      letter-spacing: 0;
+      line-height: 1;
+    }
+
+    .storage-info {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-bottom: 16px;
+    }
+
+    .sidebar-user {
+      font-size: 11px;
+      color: var(--text-3);
+    }
+
+    /* ── Content area ─────────────────────────────── */
+
+    .content {
+      flex: 1;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* ── Player area ──────────────────────────────── */
+
+    .player-area {
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 32px 0 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Video placeholder */
+    .video-placeholder {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: var(--bg-3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .video-play-symbol {
+      font-size: 48px;
+      color: var(--text-3);
+      line-height: 1;
+    }
+
+    .video-label {
+      font-size: 11px;
+      color: var(--text-3);
+    }
+
+    /* ── Progress bar ─────────────────────────────── */
+
+    .progress-section {
+      padding: 12px 0 0;
+      flex-shrink: 0;
+    }
+
+    .progress-times {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-3);
+      margin-bottom: 8px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 2px;
+      background: var(--border-dim);
+      position: relative;
+      cursor: pointer;
+    }
+
+    .progress-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 57%;
+      background: var(--yellow);
+    }
+
+    .progress-dot {
+      position: absolute;
+      top: 50%;
+      left: 57%;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--yellow);
+      transform: translate(-50%, -50%);
+    }
+
+    /* ── Controls row ─────────────────────────────── */
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 16px 0;
+      flex-shrink: 0;
+    }
+
+    .control-btn {
+      background: none;
+      border: none;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text-2);
+      cursor: pointer;
+      padding: 4px;
+      transition: color 0.15s ease;
+      line-height: 1;
+    }
+
+    .control-btn:hover {
+      color: var(--yellow);
+    }
+
+    /* ── Info section ─────────────────────────────── */
+
+    .info-section {
+      max-width: 640px;
+      width: 100%;
+      margin: 0 auto;
+      padding-top: 32px;
+    }
+
+    .info-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .info-meta {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-bottom: 12px;
+    }
+
+    .info-description {
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    /* ── Up Next section ──────────────────────────── */
+
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 12px;
+    }
+
+    .up-next-section {
+      max-width: 640px;
+      width: 100%;
+      margin: 0 auto;
+      padding-bottom: 24px;
+    }
+
+    .up-next-row {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      cursor: pointer;
+      transition: color 0.15s ease;
+      border-top: 1px solid var(--border-dim);
+    }
+
+    .up-next-row:last-child {
+      border-bottom: 1px solid var(--border-dim);
+    }
+
+    .up-next-row:hover .up-next-name {
+      color: var(--yellow);
+    }
+
+    .up-next-name {
+      flex: 1;
+      font-size: 14px;
+      color: var(--text);
+      transition: color 0.15s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: 16px;
+    }
+
+    .up-next-duration {
+      font-size: 12px;
+      color: var(--text-3);
+      flex-shrink: 0;
+      margin-right: 16px;
+    }
+
+    .up-next-size {
+      font-size: 12px;
+      color: var(--text-3);
+      flex-shrink: 0;
+    }
+
+    /* ── Subtitle / Audio row ─────────────────────── */
+
+    .track-options {
+      max-width: 640px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px 0 24px;
+      font-size: 12px;
+      color: var(--text-3);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .track-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .track-label {
+      color: var(--text-3);
+      margin-right: 4px;
+    }
+
+    .track-option {
+      color: var(--text-3);
+      cursor: pointer;
+      transition: color 0.15s ease;
+      background: none;
+      border: none;
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 0;
+    }
+
+    .track-option:hover {
+      color: var(--yellow);
+    }
+
+    .track-option.active {
+      color: var(--yellow);
+    }
+
+    .track-sep {
+      margin: 0 4px;
+      color: var(--text-3);
+      user-select: none;
+    }
+
+    /* ── Status bar ───────────────────────────────── */
+
+    .status-bar {
+      max-width: 640px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 12px 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-3);
+      flex-shrink: 0;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ── Sidebar ──────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">put<span class="dot">.</span>io</div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active">Files</button>
+      <button class="nav-item">Transfers</button>
+      <button class="nav-item">RSS Feeds</button>
+      <div class="nav-sep"></div>
+      <button class="nav-item">Shared</button>
+      <button class="nav-item">History</button>
+      <button class="nav-item">Trash</button>
+      <div class="nav-sep"></div>
+      <button class="nav-item">Settings</button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="storage-ascii">[################....] 78%</div>
+      <div class="storage-info">39 TB of 50 TB</div>
+      <div class="sidebar-user">alex</div>
+    </div>
+  </aside>
+
+  <!-- ── Content ──────────────────────────────── -->
+  <div class="content">
+    <div class="player-area">
+
+      <!-- Video placeholder -->
+      <div class="video-placeholder">
+        <div class="video-play-symbol">&#9654;</div>
+        <div class="video-label">2001: A Space Odyssey (1968)</div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="progress-section">
+        <div class="progress-times">
+          <span>1:24:30</span>
+          <span>2:29:00</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill"></div>
+          <div class="progress-dot"></div>
+        </div>
+      </div>
+
+      <!-- Controls row -->
+      <div class="controls-row">
+        <button class="control-btn">|&#9665;</button>
+        <button class="control-btn">&#9665;&#9665;</button>
+        <button class="control-btn">&#9654;</button>
+        <button class="control-btn">&#9655;&#9655;</button>
+        <button class="control-btn">&#9655;|</button>
+      </div>
+
+      <!-- Info section -->
+      <div class="info-section">
+        <div class="info-title">2001: A Space Odyssey</div>
+        <div class="info-meta">1968 &middot; 2h 29m &middot; 2160p &middot; HDR &middot; 42.7 GB</div>
+        <div class="info-description">A space voyage to Jupiter with the sentient computer HAL 9000.</div>
+      </div>
+
+      <!-- Up Next -->
+      <div class="up-next-section">
+        <div class="section-label">UP NEXT</div>
+        <div class="up-next-row">
+          <span class="up-next-name">Alien.1979.Remastered.mkv</span>
+          <span class="up-next-duration">1h 57m</span>
+          <span class="up-next-size">3.8 GB</span>
+        </div>
+        <div class="up-next-row">
+          <span class="up-next-name">Solaris.1972.Criterion.mkv</span>
+          <span class="up-next-duration">2h 47m</span>
+          <span class="up-next-size">1.9 GB</span>
+        </div>
+        <div class="up-next-row">
+          <span class="up-next-name">Stalker.1979.Restored.mkv</span>
+          <span class="up-next-duration">2h 43m</span>
+          <span class="up-next-size">2.3 GB</span>
+        </div>
+      </div>
+
+      <!-- Subtitle / Audio options -->
+      <div class="track-options">
+        <div class="track-row">
+          <span class="track-label">subtitles:</span>
+          <button class="track-option active">english</button>
+          <span class="track-sep">&middot;</span>
+          <button class="track-option">t&uuml;rk&ccedil;e</button>
+          <span class="track-sep">&middot;</span>
+          <button class="track-option">off</button>
+        </div>
+        <div class="track-row">
+          <span class="track-label">audio:</span>
+          <button class="track-option active">dts-hd</button>
+          <span class="track-sep">&middot;</span>
+          <button class="track-option">aac</button>
+          <span class="track-sep">&middot;</span>
+          <button class="track-option">original</button>
+        </div>
+      </div>
+
+      <!-- Status bar -->
+      <div class="status-bar">
+        <span>playing &mdash; 2160p HDR &mdash; DTS-HD MA</span>
+        <span>put.io</span>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

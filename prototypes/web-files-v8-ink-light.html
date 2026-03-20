@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>put.io — Files (Ink Light)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #FAFAFA;
+      --bg-2: #F0F0F2;
+      --bg-3: #E4E4E7;
+      --border: #C4C4CA;
+      --border-dim: #DCDCE0;
+      --text: #111113;
+      --text-2: #5C5C66;
+      --text-3: #8C8C96;
+      --yellow: #D4A017;
+      --yellow-dim: rgba(212, 160, 23, 0.08);
+      --green: #1A7F4B;
+      --red: #CD2B31;
+      --blue: #2563EB;
+      --purple: #7C3AED;
+      --mono: 'IBM Plex Mono', 'Menlo', monospace;
+    }
+
+    html, body {
+      width: 1440px;
+      height: 900px;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ── Layout shell ──────────────────────────────── */
+
+    .shell {
+      display: flex;
+      width: 1440px;
+      height: 900px;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ───────────────────────────────────── */
+
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--bg-2);
+      border-right: 1px solid var(--border-dim);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 0 0;
+    }
+
+    .sidebar-brand {
+      padding: 0 24px 28px;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .sidebar-brand .dot {
+      color: var(--yellow);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      padding: 0 12px;
+    }
+
+    .nav-item {
+      display: block;
+      padding: 6px 12px;
+      font-size: 13px;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: color 0.15s ease;
+      user-select: none;
+      text-decoration: none;
+    }
+
+    .nav-item:hover {
+      color: var(--yellow);
+    }
+
+    .nav-item.active {
+      color: var(--yellow);
+      font-weight: 500;
+    }
+
+    .nav-item.active .prefix {
+      color: var(--yellow);
+    }
+
+    .nav-sep {
+      height: 1px;
+      background: var(--border-dim);
+      margin: 6px 12px;
+    }
+
+    .sidebar-footer {
+      padding: 20px 24px 24px;
+      border-top: 1px solid var(--border-dim);
+    }
+
+    .storage-bar {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--yellow);
+      letter-spacing: 0;
+      margin-bottom: 6px;
+      white-space: pre;
+    }
+
+    .storage-label {
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.02em;
+      margin-bottom: 16px;
+    }
+
+    .sidebar-user {
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.02em;
+    }
+
+    /* ── Content area ──────────────────────────────── */
+
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Topbar ────────────────────────────────────── */
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 32px;
+      height: 52px;
+      border-bottom: 1px solid var(--border-dim);
+      flex-shrink: 0;
+    }
+
+    .topbar-inner {
+      width: 640px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .search-input {
+      flex: 1;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border-dim);
+      outline: none;
+      padding: 4px 0;
+      letter-spacing: 0.01em;
+      caret-color: var(--yellow);
+      transition: border-color 0.15s ease;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-3);
+    }
+
+    .search-input:focus {
+      border-bottom-color: var(--border);
+    }
+
+    .topbar-btn {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-2);
+      background: transparent;
+      border: 1px solid var(--border-dim);
+      padding: 5px 14px;
+      cursor: pointer;
+      transition: color 0.15s ease, border-color 0.15s ease;
+      white-space: nowrap;
+      letter-spacing: 0.01em;
+      flex-shrink: 0;
+    }
+
+    .topbar-btn:hover {
+      color: var(--yellow);
+      border-color: var(--yellow);
+    }
+
+    /* ── Ink column ────────────────────────────────── */
+
+    .ink-column {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .ink-column::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .ink-column::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .ink-column::-webkit-scrollbar-thumb {
+      background: var(--border-dim);
+      border-radius: 2px;
+    }
+
+    .ink-inner {
+      width: 640px;
+      padding: 32px 0 48px;
+    }
+
+    /* ── Page heading ──────────────────────────────── */
+
+    .page-heading {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+
+    /* ── Breadcrumb ────────────────────────────────── */
+
+    .breadcrumb {
+      font-size: 13px;
+      color: var(--text-3);
+      letter-spacing: 0.01em;
+      margin-bottom: 28px;
+    }
+
+    .breadcrumb a {
+      color: var(--text-3);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .breadcrumb a:hover {
+      color: var(--text);
+    }
+
+    .breadcrumb .sep {
+      margin: 0 4px;
+    }
+
+    /* ── Toolbar ───────────────────────────────────── */
+
+    .toolbar {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: var(--text-3);
+      letter-spacing: 0.02em;
+      user-select: none;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: baseline;
+      gap: 20px;
+    }
+
+    .toggle-group,
+    .sort-group {
+      display: flex;
+      align-items: baseline;
+      gap: 0;
+    }
+
+    .toggle-item,
+    .sort-item {
+      cursor: pointer;
+      transition: color 0.15s ease;
+    }
+
+    .toggle-item:hover,
+    .sort-item:hover {
+      color: var(--yellow);
+    }
+
+    .toggle-item.active,
+    .sort-item.active {
+      color: var(--text);
+    }
+
+    .toggle-sep,
+    .sort-sep {
+      margin: 0 6px;
+      color: var(--border-dim);
+    }
+
+    .toolbar-count {
+      color: var(--text-3);
+    }
+
+    /* ── Section labels ────────────────────────────── */
+
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: 12px 0 8px;
+      user-select: none;
+    }
+
+    /* ── Folder rows ───────────────────────────────── */
+
+    .folder-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 7px 0;
+      cursor: pointer;
+      transition: color 0.15s ease;
+      border-bottom: 1px solid transparent;
+    }
+
+    .folder-row + .folder-row {
+      border-top: 1px solid var(--bg-3);
+    }
+
+    .folder-row:first-child {
+      border-top: 1px solid var(--bg-3);
+    }
+
+    .folder-row:last-child {
+      border-bottom: 1px solid var(--bg-3);
+    }
+
+    .folder-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      transition: color 0.15s ease;
+      letter-spacing: -0.01em;
+    }
+
+    .folder-row:hover .folder-name {
+      color: var(--yellow);
+    }
+
+    .folder-count {
+      font-size: 12px;
+      color: var(--text-3);
+      letter-spacing: 0.02em;
+      flex-shrink: 0;
+    }
+
+    /* ── File rows ─────────────────────────────────── */
+
+    .file-header {
+      display: grid;
+      grid-template-columns: 1fr 80px 80px;
+      padding: 10px 0 6px;
+      border-bottom: 1px solid var(--bg-3);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      user-select: none;
+    }
+
+    .file-header .col-right {
+      text-align: right;
+    }
+
+    .file-row {
+      display: grid;
+      grid-template-columns: 1fr 80px 80px;
+      align-items: baseline;
+      padding: 8px 4px;
+      margin: 0 -4px;
+      cursor: pointer;
+      transition: background 0.1s ease;
+      border-bottom: 1px solid var(--bg-3);
+    }
+
+    .file-row:hover {
+      background: var(--yellow-dim);
+    }
+
+    .file-row:hover .file-name {
+      color: var(--yellow);
+    }
+
+    .file-row.selected {
+      background: var(--yellow-dim);
+    }
+
+    .file-name {
+      font-size: 14px;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      transition: color 0.15s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: 12px;
+    }
+
+    .file-size {
+      font-size: 12px;
+      color: var(--text-3);
+      text-align: right;
+      letter-spacing: 0.01em;
+    }
+
+    .file-date {
+      font-size: 12px;
+      color: var(--text-3);
+      text-align: right;
+      letter-spacing: 0.01em;
+    }
+
+    /* ── Status bar ────────────────────────────────── */
+
+    .statusbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      height: 32px;
+      border-top: 1px solid var(--border-dim);
+      flex-shrink: 0;
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.02em;
+    }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">put<span class="dot">.</span>io</div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item active"><span class="prefix">* </span>Files</a>
+      <a class="nav-item">Transfers</a>
+      <a class="nav-item">RSS Feeds</a>
+      <div class="nav-sep"></div>
+      <a class="nav-item">Shared</a>
+      <a class="nav-item">History</a>
+      <a class="nav-item">Trash</a>
+      <div class="nav-sep"></div>
+      <a class="nav-item">Settings</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="storage-bar">[################....]  78%</div>
+      <div class="storage-label">39 TB of 50 TB</div>
+      <div class="sidebar-user">alex</div>
+    </div>
+  </aside>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-inner">
+        <input class="search-input" type="text" placeholder="search..." spellcheck="false" autocomplete="off">
+        <button class="topbar-btn">+ new transfer</button>
+      </div>
+    </div>
+
+    <!-- Scrollable column -->
+    <div class="ink-column">
+      <div class="ink-inner">
+
+        <!-- Page heading -->
+        <h1 class="page-heading">Files</h1>
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+          <a href="#">~</a><span class="sep">/</span><a href="#">Movies</a><span class="sep">/</span><a href="#">Sci-Fi</a>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <div class="toggle-group">
+              <span class="toggle-item active">list</span>
+              <span class="toggle-sep">/</span>
+              <span class="toggle-item">grid</span>
+            </div>
+            <div class="sort-group">
+              <span class="sort-item active">name</span>
+              <span class="sort-sep">/</span>
+              <span class="sort-item">size</span>
+              <span class="sort-sep">/</span>
+              <span class="sort-item">date</span>
+              <span class="sort-sep">/</span>
+              <span class="sort-item">added</span>
+            </div>
+          </div>
+          <span class="toolbar-count">14 items</span>
+        </div>
+
+        <!-- Folders -->
+        <div class="section-label">FOLDERS</div>
+
+        <div class="folder-row">
+          <span class="folder-name">Blade Runner 2049/</span>
+          <span class="folder-count">12 items</span>
+        </div>
+        <div class="folder-row">
+          <span class="folder-name">Interstellar/</span>
+          <span class="folder-count">8 items</span>
+        </div>
+        <div class="folder-row">
+          <span class="folder-name">Arrival/</span>
+          <span class="folder-count">3 items</span>
+        </div>
+        <div class="folder-row">
+          <span class="folder-name">Dune Part Two/</span>
+          <span class="folder-count">6 items</span>
+        </div>
+        <div class="folder-row">
+          <span class="folder-name">Ex Machina/</span>
+          <span class="folder-count">2 items</span>
+        </div>
+
+        <!-- Files -->
+        <div class="section-label" style="margin-top: 16px;">FILES</div>
+
+        <div class="file-header">
+          <div>Name</div>
+          <div class="col-right">Size</div>
+          <div class="col-right">Date</div>
+        </div>
+
+        <div class="file-row selected">
+          <div class="file-name">2001.A.Space.Odyssey.2160p.mkv</div>
+          <div class="file-size">42.7 GB</div>
+          <div class="file-date">Mar 15</div>
+        </div>
+        <div class="file-row">
+          <div class="file-name">Alien.1979.Remastered.mkv</div>
+          <div class="file-size">3.8 GB</div>
+          <div class="file-date">Feb 22</div>
+        </div>
+        <div class="file-row">
+          <div class="file-name">The.Matrix.1999.2160p.HDR.mkv</div>
+          <div class="file-size">18.1 GB</div>
+          <div class="file-date">Jan 08</div>
+        </div>
+        <div class="file-row">
+          <div class="file-name">Solaris.1972.Criterion.mkv</div>
+          <div class="file-size">1.9 GB</div>
+          <div class="file-date">Dec 14</div>
+        </div>
+        <div class="file-row">
+          <div class="file-name">Stalker.1979.Restored.mkv</div>
+          <div class="file-size">2.3 GB</div>
+          <div class="file-date">Nov 30</div>
+        </div>
+        <div class="file-row">
+          <div class="file-name">Annihilation.2018.1080p.mkv</div>
+          <div class="file-size">4.1 GB</div>
+          <div class="file-date">Nov 12</div>
+        </div>
+        <div class="file-row">
+          <div class="file-name">Under.The.Skin.2013.mkv</div>
+          <div class="file-size">3.2 GB</div>
+          <div class="file-date">Oct 28</div>
+        </div>
+        <div class="file-row">
+          <div class="file-name">Primer.2004.720p.mkv</div>
+          <div class="file-size">0.7 GB</div>
+          <div class="file-date">Oct 15</div>
+        </div>
+        <div class="file-row">
+          <div class="file-name">Moon.2009.1080p.mkv</div>
+          <div class="file-size">2.8 GB</div>
+          <div class="file-date">Sep 20</div>
+        </div>
+
+      </div>
+    </div>
+    <!-- /ink-column -->
+
+    <!-- Status bar -->
+    <div class="statusbar">
+      <span>5 folders, 9 files &mdash; 79.6 GB</span>
+      <span>put.io &mdash; istanbul &mdash; since 2011</span>
+    </div>
+
+  </div>
+  <!-- /content -->
+
+</div>
+<!-- /shell -->
+
+</body>
+</html>

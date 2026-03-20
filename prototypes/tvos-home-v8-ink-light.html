@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#FAFAFA">
+<title>put.io - Home (tvOS, v8 Ink Light)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAFAFA;
+    --bg-2: #F0F0F2;
+    --bg-3: #E4E4E7;
+    --border: #C4C4CA;
+    --border-dim: #DCDCE0;
+    --text: #111113;
+    --text-2: #5C5C66;
+    --text-3: #8C8C96;
+    --yellow: #D4A017;
+    --yellow-dim: rgba(212, 160, 23, 0.08);
+    --green: #1A7F4B;
+    --blue: #2563EB;
+    --mono: 'IBM Plex Mono', 'Menlo', monospace;
+    --sidebar-w: 260px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+  }
+
+  /* ── Left Sidebar ── */
+
+  .sidebar {
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    height: 100%;
+    background: var(--bg-2);
+    border-right: 1px solid var(--border-dim);
+    display: flex;
+    flex-direction: column;
+    padding: 48px 32px 40px;
+  }
+
+  .sidebar-logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    margin-bottom: 48px;
+  }
+
+  .sidebar-logo .dot {
+    color: var(--yellow);
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .sidebar-nav-item {
+    font-size: 16px;
+    color: var(--text-3);
+    cursor: pointer;
+    padding: 6px 0;
+    transition: color 0.15s ease;
+    letter-spacing: 0.02em;
+  }
+
+  .sidebar-nav-item:hover {
+    color: var(--text);
+  }
+
+  .sidebar-nav-item.active {
+    color: var(--yellow);
+  }
+
+  .sidebar-nav-item.active::before {
+    content: '* ';
+  }
+
+  .sidebar-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sidebar-storage-bar {
+    font-size: 14px;
+    color: var(--yellow);
+    letter-spacing: 0;
+    white-space: pre;
+    font-variant-ligatures: none;
+  }
+
+  .sidebar-storage-label {
+    font-size: 13px;
+    color: var(--text-3);
+    letter-spacing: 0.01em;
+  }
+
+  .sidebar-user {
+    font-size: 13px;
+    color: var(--text-3);
+    letter-spacing: 0.01em;
+    margin-top: 4px;
+  }
+
+  /* ── Right Content ── */
+
+  .content {
+    flex: 1;
+    padding: 60px;
+    overflow-y: auto;
+    position: relative;
+    min-height: 100%;
+  }
+
+  /* ── Sections ── */
+
+  .section {
+    margin-bottom: 56px;
+  }
+
+  .section-label {
+    font-size: 14px;
+    color: var(--text-3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  /* ── Continue Watching Cards ── */
+
+  .card-grid {
+    display: flex;
+    gap: 40px;
+  }
+
+  .card {
+    width: 360px;
+    padding: 28px 32px;
+    border: 1px solid var(--border-dim);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .card:hover {
+    background: var(--bg-2);
+  }
+
+  .card.focused {
+    background: var(--yellow-dim);
+    border-color: var(--border);
+  }
+
+  .card-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .card.focused .card-title {
+    color: var(--yellow);
+  }
+
+  .card-meta {
+    font-size: 16px;
+    color: var(--text-3);
+    letter-spacing: 0.02em;
+    margin-bottom: 16px;
+  }
+
+  .progress-bar {
+    height: 2px;
+    background: var(--bg-3);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--border);
+    border-radius: 1px;
+  }
+
+  .card.focused .progress-fill {
+    background: var(--yellow);
+  }
+
+  /* ── Recent Files ── */
+
+  .file-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .file-row {
+    display: flex;
+    align-items: baseline;
+    height: 20px;
+    gap: 48px;
+    padding: 14px 0;
+    cursor: pointer;
+    transition: color 0.15s ease;
+    border-bottom: 1px solid var(--border-dim);
+  }
+
+  .file-row:last-child {
+    border-bottom: none;
+  }
+
+  .file-row:hover .file-name {
+    color: var(--yellow);
+  }
+
+  .file-name {
+    font-size: 20px;
+    color: var(--text);
+    flex: 1;
+    transition: color 0.15s ease;
+    letter-spacing: -0.01em;
+  }
+
+  .file-size {
+    font-size: 16px;
+    color: var(--text-3);
+    width: 100px;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .file-date {
+    font-size: 16px;
+    color: var(--text-3);
+    width: 140px;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* ── Active Transfers ── */
+
+  .transfer-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .transfer-row {
+    display: flex;
+    align-items: baseline;
+    gap: 32px;
+    padding: 12px 0;
+    cursor: pointer;
+  }
+
+  .transfer-row:hover .transfer-name {
+    color: var(--yellow);
+  }
+
+  .transfer-name {
+    font-size: 18px;
+    color: var(--text);
+    width: 260px;
+    flex-shrink: 0;
+    transition: color 0.15s ease;
+    letter-spacing: -0.01em;
+  }
+
+  .transfer-pct {
+    font-size: 18px;
+    color: var(--text-2);
+    width: 48px;
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .transfer-bar {
+    font-size: 18px;
+    color: var(--text-3);
+    letter-spacing: 0;
+    white-space: pre;
+    font-variant-ligatures: none;
+  }
+
+  /* ── Footer ── */
+
+  .footer {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-3);
+    letter-spacing: 0.04em;
+    padding-bottom: 48px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Left Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">put<span class="dot">.</span>io</div>
+  <nav class="sidebar-nav">
+    <span class="sidebar-nav-item active">home</span>
+    <span class="sidebar-nav-item">files</span>
+    <span class="sidebar-nav-item">transfers</span>
+    <span class="sidebar-nav-item">history</span>
+    <span class="sidebar-nav-item">search</span>
+    <span class="sidebar-nav-item">settings</span>
+  </nav>
+  <div class="sidebar-bottom">
+    <span class="sidebar-storage-bar">[################....] 78%</span>
+    <span class="sidebar-storage-label">39 TB of 50 TB</span>
+    <span class="sidebar-user">alex</span>
+  </div>
+</aside>
+
+<!-- Right Content -->
+<div class="content">
+
+  <!-- Continue Watching -->
+  <div class="section">
+    <div class="section-label">continue watching</div>
+    <div class="card-grid">
+
+      <div class="card focused">
+        <div class="card-title">Severance S02E10</div>
+        <div class="card-meta">23:41 left &middot; 62%</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:62%"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">2001: A Space Odyssey</div>
+        <div class="card-meta">1:04:30 left &middot; 57%</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:57%"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Cosmos Laundromat</div>
+        <div class="card-meta">4:12 left &middot; 85%</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Stalker (1979)</div>
+        <div class="card-meta">1:38:00 left &middot; 41%</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:41%"></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Recent Files -->
+  <div class="section">
+    <div class="section-label">recent files</div>
+    <div class="file-list">
+      <div class="file-row">
+        <span class="file-name">Alien (1979)</span>
+        <span class="file-size">3.8 GB</span>
+        <span class="file-date">2 days ago</span>
+      </div>
+      <div class="file-row">
+        <span class="file-name">The Matrix</span>
+        <span class="file-size">2.1 GB</span>
+        <span class="file-date">4 days ago</span>
+      </div>
+      <div class="file-row">
+        <span class="file-name">Solaris</span>
+        <span class="file-size">1.9 GB</span>
+        <span class="file-date">1 week ago</span>
+      </div>
+      <div class="file-row">
+        <span class="file-name">Annihilation</span>
+        <span class="file-size">4.5 GB</span>
+        <span class="file-date">2 weeks ago</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Transfers -->
+  <div class="section">
+    <div class="section-label">active transfers</div>
+    <div class="transfer-list">
+      <div class="transfer-row">
+        <span class="transfer-name">Dune Part Three</span>
+        <span class="transfer-pct">67%</span>
+        <span class="transfer-bar">[##########......]</span>
+      </div>
+      <div class="transfer-row">
+        <span class="transfer-name">Foundation S03E01</span>
+        <span class="transfer-pct">23%</span>
+        <span class="transfer-bar">[###.............]</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">put.io &mdash; istanbul &mdash; since 2011</div>
+
+</div>
+
+</body>
+</html>
