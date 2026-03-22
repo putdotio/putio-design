@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#08090a">
+<title>put.io — Simple, honest pricing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #08090a;
+    --surface: #111113;
+    --surface-2: #1C1C1E;
+    --surface-3: #212225;
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-default: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.12);
+    --text-primary: #FAFAFA;
+    --text-secondary: #A1A1AA;
+    --text-tertiary: #71717A;
+    --text-quaternary: #4a4a52;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.10);
+    --yellow-hover: #FDD85C;
+    --yellow-border: rgba(253, 206, 69, 0.18);
+    --green: #3ECF8E;
+    --green-dim: rgba(62, 207, 142, 0.12);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' 1, 'ss01' 1;
+  }
+
+  .page {
+    width: 1440px;
+    min-height: 900px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ===== NAV ===== */
+  .nav {
+    display: flex;
+    align-items: center;
+    padding: 24px 64px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+  }
+  .logo {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+    color: var(--text-primary);
+  }
+  .logo .dot { color: var(--yellow); }
+  .nav-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 36px;
+    align-items: center;
+  }
+  .nav-link {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.15s;
+  }
+  .nav-link:hover { color: var(--text-primary); }
+  .nav-right {
+    margin-left: auto;
+  }
+  .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--yellow);
+    color: #08090a;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 24px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .nav-cta:hover { background: var(--yellow-hover); }
+
+  /* ===== HERO WITH STARRY CANVAS ===== */
+  .hero {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+  }
+  .hero canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  .hero-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: linear-gradient(to bottom, transparent, var(--bg));
+    z-index: 2;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding-top: 40px;
+    text-align: center;
+  }
+  .hero-title {
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .hero-subtitle {
+    font-size: 18px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    max-width: 480px;
+  }
+
+  /* ===== TOGGLE ===== */
+  .toggle-section {
+    display: flex;
+    justify-content: center;
+    padding: 40px 0 48px;
+  }
+  .toggle-pill {
+    display: flex;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    padding: 4px;
+    gap: 0;
+  }
+  .toggle-btn {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 9px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-tertiary);
+    transition: all 0.2s;
+  }
+  .toggle-btn.active {
+    background: var(--yellow);
+    color: #08090a;
+    font-weight: 600;
+  }
+  .save-badge {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--yellow);
+    background: var(--yellow-dim);
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-left: 12px;
+  }
+
+  /* ===== PLAN CARDS ===== */
+  .plans {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    padding: 0 64px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .plan-card {
+    background: var(--surface);
+    border: 1px solid var(--border-default);
+    border-radius: 16px;
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .plan-card:hover {
+    border-color: var(--border-strong);
+  }
+  .plan-card.highlighted {
+    border-color: var(--yellow-border);
+    background: linear-gradient(to bottom, rgba(253, 206, 69, 0.03), var(--surface));
+  }
+  .plan-badge {
+    position: absolute;
+    top: -13px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    font-weight: 600;
+    color: #08090a;
+    background: var(--yellow);
+    padding: 4px 16px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .plan-name {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .plan-storage {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    margin-bottom: 24px;
+  }
+  .plan-price {
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 4px;
+  }
+  .plan-price span {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text-tertiary);
+  }
+  .plan-period {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    margin-bottom: 32px;
+  }
+  .plan-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 40px;
+    flex: 1;
+  }
+  .plan-features li {
+    font-size: 14px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.4;
+  }
+  .plan-features li::before {
+    content: '';
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    background: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 18 18' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.5 9L7.5 12L13.5 6' stroke='%233ECF8E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+  }
+  .plan-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .plan-btn-primary {
+    background: var(--yellow);
+    color: #08090a;
+  }
+  .plan-btn-primary:hover {
+    background: var(--yellow-hover);
+  }
+  .plan-btn-outline {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-default);
+  }
+  .plan-btn-outline:hover {
+    border-color: var(--border-strong);
+    background: var(--surface-2);
+  }
+
+  /* ===== FEATURE TABLE ===== */
+  .comparison {
+    padding: 80px 64px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .comparison-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .comparison table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .comparison thead th {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-default);
+  }
+  .comparison thead th:first-child {
+    text-align: left;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+  .comparison tbody td {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .comparison tbody td:first-child {
+    text-align: left;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .comparison tbody tr:last-child td {
+    border-bottom: none;
+  }
+  .check {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 18 18' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.5 9L7.5 12L13.5 6' stroke='%233ECF8E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+    vertical-align: middle;
+  }
+  .dash {
+    color: var(--text-quaternary);
+  }
+
+  /* ===== FAQ ===== */
+  .faq {
+    padding: 0 64px 80px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .faq-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .faq-item {
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .faq-item:first-child {
+    border-top: 1px solid var(--border-subtle);
+  }
+  .faq-question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: left;
+  }
+  .faq-question:hover {
+    color: var(--yellow);
+  }
+  .faq-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--text-tertiary);
+    transition: transform 0.2s;
+  }
+  .faq-item.open .faq-icon {
+    transform: rotate(45deg);
+  }
+  .faq-answer {
+    display: none;
+    padding: 0 0 20px;
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    max-width: 640px;
+  }
+  .faq-item.open .faq-answer {
+    display: block;
+  }
+
+  /* ===== BOTTOM CTA ===== */
+  .bottom-cta {
+    text-align: center;
+    padding: 64px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .bottom-cta-text {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+  .bottom-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--yellow);
+    color: #08090a;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 14px 32px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .bottom-cta-btn:hover { background: var(--yellow-hover); }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    border-top: 1px solid var(--border-subtle);
+    padding: 64px;
+    position: relative;
+    z-index: 1;
+  }
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    gap: 48px;
+    margin-bottom: 48px;
+  }
+  .footer-logo {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .footer-logo .dot { color: var(--yellow); }
+  .footer-tagline {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+    max-width: 260px;
+    margin-bottom: 16px;
+  }
+  .footer-kaomoji {
+    font-size: 18px;
+    color: var(--text-quaternary);
+  }
+  .footer-col-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-tertiary);
+    margin-bottom: 16px;
+  }
+  .footer-col-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .footer-col-link {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .footer-col-link:hover { color: var(--text-primary); }
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 32px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .footer-copy {
+    font-size: 13px;
+    color: var(--text-quaternary);
+  }
+  .footer-legal {
+    display: flex;
+    gap: 24px;
+  }
+  .footer-legal a {
+    font-size: 13px;
+    color: var(--text-quaternary);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .footer-legal a:hover { color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a class="logo" href="#">put<span class="dot">.</span>io</a>
+    <div class="nav-center">
+      <a class="nav-link" href="#">Features</a>
+      <a class="nav-link" href="#">Pricing</a>
+      <a class="nav-link" href="#">Apps</a>
+      <a class="nav-link" href="#">About</a>
+    </div>
+    <div class="nav-right">
+      <a class="nav-cta" href="#">
+        Go to App
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO WITH STARRY NIGHT -->
+  <section class="hero">
+    <canvas id="starry-canvas"></canvas>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1 class="hero-title">Simple, honest pricing</h1>
+      <p class="hero-subtitle">Pick a plan, start fetching. Upgrade or cancel anytime.</p>
+    </div>
+  </section>
+
+  <!-- TOGGLE -->
+  <div class="toggle-section">
+    <div class="toggle-pill">
+      <button class="toggle-btn active" data-period="monthly" onclick="setPeriod('monthly')">Monthly</button>
+      <button class="toggle-btn" data-period="yearly" onclick="setPeriod('yearly')">Yearly</button>
+    </div>
+    <span class="save-badge">Save 20%</span>
+  </div>
+
+  <!-- PLAN CARDS -->
+  <div class="plans">
+    <!-- Casual -->
+    <div class="plan-card">
+      <div class="plan-name">Casual</div>
+      <div class="plan-storage">100 GB storage</div>
+      <div class="plan-price" data-monthly="9.99" data-yearly="7.99">$9.99<span>/mo</span></div>
+      <div class="plan-period period-note" data-monthly="Billed monthly" data-yearly="Billed as $95.88/year">Billed monthly</div>
+      <ul class="plan-features">
+        <li>10 active transfers</li>
+        <li>Downloads stay available 10 days</li>
+        <li>Stream on any device</li>
+      </ul>
+      <a class="plan-btn plan-btn-outline" href="#">Choose Casual</a>
+    </div>
+
+    <!-- Plus -->
+    <div class="plan-card highlighted">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-name">Plus</div>
+      <div class="plan-storage">1 TB storage</div>
+      <div class="plan-price" data-monthly="19.99" data-yearly="15.99">$19.99<span>/mo</span></div>
+      <div class="plan-period period-note" data-monthly="Billed monthly" data-yearly="Billed as $191.88/year">Billed monthly</div>
+      <ul class="plan-features">
+        <li>50 active transfers</li>
+        <li>Downloads available 14 days</li>
+        <li>Family sharing (up to 4)</li>
+        <li>Priority support</li>
+      </ul>
+      <a class="plan-btn plan-btn-primary" href="#">Choose Plus</a>
+    </div>
+
+    <!-- Power -->
+    <div class="plan-card">
+      <div class="plan-name">Power</div>
+      <div class="plan-storage">10 TB storage</div>
+      <div class="plan-price" data-monthly="49.99" data-yearly="39.99">$49.99<span>/mo</span></div>
+      <div class="plan-period period-note" data-monthly="Billed monthly" data-yearly="Billed as $479.88/year">Billed monthly</div>
+      <ul class="plan-features">
+        <li>Unlimited transfers</li>
+        <li>Downloads always available</li>
+        <li>Family sharing (up to 9)</li>
+        <li>API access</li>
+        <li>Priority support</li>
+      </ul>
+      <a class="plan-btn plan-btn-outline" href="#">Choose Power</a>
+    </div>
+  </div>
+
+  <!-- FEATURE COMPARISON TABLE -->
+  <section class="comparison">
+    <h2 class="comparison-title">Compare plans</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Casual</th>
+          <th>Plus</th>
+          <th>Power</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Storage</td>
+          <td>100 GB</td>
+          <td>1 TB</td>
+          <td>10 TB</td>
+        </tr>
+        <tr>
+          <td>Active Transfers</td>
+          <td>10</td>
+          <td>50</td>
+          <td>Unlimited</td>
+        </tr>
+        <tr>
+          <td>Download Availability</td>
+          <td>10 days</td>
+          <td>14 days</td>
+          <td>Always</td>
+        </tr>
+        <tr>
+          <td>Family Members</td>
+          <td><span class="dash">&mdash;</span></td>
+          <td>Up to 4</td>
+          <td>Up to 9</td>
+        </tr>
+        <tr>
+          <td>Chromecast</td>
+          <td><span class="check"></span></td>
+          <td><span class="check"></span></td>
+          <td><span class="check"></span></td>
+        </tr>
+        <tr>
+          <td>Offline Downloads</td>
+          <td><span class="check"></span></td>
+          <td><span class="check"></span></td>
+          <td><span class="check"></span></td>
+        </tr>
+        <tr>
+          <td>RSS Feeds</td>
+          <td><span class="dash">&mdash;</span></td>
+          <td><span class="check"></span></td>
+          <td><span class="check"></span></td>
+        </tr>
+        <tr>
+          <td>API Access</td>
+          <td><span class="dash">&mdash;</span></td>
+          <td><span class="dash">&mdash;</span></td>
+          <td><span class="check"></span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq">
+    <h2 class="faq-title">Frequently asked questions</h2>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Can I upgrade or downgrade anytime?
+        <svg class="faq-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="10" y1="4" x2="10" y2="16"/><line x1="4" y1="10" x2="16" y2="10"/></svg>
+      </button>
+      <div class="faq-answer">Yes. You can switch between plans at any time from your account settings. When upgrading, you only pay the prorated difference. When downgrading, the remaining balance is credited to your next billing cycle.</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What happens when I cancel?
+        <svg class="faq-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="10" y1="4" x2="10" y2="16"/><line x1="4" y1="10" x2="16" y2="10"/></svg>
+      </button>
+      <div class="faq-answer">Your files stay available for 30 days after cancellation. During that window, you can reactivate your account and pick up right where you left off. After 30 days, your data is permanently deleted.</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Is there a free trial?
+        <svg class="faq-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="10" y1="4" x2="10" y2="16"/><line x1="4" y1="10" x2="16" y2="10"/></svg>
+      </button>
+      <div class="faq-answer">We offer a 1-day trial for $0.99 so you can test the full experience before committing. No strings attached &mdash; cancel within 24 hours and you won't be charged again.</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Do you offer student pricing?
+        <svg class="faq-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="10" y1="4" x2="10" y2="16"/><line x1="4" y1="10" x2="16" y2="10"/></svg>
+      </button>
+      <div class="faq-answer">We're thinking about it. Stay tuned &mdash; follow us on social media or check back here for updates.</div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA -->
+  <section class="bottom-cta">
+    <div class="bottom-cta-text">Still not sure?</div>
+    <a class="bottom-cta-btn" href="#">
+      Try put.io for $0.99
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">put<span class="dot">.</span>io</div>
+        <div class="footer-tagline">The cloud storage service with a certain gravity.</div>
+        <div class="footer-kaomoji">&#x0275;&#x0266;(&#xF2;_&#xF3;&#x02C7;)&#x0275;&#x0264;</div>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Product</div>
+        <div class="footer-col-links">
+          <a class="footer-col-link" href="#">Features</a>
+          <a class="footer-col-link" href="#">Pricing</a>
+          <a class="footer-col-link" href="#">Apps</a>
+          <a class="footer-col-link" href="#">API</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Company</div>
+        <div class="footer-col-links">
+          <a class="footer-col-link" href="#">About</a>
+          <a class="footer-col-link" href="#">Blog</a>
+          <a class="footer-col-link" href="#">Careers</a>
+          <a class="footer-col-link" href="#">Status</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Support</div>
+        <div class="footer-col-links">
+          <a class="footer-col-link" href="#">Help Center</a>
+          <a class="footer-col-link" href="#">Contact</a>
+          <a class="footer-col-link" href="#">Community</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Legal</div>
+        <div class="footer-col-links">
+          <a class="footer-col-link" href="#">Terms</a>
+          <a class="footer-col-link" href="#">Privacy</a>
+          <a class="footer-col-link" href="#">DMCA</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">Istanbul, since 2011</div>
+      <div class="footer-legal">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">DMCA</a>
+      </div>
+      <div class="footer-copy">&#x0275;&#x0266;(&#xF2;_&#xF3;&#x02C7;)&#x0275;&#x0264;</div>
+    </div>
+  </footer>
+
+</div>
+
+<!-- ===== PRICING TOGGLE LOGIC ===== -->
+<script>
+function setPeriod(period) {
+  document.querySelectorAll('.toggle-btn').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.period === period);
+  });
+  document.querySelectorAll('.plan-price').forEach(function(el) {
+    var price = el.dataset[period];
+    el.innerHTML = '$' + price + '<span>/mo</span>';
+  });
+  document.querySelectorAll('.period-note').forEach(function(el) {
+    el.textContent = el.dataset[period];
+  });
+}
+</script>
+
+<!-- ===== FAQ TOGGLE ===== -->
+<script>
+function toggleFaq(btn) {
+  var item = btn.parentElement;
+  item.classList.toggle('open');
+}
+</script>
+
+<!-- ===== STARRY NIGHT ANIMATION ===== -->
+<script>
+// starryNightConfig.js
+function StarryNightConfig() {
+  return {
+    "pixelRatio": 0, "fps": { "throttle": true, "target": 30 },
+    "logo": { "scale": 0.6681539682539683 },
+    "sparkles": { "enabled": true, "frequency": 4, "age": 500, "width": 3.1746031746031744, "height": 5.291005291005291, "thickness": 0.1, "minDistance": 0.2, "maxDistance": 0.95 },
+    "meteors": { "enabled": true, "frequency": 0.5, "angle": 0.44, "age": 500, "length": 0.75, "thickness": 0.7407407407407408 },
+    "radialDots": { "minRadius": 0.26455026455026454, "maxRadius": 0.5291005291005291 },
+    "waveDots": { "minRadius": 0.26455026455026454, "maxRadius": 0.5291005291005291 },
+    "radial": { "enabled": true, "perspective": 1.5999999999999996, "speed": -0.1749095295536791, "dotCount": 100, "minDistance": 0.5890056867137687, "maxDistance": 0.95, "tapering": 0.14785455798724798 },
+    "waves": [
+      { "enabled": true, "speed": 1.6176183350000002, "horizPos": 0.05962433224194382, "vertPos": 0.3353437876960193, "length": 0.5779769084956057, "phase": 0.7985524728588661, "period": 0.9308978114768224, "amplitude": 0.15, "amplitudeJitter": 0.25, "spacingJitter": 0.1, "tapering": 0.2 },
+      { "enabled": true, "speed": -1.6176183350000002, "horizPos": 0.5118042391866277, "vertPos": 0.6441495778045838, "length": 0.5, "phase": 0, "period": 1, "amplitude": 0.15, "amplitudeJitter": 0.25, "spacingJitter": 0.1, "tapering": 0.2 },
+      { "enabled": true, "speed": 2.1837847519999998, "horizPos": 0.13, "vertPos": 0.5448905738411166, "length": 0.41254523522316044, "phase": 0.158883336205411, "period": 0.3463725659141823, "amplitude": 0.23608478373255212, "amplitudeJitter": 0.22505600551438912, "spacingJitter": 0.12, "tapering": 0.2 }
+    ]
+  };
+}
+</script>
+<script>
+// starryNightModel.js
+function StarryNightModel(config) {
+  this.waveDots = []; this.radialDots = []; this.sparkles = []; this.meteors = [];
+  this.getTotalObjects = function () { return this.waveDots.reduce(function (total, dots) { return total + dots.length; }, 0) + this.radialDots.length + this.sparkles.length + this.meteors.length; };
+  this.createRadialDots = function () { var dots = []; for (var i = 0; i < config.radial.dotCount; i++) { dots.push({ a: Math.random(), d: Math.random(), r: Math.random() * 2 - 1 }); } this.radialDots = dots; };
+  this.createWaveDots = function (idx) { var waveConfig = config.waves[idx]; var dots = []; var x = 0; while (x < waveConfig.length) { var dot = { a: Math.random() * 2 - 1, r: Math.random() * 2 - 1 }; var radius = (config.waveDots.minRadius + (1 + dot.r) * (config.waveDots.maxRadius - config.waveDots.minRadius) / 2) / 100; dot.p = (x + radius) / waveConfig.length; dots.push(dot); x += radius * 2 + Math.random() * waveConfig.spacingJitter * waveConfig.spacingJitter; } this.waveDots[idx] = dots; };
+  this.createAllWaveDots = function () { for (var idx = 0; idx < config.waves.length; idx++) { if (config.waves[idx].enabled) { this.createWaveDots(idx); } else { this.waveDots[idx] = []; } } };
+  this.createMeteor = function (t) { this.meteors.push({ p: Math.random(), t: t }); };
+  this.createSparkle = function (t) { var a = Math.random() * Math.PI * 2; var d = config.sparkles.minDistance + Math.random() * (config.sparkles.maxDistance - config.sparkles.minDistance); this.sparkles.push({ x: Math.cos(a) * d, y: Math.sin(a) * d, t: t }); };
+  this.cullMeteors = function (t) { this.meteors = this.meteors.filter(function (meteor) { return t - meteor.t <= config.meteors.age * (1 + config.meteors.length); }); };
+  this.cullSparkles = function (t) { this.sparkles = this.sparkles.filter(function (sparkle) { return t - sparkle.t <= config.sparkles.age; }); };
+  this.deleteRadialDots = function () { this.radialDots = []; };
+  this.deleteWaveDots = function (idx) { this.waveDots[idx] = []; };
+  this.deleteAllWaveDots = function () { for (var i = 0; i < this.waveDots.length; i++) { this.deleteWaveDots(i); } };
+  this.deleteSparkles = function () { this.sparkles = []; };
+  this.deleteMeteors = function () { this.meteors = []; };
+}
+</script>
+<script>
+// starryNightView.js
+function StarryNightView(model, canvas, logo, config) {
+  this.resize = function () { var pixelRatio = config.pixelRatio || window.devicePixelRatio || 1; canvas.width = canvas.offsetWidth * pixelRatio; canvas.height = canvas.offsetHeight * pixelRatio; };
+  this.repaint = function (t) {
+    var ctx = canvas.getContext('2d'); var normH = canvas.height / canvas.width;
+    ctx.fillStyle = '#fff'; ctx.globalCompositeOperation = 'source-over'; ctx.scale(canvas.width, canvas.width); ctx.clearRect(0, 0, 1, normH);
+    for (var i = 0; i < model.radialDots.length; i++) { var dot = model.radialDots[i]; var a = dot.a * Math.PI * 2; var pos = t / 100 * Math.pow(config.radial.speed, 3) % 1; if (pos < 0) { pos += 1; } var dotD = (pos + dot.d) % 1; var dotD2 = 1 - dotD; var scale = dotD < config.radial.tapering ? dotD / config.radial.tapering : dotD2 < config.radial.tapering ? dotD2 / config.radial.tapering : 1; dotD = config.radial.minDistance + dotD * (config.radial.maxDistance - config.radial.minDistance); var dotR = (config.radialDots.minRadius + (1 + dot.r) * (config.radialDots.maxRadius - config.radialDots.minRadius) / 2) / 100; if (config.radial.perspective) { dotD = Math.pow(dotD, config.radial.perspective); dotR *= dotD; } var dx = Math.cos(a) * dotD; var dy = Math.sin(a) * dotD; var x = (dx + 1) / 2; var y = (dy + 1) * normH / 2; ctx.beginPath(); ctx.arc(x, y, dotR * scale, 0, Math.PI * 2); ctx.fill(); }
+    for (var i = 0; i < config.waves.length; i++) { var waveConfig = config.waves[i]; var dots = model.waveDots[i] || []; var maxX = waveConfig.length; var pos = (t * Math.pow(waveConfig.speed / 100, 3)) % maxX; if (pos < 0) { pos += maxX; } for (var j = 0; j < dots.length; j++) { var dot = dots[j]; var dotX = (pos + dot.p * maxX) % maxX; var dotP = dotX / maxX; var x = waveConfig.horizPos + dotX; var y = ((Math.sin((dotP * waveConfig.period + waveConfig.phase) * Math.PI * 2)) * waveConfig.amplitude + dot.a * waveConfig.amplitudeJitter * waveConfig.amplitudeJitter + waveConfig.vertPos) * normH; var dotP2 = 1 - dotP; var scale = dotP < waveConfig.tapering ? dotP / waveConfig.tapering : dotP2 < waveConfig.tapering ? dotP2 / waveConfig.tapering : 1; var radius = (config.waveDots.minRadius + (1 + dot.r) * (config.waveDots.maxRadius - config.waveDots.minRadius) / 2) / 100; ctx.beginPath(); ctx.arc(x, y, radius * scale, 0, Math.PI * 2); ctx.fill(); } }
+    var logoAspectRatio = logo.width / logo.height; var logoW = config.logo.scale; var logoH = logoW / logoAspectRatio;
+    ctx.globalCompositeOperation = 'xor'; ctx.drawImage(logo, 0, 0, logo.width, logo.height, (1 - logoW) / 2, (normH - logoH) / 2, logoW, logoH); ctx.globalCompositeOperation = 'source-over';
+    var halfW = config.sparkles.width / 100 / 2; var halfH = config.sparkles.height / 100 / 2; var aspectRatio = config.sparkles.width / config.sparkles.height; var foldW = halfW * config.sparkles.thickness; var foldH = halfH * config.sparkles.thickness * aspectRatio;
+    for (var i = model.sparkles.length; i--;) { var sparkle = model.sparkles[i]; var age = t - sparkle.t; if (age > config.sparkles.age) { continue; } var scale = age / config.sparkles.age; scale = 1 - Math.abs(0.5 - scale) * 2; var x = (sparkle.x + 1) / 2; var y = (sparkle.y + 1) * normH / 2; ctx.beginPath(); ctx.moveTo(x, y - halfH * scale); ctx.lineTo(x + foldW * scale, y - foldH * scale); ctx.lineTo(x + halfW * scale, y); ctx.lineTo(x + foldW * scale, y + foldH * scale); ctx.lineTo(x, y + halfH * scale); ctx.lineTo(x - foldW * scale, y + foldH * scale); ctx.lineTo(x - halfW * scale, y); ctx.lineTo(x - foldW * scale, y - foldH * scale); ctx.fill(); }
+    var r = Math.sqrt(1 + normH * normH) / 2; ctx.translate(1 / 2, normH / 2); ctx.rotate(config.meteors.angle * Math.PI * 2);
+    for (var i = model.meteors.length; i--;) { var meteor = model.meteors[i]; var age = t - meteor.t; if (age > config.meteors.age * (1 + config.meteors.length)) { continue; } var x = (age / config.meteors.age - 0.5) * r * 2; var y = (meteor.p - 0.5) * normH; ctx.beginPath(); ctx.arc(x, y, config.meteors.thickness / 100 / 2, Math.PI / 2, -Math.PI / 2, true); ctx.lineTo(x - config.meteors.length * 2 * r, y); ctx.fill(); }
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+  };
+}
+</script>
+<script>
+// starryNightController.js
+function StarryNightController(model, view, config) {
+  var listeners = this; view.resize(); model.createRadialDots(); model.createAllWaveDots();
+  function repaint(t) { listeners.onBeginRender && listeners.onBeginRender(); if (config.fps.throttle) { setTimeout(function () { requestAnimationFrame(repaint); }, 1000 / config.fps.target); } else { requestAnimationFrame(repaint); } view.repaint(t); if (config.meteors.enabled) { model.cullMeteors(t); if (Math.random() < config.meteors.frequency / 100) { model.createMeteor(t); } } if (config.sparkles.enabled) { model.cullSparkles(t); if (Math.random() < config.sparkles.frequency / 100) { model.createSparkle(t); } } listeners.onEndRender && listeners.onEndRender(); }
+  requestAnimationFrame(repaint);
+}
+</script>
+<script>
+// Initialize Starry Night
+(function () {
+  var canvas = document.getElementById('starry-canvas');
+  var logo = new Image();
+  logo.crossOrigin = 'anonymous';
+  logo.src = 'https://raw.githubusercontent.com/atesgoral/put.io.starry.night/master/logo.png';
+  logo.onload = function () {
+    var config = StarryNightConfig();
+    var model = new StarryNightModel(config);
+    var view = new StarryNightView(model, canvas, logo, config);
+    var controller = new StarryNightController(model, view, config);
+    window.addEventListener('resize', function () { view.resize(); });
+  };
+})();
+</script>
+
+</body>
+</html>
