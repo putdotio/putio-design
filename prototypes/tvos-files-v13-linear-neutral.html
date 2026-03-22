@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io -- tvOS Files (v13 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #000000;
+    --surface: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.04);
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #4A4A52;
+    --yellow: #FDCE45;
+    --nav-bg: rgba(255,255,255,0.04);
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+  }
+
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ── Top Nav Bar ── */
+  .top-nav {
+    display: flex;
+    align-items: center;
+    height: 80px;
+    padding: 0 88px;
+    background: var(--nav-bg);
+    flex-shrink: 0;
+  }
+  .nav-brand {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-right: 40px;
+    color: var(--text);
+  }
+  .nav-brand span { color: var(--yellow); }
+  .nav-tabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .nav-tab {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text-3);
+    padding: 10px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .nav-tab.active {
+    color: var(--yellow);
+    font-weight: 600;
+  }
+
+  /* ── Breadcrumb ── */
+  .breadcrumb {
+    padding: 20px 88px 0;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text-3);
+    flex-shrink: 0;
+  }
+  .breadcrumb .seg { color: var(--text-3); }
+  .breadcrumb .sep {
+    margin: 0 8px;
+    opacity: 0.5;
+  }
+
+  /* ── List Header (sort) ── */
+  .list-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 16px 88px 12px;
+    flex-shrink: 0;
+  }
+  .sort-pill {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-3);
+    background: rgba(255,255,255,0.04);
+    padding: 6px 14px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+
+  /* ── File List ── */
+  .file-list {
+    flex: 1;
+    padding: 0 88px;
+    overflow: hidden;
+  }
+
+  .file-row {
+    display: flex;
+    align-items: center;
+    height: 88px;
+    padding: 0 28px;
+    gap: 20px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    cursor: pointer;
+    transition: background 0.18s ease, transform 0.18s ease;
+    opacity: 0.85;
+  }
+  .file-row:last-child { border-bottom: none; }
+
+  /* ── Focus State ── */
+  .file-row.focused {
+    background: var(--surface);
+    opacity: 1;
+    transform: scale(1.01);
+    transform-origin: center left;
+    border-radius: 12px;
+    border-bottom-color: transparent;
+  }
+  .file-row.focused::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--yellow);
+    border-radius: 2px 0 0 2px;
+    box-shadow: 0 0 12px rgba(253,206,69,0.25);
+  }
+  .file-row.focused .file-name {
+    color: var(--text);
+  }
+
+  /* ── File Icon ── */
+  .file-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ── File Name ── */
+  .file-name {
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text-2);
+    letter-spacing: -0.01em;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  /* ── File Size ── */
+  .file-size {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text-3);
+    min-width: 100px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ── Chevron for folders ── */
+  .file-chevron {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+  }
+
+  /* ── Storage Indicator ── */
+  .storage-bar {
+    position: absolute;
+    bottom: 28px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text-4);
+    letter-spacing: 0.01em;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- Top Nav -->
+  <nav class="top-nav">
+    <div class="nav-brand">put<span>.</span>io</div>
+    <div class="nav-tabs">
+      <div class="nav-tab">Home</div>
+      <div class="nav-tab active">Files</div>
+      <div class="nav-tab">Search</div>
+      <div class="nav-tab">Settings</div>
+    </div>
+  </nav>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <span class="seg">Your Files</span><span class="sep">&rsaquo;</span><span class="seg">tv-shows</span>
+  </div>
+
+  <!-- Sort -->
+  <div class="list-header">
+    <div class="sort-pill">
+      Sort: Name
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+        <path d="M12 5v14M5 12l7 7 7-7" stroke="#71717A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- File List -->
+  <div class="file-list">
+
+    <!-- Row 1: Folder -->
+    <div class="file-row">
+      <div class="file-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" fill="#FDCE45"/>
+        </svg>
+      </div>
+      <div class="file-name">Seinfeld.S09.Complete.720p.HDTV</div>
+      <div class="file-size">12.4 GB</div>
+      <div class="file-chevron">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M9 6l6 6-6 6" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Row 2: Folder -->
+    <div class="file-row">
+      <div class="file-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" fill="#FDCE45"/>
+        </svg>
+      </div>
+      <div class="file-name">The.Wire.Season.3.1080p.BluRay</div>
+      <div class="file-size">38.2 GB</div>
+      <div class="file-chevron">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M9 6l6 6-6 6" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Row 3: Video — FOCUSED -->
+    <div class="file-row focused">
+      <div class="file-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="4" width="20" height="16" rx="2" stroke="#A1A1AA" stroke-width="1.5" fill="none"/>
+          <path d="M2 8h20" stroke="#A1A1AA" stroke-width="1.5"/>
+          <path d="M6 4v4M10 4v4M14 4v4M18 4v4" stroke="#A1A1AA" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M10 13l5 3-5 3v-6z" fill="#A1A1AA"/>
+        </svg>
+      </div>
+      <div class="file-name">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div>
+      <div class="file-size">1.2 GB</div>
+    </div>
+
+    <!-- Row 4: Video -->
+    <div class="file-row">
+      <div class="file-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="4" width="20" height="16" rx="2" stroke="#A1A1AA" stroke-width="1.5" fill="none"/>
+          <path d="M2 8h20" stroke="#A1A1AA" stroke-width="1.5"/>
+          <path d="M6 4v4M10 4v4M14 4v4M18 4v4" stroke="#A1A1AA" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M10 13l5 3-5 3v-6z" fill="#A1A1AA"/>
+        </svg>
+      </div>
+      <div class="file-name">The.Wire.S03E03.Dead.Soldiers.1080p.BluRay.x264-DEMAND.mkv</div>
+      <div class="file-size">1.1 GB</div>
+    </div>
+
+    <!-- Row 5: Video -->
+    <div class="file-row">
+      <div class="file-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="4" width="20" height="16" rx="2" stroke="#A1A1AA" stroke-width="1.5" fill="none"/>
+          <path d="M2 8h20" stroke="#A1A1AA" stroke-width="1.5"/>
+          <path d="M6 4v4M10 4v4M14 4v4M18 4v4" stroke="#A1A1AA" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M10 13l5 3-5 3v-6z" fill="#A1A1AA"/>
+        </svg>
+      </div>
+      <div class="file-name">The.Wire.S03E02.All.Due.Respect.1080p.BluRay.x264-DEMAND.mkv</div>
+      <div class="file-size">1.3 GB</div>
+    </div>
+
+    <!-- Row 6: Video -->
+    <div class="file-row">
+      <div class="file-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="4" width="20" height="16" rx="2" stroke="#A1A1AA" stroke-width="1.5" fill="none"/>
+          <path d="M2 8h20" stroke="#A1A1AA" stroke-width="1.5"/>
+          <path d="M6 4v4M10 4v4M14 4v4M18 4v4" stroke="#A1A1AA" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M10 13l5 3-5 3v-6z" fill="#A1A1AA"/>
+        </svg>
+      </div>
+      <div class="file-name">The.Wire.S03E01.Time.After.Time.1080p.BluRay.x264-DEMAND.mkv</div>
+      <div class="file-size">1.2 GB</div>
+    </div>
+
+    <!-- Row 7: Subtitle -->
+    <div class="file-row">
+      <div class="file-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="5" width="18" height="14" rx="2" stroke="#A1A1AA" stroke-width="1.5" fill="none"/>
+          <path d="M7 13h4M7 16h10M13 13h4" stroke="#A1A1AA" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="file-name">The.Wire.S03E04.srt</div>
+      <div class="file-size">42 KB</div>
+    </div>
+
+  </div>
+
+  <!-- Storage -->
+  <div class="storage-bar">11 TB of 50 TB</div>
+
+</div>
+</body>
+</html>
