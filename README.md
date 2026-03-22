@@ -22,7 +22,7 @@ npx serve prototypes
 
 ```
 docs/              design docs, specs, research
-docs/specs/        feature specs (tv-app.md is the big one)
+docs/specs/        feature specs
 docs/archive/      historical files
 docs/references/   platform UI guides, reference images
 prototypes/        HTML design screens
