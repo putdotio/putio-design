@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<title>put.io — Transfers (v13 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --sidebar-bg: #111113;
+    --surface: #151517;
+    --card: #1C1C1E;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #4A4A52;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.04);
+    --green: #30D158;
+    --green-dim: rgba(48,209,88,0.10);
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --blue-dim: rgba(10,132,255,0.10);
+    --sep: rgba(255,255,255,0.04);
+    --sep-border: rgba(255,255,255,0.06);
+    --radius: 8px;
+    --radius-btn: 8px;
+    --radius-modal: 10px;
+    --font: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ================================================================
+     SIDEBAR (130px, Linear-compact)
+     ================================================================ */
+  .sidebar {
+    width: 130px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-right: 1px solid var(--sep-border);
+  }
+
+  .sidebar-header {
+    padding: 14px 12px 10px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  .logo {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .logo-dot { color: var(--yellow); }
+
+  .sidebar-chevron {
+    color: var(--text-4);
+    display: flex;
+    align-items: center;
+    margin-left: 2px;
+  }
+
+  .sidebar-chevron svg { width: 10px; height: 10px; }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 0 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 6px;
+    height: 32px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+    border-radius: 5px;
+    transition: all 0.12s ease;
+    position: relative;
+    line-height: 1;
+  }
+
+  .nav-item:hover {
+    color: var(--text-2);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .nav-item.active {
+    color: var(--text);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .nav-icon svg { width: 16px; height: 16px; }
+
+  .nav-item .nav-icon { color: var(--text-4); }
+  .nav-item.active .nav-icon { color: var(--yellow); }
+  .nav-item:hover .nav-icon { color: var(--text-3); }
+
+  .nav-badge-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--yellow);
+    border-radius: 50%;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .nav-group-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    padding: 20px 6px 4px;
+    line-height: 1;
+  }
+
+  .sidebar-footer {
+    padding: 10px 12px 12px;
+    border-top: 1px solid var(--sep-border);
+  }
+
+  .storage-bar-wrap { margin-bottom: 8px; }
+
+  .storage-track {
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 1px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+
+  .storage-fill {
+    height: 100%;
+    width: 22%;
+    background: var(--yellow);
+    border-radius: 1px;
+  }
+
+  .storage-label {
+    font-size: 11px;
+    color: var(--text-4);
+    line-height: 1;
+  }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-top: 8px;
+  }
+
+  .user-avatar {
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg, var(--yellow), #F0A030);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--bg);
+    flex-shrink: 0;
+  }
+
+  .user-name {
+    font-size: 12px;
+    color: var(--text-3);
+    font-weight: 500;
+  }
+
+  /* ================================================================
+     CONTENT
+     ================================================================ */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  /* -- Top Bar -- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 20px;
+    gap: 12px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .topbar-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .topbar-spacer { flex: 1; }
+
+  .topbar-muted-btn {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-4);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font);
+    padding: 4px 8px;
+    border-radius: 5px;
+    transition: all 0.12s ease;
+  }
+
+  .topbar-muted-btn:hover {
+    color: var(--text-3);
+    background: rgba(255,255,255,0.04);
+  }
+
+  /* -- Tab Bar -- */
+  .tab-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 20px;
+    height: 40px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .tab-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 40px;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: color 0.12s ease;
+  }
+
+  .tab-item:hover { color: var(--text-2); }
+
+  .tab-item.active {
+    color: var(--text);
+  }
+
+  .tab-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 14px;
+    right: 14px;
+    height: 2px;
+    background: var(--text);
+    border-radius: 1px;
+  }
+
+  /* -- Transfer Table -- */
+  .transfer-table-wrap {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 20px 20px;
+  }
+
+  .transfer-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .transfer-table thead th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--sep);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 1;
+  }
+
+  .transfer-table thead th.col-status { width: 60px; }
+  .transfer-table thead th.col-progress { width: 200px; }
+  .transfer-table thead th.col-size { width: 110px; }
+  .transfer-table thead th.col-speed { width: 120px; }
+
+  .transfer-table tbody tr {
+    border-bottom: 1px solid var(--sep);
+    cursor: pointer;
+    transition: background 0.08s ease;
+    height: 48px;
+  }
+
+  .transfer-table tbody tr:hover {
+    background: var(--surface);
+  }
+
+  .transfer-table tbody td {
+    padding: 0;
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  /* -- Status dots -- */
+  .status-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .status-dot.downloading { background: var(--green); }
+  .status-dot.seeding { background: var(--blue); }
+  .status-dot.queued { background: var(--text-4); }
+
+  .status-check {
+    width: 16px;
+    height: 16px;
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .status-check svg { width: 16px; height: 16px; }
+
+  /* -- Name cell -- */
+  .transfer-name {
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 520px;
+    display: block;
+  }
+
+  /* -- Progress cell -- */
+  .progress-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-right: 16px;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+
+  .progress-fill.yellow { background: var(--yellow); }
+  .progress-fill.green { background: var(--green); }
+
+  .progress-text {
+    font-size: 11px;
+    color: var(--text-3);
+    font-weight: 400;
+  }
+
+  .progress-text-muted {
+    font-size: 12px;
+    color: var(--text-4);
+    font-weight: 400;
+  }
+
+  .progress-text-done {
+    font-size: 12px;
+    color: var(--text-3);
+    font-weight: 500;
+  }
+
+  /* -- Size & speed -- */
+  .size-cell {
+    color: var(--text-3);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .speed-cell {
+    color: var(--text-3);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .speed-eta {
+    color: var(--text-3);
+    font-size: 12px;
+  }
+
+  .go-to-file {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--yellow);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font);
+    padding: 0;
+    transition: opacity 0.12s ease;
+  }
+
+  .go-to-file:hover { opacity: 0.8; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="logo-dot">.</span>io</div>
+      <span class="sidebar-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+        Files
+      </button>
+      <button class="nav-item active">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+        Transfers
+        <span class="nav-badge-dot"></span>
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/></svg></span>
+        History
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>
+        Trash
+      </button>
+
+      <div class="nav-group-label">Automation</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg></span>
+        RSS Feeds
+      </button>
+
+      <div class="nav-group-label">Sharing</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+        Shared Links
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+        Family
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="storage-bar-wrap">
+        <div class="storage-track"><div class="storage-fill"></div></div>
+        <div class="storage-label">11 TB / 50 TB</div>
+      </div>
+      <div class="user-row">
+        <div class="user-avatar">a</div>
+        <span class="user-name">altay</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="topbar-title">Transfers</div>
+      <div class="topbar-spacer"></div>
+      <button class="topbar-muted-btn">Clear completed</button>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <button class="tab-item">All</button>
+      <button class="tab-item active">Active</button>
+      <button class="tab-item">Completed</button>
+    </div>
+
+    <!-- Transfer Table -->
+    <div class="transfer-table-wrap">
+      <table class="transfer-table">
+        <thead>
+          <tr>
+            <th class="col-status">Status</th>
+            <th>Name</th>
+            <th class="col-progress">Progress</th>
+            <th class="col-size">Size</th>
+            <th class="col-speed">Speed / ETA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Downloading -->
+          <tr>
+            <td>
+              <div class="status-cell">
+                <div class="status-dot downloading"></div>
+              </div>
+            </td>
+            <td>
+              <span class="transfer-name">Big.Buck.Bunny.2008.4K.x265-RARBG.mkv</span>
+            </td>
+            <td>
+              <div class="progress-cell">
+                <div class="progress-bar">
+                  <div class="progress-fill yellow" style="width: 73%"></div>
+                </div>
+                <span class="progress-text">73%</span>
+              </div>
+            </td>
+            <td class="size-cell">4.2 / 8.1 GB</td>
+            <td class="speed-cell">
+              <span class="speed-eta">12 min</span>
+            </td>
+          </tr>
+
+          <!-- Seeding -->
+          <tr>
+            <td>
+              <div class="status-cell">
+                <div class="status-dot seeding"></div>
+              </div>
+            </td>
+            <td>
+              <span class="transfer-name">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</span>
+            </td>
+            <td>
+              <div class="progress-cell">
+                <span class="progress-text-done">Seeding</span>
+              </div>
+            </td>
+            <td class="size-cell">1.2 GB</td>
+            <td class="speed-cell">
+              <span class="speed-eta">&uarr; 2.1 MB/s</span>
+            </td>
+          </tr>
+
+          <!-- Queued -->
+          <tr>
+            <td>
+              <div class="status-cell">
+                <div class="status-dot queued"></div>
+              </div>
+            </td>
+            <td>
+              <span class="transfer-name">ubuntu-24.04.1-desktop-amd64.iso</span>
+            </td>
+            <td>
+              <div class="progress-cell">
+                <span class="progress-text-muted">Queued</span>
+              </div>
+            </td>
+            <td class="size-cell">4.7 GB</td>
+            <td class="speed-cell">
+              <span class="speed-eta" style="color: var(--text-4)">&mdash;</span>
+            </td>
+          </tr>
+
+          <!-- Completed -->
+          <tr>
+            <td>
+              <div class="status-cell">
+                <span class="status-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              </div>
+            </td>
+            <td>
+              <span class="transfer-name">podcast_ep127_final_mixdown_v2.mp3</span>
+            </td>
+            <td>
+              <div class="progress-cell">
+                <span class="progress-text-done">Done</span>
+              </div>
+            </td>
+            <td class="size-cell">45.2 MB</td>
+            <td class="speed-cell">
+              <button class="go-to-file">Go to file</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

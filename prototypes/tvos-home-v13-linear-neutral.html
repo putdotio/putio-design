@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io -- tvOS Home (v13 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #000000;
+    --surface: rgba(255,255,255,0.05);
+    --border: rgba(255,255,255,0.04);
+    --text: #F5F5F5;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #4A4A52;
+    --yellow: #FDCE45;
+    --green: #30D158;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+  }
+
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ── Top Nav — floating glass pill ── */
+  .top-nav {
+    position: absolute;
+    top: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px 6px 24px;
+    background: rgba(44, 44, 48, 0.6);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 0.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: 28px;
+    z-index: 30;
+  }
+  .nav-brand {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-right: 12px;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .nav-brand span { color: var(--yellow); }
+  .nav-divider {
+    width: 1px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-right: 4px;
+  }
+  .nav-tabs {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .nav-tab {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text-3);
+    padding: 10px 24px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav-tab:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+  .nav-tab.active {
+    color: var(--yellow);
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* ── Content Area ── */
+  .content {
+    padding: 108px 88px 0;
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 40px;
+    flex-shrink: 0;
+  }
+  .section-header {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text-2);
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+  }
+
+  /* ── Row — shared list item style ── */
+  .row {
+    display: flex;
+    align-items: center;
+    height: 80px;
+    padding: 0 28px;
+    gap: 20px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    cursor: pointer;
+    transition: background 0.18s ease, transform 0.18s ease;
+    opacity: 0.85;
+  }
+  .row:last-child { border-bottom: none; }
+
+  /* ── Focus State ── */
+  .row.focused {
+    background: var(--surface);
+    opacity: 1;
+    transform: scale(1.01);
+    transform-origin: center left;
+    border-radius: 12px;
+    border-bottom-color: transparent;
+  }
+  .row.focused::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--yellow);
+    border-radius: 2px 0 0 2px;
+    box-shadow: 0 0 12px rgba(253,206,69,0.25);
+  }
+  .row.focused .row-name {
+    color: var(--text);
+  }
+
+  /* ── Row Icon ── */
+  .row-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ── Row Name ── */
+  .row-name {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-2);
+    letter-spacing: -0.01em;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  /* ── Progress bar (continue watching) ── */
+  .row-progress {
+    width: 120px;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .row-progress-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+
+  /* ── Row Meta ── */
+  .row-meta {
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--text-3);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  /* ── Row Size ── */
+  .row-size {
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--text-3);
+    min-width: 80px;
+    text-align: right;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Row Date ── */
+  .row-date {
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--text-4);
+    min-width: 100px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ── Transfer status dot ── */
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-dot.downloading {
+    background: var(--green);
+    box-shadow: 0 0 8px rgba(48,209,88,0.4);
+  }
+  .status-dot.seeding {
+    background: var(--text-3);
+  }
+
+  /* ── Transfer progress text ── */
+  .row-percent {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-2);
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    min-width: 50px;
+    text-align: right;
+  }
+
+  .row-eta {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text-4);
+    flex-shrink: 0;
+    min-width: 70px;
+    text-align: right;
+  }
+
+  /* ── Storage ── */
+  .storage-bar {
+    position: absolute;
+    bottom: 28px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text-4);
+    letter-spacing: 0.01em;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- Top Nav — floating glass pill -->
+  <nav class="top-nav">
+    <div class="nav-brand">put<span>.</span>io</div>
+    <div class="nav-divider"></div>
+    <div class="nav-tabs">
+      <div class="nav-tab active">Home</div>
+      <div class="nav-tab">Files</div>
+      <div class="nav-tab">Search</div>
+      <div class="nav-tab">Settings</div>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Continue Watching -->
+    <div class="section">
+      <div class="section-header">Continue Watching</div>
+
+      <div class="row focused">
+        <div class="row-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="4" width="20" height="16" rx="2" stroke="#A1A1AA" stroke-width="1.5" fill="none"/>
+            <path d="M2 8h20" stroke="#A1A1AA" stroke-width="1.5"/>
+            <path d="M10 13l5 3-5 3v-6z" fill="#A1A1AA"/>
+          </svg>
+        </div>
+        <div class="row-name">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div>
+        <div class="row-progress">
+          <div class="row-progress-fill" style="width: 45%"></div>
+        </div>
+        <div class="row-meta">1h 23m left</div>
+        <div class="row-size">1.2 GB</div>
+      </div>
+
+      <div class="row">
+        <div class="row-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="4" width="20" height="16" rx="2" stroke="#A1A1AA" stroke-width="1.5" fill="none"/>
+            <path d="M2 8h20" stroke="#A1A1AA" stroke-width="1.5"/>
+            <path d="M10 13l5 3-5 3v-6z" fill="#A1A1AA"/>
+          </svg>
+        </div>
+        <div class="row-name">Seinfeld.S04E11.The.Contest.720p.HDTV.x264-SYNCOPY.mkv</div>
+        <div class="row-progress">
+          <div class="row-progress-fill" style="width: 72%"></div>
+        </div>
+        <div class="row-meta">8m left</div>
+        <div class="row-size">480 MB</div>
+      </div>
+
+      <div class="row">
+        <div class="row-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="4" width="20" height="16" rx="2" stroke="#A1A1AA" stroke-width="1.5" fill="none"/>
+            <path d="M2 8h20" stroke="#A1A1AA" stroke-width="1.5"/>
+            <path d="M10 13l5 3-5 3v-6z" fill="#A1A1AA"/>
+          </svg>
+        </div>
+        <div class="row-name">Inception.2010.2160p.WEB-DL.DDP5.1.Atmos.x265-FLUX.mkv</div>
+        <div class="row-progress">
+          <div class="row-progress-fill" style="width: 12%"></div>
+        </div>
+        <div class="row-meta">2h 11m left</div>
+        <div class="row-size">8.1 GB</div>
+      </div>
+    </div>
+
+    <!-- Recently Added -->
+    <div class="section">
+      <div class="section-header">Recently Added</div>
+
+      <div class="row">
+        <div class="row-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="row-name">The.Wire.Season.3.1080p.BluRay</div>
+        <div class="row-size">38.2 GB</div>
+        <div class="row-date">Today</div>
+      </div>
+
+      <div class="row">
+        <div class="row-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="4" width="20" height="16" rx="2" stroke="#A1A1AA" stroke-width="1.5" fill="none"/>
+            <path d="M2 8h20" stroke="#A1A1AA" stroke-width="1.5"/>
+            <path d="M10 13l5 3-5 3v-6z" fill="#A1A1AA"/>
+          </svg>
+        </div>
+        <div class="row-name">Everything.Everywhere.All.at.Once.2022.2160p.WEB-DL.DDP5.1.x265-FLUX.mkv</div>
+        <div class="row-size">6.4 GB</div>
+        <div class="row-date">Yesterday</div>
+      </div>
+
+      <div class="row">
+        <div class="row-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="row-name">podcasts</div>
+        <div class="row-size">2.1 GB</div>
+        <div class="row-date">3 days ago</div>
+      </div>
+
+      <div class="row">
+        <div class="row-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="4" width="20" height="16" rx="2" stroke="#A1A1AA" stroke-width="1.5" fill="none"/>
+            <path d="M2 8h20" stroke="#A1A1AA" stroke-width="1.5"/>
+            <path d="M10 13l5 3-5 3v-6z" fill="#A1A1AA"/>
+          </svg>
+        </div>
+        <div class="row-name">Breaking.Bad.S05E16.Felina.1080p.BluRay.x264-DEMAND.mkv</div>
+        <div class="row-size">1.8 GB</div>
+        <div class="row-date">Last week</div>
+      </div>
+    </div>
+
+    <!-- Active Transfers -->
+    <div class="section">
+      <div class="section-header">Active Transfers</div>
+
+      <div class="row">
+        <div class="status-dot downloading"></div>
+        <div class="row-name">Shogun.S01.Complete.2160p.DSNP.WEB-DL.DDP5.1.Atmos.DV.x265-FLUX</div>
+        <div class="row-percent">67%</div>
+        <div class="row-eta">~14m</div>
+      </div>
+
+      <div class="row">
+        <div class="status-dot downloading"></div>
+        <div class="row-name">The.Bear.S03E01.Tomorrow.2160p.HULU.WEB-DL.DDP5.1.H.265-NTb.mkv</div>
+        <div class="row-percent">23%</div>
+        <div class="row-eta">~41m</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Storage -->
+  <div class="storage-bar">11 TB of 50 TB</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<title>put.io — Settings (v13 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --sidebar-bg: #111113;
+    --surface: #151517;
+    --card: #1C1C1E;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #4A4A52;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.04);
+    --green: #30D158;
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --sep: rgba(255,255,255,0.04);
+    --sep-border: rgba(255,255,255,0.06);
+    --radius: 8px;
+    --radius-btn: 8px;
+    --radius-modal: 10px;
+    --font: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ================================================================
+     SETTINGS SIDEBAR (replaces main sidebar, Linear Preferences)
+     ================================================================ */
+  .settings-sidebar {
+    width: 220px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-right: 1px solid var(--sep-border);
+    padding: 14px 8px;
+  }
+
+  .back-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-4);
+    padding: 4px 6px;
+    margin-bottom: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.12s ease;
+    text-decoration: none;
+    border: none;
+    background: none;
+    font-family: var(--font);
+    width: 100%;
+    text-align: left;
+  }
+
+  .back-link:hover {
+    color: var(--text-3);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .back-link svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+  .settings-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .settings-group-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    padding: 16px 6px 4px;
+    line-height: 1;
+  }
+
+  .settings-group-label:first-child {
+    padding-top: 0;
+  }
+
+  .settings-nav-item {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+    border-radius: 5px;
+    transition: all 0.12s ease;
+    line-height: 1;
+  }
+
+  .settings-nav-item:hover {
+    color: var(--text-2);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .settings-nav-item.active {
+    color: var(--text);
+    background: rgba(255,255,255,0.06);
+  }
+
+  /* ================================================================
+     CONTENT AREA
+     ================================================================ */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    background: var(--bg);
+    padding: 40px 48px 48px;
+    max-width: 680px;
+  }
+
+  .page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+  }
+
+  /* -- Section -- */
+  .section {
+    margin-bottom: 32px;
+  }
+
+  .section-header {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 4px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  /* -- Settings Row -- */
+  .setting-row {
+    display: flex;
+    align-items: center;
+    min-height: 56px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .setting-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .setting-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .setting-desc {
+    font-size: 12px;
+    color: var(--text-3);
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+
+  .setting-control {
+    flex-shrink: 0;
+    margin-left: 24px;
+  }
+
+  /* -- Dropdown Control -- */
+  .dropdown {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-2);
+    background: var(--surface);
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--sep-border);
+    cursor: pointer;
+    font-family: var(--font);
+    min-width: 140px;
+    justify-content: space-between;
+    transition: border-color 0.12s ease;
+  }
+
+  .dropdown:hover {
+    border-color: rgba(255,255,255,0.10);
+  }
+
+  .dropdown svg { width: 12px; height: 12px; color: var(--text-4); flex-shrink: 0; }
+
+  /* -- Toggle Switch -- */
+  .toggle {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .toggle.off {
+    background: rgba(255,255,255,0.10);
+  }
+
+  .toggle.on {
+    background: var(--yellow);
+  }
+
+  .toggle-knob {
+    position: absolute;
+    top: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: white;
+    transition: left 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  .toggle.off .toggle-knob { left: 2px; }
+  .toggle.on .toggle-knob { left: 18px; }
+
+  /* -- Text Display (for folder paths) -- */
+  .text-display {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-2);
+    background: var(--surface);
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--sep-border);
+    min-width: 140px;
+    text-align: right;
+  }
+
+  /* ================================================================
+     RIGHT PADDING AREA (empty, fills the rest of the viewport)
+     ================================================================ */
+  .content-right-fill {
+    flex: 1;
+    background: var(--bg);
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SETTINGS SIDEBAR -->
+  <aside class="settings-sidebar">
+    <button class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to app
+    </button>
+
+    <nav class="settings-nav">
+      <div class="settings-group-label">Account</div>
+      <button class="settings-nav-item active">Preferences</button>
+      <button class="settings-nav-item">Profile</button>
+      <button class="settings-nav-item">Notifications</button>
+      <button class="settings-nav-item">Security</button>
+
+      <div class="settings-group-label">Features</div>
+      <button class="settings-nav-item">Playback</button>
+      <button class="settings-nav-item">Subtitles</button>
+      <button class="settings-nav-item">Downloads</button>
+      <button class="settings-nav-item">Storage</button>
+
+      <div class="settings-group-label">Administration</div>
+      <button class="settings-nav-item">Billing</button>
+      <button class="settings-nav-item">API</button>
+      <button class="settings-nav-item">Connected apps</button>
+    </nav>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+    <h1 class="page-title">Preferences</h1>
+
+    <!-- General -->
+    <div class="section">
+      <div class="section-header">General</div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Theme</div>
+          <div class="setting-desc">Select appearance</div>
+        </div>
+        <div class="setting-control">
+          <div class="dropdown">
+            Dark
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Layout</div>
+          <div class="setting-desc">Fixed or fluid width</div>
+        </div>
+        <div class="setting-control">
+          <div class="dropdown">
+            Fixed
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Language</div>
+          <div class="setting-desc">Interface language</div>
+        </div>
+        <div class="setting-control">
+          <div class="dropdown">
+            English
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Playback -->
+    <div class="section">
+      <div class="section-header">Playback</div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Proxy</div>
+          <div class="setting-desc">Media streaming proxy</div>
+        </div>
+        <div class="setting-control">
+          <div class="dropdown">
+            Amsterdam Direct
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Autoplay</div>
+          <div class="setting-desc">Play next file automatically</div>
+        </div>
+        <div class="setting-control">
+          <div class="toggle on">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Speed</div>
+          <div class="setting-desc">Default playback speed</div>
+        </div>
+        <div class="setting-control">
+          <div class="dropdown">
+            1x
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transfers -->
+    <div class="section">
+      <div class="section-header">Transfers</div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Default folder</div>
+          <div class="setting-desc">Save new transfers to</div>
+        </div>
+        <div class="setting-control">
+          <div class="text-display">Your Files</div>
+        </div>
+      </div>
+
+      <div class="setting-row" style="border-bottom: none">
+        <div class="setting-info">
+          <div class="setting-label">Magnet handler</div>
+          <div class="setting-desc">Handle magnet links</div>
+        </div>
+        <div class="setting-control">
+          <div class="toggle off">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Right fill area -->
+  <div class="content-right-fill"></div>
+</div>
+
+</body>
+</html>
