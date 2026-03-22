@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<title>put.io — Player (Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --sidebar-bg: #111113;
+    --surface: #19191B;
+    --card: #1C1C1E;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #52525B;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.10);
+    --green: #30D158;
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --sep: rgba(255,255,255,0.06);
+    --radius: 8px;
+    --radius-btn: 6px;
+    --radius-modal: 12px;
+    --font: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+  }
+
+  /* ================================================================
+     SIDEBAR — collapsed (icon-only)
+     ================================================================ */
+  .sidebar {
+    width: 56px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    border-right: 1px solid var(--sep);
+    padding: 16px 0;
+  }
+
+  .sidebar-logo {
+    width: 32px;
+    height: 32px;
+    background: var(--yellow);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo svg { width: 18px; height: 18px; }
+
+  .sidebar-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .nav-icon-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: var(--radius-btn);
+    color: var(--text-4);
+    transition: all 0.15s ease;
+  }
+
+  .nav-icon-btn:hover {
+    color: var(--text-2);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .nav-icon-btn.active {
+    color: var(--yellow);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .nav-icon-btn svg { width: 20px; height: 20px; }
+
+  .sidebar-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--sep);
+    margin-top: 8px;
+  }
+
+  .user-avatar-sm {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--yellow), #F0A030);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--bg);
+    cursor: pointer;
+  }
+
+  /* ================================================================
+     CONTENT
+     ================================================================ */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .breadcrumb {
+    font-size: 13px;
+    color: var(--text-3);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .breadcrumb a {
+    color: var(--text-3);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .breadcrumb a:hover { color: var(--text-2); }
+
+  .breadcrumb-sep {
+    color: var(--text-4);
+    font-size: 12px;
+  }
+
+  .breadcrumb-current {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* ── Player + Right Panel Layout ── */
+  .player-layout {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    padding: 0 24px 24px;
+    gap: 24px;
+  }
+
+  .player-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  /* ── Video Player ── */
+  .video-player {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #0A0A0C;
+    border-radius: var(--radius);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--sep);
+  }
+
+  .video-gradient-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .video-gradient-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .play-button {
+    width: 64px;
+    height: 64px;
+    background: var(--yellow);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    border: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 24px rgba(253,206,69,0.3);
+  }
+
+  .play-button:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 32px rgba(253,206,69,0.4);
+  }
+
+  .play-button svg {
+    width: 28px;
+    height: 28px;
+    color: var(--bg);
+    margin-left: 3px;
+  }
+
+  /* Video progress bar */
+  .video-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    padding: 0 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .video-progress-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .video-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+
+  .video-time-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Video Info ── */
+  .video-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .video-title {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .video-meta {
+    font-size: 13px;
+    color: var(--text-3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .video-meta-sep {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--text-4);
+    display: inline-block;
+  }
+
+  /* ── Action Buttons ── */
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    padding-top: 4px;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--yellow);
+    color: #09090B;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 18px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font);
+    border-radius: var(--radius-btn);
+    transition: all 0.15s ease;
+  }
+
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-primary svg { width: 16px; height: 16px; }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    color: var(--text-2);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border: 1px solid var(--sep);
+    cursor: pointer;
+    font-family: var(--font);
+    border-radius: var(--radius-btn);
+    transition: all 0.15s ease;
+  }
+
+  .btn-secondary:hover {
+    color: var(--text);
+    background: var(--card);
+    border-color: rgba(255,255,255,0.10);
+  }
+
+  .btn-secondary svg { width: 16px; height: 16px; }
+
+  .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--surface);
+    color: var(--text-2);
+    border: 1px solid var(--sep);
+    cursor: pointer;
+    border-radius: var(--radius-btn);
+    transition: all 0.15s ease;
+  }
+
+  .btn-icon:hover {
+    color: var(--text);
+    background: var(--card);
+    border-color: rgba(255,255,255,0.10);
+  }
+
+  .btn-icon svg { width: 16px; height: 16px; }
+
+  /* ── Subtitle/Audio Selectors ── */
+  .track-selectors {
+    display: flex;
+    gap: 12px;
+    padding-top: 4px;
+  }
+
+  .track-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .track-label {
+    font-size: 12px;
+    color: var(--text-4);
+    font-weight: 500;
+  }
+
+  .track-pill-group {
+    display: flex;
+    gap: 2px;
+    background: var(--surface);
+    border-radius: var(--radius-btn);
+    padding: 2px;
+    border: 1px solid var(--sep);
+  }
+
+  .track-pill {
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-3);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font);
+    border-radius: 4px;
+    transition: all 0.15s ease;
+  }
+
+  .track-pill:hover {
+    color: var(--text-2);
+  }
+
+  .track-pill.active {
+    color: var(--text);
+    background: rgba(255,255,255,0.08);
+  }
+
+  /* ── Right Panel — Up Next ── */
+  .right-panel {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--sep);
+    margin-bottom: 8px;
+  }
+
+  .panel-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .autoplay-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .autoplay-label {
+    font-size: 12px;
+    color: var(--text-3);
+    font-weight: 500;
+  }
+
+  .toggle-track {
+    width: 36px;
+    height: 20px;
+    background: rgba(255,255,255,0.10);
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .toggle-track.on {
+    background: var(--yellow);
+  }
+
+  .toggle-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--text);
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.2s ease;
+  }
+
+  .toggle-track.on .toggle-thumb {
+    transform: translateX(16px);
+    background: var(--bg);
+  }
+
+  .up-next-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .up-next-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    transition: background 0.1s ease;
+  }
+
+  .up-next-item:hover {
+    background: rgba(255,255,255,0.04);
+  }
+
+  .up-next-item.playing {
+    background: var(--yellow-dim);
+  }
+
+  .up-next-thumb {
+    width: 48px;
+    height: 32px;
+    background: var(--surface);
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--sep);
+    overflow: hidden;
+  }
+
+  .up-next-thumb svg { width: 14px; height: 14px; color: var(--text-4); }
+
+  .up-next-item.playing .up-next-thumb {
+    border-color: var(--yellow);
+  }
+
+  .up-next-item.playing .up-next-thumb svg { color: var(--yellow); }
+
+  .up-next-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .up-next-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .up-next-item.playing .up-next-name { color: var(--text); }
+
+  .up-next-meta {
+    font-size: 11px;
+    color: var(--text-4);
+    font-weight: 400;
+  }
+
+  .up-next-item.playing .up-next-meta { color: var(--text-3); }
+
+  .now-playing-indicator {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--yellow);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ── SIDEBAR (collapsed) ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 24 24" fill="none"><text x="3" y="18" font-family="Inter" font-weight="800" font-size="16" fill="#09090B">p</text></svg>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-icon-btn active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      </button>
+      <button class="nav-icon-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
+      <button class="nav-icon-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+      </button>
+      <button class="nav-icon-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </button>
+      <button class="nav-icon-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/></svg>
+      </button>
+      <button class="nav-icon-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-avatar-sm">A</div>
+    </div>
+  </aside>
+
+  <!-- ── CONTENT ── -->
+  <main class="content">
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="breadcrumb">
+        <a href="#">Files</a>
+        <span class="breadcrumb-sep">/</span>
+        <a href="#">movies</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Inception 2010</span>
+      </div>
+    </div>
+
+    <!-- Player + Right Panel -->
+    <div class="player-layout">
+      <!-- Main Player Column -->
+      <div class="player-main">
+        <!-- Video Player -->
+        <div class="video-player">
+          <div class="video-gradient-top"></div>
+          <div class="video-gradient-bottom"></div>
+          <button class="play-button">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </button>
+          <div class="video-controls">
+            <div class="video-progress-bar"><div class="video-progress-fill"></div></div>
+            <div class="video-time-row">
+              <span>0:00</span>
+              <span>2:28:16</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Info -->
+        <div class="video-info">
+          <div class="video-title">Inception</div>
+          <div class="video-meta">
+            <span>2010</span>
+            <span class="video-meta-sep"></span>
+            <span>8.2 GB</span>
+            <span class="video-meta-sep"></span>
+            <span>MKV</span>
+            <span class="video-meta-sep"></span>
+            <span>2160p</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button class="btn-primary">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Play
+          </button>
+          <button class="btn-secondary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download
+          </button>
+          <button class="btn-secondary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Share
+          </button>
+          <button class="btn-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+          </button>
+        </div>
+
+        <!-- Subtitle / Audio Selectors -->
+        <div class="track-selectors">
+          <div class="track-selector">
+            <span class="track-label">Subtitle</span>
+            <div class="track-pill-group">
+              <button class="track-pill active">English</button>
+              <button class="track-pill">Turkish</button>
+              <button class="track-pill">Off</button>
+            </div>
+          </div>
+          <div class="track-selector">
+            <span class="track-label">Audio</span>
+            <div class="track-pill-group">
+              <button class="track-pill active">English 5.1</button>
+              <button class="track-pill">English 2.0</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel — Up Next -->
+      <div class="right-panel">
+        <div class="panel-header">
+          <span class="panel-title">Up Next</span>
+          <div class="autoplay-toggle">
+            <span class="autoplay-label">Autoplay</span>
+            <div class="toggle-track on">
+              <div class="toggle-thumb"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="up-next-list">
+          <!-- Now Playing -->
+          <div class="up-next-item playing">
+            <div class="up-next-thumb">
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <div class="up-next-info">
+              <div class="now-playing-indicator">Now Playing</div>
+              <div class="up-next-name">Inception</div>
+              <div class="up-next-meta">8.2 GB &middot; 2160p</div>
+            </div>
+          </div>
+
+          <div class="up-next-item">
+            <div class="up-next-thumb">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <div class="up-next-info">
+              <div class="up-next-name">The Dark Knight</div>
+              <div class="up-next-meta">6.8 GB &middot; 1080p</div>
+            </div>
+          </div>
+
+          <div class="up-next-item">
+            <div class="up-next-thumb">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <div class="up-next-info">
+              <div class="up-next-name">Interstellar</div>
+              <div class="up-next-meta">12.4 GB &middot; 2160p</div>
+            </div>
+          </div>
+
+          <div class="up-next-item">
+            <div class="up-next-thumb">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <div class="up-next-info">
+              <div class="up-next-name">Memento</div>
+              <div class="up-next-meta">2.1 GB &middot; 1080p</div>
+            </div>
+          </div>
+
+          <div class="up-next-item">
+            <div class="up-next-thumb">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <div class="up-next-info">
+              <div class="up-next-name">Tenet</div>
+              <div class="up-next-meta">14.7 GB &middot; 2160p</div>
+            </div>
+          </div>
+
+          <div class="up-next-item">
+            <div class="up-next-thumb">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <div class="up-next-info">
+              <div class="up-next-name">Dunkirk</div>
+              <div class="up-next-meta">9.3 GB &middot; 2160p</div>
+            </div>
+          </div>
+
+          <div class="up-next-item">
+            <div class="up-next-thumb">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <div class="up-next-info">
+              <div class="up-next-name">The Prestige</div>
+              <div class="up-next-meta">4.5 GB &middot; 1080p</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

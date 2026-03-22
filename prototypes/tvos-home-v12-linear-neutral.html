@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io -- tvOS Home (v12 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #000000;
+    --surface: #111113;
+    --surface-2: #1C1C1E;
+    --border: rgba(255,255,255,0.08);
+    --border-subtle: rgba(255,255,255,0.05);
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --green: #30D158;
+    --red: #FF453A;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+  }
+
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    flex-direction: column;
+    padding: 48px 88px;
+  }
+
+  /* ── Top Nav ── */
+  .top-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 48px;
+    flex-shrink: 0;
+  }
+  .nav-brand {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-right: 32px;
+    color: var(--text);
+  }
+  .nav-brand span { color: var(--yellow); }
+  .nav-tab {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text-3);
+    padding: 10px 24px;
+    border-radius: 10px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .nav-tab:hover { color: var(--text-2); background: var(--surface); }
+  .nav-tab.active { color: var(--yellow); font-weight: 600; }
+  .nav-tab.focused { background: var(--surface-2); color: var(--text); }
+  .nav-spacer { flex: 1; }
+
+  /* ── Content ── */
+  .content { flex: 1; overflow: hidden; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 48px; }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-2);
+    letter-spacing: -0.01em;
+  }
+  .section-count {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-3);
+    margin-left: 12px;
+  }
+
+  /* ── Row Items (horizontal scroll) ── */
+  .row {
+    display: flex;
+    gap: 16px;
+  }
+
+  /* ── Continue Watching Item ── */
+  .cw-item {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 24px 28px;
+    min-width: 420px;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+  .cw-item:hover { background: var(--surface-2); }
+  .cw-item.focused {
+    transform: scale(1.02);
+    border-color: var(--border);
+    background: var(--surface-2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .cw-item.focused .cw-name { color: var(--text); }
+  .cw-name {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-2);
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cw-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .cw-remaining {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-3);
+  }
+  .cw-badge {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-3);
+    background: var(--surface-2);
+    padding: 3px 8px;
+    border-radius: 5px;
+    letter-spacing: 0.04em;
+  }
+  .cw-item.focused .cw-badge { background: rgba(255,255,255,0.08); }
+  .cw-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .cw-progress-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+
+  /* ── Recently Added Item ── */
+  .ra-item {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 22px 26px;
+    min-width: 320px;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+  .ra-item:hover { background: var(--surface-2); }
+  .ra-item.focused {
+    transform: scale(1.02);
+    border-color: var(--border);
+    background: var(--surface-2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .ra-item.focused .ra-name { color: var(--text); }
+  .ra-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+  .ra-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .ra-name {
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--text-2);
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ra-size {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-3);
+    margin-left: 42px;
+  }
+
+  /* ── Active Transfers ── */
+  .at-item {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 22px 26px;
+    min-width: 520px;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+  .at-item:hover { background: var(--surface-2); }
+  .at-item.focused {
+    transform: scale(1.02);
+    border-color: var(--border);
+    background: var(--surface-2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .at-name {
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--text-2);
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .at-item.focused .at-name { color: var(--text); }
+  .at-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .at-speed {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-3);
+  }
+  .at-health {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .at-health.good { background: var(--green); }
+  .at-health.warn { background: var(--yellow); }
+  .at-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .at-progress-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+
+  /* ── Storage Bar ── */
+  .storage-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-top: 8px;
+  }
+  .storage-track {
+    width: 200px;
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .storage-fill {
+    height: 100%;
+    background: var(--text-3);
+    border-radius: 2px;
+  }
+  .storage-label {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-3);
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- Top Nav -->
+  <nav class="top-nav">
+    <div class="nav-brand">put<span>.</span>io</div>
+    <div class="nav-tab active">Home</div>
+    <div class="nav-tab">Files</div>
+    <div class="nav-tab">Search</div>
+    <div class="nav-tab">Settings</div>
+    <div class="nav-spacer"></div>
+  </nav>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Continue Watching -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Continue Watching</div>
+      </div>
+      <div class="row">
+        <div class="cw-item focused">
+          <div class="cw-name">Inception</div>
+          <div class="cw-meta">
+            <span class="cw-remaining">2h 14m left</span>
+            <span class="cw-badge">4K</span>
+          </div>
+          <div class="cw-progress-bar">
+            <div class="cw-progress-fill" style="width: 18%"></div>
+          </div>
+        </div>
+        <div class="cw-item">
+          <div class="cw-name">The Bear S03E07</div>
+          <div class="cw-meta">
+            <span class="cw-remaining">22m left</span>
+            <span class="cw-badge">1080p</span>
+          </div>
+          <div class="cw-progress-bar">
+            <div class="cw-progress-fill" style="width: 64%"></div>
+          </div>
+        </div>
+        <div class="cw-item">
+          <div class="cw-name">Dune Part Two</div>
+          <div class="cw-meta">
+            <span class="cw-remaining">1h 48m left</span>
+            <span class="cw-badge">4K HDR</span>
+          </div>
+          <div class="cw-progress-bar">
+            <div class="cw-progress-fill" style="width: 34%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recently Added -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Recently Added</div>
+      </div>
+      <div class="row">
+        <div class="ra-item">
+          <div class="ra-row">
+            <div class="ra-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" fill="#FDCE45"/>
+              </svg>
+            </div>
+            <div class="ra-name">movies</div>
+          </div>
+          <div class="ra-size">142 GB</div>
+        </div>
+        <div class="ra-item">
+          <div class="ra-row">
+            <div class="ra-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M8 5v14l11-7L8 5z" fill="#A1A1AA"/>
+              </svg>
+            </div>
+            <div class="ra-name">Shogun S01E10</div>
+          </div>
+          <div class="ra-size">4.2 GB</div>
+        </div>
+        <div class="ra-item">
+          <div class="ra-row">
+            <div class="ra-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" fill="#FDCE45"/>
+              </svg>
+            </div>
+            <div class="ra-name">podcasts</div>
+          </div>
+          <div class="ra-size">18 GB</div>
+        </div>
+        <div class="ra-item">
+          <div class="ra-row">
+            <div class="ra-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M8 5v14l11-7L8 5z" fill="#A1A1AA"/>
+              </svg>
+            </div>
+            <div class="ra-name">Oppenheimer</div>
+          </div>
+          <div class="ra-size">8.1 GB</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Transfers -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Active Transfers</div>
+      </div>
+      <div class="row">
+        <div class="at-item">
+          <div class="at-name">The Penguin S01 Complete</div>
+          <div class="at-meta">
+            <div class="at-health good"></div>
+            <span class="at-speed">24.8 MB/s &middot; 68%</span>
+          </div>
+          <div class="at-progress-bar">
+            <div class="at-progress-fill" style="width: 68%"></div>
+          </div>
+        </div>
+        <div class="at-item">
+          <div class="at-name">Severance S02E05</div>
+          <div class="at-meta">
+            <div class="at-health warn"></div>
+            <span class="at-speed">3.1 MB/s &middot; 12%</span>
+          </div>
+          <div class="at-progress-bar">
+            <div class="at-progress-fill" style="width: 12%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Storage -->
+  <div class="storage-bar">
+    <div class="storage-track">
+      <div class="storage-fill" style="width: 22%"></div>
+    </div>
+    <div class="storage-label">11 TB of 50 TB</div>
+  </div>
+
+</div>
+</body>
+</html>

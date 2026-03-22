@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<title>put.io — Command Palette (Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --sidebar: #111113;
+    --card: #1C1C1E;
+    --surface-raised: #232326;
+    --border: rgba(255,255,255,0.06);
+    --border-strong: rgba(255,255,255,0.10);
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.10);
+    --green: #30D158;
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --overlay: rgba(0,0,0,0.60);
+    --radius: 14px;
+    --radius-sm: 8px;
+    --radius-xs: 6px;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ===== SIDEBAR (dimmed behind) ===== */
+  .sidebar {
+    width: 240px;
+    background: var(--sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-header {
+    padding: 20px 16px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .logo .dot { color: var(--yellow); }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 0 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .nav-section-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 16px 8px 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 8px;
+    border-radius: var(--radius-xs);
+    color: var(--text-2);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .nav-item.active { background: rgba(255,255,255,0.06); color: var(--text); }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.7; }
+  .nav-item.active svg { opacity: 1; }
+
+  .sidebar-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FDCE45, #F59E0B);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #09090B;
+    flex-shrink: 0;
+  }
+
+  .user-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* ===== MAIN (dimmed behind) ===== */
+  .main {
+    flex: 1;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .main-header {
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .main-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .main-body {
+    flex: 1;
+    padding: 0 32px;
+  }
+
+  /* placeholder content lines behind overlay */
+  .placeholder-line {
+    height: 40px;
+    background: rgba(255,255,255,0.02);
+    border-radius: var(--radius-xs);
+    margin-bottom: 1px;
+  }
+
+  /* ===== OVERLAY ===== */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--overlay);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 180px;
+    z-index: 100;
+  }
+
+  /* ===== COMMAND PALETTE ===== */
+  .palette {
+    width: 560px;
+    background: var(--card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Search input */
+  .palette-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .palette-search svg {
+    width: 16px;
+    height: 16px;
+    color: var(--text-3);
+    flex-shrink: 0;
+  }
+
+  .palette-search-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    caret-color: var(--yellow);
+  }
+  .palette-search-input::placeholder { color: var(--text-3); }
+
+  /* Results */
+  .palette-results {
+    max-height: 380px;
+    overflow-y: auto;
+    padding: 6px;
+  }
+
+  .palette-results::-webkit-scrollbar { width: 4px; }
+  .palette-results::-webkit-scrollbar-track { background: transparent; }
+  .palette-results::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+  .result-group {
+    padding: 0;
+  }
+
+  .result-group + .result-group {
+    margin-top: 2px;
+    padding-top: 2px;
+    border-top: 1px solid var(--border);
+  }
+
+  .group-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 8px 10px 4px;
+  }
+
+  .result-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.08s;
+  }
+  .result-item:hover { background: rgba(255,255,255,0.04); }
+  .result-item.active { background: rgba(255,255,255,0.06); }
+
+  .result-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-xs);
+    background: rgba(255,255,255,0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .result-icon svg { width: 14px; height: 14px; }
+
+  .result-label {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .result-meta {
+    font-size: 11px;
+    color: var(--text-3);
+    flex-shrink: 0;
+  }
+
+  .kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 6px;
+    min-width: 20px;
+    height: 20px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: inherit;
+    color: var(--text-3);
+    line-height: 1;
+  }
+
+  .shortcut {
+    display: flex;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Footer */
+  .palette-footer {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-3);
+  }
+
+  .footer-hint {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .footer-hint .kbd {
+    font-size: 10px;
+    padding: 1px 4px;
+    min-width: 16px;
+    height: 17px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR (dimmed behind overlay) -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="dot">.</span>io</div>
+    </div>
+    <div class="sidebar-nav">
+      <a class="nav-item active" href="#">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="14" height="14" rx="3"/><path d="M2.5 8h11M8 2.5v11"/></svg>
+        Files
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h4l2-5 2 10 2-5h4"/></svg>
+        Transfers
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h10M3 8h7M3 12h10"/></svg>
+        RSS
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+        History
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12V9a4 4 0 0 1 8 0v3"/><circle cx="8" cy="5" r="2.5"/><path d="M1 14h14"/></svg>
+        Sharing
+      </a>
+
+      <div class="nav-section-label">System</div>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2"/></svg>
+        Settings
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="avatar">AK</div>
+      <div class="user-name">Altay Kocak</div>
+    </div>
+  </nav>
+
+  <!-- MAIN (dimmed behind overlay) -->
+  <div class="main">
+    <div class="main-header">
+      <h1 class="main-title">Files</h1>
+    </div>
+    <div class="main-body">
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+    </div>
+  </div>
+
+  <!-- OVERLAY + COMMAND PALETTE -->
+  <div class="overlay">
+    <div class="palette">
+
+      <!-- Search -->
+      <div class="palette-search">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10 10l4 4"/></svg>
+        <input class="palette-search-input" type="text" placeholder="Search or type a command..." autofocus>
+      </div>
+
+      <!-- Results -->
+      <div class="palette-results">
+
+        <!-- Recent -->
+        <div class="result-group">
+          <div class="group-label">Recent</div>
+          <div class="result-item active">
+            <div class="result-icon">
+              <svg viewBox="0 0 14 14" fill="none" stroke="#FDCE45" stroke-width="1.5"><path d="M1.5 3.5v7a1.5 1.5 0 0 0 1.5 1.5h8a1.5 1.5 0 0 0 1.5-1.5V5.5a1.5 1.5 0 0 0-1.5-1.5H7L5.5 2.5H3A1.5 1.5 0 0 0 1.5 3.5z"/></svg>
+            </div>
+            <span class="result-label">Vacation Photos 2026</span>
+            <span class="result-meta">Folder</span>
+          </div>
+          <div class="result-item">
+            <div class="result-icon">
+              <svg viewBox="0 0 14 14" fill="none" stroke="#30D158" stroke-width="1.5"><polygon points="5.5,2 11,7 5.5,12"/></svg>
+            </div>
+            <span class="result-label">The.Matrix.1999.2160p.mkv</span>
+            <span class="result-meta">14.2 GB</span>
+          </div>
+          <div class="result-item">
+            <div class="result-icon">
+              <svg viewBox="0 0 14 14" fill="none" stroke="#0A84FF" stroke-width="1.5"><path d="M3 1.5h5l3 3v7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V2.5a1 1 0 0 1 1-1z"/><path d="M8 1.5v3h3"/></svg>
+            </div>
+            <span class="result-label">project-brief-final.pdf</span>
+            <span class="result-meta">2.4 MB</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="result-group">
+          <div class="group-label">Actions</div>
+          <div class="result-item">
+            <div class="result-icon">
+              <svg viewBox="0 0 14 14" fill="none" stroke="#FAFAFA" stroke-width="1.5"><path d="M7 2v10M2 7h10"/></svg>
+            </div>
+            <span class="result-label">New Transfer</span>
+            <div class="shortcut">
+              <span class="kbd">&#8984;</span>
+              <span class="kbd">N</span>
+            </div>
+          </div>
+          <div class="result-item">
+            <div class="result-icon">
+              <svg viewBox="0 0 14 14" fill="none" stroke="#FAFAFA" stroke-width="1.5"><circle cx="7" cy="7" r="2.5"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13"/></svg>
+            </div>
+            <span class="result-label">Go to Settings</span>
+            <div class="shortcut">
+              <span class="kbd">&#8984;</span>
+              <span class="kbd">,</span>
+            </div>
+          </div>
+          <div class="result-item">
+            <div class="result-icon">
+              <svg viewBox="0 0 14 14" fill="none" stroke="#FAFAFA" stroke-width="1.5"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3.5h3"/></svg>
+            </div>
+            <span class="result-label">Toggle Theme</span>
+            <div class="shortcut">
+              <span class="kbd">&#8984;</span>
+              <span class="kbd">&#8679;</span>
+              <span class="kbd">T</span>
+            </div>
+          </div>
+          <div class="result-item">
+            <div class="result-icon">
+              <svg viewBox="0 0 14 14" fill="none" stroke="#FAFAFA" stroke-width="1.5"><circle cx="6" cy="6" r="4"/><path d="M9 9l3.5 3.5"/></svg>
+            </div>
+            <span class="result-label">Search Files</span>
+            <div class="shortcut">
+              <span class="kbd">/</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="result-group">
+          <div class="group-label">Navigation</div>
+          <div class="result-item">
+            <div class="result-icon">
+              <svg viewBox="0 0 14 14" fill="none" stroke="#A1A1AA" stroke-width="1.5"><rect x="1" y="1" width="12" height="12" rx="2.5"/><path d="M1 7h12M7 1v12"/></svg>
+            </div>
+            <span class="result-label">Files</span>
+            <div class="shortcut">
+              <span class="kbd">G</span>
+              <span class="kbd">F</span>
+            </div>
+          </div>
+          <div class="result-item">
+            <div class="result-icon">
+              <svg viewBox="0 0 14 14" fill="none" stroke="#A1A1AA" stroke-width="1.5"><path d="M1 7h3.5l2-4.5 2 9 2-4.5H14"/></svg>
+            </div>
+            <span class="result-label">Transfers</span>
+            <div class="shortcut">
+              <span class="kbd">G</span>
+              <span class="kbd">T</span>
+            </div>
+          </div>
+          <div class="result-item">
+            <div class="result-icon">
+              <svg viewBox="0 0 14 14" fill="none" stroke="#A1A1AA" stroke-width="1.5"><path d="M2 3.5h10M2 7h6M2 10.5h10"/></svg>
+            </div>
+            <span class="result-label">RSS</span>
+            <div class="shortcut">
+              <span class="kbd">G</span>
+              <span class="kbd">R</span>
+            </div>
+          </div>
+          <div class="result-item">
+            <div class="result-icon">
+              <svg viewBox="0 0 14 14" fill="none" stroke="#A1A1AA" stroke-width="1.5"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg>
+            </div>
+            <span class="result-label">History</span>
+            <div class="shortcut">
+              <span class="kbd">G</span>
+              <span class="kbd">H</span>
+            </div>
+          </div>
+          <div class="result-item">
+            <div class="result-icon">
+              <svg viewBox="0 0 14 14" fill="none" stroke="#A1A1AA" stroke-width="1.5"><path d="M3.5 11V8.5a3.5 3.5 0 0 1 7 0V11"/><circle cx="7" cy="4.5" r="2"/><path d="M1 12.5h12"/></svg>
+            </div>
+            <span class="result-label">Sharing</span>
+            <div class="shortcut">
+              <span class="kbd">G</span>
+              <span class="kbd">S</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="palette-footer">
+        <div class="footer-hint">
+          <span class="kbd">&uarr;</span><span class="kbd">&darr;</span> Navigate
+        </div>
+        <div class="footer-hint">
+          <span class="kbd">&crarr;</span> Open
+        </div>
+        <div class="footer-hint">
+          <span class="kbd">esc</span> Close
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

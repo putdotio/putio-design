@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io — Smart TV Search (v12 Linear Neutral)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000;
+    --surface: #1C1C1E;
+    --surface-2: #2C2C2E;
+    --border: rgba(255,255,255,0.06);
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --green: #30D158;
+    --red: #FF453A;
+  }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+  }
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 64px;
+    background: var(--bg);
+  }
+
+  /* -- Top Bar -- */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    margin-bottom: 36px;
+    flex-shrink: 0;
+  }
+  .logo {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    margin-right: 16px;
+  }
+  .logo .dot { color: var(--yellow); }
+  .nav-tabs {
+    display: flex;
+    gap: 8px;
+  }
+  .nav-tab {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-3);
+    padding: 10px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+  .nav-tab.active {
+    color: var(--yellow);
+    font-weight: 600;
+  }
+
+  /* -- Search Layout -- */
+  .search-layout {
+    display: flex;
+    gap: 48px;
+    flex: 1;
+    overflow: hidden;
+  }
+  .search-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .search-right {
+    width: 600px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* -- Search Input -- */
+  .search-input-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .search-icon {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .search-input {
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+  }
+  .search-typed {
+    color: var(--text);
+  }
+  .search-cursor {
+    width: 2px;
+    height: 36px;
+    background: var(--yellow);
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  /* -- Recent Searches -- */
+  .recent-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  .recent-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-3);
+    margin-right: 4px;
+  }
+  .recent-pill {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-2);
+    background: var(--surface);
+    padding: 8px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .recent-pill.focused {
+    background: var(--surface-2);
+    border-color: var(--border);
+    color: var(--text);
+  }
+
+  /* -- On-Screen Keyboard -- */
+  .keyboard {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .key {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 64px;
+    background: var(--surface);
+    border-radius: 10px;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text-2);
+    cursor: pointer;
+    border: 1px solid transparent;
+    text-transform: uppercase;
+  }
+  .key.focused {
+    background: var(--yellow);
+    color: #000;
+    font-weight: 600;
+    transform: scale(1.08);
+    border-color: var(--yellow);
+  }
+  .key.wide {
+    grid-column: span 2;
+    font-size: 16px;
+    letter-spacing: 0.02em;
+  }
+  .key.action {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  /* -- Results -- */
+  .results-header {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-3);
+    margin-bottom: 16px;
+  }
+  .result-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    position: relative;
+  }
+  .result-item.focused {
+    background: var(--surface);
+  }
+  .result-item.focused::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 3px;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+  .result-item.focused .result-name { color: var(--text); }
+  .result-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .result-name {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-2);
+    letter-spacing: -0.02em;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .result-badge {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-3);
+    background: var(--surface);
+    padding: 3px 8px;
+    border-radius: 5px;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+  .result-item.focused .result-badge { background: rgba(255,255,255,0.08); }
+  .result-size {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-3);
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">put<span class="dot">.</span>io</div>
+    <div class="nav-tabs">
+      <div class="nav-tab">Home</div>
+      <div class="nav-tab">Files</div>
+      <div class="nav-tab active">Search</div>
+      <div class="nav-tab">Settings</div>
+    </div>
+  </div>
+
+  <!-- Search Layout -->
+  <div class="search-layout">
+
+    <!-- Left: Input + Keyboard -->
+    <div class="search-left">
+
+      <!-- Search Input -->
+      <div class="search-input-row">
+        <div class="search-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#71717A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <div class="search-input">
+          <span class="search-typed">sev</span>
+          <span class="search-cursor"></span>
+        </div>
+      </div>
+
+      <!-- Recent Searches -->
+      <div class="recent-row">
+        <span class="recent-label">Recent:</span>
+        <div class="recent-pill">severance</div>
+        <div class="recent-pill">dune</div>
+        <div class="recent-pill">podcast</div>
+      </div>
+
+      <!-- Keyboard -->
+      <div class="keyboard">
+        <div class="key">a</div>
+        <div class="key">b</div>
+        <div class="key">c</div>
+        <div class="key">d</div>
+        <div class="key">e</div>
+        <div class="key">f</div>
+        <div class="key">g</div>
+        <div class="key">h</div>
+        <div class="key">i</div>
+        <div class="key">j</div>
+
+        <div class="key">k</div>
+        <div class="key">l</div>
+        <div class="key">m</div>
+        <div class="key">n</div>
+        <div class="key">o</div>
+        <div class="key">p</div>
+        <div class="key">q</div>
+        <div class="key">r</div>
+        <div class="key">s</div>
+        <div class="key focused">t</div>
+
+        <div class="key">u</div>
+        <div class="key">v</div>
+        <div class="key">w</div>
+        <div class="key">x</div>
+        <div class="key">y</div>
+        <div class="key">z</div>
+        <div class="key wide action">Space</div>
+        <div class="key wide action">Delete</div>
+      </div>
+
+    </div>
+
+    <!-- Right: Results -->
+    <div class="search-right">
+      <div class="results-header">Results</div>
+
+      <div class="result-item focused">
+        <div class="result-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="result-name">Severance</div>
+        <div class="result-size">24.6 GB</div>
+      </div>
+
+      <div class="result-item">
+        <div class="result-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M8 5v14l11-7L8 5z" fill="#A1A1AA"/>
+          </svg>
+        </div>
+        <div class="result-name">Severance S02E07</div>
+        <span class="result-badge">1080p</span>
+        <div class="result-size">1.8 GB</div>
+      </div>
+
+      <div class="result-item">
+        <div class="result-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M8 5v14l11-7L8 5z" fill="#A1A1AA"/>
+          </svg>
+        </div>
+        <div class="result-name">Severance S02E06</div>
+        <span class="result-badge">1080p</span>
+        <div class="result-size">1.6 GB</div>
+      </div>
+
+      <div class="result-item">
+        <div class="result-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M8 5v14l11-7L8 5z" fill="#A1A1AA"/>
+          </svg>
+        </div>
+        <div class="result-name">Severance S01 Complete</div>
+        <span class="result-badge">4K</span>
+        <div class="result-size">32.1 GB</div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+</body>
+</html>

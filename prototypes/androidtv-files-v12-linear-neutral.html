@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io — Android TV Files (Linear Neutral)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000;
+    --surface: #1C1C1E;
+    --surface-2: #2C2C2E;
+    --border: rgba(255,255,255,0.06);
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --green: #30D158;
+    --red: #FF453A;
+  }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: var(--bg);
+  }
+
+  /* ── Top Bar ── */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    padding: 40px 64px 0;
+    gap: 48px;
+    flex-shrink: 0;
+  }
+  .logo {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    margin-right: 16px;
+  }
+  .logo .dot { color: var(--yellow); }
+  .nav-tabs {
+    display: flex;
+    gap: 8px;
+  }
+  .nav-tab {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-3);
+    padding: 10px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 2px solid transparent;
+  }
+  .nav-tab.active {
+    color: var(--text);
+    background: var(--surface);
+  }
+
+  /* ── Breadcrumb ── */
+  .breadcrumb-bar {
+    display: flex;
+    align-items: center;
+    padding: 28px 64px 0;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .breadcrumb-item {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+  }
+  .breadcrumb-item:hover { color: var(--text-2); }
+  .breadcrumb-item.current { color: var(--text); cursor: default; }
+  .breadcrumb-sep {
+    font-size: 16px;
+    color: var(--text-3);
+    margin: 0 4px;
+  }
+
+  /* ── Sort ── */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 20px 64px 0;
+    flex-shrink: 0;
+  }
+  .sort-btn {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-3);
+    background: var(--surface);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sort-btn svg { width: 14px; height: 14px; fill: var(--text-3); }
+
+  /* ── File List ── */
+  .file-list {
+    flex: 1;
+    padding: 20px 64px 40px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .file-row {
+    display: flex;
+    align-items: center;
+    padding: 18px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    gap: 20px;
+    position: relative;
+  }
+  .file-row:hover { background: rgba(255,255,255,0.03); }
+  .file-row.focused {
+    background: var(--surface);
+  }
+  .file-row.focused::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 3px;
+    background: var(--yellow);
+    border-radius: 0 2px 2px 0;
+  }
+  .file-row.focused .file-name { color: #FFFFFF; }
+
+  .file-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .file-icon svg { width: 24px; height: 24px; }
+  .file-icon.folder {
+    background: var(--yellow-dim);
+  }
+  .file-icon.folder svg { fill: var(--yellow); }
+  .file-icon.video {
+    background: rgba(255,255,255,0.06);
+  }
+  .file-icon.video svg { fill: var(--text-2); }
+  .file-icon.audio {
+    background: rgba(48,209,88,0.12);
+  }
+  .file-icon.audio svg { fill: var(--green); }
+  .file-icon.archive {
+    background: rgba(255,255,255,0.06);
+  }
+  .file-icon.archive svg { fill: var(--text-3); }
+
+  .file-name {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+  }
+  .file-size {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-3);
+    width: 120px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .file-date {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-3);
+    width: 160px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .file-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+    width: 64px;
+    text-align: center;
+  }
+  .file-badge.hd {
+    background: var(--yellow-dim);
+    color: var(--yellow);
+  }
+  .file-badge.fhd {
+    background: rgba(48,209,88,0.12);
+    color: var(--green);
+  }
+  .file-badge.uhd {
+    background: rgba(255,69,58,0.12);
+    color: var(--red);
+  }
+  .file-badge.empty {
+    background: transparent;
+    color: transparent;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">put<span class="dot">.</span>io</div>
+    <div class="nav-tabs">
+      <div class="nav-tab">Home</div>
+      <div class="nav-tab active">Files</div>
+      <div class="nav-tab">Search</div>
+      <div class="nav-tab">Settings</div>
+    </div>
+  </div>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb-bar">
+    <div class="breadcrumb-item">Your Files</div>
+    <div class="breadcrumb-sep">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#71717A" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="breadcrumb-item current">shows</div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="sort-btn">
+      <svg viewBox="0 0 24 24"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>
+      Name
+    </div>
+  </div>
+
+  <!-- File List -->
+  <div class="file-list">
+
+    <div class="file-row">
+      <div class="file-icon folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="file-name">Severance</div>
+      <div class="file-size">24.6 GB</div>
+      <div class="file-date">Mar 14, 2026</div>
+      <div class="file-badge empty">—</div>
+    </div>
+
+    <div class="file-row">
+      <div class="file-icon folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="file-name">The Bear</div>
+      <div class="file-size">38.1 GB</div>
+      <div class="file-date">Mar 10, 2026</div>
+      <div class="file-badge empty">—</div>
+    </div>
+
+    <div class="file-row focused">
+      <div class="file-icon folder">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      </div>
+      <div class="file-name">Shogun</div>
+      <div class="file-size">52.3 GB</div>
+      <div class="file-date">Mar 8, 2026</div>
+      <div class="file-badge empty">—</div>
+    </div>
+
+    <div class="file-row">
+      <div class="file-icon video">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <div class="file-name">Dune Part Two (2024)</div>
+      <div class="file-size">4.2 GB</div>
+      <div class="file-date">Mar 5, 2026</div>
+      <div class="file-badge uhd">4K</div>
+    </div>
+
+    <div class="file-row">
+      <div class="file-icon video">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <div class="file-name">Poor Things (2023)</div>
+      <div class="file-size">2.8 GB</div>
+      <div class="file-date">Feb 28, 2026</div>
+      <div class="file-badge fhd">1080p</div>
+    </div>
+
+    <div class="file-row">
+      <div class="file-icon video">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <div class="file-name">Oppenheimer (2023)</div>
+      <div class="file-size">5.1 GB</div>
+      <div class="file-date">Feb 22, 2026</div>
+      <div class="file-badge uhd">4K</div>
+    </div>
+
+    <div class="file-row">
+      <div class="file-icon audio">
+        <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55C7.79 13 6 14.79 6 17s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+      </div>
+      <div class="file-name">podcast-ep-127.mp3</div>
+      <div class="file-size">142 MB</div>
+      <div class="file-date">Feb 18, 2026</div>
+      <div class="file-badge hd">MP3</div>
+    </div>
+
+    <div class="file-row">
+      <div class="file-icon video">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <div class="file-name">The Zone of Interest (2023)</div>
+      <div class="file-size">1.9 GB</div>
+      <div class="file-date">Feb 14, 2026</div>
+      <div class="file-badge hd">720p</div>
+    </div>
+
+    <div class="file-row">
+      <div class="file-icon archive">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 2l5 5h-5V4z"/></svg>
+      </div>
+      <div class="file-name">project-assets.zip</div>
+      <div class="file-size">2.4 GB</div>
+      <div class="file-date">Feb 10, 2026</div>
+      <div class="file-badge empty">—</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<title>put.io — Security (Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --sidebar-bg: #111113;
+    --surface: #19191B;
+    --card: #1C1C1E;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #52525B;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.10);
+    --green: #30D158;
+    --green-dim: rgba(48,209,88,0.12);
+    --red: #FF453A;
+    --red-dim: rgba(255,69,58,0.12);
+    --blue: #0A84FF;
+    --sep: rgba(255,255,255,0.06);
+    --radius: 8px;
+    --radius-btn: 6px;
+    --font: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+  }
+
+  /* ================================================================
+     SIDEBAR — Preferences nav (Linear style)
+     ================================================================ */
+  .sidebar {
+    width: 240px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-right: 1px solid var(--sep);
+  }
+
+  .sidebar-header {
+    padding: 20px 16px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .logo-dot { color: var(--yellow); }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 0 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .nav-group-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    padding: 20px 8px 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+    border-radius: var(--radius-btn);
+    transition: all 0.15s ease;
+  }
+
+  .nav-item:hover {
+    color: var(--text-2);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .nav-item.active {
+    color: var(--text);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .nav-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--text-4);
+  }
+
+  .nav-icon svg { width: 18px; height: 18px; }
+  .nav-item.active .nav-icon { color: var(--yellow); }
+  .nav-item:hover .nav-icon { color: var(--text-3); }
+
+  .sidebar-footer {
+    padding: 12px 16px 16px;
+    border-top: 1px solid var(--sep);
+  }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--yellow), #F0A030);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--bg);
+  }
+
+  .user-name {
+    font-size: 13px;
+    color: var(--text-2);
+    font-weight: 500;
+  }
+
+  /* ================================================================
+     CONTENT
+     ================================================================ */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    background: var(--bg);
+    padding: 40px 48px;
+  }
+
+  .page-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+    color: var(--text-3);
+    margin-bottom: 36px;
+  }
+
+  /* ================================================================
+     SECTIONS
+     ================================================================ */
+  .section {
+    margin-bottom: 36px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .section-desc {
+    font-size: 13px;
+    color: var(--text-3);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--sep);
+    margin: 36px 0;
+  }
+
+  /* ================================================================
+     2FA STATUS
+     ================================================================ */
+  .twofa-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--card);
+    border: 1px solid var(--sep);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+  }
+
+  .twofa-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--red-dim);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .twofa-icon svg { width: 18px; height: 18px; color: var(--red); }
+
+  .twofa-info { flex: 1; }
+
+  .twofa-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .twofa-status {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  /* ================================================================
+     BUTTONS
+     ================================================================ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font);
+    border-radius: var(--radius-btn);
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-yellow {
+    background: var(--yellow);
+    color: var(--bg);
+  }
+
+  .btn-yellow:hover { background: #F5C430; }
+
+  .btn-surface {
+    background: var(--card);
+    color: var(--text-2);
+    border: 1px solid var(--sep);
+  }
+
+  .btn-surface:hover { background: var(--surface); color: var(--text); }
+
+  .btn-danger-text {
+    background: none;
+    border: none;
+    color: var(--red);
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font);
+    cursor: pointer;
+  }
+
+  .btn-danger-text:hover { background: var(--red-dim); border-radius: 4px; }
+
+  .btn-danger-outline {
+    background: none;
+    color: var(--red);
+    border: 1px solid rgba(255,69,58,0.25);
+  }
+
+  .btn-danger-outline:hover {
+    background: var(--red-dim);
+    border-color: rgba(255,69,58,0.4);
+  }
+
+  /* ================================================================
+     TABLE
+     ================================================================ */
+  .table-wrap {
+    background: var(--card);
+    border: 1px solid var(--sep);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-4);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  td {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-2);
+    border-bottom: 1px solid var(--sep);
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .badge-green {
+    background: var(--green-dim);
+    color: var(--green);
+  }
+
+  .device-name {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .table-footer {
+    padding: 12px 16px;
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid var(--sep);
+    background: var(--card);
+  }
+
+  /* ================================================================
+     TOGGLE
+     ================================================================ */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+  }
+
+  .toggle-row + .toggle-row {
+    border-top: 1px solid var(--sep);
+  }
+
+  .toggle-label-group { flex: 1; margin-right: 24px; }
+
+  .toggle-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .toggle-desc {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .toggle-track {
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    background: var(--text-4);
+    position: relative;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .toggle-track.on { background: var(--green); }
+
+  .toggle-knob {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: left 0.2s ease;
+  }
+
+  .toggle-track.on .toggle-knob { left: 18px; }
+
+  /* ================================================================
+     LOGIN HISTORY
+     ================================================================ */
+  .history-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .history-item {
+    display: grid;
+    grid-template-columns: 1fr 140px 120px 100px;
+    align-items: center;
+    padding: 10px 16px;
+    font-size: 12px;
+    color: var(--text-3);
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .history-item:last-child { border-bottom: none; }
+
+  .history-device { color: var(--text-2); font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR — Preferences style -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="logo-dot">.</span>io</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">Account</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg fill="none" viewBox="0 0 18 18" stroke="currentColor" stroke-width="1.5"><path d="M9 11.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/><path d="M14.7 11.2a1.2 1.2 0 00.24 1.32l.04.04a1.44 1.44 0 11-2.04 2.04l-.04-.04a1.2 1.2 0 00-1.32-.24 1.2 1.2 0 00-.72 1.1v.12a1.44 1.44 0 11-2.88 0v-.06a1.2 1.2 0 00-.78-1.1 1.2 1.2 0 00-1.32.24l-.04.04a1.44 1.44 0 11-2.04-2.04l.04-.04a1.2 1.2 0 00.24-1.32 1.2 1.2 0 00-1.1-.72h-.12a1.44 1.44 0 110-2.88h.06a1.2 1.2 0 001.1-.78 1.2 1.2 0 00-.24-1.32l-.04-.04a1.44 1.44 0 112.04-2.04l.04.04a1.2 1.2 0 001.32.24h.06a1.2 1.2 0 00.72-1.1v-.12a1.44 1.44 0 112.88 0v.06a1.2 1.2 0 00.78 1.1 1.2 1.2 0 001.32-.24l.04-.04a1.44 1.44 0 112.04 2.04l-.04.04a1.2 1.2 0 00-.24 1.32v.06a1.2 1.2 0 001.1.72h.12a1.44 1.44 0 010 2.88h-.06a1.2 1.2 0 00-1.1.78z"/></svg></span>
+        Preferences
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg fill="none" viewBox="0 0 18 18" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="6.5" r="3"/><path d="M3 15.5c0-3 2.7-5 6-5s6 2 6 5"/></svg></span>
+        Profile
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg fill="none" viewBox="0 0 18 18" stroke="currentColor" stroke-width="1.5"><path d="M13.5 6.5a4.5 4.5 0 10-9 0c0 3-1.5 4.5-1.5 4.5h12s-1.5-1.5-1.5-4.5z"/><path d="M7.5 14a1.5 1.5 0 003 0"/></svg></span>
+        Notifications
+      </button>
+      <button class="nav-item active">
+        <span class="nav-icon"><svg fill="none" viewBox="0 0 18 18" stroke="currentColor" stroke-width="1.5"><rect x="3" y="8" width="12" height="7" rx="1.5"/><path d="M5.5 8V5.5a3.5 3.5 0 017 0V8"/></svg></span>
+        Security
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg fill="none" viewBox="0 0 18 18" stroke="currentColor" stroke-width="1.5"><path d="M6.5 9h5M9 6.5v5"/><circle cx="9" cy="9" r="7"/></svg></span>
+        Connected accounts
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-avatar">A</div>
+        <span class="user-name">altay@put.io</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+    <div class="page-title">Security &amp; Privacy</div>
+    <div class="page-subtitle">Manage authentication, sessions, and privacy controls</div>
+
+    <!-- 2FA -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Two-Factor Authentication</div>
+      </div>
+      <div class="twofa-row">
+        <div class="twofa-icon">
+          <svg fill="none" viewBox="0 0 18 18" stroke="currentColor" stroke-width="1.5"><rect x="3" y="8" width="12" height="7" rx="1.5"/><path d="M5.5 8V5.5a3.5 3.5 0 017 0V8"/><circle cx="9" cy="12" r="1" fill="currentColor"/></svg>
+        </div>
+        <div class="twofa-info">
+          <div class="twofa-label">Two-factor authentication</div>
+          <div class="twofa-status">Not enabled</div>
+        </div>
+        <button class="btn btn-yellow">Enable 2FA</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Active Sessions -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Active Sessions</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Device</th>
+              <th>Location</th>
+              <th>Last Active</th>
+              <th style="text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="device-name">Mac &middot; Safari 17</span></td>
+              <td>Istanbul, TR</td>
+              <td><span class="badge badge-green">Current</span></td>
+              <td style="text-align:right">&mdash;</td>
+            </tr>
+            <tr>
+              <td><span class="device-name">iPhone 15 Pro</span></td>
+              <td>Istanbul, TR</td>
+              <td>2 hours ago</td>
+              <td style="text-align:right"><button class="btn-danger-text">Sign out</button></td>
+            </tr>
+            <tr>
+              <td><span class="device-name">Apple TV 4K</span></td>
+              <td>Istanbul, TR</td>
+              <td>Yesterday</td>
+              <td style="text-align:right"><button class="btn-danger-text">Sign out</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="table-footer">
+          <button class="btn btn-danger-outline">Sign out all other devices</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Password -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Password</div>
+      </div>
+      <div class="section-desc">We recommend using a strong, unique password that you don't reuse elsewhere</div>
+      <button class="btn btn-surface">Change password</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Login History -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Login History</div>
+      </div>
+      <div class="table-wrap">
+        <div class="history-list">
+          <div class="history-item">
+            <span class="history-device">Mac &middot; Safari 17</span>
+            <span>85.110.xx.xx</span>
+            <span>Istanbul, TR</span>
+            <span>Today, 09:41</span>
+          </div>
+          <div class="history-item">
+            <span class="history-device">iPhone 15 Pro</span>
+            <span>85.110.xx.xx</span>
+            <span>Istanbul, TR</span>
+            <span>Today, 07:12</span>
+          </div>
+          <div class="history-item">
+            <span class="history-device">Mac &middot; Safari 17</span>
+            <span>85.110.xx.xx</span>
+            <span>Istanbul, TR</span>
+            <span>Yesterday, 22:30</span>
+          </div>
+          <div class="history-item">
+            <span class="history-device">Apple TV 4K</span>
+            <span>85.110.xx.xx</span>
+            <span>Istanbul, TR</span>
+            <span>Yesterday, 20:15</span>
+          </div>
+          <div class="history-item">
+            <span class="history-device">Mac &middot; Chrome 121</span>
+            <span>176.42.xx.xx</span>
+            <span>Ankara, TR</span>
+            <span>Mar 19, 14:08</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Privacy -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Privacy</div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label-group">
+          <div class="toggle-label">History logging</div>
+          <div class="toggle-desc">Keep a record of files you watch and open</div>
+        </div>
+        <div class="toggle-track on"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label-group">
+          <div class="toggle-label">Invisible mode</div>
+          <div class="toggle-desc">Hide your online status from friends and family members</div>
+        </div>
+        <div class="toggle-track"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<title>put.io — Notification Center (Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --sidebar-bg: #111113;
+    --surface: #19191B;
+    --card: #1C1C1E;
+    --surface-3: #2C2C2E;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #52525B;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.10);
+    --green: #30D158;
+    --green-dim: rgba(48,209,88,0.10);
+    --red: #FF453A;
+    --red-dim: rgba(255,69,58,0.10);
+    --blue: #0A84FF;
+    --blue-dim: rgba(10,132,255,0.10);
+    --sep: rgba(255,255,255,0.06);
+    --radius: 8px;
+    --radius-btn: 6px;
+    --font: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 240px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-right: 1px solid var(--sep);
+  }
+
+  .sidebar-header {
+    padding: 20px 16px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .logo-dot { color: var(--yellow); }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 0 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .nav-group-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    padding: 20px 8px 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+    border-radius: var(--radius-btn);
+    transition: all 0.15s ease;
+  }
+
+  .nav-item:hover { color: var(--text-2); background: rgba(255,255,255,0.04); }
+  .nav-item.active { color: var(--text); background: rgba(255,255,255,0.06); }
+
+  .nav-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .nav-item .nav-icon { color: var(--text-4); }
+  .nav-item.active .nav-icon { color: var(--yellow); }
+
+  .nav-badge {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--bg);
+    background: var(--yellow);
+    padding: 1px 7px;
+    border-radius: 10px;
+  }
+
+  .sidebar-footer {
+    padding: 12px 16px 16px;
+    border-top: 1px solid var(--sep);
+  }
+
+  .storage-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .storage-fill {
+    height: 100%;
+    width: 22%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+
+  .storage-label {
+    font-size: 11px;
+    color: var(--text-3);
+    font-weight: 400;
+    margin-top: 6px;
+  }
+
+  .storage-label strong { color: var(--text-2); font-weight: 600; }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0 0;
+  }
+
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--yellow), #F0A030);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--bg);
+  }
+
+  .user-name { font-size: 13px; color: var(--text-2); font-weight: 500; }
+
+  /* ── Content ── */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .content-header {
+    display: flex;
+    align-items: center;
+    padding: 24px 32px 0;
+    gap: 16px;
+  }
+
+  .page-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .content-header-spacer { flex: 1; }
+
+  .btn-muted {
+    font-size: 13px;
+    color: var(--text-4);
+    font-weight: 500;
+    font-family: var(--font);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: var(--radius-btn);
+    transition: all 0.15s;
+  }
+
+  .btn-muted:hover { color: var(--text-3); background: rgba(255,255,255,0.04); }
+
+  /* ── Notification List ── */
+  .notification-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 32px 32px;
+  }
+
+  .notif-group-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    padding: 16px 0 8px;
+  }
+
+  .notif-group-label:first-child { padding-top: 8px; }
+
+  .notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: var(--radius);
+    margin-bottom: 2px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .notif-item:hover { background: rgba(255,255,255,0.03); }
+
+  .notif-item.unread { background: rgba(255,255,255,0.02); }
+
+  .notif-dot-col {
+    width: 8px;
+    display: flex;
+    align-items: center;
+    padding-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .notif-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .notif-dot.green { background: var(--green); }
+  .notif-dot.yellow { background: var(--yellow); }
+  .notif-dot.red { background: var(--red); }
+  .notif-dot.blue { background: var(--blue); }
+
+  .notif-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .notif-icon.green { background: var(--green-dim); color: var(--green); }
+  .notif-icon.yellow { background: var(--yellow-dim); color: var(--yellow); }
+  .notif-icon.red { background: var(--red-dim); color: var(--red); }
+  .notif-icon.blue { background: var(--blue-dim); color: var(--blue); }
+
+  .notif-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .notif-message {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .notif-item.unread .notif-message { color: var(--text); }
+  .notif-item.read .notif-message { color: var(--text-3); }
+
+  .notif-sub {
+    font-size: 12px;
+    color: var(--text-4);
+    margin-top: 2px;
+    font-weight: 400;
+  }
+
+  .notif-time {
+    font-size: 12px;
+    color: var(--text-4);
+    font-weight: 400;
+    flex-shrink: 0;
+    padding-top: 1px;
+  }
+
+  /* Filter tabs */
+  .filter-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 12px 32px 0;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .filter-tab {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    font-family: var(--font);
+    background: none;
+    border: none;
+    padding: 8px 14px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+  }
+
+  .filter-tab:hover { color: var(--text-2); }
+
+  .filter-tab.active {
+    color: var(--text);
+    border-bottom-color: var(--yellow);
+  }
+
+  .filter-tab .count {
+    font-size: 11px;
+    color: var(--text-4);
+    margin-left: 6px;
+    font-weight: 400;
+  }
+
+  .filter-tab.active .count { color: var(--text-3); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="logo-dot">.</span>io</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-group-label">Main</div>
+      <button class="nav-item">
+        <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+        Files
+      </button>
+      <button class="nav-item">
+        <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
+        Transfers
+      </button>
+      <button class="nav-item">
+        <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+        Downloads
+      </button>
+
+      <div class="nav-group-label">Tools</div>
+      <button class="nav-item">
+        <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg></div>
+        RSS Feeds
+      </button>
+      <button class="nav-item">
+        <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        History
+      </button>
+      <button class="nav-item active">
+        <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+        Notifications
+        <span class="nav-badge">3</span>
+      </button>
+
+      <div class="nav-group-label">Account</div>
+      <button class="nav-item">
+        <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        Settings
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="storage-bar"><div class="storage-fill"></div></div>
+      <div class="storage-label"><strong>2.2 TB</strong> of 10 TB used</div>
+      <div class="user-row">
+        <div class="user-avatar">A</div>
+        <div class="user-name">altay</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <div class="content-header">
+      <div class="page-title">Notifications</div>
+      <div class="content-header-spacer"></div>
+      <button class="btn-muted">Mark all read</button>
+    </div>
+
+    <div class="filter-tabs">
+      <button class="filter-tab active">All <span class="count">8</span></button>
+      <button class="filter-tab">Unread <span class="count">3</span></button>
+      <button class="filter-tab">Transfers</button>
+      <button class="filter-tab">Security</button>
+      <button class="filter-tab">System</button>
+    </div>
+
+    <div class="notification-list">
+      <!-- Today -->
+      <div class="notif-group-label">Today</div>
+
+      <div class="notif-item unread">
+        <div class="notif-dot-col"><div class="notif-dot green"></div></div>
+        <div class="notif-icon green">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="notif-body">
+          <div class="notif-message">Transfer complete: Inception.2010.BluRay.2160p</div>
+          <div class="notif-sub">42.3 GB downloaded successfully</div>
+        </div>
+        <div class="notif-time">2 hours ago</div>
+      </div>
+
+      <div class="notif-item unread">
+        <div class="notif-dot-col"><div class="notif-dot yellow"></div></div>
+        <div class="notif-icon yellow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="notif-body">
+          <div class="notif-message">Storage warning: 90% used</div>
+          <div class="notif-sub">You have 1.0 TB remaining out of 10 TB</div>
+        </div>
+        <div class="notif-time">5 hours ago</div>
+      </div>
+
+      <div class="notif-item unread">
+        <div class="notif-dot-col"><div class="notif-dot green"></div></div>
+        <div class="notif-icon green">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="notif-body">
+          <div class="notif-message">Transfer complete: The.Bear.S03E08.mkv</div>
+          <div class="notif-sub">1.8 GB downloaded successfully</div>
+        </div>
+        <div class="notif-time">7 hours ago</div>
+      </div>
+
+      <!-- Yesterday -->
+      <div class="notif-group-label">Yesterday</div>
+
+      <div class="notif-item read">
+        <div class="notif-dot-col"><div class="notif-dot red"></div></div>
+        <div class="notif-icon red">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="notif-body">
+          <div class="notif-message">New login from Berlin, Germany</div>
+          <div class="notif-sub">Chrome on macOS -- IP: 91.xx.xx.42</div>
+        </div>
+        <div class="notif-time">Yesterday</div>
+      </div>
+
+      <div class="notif-item read">
+        <div class="notif-dot-col"><div class="notif-dot green"></div></div>
+        <div class="notif-icon green">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="notif-body">
+          <div class="notif-message">Transfer complete: Blade.Runner.2049.mkv</div>
+          <div class="notif-sub">44.2 GB downloaded successfully</div>
+        </div>
+        <div class="notif-time">Yesterday</div>
+      </div>
+
+      <!-- Earlier -->
+      <div class="notif-group-label">Earlier</div>
+
+      <div class="notif-item read">
+        <div class="notif-dot-col"><div class="notif-dot blue"></div></div>
+        <div class="notif-icon blue">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="notif-body">
+          <div class="notif-message">Family member joined: can</div>
+          <div class="notif-sub">Your family now has 3 members</div>
+        </div>
+        <div class="notif-time">2 days ago</div>
+      </div>
+
+      <div class="notif-item read">
+        <div class="notif-dot-col"><div class="notif-dot green"></div></div>
+        <div class="notif-icon green">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+        </div>
+        <div class="notif-body">
+          <div class="notif-message">RSS: 3 new episodes downloaded</div>
+          <div class="notif-sub">From feed "TV Shows" -- Severance, Shogun, The Bear</div>
+        </div>
+        <div class="notif-time">3 days ago</div>
+      </div>
+
+      <div class="notif-item read">
+        <div class="notif-dot-col"><div class="notif-dot red"></div></div>
+        <div class="notif-icon red">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="notif-body">
+          <div class="notif-message">New login from Istanbul, Turkey</div>
+          <div class="notif-sub">Safari on iOS -- IP: 78.xx.xx.15</div>
+        </div>
+        <div class="notif-time">5 days ago</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

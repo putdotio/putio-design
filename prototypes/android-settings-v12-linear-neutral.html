@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=412">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io — Android Settings (Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000;
+    --surface: #1C1C1E;
+    --surface-2: #2C2C2E;
+    --border: rgba(255,255,255,0.08);
+    --border-subtle: rgba(255,255,255,0.05);
+    --text: #FFFFFF;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.15);
+    --green: #30D158;
+    --red: #FF453A;
+  }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .phone {
+    width: 412px;
+    height: 915px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: var(--bg);
+  }
+
+  /* ── Status Bar ── */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+  .status-bar .clock {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .status-bar .icons {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status-bar .icons svg {
+    width: 16px;
+    height: 16px;
+    fill: var(--text);
+  }
+
+  /* ── Top App Bar ── */
+  .top-app-bar {
+    padding: 8px 20px 0;
+    flex-shrink: 0;
+  }
+  .top-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    line-height: 1.15;
+  }
+
+  /* ── Scrollable Content ── */
+  .scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 88px;
+  }
+  .scroll-content::-webkit-scrollbar { display: none; }
+
+  /* ── User Section ── */
+  .user-section {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 20px 16px;
+  }
+  .avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--yellow);
+  }
+  .user-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .user-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .user-email {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-2);
+    margin-top: 1px;
+  }
+  .user-storage {
+    margin-top: 8px;
+  }
+  .user-storage-text {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-3);
+    margin-bottom: 4px;
+  }
+  .user-storage-bar {
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 1.5px;
+    overflow: hidden;
+  }
+  .user-storage-fill {
+    height: 100%;
+    width: 22%;
+    background: var(--yellow);
+    border-radius: 1.5px;
+  }
+
+  /* ── Section Label ── */
+  .section-label {
+    padding: 24px 20px 6px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  /* ── Settings Row ── */
+  .setting-row {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    height: 56px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .setting-label {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text);
+  }
+  .setting-value {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-3);
+    flex-shrink: 0;
+  }
+
+  /* ── Toggle ── */
+  .toggle-track {
+    width: 44px;
+    height: 24px;
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    background: var(--surface-2);
+    transition: background 0.2s ease;
+  }
+  .toggle-track.on {
+    background: var(--yellow);
+  }
+  .toggle-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: left 0.2s ease;
+  }
+  .toggle-track.on .toggle-thumb {
+    left: 22px;
+    background: #000;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 20px;
+  }
+
+  /* ── Bottom Navigation ── */
+  .bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 8px;
+    z-index: 20;
+    flex-shrink: 0;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    flex: 1;
+    padding: 8px 0;
+    background: none;
+    border: none;
+  }
+  .nav-item svg {
+    width: 22px;
+    height: 22px;
+    fill: var(--text-3);
+    color: var(--text-3);
+  }
+  .nav-item .nav-label {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-3);
+  }
+  .nav-item.active svg {
+    fill: var(--yellow);
+    color: var(--yellow);
+  }
+  .nav-item.active .nav-label {
+    color: var(--yellow);
+  }
+
+  /* ── Gesture Bar ── */
+  .gesture-bar {
+    width: 134px;
+    height: 5px;
+    border-radius: 2.5px;
+    background: var(--text-3);
+    margin: 0 auto;
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="clock">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 16 16"><path d="M1 12h2v3H1zm4-3h2v6H5zm4-3h2v9H9zm4-4h2v13h-2z"/></svg>
+      <svg viewBox="0 0 16 16"><path d="M8 11.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM8 2C4.7 2 1.7 3.4.1 5.8l1.5 1.2C3 5.1 5.4 4 8 4s5 1.1 6.4 2.9l1.5-1.2C14.3 3.4 11.3 2 8 2zm0 4c-2.3 0-4.4 1-5.9 2.6l1.5 1.2C4.8 8.7 6.3 8 8 8s3.2.7 4.4 1.8l1.5-1.2C12.4 7 10.3 6 8 6z"/></svg>
+      <svg viewBox="0 0 16 16"><rect x="1" y="4" width="12" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="2.5" y="5.5" width="7.5" height="5" rx="0.5"/><path d="M14 6.5h1v3h-1z"/></svg>
+    </div>
+  </div>
+
+  <!-- Top App Bar -->
+  <div class="top-app-bar">
+    <div class="top-title">Settings</div>
+  </div>
+
+  <!-- Scrollable Content -->
+  <div class="scroll-content">
+
+    <!-- User Section -->
+    <div class="user-section">
+      <div class="avatar">a</div>
+      <div class="user-info">
+        <div class="user-name">altay</div>
+        <div class="user-email">altay@put.io</div>
+        <div class="user-storage">
+          <div class="user-storage-text">11 TB of 50 TB</div>
+          <div class="user-storage-bar">
+            <div class="user-storage-fill"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Playback -->
+    <div class="section-label">Playback</div>
+
+    <div class="setting-row">
+      <span class="setting-label">Streaming proxy</span>
+      <span class="setting-value">Auto</span>
+    </div>
+
+    <div class="setting-row">
+      <span class="setting-label">Player type</span>
+      <span class="setting-value">ExoPlayer</span>
+    </div>
+
+    <div class="setting-row">
+      <span class="setting-label">Autoplay next</span>
+      <div class="toggle-track on">
+        <div class="toggle-thumb"></div>
+      </div>
+    </div>
+
+    <div class="setting-row">
+      <span class="setting-label">Up next suggestion</span>
+      <div class="toggle-track on">
+        <div class="toggle-thumb"></div>
+      </div>
+    </div>
+
+    <!-- Downloads -->
+    <div class="section-label">Downloads</div>
+
+    <div class="setting-row">
+      <span class="setting-label">Download folder</span>
+      <span class="setting-value">Internal storage</span>
+    </div>
+
+    <div class="setting-row">
+      <span class="setting-label">Auto-delete watched</span>
+      <div class="toggle-track">
+        <div class="toggle-thumb"></div>
+      </div>
+    </div>
+
+    <!-- Storage -->
+    <div class="section-label">Storage</div>
+
+    <div class="setting-row">
+      <span class="setting-label">Trash behavior</span>
+      <span class="setting-value">Auto-delete after 30 days</span>
+    </div>
+
+    <div class="setting-row">
+      <span class="setting-label">Usage format</span>
+      <span class="setting-value">Binary (GiB)</span>
+    </div>
+
+    <!-- Privacy -->
+    <div class="section-label">Privacy</div>
+
+    <div class="setting-row">
+      <span class="setting-label">Watch history</span>
+      <div class="toggle-track on">
+        <div class="toggle-thumb"></div>
+      </div>
+    </div>
+
+    <div class="setting-row">
+      <span class="setting-label">Invisible mode</span>
+      <div class="toggle-track">
+        <div class="toggle-thumb"></div>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div class="section-label">About</div>
+
+    <div class="setting-row">
+      <span class="setting-label">Version</span>
+      <span class="setting-value">4.2.0</span>
+    </div>
+
+    <div class="setting-row" style="border-bottom: none;">
+      <span class="setting-label">Open source licenses</span>
+      <span class="setting-value" style="display:flex;align-items:center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+    </div>
+
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <!-- Files -->
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      <span class="nav-label">Files</span>
+    </button>
+    <!-- Transfers -->
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M12 3v13m0 0l-4-4m4 4l4-4M5 20h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      <span class="nav-label">Transfers</span>
+    </button>
+    <!-- Downloads -->
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4m4-5l5 5 5-5m-5 5V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      <span class="nav-label">Downloads</span>
+    </button>
+    <!-- Settings (active) -->
+    <button class="nav-item active">
+      <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" stroke-width="2" fill="none"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+      <span class="nav-label">Settings</span>
+    </button>
+  </div>
+
+  <!-- Gesture Bar -->
+  <div class="gesture-bar"></div>
+
+</div>
+</body>
+</html>

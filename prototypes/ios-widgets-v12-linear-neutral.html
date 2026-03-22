@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io — iOS Widgets (v12 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #000000;
+    --surface: #111113;
+    --surface-2: #1C1C1E;
+    --elevated: #2C2C2E;
+    --text: #FFFFFF;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --green: #30D158;
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --line: rgba(255,255,255,0.06);
+    --radius: 12px;
+    --widget-bg: rgba(28,28,30,0.85);
+    --widget-radius: 22px;
+  }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #111;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .phone {
+    width: 390px; height: 844px; overflow: hidden;
+    position: relative;
+    background: var(--bg);
+  }
+
+  /* Simulated home screen background */
+  .home-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(253,206,69,0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 60%, rgba(10,132,255,0.03) 0%, transparent 50%),
+      var(--bg);
+  }
+
+  /* App grid blur simulation */
+  .app-grid {
+    position: absolute; inset: 0;
+    display: flex; flex-wrap: wrap;
+    padding: 100px 30px 0;
+    gap: 20px;
+    justify-content: center;
+    filter: blur(20px);
+    opacity: 0.15;
+  }
+  .app-dot {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+  }
+
+  /* Content layer */
+  .widget-layer {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center;
+    padding-top: 60px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .widget-layer::-webkit-scrollbar { display: none; }
+
+  /* Page title */
+  .page-title {
+    font-size: 13px; font-weight: 600; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .page-heading {
+    font-size: 28px; font-weight: 700; letter-spacing: -0.03em;
+    margin-bottom: 32px;
+  }
+
+  /* Widget base */
+  .widget {
+    background: var(--widget-bg);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border-radius: var(--widget-radius);
+    border: 1px solid rgba(255,255,255,0.06);
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .widget-branding {
+    font-size: 9px; font-weight: 600; color: var(--text-3);
+    letter-spacing: 0.04em;
+    opacity: 0.6;
+  }
+
+  /* Widget label */
+  .widget-label {
+    font-size: 11px; font-weight: 600; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 16px;
+    text-align: left;
+    width: 100%;
+    padding-left: 4px;
+  }
+
+  /* ── Small Widget: Storage ── */
+  .widget-small {
+    width: 155px; height: 155px;
+    padding: 14px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .small-ring {
+    position: relative;
+    width: 72px; height: 72px;
+    margin-bottom: 8px;
+  }
+  .small-ring svg {
+    width: 72px; height: 72px;
+    transform: rotate(-90deg);
+  }
+  .small-ring .track {
+    fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 5;
+  }
+  .small-ring .fill {
+    fill: none; stroke: var(--yellow); stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 194;
+    stroke-dashoffset: 151.3; /* 194 * (1 - 0.22) */
+  }
+  .small-ring-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .small-number {
+    font-size: 18px; font-weight: 700; letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .small-sub {
+    font-size: 10px; font-weight: 500; color: var(--text-3);
+    margin-top: 6px;
+  }
+  .widget-small .widget-branding {
+    position: absolute; top: 12px; right: 12px;
+  }
+
+  /* ── Medium Widget: Transfers ── */
+  .widget-medium {
+    width: 329px; height: 155px;
+    padding: 14px 16px;
+    display: flex; flex-direction: column;
+  }
+  .medium-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .medium-title {
+    font-size: 13px; font-weight: 600; color: var(--text-2);
+  }
+  .transfer-item {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .transfer-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .transfer-info { flex: 1; min-width: 0; }
+  .transfer-name {
+    font-size: 13px; font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 6px;
+  }
+  .transfer-bar {
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .transfer-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 999px;
+  }
+  .transfer-pct {
+    font-size: 12px; font-weight: 600; color: var(--yellow);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+    width: 36px; text-align: right;
+  }
+
+  /* ── Large Widget: Recent Files ── */
+  .widget-large {
+    width: 329px; height: 345px;
+    padding: 16px;
+    display: flex; flex-direction: column;
+  }
+  .large-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .large-title {
+    font-size: 13px; font-weight: 600; color: var(--text-2);
+  }
+  .recent-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0;
+    position: relative;
+  }
+  .recent-item + .recent-item {
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .recent-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .recent-icon.folder { background: var(--yellow-dim); }
+  .recent-icon.video { background: rgba(10,132,255,0.12); }
+  .recent-icon.audio { background: rgba(48,209,88,0.12); }
+  .recent-icon.archive { background: rgba(175,82,222,0.12); }
+  .recent-info { flex: 1; min-width: 0; }
+  .recent-name {
+    font-size: 14px; font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .recent-meta {
+    font-size: 11px; font-weight: 400; color: var(--text-3);
+    margin-top: 2px;
+  }
+  .recent-date {
+    font-size: 11px; font-weight: 500; color: var(--text-3);
+    flex-shrink: 0;
+  }
+
+  /* Layout spacing */
+  .widget-row {
+    display: flex; gap: 16px;
+    margin-bottom: 16px;
+  }
+  .widget-stack {
+    display: flex; flex-direction: column;
+    gap: 16px;
+    align-items: center;
+  }
+
+  /* Home indicator */
+  .home-indicator {
+    position: absolute; bottom: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 134px; height: 5px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 999px;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- Background -->
+  <div class="home-bg"></div>
+
+  <!-- Blurred app grid -->
+  <div class="app-grid">
+    <div class="app-dot" style="background: #FF453A;"></div>
+    <div class="app-dot" style="background: #30D158;"></div>
+    <div class="app-dot" style="background: #0A84FF;"></div>
+    <div class="app-dot" style="background: #FDCE45;"></div>
+    <div class="app-dot" style="background: #AF52DE;"></div>
+    <div class="app-dot" style="background: #FF9F0A;"></div>
+    <div class="app-dot" style="background: #64D2FF;"></div>
+    <div class="app-dot" style="background: #FF375F;"></div>
+    <div class="app-dot" style="background: #30D158;"></div>
+    <div class="app-dot" style="background: #0A84FF;"></div>
+    <div class="app-dot" style="background: #BF5AF2;"></div>
+    <div class="app-dot" style="background: #FF9F0A;"></div>
+    <div class="app-dot" style="background: #FF453A;"></div>
+    <div class="app-dot" style="background: #64D2FF;"></div>
+    <div class="app-dot" style="background: #FDCE45;"></div>
+    <div class="app-dot" style="background: #30D158;"></div>
+    <div class="app-dot" style="background: #0A84FF;"></div>
+    <div class="app-dot" style="background: #AF52DE;"></div>
+    <div class="app-dot" style="background: #FF375F;"></div>
+    <div class="app-dot" style="background: #FF9F0A;"></div>
+  </div>
+
+  <!-- Widget showcase -->
+  <div class="widget-layer">
+
+    <span class="page-title">put.io</span>
+    <h1 class="page-heading">Widgets</h1>
+
+    <!-- Row 1: Small + spacer -->
+    <div class="widget-stack">
+
+      <!-- Small Widget: Storage -->
+      <div class="widget-label">Small -- Storage</div>
+      <div class="widget widget-small">
+        <span class="widget-branding">put.io</span>
+        <div class="small-ring">
+          <svg viewBox="0 0 72 72">
+            <circle class="track" cx="36" cy="36" r="31"/>
+            <circle class="fill" cx="36" cy="36" r="31"/>
+          </svg>
+          <div class="small-ring-center">
+            <span class="small-number">11 TB</span>
+          </div>
+        </div>
+        <span class="small-sub">of 50 TB</span>
+      </div>
+
+      <!-- Medium Widget: Active Transfers -->
+      <div style="height: 8px;"></div>
+      <div class="widget-label">Medium -- Active Transfers</div>
+      <div class="widget widget-medium">
+        <div class="medium-header">
+          <span class="medium-title">Active Transfers</span>
+          <span class="widget-branding">put.io</span>
+        </div>
+        <div class="transfer-item">
+          <div class="transfer-icon">
+            <svg width="16" height="16" fill="none"><path d="M4 3l9 5-9 5V3z" fill="var(--blue)" opacity="0.9"/></svg>
+          </div>
+          <div class="transfer-info">
+            <div class="transfer-name">Severance.S03E01.2160p.WEB.H265</div>
+            <div class="transfer-bar">
+              <div class="transfer-fill" style="width: 73%;"></div>
+            </div>
+          </div>
+          <span class="transfer-pct">73%</span>
+        </div>
+        <div class="transfer-item">
+          <div class="transfer-icon">
+            <svg width="16" height="16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="var(--green)" stroke-width="1.2"/><path d="M2 7h12" stroke="var(--green)" stroke-width="1.2"/></svg>
+          </div>
+          <div class="transfer-info">
+            <div class="transfer-name">project-assets-final.zip</div>
+            <div class="transfer-bar">
+              <div class="transfer-fill" style="width: 41%;"></div>
+            </div>
+          </div>
+          <span class="transfer-pct">41%</span>
+        </div>
+      </div>
+
+      <!-- Large Widget: Recent Files -->
+      <div style="height: 8px;"></div>
+      <div class="widget-label">Large -- Recent Files</div>
+      <div class="widget widget-large">
+        <div class="large-header">
+          <span class="large-title">Recent Files</span>
+          <span class="widget-branding">put.io</span>
+        </div>
+
+        <div class="recent-item">
+          <div class="recent-icon folder">
+            <svg width="18" height="18" fill="none"><path d="M3 5.5A1.5 1.5 0 014.5 4H7l1.5 2h5A1.5 1.5 0 0115 7.5v5a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 013 12.5v-7z" fill="var(--yellow)"/></svg>
+          </div>
+          <div class="recent-info">
+            <div class="recent-name">movies</div>
+            <div class="recent-meta">142 GB</div>
+          </div>
+          <span class="recent-date">2m ago</span>
+        </div>
+
+        <div class="recent-item">
+          <div class="recent-icon video">
+            <svg width="18" height="18" fill="none"><path d="M4 3l11 6-11 6V3z" fill="var(--blue)" opacity="0.9"/></svg>
+          </div>
+          <div class="recent-info">
+            <div class="recent-name">Severance.S02E10.2160p.mkv</div>
+            <div class="recent-meta">5.8 GB</div>
+          </div>
+          <span class="recent-date">1h ago</span>
+        </div>
+
+        <div class="recent-item">
+          <div class="recent-icon folder">
+            <svg width="18" height="18" fill="none"><path d="M3 5.5A1.5 1.5 0 014.5 4H7l1.5 2h5A1.5 1.5 0 0115 7.5v5a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 013 12.5v-7z" fill="var(--yellow)"/></svg>
+          </div>
+          <div class="recent-info">
+            <div class="recent-name">shows</div>
+            <div class="recent-meta">86 GB</div>
+          </div>
+          <span class="recent-date">3h ago</span>
+        </div>
+
+        <div class="recent-item">
+          <div class="recent-icon audio">
+            <svg width="18" height="18" fill="none"><path d="M5 4v10" stroke="var(--green)" stroke-width="2" stroke-linecap="round"/><path d="M9 6v6" stroke="var(--green)" stroke-width="2" stroke-linecap="round"/><path d="M13 3v12" stroke="var(--green)" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="recent-info">
+            <div class="recent-name">Episode 127 - Tech Podcast.mp3</div>
+            <div class="recent-meta">84 MB</div>
+          </div>
+          <span class="recent-date">Yesterday</span>
+        </div>
+
+        <div class="recent-item">
+          <div class="recent-icon video">
+            <svg width="18" height="18" fill="none"><path d="M4 3l11 6-11 6V3z" fill="var(--blue)" opacity="0.9"/></svg>
+          </div>
+          <div class="recent-info">
+            <div class="recent-name">The.Batman.2022.2160p.UHD.mkv</div>
+            <div class="recent-meta">82 GB</div>
+          </div>
+          <span class="recent-date">2d ago</span>
+        </div>
+
+      </div>
+
+      <div style="height: 40px;"></div>
+    </div>
+
+  </div>
+
+  <!-- Home Indicator -->
+  <div class="home-indicator"></div>
+
+</div>
+
+</body>
+</html>

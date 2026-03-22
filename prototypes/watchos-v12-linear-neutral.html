@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=820">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io — watchOS (Linear Neutral)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000;
+    --surface: #1C1C1E;
+    --surface-2: #2C2C2E;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --green: #30D158;
+    --green-dim: rgba(48,209,88,0.12);
+    --red: #FF453A;
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #1C1C1E;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    width: 820px;
+    height: 540px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .page-title {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 24px;
+  }
+  .watch-row {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+  .watch-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: center;
+    margin-top: 10px;
+  }
+  .watch-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Watch Face ── */
+  .watch-face {
+    width: 198px;
+    height: 242px;
+    background: var(--bg);
+    border-radius: 48px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.06),
+      0 4px 24px rgba(0,0,0,0.5);
+  }
+
+  /* ── Now Playing Face ── */
+  .face-playing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    padding: 24px 20px 20px;
+  }
+  .face-playing .app-id {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-3);
+    letter-spacing: 0.04em;
+    margin-bottom: 20px;
+  }
+  .face-playing .track-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 4px;
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .face-playing .track-sub {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-3);
+    margin-bottom: 20px;
+  }
+  .play-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  .btn-skip {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .btn-skip svg { width: 16px; height: 16px; fill: var(--text-2); }
+  .btn-play {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .btn-play svg { width: 20px; height: 20px; fill: var(--bg); }
+  .play-progress {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: auto;
+  }
+  .play-progress-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+  .play-time {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 6px;
+  }
+  .play-time span {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Transfer Status Face ── */
+  .face-transfers {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    padding: 24px 18px 20px;
+  }
+  .face-transfers .app-id {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-3);
+    letter-spacing: 0.04em;
+    margin-bottom: 16px;
+  }
+  .transfers-count {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--yellow);
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .transfers-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-2);
+    margin-top: 2px;
+    margin-bottom: 20px;
+  }
+  .mini-transfer {
+    width: 100%;
+    margin-bottom: 12px;
+  }
+  .mini-transfer-name {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+  }
+  .mini-transfer-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .mini-transfer-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+  .mini-transfer-meta {
+    font-size: 9px;
+    font-weight: 400;
+    color: var(--text-3);
+    margin-top: 3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .storage-footer {
+    margin-top: auto;
+    text-align: center;
+  }
+  .storage-footer .val {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .storage-footer .label {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--text-3);
+    margin-top: 1px;
+  }
+</style>
+</head>
+<body>
+<div class="page-title">Apple Watch &mdash; Linear Neutral (v12)</div>
+
+<div class="watch-row">
+
+  <!-- Face 1: Now Playing -->
+  <div class="watch-col">
+    <div class="watch-face">
+      <div class="face-playing">
+        <div class="app-id">put.io</div>
+        <div class="track-name">Episode 127</div>
+        <div class="track-sub">Podcast</div>
+
+        <div class="play-controls">
+          <div class="btn-skip">
+            <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          </div>
+          <div class="btn-play">
+            <svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14l11-7z"/></svg>
+          </div>
+          <div class="btn-skip">
+            <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          </div>
+        </div>
+
+        <div class="play-progress">
+          <div class="play-progress-fill" style="width: 42%"></div>
+        </div>
+        <div class="play-time">
+          <span>18:34</span>
+          <span>44:12</span>
+        </div>
+      </div>
+    </div>
+    <div class="watch-label">Now Playing</div>
+  </div>
+
+  <!-- Face 2: Transfer Status -->
+  <div class="watch-col">
+    <div class="watch-face">
+      <div class="face-transfers">
+        <div class="app-id">put.io</div>
+        <div class="transfers-count">2</div>
+        <div class="transfers-label">Active</div>
+
+        <div class="mini-transfer">
+          <div class="mini-transfer-name">Severance S02E08</div>
+          <div class="mini-transfer-bar">
+            <div class="mini-transfer-fill" style="width: 73%"></div>
+          </div>
+          <div class="mini-transfer-meta">73%</div>
+        </div>
+
+        <div class="mini-transfer">
+          <div class="mini-transfer-name">The Bear S03</div>
+          <div class="mini-transfer-bar">
+            <div class="mini-transfer-fill" style="width: 41%"></div>
+          </div>
+          <div class="mini-transfer-meta">41%</div>
+        </div>
+
+        <div class="storage-footer">
+          <div class="val">11 TB / 50 TB</div>
+          <div class="label">Storage</div>
+        </div>
+      </div>
+    </div>
+    <div class="watch-label">Transfers</div>
+  </div>
+
+</div>
+</body>
+</html>

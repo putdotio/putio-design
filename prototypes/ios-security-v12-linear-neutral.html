@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io — iOS Security (v12 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #000000;
+    --bg-card: rgba(255,255,255,0.04);
+    --bg-elevated: rgba(255,255,255,0.06);
+    --text: #F5F5F5;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --line: rgba(255,255,255,0.06);
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --red: #FF453A;
+    --green: #30D158;
+    --green-dim: rgba(48,209,88,0.10);
+    --blue: #0A84FF;
+    --radius: 12px;
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .phone {
+    width: 390px; height: 844px; overflow: hidden;
+    display: flex; flex-direction: column; position: relative;
+    background: var(--bg);
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 14px 28px 8px;
+    font-size: 15px; font-weight: 600; height: 54px; flex-shrink: 0;
+    color: var(--text);
+  }
+  .status-bar .time { flex: 1; letter-spacing: 0.01em; }
+  .status-bar .icons { display: flex; align-items: center; gap: 6px; }
+
+  /* Navigation */
+  .nav-header {
+    display: flex; align-items: center; padding: 4px 24px 0;
+    flex-shrink: 0;
+  }
+  .nav-back {
+    display: flex; align-items: center; gap: 4px;
+    cursor: pointer; margin-right: 8px;
+  }
+  .nav-back-label {
+    font-size: 17px; font-weight: 400; color: var(--blue);
+  }
+  .nav-title {
+    flex: 1;
+    font-size: 34px; font-weight: 700; color: var(--text);
+    letter-spacing: -0.03em;
+  }
+
+  /* Section Label */
+  .section-label {
+    font-size: 13px; font-weight: 600; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 24px 24px 10px;
+    flex-shrink: 0;
+  }
+  .section-label:first-of-type {
+    padding-top: 20px;
+  }
+
+  /* Content */
+  .content {
+    flex: 1; overflow-y: auto; padding: 0;
+  }
+  .content::-webkit-scrollbar { display: none; }
+
+  /* Setting Group */
+  .setting-group {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    margin: 0 24px 2px;
+    overflow: hidden;
+  }
+
+  .setting-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.12s;
+    min-height: 48px;
+  }
+  .setting-row:active { background: rgba(255,255,255,0.04); }
+  .setting-row + .setting-row::before {
+    content: '';
+    position: absolute; top: 0; left: 16px; right: 16px;
+    height: 1px;
+    background: var(--line);
+  }
+
+  .setting-icon {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    border-radius: 7px;
+  }
+
+  .setting-info { flex: 1; min-width: 0; }
+  .setting-name {
+    font-size: 17px; font-weight: 400; color: var(--text);
+    line-height: 1.3;
+  }
+  .setting-desc {
+    font-size: 13px; font-weight: 400; color: var(--text-3);
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+
+  .setting-chevron {
+    flex-shrink: 0;
+    opacity: 0.2;
+  }
+
+  /* Toggle */
+  .toggle {
+    width: 51px; height: 31px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.10);
+    position: relative;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 27px; height: 27px;
+    border-radius: 999px;
+    background: #fff;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .toggle.on {
+    background: var(--green);
+  }
+  .toggle.on::after {
+    transform: translateX(20px);
+  }
+
+  /* Session */
+  .session-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    position: relative;
+  }
+  .session-row + .session-row::before {
+    content: '';
+    position: absolute; top: 0; left: 52px; right: 16px;
+    height: 1px;
+    background: var(--line);
+  }
+
+  .session-icon {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: var(--bg-elevated);
+  }
+
+  .session-info { flex: 1; min-width: 0; }
+  .session-device {
+    font-size: 15px; font-weight: 500; color: var(--text);
+    line-height: 1.3;
+  }
+  .session-detail {
+    font-size: 13px; font-weight: 400; color: var(--text-2);
+    margin-top: 2px;
+  }
+
+  .session-badge {
+    font-size: 11px; font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+  .session-badge.current {
+    background: var(--green-dim);
+    color: var(--green);
+  }
+  .session-badge.time {
+    color: var(--text-3);
+  }
+
+  /* Destructive Button */
+  .destructive-btn {
+    display: flex; align-items: center; justify-content: center;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: background 0.12s;
+    position: relative;
+  }
+  .destructive-btn::before {
+    content: '';
+    position: absolute; top: 0; left: 16px; right: 16px;
+    height: 1px;
+    background: var(--line);
+  }
+  .destructive-btn:active { background: rgba(255,255,255,0.04); }
+  .destructive-label {
+    font-size: 17px; font-weight: 400; color: var(--red);
+  }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex; align-items: center; justify-content: space-around;
+    padding: 8px 16px 28px;
+    background: rgba(20,20,20,0.85);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+  .tab-item {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; cursor: pointer; position: relative;
+    min-width: 56px;
+  }
+  .tab-icon { position: relative; }
+  .tab-label {
+    font-size: 10px; font-weight: 500; color: var(--text-3);
+    letter-spacing: 0.01em;
+  }
+  .tab-item.active .tab-label { color: var(--yellow); }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg width="17" height="12" fill="none"><g fill="#F5F5F5"><rect x="0" y="3" width="3" height="9" rx="0.5" opacity=".4"/><rect x="4.5" y="2" width="3" height="10" rx="0.5" opacity=".6"/><rect x="9" y="0.5" width="3" height="11.5" rx="0.5" opacity=".8"/><rect x="13.5" y="0" width="3" height="12" rx="0.5"/></g></svg>
+      <svg width="16" height="12" fill="none"><path d="M8 2.4C10.6 2.4 12.9 3.5 14.5 5.2L15.6 4.1C13.7 2.1 11 .8 8 .8S2.3 2.1 .4 4.1L1.5 5.2C3.1 3.5 5.4 2.4 8 2.4Z" fill="#F5F5F5"/><path d="M8 6.3C9.7 6.3 11.2 7 12.3 8.1L13.4 7C12 5.6 10.1 4.7 8 4.7S4 5.6 2.6 7L3.7 8.1C4.8 7 6.3 6.3 8 6.3Z" fill="#F5F5F5"/><path d="M8 10.2C8.9 10.2 9.7 10.6 10.3 11.2L8 13.6 5.7 11.2C6.3 10.6 7.1 10.2 8 10.2Z" fill="#F5F5F5"/></svg>
+      <svg width="27" height="12" fill="none"><rect x="0" y="1" width="22" height="10" rx="2" stroke="#F5F5F5" stroke-opacity=".35"/><rect x="1.5" y="2.5" width="17" height="7" rx="1" fill="#F5F5F5"/><path d="M23.5 4.5v3a1.5 1.5 0 000-3z" fill="#F5F5F5" opacity=".4"/></svg>
+    </div>
+  </div>
+
+  <!-- Nav Header -->
+  <div class="nav-header">
+    <div class="nav-title">Security</div>
+  </div>
+
+  <div class="content">
+    <!-- Two-Factor Auth -->
+    <div class="section-label">Two-Factor Authentication</div>
+    <div class="setting-group">
+      <div class="setting-row">
+        <div class="setting-icon" style="background: rgba(10,132,255,0.12);">
+          <svg width="18" height="18" fill="none" stroke="#0A84FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="12" height="8" rx="2"/><path d="M6 8V5a3 3 0 016 0v3"/></svg>
+        </div>
+        <div class="setting-info">
+          <div class="setting-name">Enable 2FA</div>
+          <div class="setting-desc">Protect your account with an authenticator app</div>
+        </div>
+        <div class="toggle"></div>
+      </div>
+    </div>
+
+    <!-- Active Sessions -->
+    <div class="section-label">Active Sessions</div>
+    <div class="setting-group">
+      <!-- Current: MacBook Pro -->
+      <div class="session-row">
+        <div class="session-icon">
+          <svg width="18" height="18" fill="none" stroke="#F5F5F5" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="14" height="10" rx="1.5"/><path d="M5 16h8"/><path d="M9 13v3"/></svg>
+        </div>
+        <div class="session-info">
+          <div class="session-device">MacBook Pro</div>
+          <div class="session-detail">Safari -- Istanbul</div>
+        </div>
+        <span class="session-badge current">Current</span>
+      </div>
+
+      <!-- iPhone 15 Pro -->
+      <div class="session-row">
+        <div class="session-icon">
+          <svg width="18" height="18" fill="none" stroke="#F5F5F5" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="1" width="8" height="16" rx="2"/><line x1="8" y1="14.5" x2="10" y2="14.5"/></svg>
+        </div>
+        <div class="session-info">
+          <div class="session-device">iPhone 15 Pro</div>
+          <div class="session-detail">put.io App -- Istanbul</div>
+        </div>
+        <span class="session-badge time">2 hours ago</span>
+      </div>
+
+      <!-- Apple TV -->
+      <div class="session-row">
+        <div class="session-icon">
+          <svg width="18" height="18" fill="none" stroke="#F5F5F5" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="16" height="10" rx="1.5"/><path d="M6 16h6"/></svg>
+        </div>
+        <div class="session-info">
+          <div class="session-device">Apple TV</div>
+          <div class="session-detail">put.io -- Istanbul</div>
+        </div>
+        <span class="session-badge time">1 day ago</span>
+      </div>
+
+      <!-- Sign out all -->
+      <div class="destructive-btn">
+        <span class="destructive-label">Sign out all other sessions</span>
+      </div>
+    </div>
+
+    <!-- Password -->
+    <div class="section-label">Password</div>
+    <div class="setting-group">
+      <div class="setting-row">
+        <div class="setting-icon" style="background: rgba(255,255,255,0.06);">
+          <svg width="18" height="18" fill="none" stroke="#F5F5F5" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12.6 5.4a4.5 4.5 0 11-6.36 6.36"/><path d="M9 2v2M2 9h2M14 9h2M9 14v2"/></svg>
+        </div>
+        <div class="setting-info">
+          <div class="setting-name">Change password</div>
+        </div>
+        <svg class="setting-chevron" width="8" height="14" fill="none" stroke="#F5F5F5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l6 6-6 6"/></svg>
+      </div>
+    </div>
+
+    <!-- Privacy -->
+    <div class="section-label">Privacy</div>
+    <div class="setting-group">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-name">History logging</div>
+          <div class="setting-desc">Track your watch and download history</div>
+        </div>
+        <div class="toggle on"></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-name">Invisible mode</div>
+          <div class="setting-desc">Hide your online status from others</div>
+        </div>
+        <div class="toggle"></div>
+      </div>
+    </div>
+
+    <!-- Account Activity -->
+    <div class="section-label">Account Activity</div>
+    <div class="setting-group">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-name">Recent activity</div>
+        </div>
+        <svg class="setting-chevron" width="8" height="14" fill="none" stroke="#F5F5F5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l6 6-6 6"/></svg>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-name">Email alerts for new logins</div>
+        </div>
+        <div class="toggle on"></div>
+      </div>
+    </div>
+
+    <!-- Bottom spacer -->
+    <div style="height: 16px;"></div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg width="22" height="22" fill="none"><path d="M3 4.5A1.5 1.5 0 014.5 3H8l1.5 2h7A1.5 1.5 0 0118 6.5v10a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 012 16.5v-11z" stroke="#48484A" stroke-width="1.6" fill="none"/></svg>
+      </div>
+      <span class="tab-label">Files</span>
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg width="22" height="22" fill="none" stroke="#48484A" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h14M4 11h10M4 15h6"/><circle cx="17" cy="13" r="3" fill="none"/><path d="M17 11.5v3M15.5 13h3"/></svg>
+      </div>
+      <span class="tab-label">Transfers</span>
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg width="22" height="22" fill="none" stroke="#48484A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3v12M7 11l4 4 4-4"/><path d="M4 15v2a2 2 0 002 2h10a2 2 0 002-2v-2"/></svg>
+      </div>
+      <span class="tab-label">Downloads</span>
+    </div>
+    <div class="tab-item active">
+      <div class="tab-icon">
+        <svg width="22" height="22" fill="none" stroke="#FDCE45" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><circle cx="11" cy="11" r="2.5"/><path d="M11 1v2.5M11 18.5V21M1 11h2.5M18.5 11H21"/></svg>
+      </div>
+      <span class="tab-label" style="color: var(--yellow);">Settings</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

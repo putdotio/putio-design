@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<title>put.io -- Settings (v12 Linear Neutral)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --sidebar: #111113;
+    --surface: #19191B;
+    --card: #1C1C1E;
+    --border: rgba(255,255,255,0.06);
+    --border-strong: rgba(255,255,255,0.10);
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #3F3F46;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.10);
+    --green: #30D158;
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --radius: 8px;
+    --radius-sm: 6px;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 240px; background: var(--sidebar); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .sidebar-header { padding: 24px 20px 20px; }
+  .logo { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.03em; }
+  .logo .dot { color: var(--yellow); }
+
+  .sidebar-nav { flex: 1; padding: 0 8px; display: flex; flex-direction: column; gap: 1px; }
+  .nav-section {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--text-4); padding: 20px 12px 6px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 7px 12px;
+    font-size: 13px; font-weight: 500; color: var(--text-3);
+    cursor: pointer; border: none; background: none; width: 100%;
+    text-align: left; font-family: var(--font); border-radius: var(--radius-sm);
+    transition: all 0.12s; line-height: 1;
+  }
+  .nav-item:hover { color: var(--text-2); background: rgba(255,255,255,0.04); }
+  .nav-item.active { color: var(--text); background: rgba(255,255,255,0.06); }
+  .nav-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; opacity: 0.5; }
+  .nav-item.active .nav-icon { opacity: 1; }
+  .nav-icon svg { display: block; }
+  .nav-badge { margin-left: auto; font-size: 11px; font-weight: 500; color: var(--text-4); }
+  .nav-badge-active { margin-left: auto; font-size: 10px; font-weight: 600; color: #000; background: var(--yellow); padding: 1px 7px; border-radius: 10px; }
+  .nav-sep { height: 1px; background: var(--border); margin: 6px 12px; }
+
+  .sidebar-bottom { margin-top: auto; }
+  .storage-section { padding: 16px 20px; border-top: 1px solid var(--border); }
+  .storage-track { width: 100%; height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+  .storage-fill { height: 100%; background: var(--yellow); border-radius: 2px; }
+  .storage-label { font-size: 11px; color: var(--text-4); margin-top: 6px; }
+  .user-row {
+    display: flex; align-items: center; gap: 10px; padding: 12px 20px 16px;
+    cursor: pointer; transition: background 0.12s;
+  }
+  .user-row:hover { background: rgba(255,255,255,0.03); }
+  .user-avatar {
+    width: 28px; height: 28px; background: var(--card); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: var(--text-2);
+  }
+  .user-name { font-size: 12px; font-weight: 500; color: var(--text-2); flex: 1; }
+
+  /* ===== MAIN CONTENT ===== */
+  .content { flex: 1; display: flex; overflow: hidden; }
+
+  /* Settings sidebar (left) */
+  .settings-nav {
+    width: 220px; background: var(--bg); border-right: 1px solid var(--border);
+    padding: 32px 12px; display: flex; flex-direction: column; gap: 1px; flex-shrink: 0;
+  }
+  .settings-nav-section {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-4); padding: 20px 12px 6px;
+  }
+  .settings-nav-section:first-child { padding-top: 0; }
+  .settings-nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 7px 12px;
+    font-size: 13px; font-weight: 500; color: var(--text-3);
+    cursor: pointer; border: none; background: none; width: 100%;
+    text-align: left; font-family: var(--font); border-radius: var(--radius-sm);
+    transition: all 0.12s;
+  }
+  .settings-nav-item:hover { color: var(--text-2); background: rgba(255,255,255,0.04); }
+  .settings-nav-item.active { color: var(--text); background: rgba(255,255,255,0.06); }
+  .sn-icon { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .sn-icon svg { display: block; }
+
+  /* Settings content (right) */
+  .settings-content {
+    flex: 1; overflow-y: auto; padding: 40px 48px 60px;
+  }
+  .settings-content::-webkit-scrollbar { width: 6px; }
+  .settings-content::-webkit-scrollbar-track { background: transparent; }
+  .settings-content::-webkit-scrollbar-thumb { background: var(--text-4); border-radius: 3px; }
+
+  .settings-title {
+    font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: -0.03em;
+    margin-bottom: 8px;
+  }
+  .settings-desc {
+    font-size: 14px; color: var(--text-3); margin-bottom: 40px;
+  }
+
+  /* Sections */
+  .section-header {
+    font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: -0.01em;
+    padding-bottom: 16px; border-bottom: 1px solid var(--border);
+    margin-bottom: 0; margin-top: 40px;
+  }
+  .section-header:first-of-type { margin-top: 0; }
+
+  /* Setting rows */
+  .setting-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 0; min-height: 56px;
+    border-bottom: 1px solid var(--border);
+  }
+  .setting-left { flex: 1; padding-right: 40px; }
+  .setting-label { font-size: 13px; font-weight: 500; color: var(--text); }
+  .setting-hint { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+  .setting-right { flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+
+  /* Controls */
+  .radio-group { display: flex; gap: 2px; background: rgba(255,255,255,0.04); border-radius: var(--radius-sm); padding: 2px; }
+  .radio-btn {
+    padding: 5px 14px; font-size: 12px; font-weight: 500; color: var(--text-3);
+    background: none; border: none; cursor: pointer; border-radius: 4px;
+    font-family: var(--font); transition: all 0.12s;
+  }
+  .radio-btn:hover { color: var(--text-2); }
+  .radio-btn.active { background: rgba(255,255,255,0.10); color: var(--text); }
+
+  .select-control {
+    padding: 6px 32px 6px 12px; font-size: 12px; font-weight: 500;
+    color: var(--text); background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    font-family: var(--font); cursor: pointer; min-width: 180px;
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2371717A' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+  .select-control:hover { border-color: var(--border-strong); }
+
+  .toggle {
+    width: 36px; height: 20px; border-radius: 10px;
+    background: rgba(255,255,255,0.10); cursor: pointer;
+    position: relative; transition: background 0.2s;
+    border: none; flex-shrink: 0;
+  }
+  .toggle::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--text-3); transition: all 0.2s;
+  }
+  .toggle.on { background: var(--yellow); }
+  .toggle.on::after { left: 18px; background: #000; }
+
+  .text-input {
+    padding: 6px 12px; font-size: 12px; font-weight: 500;
+    color: var(--text); background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    font-family: var(--font); width: 180px;
+  }
+  .text-input:focus { outline: none; border-color: var(--yellow); }
+  .text-input::placeholder { color: var(--text-4); }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="dot">.</span>io</div>
+    </div>
+    <div class="sidebar-nav">
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M2 7l7-5 7 5v8a1 1 0 01-1 1H3a1 1 0 01-1-1V7z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Files
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M3 13V5a2 2 0 012-2h6l4 4v6a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 3v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Transfers
+        <span class="nav-badge">3</span>
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M9 16A7 7 0 109 2a7 7 0 000 14z" stroke="currentColor" stroke-width="1.5"/><path d="M9 5v4l3 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        History
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M3 5h12M3 9h12M3 13h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        RSS
+      </button>
+      <div class="nav-sep"></div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 9.5L8 12l4.5-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Storage
+      </button>
+      <button class="nav-item active">
+        <span class="nav-icon"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M9.5 2.1a.75.75 0 00-1 0l-6 5.25A.75.75 0 003 8.25V15a.75.75 0 00.75.75h3a.75.75 0 00.75-.75v-3.75h3V15a.75.75 0 00.75.75h3A.75.75 0 0015 15V8.25a.75.75 0 00.5-.9l-6-5.25z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="9" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M11.83 4.17A4 4 0 019 3a4 4 0 01-2.83 1.17M13.66 2.34A6 6 0 009 1a6 6 0 00-4.66 1.34" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        Settings
+      </button>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="storage-section">
+        <div class="storage-track"><div class="storage-fill" style="width:22%"></div></div>
+        <div class="storage-label">11 TB of 50 TB used</div>
+      </div>
+      <div class="user-row">
+        <div class="user-avatar">A</div>
+        <div class="user-name">altay@put.io</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="content">
+    <!-- Settings nav -->
+    <div class="settings-nav">
+      <div class="settings-nav-section">Account</div>
+      <button class="settings-nav-item active">
+        <span class="sn-icon"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M6.86 2.57a1.5 1.5 0 012.28 0l.37.43a1.5 1.5 0 001.22.5l.57-.03a1.5 1.5 0 011.61 1.14l.11.56a1.5 1.5 0 00.78 1.01l.49.27a1.5 1.5 0 01.57 1.96l-.27.5a1.5 1.5 0 000 1.18l.27.5a1.5 1.5 0 01-.57 1.96l-.49.27a1.5 1.5 0 00-.78 1.01l-.11.56a1.5 1.5 0 01-1.61 1.14l-.57-.03a1.5 1.5 0 00-1.22.5l-.37.43a1.5 1.5 0 01-2.28 0l-.37-.43a1.5 1.5 0 00-1.22-.5l-.57.03a1.5 1.5 0 01-1.61-1.14l-.11-.56a1.5 1.5 0 00-.78-1.01l-.49-.27a1.5 1.5 0 01-.57-1.96l.27-.5a1.5 1.5 0 000-1.18l-.27-.5a1.5 1.5 0 01.57-1.96l.49-.27a1.5 1.5 0 00.78-1.01l.11-.56A1.5 1.5 0 014.7 3.47l.57.03a1.5 1.5 0 001.22-.5l.37-.43z" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/></svg></span>
+        Preferences
+      </button>
+      <button class="settings-nav-item">
+        <span class="sn-icon"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 14c0-2.76 2.69-5 6-5s6 2.24 6 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></span>
+        Profile
+      </button>
+      <button class="settings-nav-item">
+        <span class="sn-icon"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M12 5.5a4 4 0 10-8 0C4 9 2 10.5 2 10.5h12S12 9 12 5.5zM9.15 13a1.5 1.5 0 01-2.3 0" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Notifications
+      </button>
+      <button class="settings-nav-item">
+        <span class="sn-icon"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></span>
+        Security
+      </button>
+      <button class="settings-nav-item">
+        <span class="sn-icon"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M10 2h4v4M6 14H2v-4M14 2L9.5 6.5M2 14l4.5-4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Connected accounts
+      </button>
+      <div class="settings-nav-section">Features</div>
+      <button class="settings-nav-item">
+        <span class="sn-icon"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><polygon points="8,1 10,6 15,6 11,9 12.5,14 8,11 3.5,14 5,9 1,6 6,6" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></span>
+        Experimental
+      </button>
+      <button class="settings-nav-item">
+        <span class="sn-icon"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><rect x="1" y="3" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 6h14" stroke="currentColor" stroke-width="1.2"/></svg></span>
+        API
+      </button>
+    </div>
+
+    <!-- Settings detail -->
+    <div class="settings-content">
+      <div class="settings-title">Preferences</div>
+      <div class="settings-desc">Customize how put.io looks and behaves</div>
+
+      <!-- General -->
+      <div class="section-header">General</div>
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-label">Theme</div>
+          <div class="setting-hint">Controls the app color scheme</div>
+        </div>
+        <div class="setting-right">
+          <div class="radio-group">
+            <button class="radio-btn active">Dark</button>
+            <button class="radio-btn">Light</button>
+            <button class="radio-btn">System</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-label">Layout</div>
+          <div class="setting-hint">Choose between a fixed or fluid content area</div>
+        </div>
+        <div class="setting-right">
+          <div class="radio-group">
+            <button class="radio-btn active">Fixed</button>
+            <button class="radio-btn">Fluid</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-label">Language</div>
+          <div class="setting-hint">Select your preferred language</div>
+        </div>
+        <div class="setting-right">
+          <select class="select-control">
+            <option>English</option>
+            <option>Turkish</option>
+            <option>German</option>
+            <option>Spanish</option>
+            <option>French</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Playback -->
+      <div class="section-header">Playback</div>
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-label">Proxy</div>
+          <div class="setting-hint">Route playback through a specific server</div>
+        </div>
+        <div class="setting-right">
+          <select class="select-control">
+            <option>Amsterdam (Direct)</option>
+            <option>London</option>
+            <option>New York</option>
+            <option>Frankfurt</option>
+            <option>Singapore</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-label">Player type</div>
+          <div class="setting-hint">Video playback technology</div>
+        </div>
+        <div class="setting-right">
+          <select class="select-control">
+            <option>HLS</option>
+            <option>MP4</option>
+            <option>WebRTC</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-label">Autoplay</div>
+          <div class="setting-hint">Automatically start playing when you open a video</div>
+        </div>
+        <div class="setting-right">
+          <button class="toggle on"></button>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-label">Suggest next</div>
+          <div class="setting-hint">Show next episode or related video when current one ends</div>
+        </div>
+        <div class="setting-right">
+          <button class="toggle on"></button>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-label">Default speed</div>
+          <div class="setting-hint">Playback speed applied to all new videos</div>
+        </div>
+        <div class="setting-right">
+          <select class="select-control" style="min-width:100px">
+            <option>0.5x</option>
+            <option>0.75x</option>
+            <option selected>1x</option>
+            <option>1.25x</option>
+            <option>1.5x</option>
+            <option>2x</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Subtitles -->
+      <div class="section-header">Subtitles</div>
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-label">Default language</div>
+          <div class="setting-hint">Preferred subtitle language when available</div>
+        </div>
+        <div class="setting-right">
+          <select class="select-control">
+            <option>English</option>
+            <option>Turkish</option>
+            <option>Spanish</option>
+            <option>French</option>
+            <option>German</option>
+            <option>None</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-label">Size</div>
+          <div class="setting-hint">Subtitle text size on the player</div>
+        </div>
+        <div class="setting-right">
+          <div class="radio-group">
+            <button class="radio-btn">S</button>
+            <button class="radio-btn active">M</button>
+            <button class="radio-btn">L</button>
+            <button class="radio-btn">XL</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-label">Style</div>
+          <div class="setting-hint">Subtitle appearance style</div>
+        </div>
+        <div class="setting-right">
+          <select class="select-control" style="min-width:140px">
+            <option>Drop shadow</option>
+            <option>Background box</option>
+            <option>Outline</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Transfers -->
+      <div class="section-header">Transfers</div>
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-label">Default folder</div>
+          <div class="setting-hint">Where new transfers are saved</div>
+        </div>
+        <div class="setting-right">
+          <select class="select-control">
+            <option>/ (root)</option>
+            <option>/Downloads</option>
+            <option>/Movies</option>
+            <option>/TV Shows</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-label">Magnet handler</div>
+          <div class="setting-hint">Register put.io as the default magnet link handler</div>
+        </div>
+        <div class="setting-right">
+          <button class="toggle"></button>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-label">Callback URL</div>
+          <div class="setting-hint">Send a POST request when a transfer completes</div>
+        </div>
+        <div class="setting-right">
+          <input class="text-input" type="text" placeholder="https://example.com/webhook">
+        </div>
+      </div>
+
+      <!-- Storage -->
+      <div class="section-header">Storage</div>
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-label">Trash auto-delete</div>
+          <div class="setting-hint">Automatically empty trash after a period</div>
+        </div>
+        <div class="setting-right">
+          <select class="select-control" style="min-width:140px">
+            <option>Never</option>
+            <option>After 7 days</option>
+            <option selected>After 30 days</option>
+            <option>After 90 days</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-row" style="border-bottom:none">
+        <div class="setting-left">
+          <div class="setting-label">Usage format</div>
+          <div class="setting-hint">How storage sizes are displayed</div>
+        </div>
+        <div class="setting-right">
+          <div class="radio-group">
+            <button class="radio-btn active">Binary (GiB)</button>
+            <button class="radio-btn">Decimal (GB)</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

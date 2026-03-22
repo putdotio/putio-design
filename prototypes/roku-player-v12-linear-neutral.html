@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io — Roku Player (Linear Neutral)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000;
+    --surface: #1C1C1E;
+    --surface-2: #2C2C2E;
+    --border: rgba(255,255,255,0.06);
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --green: #30D158;
+    --red: #FF453A;
+  }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg);
+  }
+
+  /* ── Video Background Placeholder ── */
+  .video-bg {
+    position: absolute;
+    inset: 0;
+    background: #0A0A0A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .video-placeholder {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-3);
+    letter-spacing: 0.05em;
+    opacity: 0.4;
+  }
+
+  /* ── Top Gradient Overlay ── */
+  .top-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 240px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+    padding: 48px 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 2;
+  }
+  .player-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .player-subtitle {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text-2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .player-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--yellow-dim);
+    color: var(--yellow);
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Bottom Gradient Overlay ── */
+  .bottom-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 320px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 64px 48px;
+    gap: 28px;
+    z-index: 2;
+  }
+
+  /* ── Center Controls ── */
+  .center-controls {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    z-index: 3;
+  }
+  .ctrl-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+  }
+  .ctrl-btn.skip {
+    width: 56px;
+    height: 56px;
+    background: rgba(255,255,255,0.08);
+  }
+  .ctrl-btn.skip svg {
+    width: 28px;
+    height: 28px;
+    fill: var(--text-2);
+  }
+  .ctrl-btn.play {
+    width: 80px;
+    height: 80px;
+    background: var(--surface);
+    border: 2px solid var(--yellow);
+  }
+  .ctrl-btn.play svg {
+    width: 36px;
+    height: 36px;
+    fill: var(--yellow);
+  }
+  .ctrl-btn.focused {
+    background: var(--yellow-dim);
+    transform: scale(1.1);
+  }
+  .ctrl-btn.focused svg {
+    fill: var(--yellow);
+  }
+
+  /* ── Progress Bar ── */
+  .progress-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .progress-track {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 3px;
+    position: relative;
+  }
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--yellow);
+  }
+  .progress-times {
+    display: flex;
+    justify-content: space-between;
+  }
+  .progress-time {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Action Row ── */
+  .action-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    background: rgba(255,255,255,0.06);
+  }
+  .action-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--text-2);
+  }
+  .action-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-2);
+  }
+  .action-btn.focused {
+    background: var(--yellow-dim);
+    border-color: var(--yellow);
+  }
+  .action-btn.focused svg {
+    fill: var(--yellow);
+  }
+  .action-btn.focused .action-label {
+    color: var(--yellow);
+  }
+  .action-btn.active .action-label {
+    color: var(--text);
+  }
+  .action-btn.active svg {
+    fill: var(--text);
+  }
+  .action-value {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    margin-left: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- Video Background -->
+  <div class="video-bg">
+    <div class="video-placeholder">VIDEO PLAYBACK</div>
+  </div>
+
+  <!-- Top Overlay -->
+  <div class="top-overlay">
+    <div class="player-title">Dune: Part Two</div>
+    <div class="player-subtitle">
+      <span>2024</span>
+      <span>&#183;</span>
+      <span>2h 46m</span>
+      <span>&#183;</span>
+      <span class="player-badge">4K</span>
+      <span class="player-badge">HDR</span>
+    </div>
+  </div>
+
+  <!-- Center Controls -->
+  <div class="center-controls">
+    <div class="ctrl-btn skip">
+      <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" transform="scale(-1,1) translate(-24,0)"/></svg>
+    </div>
+    <div class="ctrl-btn play focused">
+      <svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14l8-7z"/></svg>
+    </div>
+    <div class="ctrl-btn skip">
+      <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+    </div>
+  </div>
+
+  <!-- Bottom Overlay -->
+  <div class="bottom-overlay">
+
+    <!-- Progress -->
+    <div class="progress-section">
+      <div class="progress-track">
+        <div class="progress-fill" style="width:62%"></div>
+      </div>
+      <div class="progress-times">
+        <div class="progress-time">1:42:38</div>
+        <div class="progress-time">2:46:12</div>
+      </div>
+    </div>
+
+    <!-- Action Row -->
+    <div class="action-row">
+      <div class="action-btn active">
+        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6zm0 4h8v2H6zm10 0h2v2h-2zm-6-4h8v2h-8z"/></svg>
+        <span class="action-label">Subtitles</span>
+        <span class="action-value">English</span>
+      </div>
+
+      <div class="action-btn focused">
+        <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        <span class="action-label">Audio</span>
+        <span class="action-value">English 5.1</span>
+      </div>
+
+      <div class="action-btn">
+        <svg viewBox="0 0 24 24"><path d="M20.38 8.57l-1.23 1.85a8 8 0 01-.22 7.58H5.07A8 8 0 0115.58 6.85l1.85-1.23A10 10 0 003.35 19a2 2 0 001.72 1h13.85a2 2 0 001.74-1 10 10 0 00-.27-10.44z"/><path d="M10.59 15.41a2 2 0 002.83 0l5.66-8.49-8.49 5.66a2 2 0 000 2.83z"/></svg>
+        <span class="action-label">Speed</span>
+        <span class="action-value">1.0x</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</body>
+</html>

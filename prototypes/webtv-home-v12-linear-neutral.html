@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io — Smart TV Home (v12 Linear Neutral)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000;
+    --surface: #1C1C1E;
+    --surface-2: #2C2C2E;
+    --border: rgba(255,255,255,0.06);
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --green: #30D158;
+    --red: #FF453A;
+  }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+  }
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+  }
+
+  /* -- Top Bar -- */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    padding: 40px 64px 0;
+    gap: 48px;
+    flex-shrink: 0;
+  }
+  .logo {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    margin-right: 16px;
+  }
+  .logo .dot { color: var(--yellow); }
+  .nav-tabs {
+    display: flex;
+    gap: 8px;
+  }
+  .nav-tab {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-3);
+    padding: 10px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+  .nav-tab.active {
+    color: var(--yellow);
+    font-weight: 600;
+  }
+  .nav-tab.focused {
+    color: var(--yellow);
+    border-color: var(--yellow);
+    background: var(--yellow-dim);
+  }
+
+  /* -- Content -- */
+  .content {
+    flex: 1;
+    padding: 48px 64px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  /* -- Lane -- */
+  .lane { display: flex; flex-direction: column; gap: 20px; }
+  .lane-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .lane-title {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .lane-link {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-3);
+  }
+  .lane-cards {
+    display: flex;
+    gap: 20px;
+  }
+
+  /* -- Card Base -- */
+  .card {
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 20px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+  .card.focused {
+    transform: scale(1.03);
+    border-color: var(--yellow);
+    z-index: 2;
+  }
+  .card.focused::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 3px;
+    background: var(--yellow);
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* -- Continue Watching Card -- */
+  .cw-card {
+    width: 380px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .cw-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .cw-thumb {
+    width: 80px;
+    height: 48px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .cw-thumb svg { width: 24px; height: 24px; fill: var(--text-3); }
+  .cw-info { flex: 1; min-width: 0; }
+  .cw-name {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cw-meta {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-3);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--yellow-dim);
+    color: var(--yellow);
+    letter-spacing: 0.02em;
+  }
+  .progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+
+  /* -- Recently Added Card -- */
+  .ra-card {
+    width: 280px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+  }
+  .ra-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: var(--yellow-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .ra-icon svg { width: 24px; height: 24px; fill: var(--yellow); }
+  .ra-icon.file svg { fill: var(--text-2); }
+  .ra-icon.file { background: rgba(255,255,255,0.06); }
+  .ra-info { flex: 1; min-width: 0; }
+  .ra-name {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ra-detail {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-3);
+    margin-top: 3px;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">put<span class="dot">.</span>io</div>
+    <div class="nav-tabs">
+      <div class="nav-tab active">Home</div>
+      <div class="nav-tab">Files</div>
+      <div class="nav-tab">Search</div>
+      <div class="nav-tab">Settings</div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Continue Watching -->
+    <div class="lane">
+      <div class="lane-header">
+        <div class="lane-title">Continue Watching</div>
+        <div class="lane-link">See All</div>
+      </div>
+      <div class="lane-cards">
+
+        <div class="card cw-card focused">
+          <div class="cw-top">
+            <div class="cw-thumb">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <div class="cw-info">
+              <div class="cw-name">Severance S02E07</div>
+              <div class="cw-meta">
+                <span>23 min left</span>
+                <span class="badge">1080p</span>
+              </div>
+            </div>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width: 68%"></div></div>
+        </div>
+
+        <div class="card cw-card">
+          <div class="cw-top">
+            <div class="cw-thumb">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <div class="cw-info">
+              <div class="cw-name">Dune Part Two</div>
+              <div class="cw-meta">
+                <span>1h 12m left</span>
+                <span class="badge">4K</span>
+              </div>
+            </div>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width: 34%"></div></div>
+        </div>
+
+        <div class="card cw-card">
+          <div class="cw-top">
+            <div class="cw-thumb">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <div class="cw-info">
+              <div class="cw-name">The Bear S03E04</div>
+              <div class="cw-meta">
+                <span>8 min left</span>
+                <span class="badge">1080p</span>
+              </div>
+            </div>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width: 82%"></div></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Recently Added -->
+    <div class="lane">
+      <div class="lane-header">
+        <div class="lane-title">Recently Added</div>
+        <div class="lane-link">See All</div>
+      </div>
+      <div class="lane-cards">
+
+        <div class="card ra-card">
+          <div class="ra-icon">
+            <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+          </div>
+          <div class="ra-info">
+            <div class="ra-name">Shows</div>
+            <div class="ra-detail">12 items</div>
+          </div>
+        </div>
+
+        <div class="card ra-card">
+          <div class="ra-icon">
+            <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+          </div>
+          <div class="ra-info">
+            <div class="ra-name">Movies</div>
+            <div class="ra-detail">8 items</div>
+          </div>
+        </div>
+
+        <div class="card ra-card">
+          <div class="ra-icon file">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div class="ra-info">
+            <div class="ra-name">podcast-ep-127.mp3</div>
+            <div class="ra-detail">142 MB</div>
+          </div>
+        </div>
+
+        <div class="card ra-card">
+          <div class="ra-icon file">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 2l5 5h-5V4z"/></svg>
+          </div>
+          <div class="ra-info">
+            <div class="ra-name">project-assets.zip</div>
+            <div class="ra-detail">2.4 GB</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

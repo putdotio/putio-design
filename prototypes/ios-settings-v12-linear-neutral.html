@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io -- iOS Settings v12 Linear Neutral</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #000000;
+    --bg-card: rgba(255,255,255,0.04);
+    --bg-elevated: rgba(255,255,255,0.06);
+    --text: #F5F5F5;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #3F3F46;
+    --line: rgba(255,255,255,0.06);
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --red: #FF453A;
+    --green: #30D158;
+    --blue: #0A84FF;
+    --radius: 12px;
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .phone {
+    width: 390px; height: 844px; overflow: hidden;
+    display: flex; flex-direction: column; position: relative;
+    background: var(--bg);
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 14px 28px 8px;
+    font-size: 15px; font-weight: 600; height: 54px; flex-shrink: 0;
+    color: var(--text);
+  }
+  .status-bar .time { flex: 1; letter-spacing: 0.01em; }
+  .status-bar .icons { display: flex; align-items: center; gap: 6px; }
+
+  /* Nav Header */
+  .nav-header {
+    display: flex; align-items: center; padding: 4px 24px 0;
+    flex-shrink: 0;
+  }
+  .nav-title {
+    flex: 1;
+    font-size: 34px; font-weight: 700; color: var(--text);
+    letter-spacing: -0.03em;
+  }
+
+  /* Settings Scroll */
+  .settings-scroll {
+    flex: 1; overflow-y: auto; padding: 0 24px 100px;
+    margin-top: 16px;
+  }
+  .settings-scroll::-webkit-scrollbar { display: none; }
+
+  /* Section Label */
+  .section-label {
+    font-size: 11px; font-weight: 600; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 24px 0 10px;
+  }
+  .section-label:first-child { padding-top: 8px; }
+
+  /* Settings Group */
+  .settings-group {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  /* Profile Row */
+  .profile-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .profile-row:active { background: rgba(255,255,255,0.04); }
+  .profile-avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--yellow-dim);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .profile-info { flex: 1; min-width: 0; }
+  .profile-name {
+    font-size: 17px; font-weight: 600; color: var(--text);
+    line-height: 1.3;
+  }
+  .profile-email {
+    font-size: 14px; font-weight: 400; color: var(--text-2);
+    margin-top: 1px;
+  }
+
+  /* Storage Bar */
+  .storage-section {
+    padding: 0 16px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .storage-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 12px; margin-bottom: 8px;
+  }
+  .storage-label {
+    font-size: 13px; font-weight: 400; color: var(--text-2);
+  }
+  .storage-value {
+    font-size: 13px; font-weight: 600; color: var(--yellow);
+    font-variant-numeric: tabular-nums;
+  }
+  .storage-track {
+    height: 3px; background: rgba(255,255,255,0.06);
+    border-radius: 999px; overflow: hidden;
+  }
+  .storage-fill {
+    height: 100%; width: 22%;
+    background: var(--yellow);
+    border-radius: 999px;
+  }
+
+  /* Setting Row */
+  .setting-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .setting-row:active { background: rgba(255,255,255,0.04); }
+  .setting-row + .setting-row::before {
+    content: '';
+    position: absolute; top: 0; left: 16px; right: 16px;
+    height: 1px;
+    background: var(--line);
+  }
+  .setting-label {
+    flex: 1;
+    font-size: 16px; font-weight: 400; color: var(--text);
+    line-height: 1.3;
+  }
+  .setting-value {
+    font-size: 15px; font-weight: 400; color: var(--text-3);
+    flex-shrink: 0;
+  }
+  .setting-chevron {
+    flex-shrink: 0;
+    opacity: 0.2;
+  }
+
+  /* Toggle */
+  .toggle-track {
+    width: 44px; height: 26px; border-radius: 13px;
+    position: relative; cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .toggle-track.on { background: var(--yellow); }
+  .toggle-track.off { background: rgba(255,255,255,0.12); }
+  .toggle-thumb {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #000;
+    position: absolute; top: 2px;
+    transition: left 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .toggle-track.on .toggle-thumb { left: 20px; }
+  .toggle-track.off .toggle-thumb { left: 2px; background: #666; }
+
+  /* Footer */
+  .settings-footer {
+    text-align: center;
+    padding: 32px 0 24px;
+  }
+  .footer-kaomoji {
+    font-size: 20px; color: var(--text-4);
+    margin-bottom: 6px;
+  }
+  .footer-version {
+    font-size: 12px; font-weight: 500; color: var(--text-4);
+    letter-spacing: 0.02em;
+  }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex; align-items: center; justify-content: space-around;
+    padding: 8px 16px 28px;
+    background: rgba(20,20,20,0.85);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+  .tab-item {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; cursor: pointer; min-width: 56px;
+  }
+  .tab-label {
+    font-size: 10px; font-weight: 500; color: var(--text-4);
+    letter-spacing: 0.01em;
+  }
+  .tab-item.active .tab-label { color: var(--yellow); }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg width="17" height="12" fill="none"><g fill="#F5F5F5"><rect x="0" y="3" width="3" height="9" rx="0.5" opacity=".4"/><rect x="4.5" y="2" width="3" height="10" rx="0.5" opacity=".6"/><rect x="9" y="0.5" width="3" height="11.5" rx="0.5" opacity=".8"/><rect x="13.5" y="0" width="3" height="12" rx="0.5"/></g></svg>
+      <svg width="16" height="12" fill="none"><path d="M8 2.4C10.6 2.4 12.9 3.5 14.5 5.2L15.6 4.1C13.7 2.1 11 .8 8 .8S2.3 2.1 .4 4.1L1.5 5.2C3.1 3.5 5.4 2.4 8 2.4Z" fill="#F5F5F5"/><path d="M8 6.3C9.7 6.3 11.2 7 12.3 8.1L13.4 7C12 5.6 10.1 4.7 8 4.7S4 5.6 2.6 7L3.7 8.1C4.8 7 6.3 6.3 8 6.3Z" fill="#F5F5F5"/><path d="M8 10.2C8.9 10.2 9.7 10.6 10.3 11.2L8 13.6 5.7 11.2C6.3 10.6 7.1 10.2 8 10.2Z" fill="#F5F5F5"/></svg>
+      <svg width="27" height="12" fill="none"><rect x="0" y="1" width="22" height="10" rx="2" stroke="#F5F5F5" stroke-opacity=".35"/><rect x="1.5" y="2.5" width="17" height="7" rx="1" fill="#F5F5F5"/><path d="M23.5 4.5v3a1.5 1.5 0 000-3z" fill="#F5F5F5" opacity=".4"/></svg>
+    </div>
+  </div>
+
+  <!-- Nav Header -->
+  <div class="nav-header">
+    <div class="nav-title">Settings</div>
+  </div>
+
+  <!-- Settings Content -->
+  <div class="settings-scroll">
+
+    <!-- Account -->
+    <div class="section-label">Account</div>
+    <div class="settings-group">
+      <div class="profile-row">
+        <div class="profile-avatar">
+          <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <rect x="4" y="4" width="3" height="3" fill="#FDCE45"/>
+            <rect x="10.5" y="4" width="3" height="3" fill="#FDCE45"/>
+            <rect x="17" y="4" width="3" height="3" fill="#FDCE45"/>
+            <rect x="3" y="8" width="18" height="3" fill="#FDCE45"/>
+            <rect x="5" y="12" width="2" height="3" fill="#FDCE45"/>
+            <rect x="9" y="12" width="2" height="3" fill="#FDCE45"/>
+            <rect x="13" y="12" width="2" height="3" fill="#FDCE45"/>
+            <rect x="17" y="12" width="2" height="3" fill="#FDCE45"/>
+            <rect x="7" y="16" width="2" height="3" fill="#FDCE45"/>
+            <rect x="11" y="16" width="2" height="3" fill="#FDCE45"/>
+            <rect x="15" y="16" width="2" height="3" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="profile-info">
+          <div class="profile-name">altay</div>
+          <div class="profile-email">altay@put.io</div>
+        </div>
+        <svg class="setting-chevron" width="8" height="14" fill="none" stroke="#F5F5F5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l6 6-6 6"/></svg>
+      </div>
+      <div class="storage-section">
+        <div class="storage-header">
+          <span class="storage-label">Storage</span>
+          <span class="storage-value">11 TB of 50 TB</span>
+        </div>
+        <div class="storage-track">
+          <div class="storage-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Playback -->
+    <div class="section-label">Playback</div>
+    <div class="settings-group">
+      <div class="setting-row">
+        <span class="setting-label">Media proxy</span>
+        <span class="setting-value">Amsterdam Direct</span>
+        <svg class="setting-chevron" width="8" height="14" fill="none" stroke="#F5F5F5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l6 6-6 6"/></svg>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Playback type</span>
+        <span class="setting-value">HLS</span>
+        <svg class="setting-chevron" width="8" height="14" fill="none" stroke="#F5F5F5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l6 6-6 6"/></svg>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Buffer size</span>
+        <span class="setting-value">Auto</span>
+        <svg class="setting-chevron" width="8" height="14" fill="none" stroke="#F5F5F5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l6 6-6 6"/></svg>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Autoplay</span>
+        <div class="toggle-track on"><div class="toggle-thumb"></div></div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Suggest next media</span>
+        <div class="toggle-track on"><div class="toggle-thumb"></div></div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Playback speed default</span>
+        <span class="setting-value">1.0x</span>
+        <svg class="setting-chevron" width="8" height="14" fill="none" stroke="#F5F5F5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l6 6-6 6"/></svg>
+      </div>
+    </div>
+
+    <!-- Subtitles -->
+    <div class="section-label">Subtitles</div>
+    <div class="settings-group">
+      <div class="setting-row">
+        <span class="setting-label">Enable by default</span>
+        <div class="toggle-track off"><div class="toggle-thumb"></div></div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Language preference</span>
+        <span class="setting-value">English</span>
+        <svg class="setting-chevron" width="8" height="14" fill="none" stroke="#F5F5F5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l6 6-6 6"/></svg>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Size &amp; style</span>
+        <span class="setting-value">Medium</span>
+        <svg class="setting-chevron" width="8" height="14" fill="none" stroke="#F5F5F5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l6 6-6 6"/></svg>
+      </div>
+    </div>
+
+    <!-- Transfers -->
+    <div class="section-label">Transfers</div>
+    <div class="settings-group">
+      <div class="setting-row">
+        <span class="setting-label">Default download folder</span>
+        <span class="setting-value">Root</span>
+        <svg class="setting-chevron" width="8" height="14" fill="none" stroke="#F5F5F5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l6 6-6 6"/></svg>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Magnet link handler</span>
+        <div class="toggle-track on"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+
+    <!-- Storage -->
+    <div class="section-label">Storage</div>
+    <div class="settings-group">
+      <div class="setting-row">
+        <span class="setting-label">Trash behavior</span>
+        <span class="setting-value">Auto-delete 30d</span>
+        <svg class="setting-chevron" width="8" height="14" fill="none" stroke="#F5F5F5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l6 6-6 6"/></svg>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Disk usage format</span>
+        <span class="setting-value">Binary (GiB)</span>
+        <svg class="setting-chevron" width="8" height="14" fill="none" stroke="#F5F5F5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l6 6-6 6"/></svg>
+      </div>
+    </div>
+
+    <!-- Privacy -->
+    <div class="section-label">Privacy</div>
+    <div class="settings-group">
+      <div class="setting-row">
+        <span class="setting-label">History logging</span>
+        <div class="toggle-track on"><div class="toggle-thumb"></div></div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Invisible mode</span>
+        <div class="toggle-track off"><div class="toggle-thumb"></div></div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Account activity alerts</span>
+        <div class="toggle-track on"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div class="section-label">About</div>
+    <div class="settings-group">
+      <div class="setting-row">
+        <span class="setting-label">Version</span>
+        <span class="setting-value">4.2.0</span>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Licenses</span>
+        <svg class="setting-chevron" width="8" height="14" fill="none" stroke="#F5F5F5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l6 6-6 6"/></svg>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="settings-footer">
+      <div class="footer-kaomoji">&#x1566;(&#xF2;_&#xF3;&#x02C7;)&#x1564;</div>
+      <div class="footer-version">Made with care in Istanbul</div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg width="22" height="22" fill="none"><path d="M3 4.5A1.5 1.5 0 014.5 3H8l1.5 2h7A1.5 1.5 0 0118 6.5v10a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 012 16.5v-11z" stroke="#3F3F46" stroke-width="1.6" fill="none"/></svg>
+      </div>
+      <span class="tab-label">Files</span>
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg width="22" height="22" fill="none" stroke="#3F3F46" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h14M4 11h10M4 15h6"/></svg>
+      </div>
+      <span class="tab-label">Transfers</span>
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg width="22" height="22" fill="none" stroke="#3F3F46" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3v12M7 11l4 4 4-4"/><path d="M4 15v2a2 2 0 002 2h10a2 2 0 002-2v-2"/></svg>
+      </div>
+      <span class="tab-label">Downloads</span>
+    </div>
+    <div class="tab-item active">
+      <div class="tab-icon">
+        <svg width="22" height="22" fill="none"><circle cx="11" cy="11" r="7.5" stroke="#FDCE45" stroke-width="1.6"/><circle cx="11" cy="11" r="2.5" fill="#FDCE45"/><path d="M11 1v2.5M11 18.5V21M1 11h2.5M18.5 11H21" stroke="#FDCE45" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </div>
+      <span class="tab-label" style="color: var(--yellow);">Settings</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

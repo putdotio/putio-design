@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io — Roku Files (Linear Neutral)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000;
+    --surface: #1C1C1E;
+    --surface-2: #2C2C2E;
+    --border: rgba(255,255,255,0.06);
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --green: #30D158;
+    --red: #FF453A;
+  }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: var(--bg);
+  }
+
+  /* ── Top Bar ── */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    padding: 36px 64px 0;
+    gap: 40px;
+    flex-shrink: 0;
+  }
+  .logo {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    margin-right: 16px;
+  }
+  .logo .dot { color: var(--yellow); }
+  .nav-tabs {
+    display: flex;
+    gap: 6px;
+  }
+  .nav-tab {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-3);
+    padding: 10px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+  .nav-tab.active {
+    color: var(--yellow);
+    background: var(--surface);
+    border-color: var(--yellow);
+  }
+  .top-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .clock {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-3);
+  }
+
+  /* ── Content ── */
+  .content {
+    flex: 1;
+    padding: 40px 64px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* ── Breadcrumb ── */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .bc-item {
+    color: var(--text-3);
+    cursor: pointer;
+  }
+  .bc-item.current {
+    color: var(--text);
+  }
+  .bc-sep {
+    color: var(--text-3);
+    font-size: 13px;
+  }
+
+  /* ── List Header ── */
+  .list-header {
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+  }
+  .lh-name {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .lh-size {
+    width: 120px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: right;
+  }
+  .lh-date {
+    width: 160px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+  .sort-arrow {
+    display: inline-flex;
+  }
+  .sort-arrow svg {
+    width: 12px;
+    height: 12px;
+    fill: var(--yellow);
+  }
+
+  /* ── File List ── */
+  .file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .file-row {
+    display: flex;
+    align-items: center;
+    padding: 18px 24px;
+    gap: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-left: 4px solid transparent;
+  }
+  .file-row.focused {
+    background: var(--surface);
+    border-left-color: var(--yellow);
+    transform: scale(1.01);
+  }
+  .file-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .file-icon.folder {
+    background: var(--yellow-dim);
+  }
+  .file-icon.folder svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--yellow);
+  }
+  .file-icon.video {
+    background: rgba(255,255,255,0.06);
+  }
+  .file-icon.video svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--text-2);
+  }
+  .file-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .file-name {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .file-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--yellow-dim);
+    color: var(--yellow);
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+  }
+  .file-size {
+    width: 120px;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-3);
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .file-date {
+    width: 160px;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-3);
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .file-chevron {
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .file-chevron svg {
+    width: 16px;
+    height: 16px;
+    fill: var(--text-3);
+  }
+
+  /* ── Separator ── */
+  .sep {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── Footer ── */
+  .list-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px 0;
+  }
+  .footer-info {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-3);
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">put<span class="dot">.</span>io</div>
+    <div class="nav-tabs">
+      <div class="nav-tab">Home</div>
+      <div class="nav-tab active">Files</div>
+      <div class="nav-tab">Search</div>
+      <div class="nav-tab">Settings</div>
+    </div>
+    <div class="top-right">
+      <div class="clock">8:42 PM</div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <div class="bc-item">Your Files</div>
+      <div class="bc-sep">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="bc-item current">Movies</div>
+    </div>
+
+    <!-- List Header -->
+    <div class="list-header">
+      <div style="width:44px; flex-shrink:0"></div>
+      <div class="lh-name">Name</div>
+      <div class="lh-size">Size</div>
+      <div class="lh-date">
+        Date
+        <span class="sort-arrow"><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></span>
+      </div>
+      <div style="width:20px; flex-shrink:0"></div>
+    </div>
+
+    <div class="sep"></div>
+
+    <!-- File List -->
+    <div class="file-list">
+
+      <!-- Row 1 — Folder, Focused -->
+      <div class="file-row focused">
+        <div class="file-icon folder">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Action</div>
+        </div>
+        <div class="file-size">8 items</div>
+        <div class="file-date">Mar 20, 2026</div>
+        <div class="file-chevron">
+          <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+
+      <!-- Row 2 — Folder -->
+      <div class="file-row">
+        <div class="file-icon folder">
+          <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Sci-Fi</div>
+        </div>
+        <div class="file-size">14 items</div>
+        <div class="file-date">Mar 18, 2026</div>
+        <div class="file-chevron">
+          <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+
+      <!-- Row 3 — Video file -->
+      <div class="file-row">
+        <div class="file-icon video">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Dune.Part.Two.2024.2160p.WEB-DL.mkv</div>
+          <div class="file-badge">4K</div>
+        </div>
+        <div class="file-size">18.4 GB</div>
+        <div class="file-date">Mar 19, 2026</div>
+        <div class="file-chevron">
+          <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+
+      <!-- Row 4 — Video file -->
+      <div class="file-row">
+        <div class="file-icon video">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Oppenheimer.2023.2160p.BluRay.mkv</div>
+          <div class="file-badge">4K HDR</div>
+        </div>
+        <div class="file-size">22.1 GB</div>
+        <div class="file-date">Mar 17, 2026</div>
+        <div class="file-chevron">
+          <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+
+      <!-- Row 5 — Video file -->
+      <div class="file-row">
+        <div class="file-icon video">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Civil.War.2024.1080p.WEB-DL.mkv</div>
+          <div class="file-badge">1080p</div>
+        </div>
+        <div class="file-size">4.8 GB</div>
+        <div class="file-date">Mar 15, 2026</div>
+        <div class="file-chevron">
+          <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+
+      <!-- Row 6 — Video file -->
+      <div class="file-row">
+        <div class="file-icon video">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">The.Fall.Guy.2024.1080p.AMZN.mkv</div>
+          <div class="file-badge">1080p</div>
+        </div>
+        <div class="file-size">6.2 GB</div>
+        <div class="file-date">Mar 12, 2026</div>
+        <div class="file-chevron">
+          <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="sep"></div>
+
+    <!-- Footer -->
+    <div class="list-footer">
+      <div class="footer-info">6 items · 51.5 GB total</div>
+      <div class="footer-info">Sorted by date, newest first</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

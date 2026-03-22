@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<title>put.io — Onboarding (Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --sidebar-bg: #111113;
+    --surface: #19191B;
+    --card: #1C1C1E;
+    --card-inner: #242426;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #52525B;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.10);
+    --yellow-glow: rgba(253,206,69,0.15);
+    --green: #30D158;
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --sep: rgba(255,255,255,0.06);
+    --radius: 8px;
+    --radius-btn: 6px;
+    --radius-modal: 16px;
+    --font: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ================================================================
+     SIDEBAR (dimmed background)
+     ================================================================ */
+  .sidebar {
+    width: 240px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-right: 1px solid var(--sep);
+  }
+
+  .sidebar-header {
+    padding: 20px 16px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .logo-dot { color: var(--yellow); }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 0 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .nav-group-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    padding: 20px 8px 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+    border-radius: var(--radius-btn);
+  }
+
+  .nav-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--text-4);
+  }
+
+  .nav-icon svg { width: 18px; height: 18px; }
+
+  .nav-item.active {
+    color: var(--text);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .nav-item.active .nav-icon { color: var(--yellow); }
+
+  .sidebar-footer {
+    padding: 12px 16px 16px;
+    border-top: 1px solid var(--sep);
+  }
+
+  .storage-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .storage-fill {
+    height: 100%;
+    width: 4%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+
+  .storage-label {
+    font-size: 11px;
+    color: var(--text-3);
+    font-weight: 400;
+    margin-top: 6px;
+  }
+
+  .storage-label strong {
+    color: var(--text-2);
+    font-weight: 600;
+  }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0 0;
+  }
+
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--yellow), #F0A030);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--bg);
+  }
+
+  .user-name {
+    font-size: 13px;
+    color: var(--text-2);
+    font-weight: 500;
+  }
+
+  /* ================================================================
+     CONTENT (dimmed background)
+     ================================================================ */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px 0;
+    gap: 12px;
+  }
+
+  .breadcrumb {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+  }
+
+  .content-body {
+    flex: 1;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .empty-hint {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-4);
+    font-size: 14px;
+  }
+
+  /* ================================================================
+     OVERLAY
+     ================================================================ */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.60);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .modal {
+    width: 640px;
+    background: var(--card);
+    border-radius: var(--radius-modal);
+    border: 1px solid var(--sep);
+    padding: 40px;
+    max-height: 780px;
+    overflow-y: auto;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  }
+
+  .modal-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .modal-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .modal-subtitle {
+    font-size: 15px;
+    color: var(--text-2);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  /* ================================================================
+     STEP CARDS
+     ================================================================ */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .step-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: var(--card-inner);
+    border: 1px solid var(--sep);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .step-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--yellow-dim);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step-icon svg {
+    width: 20px;
+    height: 20px;
+    color: var(--yellow);
+  }
+
+  .step-number {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-4);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .step-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .step-desc {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.5;
+  }
+
+  /* ================================================================
+     BUTTONS
+     ================================================================ */
+  .modal-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 12px 24px;
+    background: var(--yellow);
+    color: var(--bg);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--font);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    letter-spacing: -0.01em;
+  }
+
+  .btn-primary:hover {
+    background: #F5C430;
+  }
+
+  .skip-link {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font);
+  }
+
+  .skip-link:hover {
+    color: var(--text-2);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="logo-dot">.</span>io</div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active">
+        <span class="nav-icon"><svg fill="none" viewBox="0 0 18 18" stroke="currentColor" stroke-width="1.5"><path d="M2 6.5L9 2l7 4.5v8a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 012 14.5v-8z"/><path d="M6.5 16V9.5h5V16"/></svg></span>
+        Files
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg fill="none" viewBox="0 0 18 18" stroke="currentColor" stroke-width="1.5"><path d="M16 9A7 7 0 112 9a7 7 0 0114 0z"/><path d="M9 5.5v4l2.5 1.5"/></svg></span>
+        Transfers
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg fill="none" viewBox="0 0 18 18" stroke="currentColor" stroke-width="1.5"><path d="M3.5 5.5h11M3.5 9h7M3.5 12.5h9"/></svg></span>
+        RSS Feeds
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg fill="none" viewBox="0 0 18 18" stroke="currentColor" stroke-width="1.5"><path d="M5 3h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M3 12l3.5-3 2.5 2 3-3.5L16 12"/></svg></span>
+        History
+      </button>
+
+      <div class="nav-group-label">Settings</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg fill="none" viewBox="0 0 18 18" stroke="currentColor" stroke-width="1.5"><path d="M9 11.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/><path d="M14.7 11.2a1.2 1.2 0 00.24 1.32l.04.04a1.44 1.44 0 11-2.04 2.04l-.04-.04a1.2 1.2 0 00-1.32-.24 1.2 1.2 0 00-.72 1.1v.12a1.44 1.44 0 11-2.88 0v-.06a1.2 1.2 0 00-.78-1.1 1.2 1.2 0 00-1.32.24l-.04.04a1.44 1.44 0 11-2.04-2.04l.04-.04a1.2 1.2 0 00.24-1.32 1.2 1.2 0 00-1.1-.72h-.12a1.44 1.44 0 110-2.88h.06a1.2 1.2 0 001.1-.78 1.2 1.2 0 00-.24-1.32l-.04-.04a1.44 1.44 0 112.04-2.04l.04.04a1.2 1.2 0 001.32.24h.06a1.2 1.2 0 00.72-1.1v-.12a1.44 1.44 0 112.88 0v.06a1.2 1.2 0 00.78 1.1 1.2 1.2 0 001.32-.24l.04-.04a1.44 1.44 0 112.04 2.04l-.04.04a1.2 1.2 0 00-.24 1.32v.06a1.2 1.2 0 001.1.72h.12a1.44 1.44 0 010 2.88h-.06a1.2 1.2 0 00-1.1.78z"/></svg></span>
+        Preferences
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="storage-bar-container">
+        <div class="storage-bar"><div class="storage-fill"></div></div>
+        <div class="storage-label"><strong>4.2 GB</strong> of 100 GB</div>
+      </div>
+      <div class="user-row">
+        <div class="user-avatar">N</div>
+        <span class="user-name">New User</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+    <div class="topbar">
+      <span class="breadcrumb">Your Files</span>
+    </div>
+    <div class="content-body">
+      <div class="empty-hint">Drop files here or paste a link to get started</div>
+    </div>
+  </main>
+
+  <!-- ONBOARDING OVERLAY -->
+  <div class="overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Welcome to put<span style="color:var(--yellow)">.</span>io</div>
+        <div class="modal-subtitle">Your cloud storage with a certain gravity</div>
+      </div>
+
+      <div class="steps">
+        <!-- Step 1 -->
+        <div class="step-card">
+          <div class="step-icon">
+            <svg fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.5">
+              <path d="M10 3v7m0 0l3-3m-3 3L7 7"/>
+              <path d="M3 13v2a2 2 0 002 2h10a2 2 0 002-2v-2"/>
+            </svg>
+          </div>
+          <div>
+            <div class="step-number">Step 1</div>
+            <div class="step-title">Add content</div>
+            <div class="step-desc">Paste a link, magnet, or torrent file. We fetch it instantly.</div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-card">
+          <div class="step-icon">
+            <svg fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.5">
+              <path d="M4 4h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z"/>
+              <path d="M8.5 8l4 2.5-4 2.5V8z" fill="currentColor" stroke="none"/>
+            </svg>
+          </div>
+          <div>
+            <div class="step-number">Step 2</div>
+            <div class="step-title">Stream anywhere</div>
+            <div class="step-desc">Watch on any device. Download for offline.</div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-card">
+          <div class="step-icon">
+            <svg fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.5">
+              <circle cx="5" cy="15" r="2.5"/>
+              <path d="M2.5 10.5a7 7 0 017-7"/>
+              <path d="M2.5 6a11.5 11.5 0 0111.5-3.5"/>
+              <path d="M7.5 15H17"/>
+            </svg>
+          </div>
+          <div>
+            <div class="step-number">Step 3</div>
+            <div class="step-title">Automate it</div>
+            <div class="step-desc">Set up RSS feeds for automatic downloads.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-primary">Let's go</button>
+        <button class="skip-link">I know what I'm doing</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

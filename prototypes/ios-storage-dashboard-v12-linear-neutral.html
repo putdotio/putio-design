@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io — iOS Storage Dashboard (v12 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #000000;
+    --surface: #111113;
+    --surface-2: #1C1C1E;
+    --elevated: #2C2C2E;
+    --text: #FFFFFF;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --green: #30D158;
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --line: rgba(255,255,255,0.06);
+    --radius: 12px;
+  }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #111;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .phone {
+    width: 390px; height: 844px; overflow: hidden;
+    display: flex; flex-direction: column; position: relative;
+    background: var(--bg);
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 14px 28px 0;
+    font-size: 15px; font-weight: 600; height: 54px; flex-shrink: 0;
+  }
+  .status-bar .time { flex: 1; letter-spacing: -0.3px; }
+  .status-bar .icons { display: flex; align-items: center; gap: 6px; }
+
+  /* Header */
+  .nav-header {
+    display: flex; align-items: center; padding: 8px 24px 0;
+    flex-shrink: 0;
+  }
+  .nav-title {
+    flex: 1;
+    font-size: 34px; font-weight: 700; letter-spacing: -0.03em;
+  }
+
+  /* Scrollable content */
+  .content {
+    flex: 1; overflow-y: auto; padding: 0 24px 24px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .content::-webkit-scrollbar { display: none; }
+
+  /* Hero storage */
+  .hero {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 32px 0 28px;
+  }
+  .hero-ring {
+    position: relative;
+    width: 160px; height: 160px;
+    margin-bottom: 16px;
+  }
+  .hero-ring svg { width: 160px; height: 160px; transform: rotate(-90deg); }
+  .hero-ring .track {
+    fill: none; stroke: var(--surface-2); stroke-width: 6;
+  }
+  .hero-ring .fill {
+    fill: none; stroke: var(--yellow); stroke-width: 6;
+    stroke-linecap: round;
+    stroke-dasharray: 440;
+    stroke-dashoffset: 343.2; /* 440 * (1 - 0.22) = 343.2 for 22% usage */
+  }
+  .hero-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .hero-number {
+    font-size: 40px; font-weight: 700; letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .hero-unit {
+    font-size: 14px; font-weight: 500; color: var(--text-2);
+    margin-top: 4px;
+  }
+  .hero-sub {
+    font-size: 13px; font-weight: 400; color: var(--text-3);
+    margin-top: 2px;
+  }
+
+  /* Section headers */
+  .section-title {
+    font-size: 13px; font-weight: 600; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin: 24px 0 12px;
+  }
+
+  /* Breakdown card */
+  .card {
+    background: var(--surface); border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .breakdown-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    position: relative;
+  }
+  .breakdown-item + .breakdown-item::before {
+    content: ''; position: absolute; top: 0; left: 44px; right: 16px;
+    height: 1px; background: var(--line);
+  }
+  .breakdown-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .breakdown-label {
+    font-size: 15px; font-weight: 500; flex: 1;
+    min-width: 0;
+  }
+  .breakdown-size {
+    font-size: 14px; font-weight: 500; color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+    width: 56px; text-align: right;
+    margin-right: 12px;
+  }
+  .breakdown-bar-track {
+    width: 80px; height: 4px; background: var(--surface-2);
+    border-radius: 999px; overflow: hidden; flex-shrink: 0;
+  }
+  .breakdown-bar-fill {
+    height: 100%; border-radius: 999px;
+  }
+
+  /* File list card */
+  .file-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    position: relative;
+  }
+  .file-item + .file-item::before {
+    content: ''; position: absolute; top: 0; left: 52px; right: 16px;
+    height: 1px; background: var(--line);
+  }
+  .file-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: var(--surface-2);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .file-info { flex: 1; min-width: 0; }
+  .file-name {
+    font-size: 15px; font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .file-meta {
+    font-size: 12px; font-weight: 400; color: var(--text-3);
+    margin-top: 2px;
+  }
+  .file-size {
+    font-size: 13px; font-weight: 500; color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+
+  /* Never opened section */
+  .cleanup-hint {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px;
+    background: rgba(253,206,69,0.06);
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .cleanup-hint-text {
+    font-size: 13px; font-weight: 500; color: var(--yellow);
+    opacity: 0.9;
+  }
+
+  /* Folder list */
+  .folder-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    position: relative;
+  }
+  .folder-item + .folder-item::before {
+    content: ''; position: absolute; top: 0; left: 52px; right: 16px;
+    height: 1px; background: var(--line);
+  }
+  .folder-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: var(--yellow-dim);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .folder-name {
+    font-size: 15px; font-weight: 500; flex: 1; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .folder-size {
+    font-size: 13px; font-weight: 500; color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+
+  /* Tab Bar */
+  .tab-bar {
+    display: flex; align-items: center; justify-content: space-around;
+    padding: 8px 16px 28px;
+    background: rgba(20,20,20,0.85);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border-top: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+  .tab-item {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; cursor: pointer; min-width: 56px;
+  }
+  .tab-label {
+    font-size: 10px; font-weight: 500; color: var(--text-3);
+    letter-spacing: 0.01em;
+  }
+  .tab-item.active .tab-label { color: var(--yellow); }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg width="18" height="12" fill="none"><path d="M1 4.5C3.34 2.17 6.49.5 10 .5s6.66 1.67 9 4" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><path d="M3.5 7.5c1.62-1.62 3.85-2.5 6.5-2.5s4.88.88 6.5 2.5" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><circle cx="10" cy="11" r="1.5" fill="#fff"/></svg>
+      <svg width="16" height="12" fill="none"><rect x="1" y="1.5" width="12" height="9" rx="1.5" stroke="#fff" stroke-width="1.2"/><rect x="14" y="4" width="2" height="4" rx="0.5" fill="#fff"/><rect x="2.5" y="3" width="8" height="6" rx="0.5" fill="#fff"/></svg>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="nav-header">
+    <span class="nav-title">Storage</span>
+  </div>
+
+  <!-- Scrollable Content -->
+  <div class="content">
+
+    <!-- Hero Ring -->
+    <div class="hero">
+      <div class="hero-ring">
+        <svg viewBox="0 0 160 160">
+          <circle class="track" cx="80" cy="80" r="70"/>
+          <circle class="fill" cx="80" cy="80" r="70"/>
+        </svg>
+        <div class="hero-center">
+          <span class="hero-number">11 TB</span>
+          <span class="hero-unit">used</span>
+        </div>
+      </div>
+      <span class="hero-sub">of 50 TB available</span>
+    </div>
+
+    <!-- Breakdown by Type -->
+    <div class="section-title">By type</div>
+    <div class="card">
+      <div class="breakdown-item">
+        <div class="breakdown-dot" style="background: var(--blue);"></div>
+        <span class="breakdown-label">Video</span>
+        <span class="breakdown-size">8.2 TB</span>
+        <div class="breakdown-bar-track">
+          <div class="breakdown-bar-fill" style="width: 74.5%; background: var(--blue);"></div>
+        </div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-dot" style="background: var(--green);"></div>
+        <span class="breakdown-label">Audio</span>
+        <span class="breakdown-size">1.1 TB</span>
+        <div class="breakdown-bar-track">
+          <div class="breakdown-bar-fill" style="width: 10%; background: var(--green);"></div>
+        </div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-dot" style="background: var(--yellow);"></div>
+        <span class="breakdown-label">Documents</span>
+        <span class="breakdown-size">0.4 TB</span>
+        <div class="breakdown-bar-track">
+          <div class="breakdown-bar-fill" style="width: 3.6%; background: var(--yellow);"></div>
+        </div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-dot" style="background: #AF52DE;"></div>
+        <span class="breakdown-label">Archives</span>
+        <span class="breakdown-size">0.8 TB</span>
+        <div class="breakdown-bar-track">
+          <div class="breakdown-bar-fill" style="width: 7.3%; background: #AF52DE;"></div>
+        </div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-dot" style="background: var(--text-3);"></div>
+        <span class="breakdown-label">Other</span>
+        <span class="breakdown-size">0.5 TB</span>
+        <div class="breakdown-bar-track">
+          <div class="breakdown-bar-fill" style="width: 4.5%; background: var(--text-3);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Largest Files -->
+    <div class="section-title">Largest files</div>
+    <div class="card">
+      <div class="file-item">
+        <div class="file-icon">
+          <svg width="18" height="18" fill="none"><path d="M4 3l11 6-11 6V3z" fill="var(--blue)" opacity="0.9"/></svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">The.Batman.2022.2160p.UHD.BluRay.mkv</div>
+          <div class="file-meta">Last opened 3 days ago</div>
+        </div>
+        <span class="file-size">82 GB</span>
+      </div>
+      <div class="file-item">
+        <div class="file-icon">
+          <svg width="18" height="18" fill="none"><path d="M4 3l11 6-11 6V3z" fill="var(--blue)" opacity="0.9"/></svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Interstellar.IMAX.2160p.Remux.mkv</div>
+          <div class="file-meta">Last opened 2 weeks ago</div>
+        </div>
+        <span class="file-size">76 GB</span>
+      </div>
+      <div class="file-item">
+        <div class="file-icon">
+          <svg width="18" height="18" fill="none"><path d="M4 3l11 6-11 6V3z" fill="var(--blue)" opacity="0.9"/></svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Dune.Part.Two.2024.4K.HDR.mkv</div>
+          <div class="file-meta">Last opened yesterday</div>
+        </div>
+        <span class="file-size">68 GB</span>
+      </div>
+    </div>
+
+    <!-- Never Opened -->
+    <div class="section-title">Never opened</div>
+    <div class="card">
+      <div class="cleanup-hint">
+        <svg width="16" height="16" fill="none" stroke="var(--yellow)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"/><path d="M8 5.5v3M8 10.5h.01"/></svg>
+        <span class="cleanup-hint-text">3 files never accessed -- consider cleaning up</span>
+      </div>
+      <div class="file-item">
+        <div class="file-icon" style="background: rgba(255,69,58,0.12);">
+          <svg width="18" height="18" fill="none"><rect x="3" y="4" width="12" height="10" rx="1.5" stroke="var(--red)" stroke-width="1.3"/><path d="M3 8h12" stroke="var(--red)" stroke-width="1.3"/></svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">backup-2024-jan.tar.gz</div>
+          <div class="file-meta">Added 14 months ago</div>
+        </div>
+        <span class="file-size">24 GB</span>
+      </div>
+      <div class="file-item">
+        <div class="file-icon" style="background: rgba(255,69,58,0.12);">
+          <svg width="18" height="18" fill="none"><rect x="3" y="4" width="12" height="10" rx="1.5" stroke="var(--red)" stroke-width="1.3"/><path d="M3 8h12" stroke="var(--red)" stroke-width="1.3"/></svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">old-photos-export.zip</div>
+          <div class="file-meta">Added 11 months ago</div>
+        </div>
+        <span class="file-size">18 GB</span>
+      </div>
+      <div class="file-item">
+        <div class="file-icon">
+          <svg width="18" height="18" fill="none"><path d="M4 3l11 6-11 6V3z" fill="var(--blue)" opacity="0.9"/></svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">conference-recording-raw.mov</div>
+          <div class="file-meta">Added 8 months ago</div>
+        </div>
+        <span class="file-size">12 GB</span>
+      </div>
+    </div>
+
+    <!-- Storage by Folder -->
+    <div class="section-title">Storage by folder</div>
+    <div class="card">
+      <div class="folder-item">
+        <div class="folder-icon">
+          <svg width="18" height="18" fill="none"><path d="M3 5.5A1.5 1.5 0 014.5 4H7l1.5 2h5A1.5 1.5 0 0115 7.5v5a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 013 12.5v-7z" fill="var(--yellow)"/></svg>
+        </div>
+        <span class="folder-name">movies</span>
+        <span class="folder-size">4.2 TB</span>
+      </div>
+      <div class="folder-item">
+        <div class="folder-icon">
+          <svg width="18" height="18" fill="none"><path d="M3 5.5A1.5 1.5 0 014.5 4H7l1.5 2h5A1.5 1.5 0 0115 7.5v5a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 013 12.5v-7z" fill="var(--yellow)"/></svg>
+        </div>
+        <span class="folder-name">shows</span>
+        <span class="folder-size">3.1 TB</span>
+      </div>
+      <div class="folder-item">
+        <div class="folder-icon">
+          <svg width="18" height="18" fill="none"><path d="M3 5.5A1.5 1.5 0 014.5 4H7l1.5 2h5A1.5 1.5 0 0115 7.5v5a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 013 12.5v-7z" fill="var(--yellow)"/></svg>
+        </div>
+        <span class="folder-name">music</span>
+        <span class="folder-size">1.1 TB</span>
+      </div>
+      <div class="folder-item">
+        <div class="folder-icon">
+          <svg width="18" height="18" fill="none"><path d="M3 5.5A1.5 1.5 0 014.5 4H7l1.5 2h5A1.5 1.5 0 0115 7.5v5a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 013 12.5v-7z" fill="var(--yellow)"/></svg>
+        </div>
+        <span class="folder-name">backups</span>
+        <span class="folder-size">980 GB</span>
+      </div>
+      <div class="folder-item">
+        <div class="folder-icon">
+          <svg width="18" height="18" fill="none"><path d="M3 5.5A1.5 1.5 0 014.5 4H7l1.5 2h5A1.5 1.5 0 0115 7.5v5a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 013 12.5v-7z" fill="var(--yellow)"/></svg>
+        </div>
+        <span class="folder-name">documents</span>
+        <span class="folder-size">420 GB</span>
+      </div>
+    </div>
+
+    <div style="height: 16px;"></div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg width="22" height="22" fill="none" stroke="var(--text-3)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5A1.5 1.5 0 014.5 3H8l1.5 2h7A1.5 1.5 0 0118 6.5v10a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 012 16.5v-11z"/></svg>
+      </div>
+      <span class="tab-label">Files</span>
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg width="22" height="22" fill="none" stroke="var(--text-3)" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h14M4 11h10M4 15h6"/></svg>
+      </div>
+      <span class="tab-label">Transfers</span>
+    </div>
+    <div class="tab-item active">
+      <div class="tab-icon">
+        <svg width="22" height="22" fill="none"><circle cx="11" cy="11" r="7.5" stroke="var(--yellow)" stroke-width="1.6"/><path d="M11 7v4.5" stroke="var(--yellow)" stroke-width="1.6" stroke-linecap="round"/><path d="M11 7v4.5h3" stroke="var(--yellow)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="4" fill="none" stroke="var(--yellow)" stroke-width="0" stroke-dasharray="2 2"/></svg>
+      </div>
+      <span class="tab-label" style="color: var(--yellow);">Storage</span>
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg width="22" height="22" fill="none" stroke="var(--text-3)" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><circle cx="11" cy="11" r="2.5"/></svg>
+      </div>
+      <span class="tab-label">Settings</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

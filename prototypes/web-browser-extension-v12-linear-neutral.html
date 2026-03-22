@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=400">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<title>put.io — Browser Extension (Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --card: #1C1C1E;
+    --surface: #111113;
+    --border: rgba(255,255,255,0.06);
+    --border-strong: rgba(255,255,255,0.10);
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.10);
+    --green: #30D158;
+    --green-dim: rgba(48,209,88,0.10);
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --radius: 10px;
+    --radius-sm: 8px;
+    --radius-xs: 6px;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    background: #0C0C0E;
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .popup {
+    width: 400px;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: 16px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+  }
+
+  /* ===== HEADER ===== */
+  .popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .logo-icon svg { width: 14px; height: 14px; }
+
+  .logo-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .logo-text .dot { color: var(--yellow); }
+
+  .header-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--green);
+    font-weight: 500;
+  }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+
+  /* ===== CONTENT ===== */
+  .popup-content {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .popup-content::-webkit-scrollbar { width: 4px; }
+  .popup-content::-webkit-scrollbar-track { background: transparent; }
+  .popup-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+  /* ===== SECTIONS ===== */
+  .section {
+    padding: 12px 16px 0;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .section-count {
+    font-size: 11px;
+    color: var(--text-3);
+  }
+
+  /* ===== DETECTED LINKS ===== */
+  .link-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+    transition: border-color 0.15s;
+  }
+  .link-item:hover { border-color: var(--border-strong); }
+
+  .link-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-xs);
+    background: rgba(255,255,255,0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .link-icon svg { width: 16px; height: 16px; }
+
+  .link-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .link-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 1px;
+  }
+
+  .link-meta {
+    font-size: 11px;
+    color: var(--text-3);
+  }
+
+  .link-save-btn {
+    padding: 5px 10px;
+    background: var(--yellow);
+    color: #09090B;
+    border: none;
+    border-radius: var(--radius-xs);
+    font-size: 11px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: opacity 0.15s;
+  }
+  .link-save-btn:hover { opacity: 0.9; }
+
+  /* ===== TRANSFERS ===== */
+  .transfer-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+  }
+
+  .transfer-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-xs);
+    background: rgba(255,255,255,0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .transfer-icon svg { width: 14px; height: 14px; }
+
+  .transfer-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .transfer-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+  }
+
+  .transfer-progress-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .transfer-progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+
+  .transfer-percent {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-2);
+    flex-shrink: 0;
+    min-width: 30px;
+    text-align: right;
+  }
+
+  /* ===== QUICK ADD ===== */
+  .quick-add {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .quick-add-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .quick-add-input {
+    flex: 1;
+    padding: 8px 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-family: inherit;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .quick-add-input::placeholder { color: var(--text-3); }
+  .quick-add-input:focus { border-color: var(--yellow); }
+
+  .quick-add-btn {
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .quick-add-btn:hover { background: rgba(255,255,255,0.10); }
+
+  /* ===== STORAGE ===== */
+  .storage-footer {
+    padding: 10px 16px 14px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .storage-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .storage-text {
+    font-size: 11px;
+    color: var(--text-3);
+    font-weight: 500;
+  }
+
+  .storage-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .storage-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--yellow);
+  }
+</style>
+</head>
+<body>
+<div class="popup">
+
+  <!-- HEADER -->
+  <div class="popup-header">
+    <div class="header-brand">
+      <div class="logo-icon">
+        <svg viewBox="0 0 14 14" fill="none"><path d="M3 7l4 4 4-4" stroke="#09090B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 2v9" stroke="#09090B" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <span class="logo-text">put<span class="dot">.</span>io</span>
+    </div>
+    <div class="header-status">
+      <span class="status-dot"></span>
+      Connected
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="popup-content">
+
+    <!-- DETECTED LINKS -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Detected Links</span>
+        <span class="section-count">3 found</span>
+      </div>
+
+      <div class="link-item">
+        <div class="link-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="#FDCE45" stroke-width="1.5"><path d="M6 3H3.5A1.5 1.5 0 0 0 2 4.5v7A1.5 1.5 0 0 0 3.5 13h9a1.5 1.5 0 0 0 1.5-1.5V9"/><path d="M9 7l5-5"/><path d="M10 2h4v4"/></svg>
+        </div>
+        <div class="link-info">
+          <div class="link-name">Big.Buck.Bunny.2008.4K.mkv</div>
+          <div class="link-meta">Magnet link &middot; ~4.2 GB</div>
+        </div>
+        <button class="link-save-btn">Save</button>
+      </div>
+
+      <div class="link-item">
+        <div class="link-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="#0A84FF" stroke-width="1.5"><path d="M6 3H3.5A1.5 1.5 0 0 0 2 4.5v7A1.5 1.5 0 0 0 3.5 13h9a1.5 1.5 0 0 0 1.5-1.5V9"/><path d="M9 7l5-5"/><path d="M10 2h4v4"/></svg>
+        </div>
+        <div class="link-info">
+          <div class="link-name">Cosmos.S01.Complete.1080p</div>
+          <div class="link-meta">Magnet link &middot; ~18.7 GB</div>
+        </div>
+        <button class="link-save-btn">Save</button>
+      </div>
+
+      <div class="link-item">
+        <div class="link-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="#A1A1AA" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M2 11v2h12v-2"/></svg>
+        </div>
+        <div class="link-info">
+          <div class="link-name">open-source-fonts-collection.zip</div>
+          <div class="link-meta">Direct link &middot; ~890 MB</div>
+        </div>
+        <button class="link-save-btn">Save</button>
+      </div>
+    </div>
+
+    <!-- ACTIVE TRANSFERS -->
+    <div class="section" style="padding-bottom: 12px;">
+      <div class="section-header">
+        <span class="section-title">Active Transfers</span>
+        <span class="section-count">2</span>
+      </div>
+
+      <div class="transfer-item">
+        <div class="transfer-icon">
+          <svg viewBox="0 0 14 14" fill="none" stroke="#30D158" stroke-width="1.5"><polygon points="5.5,2 11,7 5.5,12"/></svg>
+        </div>
+        <div class="transfer-info">
+          <div class="transfer-name">Planet.Earth.III.S01E02.mkv</div>
+          <div class="transfer-progress-bar">
+            <div class="transfer-progress-fill" style="width: 72%; background: var(--green);"></div>
+          </div>
+        </div>
+        <span class="transfer-percent">72%</span>
+      </div>
+
+      <div class="transfer-item">
+        <div class="transfer-icon">
+          <svg viewBox="0 0 14 14" fill="none" stroke="#FDCE45" stroke-width="1.5"><polygon points="5.5,2 11,7 5.5,12"/></svg>
+        </div>
+        <div class="transfer-info">
+          <div class="transfer-name">Blender.Reel.2025.4K.mp4</div>
+          <div class="transfer-progress-bar">
+            <div class="transfer-progress-fill" style="width: 34%; background: var(--yellow);"></div>
+          </div>
+        </div>
+        <span class="transfer-percent">34%</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- QUICK ADD -->
+  <div class="quick-add">
+    <div class="quick-add-row">
+      <input class="quick-add-input" type="text" placeholder="Paste URL or magnet link...">
+      <button class="quick-add-btn">Add</button>
+    </div>
+  </div>
+
+  <!-- STORAGE -->
+  <div class="storage-footer">
+    <div class="storage-label">
+      <span class="storage-text">Storage</span>
+      <span class="storage-text">11 TB / 50 TB</span>
+    </div>
+    <div class="storage-bar">
+      <div class="storage-fill" style="width: 22%;"></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

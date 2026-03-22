@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io -- tvOS Files (v12 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #000000;
+    --surface: #111113;
+    --surface-2: #1C1C1E;
+    --border: rgba(255,255,255,0.08);
+    --border-subtle: rgba(255,255,255,0.05);
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --green: #30D158;
+    --red: #FF453A;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+  }
+
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    flex-direction: column;
+    padding: 48px 88px;
+  }
+
+  /* ── Top Nav ── */
+  .top-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 36px;
+    flex-shrink: 0;
+  }
+  .nav-brand {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-right: 32px;
+    color: var(--text);
+  }
+  .nav-brand span { color: var(--yellow); }
+  .nav-tab {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text-3);
+    padding: 10px 24px;
+    border-radius: 10px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .nav-tab:hover { color: var(--text-2); background: var(--surface); }
+  .nav-tab.active { color: var(--yellow); font-weight: 600; }
+  .nav-tab.focused { background: var(--surface-2); color: var(--text); }
+  .nav-spacer { flex: 1; }
+
+  /* ── Breadcrumb + Sort ── */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 28px;
+    flex-shrink: 0;
+  }
+  .breadcrumb {
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--text-3);
+  }
+  .breadcrumb strong {
+    color: var(--text-2);
+    font-weight: 500;
+  }
+  .breadcrumb .sep {
+    color: var(--text-3);
+    margin: 0 10px;
+    opacity: 0.5;
+  }
+  .sort-indicator {
+    margin-left: auto;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ── File List ── */
+  .file-list {
+    flex: 1;
+    overflow: hidden;
+  }
+  .file-row {
+    display: flex;
+    align-items: center;
+    padding: 20px 28px;
+    gap: 20px;
+    border-radius: 14px;
+    transition: all 0.2s;
+    cursor: pointer;
+    margin-bottom: 4px;
+    position: relative;
+  }
+  .file-row:hover {
+    background: var(--surface);
+  }
+  .file-row.focused {
+    background: var(--surface-2);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .file-row.focused::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 3px;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+  .file-row.focused .file-name { color: var(--text); }
+  .file-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .file-name {
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--text-2);
+    letter-spacing: -0.02em;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .file-badge {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-3);
+    background: var(--surface);
+    padding: 3px 8px;
+    border-radius: 5px;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+  .file-row.focused .file-badge { background: rgba(255,255,255,0.08); }
+  .file-size {
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--text-3);
+    min-width: 80px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .file-date {
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--text-3);
+    min-width: 120px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- Top Nav -->
+  <nav class="top-nav">
+    <div class="nav-brand">put<span>.</span>io</div>
+    <div class="nav-tab">Home</div>
+    <div class="nav-tab active">Files</div>
+    <div class="nav-tab">Search</div>
+    <div class="nav-tab">Settings</div>
+    <div class="nav-spacer"></div>
+  </nav>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="breadcrumb">
+      Your Files <span class="sep">&rsaquo;</span> <strong>movies</strong>
+    </div>
+    <div class="sort-indicator">
+      Name
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <path d="M12 5v14M5 12l7 7 7-7" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- File List -->
+  <div class="file-list">
+
+    <!-- Folder -->
+    <div class="file-row">
+      <div class="file-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" fill="#FDCE45"/>
+        </svg>
+      </div>
+      <div class="file-name">action</div>
+      <div class="file-size">28 GB</div>
+      <div class="file-date">Mar 18</div>
+    </div>
+
+    <!-- Folder -->
+    <div class="file-row">
+      <div class="file-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" fill="#FDCE45"/>
+        </svg>
+      </div>
+      <div class="file-name">comedy</div>
+      <div class="file-size">14 GB</div>
+      <div class="file-date">Mar 12</div>
+    </div>
+
+    <!-- Video — focused -->
+    <div class="file-row focused">
+      <div class="file-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <path d="M8 5v14l11-7L8 5z" fill="#A1A1AA"/>
+        </svg>
+      </div>
+      <div class="file-name">Inception</div>
+      <span class="file-badge">4K</span>
+      <div class="file-size">8.1 GB</div>
+      <div class="file-date">Mar 20</div>
+    </div>
+
+    <!-- Video -->
+    <div class="file-row">
+      <div class="file-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <path d="M8 5v14l11-7L8 5z" fill="#A1A1AA"/>
+        </svg>
+      </div>
+      <div class="file-name">Oppenheimer</div>
+      <span class="file-badge">4K HDR</span>
+      <div class="file-size">12.3 GB</div>
+      <div class="file-date">Mar 15</div>
+    </div>
+
+    <!-- Audio -->
+    <div class="file-row">
+      <div class="file-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="10" width="3" height="8" rx="1" fill="#A1A1AA"/>
+          <rect x="7" y="6" width="3" height="12" rx="1" fill="#A1A1AA"/>
+          <rect x="12" y="8" width="3" height="10" rx="1" fill="#A1A1AA"/>
+          <rect x="17" y="4" width="3" height="14" rx="1" fill="#A1A1AA"/>
+        </svg>
+      </div>
+      <div class="file-name">Soundtrack - Inception OST</div>
+      <span class="file-badge">FLAC</span>
+      <div class="file-size">680 MB</div>
+      <div class="file-date">Mar 10</div>
+    </div>
+
+    <!-- Video -->
+    <div class="file-row">
+      <div class="file-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <path d="M8 5v14l11-7L8 5z" fill="#A1A1AA"/>
+        </svg>
+      </div>
+      <div class="file-name">Dune Part Two</div>
+      <span class="file-badge">4K</span>
+      <div class="file-size">14.7 GB</div>
+      <div class="file-date">Mar 8</div>
+    </div>
+
+  </div>
+
+</div>
+</body>
+</html>

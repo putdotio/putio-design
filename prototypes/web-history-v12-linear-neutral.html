@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<title>put.io -- History (v12 Linear Neutral)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --sidebar: #111113;
+    --surface: #19191B;
+    --card: #1C1C1E;
+    --border: rgba(255,255,255,0.06);
+    --border-strong: rgba(255,255,255,0.10);
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #3F3F46;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.10);
+    --green: #30D158;
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --radius: 8px;
+    --radius-sm: 6px;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .app { display: flex; width: 1440px; height: 900px; overflow: hidden; }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 240px; background: var(--sidebar); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .sidebar-header { padding: 24px 20px 20px; }
+  .logo { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.03em; }
+  .logo .dot { color: var(--yellow); }
+
+  .sidebar-nav { flex: 1; padding: 0 8px; display: flex; flex-direction: column; gap: 1px; }
+  .nav-section {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--text-4); padding: 20px 12px 6px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 7px 12px;
+    font-size: 13px; font-weight: 500; color: var(--text-3);
+    cursor: pointer; border: none; background: none; width: 100%;
+    text-align: left; font-family: var(--font); border-radius: var(--radius-sm);
+    transition: all 0.12s; line-height: 1;
+  }
+  .nav-item:hover { color: var(--text-2); background: rgba(255,255,255,0.04); }
+  .nav-item.active { color: var(--text); background: rgba(255,255,255,0.06); }
+  .nav-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; opacity: 0.5; }
+  .nav-item.active .nav-icon { opacity: 1; }
+  .nav-icon svg { display: block; }
+  .nav-badge { margin-left: auto; font-size: 11px; font-weight: 500; color: var(--text-4); }
+  .nav-sep { height: 1px; background: var(--border); margin: 6px 12px; }
+
+  .sidebar-bottom { margin-top: auto; }
+  .storage-section { padding: 16px 20px; border-top: 1px solid var(--border); }
+  .storage-track { width: 100%; height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+  .storage-fill { height: 100%; background: var(--yellow); border-radius: 2px; }
+  .storage-label { font-size: 11px; color: var(--text-4); margin-top: 6px; }
+  .user-row {
+    display: flex; align-items: center; gap: 10px; padding: 12px 20px 16px;
+    cursor: pointer; transition: background 0.12s;
+  }
+  .user-row:hover { background: rgba(255,255,255,0.03); }
+  .user-avatar {
+    width: 28px; height: 28px; background: var(--card); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: var(--text-2);
+  }
+  .user-name { font-size: 12px; font-weight: 500; color: var(--text-2); flex: 1; }
+
+  /* ===== MAIN CONTENT ===== */
+  .content {
+    flex: 1; display: flex; flex-direction: column; overflow: hidden;
+  }
+
+  .content-header {
+    padding: 32px 40px 0;
+    flex-shrink: 0;
+  }
+  .content-title {
+    font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: -0.03em;
+    margin-bottom: 20px;
+  }
+
+  /* Filter pills */
+  .filter-row { display: flex; gap: 4px; margin-bottom: 0; }
+  .filter-pill {
+    padding: 5px 14px; font-size: 12px; font-weight: 500; color: var(--text-3);
+    background: none; border: 1px solid transparent; border-radius: 20px;
+    cursor: pointer; font-family: var(--font); transition: all 0.12s;
+  }
+  .filter-pill:hover { color: var(--text-2); background: rgba(255,255,255,0.04); }
+  .filter-pill.active { color: var(--text); background: rgba(255,255,255,0.06); border-color: var(--border-strong); }
+
+  /* Scrollable body */
+  .content-body {
+    flex: 1; overflow-y: auto; padding: 24px 40px 40px;
+  }
+  .content-body::-webkit-scrollbar { width: 6px; }
+  .content-body::-webkit-scrollbar-track { background: transparent; }
+  .content-body::-webkit-scrollbar-thumb { background: var(--text-4); border-radius: 3px; }
+
+  /* Continue Watching */
+  .cw-section { margin-bottom: 32px; }
+  .section-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: 12px;
+  }
+  .cw-grid { display: flex; gap: 16px; }
+  .cw-card {
+    width: 320px; background: var(--card); border-radius: var(--radius);
+    overflow: hidden; cursor: pointer; transition: background 0.12s;
+    border: 1px solid var(--border);
+  }
+  .cw-card:hover { background: var(--surface); }
+  .cw-thumb {
+    width: 100%; height: 140px; background: var(--surface);
+    display: flex; align-items: center; justify-content: center; position: relative;
+    overflow: hidden;
+  }
+  .cw-thumb-gradient {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+    background: linear-gradient(transparent, rgba(28,28,30,0.9));
+  }
+  .cw-play {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1;
+  }
+  .cw-progress {
+    height: 3px; background: rgba(255,255,255,0.08);
+  }
+  .cw-progress-fill { height: 100%; background: var(--yellow); border-radius: 0 2px 2px 0; }
+  .cw-info { padding: 12px 14px; }
+  .cw-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cw-meta { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+
+  /* Activity groups */
+  .date-group { margin-bottom: 24px; }
+  .date-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-3); padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    margin-bottom: 2px;
+  }
+
+  .activity-row {
+    display: flex; align-items: center; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid var(--border); transition: background 0.1s;
+    cursor: default;
+  }
+  .activity-row:last-child { border-bottom: none; }
+  .activity-row:hover { background: rgba(255,255,255,0.02); margin: 0 -8px; padding-left: 8px; padding-right: 8px; border-radius: var(--radius-sm); }
+
+  .activity-icon {
+    width: 28px; height: 28px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .activity-icon.play { background: rgba(10,132,255,0.10); color: var(--blue); }
+  .activity-icon.download { background: rgba(48,209,88,0.10); color: var(--green); }
+  .activity-icon.convert { background: rgba(253,206,69,0.10); color: var(--yellow); }
+
+  .activity-info { flex: 1; min-width: 0; }
+  .activity-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .activity-action { font-size: 12px; color: var(--text-3); }
+
+  .activity-time { font-size: 12px; color: var(--text-4); flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+  /* Older rows dimmed */
+  .date-group.older .activity-name { color: var(--text-2); }
+  .date-group.older .activity-action { color: var(--text-4); }
+  .date-group.older .activity-time { color: rgba(63,63,70,0.7); }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="dot">.</span>io</div>
+    </div>
+    <div class="sidebar-nav">
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M2 7l7-5 7 5v8a1 1 0 01-1 1H3a1 1 0 01-1-1V7z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Files
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M3 13V5a2 2 0 012-2h6l4 4v6a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 3v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Transfers
+        <span class="nav-badge">3</span>
+      </button>
+      <button class="nav-item active">
+        <span class="nav-icon"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M9 16A7 7 0 109 2a7 7 0 000 14z" stroke="currentColor" stroke-width="1.5"/><path d="M9 5v4l3 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        History
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M3 5h12M3 9h12M3 13h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        RSS
+      </button>
+      <div class="nav-sep"></div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 9.5L8 12l4.5-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Storage
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><circle cx="9" cy="9" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M9 2v2M9 14v2M2 9h2M14 9h2M4.22 4.22l1.42 1.42M12.36 12.36l1.42 1.42M4.22 13.78l1.42-1.42M12.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        Settings
+      </button>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="storage-section">
+        <div class="storage-track"><div class="storage-fill" style="width:22%"></div></div>
+        <div class="storage-label">11 TB of 50 TB used</div>
+      </div>
+      <div class="user-row">
+        <div class="user-avatar">A</div>
+        <div class="user-name">altay@put.io</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="content">
+    <div class="content-header">
+      <div class="content-title">History</div>
+      <div class="filter-row">
+        <button class="filter-pill active">All</button>
+        <button class="filter-pill">Watched</button>
+        <button class="filter-pill">Downloaded</button>
+        <button class="filter-pill">Converted</button>
+      </div>
+    </div>
+
+    <div class="content-body">
+      <!-- Continue Watching -->
+      <div class="cw-section">
+        <div class="section-label">Continue Watching</div>
+        <div class="cw-grid">
+          <div class="cw-card">
+            <div class="cw-thumb">
+              <svg width="160" height="90" viewBox="0 0 160 90" fill="none" style="opacity:0.12"><rect width="160" height="90" rx="4" fill="white"/><text x="80" y="50" text-anchor="middle" fill="#09090B" font-size="11" font-family="Inter">16:9</text></svg>
+              <div class="cw-play">
+                <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M5 3l8 5-8 5V3z" fill="white"/></svg>
+              </div>
+              <div class="cw-thumb-gradient"></div>
+            </div>
+            <div class="cw-progress"><div class="cw-progress-fill" style="width:62%"></div></div>
+            <div class="cw-info">
+              <div class="cw-name">Severance S02E10 - Cold Harbor</div>
+              <div class="cw-meta">37:42 remaining &middot; Resume at 24:18</div>
+            </div>
+          </div>
+          <div class="cw-card">
+            <div class="cw-thumb">
+              <svg width="160" height="90" viewBox="0 0 160 90" fill="none" style="opacity:0.12"><rect width="160" height="90" rx="4" fill="white"/><text x="80" y="50" text-anchor="middle" fill="#09090B" font-size="11" font-family="Inter">16:9</text></svg>
+              <div class="cw-play">
+                <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M5 3l8 5-8 5V3z" fill="white"/></svg>
+              </div>
+              <div class="cw-thumb-gradient"></div>
+            </div>
+            <div class="cw-progress"><div class="cw-progress-fill" style="width:15%"></div></div>
+            <div class="cw-info">
+              <div class="cw-name">The White Lotus S03E04</div>
+              <div class="cw-meta">52:10 remaining &middot; Resume at 9:04</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today -->
+      <div class="date-group">
+        <div class="date-label">Today</div>
+
+        <div class="activity-row">
+          <div class="activity-icon play">
+            <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M4 2.5l7.5 4.5L4 11.5v-9z" fill="currentColor"/></svg>
+          </div>
+          <div class="activity-info">
+            <div class="activity-name">Severance S02E10 - Cold Harbor.mkv</div>
+            <div class="activity-action">Watched &middot; 62% complete</div>
+          </div>
+          <div class="activity-time">2:34 PM</div>
+        </div>
+
+        <div class="activity-row">
+          <div class="activity-icon download">
+            <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M7 2v7M4.5 6.5L7 9l2.5-2.5M3 11h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="activity-info">
+            <div class="activity-name">Severance.S02E10.2160p.WEB-DL.DDP5.1.DV.HDR.H.265.mkv</div>
+            <div class="activity-action">Downloaded &middot; 8.2 GB</div>
+          </div>
+          <div class="activity-time">1:15 PM</div>
+        </div>
+
+        <div class="activity-row">
+          <div class="activity-icon play">
+            <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M4 2.5l7.5 4.5L4 11.5v-9z" fill="currentColor"/></svg>
+          </div>
+          <div class="activity-info">
+            <div class="activity-name">The White Lotus S03E04.mkv</div>
+            <div class="activity-action">Watched &middot; 15% complete</div>
+          </div>
+          <div class="activity-time">11:20 AM</div>
+        </div>
+
+        <div class="activity-row">
+          <div class="activity-icon convert">
+            <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M10.5 3.5L3.5 10.5M10.5 3.5H6.5M10.5 3.5v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="activity-info">
+            <div class="activity-name">interview-final-cut.mov</div>
+            <div class="activity-action">Converted to MP4</div>
+          </div>
+          <div class="activity-time">10:05 AM</div>
+        </div>
+      </div>
+
+      <!-- Yesterday -->
+      <div class="date-group">
+        <div class="date-label">Yesterday</div>
+
+        <div class="activity-row">
+          <div class="activity-icon play">
+            <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M4 2.5l7.5 4.5L4 11.5v-9z" fill="currentColor"/></svg>
+          </div>
+          <div class="activity-info">
+            <div class="activity-name">Dune Part Two (2024) 2160p.mkv</div>
+            <div class="activity-action">Watched &middot; Completed</div>
+          </div>
+          <div class="activity-time">9:45 PM</div>
+        </div>
+
+        <div class="activity-row">
+          <div class="activity-icon download">
+            <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M7 2v7M4.5 6.5L7 9l2.5-2.5M3 11h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="activity-info">
+            <div class="activity-name">Dune.Part.Two.2024.2160p.WEB-DL.mkv</div>
+            <div class="activity-action">Downloaded &middot; 14.7 GB</div>
+          </div>
+          <div class="activity-time">6:30 PM</div>
+        </div>
+
+        <div class="activity-row">
+          <div class="activity-icon download">
+            <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M7 2v7M4.5 6.5L7 9l2.5-2.5M3 11h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="activity-info">
+            <div class="activity-name">podcast-ep-142-final.mp3</div>
+            <div class="activity-action">Downloaded &middot; 87 MB</div>
+          </div>
+          <div class="activity-time">3:12 PM</div>
+        </div>
+      </div>
+
+      <!-- This Week -->
+      <div class="date-group older">
+        <div class="date-label">This Week</div>
+
+        <div class="activity-row">
+          <div class="activity-icon play">
+            <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M4 2.5l7.5 4.5L4 11.5v-9z" fill="currentColor"/></svg>
+          </div>
+          <div class="activity-info">
+            <div class="activity-name">Shogun S01E01 - Anjin.mkv</div>
+            <div class="activity-action">Watched &middot; Completed</div>
+          </div>
+          <div class="activity-time">Mar 19</div>
+        </div>
+
+        <div class="activity-row">
+          <div class="activity-icon play">
+            <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M4 2.5l7.5 4.5L4 11.5v-9z" fill="currentColor"/></svg>
+          </div>
+          <div class="activity-info">
+            <div class="activity-name">Shogun S01E02 - Servants of Two Masters.mkv</div>
+            <div class="activity-action">Watched &middot; Completed</div>
+          </div>
+          <div class="activity-time">Mar 19</div>
+        </div>
+
+        <div class="activity-row">
+          <div class="activity-icon convert">
+            <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M10.5 3.5L3.5 10.5M10.5 3.5H6.5M10.5 3.5v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="activity-info">
+            <div class="activity-name">vacation-clip-4k.mov</div>
+            <div class="activity-action">Converted to MP4</div>
+          </div>
+          <div class="activity-time">Mar 18</div>
+        </div>
+
+        <div class="activity-row">
+          <div class="activity-icon download">
+            <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M7 2v7M4.5 6.5L7 9l2.5-2.5M3 11h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="activity-info">
+            <div class="activity-name">Shogun.S01.Complete.2160p.WEB-DL.mkv</div>
+            <div class="activity-action">Downloaded &middot; 62.3 GB</div>
+          </div>
+          <div class="activity-time">Mar 17</div>
+        </div>
+
+        <div class="activity-row">
+          <div class="activity-icon download">
+            <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M7 2v7M4.5 6.5L7 9l2.5-2.5M3 11h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="activity-info">
+            <div class="activity-name">design-assets-q1-2026.zip</div>
+            <div class="activity-action">Downloaded &middot; 340 MB</div>
+          </div>
+          <div class="activity-time">Mar 17</div>
+        </div>
+
+        <div class="activity-row">
+          <div class="activity-icon play">
+            <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M4 2.5l7.5 4.5L4 11.5v-9z" fill="currentColor"/></svg>
+          </div>
+          <div class="activity-info">
+            <div class="activity-name">lecture-cs50-week11.mp4</div>
+            <div class="activity-action">Watched &middot; Completed</div>
+          </div>
+          <div class="activity-time">Mar 16</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

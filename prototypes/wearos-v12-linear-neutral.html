@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io — Wear OS (Linear Neutral)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000;
+    --surface: #1C1C1E;
+    --surface-2: #2C2C2E;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --green: #30D158;
+    --red: #FF453A;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #1C1C1E;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    width: 920px;
+    height: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .page-title {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 24px;
+  }
+  .watch-row {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+  }
+  .watch-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .watch-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  /* ── Round Watch Face ── */
+  .watch-face {
+    width: 220px;
+    height: 220px;
+    background: var(--bg);
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.06),
+      0 4px 20px rgba(0,0,0,0.5);
+  }
+
+  /* ── Transfer Status Face ── */
+  .face-transfers {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 36px 32px 32px;
+  }
+  .face-transfers .app-id {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-3);
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+  }
+  .transfer-heading {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--yellow);
+    text-align: center;
+    letter-spacing: -0.01em;
+    margin-bottom: 14px;
+    line-height: 1.2;
+  }
+  .transfer-heading .num {
+    font-size: 22px;
+    font-weight: 700;
+    display: block;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .mini-item {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+  .mini-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 3px;
+  }
+  .mini-item-name {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
+  }
+  .mini-item-pct {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+  .mini-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .mini-bar-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+  .storage-line {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-3);
+    margin-top: auto;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Now Playing Face ── */
+  .face-playing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 32px 28px 28px;
+    position: relative;
+  }
+  .face-playing .app-id {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-3);
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+  .face-playing .track-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    max-width: 130px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+  }
+  .face-playing .track-sub {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-3);
+    margin-bottom: 14px;
+  }
+  .round-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+  .round-skip {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .round-skip svg { width: 14px; height: 14px; fill: var(--text-2); }
+  .round-play {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .round-play svg { width: 18px; height: 18px; fill: var(--bg); }
+  .round-progress {
+    width: 120px;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .round-progress-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+  .round-time {
+    display: flex;
+    justify-content: space-between;
+    width: 120px;
+    margin-top: 4px;
+  }
+  .round-time span {
+    font-size: 8px;
+    font-weight: 500;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+</head>
+<body>
+<div class="page-title">Wear OS &mdash; Linear Neutral (v12)</div>
+
+<div class="watch-row">
+
+  <!-- Face 1: Transfer Status -->
+  <div class="watch-col">
+    <div class="watch-face">
+      <div class="face-transfers">
+        <div class="app-id">put.io</div>
+
+        <div class="transfer-heading">
+          <span class="num">2</span>
+          Active Transfers
+        </div>
+
+        <div class="mini-item">
+          <div class="mini-item-row">
+            <div class="mini-item-name">Severance S02E08</div>
+            <div class="mini-item-pct">73%</div>
+          </div>
+          <div class="mini-bar">
+            <div class="mini-bar-fill" style="width: 73%"></div>
+          </div>
+        </div>
+
+        <div class="mini-item">
+          <div class="mini-item-row">
+            <div class="mini-item-name">The Bear S03</div>
+            <div class="mini-item-pct">41%</div>
+          </div>
+          <div class="mini-bar">
+            <div class="mini-bar-fill" style="width: 41%"></div>
+          </div>
+        </div>
+
+        <div class="storage-line">11 / 50 TB</div>
+      </div>
+    </div>
+    <div class="watch-label">Transfers</div>
+  </div>
+
+  <!-- Face 2: Now Playing -->
+  <div class="watch-col">
+    <div class="watch-face">
+      <div class="face-playing">
+        <div class="app-id">put.io</div>
+        <div class="track-name">Episode 127</div>
+        <div class="track-sub">Podcast</div>
+
+        <div class="round-controls">
+          <div class="round-skip">
+            <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          </div>
+          <div class="round-play">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div class="round-skip">
+            <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          </div>
+        </div>
+
+        <div class="round-progress">
+          <div class="round-progress-fill" style="width: 42%"></div>
+        </div>
+        <div class="round-time">
+          <span>18:34</span>
+          <span>44:12</span>
+        </div>
+      </div>
+    </div>
+    <div class="watch-label">Now Playing</div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io — Roku Settings (Linear Neutral)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000;
+    --surface: #1C1C1E;
+    --surface-2: #2C2C2E;
+    --border: rgba(255,255,255,0.06);
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --green: #30D158;
+    --green-dim: rgba(48,209,88,0.12);
+    --red: #FF453A;
+    --red-dim: rgba(255,69,58,0.12);
+  }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: var(--bg);
+  }
+
+  /* ── Top Bar ── */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    padding: 36px 64px 0;
+    gap: 40px;
+    flex-shrink: 0;
+  }
+  .logo {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    margin-right: 16px;
+  }
+  .logo .dot { color: var(--yellow); }
+  .nav-tabs {
+    display: flex;
+    gap: 6px;
+  }
+  .nav-tab {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-3);
+    padding: 10px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+  .nav-tab.active {
+    color: var(--yellow);
+    background: var(--surface);
+    border-color: var(--yellow);
+  }
+  .top-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .clock {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-3);
+  }
+
+  /* ── Content ── */
+  .content {
+    flex: 1;
+    padding: 48px 64px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+  }
+
+  /* ── User Card ── */
+  .user-card {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 28px 32px;
+    background: var(--surface);
+    border-radius: 12px;
+    border: 2px solid transparent;
+  }
+  .user-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--yellow-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .user-avatar svg {
+    width: 32px;
+    height: 32px;
+    fill: var(--yellow);
+  }
+  .user-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .user-name {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .user-email {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-3);
+    margin-top: 4px;
+  }
+  .storage-section {
+    width: 360px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .storage-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .storage-used { color: var(--text-2); }
+  .storage-total { color: var(--text-3); }
+  .storage-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .storage-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--yellow);
+  }
+
+  /* ── Settings List ── */
+  .settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .settings-group-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 8px 24px 12px;
+  }
+  .setting-row {
+    display: flex;
+    align-items: center;
+    padding: 20px 24px;
+    gap: 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-left: 4px solid transparent;
+  }
+  .setting-row.focused {
+    background: var(--surface);
+    border-left-color: var(--yellow);
+    transform: scale(1.01);
+  }
+  .setting-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.06);
+  }
+  .setting-icon svg {
+    width: 22px;
+    height: 22px;
+    fill: var(--text-2);
+  }
+  .setting-icon.yellow { background: var(--yellow-dim); }
+  .setting-icon.yellow svg { fill: var(--yellow); }
+  .setting-icon.green { background: var(--green-dim); }
+  .setting-icon.green svg { fill: var(--green); }
+  .setting-icon.red { background: var(--red-dim); }
+  .setting-icon.red svg { fill: var(--red); }
+  .setting-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .setting-name {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .setting-desc {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-3);
+    margin-top: 3px;
+  }
+  .setting-value {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-2);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .setting-chevron {
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .setting-chevron svg {
+    width: 16px;
+    height: 16px;
+    fill: var(--text-3);
+  }
+
+  /* ── Toggle ── */
+  .toggle {
+    width: 48px;
+    height: 28px;
+    border-radius: 14px;
+    background: var(--surface-2);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--text-3);
+    top: 3px;
+    left: 3px;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .toggle.on {
+    background: var(--green-dim);
+  }
+  .toggle.on::after {
+    background: var(--green);
+    transform: translateX(20px);
+  }
+
+  /* ── Separator ── */
+  .sep {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">put<span class="dot">.</span>io</div>
+    <div class="nav-tabs">
+      <div class="nav-tab">Home</div>
+      <div class="nav-tab">Files</div>
+      <div class="nav-tab">Search</div>
+      <div class="nav-tab active">Settings</div>
+    </div>
+    <div class="top-right">
+      <div class="clock">8:42 PM</div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- User Card -->
+    <div class="user-card">
+      <div class="user-avatar">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+      </div>
+      <div class="user-info">
+        <div class="user-name">altay</div>
+        <div class="user-email">altay@put.io</div>
+      </div>
+      <div class="storage-section">
+        <div class="storage-label">
+          <span class="storage-used">620 GB used</span>
+          <span class="storage-total">of 1 TB</span>
+        </div>
+        <div class="storage-bar">
+          <div class="storage-fill" style="width:62%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Playback Settings -->
+    <div class="settings-list">
+      <div class="settings-group-title">Playback</div>
+
+      <!-- Row 1 — Focused -->
+      <div class="setting-row focused">
+        <div class="setting-icon yellow">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+        </div>
+        <div class="setting-info">
+          <div class="setting-name">Playback Proxy</div>
+          <div class="setting-desc">Route video through put.io servers</div>
+        </div>
+        <div class="setting-value">
+          <div class="toggle on"></div>
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="setting-row">
+        <div class="setting-icon">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        </div>
+        <div class="setting-info">
+          <div class="setting-name">Buffer Size</div>
+          <div class="setting-desc">Amount of video to pre-load</div>
+        </div>
+        <div class="setting-value">
+          Auto
+          <div class="setting-chevron">
+            <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="setting-row">
+        <div class="setting-icon green">
+          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6zm0 4h8v2H6zm10 0h2v2h-2zm-6-4h8v2h-8z"/></svg>
+        </div>
+        <div class="setting-info">
+          <div class="setting-name">Subtitle Language</div>
+          <div class="setting-desc">Preferred subtitle language</div>
+        </div>
+        <div class="setting-value">
+          English
+          <div class="setting-chevron">
+            <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="settings-group-title">General</div>
+
+      <!-- Row 4 -->
+      <div class="setting-row">
+        <div class="setting-icon">
+          <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        </div>
+        <div class="setting-info">
+          <div class="setting-name">Video Quality</div>
+          <div class="setting-desc">Maximum streaming resolution</div>
+        </div>
+        <div class="setting-value">
+          Auto
+          <div class="setting-chevron">
+            <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 5 -->
+      <div class="setting-row">
+        <div class="setting-icon red">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        </div>
+        <div class="setting-info">
+          <div class="setting-name">About</div>
+          <div class="setting-desc">put.io for Roku</div>
+        </div>
+        <div class="setting-value">
+          v3.2.1
+          <div class="setting-chevron">
+            <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <!-- Sign Out -->
+      <div class="setting-row">
+        <div class="setting-icon red">
+          <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+        </div>
+        <div class="setting-info">
+          <div class="setting-name" style="color: var(--red)">Sign Out</div>
+          <div class="setting-desc">Remove this device from your account</div>
+        </div>
+        <div class="setting-value">
+          <div class="setting-chevron">
+            <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
