@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io — iOS Transfers Glass (v12 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #000000;
+    --text: #F5F5F5;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #3F3F46;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --yellow-glow: rgba(253,206,69,0.30);
+    --red: #FF453A;
+    --green: #30D158;
+    --green-dim: rgba(48,209,88,0.12);
+    --blue: #0A84FF;
+    --orange: #FF9F0A;
+
+    /* Glass Material System */
+    --glass-thick: rgba(28,28,30,0.82);
+    --glass-regular: rgba(28,28,30,0.72);
+    --glass-thin: rgba(28,28,30,0.55);
+    --glass-ultra-thin: rgba(28,28,30,0.35);
+    --glass-border: rgba(255,255,255,0.08);
+    --glass-separator: rgba(255,255,255,0.06);
+
+    --blur-thick: blur(60px) saturate(180%);
+    --blur-regular: blur(40px) saturate(160%);
+    --blur-thin: blur(20px) saturate(140%);
+    --blur-ultra-thin: blur(10px);
+
+    --radius: 14px;
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .phone {
+    width: 390px; height: 844px; overflow: hidden;
+    display: flex; flex-direction: column; position: relative;
+    background: var(--bg);
+  }
+
+  /* Background texture */
+  .bg-texture {
+    position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 100% 50% at 50% 20%, rgba(253,206,69,0.05) 0%, transparent 50%),
+      radial-gradient(ellipse 80% 40% at 20% 50%, rgba(48,209,88,0.04) 0%, transparent 50%),
+      radial-gradient(ellipse 90% 35% at 80% 70%, rgba(10,132,255,0.03) 0%, transparent 50%),
+      linear-gradient(180deg, #0A0A0C 0%, #050506 50%, #08080A 100%);
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 14px 28px 8px;
+    font-size: 15px; font-weight: 600; height: 54px; flex-shrink: 0;
+    position: relative; z-index: 10;
+  }
+  .status-bar .time { flex: 1; letter-spacing: 0.01em; }
+  .status-bar .icons { display: flex; align-items: center; gap: 6px; }
+
+  /* Glass Nav Bar */
+  .nav-bar {
+    position: relative; z-index: 10;
+    display: flex; align-items: center; padding: 4px 20px 12px;
+    flex-shrink: 0;
+    background: var(--glass-regular);
+    -webkit-backdrop-filter: var(--blur-regular);
+    backdrop-filter: var(--blur-regular);
+    border-bottom: 0.5px solid var(--glass-border);
+  }
+  .nav-title {
+    flex: 1;
+    font-size: 34px; font-weight: 700; color: var(--text);
+    letter-spacing: -0.03em;
+  }
+  .nav-action {
+    font-size: 15px; font-weight: 400; color: var(--text-3);
+    cursor: pointer;
+  }
+
+  /* Pill Tabs */
+  .pill-tabs {
+    display: flex; gap: 8px; padding: 16px 20px 4px;
+    flex-shrink: 0; position: relative; z-index: 5;
+  }
+  .pill-tab {
+    padding: 8px 20px;
+    border-radius: 999px;
+    font-size: 14px; font-weight: 500;
+    color: var(--text-2);
+    background: var(--glass-ultra-thin);
+    -webkit-backdrop-filter: var(--blur-ultra-thin);
+    backdrop-filter: var(--blur-ultra-thin);
+    border: 0.5px solid var(--glass-border);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .pill-tab.active {
+    background: var(--yellow);
+    color: #000;
+    border-color: transparent;
+    font-weight: 600;
+  }
+
+  /* Transfer Scroll */
+  .transfer-scroll {
+    flex: 1; overflow-y: auto; padding: 12px 20px 100px;
+    position: relative; z-index: 5;
+  }
+  .transfer-scroll::-webkit-scrollbar { display: none; }
+
+  /* Glass Card */
+  .glass-card {
+    background: var(--glass-thick);
+    -webkit-backdrop-filter: var(--blur-thick);
+    backdrop-filter: var(--blur-thick);
+    border: 0.5px solid var(--glass-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .glass-card.settled {
+    background: rgba(28,28,30,0.60);
+  }
+  .glass-card-header {
+    padding: 14px 16px 10px;
+    font-size: 11px; font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-count {
+    font-size: 11px; font-weight: 500; color: var(--text-4);
+    text-transform: none; letter-spacing: 0;
+  }
+
+  /* Transfer Row */
+  .transfer-row {
+    padding: 12px 16px 14px;
+    position: relative;
+  }
+  .transfer-row + .transfer-row::before {
+    content: '';
+    position: absolute; top: 0; left: 16px; right: 16px;
+    height: 0.5px;
+    background: var(--glass-separator);
+  }
+  .transfer-top {
+    display: flex; align-items: flex-start; gap: 12px; margin-bottom: 8px;
+  }
+  .transfer-icon {
+    width: 32px; height: 32px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    background: rgba(10,132,255,0.12);
+  }
+  .transfer-info { flex: 1; min-width: 0; }
+  .transfer-name {
+    font-size: 14px; font-weight: 500; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+    margin-bottom: 3px;
+  }
+  .transfer-meta {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text-3); font-weight: 400;
+  }
+  .transfer-badge {
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .badge-2160p { background: rgba(253,206,69,0.15); color: var(--yellow); }
+  .badge-1080p { background: rgba(10,132,255,0.12); color: var(--blue); }
+  .badge-hevc { background: rgba(48,209,88,0.10); color: var(--green); }
+
+  /* Health dot */
+  .health-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .health-good { background: var(--green); box-shadow: 0 0 6px rgba(48,209,88,0.5); }
+  .health-medium { background: var(--yellow); box-shadow: 0 0 6px rgba(253,206,69,0.5); }
+  .health-bad { background: var(--red); box-shadow: 0 0 6px rgba(255,69,58,0.5); }
+
+  /* Progress Bar on glass */
+  .progress-track {
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 999px;
+    overflow: visible;
+    position: relative;
+    margin-top: 4px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 999px;
+    position: relative;
+    transition: width 0.3s ease;
+  }
+  .progress-fill::after {
+    content: '';
+    position: absolute; right: -2px; top: -2.5px;
+    width: 8px; height: 8px;
+    background: var(--yellow);
+    border-radius: 50%;
+    box-shadow: 0 0 10px 2px var(--yellow-glow);
+  }
+  .progress-bottom {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 8px;
+    font-size: 12px; color: var(--text-3);
+  }
+  .progress-pct {
+    font-weight: 600; color: var(--yellow);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Transfer status */
+  .transfer-status {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--text-3); margin-top: 6px;
+  }
+
+  /* Completed row */
+  .completed-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+    position: relative;
+  }
+  .completed-row + .completed-row::before {
+    content: '';
+    position: absolute; top: 0; left: 56px; right: 16px;
+    height: 0.5px;
+    background: var(--glass-separator);
+  }
+  .completed-icon {
+    width: 32px; height: 32px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    background: rgba(48,209,88,0.10);
+  }
+  .completed-info { flex: 1; min-width: 0; }
+  .completed-name {
+    font-size: 14px; font-weight: 500; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 2px;
+  }
+  .completed-meta {
+    font-size: 12px; color: var(--text-3);
+  }
+  .goto-file {
+    font-size: 13px; font-weight: 500; color: var(--yellow);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* Tab Bar */
+  .tab-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    display: flex; padding: 8px 0 28px; z-index: 20;
+    background: var(--glass-regular);
+    -webkit-backdrop-filter: var(--blur-regular);
+    backdrop-filter: var(--blur-regular);
+    border-top: 0.5px solid var(--glass-border);
+  }
+  .tab {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    cursor: pointer; padding: 4px 0;
+  }
+  .tab-label {
+    font-size: 10px; font-weight: 500; color: var(--text-3);
+    letter-spacing: 0.02em;
+  }
+  .tab.active .tab-label { color: var(--yellow); }
+  .tab svg { color: var(--text-3); }
+  .tab.active svg { color: var(--yellow); }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="bg-texture"></div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg width="18" height="12" fill="none"><rect x="0" y="1" width="4" height="10" rx="1" fill="currentColor" opacity=".4"/><rect x="5" y="3" width="4" height="8" rx="1" fill="currentColor" opacity=".6"/><rect x="10" y="0" width="4" height="11" rx="1" fill="currentColor" opacity=".8"/><rect x="15" y="2" width="3" height="9" rx="1" fill="currentColor"/></svg>
+      <svg width="16" height="12" fill="none"><path d="M8 2C5.4 2 3 3 1.2 4.8L0 3.6C2.2 1.4 5 0 8 0s5.8 1.4 8 3.6l-1.2 1.2C13 3 10.6 2 8 2zm0 4c-1.7 0-3.2.7-4.3 1.8L2.5 6.6C4 5 5.9 4 8 4s4 1 5.5 2.6l-1.2 1.2C11.2 6.7 9.7 6 8 6zm0 4c-.9 0-1.8.4-2.4 1l-1.2-1.2C5.3 8.9 6.6 8.4 8 8.4s2.7.5 3.6 1.4L10.4 11C9.8 10.4 8.9 10 8 10z" fill="currentColor"/></svg>
+      <svg width="27" height="13" fill="none"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="currentColor" opacity=".35"/><rect x="23.5" y="4" width="2" height="5" rx="1" fill="currentColor" opacity=".4"/><rect x="2" y="2" width="18" height="9" rx="2" fill="currentColor"/></svg>
+    </div>
+  </div>
+
+  <!-- Glass Nav Bar -->
+  <div class="nav-bar">
+    <span class="nav-title">Transfers</span>
+    <span class="nav-action">Clear All</span>
+  </div>
+
+  <!-- Pill Tabs -->
+  <div class="pill-tabs">
+    <div class="pill-tab active">Active</div>
+    <div class="pill-tab">Completed</div>
+  </div>
+
+  <!-- Transfer List -->
+  <div class="transfer-scroll">
+
+    <!-- Active Transfers Card -->
+    <div class="glass-card">
+      <div class="glass-card-header">
+        Downloading
+        <span class="card-count">3 active</span>
+      </div>
+
+      <!-- Transfer 1 -->
+      <div class="transfer-row">
+        <div class="transfer-top">
+          <div class="transfer-icon">
+            <svg width="16" height="16" fill="none"><rect x="1" y="3" width="14" height="10" rx="1.5" fill="#0A84FF" opacity=".9"/><path d="M6 5.5v5l4-2.5-4-2.5z" fill="#fff"/></svg>
+          </div>
+          <div class="transfer-info">
+            <div class="transfer-name">Dune.Part.Two.2024.2160p.WEB-DL.DDP5.1.Atmos</div>
+            <div class="transfer-meta">
+              <span class="health-dot health-good"></span>
+              <span>42 peers</span>
+              <span class="transfer-badge badge-2160p">4K</span>
+              <span class="transfer-badge badge-hevc">HEVC</span>
+            </div>
+          </div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width: 73%;"></div>
+        </div>
+        <div class="progress-bottom">
+          <span>13.4 GB / 18.4 GB</span>
+          <span class="progress-pct">73%</span>
+        </div>
+      </div>
+
+      <!-- Transfer 2 -->
+      <div class="transfer-row">
+        <div class="transfer-top">
+          <div class="transfer-icon">
+            <svg width="16" height="16" fill="none"><rect x="1" y="3" width="14" height="10" rx="1.5" fill="#0A84FF" opacity=".9"/><path d="M6 5.5v5l4-2.5-4-2.5z" fill="#fff"/></svg>
+          </div>
+          <div class="transfer-info">
+            <div class="transfer-name">The.Bear.S03E02.1080p.WEB.H264-SuccessfulCrab</div>
+            <div class="transfer-meta">
+              <span class="health-dot health-medium"></span>
+              <span>8 peers</span>
+              <span class="transfer-badge badge-1080p">1080p</span>
+            </div>
+          </div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width: 31%;"></div>
+        </div>
+        <div class="progress-bottom">
+          <span>0.6 GB / 2.1 GB</span>
+          <span class="progress-pct">31%</span>
+        </div>
+      </div>
+
+      <!-- Transfer 3 -->
+      <div class="transfer-row">
+        <div class="transfer-top">
+          <div class="transfer-icon" style="background: rgba(175,82,222,0.12);">
+            <svg width="16" height="16" fill="none"><rect x="2" y="1" width="12" height="14" rx="1.5" fill="#BF5AF2" opacity=".9"/><circle cx="8" cy="9" r="2.5" fill="#fff" opacity=".9"/><rect x="7" y="3" width="2" height="4" rx="1" fill="#fff" opacity=".9"/></svg>
+          </div>
+          <div class="transfer-info">
+            <div class="transfer-name">Radiohead.Discography.FLAC.24bit</div>
+            <div class="transfer-meta">
+              <span class="health-dot health-good"></span>
+              <span>124 peers</span>
+            </div>
+          </div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width: 89%;"></div>
+        </div>
+        <div class="progress-bottom">
+          <span>6.2 GB / 7.0 GB</span>
+          <span class="progress-pct">89%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Completed Transfers Card -->
+    <div class="glass-card settled">
+      <div class="glass-card-header">
+        Completed
+        <span class="card-count">Today</span>
+      </div>
+
+      <div class="completed-row">
+        <div class="completed-icon">
+          <svg width="16" height="16" fill="none"><circle cx="8" cy="8" r="6" fill="#30D158" opacity=".9"/><polyline points="5.5,8 7.5,10 10.5,6" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="completed-info">
+          <div class="completed-name">Shogun.S01.Complete.1080p.WEB</div>
+          <div class="completed-meta">24.6 GB &middot; 2h 14m</div>
+        </div>
+        <span class="goto-file">Go to file</span>
+      </div>
+
+      <div class="completed-row">
+        <div class="completed-icon">
+          <svg width="16" height="16" fill="none"><circle cx="8" cy="8" r="6" fill="#30D158" opacity=".9"/><polyline points="5.5,8 7.5,10 10.5,6" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="completed-info">
+          <div class="completed-name">podcast-episode-247.mp3</div>
+          <div class="completed-meta">86 MB &middot; 4m 12s</div>
+        </div>
+        <span class="goto-file">Go to file</span>
+      </div>
+
+      <div class="completed-row">
+        <div class="completed-icon">
+          <svg width="16" height="16" fill="none"><circle cx="8" cy="8" r="6" fill="#30D158" opacity=".9"/><polyline points="5.5,8 7.5,10 10.5,6" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="completed-info">
+          <div class="completed-name">vacation-photos.zip</div>
+          <div class="completed-meta">340 MB &middot; 18m 03s</div>
+        </div>
+        <span class="goto-file">Go to file</span>
+      </div>
+    </div>
+
+    <!-- Seeding Card -->
+    <div class="glass-card settled">
+      <div class="glass-card-header">
+        Seeding
+        <span class="card-count">2 active</span>
+      </div>
+
+      <div class="completed-row">
+        <div class="completed-icon" style="background: rgba(10,132,255,0.10);">
+          <svg width="16" height="16" fill="none"><path d="M8 2l1.5 3h3l-2.5 2 1 3L8 8.5 5 10l1-3-2.5-2h3L8 2z" fill="#0A84FF" opacity=".9"/></svg>
+        </div>
+        <div class="completed-info">
+          <div class="completed-name">The.Bear.S03E01.1080p.WEB.mkv</div>
+          <div class="completed-meta">Ratio 2.4 &middot; 5.0 GB uploaded</div>
+        </div>
+      </div>
+
+      <div class="completed-row">
+        <div class="completed-icon" style="background: rgba(10,132,255,0.10);">
+          <svg width="16" height="16" fill="none"><path d="M8 2l1.5 3h3l-2.5 2 1 3L8 8.5 5 10l1-3-2.5-2h3L8 2z" fill="#0A84FF" opacity=".9"/></svg>
+        </div>
+        <div class="completed-info">
+          <div class="completed-name">Oppenheimer.2023.2160p.REMUX.mkv</div>
+          <div class="completed-meta">Ratio 1.8 &middot; 42.3 GB uploaded</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5A1.5 1.5 0 015.5 5h3.59a1.5 1.5 0 011.06.44l.85.85a1.5 1.5 0 001.06.44H16.5A1.5 1.5 0 0118 8.23v7.27a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 014 15.5v-9z"/></svg>
+      <span class="tab-label">Files</span>
+    </div>
+    <div class="tab active">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a7 7 0 0114 0"/><path d="M7 11a4 4 0 018 0"/><circle cx="11" cy="11" r="1.5"/><line x1="11" y1="12.5" x2="11" y2="18"/></svg>
+      <span class="tab-label">Transfers</span>
+    </div>
+    <div class="tab">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><polygon points="9.5,8 14.5,11 9.5,14" fill="currentColor" stroke="none"/></svg>
+      <span class="tab-label">Player</span>
+    </div>
+    <div class="tab">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><circle cx="11" cy="11" r="1"/><path d="M11 7v1"/><path d="M11 14v1"/><path d="M7 11h1"/><path d="M14 11h1"/></svg>
+      <span class="tab-label">Settings</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

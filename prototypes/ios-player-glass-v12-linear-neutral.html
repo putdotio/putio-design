@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io — iOS Player Glass (v12 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #000000;
+    --text: #F5F5F5;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #3F3F46;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.12);
+    --yellow-glow: rgba(253,206,69,0.30);
+    --red: #FF453A;
+    --green: #30D158;
+    --blue: #0A84FF;
+
+    /* Glass Material System */
+    --glass-thick: rgba(28,28,30,0.82);
+    --glass-regular: rgba(28,28,30,0.72);
+    --glass-thin: rgba(28,28,30,0.55);
+    --glass-ultra-thin: rgba(28,28,30,0.35);
+    --glass-border: rgba(255,255,255,0.08);
+    --glass-separator: rgba(255,255,255,0.06);
+
+    --blur-thick: blur(60px) saturate(180%);
+    --blur-regular: blur(40px) saturate(160%);
+    --blur-thin: blur(20px) saturate(140%);
+    --blur-ultra-thin: blur(10px);
+
+    --radius: 14px;
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .phone {
+    width: 390px; height: 844px; overflow: hidden;
+    position: relative;
+    background: #000;
+  }
+
+  /* Video placeholder — full screen */
+  .video-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 160% 80% at 50% 35%, rgba(50,42,18,0.6) 0%, transparent 60%),
+      radial-gradient(ellipse 100% 50% at 30% 25%, rgba(60,48,20,0.35) 0%, transparent 50%),
+      radial-gradient(ellipse 70% 40% at 70% 45%, rgba(40,30,10,0.25) 0%, transparent 50%),
+      linear-gradient(180deg, #0C0A06 0%, #080706 40%, #0A0908 100%);
+  }
+  .video-label {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 11px; color: rgba(255,255,255,0.08);
+    letter-spacing: 4px; text-transform: uppercase;
+    font-weight: 500; z-index: 1;
+  }
+
+  /* Top glass bar — thin material */
+  .top-bar {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+    display: flex; align-items: center;
+    padding: 54px 16px 12px;
+    background: var(--glass-thin);
+    -webkit-backdrop-filter: var(--blur-thin);
+    backdrop-filter: var(--blur-thin);
+    border-bottom: 0.5px solid var(--glass-border);
+    gap: 12px;
+  }
+  .top-back {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.06);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .top-title-area { flex: 1; min-width: 0; }
+  .top-title {
+    font-size: 15px; font-weight: 600; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+  }
+  .top-subtitle {
+    font-size: 12px; color: var(--text-3); margin-top: 1px;
+    font-weight: 400;
+  }
+  .top-actions {
+    display: flex; gap: 8px; flex-shrink: 0;
+  }
+  .top-action-btn {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.06);
+    cursor: pointer;
+  }
+
+  /* Center controls */
+  .center-controls {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    display: flex; align-items: center; gap: 32px;
+  }
+  .skip-btn {
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 999px;
+    background: var(--glass-ultra-thin);
+    -webkit-backdrop-filter: var(--blur-ultra-thin);
+    backdrop-filter: var(--blur-ultra-thin);
+    border: 0.5px solid var(--glass-border);
+    cursor: pointer;
+    color: var(--text);
+    transition: background 0.15s;
+  }
+  .skip-btn:active { background: rgba(255,255,255,0.1); }
+  .play-btn {
+    width: 72px; height: 72px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 999px;
+    background: var(--glass-regular);
+    -webkit-backdrop-filter: var(--blur-regular);
+    backdrop-filter: var(--blur-regular);
+    border: 0.5px solid var(--glass-border);
+    cursor: pointer;
+    color: var(--text);
+    transition: transform 0.1s;
+  }
+  .play-btn:active { transform: scale(0.95); }
+
+  /* Bottom glass bar — regular material */
+  .bottom-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+    background: var(--glass-regular);
+    -webkit-backdrop-filter: var(--blur-regular);
+    backdrop-filter: var(--blur-regular);
+    border-top: 0.5px solid var(--glass-border);
+    padding: 16px 20px 20px;
+  }
+
+  /* Progress scrubber */
+  .scrubber {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .scrubber-time {
+    font-size: 12px; font-weight: 500; color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    width: 40px;
+  }
+  .scrubber-time.end { text-align: right; }
+  .scrubber-track {
+    flex: 1; height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 999px;
+    position: relative;
+    cursor: pointer;
+  }
+  .scrubber-fill {
+    height: 100%; width: 38%;
+    background: var(--yellow);
+    border-radius: 999px;
+    position: relative;
+  }
+  .scrubber-fill::after {
+    content: '';
+    position: absolute; right: -6px; top: -4px;
+    width: 12px; height: 12px;
+    background: var(--yellow);
+    border-radius: 50%;
+    box-shadow: 0 0 12px 3px var(--yellow-glow);
+  }
+  .scrubber-buffer {
+    position: absolute; top: 0; left: 0;
+    height: 100%; width: 52%;
+    background: rgba(255,255,255,0.08);
+    border-radius: 999px;
+  }
+
+  /* Action pills */
+  .action-pills {
+    display: flex; gap: 8px; justify-content: center;
+    flex-wrap: wrap;
+  }
+  .action-pill {
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px; font-weight: 500;
+    color: var(--text-2);
+    background: var(--glass-ultra-thin);
+    -webkit-backdrop-filter: var(--blur-ultra-thin);
+    backdrop-filter: var(--blur-ultra-thin);
+    border: 0.5px solid var(--glass-border);
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: background 0.15s;
+  }
+  .action-pill:active { background: rgba(255,255,255,0.08); }
+  .action-pill.active-pill {
+    color: var(--yellow);
+    border-color: rgba(253,206,69,0.2);
+  }
+
+  /* Up Next sheet — thick glass peeking */
+  .up-next-sheet {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 15;
+    background: var(--glass-thick);
+    -webkit-backdrop-filter: var(--blur-thick);
+    backdrop-filter: var(--blur-thick);
+    border-top: 0.5px solid var(--glass-border);
+    border-radius: 16px 16px 0 0;
+    padding: 0 20px 34px;
+    transform: translateY(calc(100% - 72px));
+  }
+  .sheet-handle {
+    width: 36px; height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 999px;
+    margin: 8px auto 12px;
+  }
+  .sheet-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .sheet-title {
+    font-size: 15px; font-weight: 600; color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .sheet-see-all {
+    font-size: 13px; font-weight: 500; color: var(--yellow);
+    cursor: pointer;
+  }
+
+  /* Up Next items */
+  .up-next-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0;
+    position: relative;
+  }
+  .up-next-item + .up-next-item::before {
+    content: '';
+    position: absolute; top: 0; left: 56px; right: 0;
+    height: 0.5px;
+    background: var(--glass-separator);
+  }
+  .up-next-thumb {
+    width: 56px; height: 32px;
+    border-radius: 5px;
+    background: linear-gradient(135deg, rgba(40,35,20,0.8), rgba(20,18,10,0.9));
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    border: 0.5px solid rgba(255,255,255,0.06);
+    position: relative;
+    overflow: hidden;
+  }
+  .up-next-thumb::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(253,206,69,0.05), transparent);
+  }
+  .up-next-info { flex: 1; min-width: 0; }
+  .up-next-name {
+    font-size: 14px; font-weight: 500; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .up-next-meta {
+    font-size: 12px; color: var(--text-3); margin-top: 1px;
+  }
+  .up-next-duration {
+    font-size: 12px; color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- Video background -->
+  <div class="video-bg"></div>
+  <div class="video-label">16 : 9</div>
+
+  <!-- Top Glass Bar -->
+  <div class="top-bar">
+    <div class="top-back">
+      <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="11,4 5,9 11,14"/></svg>
+    </div>
+    <div class="top-title-area">
+      <div class="top-title">Dune: Part Two</div>
+      <div class="top-subtitle">2024 &middot; 2h 46m &middot; 4K HDR</div>
+    </div>
+    <div class="top-actions">
+      <div class="top-action-btn">
+        <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6v10h14V6"/><path d="M5 6V4a4 4 0 018 0v2"/><rect x="5" y="1" width="8" height="6" rx="1" fill="none"/><path d="M6 9h2v3H6z"/><path d="M10 9h2v3h-2z"/><path d="M5 6c0-2 1.5-4 4-4s4 2 4 4" fill="none"/></svg>
+      </div>
+      <div class="top-action-btn">
+        <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="10" height="8" rx="1.5"/><path d="M12 8l4-2v6l-4-2"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Center Controls -->
+  <div class="center-controls">
+    <div class="skip-btn">
+      <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l-1 8h2"/><polyline points="12,6 8,10 12,14"/></svg>
+    </div>
+    <div class="play-btn">
+      <svg width="28" height="28" fill="#fff" stroke="none"><path d="M8 4.5v19l16-9.5L8 4.5z"/></svg>
+    </div>
+    <div class="skip-btn">
+      <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4l1 8h-2"/><polyline points="8,6 12,10 8,14"/></svg>
+    </div>
+  </div>
+
+  <!-- Bottom Glass Bar -->
+  <div class="bottom-bar">
+    <!-- Scrubber -->
+    <div class="scrubber">
+      <span class="scrubber-time">1:03:12</span>
+      <div class="scrubber-track">
+        <div class="scrubber-buffer"></div>
+        <div class="scrubber-fill"></div>
+      </div>
+      <span class="scrubber-time end">2:46:00</span>
+    </div>
+
+    <!-- Action Pills -->
+    <div class="action-pills">
+      <div class="action-pill active-pill">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="8" width="12" height="4" rx="1"/><path d="M3 8V6a4 4 0 018 0v2"/></svg>
+        CC
+      </div>
+      <div class="action-pill">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 7a5 5 0 0110 0"/><path d="M4 7a3 3 0 016 0"/><circle cx="7" cy="7" r="1"/><line x1="7" y1="8" x2="7" y2="12"/></svg>
+        Audio
+      </div>
+      <div class="action-pill">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 1.5"/></svg>
+        1.0x
+      </div>
+      <div class="action-pill">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="3" cy="7" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="11" cy="7" r="1.5"/></svg>
+        More
+      </div>
+    </div>
+  </div>
+
+  <!-- Up Next Sheet -->
+  <div class="up-next-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title">Up Next</span>
+      <span class="sheet-see-all">See All</span>
+    </div>
+
+    <div class="up-next-item">
+      <div class="up-next-thumb">
+        <svg width="10" height="10" fill="rgba(255,255,255,0.15)" stroke="none"><polygon points="3,1 9,5 3,9"/></svg>
+      </div>
+      <div class="up-next-info">
+        <div class="up-next-name">The Bear S03E02</div>
+        <div class="up-next-meta">1080p WEB</div>
+      </div>
+      <span class="up-next-duration">32m</span>
+    </div>
+
+    <div class="up-next-item">
+      <div class="up-next-thumb">
+        <svg width="10" height="10" fill="rgba(255,255,255,0.15)" stroke="none"><polygon points="3,1 9,5 3,9"/></svg>
+      </div>
+      <div class="up-next-info">
+        <div class="up-next-name">The Bear S03E03</div>
+        <div class="up-next-meta">1080p WEB</div>
+      </div>
+      <span class="up-next-duration">28m</span>
+    </div>
+
+    <div class="up-next-item">
+      <div class="up-next-thumb">
+        <svg width="10" height="10" fill="rgba(255,255,255,0.15)" stroke="none"><polygon points="3,1 9,5 3,9"/></svg>
+      </div>
+      <div class="up-next-info">
+        <div class="up-next-name">The Bear S03E04</div>
+        <div class="up-next-meta">1080p WEB</div>
+      </div>
+      <span class="up-next-duration">35m</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

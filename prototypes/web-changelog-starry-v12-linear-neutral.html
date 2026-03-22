@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<title>put.io -- What's New (Linear Neutral)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --surface: #111113;
+    --surface-2: #1C1C1E;
+    --surface-3: #2C2C2E;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #52525B;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.10);
+    --yellow-hover: #FDD85C;
+    --green: #30D158;
+    --green-dim: rgba(48,209,88,0.12);
+    --blue: #0A84FF;
+    --blue-dim: rgba(10,132,255,0.12);
+    --purple: #BF5AF2;
+    --purple-dim: rgba(191,90,242,0.12);
+    --sep: rgba(255,255,255,0.06);
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' 1, 'ss01' 1;
+  }
+
+  .page {
+    width: 1440px;
+    min-height: 900px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ── Ambient Glow ── */
+  .hero-glow {
+    position: absolute;
+    top: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 900px;
+    height: 500px;
+    background: radial-gradient(ellipse, rgba(253,206,69,0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Nav ── */
+  .nav {
+    display: flex;
+    align-items: center;
+    padding: 28px 64px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .logo {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .logo-dot { color: var(--yellow); }
+  .nav-spacer { flex: 1; }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+  }
+
+  .nav-link {
+    font-size: 14px;
+    color: var(--text-2);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.15s;
+  }
+
+  .nav-link:hover { color: var(--text); }
+
+  .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--yellow);
+    color: #000;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--font);
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+
+  .nav-cta:hover { background: var(--yellow-hover); }
+
+  .nav-cta svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ── Hero ── */
+  .changelog-hero {
+    text-align: center;
+    padding: 100px 64px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .changelog-title {
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .changelog-sub {
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--text-3);
+    line-height: 1.5;
+  }
+
+  /* ── Timeline ── */
+  .timeline-container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 64px 80px;
+    position: relative;
+  }
+
+  .timeline-line {
+    position: absolute;
+    left: 94px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--sep);
+  }
+
+  .entry {
+    position: relative;
+    padding-left: 64px;
+    padding-bottom: 64px;
+  }
+
+  .entry:last-child { padding-bottom: 0; }
+
+  .entry-dot {
+    position: absolute;
+    left: -3px;
+    top: 4px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--text-4);
+    z-index: 2;
+  }
+
+  .entry.newest .entry-dot {
+    background: var(--yellow);
+    box-shadow: 0 0 10px rgba(253,206,69,0.4);
+  }
+
+  .entry-date {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-4);
+    margin-bottom: 12px;
+    letter-spacing: 0.01em;
+  }
+
+  .entry-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .entry-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .entry-badge {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background: var(--yellow-dim);
+    color: var(--yellow);
+  }
+
+  .entry-desc {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text-2);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    max-width: 640px;
+  }
+
+  /* Screenshot placeholder */
+  .entry-screenshot {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--surface);
+    border: 1px solid var(--sep);
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .screenshot-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-4);
+  }
+
+  .screenshot-inner svg {
+    width: 32px;
+    height: 32px;
+    opacity: 0.5;
+  }
+
+  .screenshot-inner span {
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  /* Sub-features */
+  .entry-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .feature-pill {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-2);
+    background: var(--surface);
+    border: 1px solid var(--sep);
+    padding: 5px 14px;
+    border-radius: 8px;
+  }
+
+  /* Bullet list */
+  .entry-bullets {
+    list-style: none;
+    margin-bottom: 16px;
+  }
+
+  .entry-bullets li {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-3);
+    line-height: 1.6;
+    padding-left: 18px;
+    position: relative;
+    margin-bottom: 4px;
+  }
+
+  .entry-bullets li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 9px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--text-4);
+  }
+
+  /* Platform tags */
+  .entry-tags {
+    display: flex;
+    gap: 6px;
+  }
+
+  .platform-tag {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 3px 10px;
+    border-radius: 6px;
+  }
+
+  .platform-tag.ios {
+    background: var(--blue-dim);
+    color: var(--blue);
+  }
+
+  .platform-tag.tvos {
+    background: var(--purple-dim);
+    color: var(--purple);
+  }
+
+  .platform-tag.web {
+    background: var(--green-dim);
+    color: var(--green);
+  }
+
+  .platform-tag.android {
+    background: rgba(255,159,10,0.12);
+    color: #FF9F0A;
+  }
+
+  .platform-tag.all {
+    background: var(--yellow-dim);
+    color: var(--yellow);
+  }
+
+  /* ── Footer ── */
+  .footer {
+    padding: 60px 64px 40px;
+    border-top: 1px solid var(--sep);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .footer-logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+
+  .footer-logo-dot { color: var(--yellow); }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+  }
+
+  .footer-link {
+    font-size: 13px;
+    color: var(--text-4);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.15s;
+  }
+
+  .footer-link:hover { color: var(--text-3); }
+
+  .footer-meta {
+    font-size: 13px;
+    color: var(--text-4);
+    text-align: right;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="hero-glow"></div>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a class="logo" href="#">put<span class="logo-dot">.</span>io</a>
+    <div class="nav-spacer"></div>
+    <div class="nav-links">
+      <a class="nav-link" href="#">Features</a>
+      <a class="nav-link" href="#">Pricing</a>
+      <a class="nav-link" href="#">About</a>
+      <a class="nav-cta" href="#">Go to App
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="changelog-hero">
+    <h1 class="changelog-title">What's New</h1>
+    <p class="changelog-sub">Product updates and improvements</p>
+  </section>
+
+  <!-- Timeline -->
+  <div class="timeline-container">
+    <div class="timeline-line"></div>
+
+    <!-- March 2026 -->
+    <div class="entry newest">
+      <div class="entry-dot"></div>
+      <div class="entry-date">March 2026</div>
+      <div class="entry-header">
+        <h2 class="entry-title">VLC-kit Player</h2>
+        <span class="entry-badge">New</span>
+      </div>
+      <p class="entry-desc">Play any format natively on iOS and Apple TV. No more "converting..." wait.</p>
+
+      <div class="entry-screenshot">
+        <div class="screenshot-inner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span>VLC-kit Player Preview</span>
+        </div>
+      </div>
+
+      <div class="entry-features">
+        <span class="feature-pill">MKV support</span>
+        <span class="feature-pill">DTS audio passthrough</span>
+        <span class="feature-pill">4K HDR</span>
+        <span class="feature-pill">Instant playback</span>
+      </div>
+
+      <div class="entry-tags">
+        <span class="platform-tag ios">iOS</span>
+        <span class="platform-tag tvos">tvOS</span>
+      </div>
+    </div>
+
+    <!-- February 2026 -->
+    <div class="entry">
+      <div class="entry-dot"></div>
+      <div class="entry-date">February 2026</div>
+      <div class="entry-header">
+        <h2 class="entry-title">Smart RSS Filters</h2>
+      </div>
+      <p class="entry-desc">Filter episodes by quality, group. Only download what you want.</p>
+
+      <ul class="entry-bullets">
+        <li>Regex-based filter rules per feed</li>
+        <li>Quality presets (720p, 1080p, 4K)</li>
+        <li>Group filtering by release team</li>
+        <li>Duplicate detection across feeds</li>
+      </ul>
+
+      <div class="entry-tags">
+        <span class="platform-tag web">Web</span>
+      </div>
+    </div>
+
+    <!-- January 2026 -->
+    <div class="entry">
+      <div class="entry-dot"></div>
+      <div class="entry-date">January 2026</div>
+      <div class="entry-header">
+        <h2 class="entry-title">Family Sharing 2.0</h2>
+      </div>
+      <p class="entry-desc">Share your plan with up to 4 family members. Each gets their own storage space.</p>
+
+      <ul class="entry-bullets">
+        <li>Individual storage quotas per member</li>
+        <li>Private files by default, shared folders opt-in</li>
+        <li>Parental controls for content filtering</li>
+        <li>Unified billing with per-member usage breakdown</li>
+      </ul>
+
+      <div class="entry-tags">
+        <span class="platform-tag web">Web</span>
+        <span class="platform-tag ios">iOS</span>
+        <span class="platform-tag android">Android</span>
+      </div>
+    </div>
+
+    <!-- December 2025 -->
+    <div class="entry">
+      <div class="entry-dot"></div>
+      <div class="entry-date">December 2025</div>
+      <div class="entry-header">
+        <h2 class="entry-title">New Design System</h2>
+      </div>
+      <p class="entry-desc">A complete visual refresh across all platforms. Linear-inspired neutrality.</p>
+
+      <div class="entry-screenshot">
+        <div class="screenshot-inner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          <span>Design System Preview</span>
+        </div>
+      </div>
+
+      <ul class="entry-bullets">
+        <li>Unified dark theme across web, mobile, and TV</li>
+        <li>New typography scale based on Inter</li>
+        <li>Refined color palette with yellow accent</li>
+        <li>Component library for consistent UI</li>
+      </ul>
+
+      <div class="entry-tags">
+        <span class="platform-tag all">All Platforms</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-left">
+      <a class="footer-logo" href="#">put<span class="footer-logo-dot">.</span>io</a>
+      <div class="footer-links">
+        <a class="footer-link" href="#">Terms</a>
+        <a class="footer-link" href="#">Privacy</a>
+        <a class="footer-link" href="#">API</a>
+        <a class="footer-link" href="#">Status</a>
+        <a class="footer-link" href="#">Blog</a>
+      </div>
+    </div>
+    <div class="footer-meta">
+      Istanbul, since 2011<br>
+      <span style="letter-spacing: 0.02em;">&#x1DD9F;(&#xF2;_&#xF3;&#x02C7;)&#x1DD9F;</span>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

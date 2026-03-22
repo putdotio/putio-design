@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io -- tvOS Files Glass (v12 Linear Neutral)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #000000;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.10);
+    --yellow-glow: rgba(253,206,69,0.20);
+    --green: #30D158;
+
+    /* Glass materials */
+    --glass-thin: rgba(255,255,255,0.04);
+    --glass-regular: rgba(255,255,255,0.06);
+    --glass-thick: rgba(255,255,255,0.08);
+    --glass-border: rgba(255,255,255,0.08);
+    --glass-border-focus: rgba(253,206,69,0.30);
+    --glass-inset: inset 0 1px 0 rgba(255,255,255,0.05);
+    --blur-thin: blur(20px);
+    --blur-regular: blur(32px);
+    --blur-thick: blur(48px);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+  }
+
+  .tv-frame {
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    flex-direction: column;
+    padding: 48px 88px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Ambient glow */
+  .tv-frame::before {
+    content: '';
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1400px;
+    height: 1400px;
+    background: radial-gradient(circle, rgba(253,206,69,0.04) 0%, rgba(253,206,69,0.015) 35%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Glass Nav Bar (thin material) ── */
+  .top-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 32px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    background: var(--glass-thin);
+    backdrop-filter: var(--blur-thin);
+    -webkit-backdrop-filter: var(--blur-thin);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 12px 28px;
+    box-shadow: var(--glass-inset), 0 4px 24px rgba(0,0,0,0.3);
+  }
+  .nav-brand {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-right: 32px;
+    color: var(--text);
+  }
+  .nav-brand span { color: var(--yellow); text-shadow: 0 0 12px var(--yellow-glow); }
+  .nav-tab {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text-3);
+    padding: 10px 24px;
+    border-radius: 10px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .nav-tab:hover { color: var(--text-2); background: rgba(255,255,255,0.04); }
+  .nav-tab.active { color: var(--yellow); font-weight: 600; }
+  .nav-spacer { flex: 1; }
+
+  /* Breadcrumb on nav bar */
+  .breadcrumb {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text-3);
+  }
+  .breadcrumb strong {
+    color: var(--text-2);
+    font-weight: 500;
+  }
+  .breadcrumb .sep {
+    color: var(--text-3);
+    margin: 0 10px;
+    opacity: 0.5;
+  }
+
+  /* ── Main Glass Panel (regular material) ── */
+  .glass-panel {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+    background: var(--glass-regular);
+    backdrop-filter: var(--blur-regular);
+    -webkit-backdrop-filter: var(--blur-regular);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: var(--glass-inset), 0 8px 48px rgba(0,0,0,0.3);
+    background-image: linear-gradient(to bottom, rgba(255,255,255,0.03) 0%, transparent 20%);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Sort Controls (glass pills at top of panel) ── */
+  .sort-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 32px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+  .sort-pill {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-3);
+    padding: 8px 20px;
+    border-radius: 100px;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: var(--blur-thin);
+    -webkit-backdrop-filter: var(--blur-thin);
+    border: 1px solid rgba(255,255,255,0.06);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .sort-pill:hover {
+    background: rgba(255,255,255,0.08);
+    color: var(--text-2);
+  }
+  .sort-pill.active {
+    background: var(--yellow-dim);
+    color: var(--yellow);
+    border-color: rgba(253,206,69,0.15);
+  }
+
+  /* ── File List ── */
+  .file-list {
+    flex: 1;
+    overflow: hidden;
+    padding: 8px 0;
+  }
+
+  .file-row {
+    display: flex;
+    align-items: center;
+    padding: 22px 32px;
+    gap: 20px;
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .file-row:last-child {
+    border-bottom: none;
+  }
+  .file-row:hover {
+    background: rgba(255,255,255,0.03);
+  }
+  .file-row.focused {
+    background: rgba(255,255,255,0.08);
+  }
+  .file-row.focused::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 3px;
+    background: var(--yellow);
+    border-radius: 0 2px 2px 0;
+    box-shadow: 0 0 8px var(--yellow-glow);
+  }
+  .file-row.focused .file-name {
+    color: var(--text);
+    text-shadow: 0 0 20px rgba(255,255,255,0.08);
+  }
+
+  .file-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .file-name {
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--text-2);
+    letter-spacing: -0.02em;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.2s;
+  }
+  .file-badge {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-3);
+    background: rgba(255,255,255,0.06);
+    padding: 3px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+  .file-row.focused .file-badge {
+    background: rgba(255,255,255,0.10);
+    color: var(--text-2);
+  }
+  .file-size {
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--text-3);
+    min-width: 80px;
+    text-align: right;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .file-date {
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--text-3);
+    min-width: 120px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+<div class="tv-frame">
+
+  <!-- Glass Nav Bar -->
+  <nav class="top-nav">
+    <div class="nav-brand">put<span>.</span>io</div>
+    <div class="nav-tab">Home</div>
+    <div class="nav-tab active">Files</div>
+    <div class="nav-tab">Search</div>
+    <div class="nav-tab">Settings</div>
+    <div class="nav-spacer"></div>
+    <div class="breadcrumb">
+      Your Files <span class="sep">&rsaquo;</span> <strong>movies</strong>
+    </div>
+  </nav>
+
+  <!-- Main Glass Panel -->
+  <div class="glass-panel">
+
+    <!-- Sort Controls -->
+    <div class="sort-bar">
+      <div class="sort-pill active">Name</div>
+      <div class="sort-pill">Date</div>
+      <div class="sort-pill">Size</div>
+    </div>
+
+    <!-- File List -->
+    <div class="file-list">
+
+      <!-- Folder -->
+      <div class="file-row">
+        <div class="file-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="file-name">action</div>
+        <div class="file-size">28 GB</div>
+        <div class="file-date">Mar 18</div>
+      </div>
+
+      <!-- Folder -->
+      <div class="file-row">
+        <div class="file-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="file-name">comedy</div>
+        <div class="file-size">14 GB</div>
+        <div class="file-date">Mar 12</div>
+      </div>
+
+      <!-- Video — focused -->
+      <div class="file-row focused">
+        <div class="file-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M8 5v14l11-7L8 5z" fill="#A1A1AA"/>
+          </svg>
+        </div>
+        <div class="file-name">Inception</div>
+        <span class="file-badge">4K</span>
+        <div class="file-size">8.1 GB</div>
+        <div class="file-date">Mar 20</div>
+      </div>
+
+      <!-- Video -->
+      <div class="file-row">
+        <div class="file-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M8 5v14l11-7L8 5z" fill="#A1A1AA"/>
+          </svg>
+        </div>
+        <div class="file-name">Oppenheimer</div>
+        <span class="file-badge">4K HDR</span>
+        <div class="file-size">12.3 GB</div>
+        <div class="file-date">Mar 15</div>
+      </div>
+
+      <!-- Audio -->
+      <div class="file-row">
+        <div class="file-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="10" width="3" height="8" rx="1" fill="#A1A1AA"/>
+            <rect x="7" y="6" width="3" height="12" rx="1" fill="#A1A1AA"/>
+            <rect x="12" y="8" width="3" height="10" rx="1" fill="#A1A1AA"/>
+            <rect x="17" y="4" width="3" height="14" rx="1" fill="#A1A1AA"/>
+          </svg>
+        </div>
+        <div class="file-name">Soundtrack - Inception OST</div>
+        <span class="file-badge">FLAC</span>
+        <div class="file-size">680 MB</div>
+        <div class="file-date">Mar 10</div>
+      </div>
+
+      <!-- Video -->
+      <div class="file-row">
+        <div class="file-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M8 5v14l11-7L8 5z" fill="#A1A1AA"/>
+          </svg>
+        </div>
+        <div class="file-name">Dune Part Two</div>
+        <span class="file-badge">4K</span>
+        <div class="file-size">14.7 GB</div>
+        <div class="file-date">Mar 8</div>
+      </div>
+
+      <!-- Video -->
+      <div class="file-row">
+        <div class="file-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M8 5v14l11-7L8 5z" fill="#A1A1AA"/>
+          </svg>
+        </div>
+        <div class="file-name">The Bear S03E07</div>
+        <span class="file-badge">1080p</span>
+        <div class="file-size">2.4 GB</div>
+        <div class="file-date">Mar 5</div>
+      </div>
+
+      <!-- Folder -->
+      <div class="file-row">
+        <div class="file-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" fill="#FDCE45"/>
+          </svg>
+        </div>
+        <div class="file-name">sci-fi</div>
+        <div class="file-size">62 GB</div>
+        <div class="file-date">Feb 28</div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+</body>
+</html>
