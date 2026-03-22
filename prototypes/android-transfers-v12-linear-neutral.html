@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=412">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io — Android Transfers (Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --yellow: #FDCE45;
+    --green: #30D158;
+    --red: #FF453A;
+    --bg: #000000;
+    --surface: #1C1C1E;
+    --surface-elevated: #2C2C2E;
+    --text-primary: #F5F5F7;
+    --text-secondary: rgba(245, 245, 247, 0.55);
+    --text-tertiary: rgba(245, 245, 247, 0.32);
+    --separator: rgba(245, 245, 247, 0.08);
+    --separator-strong: rgba(245, 245, 247, 0.12);
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .phone {
+    width: 412px;
+    height: 915px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: var(--bg);
+  }
+
+  /* ===== ANDROID STATUS BAR ===== */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+  .status-bar .clock {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+  .status-bar .icons {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status-bar .icons svg {
+    width: 16px;
+    height: 16px;
+    fill: var(--text-primary);
+  }
+
+  /* ===== TOP APP BAR ===== */
+  .top-app-bar {
+    padding: 8px 20px 0;
+    flex-shrink: 0;
+  }
+  .top-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    line-height: 1.15;
+  }
+
+  /* ===== TAB ROW ===== */
+  .tab-row {
+    display: flex;
+    padding: 0 20px;
+    margin-top: 20px;
+    gap: 0;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--separator);
+  }
+  .tab {
+    position: relative;
+    padding: 10px 0;
+    margin-right: 28px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    letter-spacing: -0.01em;
+    background: none;
+    border: none;
+    font-family: inherit;
+    transition: color 0.15s ease;
+  }
+  .tab.active {
+    color: var(--text-primary);
+  }
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--yellow);
+    border-radius: 1px 1px 0 0;
+  }
+
+  /* ===== TRANSFER LIST ===== */
+  .transfer-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 88px;
+  }
+  .transfer-list::-webkit-scrollbar { display: none; }
+
+  .section-label {
+    padding: 20px 20px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+
+  /* ===== ACTIVE TRANSFER ITEM ===== */
+  .transfer-item {
+    padding: 14px 20px;
+    position: relative;
+    cursor: pointer;
+  }
+  .transfer-item + .transfer-item {
+    border-top: 1px solid var(--separator);
+  }
+
+  .transfer-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .transfer-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .transfer-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .transfer-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.35;
+  }
+
+  .quality-badge {
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--separator-strong);
+    color: var(--text-secondary);
+    line-height: 1.3;
+  }
+
+  .transfer-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    letter-spacing: -0.005em;
+  }
+
+  .health-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .health-dot.healthy { background: var(--green); }
+  .health-dot.warning { background: var(--yellow); }
+
+  .transfer-action {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-top: -2px;
+  }
+  .transfer-action svg {
+    width: 18px;
+    height: 18px;
+    fill: var(--text-tertiary);
+  }
+  .transfer-action:hover svg {
+    fill: var(--text-secondary);
+  }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-bar {
+    margin-top: 10px;
+    height: 3px;
+    background: var(--separator-strong);
+    border-radius: 1.5px;
+    overflow: visible;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 1.5px;
+    background: var(--yellow);
+    position: relative;
+    transition: width 0.3s ease;
+  }
+  /* Subtle glow dot at leading edge */
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--yellow);
+    box-shadow: 0 0 6px 2px rgba(253, 206, 69, 0.35);
+  }
+
+  /* ===== SEEDING STATUS ===== */
+  .status-text {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+  .status-text.seeding {
+    color: var(--green);
+  }
+  .status-text.queued {
+    color: var(--text-tertiary);
+  }
+
+  .upload-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+  .upload-indicator svg {
+    width: 12px;
+    height: 12px;
+    fill: var(--text-secondary);
+  }
+
+  /* ===== COMPLETED ITEMS ===== */
+  .completed-item {
+    padding: 12px 20px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    opacity: 0.75;
+  }
+  .completed-item + .completed-item {
+    border-top: 1px solid var(--separator);
+  }
+
+  .completed-check {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .completed-check svg {
+    width: 16px;
+    height: 16px;
+    fill: var(--green);
+    opacity: 0.7;
+  }
+
+  .completed-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .completed-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .completed-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .completed-time {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+    font-weight: 400;
+  }
+
+  .goto-file {
+    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--yellow);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: -0.01em;
+    padding: 6px 0;
+    opacity: 0.85;
+  }
+
+  /* ===== BOTTOM NAV ===== */
+  .bottom-nav {
+    display: flex;
+    background: var(--surface);
+    height: 64px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+    border-top: 1px solid var(--separator);
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
+    position: relative;
+  }
+  .nav-item svg {
+    width: 22px;
+    height: 22px;
+    fill: var(--text-tertiary);
+  }
+  .nav-item span {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    letter-spacing: -0.01em;
+  }
+  .nav-item.active svg {
+    fill: var(--yellow);
+  }
+  .nav-item.active span {
+    color: var(--yellow);
+  }
+  /* Active indicator pill behind icon */
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    width: 56px;
+    height: 28px;
+    border-radius: 14px;
+    background: rgba(253, 206, 69, 0.1);
+  }
+
+  /* ===== GESTURE BAR ===== */
+  .gesture-bar {
+    width: 134px;
+    height: 5px;
+    border-radius: 2.5px;
+    background: var(--text-tertiary);
+    margin: 0 auto;
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Android Status Bar -->
+  <div class="status-bar">
+    <span class="clock">9:41</span>
+    <div class="icons">
+      <!-- Signal -->
+      <svg viewBox="0 0 16 16"><path d="M1 12h2v3H1zm4-3h2v6H5zm4-3h2v9H9zm4-4h2v13h-2z"/></svg>
+      <!-- WiFi -->
+      <svg viewBox="0 0 16 16"><path d="M8 11.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM8 2C4.7 2 1.7 3.4.1 5.8l1.5 1.2C3 5.1 5.4 4 8 4s5 1.1 6.4 2.9l1.5-1.2C14.3 3.4 11.3 2 8 2zm0 4c-2.3 0-4.4 1-5.9 2.6l1.5 1.2C4.8 8.7 6.3 8 8 8s3.2.7 4.4 1.8l1.5-1.2C12.4 7 10.3 6 8 6z"/></svg>
+      <!-- Battery -->
+      <svg viewBox="0 0 16 16"><rect x="1" y="4" width="12" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="2.5" y="5.5" width="7.5" height="5" rx="0.5"/><path d="M14 6.5h1v3h-1z"/></svg>
+    </div>
+  </div>
+
+  <!-- Top App Bar -->
+  <div class="top-app-bar">
+    <div class="top-title">Transfers</div>
+  </div>
+
+  <!-- Tab Row -->
+  <div class="tab-row">
+    <button class="tab active">Active</button>
+    <button class="tab">Completed</button>
+  </div>
+
+  <!-- Transfer List -->
+  <div class="transfer-list">
+
+    <!-- Active Transfers -->
+    <div class="section-label">Downloading</div>
+
+    <!-- Transfer 1: Downloading -->
+    <div class="transfer-item">
+      <div class="transfer-top">
+        <div class="transfer-info">
+          <div class="transfer-name-row">
+            <span class="transfer-name">Inception</span>
+            <span class="quality-badge">4K</span>
+          </div>
+          <div class="transfer-meta">
+            <span class="health-dot healthy"></span>
+            <span>4.2 GB of 8.1 GB</span>
+            <span style="color: var(--text-tertiary);">&middot;</span>
+            <span>12 min left</span>
+          </div>
+        </div>
+        <button class="transfer-action" aria-label="Pause">
+          <!-- Pause icon -->
+          <svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+        </button>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 52%;"></div>
+      </div>
+    </div>
+
+    <!-- Transfer 2: Downloading (slower) -->
+    <div class="transfer-item">
+      <div class="transfer-top">
+        <div class="transfer-info">
+          <div class="transfer-name-row">
+            <span class="transfer-name">The Social Network</span>
+            <span class="quality-badge">1080p</span>
+          </div>
+          <div class="transfer-meta">
+            <span class="health-dot healthy"></span>
+            <span>1.8 GB of 4.3 GB</span>
+            <span style="color: var(--text-tertiary);">&middot;</span>
+            <span>28 min left</span>
+          </div>
+        </div>
+        <button class="transfer-action" aria-label="Pause">
+          <svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+        </button>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 42%;"></div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top: 4px;">Seeding</div>
+
+    <!-- Transfer 3: Seeding -->
+    <div class="transfer-item">
+      <div class="transfer-top">
+        <div class="transfer-info">
+          <div class="transfer-name-row">
+            <span class="transfer-name">Dune Part Two</span>
+            <span class="quality-badge">1080p</span>
+          </div>
+          <div class="transfer-meta">
+            <span class="status-text seeding">Seeding</span>
+            <span style="color: var(--text-tertiary);">&middot;</span>
+            <span class="upload-indicator">
+              <svg viewBox="0 0 12 12"><path d="M6 1.5L2.5 5.5h2.25v5h2.5v-5H9.5L6 1.5z"/></svg>
+              2.4 MB/s
+            </span>
+          </div>
+        </div>
+        <button class="transfer-action" aria-label="More">
+          <!-- Vertical dots -->
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top: 4px;">Queued</div>
+
+    <!-- Transfer 4: Queued -->
+    <div class="transfer-item">
+      <div class="transfer-top">
+        <div class="transfer-info">
+          <div class="transfer-name-row">
+            <span class="transfer-name">Oppenheimer</span>
+            <span class="quality-badge">4K</span>
+          </div>
+          <div class="transfer-meta">
+            <span class="status-text queued">Queued</span>
+          </div>
+        </div>
+        <button class="transfer-action" aria-label="More">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Transfer 5: Queued -->
+    <div class="transfer-item">
+      <div class="transfer-top">
+        <div class="transfer-info">
+          <div class="transfer-name-row">
+            <span class="transfer-name">Killers of the Flower Moon</span>
+          </div>
+          <div class="transfer-meta">
+            <span class="status-text queued">Queued</span>
+          </div>
+        </div>
+        <button class="transfer-action" aria-label="More">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Completed Section -->
+    <div class="section-label" style="margin-top: 8px;">Recently Completed</div>
+
+    <!-- Completed 1 -->
+    <div class="completed-item">
+      <div class="completed-check">
+        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+      </div>
+      <div class="completed-info">
+        <div class="completed-name-row">
+          <span class="completed-name">Past Lives</span>
+          <span class="quality-badge">1080p</span>
+        </div>
+        <div class="completed-time">2 hours ago</div>
+      </div>
+      <button class="goto-file">Go to file</button>
+    </div>
+
+    <!-- Completed 2 -->
+    <div class="completed-item">
+      <div class="completed-check">
+        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+      </div>
+      <div class="completed-info">
+        <div class="completed-name-row">
+          <span class="completed-name">The Holdovers</span>
+          <span class="quality-badge">720p</span>
+        </div>
+        <div class="completed-time">5 hours ago</div>
+      </div>
+      <button class="goto-file">Go to file</button>
+    </div>
+
+    <!-- Completed 3 -->
+    <div class="completed-item">
+      <div class="completed-check">
+        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+      </div>
+      <div class="completed-info">
+        <div class="completed-name-row">
+          <span class="completed-name">Anatomy of a Fall</span>
+        </div>
+        <div class="completed-time">Yesterday</div>
+      </div>
+      <button class="goto-file">Go to file</button>
+    </div>
+
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <!-- Files -->
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      <span>Files</span>
+    </button>
+    <!-- Transfers (active) -->
+    <button class="nav-item active">
+      <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5v-2z"/></svg>
+      <span>Transfers</span>
+    </button>
+    <!-- Downloads -->
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18C6.48 2 2 6.48 2 12h3l4-4-1.41-1.41L5.17 9A6.998 6.998 0 0112 4c3.87 0 7 3.13 7 7h-3l4 4 4-4h-3c0-4.97-4.03-9-9-9zm-1 11h2V7h-2v6z" opacity="0.85"/></svg>
+      <span>Downloads</span>
+    </button>
+    <!-- Settings -->
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1115.6 12 3.6 3.6 0 0112 15.6z"/></svg>
+      <span>Settings</span>
+    </button>
+  </div>
+
+  <!-- Gesture Bar -->
+  <div class="gesture-bar"></div>
+
+</div>
+</body>
+</html>
