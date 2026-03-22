@@ -27,6 +27,28 @@ prototypes/        HTML design screens + gallery index
 - Never stop to ask — loop autonomously when iterating.
 - When writing or updating docs: never include customer PII (real names, emails, employers). Use anonymous IDs (e.g. "User 01"). Never reference third-party apps by name — use generic descriptions instead.
 
+## Content-agnostic design (critical)
+
+put.io is content-agnostic. We do NOT know what files the user has. We cannot parse, format, or beautify filenames. This is the inherent reality of the product.
+
+**In prototypes and specs, always use raw filenames exactly as they appear:**
+- `The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv`
+- `Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv`
+- `ubuntu-24.04.1-desktop-amd64.iso`
+- `podcast_ep127_final_mixdown_v2.mp3`
+- `IMG_4392.HEIC`
+- `homework_answers_DONT_DELETE`
+- `document-scan-march-2026.pdf`
+
+**Never do any of these:**
+- Parse filenames into clean titles (e.g. showing "Inception" instead of the raw filename)
+- Add quality badges (4K, 1080p) as separate UI elements — that info is in the filename
+- Add source/codec tags as metadata pills
+- Assume we have posters, thumbnails, descriptions, or any structured metadata
+- Show "health indicators" that require parsing torrent data into simplified states
+
+**The design challenge:** Make a list of ugly, truncated filenames feel premium through typography, spacing, and interaction quality alone. The beauty comes from the utility itself — not from pretending we have metadata we don't.
+
 ## Design variants
 
 | Variant | Type stack | Reference |
