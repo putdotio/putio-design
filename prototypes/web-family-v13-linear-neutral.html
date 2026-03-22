@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<title>put.io — Family (v13 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --sidebar-bg: #111113;
+    --surface: #151517;
+    --card: #1C1C1E;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #4A4A52;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.04);
+    --green: #30D158;
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --purple: #BF5AF2;
+    --sep: rgba(255,255,255,0.04);
+    --sep-border: rgba(255,255,255,0.06);
+    --radius: 8px;
+    --radius-btn: 8px;
+    --radius-modal: 10px;
+    --font: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ================================================================
+     SIDEBAR (130px, Linear-compact)
+     ================================================================ */
+  .sidebar {
+    width: 130px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-right: 1px solid var(--sep-border);
+  }
+
+  .sidebar-header {
+    padding: 14px 12px 10px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  .logo {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .logo-dot { color: var(--yellow); }
+
+  .sidebar-chevron {
+    color: var(--text-4);
+    display: flex;
+    align-items: center;
+    margin-left: 2px;
+  }
+
+  .sidebar-chevron svg { width: 10px; height: 10px; }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 0 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 6px;
+    height: 32px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+    border-radius: 5px;
+    transition: all 0.12s ease;
+    position: relative;
+    line-height: 1;
+  }
+
+  .nav-item:hover {
+    color: var(--text-2);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .nav-item.active {
+    color: var(--text);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .nav-icon svg { width: 16px; height: 16px; }
+
+  .nav-item .nav-icon { color: var(--text-4); }
+  .nav-item.active .nav-icon { color: var(--yellow); }
+  .nav-item:hover .nav-icon { color: var(--text-3); }
+
+  .nav-badge-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--yellow);
+    border-radius: 50%;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .nav-group-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    padding: 20px 6px 4px;
+    line-height: 1;
+  }
+
+  .sidebar-footer {
+    padding: 10px 12px 12px;
+    border-top: 1px solid var(--sep-border);
+  }
+
+  .storage-bar-wrap { margin-bottom: 8px; }
+
+  .storage-track {
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 1px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+
+  .storage-fill {
+    height: 100%;
+    width: 22%;
+    background: var(--yellow);
+    border-radius: 1px;
+  }
+
+  .storage-label {
+    font-size: 11px;
+    color: var(--text-4);
+    line-height: 1;
+  }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-top: 8px;
+  }
+
+  .user-avatar-sm {
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg, var(--yellow), #F0A030);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--bg);
+    flex-shrink: 0;
+  }
+
+  .user-name-sm {
+    font-size: 12px;
+    color: var(--text-3);
+    font-weight: 500;
+  }
+
+  /* ================================================================
+     CONTENT
+     ================================================================ */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  /* -- Top Bar -- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 20px;
+    gap: 10px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .topbar-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .topbar-spacer { flex: 1; }
+
+  .btn-invite {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+    padding: 0 12px;
+    background: var(--yellow);
+    color: var(--bg);
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: filter 0.12s ease;
+  }
+
+  .btn-invite:hover { filter: brightness(1.08); }
+  .btn-invite svg { width: 14px; height: 14px; }
+
+  /* -- Main scroll area -- */
+  .main-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+
+  /* -- Plan info row -- */
+  .plan-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .plan-text {
+    font-size: 14px;
+    color: var(--text-3);
+  }
+
+  .plan-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--sep-border);
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-2);
+  }
+
+  /* ================================================================
+     MEMBERS TABLE (Linear Members style)
+     ================================================================ */
+  .members-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .members-table thead th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--sep);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 1;
+  }
+
+  .members-table thead th:first-child { padding-left: 0; }
+  .members-table thead th.col-role { width: 100px; }
+  .members-table thead th.col-storage { width: 110px; }
+  .members-table thead th.col-joined { width: 80px; }
+  .members-table thead th.col-status { width: 100px; }
+
+  .members-table tbody tr {
+    border-bottom: 1px solid var(--sep);
+    cursor: default;
+    transition: background 0.08s ease;
+    height: 48px;
+  }
+
+  .members-table tbody tr:hover {
+    background: var(--surface);
+  }
+
+  .members-table tbody td {
+    padding: 0;
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  /* -- Member name cell -- */
+  .member-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-right: 16px;
+  }
+
+  .member-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--bg);
+    flex-shrink: 0;
+  }
+
+  .member-avatar.yellow { background: linear-gradient(135deg, var(--yellow), #F0A030); }
+  .member-avatar.blue { background: linear-gradient(135deg, #5AC8FA, #0A84FF); }
+  .member-avatar.purple { background: linear-gradient(135deg, #D8A8FF, #BF5AF2); }
+
+  .member-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  .member-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .member-email {
+    font-size: 12px;
+    color: var(--text-3);
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* -- Role badge -- */
+  .role-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: 11px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .role-badge.owner {
+    background: var(--yellow-dim);
+    color: var(--yellow);
+    border: 1px solid rgba(253,206,69,0.12);
+  }
+
+  .role-badge.member {
+    background: rgba(255,255,255,0.04);
+    color: var(--text-3);
+    border: 1px solid var(--sep-border);
+  }
+
+  /* -- Status -- */
+  .status-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .status-dot.active { background: var(--green); }
+  .status-dot.inactive { background: var(--text-4); }
+
+  .status-label {
+    font-size: 13px;
+    color: var(--text-3);
+  }
+
+  .col-storage, .col-joined {
+    color: var(--text-3);
+    font-size: 13px;
+  }
+
+  /* -- Invite row (dashed) -- */
+  .invite-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 48px;
+    border: 1.5px dashed rgba(255,255,255,0.08);
+    border-radius: 8px;
+    margin-top: 8px;
+    cursor: pointer;
+    color: var(--text-4);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.12s ease;
+  }
+
+  .invite-row:hover {
+    border-color: rgba(255,255,255,0.14);
+    color: var(--text-3);
+    background: rgba(255,255,255,0.02);
+  }
+
+  .invite-row svg { width: 16px; height: 16px; }
+
+  /* ================================================================
+     STORAGE BREAKDOWN
+     ================================================================ */
+  .storage-section {
+    margin-top: 32px;
+  }
+
+  .storage-section-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+
+  .storage-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+  }
+
+  .storage-segment {
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+
+  .storage-segment:first-child { border-radius: 4px 0 0 4px; }
+  .storage-segment:last-child { border-radius: 0 4px 4px 0; }
+
+  .storage-segment.yellow { background: linear-gradient(90deg, var(--yellow), #F0A030); }
+  .storage-segment.blue { background: linear-gradient(90deg, #5AC8FA, #0A84FF); }
+  .storage-segment.purple { background: linear-gradient(90deg, #D8A8FF, #BF5AF2); }
+
+  .storage-legend {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .legend-dot.yellow { background: var(--yellow); }
+  .legend-dot.blue { background: #0A84FF; }
+  .legend-dot.purple { background: #BF5AF2; }
+  .legend-dot.free { background: rgba(255,255,255,0.06); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR (130px, Linear-compact) -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="logo-dot">.</span>io</div>
+      <span class="sidebar-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+        Files
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+        Transfers
+        <span class="nav-badge-dot"></span>
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/></svg></span>
+        History
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>
+        Trash
+      </button>
+
+      <div class="nav-group-label">Automation</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg></span>
+        RSS Feeds
+      </button>
+
+      <div class="nav-group-label">Sharing</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+        Shared Links
+      </button>
+      <button class="nav-item active">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+        Family
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="storage-bar-wrap">
+        <div class="storage-track"><div class="storage-fill"></div></div>
+        <div class="storage-label">11 TB / 50 TB</div>
+      </div>
+      <div class="user-row">
+        <div class="user-avatar-sm">a</div>
+        <span class="user-name-sm">altay</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="topbar-title">Family</div>
+      <div class="topbar-spacer"></div>
+      <button class="btn-invite">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Invite member
+      </button>
+    </div>
+
+    <!-- Main scroll area -->
+    <div class="main-scroll">
+
+      <!-- Plan info -->
+      <div class="plan-row">
+        <span class="plan-text">Your plan: 1 TB &middot; Family up to 4</span>
+        <span class="plan-badge">2 of 4 members</span>
+      </div>
+
+      <!-- Members table -->
+      <table class="members-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th class="col-role">Role</th>
+            <th class="col-storage">Storage Used</th>
+            <th class="col-joined">Joined</th>
+            <th class="col-status">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- altay (Owner) -->
+          <tr>
+            <td>
+              <div class="member-cell">
+                <div class="member-avatar yellow">a</div>
+                <div class="member-info">
+                  <span class="member-name">altay</span>
+                  <span class="member-email">altay@put.io</span>
+                </div>
+              </div>
+            </td>
+            <td><span class="role-badge owner">Owner</span></td>
+            <td class="col-storage">8.2 TB</td>
+            <td class="col-joined">2011</td>
+            <td>
+              <div class="status-cell">
+                <div class="status-dot active"></div>
+                <span class="status-label">Active</span>
+              </div>
+            </td>
+          </tr>
+          <!-- elif (Member) -->
+          <tr>
+            <td>
+              <div class="member-cell">
+                <div class="member-avatar blue">e</div>
+                <div class="member-info">
+                  <span class="member-name">elif</span>
+                  <span class="member-email">elif@put.io</span>
+                </div>
+              </div>
+            </td>
+            <td><span class="role-badge member">Member</span></td>
+            <td class="col-storage">1.4 TB</td>
+            <td class="col-joined">2024</td>
+            <td>
+              <div class="status-cell">
+                <div class="status-dot active"></div>
+                <span class="status-label">Active</span>
+              </div>
+            </td>
+          </tr>
+          <!-- can (Member, Inactive) -->
+          <tr>
+            <td>
+              <div class="member-cell">
+                <div class="member-avatar purple">c</div>
+                <div class="member-info">
+                  <span class="member-name">can</span>
+                  <span class="member-email">can@put.io</span>
+                </div>
+              </div>
+            </td>
+            <td><span class="role-badge member">Member</span></td>
+            <td class="col-storage">0.8 TB</td>
+            <td class="col-joined">2025</td>
+            <td>
+              <div class="status-cell">
+                <div class="status-dot inactive"></div>
+                <span class="status-label">Inactive</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Invite row (dashed) -->
+      <div class="invite-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Invite a family member
+      </div>
+
+      <!-- Storage breakdown -->
+      <div class="storage-section">
+        <div class="storage-section-label">Storage breakdown</div>
+        <div class="storage-bar">
+          <!-- altay: 8.2 TB of ~10.4 total used, so ~78.8% of used space. Of 1TB plan, these are over quota, but visually: altay 8.2/10.4=78.8%, elif 1.4/10.4=13.5%, can 0.8/10.4=7.7% -->
+          <div class="storage-segment yellow" style="width: 78.8%"></div>
+          <div class="storage-segment blue" style="width: 13.5%"></div>
+          <div class="storage-segment purple" style="width: 7.7%"></div>
+        </div>
+        <div class="storage-legend">
+          <div class="legend-item">
+            <div class="legend-dot yellow"></div>
+            altay &middot; 8.2 TB
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot blue"></div>
+            elif &middot; 1.4 TB
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot purple"></div>
+            can &middot; 0.8 TB
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot free"></div>
+            Free &middot; 39.6 TB
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

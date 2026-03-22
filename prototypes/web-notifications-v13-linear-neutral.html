@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<title>put.io — Notifications (v13 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --sidebar-bg: #111113;
+    --surface: #151517;
+    --card: #1C1C1E;
+    --text: #F5F5F5;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #4A4A52;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.04);
+    --green: #30D158;
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --sep: rgba(255,255,255,0.04);
+    --sep-border: rgba(255,255,255,0.06);
+    --radius: 8px;
+    --font: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ================================================================
+     SIDEBAR (130px, Linear-compact)
+     ================================================================ */
+  .sidebar {
+    width: 130px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-right: 1px solid var(--sep-border);
+  }
+
+  .sidebar-header {
+    padding: 14px 12px 10px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  .logo {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .logo-dot { color: var(--yellow); }
+
+  .sidebar-chevron {
+    color: var(--text-4);
+    display: flex;
+    align-items: center;
+    margin-left: 2px;
+  }
+
+  .sidebar-chevron svg { width: 10px; height: 10px; }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 0 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 6px;
+    height: 32px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+    border-radius: 5px;
+    transition: all 0.12s ease;
+    position: relative;
+    line-height: 1;
+  }
+
+  .nav-item:hover {
+    color: var(--text-2);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .nav-item.active {
+    color: var(--text);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .nav-icon svg { width: 16px; height: 16px; }
+
+  .nav-item .nav-icon { color: var(--text-4); }
+  .nav-item.active .nav-icon { color: var(--yellow); }
+  .nav-item:hover .nav-icon { color: var(--text-3); }
+
+  .nav-badge-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--yellow);
+    border-radius: 50%;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .nav-group-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    padding: 20px 6px 4px;
+    line-height: 1;
+  }
+
+  .sidebar-footer {
+    padding: 10px 12px 12px;
+    border-top: 1px solid var(--sep-border);
+  }
+
+  .storage-bar-wrap { margin-bottom: 8px; }
+
+  .storage-track {
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 1px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+
+  .storage-fill {
+    height: 100%;
+    width: 22%;
+    background: var(--yellow);
+    border-radius: 1px;
+  }
+
+  .storage-label {
+    font-size: 11px;
+    color: var(--text-4);
+    line-height: 1;
+  }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-top: 8px;
+  }
+
+  .user-avatar {
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg, var(--yellow), #F0A030);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--bg);
+    flex-shrink: 0;
+  }
+
+  .user-name {
+    font-size: 12px;
+    color: var(--text-3);
+    font-weight: 500;
+  }
+
+  /* ================================================================
+     CONTENT
+     ================================================================ */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  /* -- Top Bar (44px) -- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 20px;
+    gap: 10px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .topbar-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .topbar-spacer { flex: 1; }
+
+  .mark-all-btn {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-3);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font);
+    padding: 4px 10px;
+    border-radius: 6px;
+    transition: all 0.12s ease;
+  }
+
+  .mark-all-btn:hover {
+    color: var(--text-2);
+    background: rgba(255,255,255,0.04);
+  }
+
+  /* -- Notification list -- */
+  .notif-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+  }
+
+  .notif-scroll::-webkit-scrollbar { width: 6px; }
+  .notif-scroll::-webkit-scrollbar-track { background: transparent; }
+  .notif-scroll::-webkit-scrollbar-thumb { background: var(--text-4); border-radius: 3px; }
+
+  .group-header {
+    font-size: 13px;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--text-3);
+    padding: 16px 20px 6px;
+  }
+
+  .notif-row {
+    display: flex;
+    align-items: center;
+    height: 48px;
+    padding: 0 20px;
+    gap: 12px;
+    transition: background 0.08s ease;
+    cursor: pointer;
+  }
+
+  .notif-row:hover {
+    background: var(--surface);
+  }
+
+  .notif-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .notif-dot.green { background: var(--green); }
+  .notif-dot.yellow { background: var(--yellow); }
+  .notif-dot.red { background: var(--red); }
+  .notif-dot.blue { background: var(--blue); }
+
+  .notif-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--text-3);
+  }
+
+  .notif-icon svg { width: 16px; height: 16px; }
+
+  .notif-message {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 400;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .notif-row.unread .notif-message { color: var(--text); }
+  .notif-row.read .notif-message { color: var(--text-3); }
+
+  .notif-message code {
+    font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+    font-size: 12px;
+    background: rgba(255,255,255,0.04);
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+
+  .notif-row.unread .notif-message code {
+    color: var(--text-2);
+  }
+
+  .notif-row.read .notif-message code {
+    color: var(--text-4);
+  }
+
+  .notif-time {
+    font-size: 12px;
+    color: var(--text-4);
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR (130px, Linear-compact) -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="logo-dot">.</span>io</div>
+      <span class="sidebar-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+        Files
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+        Transfers
+        <span class="nav-badge-dot"></span>
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/></svg></span>
+        History
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>
+        Trash
+      </button>
+
+      <div class="nav-group-label">Automation</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg></span>
+        RSS Feeds
+      </button>
+
+      <div class="nav-group-label">Sharing</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+        Shared Links
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+        Family
+      </button>
+
+      <div class="nav-group-label" style="padding-top:12px"></div>
+      <button class="nav-item active">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
+        Notifications
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="storage-bar-wrap">
+        <div class="storage-track"><div class="storage-fill"></div></div>
+        <div class="storage-label">11 TB / 50 TB</div>
+      </div>
+      <div class="user-row">
+        <div class="user-avatar">a</div>
+        <span class="user-name">altay</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+    <div class="topbar">
+      <div class="topbar-title">Notifications</div>
+      <div class="topbar-spacer"></div>
+      <button class="mark-all-btn">Mark all read</button>
+    </div>
+
+    <div class="notif-scroll">
+      <!-- Today -->
+      <div class="group-header">Today</div>
+
+      <div class="notif-row unread">
+        <span class="notif-dot green"></span>
+        <span class="notif-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+        <span class="notif-message">Transfer complete: <code>Big.Buck.Bunny.2008.4K.x265-RARBG.mkv</code></span>
+        <span class="notif-time">2h ago</span>
+      </div>
+
+      <div class="notif-row unread">
+        <span class="notif-dot yellow"></span>
+        <span class="notif-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+        <span class="notif-message">Storage at 90% &mdash; consider upgrading</span>
+        <span class="notif-time">5h ago</span>
+      </div>
+
+      <!-- Yesterday -->
+      <div class="group-header">Yesterday</div>
+
+      <div class="notif-row read">
+        <span class="notif-dot red"></span>
+        <span class="notif-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+        <span class="notif-message">New sign-in from Berlin, Germany</span>
+        <span class="notif-time">Yesterday</span>
+      </div>
+
+      <div class="notif-row read">
+        <span class="notif-dot green"></span>
+        <span class="notif-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+        <span class="notif-message">Transfer complete: <code>ubuntu-24.04.1-desktop-amd64.iso</code></span>
+        <span class="notif-time">Yesterday</span>
+      </div>
+
+      <!-- Earlier -->
+      <div class="group-header">Earlier</div>
+
+      <div class="notif-row read">
+        <span class="notif-dot blue"></span>
+        <span class="notif-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+        <span class="notif-message">Family member elif joined your plan</span>
+        <span class="notif-time">3 days ago</span>
+      </div>
+
+      <div class="notif-row read">
+        <span class="notif-dot green"></span>
+        <span class="notif-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg></span>
+        <span class="notif-message">RSS: 3 new episodes downloaded</span>
+        <span class="notif-time">5 days ago</span>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

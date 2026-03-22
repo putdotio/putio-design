@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#000000">
+<title>put.io -- iOS Settings v13 Linear Neutral</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #000000;
+    --surface: #1C1C1E;
+    --text: #F5F5F5;
+    --text-2: #71717A;
+    --text-3: #48484A;
+    --line: rgba(255,255,255,0.04);
+    --yellow: #FDCE45;
+    --green: #30D158;
+    --red: #FF453A;
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .phone {
+    width: 390px; height: 844px; overflow: hidden;
+    display: flex; flex-direction: column; position: relative;
+    background: var(--bg);
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; align-items: center; padding: 14px 28px 8px;
+    font-size: 15px; font-weight: 600; height: 54px; flex-shrink: 0;
+    color: var(--text);
+  }
+  .status-bar .time { flex: 1; letter-spacing: 0.01em; }
+  .status-bar .icons { display: flex; align-items: center; gap: 6px; }
+
+  /* Navigation */
+  .nav-header {
+    display: flex; align-items: center; padding: 4px 20px 0;
+    flex-shrink: 0;
+  }
+  .nav-title {
+    flex: 1;
+    font-size: 34px; font-weight: 700; color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  /* Settings list */
+  .settings-list {
+    flex: 1; overflow-y: auto; padding: 0;
+  }
+  .settings-list::-webkit-scrollbar { display: none; }
+
+  /* Section header */
+  .section-header {
+    font-size: 13px; font-weight: 400; color: var(--text-2);
+    padding: 24px 20px 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  /* Section gap */
+  .section-gap {
+    height: 8px;
+  }
+
+  /* Settings row */
+  .setting-row {
+    display: flex; align-items: center;
+    padding: 0 20px;
+    height: 52px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .setting-row:active { background: rgba(255,255,255,0.03); }
+
+  .setting-separator {
+    height: 1px;
+    background: var(--line);
+    margin: 0;
+  }
+
+  .setting-label {
+    font-size: 16px; font-weight: 400; color: var(--text);
+    flex: 1; min-width: 0;
+  }
+  .setting-value {
+    font-size: 15px; font-weight: 400; color: var(--text-2);
+    flex-shrink: 0;
+    margin-right: 8px;
+  }
+  .setting-chevron {
+    flex-shrink: 0;
+    opacity: 0.2;
+  }
+
+  /* Account row */
+  .account-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 0 20px;
+    height: 64px;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .account-row:active { background: rgba(255,255,255,0.03); }
+  .avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--yellow);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 600; color: #000;
+    flex-shrink: 0;
+  }
+  .account-info {
+    flex: 1; min-width: 0;
+  }
+  .account-name {
+    font-size: 16px; font-weight: 500; color: var(--text);
+    line-height: 1.3;
+  }
+  .account-email {
+    font-size: 13px; font-weight: 400; color: var(--text-2);
+    line-height: 1.3;
+  }
+
+  /* Storage row with bar */
+  .storage-row {
+    display: flex; flex-direction: column;
+    padding: 0 20px;
+    height: 52px;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .storage-row:active { background: rgba(255,255,255,0.03); }
+  .storage-top {
+    display: flex; align-items: center;
+  }
+  .storage-bar {
+    height: 2px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 999px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .storage-fill {
+    height: 100%; width: 22%;
+    background: var(--yellow);
+    border-radius: 999px;
+  }
+
+  /* Toggle */
+  .toggle {
+    width: 44px; height: 26px;
+    border-radius: 13px;
+    position: relative;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .toggle.on { background: var(--yellow); }
+  .toggle.off { background: var(--text-3); }
+  .toggle-knob {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    position: absolute;
+    top: 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .toggle.on .toggle-knob { right: 2px; }
+  .toggle.off .toggle-knob { left: 2px; }
+
+  /* Sign out */
+  .sign-out {
+    display: flex; align-items: center; justify-content: center;
+    height: 52px;
+    padding: 0 20px;
+    font-size: 16px; font-weight: 500; color: var(--red);
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .sign-out:active { background: rgba(255,255,255,0.03); }
+
+  /* Flex man */
+  .flex-man {
+    display: flex; align-items: center; justify-content: center;
+    height: 44px;
+    font-size: 12px; color: var(--text-3);
+    opacity: 0.5;
+  }
+
+  /* Tab Bar */
+  .tab-bar {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 6px;
+    background: rgba(44, 44, 48, 0.72);
+    backdrop-filter: blur(32px) saturate(170%);
+    -webkit-backdrop-filter: blur(32px) saturate(170%);
+    border: 0.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: 22px;
+    z-index: 30;
+  }
+  .tab-item {
+    display: flex; align-items: center; justify-content: center;
+    width: 44px; height: 38px;
+    border-radius: 14px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.15s;
+  }
+  .tab-item.active {
+    background: rgba(255, 255, 255, 0.12);
+  }
+  .tab-item svg {
+    width: 22px; height: 22px;
+  }
+  .tab-icon { position: relative; line-height: 0; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg width="17" height="12" fill="none"><g fill="#F5F5F5"><rect x="0" y="3" width="3" height="9" rx="0.5" opacity=".4"/><rect x="4.5" y="2" width="3" height="10" rx="0.5" opacity=".6"/><rect x="9" y="0.5" width="3" height="11.5" rx="0.5" opacity=".8"/><rect x="13.5" y="0" width="3" height="12" rx="0.5"/></g></svg>
+      <svg width="16" height="12" fill="none"><path d="M8 2.4C10.6 2.4 12.9 3.5 14.5 5.2L15.6 4.1C13.7 2.1 11 .8 8 .8S2.3 2.1 .4 4.1L1.5 5.2C3.1 3.5 5.4 2.4 8 2.4Z" fill="#F5F5F5"/><path d="M8 6.3C9.7 6.3 11.2 7 12.3 8.1L13.4 7C12 5.6 10.1 4.7 8 4.7S4 5.6 2.6 7L3.7 8.1C4.8 7 6.3 6.3 8 6.3Z" fill="#F5F5F5"/><path d="M8 10.2C8.9 10.2 9.7 10.6 10.3 11.2L8 13.6 5.7 11.2C6.3 10.6 7.1 10.2 8 10.2Z" fill="#F5F5F5"/></svg>
+      <svg width="27" height="12" fill="none"><rect x="0" y="1" width="22" height="10" rx="2" stroke="#F5F5F5" stroke-opacity=".35"/><rect x="1.5" y="2.5" width="17" height="7" rx="1" fill="#F5F5F5"/><path d="M23.5 4.5v3a1.5 1.5 0 000-3z" fill="#F5F5F5" opacity=".4"/></svg>
+    </div>
+  </div>
+
+  <!-- Nav Header -->
+  <div class="nav-header">
+    <div class="nav-title">Settings</div>
+  </div>
+
+  <!-- Settings List -->
+  <div class="settings-list">
+    <div style="height: 16px;"></div>
+
+    <!-- Account -->
+    <div class="account-row">
+      <div class="avatar">a</div>
+      <div class="account-info">
+        <div class="account-name">altay</div>
+        <div class="account-email">altay@put.io</div>
+      </div>
+      <svg class="setting-chevron" width="7" height="12" fill="none" stroke="#F5F5F5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l5 5-5 5"/></svg>
+    </div>
+    <div class="setting-separator"></div>
+
+    <!-- Storage -->
+    <div class="storage-row">
+      <div class="storage-top">
+        <span class="setting-label">Storage</span>
+        <span class="setting-value">11 TB / 50 TB</span>
+      </div>
+      <div class="storage-bar">
+        <div class="storage-fill"></div>
+      </div>
+    </div>
+
+    <!-- Separator gap -->
+    <div class="section-gap"></div>
+
+    <!-- Playback section -->
+    <div class="section-header">Playback</div>
+
+    <div class="setting-row">
+      <span class="setting-label">Media proxy</span>
+      <span class="setting-value">Amsterdam</span>
+      <svg class="setting-chevron" width="7" height="12" fill="none" stroke="#F5F5F5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l5 5-5 5"/></svg>
+    </div>
+    <div class="setting-separator"></div>
+
+    <div class="setting-row">
+      <span class="setting-label">Autoplay</span>
+      <div class="toggle on"><div class="toggle-knob"></div></div>
+    </div>
+    <div class="setting-separator"></div>
+
+    <div class="setting-row">
+      <span class="setting-label">Playback speed</span>
+      <span class="setting-value">1x</span>
+      <svg class="setting-chevron" width="7" height="12" fill="none" stroke="#F5F5F5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l5 5-5 5"/></svg>
+    </div>
+    <div class="setting-separator"></div>
+
+    <div class="setting-row">
+      <span class="setting-label">Suggest next file</span>
+      <div class="toggle on"><div class="toggle-knob"></div></div>
+    </div>
+
+    <!-- Subtitles section -->
+    <div class="section-header">Subtitles</div>
+
+    <div class="setting-row">
+      <span class="setting-label">Default language</span>
+      <span class="setting-value">English</span>
+      <svg class="setting-chevron" width="7" height="12" fill="none" stroke="#F5F5F5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l5 5-5 5"/></svg>
+    </div>
+    <div class="setting-separator"></div>
+
+    <div class="setting-row">
+      <span class="setting-label">Show by default</span>
+      <div class="toggle on"><div class="toggle-knob"></div></div>
+    </div>
+
+    <!-- Storage section -->
+    <div class="section-header">Storage</div>
+
+    <div class="setting-row">
+      <span class="setting-label">Auto-delete trash</span>
+      <span class="setting-value">After 30 days</span>
+      <svg class="setting-chevron" width="7" height="12" fill="none" stroke="#F5F5F5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l5 5-5 5"/></svg>
+    </div>
+
+    <!-- Privacy section -->
+    <div class="section-header">Privacy</div>
+
+    <div class="setting-row">
+      <span class="setting-label">Log file activity</span>
+      <div class="toggle on"><div class="toggle-knob"></div></div>
+    </div>
+    <div class="setting-separator"></div>
+
+    <div class="setting-row">
+      <span class="setting-label">Invisible mode</span>
+      <div class="toggle off"><div class="toggle-knob"></div></div>
+    </div>
+
+    <!-- Separator gap -->
+    <div class="section-gap"></div>
+
+    <!-- About -->
+    <div class="setting-row">
+      <span class="setting-label" style="color: var(--text-2);">About</span>
+      <svg class="setting-chevron" width="7" height="12" fill="none" stroke="#F5F5F5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l5 5-5 5"/></svg>
+    </div>
+    <div class="setting-separator"></div>
+
+    <!-- Sign out -->
+    <div class="sign-out">Sign out</div>
+
+    <!-- Flex man -->
+    <div class="flex-man">&Nu;(&#242;_&#243;&#711;)&Nu;</div>
+
+    <!-- Bottom spacer -->
+    <div style="height: 100px;"></div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <!-- Files -->
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg width="24" height="24" fill="none"><path d="M3 6.5A2.5 2.5 0 015.5 4H9l2 2.5h7.5A1.5 1.5 0 0120 8v9.5a1.5 1.5 0 01-1.5 1.5h-13A2.5 2.5 0 013 16.5V6.5z" stroke="#71717A" stroke-width="1.6"/></svg>
+      </div>
+    </div>
+    <!-- Transfers -->
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg width="24" height="24" fill="none" stroke="#71717A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
+    </div>
+    <!-- Downloads -->
+    <div class="tab-item">
+      <div class="tab-icon">
+        <svg width="24" height="24" fill="none" stroke="#71717A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5.5M9.5 12l2.5 2.5 2.5-2.5"/></svg>
+      </div>
+    </div>
+    <!-- Settings (active) -->
+    <div class="tab-item active">
+      <div class="tab-icon">
+        <svg width="24" height="24" fill="none"><circle cx="12" cy="12" r="3" fill="#FDCE45"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="#FDCE45" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

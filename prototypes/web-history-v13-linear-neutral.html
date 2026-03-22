@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<title>put.io — History (v13 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --sidebar-bg: #111113;
+    --surface: #151517;
+    --card: #1C1C1E;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #4A4A52;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.04);
+    --green: #30D158;
+    --green-dim: rgba(48,209,88,0.10);
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --blue-dim: rgba(10,132,255,0.10);
+    --sep: rgba(255,255,255,0.04);
+    --sep-border: rgba(255,255,255,0.06);
+    --radius: 8px;
+    --radius-btn: 8px;
+    --radius-modal: 10px;
+    --font: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ================================================================
+     SIDEBAR (130px, Linear-compact)
+     ================================================================ */
+  .sidebar {
+    width: 130px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-right: 1px solid var(--sep-border);
+  }
+
+  .sidebar-header {
+    padding: 14px 12px 10px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  .logo {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .logo-dot { color: var(--yellow); }
+
+  .sidebar-chevron {
+    color: var(--text-4);
+    display: flex;
+    align-items: center;
+    margin-left: 2px;
+  }
+
+  .sidebar-chevron svg { width: 10px; height: 10px; }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 0 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 6px;
+    height: 32px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+    border-radius: 5px;
+    transition: all 0.12s ease;
+    position: relative;
+    line-height: 1;
+  }
+
+  .nav-item:hover {
+    color: var(--text-2);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .nav-item.active {
+    color: var(--text);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .nav-icon svg { width: 16px; height: 16px; }
+
+  .nav-item .nav-icon { color: var(--text-4); }
+  .nav-item.active .nav-icon { color: var(--yellow); }
+  .nav-item:hover .nav-icon { color: var(--text-3); }
+
+  .nav-badge-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--yellow);
+    border-radius: 50%;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .nav-group-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    padding: 20px 6px 4px;
+    line-height: 1;
+  }
+
+  .sidebar-footer {
+    padding: 10px 12px 12px;
+    border-top: 1px solid var(--sep-border);
+  }
+
+  .storage-bar-wrap { margin-bottom: 8px; }
+
+  .storage-track {
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 1px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+
+  .storage-fill {
+    height: 100%;
+    width: 22%;
+    background: var(--yellow);
+    border-radius: 1px;
+  }
+
+  .storage-label {
+    font-size: 11px;
+    color: var(--text-4);
+    line-height: 1;
+  }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-top: 8px;
+  }
+
+  .user-avatar {
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg, var(--yellow), #F0A030);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--bg);
+    flex-shrink: 0;
+  }
+
+  .user-name {
+    font-size: 12px;
+    color: var(--text-3);
+    font-weight: 500;
+  }
+
+  /* ================================================================
+     CONTENT
+     ================================================================ */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  /* -- Header -- */
+  .content-header {
+    padding: 20px 24px 0;
+    flex-shrink: 0;
+  }
+
+  .header-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .page-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .header-spacer { flex: 1; }
+
+  .clear-btn {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-4);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font);
+    padding: 4px 8px;
+    border-radius: 5px;
+    transition: all 0.12s ease;
+  }
+
+  .clear-btn:hover {
+    color: var(--text-3);
+    background: rgba(255,255,255,0.04);
+  }
+
+  /* -- Tabs (Linear text tabs with underline) -- */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .tab {
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font);
+    position: relative;
+    transition: color 0.12s ease;
+  }
+
+  .tab:hover { color: var(--text-2); }
+
+  .tab.active {
+    color: var(--text);
+  }
+
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 16px;
+    right: 16px;
+    height: 2px;
+    background: var(--text);
+    border-radius: 1px;
+  }
+
+  /* ================================================================
+     TABLE
+     ================================================================ */
+  .table-wrap {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 24px 24px;
+  }
+
+  .table-wrap::-webkit-scrollbar { width: 6px; }
+  .table-wrap::-webkit-scrollbar-track { background: transparent; }
+  .table-wrap::-webkit-scrollbar-thumb { background: var(--text-4); border-radius: 3px; }
+
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .history-table thead th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--sep);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 1;
+  }
+
+  .history-table thead th.col-action { width: 110px; }
+  .history-table thead th.col-file { }
+  .history-table thead th.col-size { width: 90px; }
+  .history-table thead th.col-when { width: 100px; text-align: right; }
+
+  /* -- Group header row -- */
+  .group-header td {
+    padding: 18px 0 6px;
+    font-size: 13px;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--text-3);
+    border-bottom: none !important;
+  }
+
+  /* -- Data rows -- */
+  .history-table tbody tr.data-row {
+    height: 40px;
+    cursor: default;
+    transition: background 0.08s ease;
+  }
+
+  .history-table tbody tr.data-row:hover {
+    background: var(--surface);
+  }
+
+  .history-table tbody tr.data-row td {
+    padding: 0;
+    font-size: 13px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  /* Action cell */
+  .action-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+  }
+
+  .action-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .action-icon svg { width: 12px; height: 12px; }
+
+  .action-icon.watched { background: var(--blue-dim); color: var(--blue); }
+  .action-icon.downloaded { background: var(--green-dim); color: var(--green); }
+  .action-icon.converted { background: rgba(253,206,69,0.10); color: var(--yellow); }
+
+  .action-label {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .action-label.watched { color: var(--blue); }
+  .action-label.downloaded { color: var(--green); }
+  .action-label.converted { color: var(--yellow); }
+
+  /* File cell */
+  .file-cell {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 700px;
+    padding-right: 16px;
+  }
+
+  /* Size cell */
+  .size-cell {
+    font-size: 13px;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* When cell */
+  .when-cell {
+    font-size: 12px;
+    color: var(--text-4);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR (130px, Linear-compact) -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="logo-dot">.</span>io</div>
+      <span class="sidebar-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+        Files
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+        Transfers
+        <span class="nav-badge-dot"></span>
+      </button>
+      <button class="nav-item active">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/></svg></span>
+        History
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>
+        Trash
+      </button>
+
+      <div class="nav-group-label">Automation</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg></span>
+        RSS Feeds
+      </button>
+
+      <div class="nav-group-label">Sharing</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+        Shared Links
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+        Family
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="storage-bar-wrap">
+        <div class="storage-track"><div class="storage-fill"></div></div>
+        <div class="storage-label">11 TB / 50 TB</div>
+      </div>
+      <div class="user-row">
+        <div class="user-avatar">a</div>
+        <span class="user-name">altay</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+    <div class="content-header">
+      <div class="header-row">
+        <h1 class="page-title">History</h1>
+        <div class="header-spacer"></div>
+        <button class="clear-btn">Clear history</button>
+      </div>
+      <div class="tabs">
+        <button class="tab active">All</button>
+        <button class="tab">Watched</button>
+        <button class="tab">Downloaded</button>
+        <button class="tab">Converted</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th class="col-action">Action</th>
+            <th class="col-file">File</th>
+            <th class="col-size">Size</th>
+            <th class="col-when">When</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Today -->
+          <tr class="group-header"><td colspan="4">Today</td></tr>
+
+          <tr class="data-row">
+            <td>
+              <div class="action-cell">
+                <div class="action-icon watched">
+                  <svg viewBox="0 0 14 14" fill="none"><path d="M4 2.5l7.5 4.5L4 11.5v-9z" fill="currentColor"/></svg>
+                </div>
+                <span class="action-label watched">Watched</span>
+              </div>
+            </td>
+            <td class="file-cell">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</td>
+            <td class="size-cell">1.2 GB</td>
+            <td class="when-cell">2 hours ago</td>
+          </tr>
+
+          <tr class="data-row">
+            <td>
+              <div class="action-cell">
+                <div class="action-icon downloaded">
+                  <svg viewBox="0 0 14 14" fill="none"><path d="M7 2v7M4.5 6.5L7 9l2.5-2.5M3 11h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span class="action-label downloaded">Downloaded</span>
+              </div>
+            </td>
+            <td class="file-cell">ubuntu-24.04.1-desktop-amd64.iso</td>
+            <td class="size-cell">4.7 GB</td>
+            <td class="when-cell">5 hours ago</td>
+          </tr>
+
+          <!-- Yesterday -->
+          <tr class="group-header"><td colspan="4">Yesterday</td></tr>
+
+          <tr class="data-row">
+            <td>
+              <div class="action-cell">
+                <div class="action-icon watched">
+                  <svg viewBox="0 0 14 14" fill="none"><path d="M4 2.5l7.5 4.5L4 11.5v-9z" fill="currentColor"/></svg>
+                </div>
+                <span class="action-label watched">Watched</span>
+              </div>
+            </td>
+            <td class="file-cell">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</td>
+            <td class="size-cell">698 MB</td>
+            <td class="when-cell">Yesterday</td>
+          </tr>
+
+          <tr class="data-row">
+            <td>
+              <div class="action-cell">
+                <div class="action-icon converted">
+                  <svg viewBox="0 0 14 14" fill="none"><path d="M10.5 3.5L3.5 10.5M10.5 3.5H6.5M10.5 3.5v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span class="action-label converted">Converted</span>
+              </div>
+            </td>
+            <td class="file-cell">podcast_ep127_final_mixdown_v2.mp3</td>
+            <td class="size-cell">45.2 MB</td>
+            <td class="when-cell">Yesterday</td>
+          </tr>
+
+          <!-- This Week -->
+          <tr class="group-header"><td colspan="4">This Week</td></tr>
+
+          <tr class="data-row">
+            <td>
+              <div class="action-cell">
+                <div class="action-icon downloaded">
+                  <svg viewBox="0 0 14 14" fill="none"><path d="M7 2v7M4.5 6.5L7 9l2.5-2.5M3 11h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span class="action-label downloaded">Downloaded</span>
+              </div>
+            </td>
+            <td class="file-cell">document-scan-march-2026.pdf</td>
+            <td class="size-cell">2.1 MB</td>
+            <td class="when-cell">2 days ago</td>
+          </tr>
+
+          <tr class="data-row">
+            <td>
+              <div class="action-cell">
+                <div class="action-icon watched">
+                  <svg viewBox="0 0 14 14" fill="none"><path d="M4 2.5l7.5 4.5L4 11.5v-9z" fill="currentColor"/></svg>
+                </div>
+                <span class="action-label watched">Watched</span>
+              </div>
+            </td>
+            <td class="file-cell">The.Wire.S03E03.Dead.Soldiers.1080p.BluRay.x264-DEMAND.mkv</td>
+            <td class="size-cell">1.1 GB</td>
+            <td class="when-cell">3 days ago</td>
+          </tr>
+
+          <tr class="data-row">
+            <td>
+              <div class="action-cell">
+                <div class="action-icon downloaded">
+                  <svg viewBox="0 0 14 14" fill="none"><path d="M7 2v7M4.5 6.5L7 9l2.5-2.5M3 11h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span class="action-label downloaded">Downloaded</span>
+              </div>
+            </td>
+            <td class="file-cell">IMG_4392.HEIC</td>
+            <td class="size-cell">8.4 MB</td>
+            <td class="when-cell">Last week</td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

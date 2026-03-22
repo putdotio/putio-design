@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<title>put.io — Command Palette (v13 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --sidebar-bg: #111113;
+    --surface: #151517;
+    --card: #1C1C1E;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #4A4A52;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.04);
+    --green: #30D158;
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --sep: rgba(255,255,255,0.04);
+    --sep-border: rgba(255,255,255,0.06);
+    --radius: 8px;
+    --radius-btn: 8px;
+    --radius-modal: 10px;
+    --font: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ================================================================
+     SIDEBAR (130px, Linear-compact) — faint behind overlay
+     ================================================================ */
+  .sidebar {
+    width: 130px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-right: 1px solid var(--sep-border);
+  }
+
+  .sidebar-header {
+    padding: 14px 12px 10px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  .logo {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .logo-dot { color: var(--yellow); }
+
+  .sidebar-chevron {
+    color: var(--text-4);
+    display: flex;
+    align-items: center;
+    margin-left: 2px;
+  }
+
+  .sidebar-chevron svg { width: 10px; height: 10px; }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 0 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 6px;
+    height: 32px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+    border-radius: 5px;
+    transition: all 0.12s ease;
+    position: relative;
+    line-height: 1;
+  }
+
+  .nav-item:hover {
+    color: var(--text-2);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .nav-item.active {
+    color: var(--text);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .nav-icon svg { width: 16px; height: 16px; }
+
+  .nav-item .nav-icon { color: var(--text-4); }
+  .nav-item.active .nav-icon { color: var(--yellow); }
+
+  .nav-badge-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--yellow);
+    border-radius: 50%;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .nav-group-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    padding: 20px 6px 4px;
+    line-height: 1;
+  }
+
+  .sidebar-footer {
+    padding: 10px 12px 12px;
+    border-top: 1px solid var(--sep-border);
+  }
+
+  .storage-bar-wrap { margin-bottom: 8px; }
+
+  .storage-track {
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 1px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+
+  .storage-fill {
+    height: 100%;
+    width: 22%;
+    background: var(--yellow);
+    border-radius: 1px;
+  }
+
+  .storage-label {
+    font-size: 11px;
+    color: var(--text-4);
+    line-height: 1;
+  }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-top: 8px;
+  }
+
+  .user-avatar {
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg, var(--yellow), #F0A030);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--bg);
+    flex-shrink: 0;
+  }
+
+  .user-name {
+    font-size: 12px;
+    color: var(--text-3);
+    font-weight: 500;
+  }
+
+  /* ================================================================
+     CONTENT — faint files page behind overlay
+     ================================================================ */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 20px;
+    gap: 10px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .breadcrumb {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .topbar-spacer { flex: 1; }
+
+  .placeholder-line {
+    height: 40px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 6px;
+    margin-bottom: 1px;
+  }
+
+  .content-body {
+    flex: 1;
+    padding: 0 20px 20px;
+  }
+
+  /* ================================================================
+     OVERLAY
+     ================================================================ */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 180px;
+    z-index: 100;
+  }
+
+  /* ================================================================
+     COMMAND PALETTE
+     ================================================================ */
+  .palette {
+    width: 520px;
+    background: var(--card);
+    border: 0.5px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* -- Search input -- */
+  .palette-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px;
+    height: 48px;
+    flex-shrink: 0;
+  }
+
+  .palette-search svg {
+    width: 16px;
+    height: 16px;
+    color: var(--text-3);
+    flex-shrink: 0;
+  }
+
+  .palette-search-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    font-family: var(--font);
+    color: var(--text);
+    caret-color: var(--yellow);
+  }
+
+  .palette-search-input::placeholder { color: var(--text-3); }
+
+  .palette-sep {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin: 0;
+  }
+
+  /* -- Results -- */
+  .palette-results {
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 6px;
+  }
+
+  .palette-results::-webkit-scrollbar { width: 4px; }
+  .palette-results::-webkit-scrollbar-track { background: transparent; }
+  .palette-results::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+  .result-group + .result-group {
+    margin-top: 2px;
+    padding-top: 2px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .group-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 8px 10px 4px;
+  }
+
+  .result-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+    height: 38px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.08s;
+  }
+
+  .result-item:hover { background: rgba(255,255,255,0.04); }
+  .result-item.active { background: var(--surface); }
+
+  .result-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .result-icon svg { width: 16px; height: 16px; }
+
+  .result-label {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .result-meta {
+    font-size: 12px;
+    color: var(--text-3);
+    flex-shrink: 0;
+  }
+
+  .shortcut {
+    display: flex;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  .kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 6px;
+    min-width: 20px;
+    height: 20px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: var(--font);
+    color: var(--text-3);
+    line-height: 1;
+  }
+
+  /* -- Footer -- */
+  .palette-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 10px 16px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 11px;
+    color: var(--text-3);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR (faint behind overlay) -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="logo-dot">.</span>io</div>
+      <span class="sidebar-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+        Files
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+        Transfers
+        <span class="nav-badge-dot"></span>
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/></svg></span>
+        History
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>
+        Trash
+      </button>
+
+      <div class="nav-group-label">Automation</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg></span>
+        RSS Feeds
+      </button>
+
+      <div class="nav-group-label">Sharing</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+        Shared Links
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+        Family
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="storage-bar-wrap">
+        <div class="storage-track"><div class="storage-fill"></div></div>
+        <div class="storage-label">11 TB / 50 TB</div>
+      </div>
+      <div class="user-row">
+        <div class="user-avatar">a</div>
+        <span class="user-name">altay</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT (faint files page behind overlay) -->
+  <main class="content">
+    <div class="topbar">
+      <div class="breadcrumb">Your Files</div>
+      <div class="topbar-spacer"></div>
+    </div>
+    <div class="content-body">
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+      <div class="placeholder-line"></div>
+    </div>
+  </main>
+
+  <!-- OVERLAY + COMMAND PALETTE -->
+  <div class="overlay">
+    <div class="palette">
+
+      <!-- Search -->
+      <div class="palette-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="palette-search-input" type="text" placeholder="Type a command or search..." autofocus>
+      </div>
+
+      <div class="palette-sep"></div>
+
+      <!-- Results -->
+      <div class="palette-results">
+
+        <!-- Recent Files -->
+        <div class="result-group">
+          <div class="group-label">Recent Files</div>
+          <div class="result-item active">
+            <div class="result-icon" style="color: var(--yellow)">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z"/></svg>
+            </div>
+            <span class="result-label">movies</span>
+            <span class="result-meta">142.8 GB</span>
+          </div>
+          <div class="result-item">
+            <div class="result-icon" style="color: var(--text-3)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <span class="result-label">The.Wire.S03E04.Back.Burners.1080p.BluRay...</span>
+            <span class="result-meta">1.2 GB</span>
+          </div>
+          <div class="result-item">
+            <div class="result-icon" style="color: var(--text-3)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </div>
+            <span class="result-label">document-scan-march-2026.pdf</span>
+            <span class="result-meta">2.1 MB</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="result-group">
+          <div class="group-label">Actions</div>
+          <div class="result-item">
+            <div class="result-icon" style="color: var(--text-2)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </div>
+            <span class="result-label">New Transfer</span>
+            <div class="shortcut">
+              <span class="kbd">&#8984; N</span>
+            </div>
+          </div>
+          <div class="result-item">
+            <div class="result-icon" style="color: var(--text-2)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </div>
+            <span class="result-label">Settings</span>
+            <div class="shortcut">
+              <span class="kbd">&#8984; ,</span>
+            </div>
+          </div>
+          <div class="result-item">
+            <div class="result-icon" style="color: var(--text-2)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
+            <span class="result-label">Search Files</span>
+            <div class="shortcut">
+              <span class="kbd">&#8984; F</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="result-group">
+          <div class="group-label">Navigation</div>
+          <div class="result-item">
+            <div class="result-icon" style="color: var(--text-2)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <span class="result-label">Files</span>
+            <div class="shortcut">
+              <span class="kbd">G</span>
+              <span style="font-size:11px; color:var(--text-4); display:flex; align-items:center;">then</span>
+              <span class="kbd">F</span>
+            </div>
+          </div>
+          <div class="result-item">
+            <div class="result-icon" style="color: var(--text-2)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <span class="result-label">Transfers</span>
+            <div class="shortcut">
+              <span class="kbd">G</span>
+              <span style="font-size:11px; color:var(--text-4); display:flex; align-items:center;">then</span>
+              <span class="kbd">T</span>
+            </div>
+          </div>
+          <div class="result-item">
+            <div class="result-icon" style="color: var(--text-2)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/></svg>
+            </div>
+            <span class="result-label">History</span>
+            <div class="shortcut">
+              <span class="kbd">G</span>
+              <span style="font-size:11px; color:var(--text-4); display:flex; align-items:center;">then</span>
+              <span class="kbd">H</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="palette-footer">
+        <span>&#8593;&#8595; Navigate</span>
+        <span>&middot;</span>
+        <span>&#8629; Open</span>
+        <span>&middot;</span>
+        <span>esc Close</span>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

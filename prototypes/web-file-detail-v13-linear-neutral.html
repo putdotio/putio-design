@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<title>put.io — File Detail (v13 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --sidebar-bg: #111113;
+    --surface: #151517;
+    --card: #1C1C1E;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #4A4A52;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.04);
+    --green: #30D158;
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --sep: rgba(255,255,255,0.04);
+    --sep-border: rgba(255,255,255,0.06);
+    --radius: 8px;
+    --radius-btn: 8px;
+    --radius-modal: 10px;
+    --font: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ================================================================
+     SIDEBAR (130px, Linear-compact)
+     ================================================================ */
+  .sidebar {
+    width: 130px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-right: 1px solid var(--sep-border);
+  }
+
+  .sidebar-header {
+    padding: 14px 12px 10px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  .logo {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .logo-dot { color: var(--yellow); }
+
+  .sidebar-chevron {
+    color: var(--text-4);
+    display: flex;
+    align-items: center;
+    margin-left: 2px;
+  }
+
+  .sidebar-chevron svg { width: 10px; height: 10px; }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 0 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 6px;
+    height: 32px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+    border-radius: 5px;
+    transition: all 0.12s ease;
+    position: relative;
+    line-height: 1;
+  }
+
+  .nav-item:hover {
+    color: var(--text-2);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .nav-item.active {
+    color: var(--text);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .nav-icon svg { width: 16px; height: 16px; }
+
+  .nav-item .nav-icon { color: var(--text-4); }
+  .nav-item.active .nav-icon { color: var(--yellow); }
+  .nav-item:hover .nav-icon { color: var(--text-3); }
+
+  .nav-badge-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--yellow);
+    border-radius: 50%;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .nav-group-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    padding: 20px 6px 4px;
+    line-height: 1;
+  }
+
+  .sidebar-footer {
+    padding: 10px 12px 12px;
+    border-top: 1px solid var(--sep-border);
+  }
+
+  .storage-bar-wrap { margin-bottom: 8px; }
+
+  .storage-track {
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 1px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+
+  .storage-fill {
+    height: 100%;
+    width: 22%;
+    background: var(--yellow);
+    border-radius: 1px;
+  }
+
+  .storage-label {
+    font-size: 11px;
+    color: var(--text-4);
+    line-height: 1;
+  }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-top: 8px;
+  }
+
+  .user-avatar {
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg, var(--yellow), #F0A030);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--bg);
+    flex-shrink: 0;
+  }
+
+  .user-name {
+    font-size: 12px;
+    color: var(--text-3);
+    font-weight: 500;
+  }
+
+  /* ================================================================
+     CONTENT AREA (main + right panel)
+     ================================================================ */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  /* -- Top Bar (44px) -- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 20px;
+    gap: 6px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .breadcrumb-link {
+    color: var(--text-3);
+    cursor: pointer;
+    transition: color 0.12s;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .breadcrumb-link:hover { color: var(--text-2); }
+
+  .breadcrumb-sep {
+    color: var(--text-4);
+    flex-shrink: 0;
+    font-size: 11px;
+  }
+
+  .breadcrumb-current {
+    color: var(--text);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  .topbar-spacer { flex: 1; }
+
+  .topbar-btn {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--text-4);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.12s ease;
+  }
+
+  .topbar-btn:hover {
+    color: var(--text-3);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .topbar-btn svg { width: 16px; height: 16px; }
+
+  /* -- Layout: main + right sidebar -- */
+  .content-layout {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  .content-main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px 40px;
+    min-width: 0;
+  }
+
+  .content-main::-webkit-scrollbar { width: 6px; }
+  .content-main::-webkit-scrollbar-track { background: transparent; }
+  .content-main::-webkit-scrollbar-thumb { background: var(--text-4); border-radius: 3px; }
+
+  /* ================================================================
+     FILE TITLE
+     ================================================================ */
+  .file-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+    margin-bottom: 20px;
+    word-break: break-word;
+  }
+
+  /* ================================================================
+     VIDEO PLAYER PLACEHOLDER
+     ================================================================ */
+  .player-placeholder {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #0A0A0C;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .play-button {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.10);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease;
+  }
+
+  .player-placeholder:hover .play-button {
+    background: rgba(255,255,255,0.16);
+  }
+
+  .play-button svg { width: 24px; height: 24px; color: white; }
+
+  .player-duration {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    background: rgba(0,0,0,0.5);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  /* ================================================================
+     ACTION BUTTONS ROW
+     ================================================================ */
+  .actions-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font);
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    transition: all 0.12s ease;
+    border: none;
+    white-space: nowrap;
+  }
+
+  .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+  .btn-primary {
+    background: var(--yellow);
+    color: #09090B;
+  }
+
+  .btn-primary:hover { filter: brightness(1.08); }
+
+  .btn-outlined {
+    background: transparent;
+    color: var(--text-2);
+    border: 1px solid var(--sep-border);
+  }
+
+  .btn-outlined:hover {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.10);
+    color: var(--text);
+  }
+
+  .btn-icon {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: var(--text-3);
+    border: 1px solid var(--sep-border);
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    transition: all 0.12s ease;
+    font-family: var(--font);
+  }
+
+  .btn-icon:hover {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.10);
+    color: var(--text-2);
+  }
+
+  .btn-icon svg { width: 16px; height: 16px; }
+
+  /* ================================================================
+     FILE INFORMATION SECTION
+     ================================================================ */
+  .info-section {
+    margin-bottom: 28px;
+  }
+
+  .info-section-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 4px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .info-row:last-child { border-bottom: none; }
+
+  .info-label {
+    font-size: 13px;
+    color: var(--text-3);
+  }
+
+  .info-value {
+    font-size: 13px;
+    color: var(--text);
+    text-align: right;
+  }
+
+  /* ================================================================
+     ACTIVITY SECTION
+     ================================================================ */
+  .activity-section {
+    margin-top: 4px;
+  }
+
+  .activity-section-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 4px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .activity-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .activity-item:last-child { border-bottom: none; }
+
+  .activity-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .activity-dot.blue { background: var(--blue); }
+  .activity-dot.green { background: var(--green); }
+  .activity-dot.yellow { background: var(--yellow); }
+
+  .activity-text {
+    font-size: 13px;
+    color: var(--text-2);
+    flex: 1;
+  }
+
+  .activity-time {
+    font-size: 12px;
+    color: var(--text-4);
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ================================================================
+     RIGHT PROPERTIES PANEL
+     ================================================================ */
+  .props-panel {
+    width: 260px;
+    flex-shrink: 0;
+    border-left: 1px solid var(--sep-border);
+    overflow-y: auto;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .props-header {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    margin-bottom: 14px;
+  }
+
+  .prop-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 0;
+  }
+
+  .prop-label {
+    font-size: 12px;
+    color: var(--text-3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .prop-label svg { width: 14px; height: 14px; color: var(--text-4); }
+
+  .prop-value {
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .prop-value.link {
+    color: var(--blue);
+    cursor: pointer;
+    transition: opacity 0.12s;
+  }
+
+  .prop-value.link:hover { opacity: 0.8; }
+
+  .prop-value.muted {
+    color: var(--text-3);
+    font-weight: 400;
+    cursor: pointer;
+    transition: color 0.12s;
+  }
+
+  .prop-value.muted:hover { color: var(--text-2); }
+
+  .props-sep {
+    height: 1px;
+    background: var(--sep);
+    margin: 8px 0;
+  }
+
+  .props-section-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    margin-top: 4px;
+    margin-bottom: 6px;
+  }
+
+  .props-action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 4px;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-2);
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.12s ease;
+  }
+
+  .props-action:hover {
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+  }
+
+  .props-action svg { width: 14px; height: 14px; color: var(--text-4); flex-shrink: 0; }
+
+  .props-action.danger {
+    color: var(--red);
+  }
+
+  .props-action.danger svg { color: var(--red); }
+
+  .props-action.danger:hover {
+    background: rgba(255,69,58,0.06);
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR (130px, Linear-compact) -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="logo-dot">.</span>io</div>
+      <span class="sidebar-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+        Files
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+        Transfers
+        <span class="nav-badge-dot"></span>
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/></svg></span>
+        History
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>
+        Trash
+      </button>
+
+      <div class="nav-group-label">Automation</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg></span>
+        RSS Feeds
+      </button>
+
+      <div class="nav-group-label">Sharing</div>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+        Shared Links
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+        Family
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="storage-bar-wrap">
+        <div class="storage-track"><div class="storage-fill"></div></div>
+        <div class="storage-label">11 TB / 50 TB</div>
+      </div>
+      <div class="user-row">
+        <div class="user-avatar">a</div>
+        <span class="user-name">altay</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="breadcrumb">
+        <span class="breadcrumb-link">Files</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-link">movies</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</span>
+      </div>
+      <div class="topbar-spacer"></div>
+      <button class="topbar-btn" title="Previous file">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="topbar-btn" title="Next file">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+      </button>
+    </div>
+
+    <!-- Main + Properties Split -->
+    <div class="content-layout">
+      <!-- Main Content -->
+      <div class="content-main">
+        <!-- File Title -->
+        <h1 class="file-title">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</h1>
+
+        <!-- Video Player Placeholder -->
+        <div class="player-placeholder">
+          <div class="play-button">
+            <svg viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div class="player-duration">57:41</div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions-row">
+          <button class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Play
+          </button>
+          <button class="btn btn-outlined">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download
+          </button>
+          <button class="btn btn-outlined">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Share link
+          </button>
+          <button class="btn-icon" title="More actions">
+            <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+          </button>
+        </div>
+
+        <!-- File Information -->
+        <div class="info-section">
+          <div class="info-section-title">File Information</div>
+          <div class="info-row">
+            <span class="info-label">Type</span>
+            <span class="info-value">Video (MKV)</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Size</span>
+            <span class="info-value">1.2 GB</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Created</span>
+            <span class="info-value">March 20, 2026</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Modified</span>
+            <span class="info-value">March 20, 2026</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Location</span>
+            <span class="info-value">/movies/</span>
+          </div>
+        </div>
+
+        <!-- Activity -->
+        <div class="activity-section">
+          <div class="activity-section-title">Activity</div>
+          <div class="activity-item">
+            <div class="activity-dot blue"></div>
+            <span class="activity-text">Played</span>
+            <span class="activity-time">Yesterday</span>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot green"></div>
+            <span class="activity-text">Downloaded</span>
+            <span class="activity-time">2 days ago</span>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot yellow"></div>
+            <span class="activity-text">Added to your files</span>
+            <span class="activity-time">March 20, 2026</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Properties Panel -->
+      <aside class="props-panel">
+        <div class="props-header">Properties</div>
+
+        <div class="prop-row">
+          <span class="prop-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            Type
+          </span>
+          <span class="prop-value">Video</span>
+        </div>
+        <div class="prop-row">
+          <span class="prop-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            Size
+          </span>
+          <span class="prop-value">1.2 GB</span>
+        </div>
+        <div class="prop-row">
+          <span class="prop-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            Location
+          </span>
+          <span class="prop-value link">/movies/</span>
+        </div>
+        <div class="prop-row">
+          <span class="prop-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Created
+          </span>
+          <span class="prop-value">Mar 20, 2026</span>
+        </div>
+        <div class="prop-row">
+          <span class="prop-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Hash
+          </span>
+          <span class="prop-value muted">Show</span>
+        </div>
+
+        <div class="props-sep"></div>
+
+        <div class="props-section-label">Actions</div>
+
+        <div class="props-action">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><polyline points="9 14 12 17 15 14"/></svg>
+          Move to folder
+        </div>
+        <div class="props-action">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Rename
+        </div>
+
+        <div class="props-sep"></div>
+
+        <div class="props-action danger">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Delete
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>
