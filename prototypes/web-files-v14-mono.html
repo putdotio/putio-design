@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1440, height=900">
+  <meta name="generator" content="cursor/opus-4.6/ui-sh">
+  <title>put.io — files (Monospace)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      background: #050505;
+      color: #c8c8c8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .viewport {
+      width: 1440px;
+      height: 900px;
+      background: #0D0D0D;
+      display: flex;
+      overflow: hidden;
+      border-radius: 4px;
+      box-shadow: 0 0 0 1px #1A1A1A;
+    }
+    .sidebar {
+      width: 200px;
+      flex-shrink: 0;
+      background: #141414;
+      border-right: 1px solid #1A1A1A;
+      padding: 20px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: #e6e6e6;
+    }
+    .brand-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 4px;
+      background: #FDCE45;
+      flex-shrink: 0;
+    }
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .nav a {
+      color: #8a8a8a;
+      text-decoration: none;
+      padding: 4px 0;
+      transition: color 0.08s ease, text-decoration-color 0.08s ease;
+      display: flex;
+      align-items: baseline;
+      gap: 0;
+    }
+    .nav a:hover {
+      color: #d0d0d0;
+      text-decoration: underline;
+      text-decoration-color: #5a5a5a;
+      text-underline-offset: 3px;
+    }
+    .nav a .chev {
+      color: #5a5a5a;
+      transition: color 0.08s ease;
+    }
+    .nav a.active {
+      color: #f0f0f0;
+      font-weight: 500;
+    }
+    .nav a.active .chev {
+      color: #FDCE45;
+    }
+    .nav a.active:hover {
+      text-decoration: none;
+    }
+    .storage {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid #1A1A1A;
+      font-size: 11px;
+      color: #7a7a7a;
+      line-height: 1.5;
+    }
+    .storage-bar {
+      font-family: "JetBrains Mono", monospace;
+      color: #30D158;
+      letter-spacing: 0;
+      margin-bottom: 4px;
+      white-space: pre;
+    }
+    .storage-cap {
+      color: #9a9a9a;
+    }
+    .user {
+      font-size: 11px;
+      color: #6a6a6a;
+    }
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: #0D0D0D;
+    }
+    .breadcrumb {
+      padding: 20px 24px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #30D158;
+      letter-spacing: 0.01em;
+      user-select: none;
+    }
+    .list-wrap {
+      flex: 1;
+      min-height: 0;
+      padding: 0 24px 24px;
+      overflow: auto;
+    }
+    .table-head {
+      font-size: 11px;
+      font-weight: 500;
+      color: #6a6a6a;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 8px 12px 10px;
+      border-bottom: 1px solid #1A1A1A;
+      user-select: none;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 88px 96px;
+      gap: 16px;
+      align-items: baseline;
+    }
+    .table-head .col-name { padding-left: 0; }
+    .table-head .col-size { text-align: right; }
+    .table-head .col-mod { text-align: right; }
+    .rows {
+      border-radius: 4px;
+      background: #141414;
+      border: 1px solid #1A1A1A;
+      overflow: hidden;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 88px 96px;
+      gap: 16px;
+      align-items: center;
+      padding: 8px 12px 8px 10px;
+      border-bottom: 1px solid #1A1A1A;
+      border-left: 2px solid transparent;
+      transition: border-color 0.08s ease, background 0.08s ease;
+      cursor: default;
+    }
+    .row:last-child { border-bottom: none; }
+    .row:hover .name-text {
+      text-decoration: underline;
+      text-decoration-color: #5a5a5a;
+      text-underline-offset: 3px;
+    }
+    .row:hover {
+      background: transparent;
+    }
+    .row.selected {
+      background: rgba(253, 206, 69, 0.06);
+      border-left-color: #FDCE45;
+    }
+    .row.selected:hover .name-text {
+      text-decoration: underline;
+      text-decoration-color: #8a7840;
+    }
+    .cell-name {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #dcdcdc;
+      font-variant-numeric: tabular-nums;
+    }
+    .perm {
+      flex-shrink: 0;
+      color: #5a5a5a;
+      font-size: 12px;
+      width: 7ch;
+      text-align: left;
+    }
+    .typech {
+      flex-shrink: 0;
+      color: #7a7a7a;
+      width: 1ch;
+      text-align: center;
+    }
+    .icon-folder {
+      flex-shrink: 0;
+      width: 14px;
+      height: 14px;
+      color: #9a9a9a;
+      display: block;
+    }
+    .name-text {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      transition: text-decoration-color 0.08s ease;
+    }
+    .caret {
+      display: inline-block;
+      width: 2px;
+      height: 1.05em;
+      margin-left: 2px;
+      background: #FDCE45;
+      vertical-align: text-bottom;
+      animation: caret-blink 1s step-end infinite;
+      flex-shrink: 0;
+    }
+    @keyframes caret-blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+    .cell-size, .cell-mod {
+      font-size: 12px;
+      color: #8a8a8a;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .row.selected .cell-name { color: #f2f2f2; }
+    .row.selected .perm { color: #6a6a6a; }
+  </style>
+</head>
+<body>
+  <div class="viewport" role="application" aria-label="put.io file browser monospace prototype">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span>put.io</span>
+      </div>
+      <nav class="nav" aria-label="Primary">
+        <a class="active" href="#" aria-current="page"><span class="chev">&gt;</span> files</a>
+        <a href="#"><span class="chev">&gt;</span> transfers</a>
+        <a href="#"><span class="chev">&gt;</span> history</a>
+        <a href="#"><span class="chev">&gt;</span> trash</a>
+        <a href="#"><span class="chev">&gt;</span> rss</a>
+        <a href="#"><span class="chev">&gt;</span> links</a>
+        <a href="#"><span class="chev">&gt;</span> family</a>
+      </nav>
+      <div class="storage">
+        <div class="storage-bar" aria-hidden="true">[████░░░░░░] 22%</div>
+        <div class="storage-cap">11T / 50T</div>
+      </div>
+      <div class="user">altay@put.io</div>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb">~/your-files/</div>
+      <div class="list-wrap">
+        <div class="table-head" aria-hidden="true">
+          <span class="col-name">NAME</span>
+          <span class="col-size">SIZE</span>
+          <span class="col-mod">MODIFIED</span>
+        </div>
+        <div class="rows" role="list">
+          <div class="row" role="listitem">
+            <div class="cell-name">
+              <span class="perm">drwx---</span>
+              <span class="typech">d</span>
+              <svg class="icon-folder" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path fill="currentColor" d="M4 6.5c0-.83.67-1.5 1.5-1.5h4.17c.4 0 .78.16 1.06.44L11.5 7H19c.83 0 1.5.67 1.5 1.5V17c0 .83-.67 1.5-1.5 1.5H5.5A1.5 1.5 0 0 1 4 17V6.5Z" opacity=".35"/>
+                <path fill="currentColor" d="M4 8.25h16V17c0 .83-.67 1.5-1.5 1.5H5.5A1.5 1.5 0 0 1 4 17V8.25Z"/>
+              </svg>
+              <span class="name-text">movies/</span>
+            </div>
+            <div class="cell-size">—</div>
+            <div class="cell-mod">3d ago</div>
+          </div>
+          <div class="row" role="listitem">
+            <div class="cell-name">
+              <span class="perm">drwx---</span>
+              <span class="typech">d</span>
+              <svg class="icon-folder" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path fill="currentColor" d="M4 6.5c0-.83.67-1.5 1.5-1.5h4.17c.4 0 .78.16 1.06.44L11.5 7H19c.83 0 1.5.67 1.5 1.5V17c0 .83-.67 1.5-1.5 1.5H5.5A1.5 1.5 0 0 1 4 17V6.5Z" opacity=".35"/>
+                <path fill="currentColor" d="M4 8.25h16V17c0 .83-.67 1.5-1.5 1.5H5.5A1.5 1.5 0 0 1 4 17V8.25Z"/>
+              </svg>
+              <span class="name-text">tv-shows/</span>
+            </div>
+            <div class="cell-size">—</div>
+            <div class="cell-mod">5d ago</div>
+          </div>
+          <div class="row" role="listitem">
+            <div class="cell-name">
+              <span class="perm">drwx---</span>
+              <span class="typech">d</span>
+              <svg class="icon-folder" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path fill="currentColor" d="M4 6.5c0-.83.67-1.5 1.5-1.5h4.17c.4 0 .78.16 1.06.44L11.5 7H19c.83 0 1.5.67 1.5 1.5V17c0 .83-.67 1.5-1.5 1.5H5.5A1.5 1.5 0 0 1 4 17V6.5Z" opacity=".35"/>
+                <path fill="currentColor" d="M4 8.25h16V17c0 .83-.67 1.5-1.5 1.5H5.5A1.5 1.5 0 0 1 4 17V8.25Z"/>
+              </svg>
+              <span class="name-text">music/</span>
+            </div>
+            <div class="cell-size">—</div>
+            <div class="cell-mod">1w ago</div>
+          </div>
+          <div class="row" role="listitem">
+            <div class="cell-name">
+              <span class="perm">drwx---</span>
+              <span class="typech">d</span>
+              <svg class="icon-folder" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path fill="currentColor" d="M4 6.5c0-.83.67-1.5 1.5-1.5h4.17c.4 0 .78.16 1.06.44L11.5 7H19c.83 0 1.5.67 1.5 1.5V17c0 .83-.67 1.5-1.5 1.5H5.5A1.5 1.5 0 0 1 4 17V6.5Z" opacity=".35"/>
+                <path fill="currentColor" d="M4 8.25h16V17c0 .83-.67 1.5-1.5 1.5H5.5A1.5 1.5 0 0 1 4 17V8.25Z"/>
+              </svg>
+              <span class="name-text">documents/</span>
+            </div>
+            <div class="cell-size">—</div>
+            <div class="cell-mod">2w ago</div>
+          </div>
+          <div class="row selected" role="listitem" aria-selected="true">
+            <div class="cell-name">
+              <span class="perm">-rw-r--</span>
+              <span class="typech">-</span>
+              <span class="name-text">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</span><span class="caret" aria-hidden="true"></span>
+            </div>
+            <div class="cell-size">4.2G</div>
+            <div class="cell-mod">2d ago</div>
+          </div>
+          <div class="row" role="listitem">
+            <div class="cell-name">
+              <span class="perm">-rw-r--</span>
+              <span class="typech">-</span>
+              <span class="name-text">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</span>
+            </div>
+            <div class="cell-size">1.1G</div>
+            <div class="cell-mod">4d ago</div>
+          </div>
+          <div class="row" role="listitem">
+            <div class="cell-name">
+              <span class="perm">-rw-r--</span>
+              <span class="typech">-</span>
+              <span class="name-text">ubuntu-24.04.1-desktop-amd64.iso</span>
+            </div>
+            <div class="cell-size">5.8G</div>
+            <div class="cell-mod">1w ago</div>
+          </div>
+          <div class="row" role="listitem">
+            <div class="cell-name">
+              <span class="perm">-rw-r--</span>
+              <span class="typech">-</span>
+              <span class="name-text">podcast_ep127_final_mixdown_v2.mp3</span>
+            </div>
+            <div class="cell-size">58M</div>
+            <div class="cell-mod">6h ago</div>
+          </div>
+          <div class="row" role="listitem">
+            <div class="cell-name">
+              <span class="perm">-rw-r--</span>
+              <span class="typech">-</span>
+              <span class="name-text">document-scan-march-2026.pdf</span>
+            </div>
+            <div class="cell-size">3.1M</div>
+            <div class="cell-mod">12d ago</div>
+          </div>
+          <div class="row" role="listitem">
+            <div class="cell-name">
+              <span class="perm">-rw-r--</span>
+              <span class="typech">-</span>
+              <span class="name-text">IMG_4392.HEIC</span>
+            </div>
+            <div class="cell-size">6.2M</div>
+            <div class="cell-mod">3h ago</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

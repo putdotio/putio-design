@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1920">
+  <meta name="generator" content="cursor/opus-4.6/ui-sh">
+  <title>put.io tvOS Search — Linear Neutral</title>
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <style>
+    :root {
+      --bg: #000;
+      --text: #FAFAFA;
+      --text-2: #A1A1AA;
+      --text-3: #71717A;
+      --text-4: #4A4A52;
+      --yellow: #FDCE45;
+      --blue: #0A84FF;
+      --sep: rgba(255, 255, 255, 0.04);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: InterVariable, Inter, system-ui, sans-serif;
+      font-size: 18px;
+      line-height: 1.4;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
+
+    .frame {
+      width: 1920px;
+      min-height: 1080px;
+      margin: 0 auto;
+      padding: 48px 0 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Nav pill */
+    .nav-pill {
+      width: 500px;
+      height: 44px;
+      border-radius: 22px;
+      background: rgba(44, 44, 48, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 0 8px;
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .nav-tab {
+      flex: 1;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text-2);
+      padding: 0 4px;
+      position: relative;
+      user-select: none;
+    }
+
+    .nav-tab--active {
+      color: var(--text);
+    }
+
+    .nav-tab--active::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 6px;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--yellow);
+    }
+
+    /* Search block */
+    .search-block {
+      width: 100%;
+      max-width: 720px;
+      margin-top: 60px;
+      padding: 0 24px;
+    }
+
+    .search-field {
+      display: flex;
+      align-items: center;
+      height: 64px;
+      padding: 0 20px;
+      gap: 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition:
+        border-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+        box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1),
+        transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .search-field:focus-within {
+      border-width: 2px;
+      border-color: var(--yellow);
+      box-shadow:
+        0 0 0 1px rgba(253, 206, 69, 0.25),
+        0 0 24px rgba(253, 206, 69, 0.12);
+      padding: 0 19px;
+    }
+
+    .search-field svg.search-ico {
+      flex-shrink: 0;
+      color: var(--text-4);
+    }
+
+    .search-input-wrap {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      font-size: 22px;
+      font-weight: 500;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 22px;
+      font-weight: 500;
+      outline: none;
+      padding: 0;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-3);
+      font-weight: 500;
+    }
+
+    .caret {
+      display: inline-block;
+      width: 2px;
+      height: 1.1em;
+      margin-left: 1px;
+      background: var(--yellow);
+      animation: blink 1.05s step-end infinite;
+      vertical-align: -0.12em;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    .clear-btn {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 10px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-3);
+      cursor: pointer;
+      transition:
+        background 0.2s cubic-bezier(0.2, 0, 0, 1),
+        color 0.2s cubic-bezier(0.2, 0, 0, 1),
+        transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .clear-btn:hover,
+    .clear-btn:focus-visible {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--text);
+      outline: none;
+    }
+
+    .result-count {
+      margin-top: 12px;
+      font-size: 16px;
+      color: var(--text-3);
+    }
+
+    /* Results */
+    .results {
+      width: 100%;
+      max-width: 900px;
+      margin-top: 24px;
+      padding: 0 24px;
+    }
+
+    .result-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .result-row {
+      position: relative;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 20px 12px 20px;
+      border-bottom: 1px solid var(--sep);
+      transition:
+        transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+        background 0.2s cubic-bezier(0.2, 0, 0, 1),
+        color 0.2s cubic-bezier(0.2, 0, 0, 1);
+      border-radius: 12px;
+      margin: 0 -8px;
+    }
+
+    .result-row:last-child {
+      border-bottom: none;
+    }
+
+    .result-row::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 10px;
+      bottom: 10px;
+      width: 3px;
+      border-radius: 2px;
+      background: transparent;
+      transition: background 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .result-row--focused {
+      background: rgba(255, 255, 255, 0.08);
+      transform: scale(1.02);
+    }
+
+    .result-row--focused::before {
+      background: var(--yellow);
+    }
+
+    .result-row--focused .result-name {
+      color: var(--text);
+    }
+
+    .result-row--focused .result-meta {
+      color: var(--text-2);
+    }
+
+    .result-type {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .result-main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .result-name {
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .result-sub {
+      font-size: 16px;
+      color: var(--text-3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .result-row--focused .result-sub {
+      color: var(--text-2);
+    }
+
+    .result-trail {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .result-size {
+      font-size: 18px;
+      color: var(--text-3);
+      white-space: nowrap;
+    }
+
+    .result-row--focused .result-size {
+      color: var(--text-2);
+    }
+
+    .chevron-ico {
+      color: var(--text-4);
+      flex-shrink: 0;
+    }
+
+    .result-row--focused .chevron-ico {
+      color: var(--text-3);
+    }
+
+    /* Recent */
+    .recent {
+      width: 100%;
+      max-width: 900px;
+      margin-top: 48px;
+      padding: 0 24px;
+    }
+
+    .recent-title {
+      margin: 0 0 16px;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-2);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .chip {
+      height: 40px;
+      padding: 0 12px 0 20px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 2px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      color: var(--text-2);
+      cursor: pointer;
+      transition:
+        border-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+        transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+        background 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .chip:focus {
+      outline: none;
+    }
+
+    .chip:focus-visible {
+      border-color: var(--yellow);
+      transform: scale(1.04);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .chip-dismiss {
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 999px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      color: var(--text-4);
+      cursor: pointer;
+      transition:
+        color 0.2s cubic-bezier(0.2, 0, 0, 1),
+        background 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .chip-dismiss:hover,
+    .chip-dismiss:focus-visible {
+      color: var(--text-2);
+      background: rgba(255, 255, 255, 0.06);
+      outline: none;
+    }
+
+    .chip svg {
+      width: 16px;
+      height: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame" role="presentation">
+    <nav class="nav-pill" aria-label="Main">
+      <span class="nav-tab">Home</span>
+      <span class="nav-tab">Files</span>
+      <span class="nav-tab nav-tab--active">Search</span>
+      <span class="nav-tab">Settings</span>
+    </nav>
+
+    <div class="search-block">
+      <div class="search-field">
+        <svg class="search-ico" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2"/>
+          <path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div class="search-input-wrap">
+          <input class="search-input" type="text" value="the wire" autofocus aria-label="Search">
+          <span class="caret" aria-hidden="true"></span>
+        </div>
+        <button type="button" class="clear-btn" aria-label="Clear search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <p class="result-count">3 results</p>
+    </div>
+
+    <section class="results" aria-label="Search results">
+      <ul class="result-list">
+        <li class="result-row">
+          <span class="result-type" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M4 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7Z" stroke="#FDCE45" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <div class="result-main">
+            <span class="result-name">tv-shows</span>
+            <span class="result-sub">Contains The Wire</span>
+          </div>
+          <div class="result-trail">
+            <svg class="chevron-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="result-size">86.3 GB</span>
+          </div>
+        </li>
+        <li class="result-row">
+          <span class="result-type" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="5" width="18" height="14" rx="2" stroke="#0A84FF" stroke-width="2"/>
+              <path d="M10 9l5 3.5L10 16V9Z" fill="#0A84FF"/>
+            </svg>
+          </span>
+          <div class="result-main">
+            <span class="result-name">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</span>
+          </div>
+          <div class="result-trail">
+            <span class="result-size">1.2 GB</span>
+          </div>
+        </li>
+        <li class="result-row result-row--focused" aria-current="true">
+          <span class="result-type" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="5" width="18" height="14" rx="2" stroke="#0A84FF" stroke-width="2"/>
+              <path d="M10 9l5 3.5L10 16V9Z" fill="#0A84FF"/>
+            </svg>
+          </span>
+          <div class="result-main">
+            <span class="result-name">The.Wire.S03E05.Straight.and.True.1080p.BluRay.x264-DEMAND.mkv</span>
+          </div>
+          <div class="result-trail">
+            <span class="result-size">1.3 GB</span>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section class="recent" aria-label="Recent searches">
+      <h2 class="recent-title">Recent</h2>
+      <div class="chip-row">
+        <div class="chip" tabindex="0">
+          <span>seinfeld</span>
+          <button type="button" class="chip-dismiss" aria-label="Remove seinfeld">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="chip" tabindex="0">
+          <span>ubuntu</span>
+          <button type="button" class="chip-dismiss" aria-label="Remove ubuntu">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="chip" tabindex="0">
+          <span>podcast</span>
+          <button type="button" class="chip-dismiss" aria-label="Remove podcast">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="chip" tabindex="0">
+          <span>succession</span>
+          <button type="button" class="chip-dismiss" aria-label="Remove succession">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

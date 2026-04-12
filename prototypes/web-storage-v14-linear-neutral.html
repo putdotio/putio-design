@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<meta name="generator" content="cursor/opus-4.6/ui-sh">
+<title>put.io — Storage (v14 Linear Neutral)</title>
+<style>
+@import url('https://rsms.me/inter/inter.css');
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #09090B;
+  --sidebar-bg: #111113;
+  --surface: #151517;
+  --card: #1C1C1E;
+  --text: #FAFAFA;
+  --text-2: #A1A1AA;
+  --text-3: #71717A;
+  --text-4: #4A4A52;
+  --yellow: #FDCE45;
+  --yellow-dim: rgba(253,206,69,0.04);
+  --green: #30D158;
+  --red: #FF453A;
+  --blue: #0A84FF;
+  --purple: #BF5AF2;
+  --orange: #FF9F0A;
+  --teal: #64D2FF;
+  --sep: rgba(255,255,255,0.04);
+  --sep-border: rgba(255,255,255,0.06);
+  --font: 'InterVariable', 'Inter', -apple-system, system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font);
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app { display: flex; width: 1440px; height: 900px; overflow: hidden; }
+
+/* Sidebar — 130px */
+.sidebar { width: 130px; background: var(--sidebar-bg); display: flex; flex-direction: column; flex-shrink: 0; border-right: 1px solid var(--sep-border); }
+.sidebar-header { padding: 14px 12px 10px; display: flex; align-items: center; gap: 4px; }
+.logo { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+.logo-dot { color: var(--yellow); }
+.sidebar-chevron { color: var(--text-4); display: flex; align-items: center; margin-left: 2px; }
+.sidebar-chevron svg { width: 10px; height: 10px; }
+.sidebar-nav { flex: 1; padding: 0 6px; display: flex; flex-direction: column; gap: 1px; }
+.nav-item { display: flex; align-items: center; gap: 8px; padding: 0 6px; height: 32px; font-size: 13px; font-weight: 500; color: var(--text-3); border-radius: 5px; cursor: pointer; line-height: 1; }
+.nav-item:hover { color: var(--text-2); background: rgba(255,255,255,0.04); }
+.nav-item.active { color: var(--text); background: rgba(255,255,255,0.06); }
+.nav-icon { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.nav-icon svg { width: 16px; height: 16px; }
+.nav-item .nav-icon { color: var(--text-4); }
+.nav-item.active .nav-icon { color: var(--yellow); }
+.nav-badge-dot { width: 6px; height: 6px; background: var(--yellow); border-radius: 50%; margin-left: auto; flex-shrink: 0; }
+.nav-group-label { font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-4); padding: 20px 6px 4px; line-height: 1; }
+.sidebar-footer { padding: 10px 12px 12px; border-top: 1px solid var(--sep-border); }
+.storage-track { width: 100%; height: 2px; background: rgba(255,255,255,0.06); border-radius: 1px; overflow: hidden; margin-bottom: 4px; }
+.storage-fill-sidebar { height: 100%; width: 22%; background: var(--yellow); border-radius: 1px; }
+.storage-label { font-size: 11px; color: var(--text-4); line-height: 1; }
+.user-row { display: flex; align-items: center; gap: 6px; padding-top: 8px; }
+.user-avatar { width: 22px; height: 22px; background: linear-gradient(135deg, var(--yellow), #F0A030); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--bg); flex-shrink: 0; }
+.user-name { font-size: 12px; color: var(--text-3); font-weight: 500; }
+
+/* Content */
+.content { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+.topbar { display: flex; align-items: center; height: 44px; padding: 0 24px; gap: 10px; flex-shrink: 0; border-bottom: 1px solid var(--sep); }
+.breadcrumb { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+.topbar-spacer { flex: 1; }
+
+.main-scroll { flex: 1; overflow-y: auto; padding: 24px; }
+
+/* Storage Hero */
+.storage-hero { display: flex; gap: 32px; margin-bottom: 32px; }
+
+.ring-chart { position: relative; width: 180px; height: 180px; flex-shrink: 0; }
+.ring-chart svg { width: 180px; height: 180px; transform: rotate(-90deg); }
+.ring-chart circle { fill: none; stroke-linecap: round; }
+.ring-bg { stroke: rgba(255,255,255,0.04); }
+.ring-chart-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ring-value { font-size: 28px; font-weight: 600; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.ring-label { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+.storage-summary { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 20px; min-width: 0; }
+.storage-title { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+.storage-subtitle { font-size: 13px; color: var(--text-3); margin-top: 4px; max-width: 360px; }
+.storage-bar-large { width: 100%; height: 6px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; }
+.storage-bar-fill { display: flex; height: 100%; border-radius: 3px; }
+.fill-video { background: var(--blue); }
+.fill-audio { background: var(--purple); }
+.fill-images { background: var(--green); }
+.fill-docs { background: var(--orange); }
+.fill-other { background: var(--text-4); }
+.storage-bar-meta { display: flex; justify-content: space-between; margin-top: 6px; font-size: 12px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+
+/* Legend */
+.legend { display: flex; gap: 20px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); }
+.legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+.legend-size { color: var(--text-3); font-variant-numeric: tabular-nums; margin-left: 2px; }
+
+/* Stats Row */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--sep-border); border-radius: 8px; overflow: hidden; margin-bottom: 32px; }
+.stat-card { background: var(--bg); padding: 16px 20px; }
+.stat-value { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.stat-title { font-size: 12px; color: var(--text-3); margin-top: 2px; white-space: nowrap; }
+.stat-change { font-size: 11px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.stat-change.up { color: var(--green); }
+.stat-change.down { color: var(--red); }
+.stat-change.neutral { color: var(--text-4); }
+
+/* Largest Files Section */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.section-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+.section-link { font-size: 12px; color: var(--text-3); cursor: pointer; }
+.section-link:hover { color: var(--text-2); }
+
+.file-table { width: 100%; border-collapse: collapse; }
+.file-table th { text-align: left; font-size: 11px; font-weight: 500; color: var(--text-4); padding: 6px 0; border-bottom: 1px solid var(--sep); white-space: nowrap; }
+.file-table th.right { text-align: right; }
+.file-table td { padding: 0; font-size: 13px; vertical-align: middle; height: 40px; border-bottom: 1px solid var(--sep); }
+.file-table td.right { text-align: right; }
+.file-table tbody tr:hover { background: var(--surface); }
+
+.file-name-cell { display: flex; align-items: center; gap: 8px; min-width: 0; padding-right: 16px; }
+.file-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.file-icon svg { width: 16px; height: 16px; }
+.file-icon.vid { color: var(--blue); }
+.file-icon.aud { color: var(--purple); }
+.file-icon.arc { color: var(--orange); }
+.file-icon.doc { color: var(--teal); }
+.fname { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.fmeta { color: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fbar-wrap { width: 120px; display: flex; align-items: center; gap: 8px; }
+.fbar { height: 3px; border-radius: 1.5px; background: rgba(255,255,255,0.06); flex: 1; overflow: hidden; }
+.fbar-fill { height: 100%; border-radius: 1.5px; }
+.fbar-pct { font-size: 11px; color: var(--text-4); font-variant-numeric: tabular-nums; width: 28px; text-align: right; }
+.flast { color: var(--text-4); font-size: 12px; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">put<span class="logo-dot">.</span>io</div>
+      <span class="sidebar-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>Files</div>
+      <div class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>Transfers<span class="nav-badge-dot"></span></div>
+      <div class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/></svg></span>History</div>
+      <div class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>Trash</div>
+      <div class="nav-group-label">Automation</div>
+      <div class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg></span>RSS Feeds</div>
+      <div class="nav-group-label">Account</div>
+      <div class="nav-item active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></span>Storage</div>
+      <div class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>Settings</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div><div class="storage-track"><div class="storage-fill-sidebar"></div></div><div class="storage-label">11 TB / 50 TB</div></div>
+      <div class="user-row"><div class="user-avatar">a</div><span class="user-name">altay</span></div>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="topbar">
+      <div class="breadcrumb">Storage</div>
+      <div class="topbar-spacer"></div>
+    </div>
+
+    <div class="main-scroll">
+      <!-- Storage Hero -->
+      <div class="storage-hero">
+        <div class="ring-chart">
+          <svg viewBox="0 0 180 180">
+            <circle class="ring-bg" cx="90" cy="90" r="76" stroke-width="12"/>
+            <!-- Video: 62% of used (62% of 22% = ~13.6%) -->
+            <circle cx="90" cy="90" r="76" stroke-width="12" stroke="var(--blue)" stroke-dasharray="296 481" stroke-dashoffset="0"/>
+            <!-- Audio: 15% of used -->
+            <circle cx="90" cy="90" r="76" stroke-width="12" stroke="var(--purple)" stroke-dasharray="71.6 481" stroke-dashoffset="-296"/>
+            <!-- Images: 5% of used -->
+            <circle cx="90" cy="90" r="76" stroke-width="12" stroke="var(--green)" stroke-dasharray="23.9 481" stroke-dashoffset="-367.6"/>
+            <!-- Docs: 3% of used -->
+            <circle cx="90" cy="90" r="76" stroke-width="12" stroke="var(--orange)" stroke-dasharray="14.3 481" stroke-dashoffset="-391.5"/>
+            <!-- Other: 15% of used -->
+            <circle cx="90" cy="90" r="76" stroke-width="12" stroke="var(--text-4)" stroke-dasharray="71.6 481" stroke-dashoffset="-405.8"/>
+          </svg>
+          <div class="ring-chart-center">
+            <div class="ring-value">11 TB</div>
+            <div class="ring-label">of 50 TB</div>
+          </div>
+        </div>
+
+        <div class="storage-summary">
+          <div>
+            <div class="storage-title">Storage overview</div>
+            <div class="storage-subtitle">You're using 22% of your plan. At your current pace, you'll run out in about 14 months.</div>
+          </div>
+          <div>
+            <div class="storage-bar-large">
+              <div class="storage-bar-fill">
+                <div class="fill-video" style="width:62%"></div>
+                <div class="fill-audio" style="width:15%"></div>
+                <div class="fill-images" style="width:5%"></div>
+                <div class="fill-docs" style="width:3%"></div>
+                <div class="fill-other" style="width:15%"></div>
+              </div>
+            </div>
+            <div class="storage-bar-meta">
+              <span>11 TB used</span>
+              <span>39 TB free</span>
+            </div>
+          </div>
+          <div class="legend">
+            <div class="legend-item"><span class="legend-dot" style="background:var(--blue)"></span>Video<span class="legend-size">6.8 TB</span></div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--purple)"></span>Audio<span class="legend-size">1.7 TB</span></div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>Images<span class="legend-size">550 GB</span></div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--orange)"></span>Documents<span class="legend-size">330 GB</span></div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--text-4)"></span>Other<span class="legend-size">1.6 TB</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value">2,847</div>
+          <div class="stat-title">Total files</div>
+          <div class="stat-change up">+124 this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">186</div>
+          <div class="stat-title">Folders</div>
+          <div class="stat-change neutral">+3 this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">847 GB</div>
+          <div class="stat-title">Added this month</div>
+          <div class="stat-change up">+12% vs last month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">142 GB</div>
+          <div class="stat-title">Deleted this month</div>
+          <div class="stat-change down">-8% vs last month</div>
+        </div>
+      </div>
+
+      <!-- Largest Files -->
+      <div class="section-header">
+        <div class="section-title">Largest files</div>
+        <div class="section-link">View all</div>
+      </div>
+      <table class="file-table">
+        <thead><tr><th>Name</th><th class="right" style="width:100px">Size</th><th class="right" style="width:160px">% of storage</th><th class="right" style="width:100px">Last opened</th></tr></thead>
+        <tbody>
+          <tr><td><div class="file-name-cell"><span class="file-icon vid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span><span class="fname">Succession.S04E10.With.Open.Eyes.2160p.WEB-DL.DDP5.1.H.265-NTb.mkv</span></div></td><td class="right fmeta">8.9 GB</td><td class="right"><div class="fbar-wrap"><div class="fbar"><div class="fbar-fill" style="width:8.1%;background:var(--blue)"></div></div><span class="fbar-pct">0.08%</span></div></td><td class="right flast">Today</td></tr>
+          <tr><td><div class="file-name-cell"><span class="file-icon vid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span><span class="fname">The.Wire.Complete.Series.1080p.BluRay.x264-DEMAND.tar</span></div></td><td class="right fmeta">62.4 GB</td><td class="right"><div class="fbar-wrap"><div class="fbar"><div class="fbar-fill" style="width:56.7%;background:var(--blue)"></div></div><span class="fbar-pct">0.57%</span></div></td><td class="right flast">3d ago</td></tr>
+          <tr><td><div class="file-name-cell"><span class="file-icon arc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span><span class="fname">ubuntu-24.04.1-desktop-amd64.iso</span></div></td><td class="right fmeta">4.7 GB</td><td class="right"><div class="fbar-wrap"><div class="fbar"><div class="fbar-fill" style="width:4.3%;background:var(--orange)"></div></div><span class="fbar-pct">0.04%</span></div></td><td class="right flast">1w ago</td></tr>
+          <tr><td><div class="file-name-cell"><span class="file-icon aud"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span class="fname">Miles.Davis.Kind.of.Blue.1959.FLAC.24bit.192kHz.zip</span></div></td><td class="right fmeta">1.4 GB</td><td class="right"><div class="fbar-wrap"><div class="fbar"><div class="fbar-fill" style="width:1.3%;background:var(--purple)"></div></div><span class="fbar-pct">0.01%</span></div></td><td class="right flast">Never</td></tr>
+          <tr><td><div class="file-name-cell"><span class="file-icon vid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span><span class="fname">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</span></div></td><td class="right fmeta">1.2 GB</td><td class="right"><div class="fbar-wrap"><div class="fbar"><div class="fbar-fill" style="width:1.1%;background:var(--blue)"></div></div><span class="fbar-pct">0.01%</span></div></td><td class="right flast">Yesterday</td></tr>
+          <tr><td><div class="file-name-cell"><span class="file-icon vid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span><span class="fname">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</span></div></td><td class="right fmeta">698 MB</td><td class="right"><div class="fbar-wrap"><div class="fbar"><div class="fbar-fill" style="width:0.6%;background:var(--blue)"></div></div><span class="fbar-pct">&lt;0.01%</span></div></td><td class="right flast">2d ago</td></tr>
+        </tbody>
+      </table>
+
+      <div style="height:32px"></div>
+
+      <!-- Never Opened -->
+      <div class="section-header">
+        <div class="section-title">Never opened</div>
+        <div class="section-link">Clean up</div>
+      </div>
+      <table class="file-table">
+        <thead><tr><th>Name</th><th class="right" style="width:100px">Size</th><th class="right" style="width:100px">Added</th></tr></thead>
+        <tbody>
+          <tr><td><div class="file-name-cell"><span class="file-icon aud"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span class="fname">Miles.Davis.Kind.of.Blue.1959.FLAC.24bit.192kHz.zip</span></div></td><td class="right fmeta">1.4 GB</td><td class="right flast">3 weeks ago</td></tr>
+          <tr><td><div class="file-name-cell"><span class="file-icon doc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="fname">document-scan-march-2026.pdf</span></div></td><td class="right fmeta">2.1 MB</td><td class="right flast">1 week ago</td></tr>
+          <tr><td><div class="file-name-cell"><span class="file-icon arc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span><span class="fname">homework_answers_DONT_DELETE.zip</span></div></td><td class="right fmeta">4.2 GB</td><td class="right flast">3 weeks ago</td></tr>
+        </tbody>
+      </table>
+
+      <div style="height:48px"></div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

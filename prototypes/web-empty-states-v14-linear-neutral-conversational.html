@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=1440" name="viewport"/>
+<link href="/favicon/favicon.svg" rel="icon" type="image/svg+xml"/>
+<meta content="#09090B" name="theme-color"/>
+<meta content="cursor/opus-4.6/ui-sh" name="generator"/>
+<title>put.io — Empty States (v14 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --sidebar-bg: #111113;
+    --surface: #151517;
+    --card: #1C1C1E;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #4A4A52;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253,206,69,0.04);
+    --green: #30D158;
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --sep: rgba(255,255,255,0.04);
+    --sep-border: rgba(255,255,255,0.06);
+    --radius: 8px;
+    --font: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .contents { display: contents; }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+  }
+
+  /* ================================================================
+     SIDEBAR — 130px compact
+     ================================================================ */
+  .sidebar {
+    width: 130px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-right: 1px solid var(--sep-border);
+  }
+
+  .sidebar-header {
+    padding: 16px 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .logo-dot {
+    width: 10px;
+    height: 10px;
+    background: var(--yellow);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 0 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    overflow-y: auto;
+  }
+
+  .nav-group-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    padding: 16px 6px 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+    border-radius: 6px;
+    transition: all 0.12s ease;
+  }
+
+  .nav-item:hover {
+    color: var(--text-2);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .nav-item.active {
+    color: var(--text);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .nav-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .nav-item .nav-icon { color: var(--text-4); }
+  .nav-item.active .nav-icon { color: var(--yellow); }
+  .nav-item:hover .nav-icon { color: var(--text-3); }
+
+  .sidebar-footer {
+    padding: 10px 12px 12px;
+    border-top: 1px solid var(--sep);
+  }
+
+  .storage-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .storage-fill {
+    height: 100%;
+    width: 22%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+
+  .storage-label {
+    font-size: 10px;
+    color: var(--text-3);
+    font-weight: 400;
+    margin-top: 4px;
+  }
+
+  .storage-label strong {
+    color: var(--text-2);
+    font-weight: 600;
+  }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0 0;
+  }
+
+  .user-avatar {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, var(--yellow), #F0A030);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--bg);
+  }
+
+  .user-name {
+    font-size: 12px;
+    color: var(--text-2);
+    font-weight: 500;
+  }
+
+  /* ================================================================
+     CONTENT AREA
+     ================================================================ */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .content-scroll {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  /* ── Section ── */
+  .empty-section {
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .empty-section:last-child {
+    border-bottom: none;
+  }
+
+  .section-topbar {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .section-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  /* ================================================================
+     VARIATION 1: MINIMAL
+     ================================================================ */
+  .minimal .section-body {
+    height: 200px;
+  }
+
+  .minimal .empty-icon {
+    color: var(--text-4);
+    margin-bottom: 14px;
+  }
+
+  .minimal .empty-icon svg {
+    width: 48px;
+    height: 48px;
+  }
+
+  .minimal .empty-heading {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-2);
+    margin-bottom: 6px;
+  }
+
+  .minimal .empty-desc {
+    font-size: 13px;
+    color: var(--text-3);
+    max-width: 320px;
+    margin-bottom: 16px;
+  }
+
+  /* ================================================================
+     VARIATION 2: ILLUSTRATED
+     ================================================================ */
+  .illustrated .section-body {
+    height: 220px;
+  }
+
+  .illustrated .empty-illustration {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .illustrated .empty-heading {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-2);
+    margin-bottom: 6px;
+  }
+
+  .illustrated .empty-desc {
+    font-size: 13px;
+    color: var(--text-3);
+    max-width: 340px;
+    margin-bottom: 18px;
+  }
+
+  /* Illustration: Files — cascading rounded rects */
+  .illust-files {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .illust-files .file-shape {
+    position: absolute;
+    width: 36px;
+    height: 44px;
+    border: 1.5px solid var(--text-4);
+    border-radius: 6px;
+    background: transparent;
+  }
+
+  .illust-files .file-shape:nth-child(1) {
+    transform: translate(-12px, 4px) rotate(-6deg);
+    opacity: 0.4;
+  }
+
+  .illust-files .file-shape:nth-child(2) {
+    transform: translate(0, 0);
+    opacity: 0.6;
+  }
+
+  .illust-files .file-shape:nth-child(3) {
+    transform: translate(12px, -4px) rotate(6deg);
+    border-color: var(--yellow);
+    opacity: 0.8;
+  }
+
+  /* Illustration: Transfers — dot arrow */
+  .illust-transfers {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .illust-transfers .dot {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-4);
+  }
+
+  .illust-transfers .dot:nth-child(1) { top: 10px; left: 37px; }
+  .illust-transfers .dot:nth-child(2) { top: 22px; left: 37px; }
+  .illust-transfers .dot:nth-child(3) { top: 34px; left: 37px; }
+  .illust-transfers .dot:nth-child(4) { top: 46px; left: 37px; }
+  .illust-transfers .dot:nth-child(5) { top: 54px; left: 27px; }
+  .illust-transfers .dot:nth-child(6) { top: 54px; left: 47px; }
+
+  .illust-transfers .dot:nth-child(4) {
+    background: var(--yellow);
+    box-shadow: 0 0 10px rgba(253,206,69,0.4);
+  }
+
+  /* Illustration: History — arc with dots */
+  .illust-history {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .illust-history .arc {
+    width: 56px;
+    height: 56px;
+    border: 1.5px solid var(--text-4);
+    border-radius: 50%;
+    position: absolute;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    transform: rotate(-45deg);
+    opacity: 0.5;
+  }
+
+  .illust-history .arc-dot {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--text-4);
+  }
+
+  .illust-history .arc-dot:nth-child(2) { top: 12px; left: 24px; }
+  .illust-history .arc-dot:nth-child(3) { top: 40px; left: 64px; }
+  .illust-history .arc-dot:nth-child(4) { top: 64px; left: 36px; opacity: 0.4; }
+
+  /* Illustration: RSS — concentric arcs */
+  .illust-rss {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .illust-rss .wave {
+    position: absolute;
+    border: 1.5px solid var(--text-4);
+    border-radius: 50%;
+    border-left-color: transparent;
+    border-bottom-color: transparent;
+    transform: rotate(45deg);
+    opacity: 0.3;
+  }
+
+  .illust-rss .wave:nth-child(1) { width: 24px; height: 24px; bottom: 16px; left: 16px; opacity: 0.5; }
+  .illust-rss .wave:nth-child(2) { width: 40px; height: 40px; bottom: 8px; left: 8px; opacity: 0.4; }
+  .illust-rss .wave:nth-child(3) { width: 56px; height: 56px; bottom: 0; left: 0; }
+
+  .illust-rss .rss-dot {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--yellow);
+    bottom: 16px;
+    left: 16px;
+  }
+
+  /* ================================================================
+     VARIATION 3: CONVERSATIONAL
+     ================================================================ */
+  .conversational .section-body {
+    height: 240px;
+  }
+
+  .conversational .empty-kaomoji {
+    font-size: 24px;
+    color: var(--text-3);
+    font-family: 'Menlo', 'Consolas', 'Courier New', monospace;
+    margin-bottom: 14px;
+    animation: kaomoji-bob 3s ease-in-out infinite;
+  }
+
+  @keyframes kaomoji-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+
+  .conversational .empty-heading {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-2);
+    margin-bottom: 6px;
+  }
+
+  .conversational .empty-desc {
+    font-size: 13px;
+    color: var(--text-3);
+    max-width: 360px;
+    margin-bottom: 18px;
+  }
+
+  /* ================================================================
+     BUTTONS
+     ================================================================ */
+  .btn-yellow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 14px;
+    background: var(--yellow);
+    color: #09090B;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font);
+    border-radius: 20px;
+    transition: all 0.12s ease;
+  }
+
+  .btn-yellow:hover {
+    filter: brightness(1.08);
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 14px;
+    background: transparent;
+    color: var(--text-2);
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid rgba(255,255,255,0.1);
+    cursor: pointer;
+    font-family: var(--font);
+    border-radius: 20px;
+    transition: all 0.12s ease;
+  }
+
+  .btn-ghost:hover {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.16);
+    color: var(--text);
+  }
+
+  .btn-ghost svg, .btn-yellow svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Illustrated variation gets slightly larger buttons */
+  .illustrated .btn-yellow,
+  .illustrated .btn-ghost {
+    height: 36px;
+    padding: 0 18px;
+  }
+</style>
+</head>
+<body>
+<style>.contents { display: contents; }</style>
+
+<div class="app conversational">
+<aside class="sidebar">
+<div class="sidebar-header">
+<div class="logo-dot"></div>
+<span class="logo-text">put.io</span>
+</div>
+<nav class="sidebar-nav">
+<button class="nav-item active">
+<span class="nav-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></span>
+        Files
+      </button>
+<button class="nav-item">
+<span class="nav-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg></span>
+        Transfers
+      </button>
+<button class="nav-item">
+<span class="nav-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><polyline points="12 8 12 12 14 14"></polyline><circle cx="12" cy="12" r="10"></circle></svg></span>
+        History
+      </button>
+<button class="nav-item">
+<span class="nav-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></span>
+        Trash
+      </button>
+<div class="nav-group-label">Automation</div>
+<button class="nav-item">
+<span class="nav-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></span>
+        RSS Feeds
+      </button>
+<div class="nav-group-label">Sharing</div>
+<button class="nav-item">
+<span class="nav-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line></svg></span>
+        Shared Links
+      </button>
+<button class="nav-item">
+<span class="nav-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span>
+        Family
+      </button>
+</nav>
+<div class="sidebar-footer">
+<div class="storage-bar"><div class="storage-fill"></div></div>
+<div class="storage-label"><strong>11 TB</strong> / 50 TB</div>
+<div class="user-row">
+<div class="user-avatar">a</div>
+<span class="user-name">altay</span>
+</div>
+</div>
+</aside>
+<main class="content">
+<div class="content-scroll">
+<!-- Files -->
+<div class="empty-section">
+<div class="section-topbar"><span class="section-title">Files</span></div>
+<div class="section-body">
+<div class="empty-kaomoji">¯\_(ツ)_/¯</div>
+<div class="empty-heading">Nothing here yet</div>
+<div class="empty-desc">Your cloud is empty and full of potential. Paste a link and watch the magic happen.</div>
+<button class="btn-yellow">Let's go</button>
+</div>
+</div>
+<!-- Transfers -->
+<div class="empty-section">
+<div class="section-topbar"><span class="section-title">Transfers</span></div>
+<div class="section-body">
+<div class="empty-kaomoji">(ง •̀_•́)ง</div>
+<div class="empty-heading">Ready when you are</div>
+<div class="empty-desc">Paste a magnet link or URL up there. We'll handle the rest — usually faster than you'd expect.</div>
+<button class="btn-yellow">Start a transfer</button>
+</div>
+</div>
+<!-- History -->
+<div class="empty-section">
+<div class="section-topbar"><span class="section-title">History</span></div>
+<div class="section-body">
+<div class="empty-kaomoji">ᕦ(ò_óˇ)ᕤ</div>
+<div class="empty-heading">No history yet</div>
+<div class="empty-desc">Once you start streaming, your watch history lives here. No judgments.</div>
+</div>
+</div>
+<!-- RSS -->
+<div class="empty-section">
+<div class="section-topbar"><span class="section-title">RSS Feeds</span></div>
+<div class="section-body">
+<div class="empty-kaomoji">(╯°□°)╯</div>
+<div class="empty-heading">Just google 'RSS torrents'</div>
+<div class="empty-desc">You'll see the light. Subscribe to feeds and new episodes download while you sleep.</div>
+<button class="btn-ghost">Add an RSS feed</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+
+</body>
+</html>

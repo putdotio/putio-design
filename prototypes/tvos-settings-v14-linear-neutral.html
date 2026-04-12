@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="cursor/opus-4.6/ui-sh">
+  <meta name="viewport" content="width=1920">
+  <title>put.io tvOS — Settings (Playback)</title>
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <style>
+    :root {
+      --bg: #000;
+      --text: #FAFAFA;
+      --text-2: #A1A1AA;
+      --text-3: #71717A;
+      --text-4: #4A4A52;
+      --yellow: #FDCE45;
+      --yellow-dim: rgba(253, 206, 69, 0.06);
+      --sep: rgba(255, 255, 255, 0.04);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 1920px;
+      min-height: 1080px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: InterVariable, system-ui, sans-serif;
+      font-size: 18px;
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .screen {
+      min-height: 1080px;
+      padding: 48px 0 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* —— Glass nav pill —— */
+    .nav-shell {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 48px;
+    }
+
+    .nav-pill {
+      width: 500px;
+      height: 44px;
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 0 20px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+
+    .nav-sep {
+      color: var(--text-4);
+      font-size: 18px;
+      font-weight: 400;
+      padding: 0 10px;
+      user-select: none;
+      opacity: 0.85;
+    }
+
+    .nav-tab {
+      position: relative;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      color: var(--text-3);
+      padding: 0 2px 10px;
+      border: none;
+      background: none;
+      cursor: default;
+      font-family: inherit;
+      transition: color 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .nav-tab:hover {
+      color: var(--text-2);
+    }
+
+    .nav-tab--active {
+      color: var(--text);
+    }
+
+    .nav-tab--active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 2px;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--yellow);
+    }
+
+    /* —— Main two-column —— */
+    .main {
+      width: 100%;
+      padding: 0 88px;
+      display: flex;
+      gap: 88px;
+      align-items: stretch;
+      flex: 1;
+    }
+
+    .col-cats {
+      width: 400px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .col-detail {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cat-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .cat-row {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      padding-left: 20px;
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text-3);
+      border-radius: 12px;
+      border-left: 3px solid transparent;
+      transition:
+        color 0.2s cubic-bezier(0.2, 0, 0, 1),
+        background 0.2s cubic-bezier(0.2, 0, 0, 1),
+        border-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+        transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .cat-row--selected {
+      background: var(--yellow-dim);
+      border-left-color: var(--yellow);
+      color: var(--text);
+    }
+
+    .cat-row:focus-visible,
+    .cat-row--focused {
+      outline: none;
+      transform: scale(1.01);
+      transform-origin: left center;
+      border-left-color: var(--yellow);
+      color: var(--text);
+    }
+
+    .cat-row--selected:focus-visible,
+    .cat-row--selected.cat-row--focused {
+      background: var(--yellow-dim);
+    }
+
+    /* —— Detail column —— */
+    .detail-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .settings-stack {
+      border-top: 1px solid var(--sep);
+      margin-top: 16px;
+    }
+
+    .setting-row {
+      min-height: 80px;
+      padding: 16px 20px 16px 4px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto auto;
+      align-items: center;
+      column-gap: 24px;
+      border-bottom: 1px solid var(--sep);
+      border-radius: 12px;
+      transition:
+        background 0.2s cubic-bezier(0.2, 0, 0, 1),
+        transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .setting-row__label {
+      grid-column: 1;
+      grid-row: 1;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .setting-row__control {
+      grid-column: 2;
+      grid-row: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .setting-row__desc {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      margin-top: 6px;
+      font-size: 16px;
+      color: var(--text-3);
+      line-height: 1.45;
+      max-width: 720px;
+    }
+
+    .setting-row--no-desc .setting-row__label {
+      align-self: center;
+    }
+
+    .setting-row--no-desc {
+      align-items: center;
+    }
+
+    .setting-row--no-desc .setting-row__control {
+      align-self: center;
+    }
+
+    .value-pill {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text-2);
+    }
+
+    .chevron {
+      width: 24px;
+      height: 24px;
+      color: var(--text-3);
+      flex-shrink: 0;
+    }
+
+    .setting-row--focused,
+    .setting-row:focus-visible {
+      outline: none;
+      background: rgba(255, 255, 255, 0.04);
+      transform: scale(1.01);
+      transform-origin: center left;
+    }
+
+    /* —— Toggle —— */
+    .toggle {
+      width: 60px;
+      height: 36px;
+      border-radius: 18px;
+      border: none;
+      padding: 0;
+      cursor: default;
+      position: relative;
+      flex-shrink: 0;
+      transition:
+        background 0.2s cubic-bezier(0.2, 0, 0, 1),
+        box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .toggle__knob {
+      position: absolute;
+      top: 4px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #fff;
+      transition: left 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .toggle--off {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .toggle--off .toggle__knob {
+      left: 4px;
+    }
+
+    .toggle--on {
+      background: var(--yellow);
+    }
+
+    .toggle--on .toggle__knob {
+      left: 28px;
+    }
+
+    .toggle:focus-visible,
+    .setting-row:focus-visible .toggle,
+    .setting-row--focused .toggle {
+      outline: none;
+      box-shadow:
+        0 0 0 3px rgba(253, 206, 69, 0.35),
+        0 0 24px rgba(253, 206, 69, 0.45);
+    }
+
+    .toggle-state {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--yellow);
+      min-width: 32px;
+      text-align: right;
+    }
+
+    .toggle--off + .toggle-state {
+      color: var(--text-4);
+    }
+
+    .detail-footer {
+      margin-top: auto;
+      padding-top: 48px;
+      font-size: 16px;
+      color: var(--text-4);
+    }
+
+    .sr {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="screen">
+    <div class="nav-shell">
+      <nav class="nav-pill" aria-label="Main">
+        <span class="nav-tab">Home</span>
+        <span class="nav-sep" aria-hidden="true">|</span>
+        <span class="nav-tab">Files</span>
+        <span class="nav-sep" aria-hidden="true">|</span>
+        <span class="nav-tab">Search</span>
+        <span class="nav-sep" aria-hidden="true">|</span>
+        <span class="nav-tab nav-tab--active" aria-current="page">Settings</span>
+      </nav>
+    </div>
+
+    <div class="main">
+      <aside class="col-cats" aria-label="Settings categories">
+        <ul class="cat-list">
+          <li class="cat-row" tabindex="0">Account</li>
+          <li class="cat-row" tabindex="0">Storage</li>
+          <li class="cat-row cat-row--selected cat-row--focused" tabindex="0">Playback</li>
+          <li class="cat-row" tabindex="0">Downloads</li>
+          <li class="cat-row" tabindex="0">About</li>
+        </ul>
+      </aside>
+
+      <section class="col-detail" aria-label="Playback settings">
+        <h1 class="detail-title">Playback</h1>
+
+        <div class="settings-stack">
+          <div class="setting-row setting-row--focused" tabindex="0">
+            <span class="setting-row__label">Autoplay next file</span>
+            <div class="setting-row__control">
+              <button type="button" class="toggle toggle--on" aria-pressed="true" tabindex="-1">
+                <span class="toggle__knob" aria-hidden="true"></span>
+                <span class="sr">On</span>
+              </button>
+              <span class="toggle-state" aria-hidden="true">ON</span>
+            </div>
+            <p class="setting-row__desc">Automatically play the next file in the folder</p>
+          </div>
+
+          <div class="setting-row" tabindex="0">
+            <span class="setting-row__label">Default subtitles</span>
+            <div class="setting-row__control">
+              <span class="value-pill">English</span>
+              <svg class="chevron" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M96 208L184 128L96 48" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <p class="setting-row__desc">Preferred subtitle language</p>
+          </div>
+
+          <div class="setting-row" tabindex="0">
+            <span class="setting-row__label">Default audio track</span>
+            <div class="setting-row__control">
+              <span class="value-pill">Original</span>
+              <svg class="chevron" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M96 208L184 128L96 48" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <p class="setting-row__desc">Preferred audio language</p>
+          </div>
+
+          <div class="setting-row setting-row--no-desc" tabindex="0">
+            <span class="setting-row__label">Playback speed</span>
+            <div class="setting-row__control">
+              <span class="value-pill">1x</span>
+              <svg class="chevron" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M96 208L184 128L96 48" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="setting-row" tabindex="0">
+            <span class="setting-row__label">Resume playback</span>
+            <div class="setting-row__control">
+              <button type="button" class="toggle toggle--on" aria-pressed="true" tabindex="-1">
+                <span class="toggle__knob" aria-hidden="true"></span>
+                <span class="sr">On</span>
+              </button>
+              <span class="toggle-state" aria-hidden="true">ON</span>
+            </div>
+            <p class="setting-row__desc">Continue from where you left off</p>
+          </div>
+        </div>
+
+        <footer class="detail-footer">Version 4.2.0 (142)</footer>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

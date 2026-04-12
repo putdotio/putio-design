@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="cursor/opus-4.6/ui-sh">
+  <meta name="viewport" content="width=390">
+  <title>put.io — Transfers (iOS)</title>
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <style>
+    :root {
+      --bg: #000;
+      --surface: #1C1C1E;
+      --text: #F5F5F5;
+      --text-2: #ABABAB;
+      --text-3: #8E8E93;
+      --text-4: #636366;
+      --yellow: #FDCE45;
+      --green: #30D158;
+      --red: #FF453A;
+      --blue: #0A84FF;
+      --sep: rgba(255, 255, 255, 0.08);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #111;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: InterVariable, Inter, system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.4;
+      font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px 0;
+    }
+
+    .device {
+      width: 390px;
+      height: 844px;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      border-radius: 0;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+    }
+
+    /* Status bar */
+    .status-bar {
+      height: 54px;
+      padding: 12px 24px 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .status-time {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-icons svg {
+      display: block;
+    }
+
+    /* Main scroll region */
+    .content {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 20px 12px;
+    }
+
+    /* Header */
+    .nav-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 4px 20px 10px;
+      flex-shrink: 0;
+    }
+
+    .nav-title {
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      margin: 0;
+    }
+
+    .btn-clear {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--blue);
+      font-family: inherit;
+      font-size: 17px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      padding: 4px 0 2px 12px;
+      cursor: default;
+    }
+
+    /* Segmented control */
+    .segment-wrap {
+      padding: 0 20px 14px;
+      flex-shrink: 0;
+    }
+
+    .segmented {
+      display: flex;
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 2px;
+      gap: 0;
+    }
+
+    .segment {
+      flex: 1;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      padding: 7px 8px;
+      border-radius: 6px;
+      color: var(--text-3);
+      cursor: default;
+    }
+
+    .segment.is-selected {
+      background: rgba(253, 206, 69, 0.22);
+      color: var(--text);
+    }
+
+    /* Grouped list */
+    .group {
+      background: var(--surface);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .row {
+      display: flex;
+      align-items: stretch;
+      min-height: 72px;
+      padding: 0 14px;
+      position: relative;
+    }
+
+    .row:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 14px;
+      right: 0;
+      bottom: 0;
+      height: 1px;
+      background: var(--sep);
+    }
+
+    .row-indicator {
+      width: 28px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .row-body {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 10px 0 11px;
+      gap: 5px;
+    }
+
+    .row-title {
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: -0.015em;
+      line-height: 1.2;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .row-meta {
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+      color: var(--text-3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .row-meta .meta-blue {
+      color: var(--blue);
+    }
+
+    .row-meta .meta-red {
+      color: var(--red);
+    }
+
+    .row-meta .meta-yellow {
+      color: var(--yellow);
+    }
+
+    .progress-track {
+      height: 2px;
+      border-radius: 1px;
+      background: rgba(255, 255, 255, 0.12);
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 1px;
+      transform-origin: left center;
+    }
+
+    .progress-fill.is-yellow {
+      background: var(--yellow);
+    }
+
+    .progress-fill.is-blue {
+      background: var(--blue);
+    }
+
+    .progress-fill.is-green {
+      background: var(--green);
+    }
+
+    .progress-fill.is-red {
+      background: var(--red);
+    }
+
+    /* Status dots */
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot-yellow {
+      background: var(--yellow);
+    }
+
+    .dot-blue {
+      background: var(--blue);
+    }
+
+    .dot-pulse {
+      animation: dot-pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes dot-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.92); }
+    }
+
+    .icon-status {
+      display: block;
+      flex-shrink: 0;
+    }
+
+    /* Tab bar */
+    .tab-bar {
+      height: 83px;
+      flex-shrink: 0;
+      padding-bottom: 34px;
+      background: rgba(28, 28, 30, 0.85);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--sep);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-around;
+      padding-top: 8px;
+    }
+
+    .tab {
+      width: 72px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: var(--text-3);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+      cursor: default;
+    }
+
+    .tab.is-active {
+      color: var(--yellow);
+    }
+
+    .tab svg {
+      display: block;
+      color: inherit;
+    }
+
+    .tab svg path,
+    .tab svg circle {
+      stroke: currentColor;
+      fill: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="device" role="img" aria-label="put.io iOS transfers screen prototype, 390 by 844, dark mode">
+    <header class="status-bar">
+      <div class="status-time">9:41</div>
+      <div class="status-icons" aria-hidden="true">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 9.5h2.5v2H1v-2zm4-2h2.5v4H5v-4zm4-2.5h2.5v6.5H9V5zm4-2h2.5v8.5H13V3z" fill="var(--text)"/>
+        </svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M8.25 2.2c2.05 1.18 3.45 2.95 3.98 5.05.12.48-.17.95-.65 1.07a.9.9 0 0 1-.22.03H4.64c-.51 0-.92-.41-.92-.92 0-.08.01-.15.03-.22.53-2.1 1.93-3.87 3.98-5.05a.92.92 0 0 1 .92 0z" fill="var(--text)"/>
+          <path d="M5.2 9.5h5.6a3.25 3.25 0 0 1-5.6 0z" fill="var(--text)"/>
+        </svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1.5" y="2.5" width="18" height="7" rx="1.5" stroke="var(--text)" stroke-opacity="0.35"/>
+          <path d="M21 4v4c.6.3 1 .9 1 1.5s-.4 1.2-1 1.5V4z" fill="var(--text)" fill-opacity="0.35"/>
+          <rect x="3" y="4" width="14" height="4" rx="0.5" fill="var(--text)"/>
+        </svg>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="nav-header">
+        <h1 class="nav-title">Transfers</h1>
+        <button type="button" class="btn-clear">Clear</button>
+      </div>
+
+      <div class="segment-wrap">
+        <div class="segmented" role="tablist" aria-label="Transfer filter">
+          <div class="segment is-selected" role="tab" aria-selected="true">All</div>
+          <div class="segment" role="tab" aria-selected="false">Active</div>
+          <div class="segment" role="tab" aria-selected="false">Completed</div>
+        </div>
+      </div>
+
+      <div class="scroll">
+        <div class="group">
+          <!-- 1 -->
+          <div class="row">
+            <div class="row-indicator">
+              <span class="dot dot-yellow dot-pulse" aria-hidden="true"></span>
+            </div>
+            <div class="row-body">
+              <div class="row-title">Succession.S04E10...H.265-NTb.mkv</div>
+              <div class="row-meta">5.9 / 8.9 GB · 42.3 MB/s</div>
+              <div class="progress-track" aria-hidden="true">
+                <div class="progress-fill is-yellow" style="width:67%"></div>
+              </div>
+            </div>
+          </div>
+          <!-- 2 -->
+          <div class="row">
+            <div class="row-indicator">
+              <span class="dot dot-yellow" aria-hidden="true"></span>
+            </div>
+            <div class="row-body">
+              <div class="row-title">ubuntu-24.04.1-desktop-amd64.iso</div>
+              <div class="row-meta">1.6 / 4.7 GB</div>
+              <div class="progress-track" aria-hidden="true">
+                <div class="progress-fill is-yellow" style="width:34%"></div>
+              </div>
+            </div>
+          </div>
+          <!-- 3 -->
+          <div class="row">
+            <div class="row-indicator">
+              <span class="dot dot-blue" aria-hidden="true"></span>
+            </div>
+            <div class="row-body">
+              <div class="row-title">The.Wire.S03E04...</div>
+              <div class="row-meta"><span class="meta-blue">Seeding</span> · 2.4 MB/s ↑</div>
+              <div class="progress-track" aria-hidden="true">
+                <div class="progress-fill is-blue" style="width:100%"></div>
+              </div>
+            </div>
+          </div>
+          <!-- 4 -->
+          <div class="row">
+            <div class="row-indicator">
+              <svg class="icon-status" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="9" cy="9" r="8" stroke="var(--green)" stroke-width="1.5"/>
+                <path d="M5.2 9.1l2.4 2.4 5.2-5.2" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="row-body">
+              <div class="row-title">Seinfeld.S09E23...</div>
+              <div class="row-meta">Completed · 698 MB · <span class="meta-yellow">Go to file</span></div>
+              <div class="progress-track" aria-hidden="true">
+                <div class="progress-fill is-green" style="width:100%"></div>
+              </div>
+            </div>
+          </div>
+          <!-- 5 -->
+          <div class="row">
+            <div class="row-indicator">
+              <svg class="icon-status" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="9" cy="9" r="8" stroke="var(--red)" stroke-width="1.5"/>
+                <path d="M6.2 6.2l5.6 5.6M11.8 6.2l-5.6 5.6" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="row-body">
+              <div class="row-title">homework_answers_DONT_DELETE.zip</div>
+              <div class="row-meta"><span class="meta-red">Failed</span> · <span class="meta-red">Connection lost</span></div>
+              <div class="progress-track" aria-hidden="true"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="tab-bar" aria-label="Main">
+      <div class="tab">
+        <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M4.5 10.5L12 4l7.5 6.5V19a1 1 0 0 1-1 1h-5v-6H10.5v6h-5a1 1 0 0 1-1-1v-8.5z" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        <span>Files</span>
+      </div>
+      <div class="tab is-active">
+        <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M5.5 5.5h13v10h-5l-3 3v-3h-5v-10z" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M8.5 9h7M8.5 12h5" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span>Transfers</span>
+      </div>
+      <div class="tab">
+        <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M12 6v6l4 2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="8" stroke-width="1.5"/>
+        </svg>
+        <span>History</span>
+      </div>
+      <div class="tab">
+        <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="12" cy="12" r="3" stroke-width="1.5"/>
+          <path d="M12 5V3M12 21v-2M5 12H3M21 12h-2M6.3 6.3L4.9 4.9M19.1 19.1l-1.4-1.4M17.7 6.3l1.4-1.4M4.9 19.1l1.4-1.4" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span>Settings</span>
+      </div>
+    </nav>
+  </div>
+</body>
+</html>

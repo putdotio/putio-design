@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="cursor/opus-4.6/ui-sh">
+  <meta name="viewport" content="width=390">
+  <title>RSS Feeds — put.io iOS</title>
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <style>
+    :root {
+      --bg: #000;
+      --surface: #1C1C1E;
+      --text: #F5F5F5;
+      --text-3: #8E8E93;
+      --text-4: #636366;
+      --yellow: #FDCE45;
+      --green: #30D158;
+      --red: #FF453A;
+      --blue: #0A84FF;
+      --sep: rgba(255, 255, 255, 0.08);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #111;
+    }
+
+    body {
+      font-family: InterVariable, Inter, system-ui, sans-serif;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+      font-size: 15px;
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px 0;
+    }
+
+    .device {
+      width: 390px;
+      height: 844px;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border-radius: 40px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+    }
+
+    .status-bar {
+      flex: 0 0 54px;
+      height: 54px;
+      padding: 12px 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .status-bar__right {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-bar svg {
+      display: block;
+    }
+
+    .nav-bar {
+      flex: 0 0 44px;
+      height: 44px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+    }
+
+    .nav-back {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1;
+      padding: 8px 8px 8px 4px;
+      font-size: 17px;
+      font-weight: 400;
+      color: var(--blue);
+      text-decoration: none;
+      line-height: 1;
+    }
+
+    .nav-back:active {
+      opacity: 0.6;
+    }
+
+    .nav-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      pointer-events: none;
+    }
+
+    .scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 24px;
+    }
+
+    .group {
+      background: var(--surface);
+      border-radius: 12px;
+      margin: 0 20px;
+      overflow: hidden;
+    }
+
+    .row {
+      height: 64px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+
+    .row:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 34px;
+      right: 0;
+      bottom: 0;
+      height: 1px;
+      background: var(--sep);
+    }
+
+    .row__dot {
+      flex: 0 0 8px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      align-self: center;
+    }
+
+    .row__dot--green { background: var(--green); }
+    .row__dot--gray { background: var(--text-4); }
+    .row__dot--red { background: var(--red); }
+
+    .row__main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .row__title-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .row__title {
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .badge {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-4);
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 6px;
+      border-radius: 4px;
+      line-height: 1.2;
+    }
+
+    .row__meta-muted {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-4);
+      line-height: 1.2;
+    }
+
+    .row__sub {
+      margin: 0;
+      font-size: 13px;
+      color: var(--text-3);
+      letter-spacing: -0.01em;
+    }
+
+    .row__sub--error {
+      color: var(--red);
+    }
+
+    .row__trail {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      align-self: center;
+    }
+
+    .chevron {
+      color: var(--text-4);
+      flex-shrink: 0;
+    }
+
+    .suggestion {
+      background: var(--surface);
+      border-radius: 12px;
+      margin: 20px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .suggestion__icon {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 12px;
+      color: var(--text-4);
+    }
+
+    .suggestion__icon svg {
+      display: block;
+    }
+
+    .suggestion__title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 0 0 6px;
+      color: var(--text);
+    }
+
+    .suggestion__body {
+      font-size: 13px;
+      color: var(--text-3);
+      margin: 0 0 12px;
+      line-height: 1.45;
+    }
+
+    .suggestion__link {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--yellow);
+      text-decoration: none;
+    }
+
+    .suggestion__link:active {
+      opacity: 0.75;
+    }
+  </style>
+</head>
+<body>
+  <div class="device" role="img" aria-label="put.io iOS RSS feeds screen, 390 by 844">
+    <header class="status-bar" aria-hidden="true">
+      <span>9:41</span>
+      <div class="status-bar__right">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="none" aria-hidden="true">
+          <path fill="currentColor" fill-opacity="0.9" d="M1 8.5h2.5v2H1v-2Zm4-2h2.5v4H5v-4Zm4-2.5h2.5v6.5H9V4Zm4-2h2.5v8.5H13V2Z"/>
+        </svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="none" aria-hidden="true">
+          <path fill="currentColor" fill-opacity="0.9" d="M8.05 2.2c2.05 1.45 3.35 3.55 3.55 5.9h-1.55a5.5 5.5 0 0 0-3.95-3.35 5.5 5.5 0 0 0-3.95 3.35H1.5c.2-2.35 1.5-4.45 3.55-5.9L8 1l.05 1.2Zm-3.2 4.55c.75-.55 1.65-.9 2.6-.95h.1c.95.05 1.85.4 2.6.95.45.35.85.8 1.15 1.3H3.7c.3-.5.7-.95 1.15-1.3Z"/>
+        </svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true">
+          <rect x="1" y="2" width="19" height="8" rx="2" stroke="currentColor" stroke-opacity="0.35"/>
+          <rect x="2" y="3" width="15" height="6" rx="1" fill="currentColor" fill-opacity="0.9"/>
+          <path fill="currentColor" fill-opacity="0.35" d="M22 4.5v3a1 1 0 0 0 1 1h.5a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 0-.5-.5H23a1 1 0 0 0-1 1Z"/>
+        </svg>
+      </div>
+    </header>
+
+    <nav class="nav-bar" aria-label="RSS Feeds">
+      <a class="nav-back" href="#">&lt; Settings</a>
+      <h1 class="nav-title">RSS Feeds</h1>
+    </nav>
+
+    <main class="scroll">
+      <div class="group" role="list">
+        <div class="row" role="listitem">
+          <span class="row__dot row__dot--green" aria-hidden="true"></span>
+          <div class="row__main">
+            <div class="row__title-line">
+              <span class="row__title">The Wire</span>
+            </div>
+            <p class="row__sub">ShowRSS · Last checked 2h ago</p>
+          </div>
+          <div class="row__trail">
+            <span class="badge">12 eps</span>
+            <svg class="chevron" width="8" height="14" viewBox="0 0 8 14" fill="none" aria-hidden="true">
+              <path d="M1.5 1L6.5 7l-5 6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="row" role="listitem">
+          <span class="row__dot row__dot--green" aria-hidden="true"></span>
+          <div class="row__main">
+            <div class="row__title-line">
+              <span class="row__title">Succession</span>
+            </div>
+            <p class="row__sub">ShowRSS · Last checked 2h ago</p>
+          </div>
+          <div class="row__trail">
+            <span class="badge">39 eps</span>
+            <svg class="chevron" width="8" height="14" viewBox="0 0 8 14" fill="none" aria-hidden="true">
+              <path d="M1.5 1L6.5 7l-5 6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="row" role="listitem">
+          <span class="row__dot row__dot--gray" aria-hidden="true"></span>
+          <div class="row__main">
+            <div class="row__title-line">
+              <span class="row__title">Seinfeld</span>
+            </div>
+            <p class="row__sub">ShowRSS · Paused</p>
+          </div>
+          <div class="row__trail">
+            <span class="badge">180 eps</span>
+            <span class="row__meta-muted">Paused</span>
+            <svg class="chevron" width="8" height="14" viewBox="0 0 8 14" fill="none" aria-hidden="true">
+              <path d="M1.5 1L6.5 7l-5 6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="row" role="listitem">
+          <span class="row__dot row__dot--red" aria-hidden="true"></span>
+          <div class="row__main">
+            <div class="row__title-line">
+              <span class="row__title">Linux ISOs Weekly</span>
+            </div>
+            <p class="row__sub row__sub--error">Feed error · Last checked 1d ago</p>
+          </div>
+          <div class="row__trail">
+            <svg class="chevron" width="8" height="14" viewBox="0 0 8 14" fill="none" aria-hidden="true">
+              <path d="M1.5 1L6.5 7l-5 6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <section class="suggestion" aria-label="Discover RSS feeds">
+        <div class="suggestion__icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="5" cy="19" r="2.25" fill="currentColor"/>
+            <path d="M4 11a9 9 0 0 1 9 9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+            <path d="M4 4a16 16 0 0 1 16 16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h2 class="suggestion__title">Discover RSS feeds</h2>
+        <p class="suggestion__body">Just google 'RSS torrents'. You'll see the light.</p>
+        <a class="suggestion__link" href="#">Learn more</a>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

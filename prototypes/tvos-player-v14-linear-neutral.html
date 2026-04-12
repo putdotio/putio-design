@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1920">
+  <meta name="generator" content="cursor/opus-4.6/ui-sh">
+  <title>put.io · tvOS Player · Linear Neutral</title>
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <style>
+    :root {
+      --bg: #000;
+      --text: #FAFAFA;
+      --text-2: #A1A1AA;
+      --text-3: #71717A;
+      --text-4: #4A4A52;
+      --yellow: #FDCE45;
+      --sep: rgba(255, 255, 255, 0.06);
+      --ease: cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: InterVariable, system-ui, sans-serif;
+      font-size: 18px;
+      line-height: 1.4;
+      font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .stage {
+      position: relative;
+      width: 1920px;
+      height: 1080px;
+      background: linear-gradient(165deg, #0A0A0C 0%, #111116 100%);
+    }
+
+    .vignette-top {
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 200px;
+      pointer-events: none;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+      z-index: 2;
+    }
+
+    .vignette-bottom {
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 280px;
+      pointer-events: none;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+      z-index: 2;
+    }
+
+    .top-ui {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 48px 88px 0;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .top-ui a,
+    .top-ui button {
+      pointer-events: auto;
+    }
+
+    .breadcrumb {
+      font-size: 18px;
+      color: var(--text-3);
+      margin: 0 0 8px;
+      letter-spacing: 0.01em;
+    }
+
+    .filename {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 10px;
+      max-width: 1400px;
+      line-height: 1.35;
+      word-break: break-all;
+    }
+
+    .meta {
+      font-size: 16px;
+      color: var(--text-3);
+      margin: 0;
+    }
+
+    .bottom-ui {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 0 0 40px;
+      z-index: 3;
+    }
+
+    .progress-wrap {
+      padding: 0 88px;
+      margin-bottom: 12px;
+    }
+
+    .progress-track {
+      position: relative;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--sep);
+      overflow: visible;
+    }
+
+    .progress-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 42%;
+      border-radius: 2px;
+      background: var(--yellow);
+      box-shadow: 0 0 12px rgba(253, 206, 69, 0.35);
+    }
+
+    .progress-handle {
+      position: absolute;
+      left: 42%;
+      top: 50%;
+      width: 12px;
+      height: 12px;
+      margin: -6px 0 0 -6px;
+      border-radius: 50%;
+      background: var(--yellow);
+      pointer-events: none;
+      box-shadow:
+        0 0 16px rgba(253, 206, 69, 0.5),
+        0 0 32px rgba(253, 206, 69, 0.22);
+      transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    }
+
+    .progress-track:focus {
+      outline: none;
+    }
+
+    .progress-track:focus-visible .progress-handle {
+      transform: scale(1.2);
+      box-shadow:
+        0 0 0 3px rgba(253, 206, 69, 0.95),
+        0 0 20px rgba(253, 206, 69, 0.7),
+        0 0 48px rgba(253, 206, 69, 0.35);
+    }
+
+    .time-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 88px;
+      font-size: 18px;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-2);
+      margin-bottom: 64px;
+    }
+
+    .transport {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 32px;
+      margin-bottom: 80px;
+    }
+
+    .btn-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      transition:
+        transform 0.2s var(--ease),
+        background 0.2s var(--ease),
+        box-shadow 0.2s var(--ease);
+    }
+
+    .btn-icon:focus {
+      outline: none;
+    }
+
+    .btn-icon:focus-visible {
+      transform: scale(1.08);
+      background: rgba(255, 255, 255, 0.16);
+      box-shadow: 0 0 0 3px var(--yellow);
+    }
+
+    .btn-skip {
+      width: 44px;
+      height: 44px;
+    }
+
+    .btn-play-main {
+      width: 56px;
+      height: 56px;
+      background: var(--yellow);
+      color: #000;
+    }
+
+    .btn-play-main:focus-visible {
+      transform: scale(1.08);
+      background: var(--yellow);
+      box-shadow: 0 0 0 3px var(--yellow), 0 0 24px rgba(253, 206, 69, 0.45);
+    }
+
+    .btn-play-main svg {
+      margin-left: 3px;
+    }
+
+    .bottom-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 88px;
+      gap: 24px;
+    }
+
+    .bottom-left,
+    .bottom-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pill-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 40px;
+      padding: 0 16px;
+      font-size: 18px;
+      font-family: inherit;
+      font-feature-settings: inherit;
+      color: var(--text-2);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      transition:
+        color 0.2s var(--ease),
+        background 0.2s var(--ease),
+        border-color 0.2s var(--ease),
+        transform 0.2s var(--ease),
+        box-shadow 0.2s var(--ease);
+    }
+
+    .pill-btn:focus {
+      outline: none;
+    }
+
+    .pill-btn:focus-visible {
+      border-color: var(--yellow);
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 0 1px var(--yellow);
+    }
+
+    .pill-btn:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    .icon-btn {
+      width: 40px;
+      padding: 0;
+      color: var(--text-2);
+    }
+
+    .icon-btn:focus-visible {
+      color: var(--text);
+    }
+
+    .center-play {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 4;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.4);
+      color: var(--text);
+      transition:
+        transform 0.2s var(--ease),
+        background 0.2s var(--ease),
+        color 0.2s var(--ease),
+        box-shadow 0.2s var(--ease);
+    }
+
+    .center-play svg {
+      margin-left: 4px;
+      transition: fill 0.2s var(--ease);
+    }
+
+    .center-play:hover,
+    .center-play:focus-visible {
+      transform: translate(-50%, -50%) scale(1.05);
+      background: rgba(0, 0, 0, 0.55);
+      color: var(--yellow);
+      outline: none;
+      box-shadow: 0 0 0 3px var(--yellow);
+    }
+
+    .up-next {
+      position: absolute;
+      right: 88px;
+      bottom: 200px;
+      width: 340px;
+      z-index: 5;
+      border-radius: 16px;
+      background: rgba(28, 28, 30, 0.8);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 16px 0 8px;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+    }
+
+    .up-next-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px 12px;
+      border-bottom: 1px solid var(--sep);
+      margin-bottom: 4px;
+    }
+
+    .up-next-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .toggle {
+      position: relative;
+      width: 48px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    .toggle input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.12);
+      transition: background 0.2s var(--ease);
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.2s var(--ease);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    }
+
+    .toggle input:checked + .toggle-track {
+      background: var(--yellow);
+    }
+
+    .toggle input:checked + .toggle-track .toggle-thumb {
+      transform: translateX(20px);
+    }
+
+    .toggle input:focus-visible + .toggle-track {
+      box-shadow: 0 0 0 3px var(--yellow);
+    }
+
+    .up-next-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 64px;
+      padding: 8px 12px 8px 16px;
+      margin: 0 8px 4px;
+      border-radius: 10px;
+      border: none;
+      width: calc(100% - 16px);
+      background: transparent;
+      cursor: pointer;
+      font-family: inherit;
+      font-feature-settings: inherit;
+      text-align: left;
+      color: var(--text-2);
+      transition:
+        color 0.2s var(--ease),
+        background 0.2s var(--ease),
+        transform 0.2s var(--ease),
+        box-shadow 0.2s var(--ease);
+    }
+
+    .up-next-row:focus {
+      outline: none;
+    }
+
+    .up-next-play {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      color: var(--yellow);
+      transition: opacity 0.2s var(--ease);
+    }
+
+    .up-next-row:hover {
+      color: var(--text);
+    }
+
+    .up-next-row:hover .up-next-play {
+      opacity: 0.85;
+    }
+
+    .up-next-row:focus-visible {
+      transform: scale(1.01);
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+      box-shadow: inset 3px 0 0 0 var(--yellow);
+    }
+
+    .up-next-row:focus-visible .up-next-play {
+      opacity: 1;
+    }
+
+    .up-next-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .up-next-name {
+      display: block;
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 1.35;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: inherit;
+    }
+
+    .up-next-size {
+      display: block;
+      font-size: 16px;
+      color: var(--text-3);
+      margin-top: 2px;
+    }
+
+    .up-next-row:hover .up-next-size,
+    .up-next-row:focus-visible .up-next-size {
+      color: var(--text-2);
+    }
+
+    svg {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="stage" role="application" aria-label="Video player">
+    <div class="vignette-top" aria-hidden="true"></div>
+    <div class="vignette-bottom" aria-hidden="true"></div>
+
+    <header class="top-ui">
+      <p class="breadcrumb">tv-shows &gt; The Wire Season 3</p>
+      <h1 class="filename">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</h1>
+      <p class="meta">1.2 GB · MKV · 1080p · 42% watched</p>
+    </header>
+
+    <button type="button" class="center-play" aria-label="Play">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M9 7.5v9l7.5-4.5L9 7.5z" fill="currentColor"/>
+      </svg>
+    </button>
+
+    <div class="bottom-ui">
+      <div class="progress-wrap">
+        <div class="progress-track" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="42" aria-label="Playback position" tabindex="0">
+          <div class="progress-fill"></div>
+          <span class="progress-handle" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="time-row">
+        <span>23:47</span>
+        <span>56:14</span>
+      </div>
+      <div class="transport">
+        <button type="button" class="btn-icon btn-skip" aria-label="Skip back 15 seconds">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M10.25 8.25A5.25 5.25 0 1 1 6.5 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" fill="none"/>
+            <path d="M6.5 6v5.25H1.25" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M17.75 8.25A5.25 5.25 0 1 1 14 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" fill="none" opacity="0.45"/>
+            <path d="M14 6v5.25H8.75" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.45"/>
+          </svg>
+        </button>
+        <button type="button" class="btn-icon btn-play-main" aria-label="Play">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 7.5v9l7.5-4.5L9 7.5z" fill="currentColor"/>
+          </svg>
+        </button>
+        <button type="button" class="btn-icon btn-skip" aria-label="Skip forward 15 seconds">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M13.75 8.25A5.25 5.25 0 1 0 17.5 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" fill="none"/>
+            <path d="M17.5 6v5.25h5.25" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M6.25 8.25A5.25 5.25 0 1 0 10 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" fill="none" opacity="0.45"/>
+            <path d="M10 6v5.25h5.25" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.45"/>
+          </svg>
+        </button>
+      </div>
+      <div class="bottom-row">
+        <div class="bottom-left">
+          <button type="button" class="pill-btn" aria-label="Subtitles, English">English</button>
+          <button type="button" class="pill-btn" aria-label="Audio, English 5.1">English 5.1</button>
+        </div>
+        <div class="bottom-right">
+          <button type="button" class="pill-btn" aria-label="Playback speed">1x</button>
+          <button type="button" class="pill-btn icon-btn" aria-label="Info">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.75"/>
+              <path d="M12 10.5V16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+              <circle cx="12" cy="7.5" r="1.25" fill="currentColor"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="up-next" aria-label="Up next">
+      <div class="up-next-header">
+        <h2 class="up-next-title">Up Next</h2>
+        <label class="toggle">
+          <input type="checkbox" checked aria-label="Autoplay on">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+      </div>
+      <button type="button" class="up-next-row">
+        <span class="up-next-play" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M9 7.5v9l7.5-4.5L9 7.5z" fill="currentColor"/>
+          </svg>
+        </span>
+        <span class="up-next-text">
+          <span class="up-next-name">The.Wire.S03E05.Straight.and.True.1080p.BluRay.x264-DEMAND.mkv</span>
+          <span class="up-next-size">1.1 GB</span>
+        </span>
+      </button>
+      <button type="button" class="up-next-row">
+        <span class="up-next-play" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M9 7.5v9l7.5-4.5L9 7.5z" fill="currentColor"/>
+          </svg>
+        </span>
+        <span class="up-next-text">
+          <span class="up-next-name">The.Wire.S03E06.Homecoming.1080p.BluRay.x264-DEMAND.mkv</span>
+          <span class="up-next-size">1.3 GB</span>
+        </span>
+      </button>
+    </aside>
+  </div>
+</body>
+</html>

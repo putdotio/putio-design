@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=1440, height=900" />
+  <meta name="generator" content="cursor/opus-4.6/ui-sh" />
+  <title>put.io — Web Player (Glass)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-deep: #111113;
+      --video-grad-a: #0a0a0c;
+      --video-grad-b: #141418;
+      --accent: #fdce45;
+      --accent-glow: rgba(253, 206, 69, 0.45);
+      --glass-bg: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      --radius: 14px;
+      --ease: 0.15s ease;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #0a0a0b;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.92);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .frame {
+      width: 1440px;
+      height: 900px;
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background: var(--bg-deep);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.06),
+        0 40px 120px rgba(0, 0, 0, 0.55);
+    }
+
+    .bg-orbs {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-orbs::before,
+    .bg-orbs::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+    }
+
+    .bg-orbs::before {
+      width: 520px;
+      height: 520px;
+      left: -120px;
+      top: 10%;
+      background: radial-gradient(circle, rgba(253, 206, 69, 0.06) 0%, transparent 70%);
+    }
+
+    .bg-orbs::after {
+      width: 640px;
+      height: 640px;
+      right: -180px;
+      bottom: -80px;
+      background: radial-gradient(circle, rgba(255, 190, 90, 0.045) 0%, transparent 68%);
+    }
+
+    .layout {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .top-wrap {
+      flex: 0 0 auto;
+      padding: 20px 28px 12px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      height: 40px;
+      padding: 0 10px 0 8px;
+      max-width: calc(100% - 56px);
+      width: 100%;
+      min-width: 0;
+      border-radius: 999px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px) saturate(150%);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
+      border: 1px solid var(--glass-border);
+      box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.35),
+        var(--glass-inset);
+      transition: box-shadow var(--ease), border-color var(--ease);
+    }
+
+    .top-bar:hover {
+      border-color: rgba(255, 255, 255, 0.11);
+      box-shadow:
+        0 16px 48px rgba(0, 0, 0, 0.4),
+        var(--glass-inset);
+    }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.82);
+      cursor: pointer;
+      transition: color var(--ease), background var(--ease), transform var(--ease);
+    }
+
+    .icon-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .icon-btn:active {
+      transform: scale(0.96);
+    }
+
+    .top-title {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding-right: 8px;
+    }
+
+    .filename {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: rgba(255, 255, 255, 0.94);
+    }
+
+    .file-meta {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.45);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 28px 0;
+    }
+
+    .video-shell {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      min-height: 0;
+    }
+
+    .video-canvas {
+      position: relative;
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      border-radius: var(--radius);
+      background: linear-gradient(165deg, var(--video-grad-a) 0%, var(--video-grad-b) 55%, #0c0c10 100%);
+      overflow: hidden;
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+        0 28px 90px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(0, 0, 0, 0.35);
+    }
+
+    .video-orb {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(72%, 900px);
+      height: min(72%, 520px);
+      border-radius: 50%;
+      background: radial-gradient(
+        ellipse at center,
+        rgba(253, 206, 69, 0.055) 0%,
+        rgba(253, 190, 80, 0.03) 42%,
+        transparent 72%
+      );
+      pointer-events: none;
+    }
+
+    .play-hero {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px) saturate(150%);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      color: rgba(255, 255, 255, 0.95);
+      box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.4),
+        var(--glass-inset);
+      transition:
+        box-shadow var(--ease),
+        transform var(--ease),
+        border-color var(--ease),
+        background var(--ease);
+    }
+
+    .play-hero:hover {
+      border-color: rgba(253, 206, 69, 0.55);
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow:
+        0 0 0 1px rgba(253, 206, 69, 0.25),
+        0 0 28px rgba(253, 206, 69, 0.35),
+        0 16px 48px rgba(0, 0, 0, 0.45),
+        var(--glass-inset);
+      transform: translate(-50%, -50%) scale(1.03);
+    }
+
+    .play-hero svg {
+      margin-left: 3px;
+    }
+
+    .bottom-dock {
+      flex: 0 0 auto;
+      padding: 16px 0 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .control-strip {
+      height: 80px;
+      padding: 14px 22px 18px;
+      border-radius: var(--radius) var(--radius) 0 0;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px) saturate(150%);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
+      border: 1px solid var(--glass-border);
+      border-bottom: none;
+      box-shadow:
+        0 -20px 60px rgba(0, 0, 0, 0.35),
+        var(--glass-inset);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .time {
+      font-size: 12px;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+      color: rgba(255, 255, 255, 0.55);
+      white-space: nowrap;
+    }
+
+    .time strong {
+      color: rgba(255, 255, 255, 0.88);
+      font-weight: 600;
+    }
+
+    .progress {
+      flex: 1;
+      position: relative;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+      overflow: visible;
+      position: relative;
+    }
+
+    .progress-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 42%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #e8bd3a 0%, var(--accent) 100%);
+      box-shadow:
+        0 0 14px rgba(253, 206, 69, 0.35),
+        0 0 6px rgba(253, 206, 69, 0.25);
+    }
+
+    .progress-handle {
+      position: absolute;
+      left: 42%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 12px rgba(253, 206, 69, 0.4);
+      transition: transform var(--ease), box-shadow var(--ease);
+    }
+
+    .progress:hover .progress-handle {
+      transform: translate(-50%, -50%) scale(1.08);
+      box-shadow: 0 0 16px rgba(253, 206, 69, 0.55);
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 40px;
+    }
+
+    .transport {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .transport .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: var(--glass-inset);
+    }
+
+    .transport .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .play-main {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent);
+      color: #141210;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      box-shadow:
+        0 0 0 1px rgba(253, 206, 69, 0.35),
+        0 0 22px rgba(253, 206, 69, 0.35),
+        0 10px 28px rgba(0, 0, 0, 0.35);
+      transition: transform var(--ease), box-shadow var(--ease), filter var(--ease);
+    }
+
+    .play-main:hover {
+      filter: brightness(1.06);
+      box-shadow:
+        0 0 0 1px rgba(253, 206, 69, 0.5),
+        0 0 32px rgba(253, 206, 69, 0.45),
+        0 12px 32px rgba(0, 0, 0, 0.4);
+      transform: scale(1.04);
+    }
+
+    .play-main svg {
+      margin-left: 2px;
+    }
+
+    .extras {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .glass-tool {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 40px;
+      min-width: 40px;
+      padding: 0 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px) saturate(150%);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
+      color: rgba(255, 255, 255, 0.82);
+      cursor: pointer;
+      box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.22),
+        var(--glass-inset);
+      transition: border-color var(--ease), background var(--ease), color var(--ease), transform var(--ease);
+    }
+
+    .glass-tool:hover {
+      border-color: rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.09);
+      color: #fff;
+    }
+
+    .glass-tool:active {
+      transform: scale(0.97);
+    }
+
+    .speed-pill {
+      font-size: 12px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      padding: 0 12px;
+    }
+
+    .up-next {
+      position: absolute;
+      right: 28px;
+      bottom: 108px;
+      width: 280px;
+      z-index: 3;
+      border-radius: var(--radius);
+      padding: 14px 14px 12px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px) saturate(150%);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
+      border: 1px solid var(--glass-border);
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.42),
+        var(--glass-inset);
+    }
+
+    .up-next-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .up-next-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+      user-select: none;
+    }
+
+    .toggle-switch {
+      width: 36px;
+      height: 20px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      position: relative;
+      cursor: pointer;
+      transition: background var(--ease), border-color var(--ease), box-shadow var(--ease);
+    }
+
+    .toggle-switch::after {
+      content: "";
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      top: 2px;
+      left: 3px;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+      transition: transform var(--ease), background var(--ease);
+    }
+
+    .toggle-switch.on {
+      background: rgba(253, 206, 69, 0.22);
+      border-color: rgba(253, 206, 69, 0.45);
+      box-shadow: 0 0 16px rgba(253, 206, 69, 0.2);
+    }
+
+    .toggle-switch.on::after {
+      transform: translateX(14px);
+      background: var(--accent);
+    }
+
+    .queue-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 8px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background var(--ease);
+      position: relative;
+    }
+
+    .queue-item + .queue-item {
+      margin-top: 2px;
+    }
+
+    .queue-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .folder-ic {
+      flex: 0 0 auto;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(253, 206, 69, 0.9);
+      filter: drop-shadow(0 0 10px rgba(253, 206, 69, 0.22));
+      transition: filter var(--ease), border-color var(--ease);
+    }
+
+    .queue-item:hover .folder-ic {
+      filter: drop-shadow(0 0 14px rgba(253, 206, 69, 0.35));
+      border-color: rgba(253, 206, 69, 0.25);
+    }
+
+    .queue-text {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .queue-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.88);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .queue-sub {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 1px;
+    }
+
+    .queue-play {
+      opacity: 0;
+      transform: scale(0.92);
+      transition: opacity var(--ease), transform var(--ease);
+      color: var(--accent);
+      filter: drop-shadow(0 0 8px rgba(253, 206, 69, 0.45));
+    }
+
+    .queue-item:hover .queue-play {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    svg {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame" aria-label="put.io web player prototype">
+    <div class="bg-orbs" aria-hidden="true"></div>
+
+    <div class="layout">
+      <div class="top-wrap">
+        <header class="top-bar">
+          <button type="button" class="icon-btn" aria-label="Back" title="Back">
+            <svg width="18" height="18" viewBox="0 0 256 256" fill="none" aria-hidden="true">
+              <path d="M160 208L64 128L160 48" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          <div class="top-title">
+            <div class="filename">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div>
+            <div class="file-meta">1.2 GB · MKV</div>
+          </div>
+        </header>
+      </div>
+
+      <div class="stage">
+        <div class="video-shell">
+          <div class="video-canvas">
+            <div class="video-orb" aria-hidden="true"></div>
+            <button type="button" class="play-hero" aria-label="Play">
+              <svg width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                <path d="M72 48L216 128L72 208V48Z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-dock">
+        <div class="control-strip">
+          <div class="progress-row">
+            <div class="progress" role="slider" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100" aria-label="Playback position" tabindex="0">
+              <div class="progress-track">
+                <div class="progress-fill"></div>
+                <div class="progress-handle"></div>
+              </div>
+            </div>
+            <div class="time"><strong>23:47</strong> / 56:14</div>
+          </div>
+
+          <div class="controls-row">
+            <div class="transport">
+              <button type="button" class="icon-btn" aria-label="Skip back 15 seconds" title="-15s">
+                <svg width="28" height="28" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+                  <path d="M50 22V32" stroke="currentColor" stroke-width="5" stroke-linecap="round" />
+                  <path d="M28 50C28 37.85 37.85 28 50 28C62.15 28 72 37.85 72 50C72 62.15 62.15 72 50 72C41.6 72 34.4 67.2 30.4 60" stroke="currentColor" stroke-width="5" stroke-linecap="round" />
+                  <path d="M22 50L30 42V58L22 50Z" fill="currentColor" />
+                  <text x="50" y="56" text-anchor="middle" fill="currentColor" font-size="26" font-family="Inter, system-ui, sans-serif" font-weight="600">15</text>
+                </svg>
+              </button>
+              <button type="button" class="play-main" aria-label="Play">
+                <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                  <path d="M88 64L200 128L88 192V64Z" />
+                </svg>
+              </button>
+              <button type="button" class="icon-btn" aria-label="Skip forward 15 seconds" title="+15s">
+                <svg width="28" height="28" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+                  <path d="M50 22V32" stroke="currentColor" stroke-width="5" stroke-linecap="round" />
+                  <path d="M72 50C72 62.15 62.15 72 50 72C37.85 72 28 62.15 28 50C28 37.85 37.85 28 50 28C58.4 28 65.6 32.8 69.6 40" stroke="currentColor" stroke-width="5" stroke-linecap="round" />
+                  <path d="M78 50L70 42V58L78 50Z" fill="currentColor" />
+                  <text x="50" y="56" text-anchor="middle" fill="currentColor" font-size="26" font-family="Inter, system-ui, sans-serif" font-weight="600">15</text>
+                </svg>
+              </button>
+            </div>
+
+            <div class="extras">
+              <button type="button" class="glass-tool" aria-label="Subtitles" title="Subtitles">
+                <svg width="20" height="20" viewBox="0 0 256 256" fill="none" aria-hidden="true">
+                  <rect x="40" y="176" width="176" height="40" rx="8" stroke="currentColor" stroke-width="14" />
+                  <path d="M72 64H184" stroke="currentColor" stroke-width="14" stroke-linecap="round" />
+                  <path d="M72 104H152" stroke="currentColor" stroke-width="14" stroke-linecap="round" />
+                </svg>
+              </button>
+              <button type="button" class="glass-tool" aria-label="Audio tracks" title="Audio">
+                <svg width="20" height="20" viewBox="0 0 256 256" fill="none" aria-hidden="true">
+                  <path d="M96 96V160L144 184V72L96 96Z" fill="currentColor" />
+                  <path d="M160 104C168 112 172 122 172 132C172 142 168 152 160 160" stroke="currentColor" stroke-width="12" stroke-linecap="round" />
+                  <path d="M176 88C190 104 198 124 198 144C198 164 190 184 176 200" stroke="currentColor" stroke-width="12" stroke-linecap="round" />
+                </svg>
+              </button>
+              <button type="button" class="glass-tool speed-pill" aria-label="Playback speed">1x</button>
+              <button type="button" class="glass-tool" aria-label="Volume" title="Volume">
+                <svg width="20" height="20" viewBox="0 0 256 256" fill="none" aria-hidden="true">
+                  <path d="M120 80L80 104V152L120 176V80Z" fill="currentColor" />
+                  <path d="M120 104C136 112 148 128 148 148C148 168 136 184 120 192" stroke="currentColor" stroke-width="14" stroke-linecap="round" />
+                  <path d="M120 88C148 100 168 128 168 160C168 192 148 220 120 232" stroke="currentColor" stroke-width="14" stroke-linecap="round" opacity="0.45" />
+                </svg>
+              </button>
+              <button type="button" class="glass-tool" aria-label="Fullscreen" title="Fullscreen">
+                <svg width="20" height="20" viewBox="0 0 256 256" fill="none" aria-hidden="true">
+                  <path d="M64 88V64H88" stroke="currentColor" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M168 64H192V88" stroke="currentColor" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M192 168V192H168" stroke="currentColor" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M88 192H64V168" stroke="currentColor" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+                  <rect x="72" y="72" width="112" height="112" rx="10" stroke="currentColor" stroke-width="14" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="up-next" aria-label="Up next">
+      <div class="up-next-head">
+        <div class="up-next-title">Up Next</div>
+        <label class="toggle">
+          <span>Autoplay</span>
+          <span class="toggle-switch on" role="switch" aria-checked="true" tabindex="0"></span>
+        </label>
+      </div>
+      <div class="queue-item">
+        <div class="folder-ic" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 256 256" fill="none">
+            <path d="M48 88H208V192C208 198.627 202.627 204 196 204H60C53.3726 204 48 198.627 48 192V88Z" fill="currentColor" fill-opacity="0.35" />
+            <path d="M48 76C48 69.3726 53.3726 64 60 64H104L120 80H196C202.627 80 208 85.3726 208 92V88H48V76Z" fill="currentColor" />
+          </svg>
+        </div>
+        <div class="queue-text">
+          <div class="queue-name">The.Wire.S03E05.Straight.and.True.1080p.BluRay.x264-DEMAND.mkv</div>
+          <div class="queue-sub">Next in queue</div>
+        </div>
+        <div class="queue-play" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 256 256" fill="currentColor">
+            <path d="M72 56L200 128L72 200V56Z" />
+          </svg>
+        </div>
+      </div>
+      <div class="queue-item">
+        <div class="folder-ic" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 256 256" fill="none">
+            <path d="M48 88H208V192C208 198.627 202.627 204 196 204H60C53.3726 204 48 198.627 48 192V88Z" fill="currentColor" fill-opacity="0.35" />
+            <path d="M48 76C48 69.3726 53.3726 64 60 64H104L120 80H196C202.627 80 208 85.3726 208 92V88H48V76Z" fill="currentColor" />
+          </svg>
+        </div>
+        <div class="queue-text">
+          <div class="queue-name">The.Wire.S03E06.Home.Rooms.1080p.BluRay.x264-DEMAND.mkv</div>
+          <div class="queue-sub">Then</div>
+        </div>
+        <div class="queue-play" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 256 256" fill="currentColor">
+            <path d="M72 56L200 128L72 200V56Z" />
+          </svg>
+        </div>
+      </div>
+    </aside>
+  </div>
+</body>
+</html>

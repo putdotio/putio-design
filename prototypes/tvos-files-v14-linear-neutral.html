@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="cursor/opus-4.6/ui-sh" />
+  <meta name="viewport" content="width=1920" />
+  <title>put.io tvOS — Files (v14 linear neutral)</title>
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+  <style>
+    :root {
+      --bg: #000;
+      --surface: rgba(255, 255, 255, 0.04);
+      --text: #fafafa;
+      --text-2: #a1a1aa;
+      --text-3: #71717a;
+      --text-4: #4a4a52;
+      --yellow: #fdce45;
+      --nav-glass: rgba(44, 44, 48, 0.6);
+      --nav-border: rgba(255, 255, 255, 0.08);
+      --row-sep: rgba(255, 255, 255, 0.04);
+      --icon-video: #3b82f6;
+      --icon-audio: #a855f7;
+      --icon-archive: #f97316;
+      --icon-document: #14b8a6;
+      --ease: cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: InterVariable, Inter, system-ui, sans-serif;
+      font-size: 18px;
+      line-height: 1.4;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .screen {
+      position: relative;
+      width: 1920px;
+      height: 1080px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Top nav pill */
+    .nav-wrap {
+      flex-shrink: 0;
+      padding-top: 36px;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .nav-pill {
+      width: 500px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      background: var(--nav-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--nav-border);
+      border-radius: 22px;
+    }
+
+    .nav-tab {
+      position: relative;
+      padding: 0 20px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text-3);
+      letter-spacing: -0.01em;
+      cursor: default;
+      transition: color 0.2s var(--ease);
+    }
+
+    .nav-tab.is-active {
+      color: var(--text);
+    }
+
+    .nav-tab.is-active::after {
+      content: "";
+      position: absolute;
+      bottom: 6px;
+      left: 20px;
+      right: 20px;
+      height: 2px;
+      background: var(--yellow);
+      border-radius: 1px;
+    }
+
+    .nav-tab.is-focused {
+      color: var(--text);
+    }
+
+    .nav-tab.is-focused::before {
+      content: "";
+      position: absolute;
+      bottom: 11px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--yellow);
+      box-shadow: 0 0 10px rgba(253, 206, 69, 0.45);
+    }
+
+    /* Toolbar row */
+    .toolbar {
+      flex-shrink: 0;
+      width: 100%;
+      padding: 40px 88px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 28px;
+    }
+
+    .breadcrumb {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .sort-chip {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-3);
+      padding: 8px 14px;
+      border-radius: 8px;
+      background: var(--surface);
+      letter-spacing: -0.01em;
+    }
+
+    /* List */
+    .list-scroll {
+      flex: 1;
+      width: 100%;
+      padding: 28px 88px 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .list-gap {
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .row {
+      position: relative;
+      flex-shrink: 0;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px 0 24px;
+      gap: 16px;
+      border-bottom: 1px solid var(--row-sep);
+      transition:
+        transform 0.2s var(--ease),
+        background 0.2s var(--ease),
+        color 0.2s var(--ease),
+        box-shadow 0.2s var(--ease);
+    }
+
+    .row:last-child {
+      border-bottom: none;
+    }
+
+    .row-icon {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .row-icon svg {
+      display: block;
+    }
+
+    .row-name {
+      flex: 1;
+      min-width: 0;
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .row-meta {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .row-size {
+      font-size: 18px;
+      font-weight: 450;
+      color: var(--text-3);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.01em;
+      transition: color 0.2s var(--ease);
+    }
+
+    .row-chevron {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      color: var(--text-4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s var(--ease);
+    }
+
+    .row.is-focused {
+      transform: scale(1.02);
+      transform-origin: center center;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      border-bottom-color: transparent;
+      box-shadow:
+        -4px 0 12px rgba(253, 206, 69, 0.15),
+        0 8px 32px rgba(0, 0, 0, 0.45);
+    }
+
+    .row.is-focused::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 10px;
+      bottom: 10px;
+      width: 3px;
+      background: var(--yellow);
+      border-radius: 0 2px 2px 0;
+      box-shadow: 0 0 16px rgba(253, 206, 69, 0.35);
+    }
+
+    .row.is-focused .row-name {
+      color: #fff;
+      text-shadow: 0 1px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .row.is-focused .row-size {
+      color: var(--text-2);
+    }
+
+    .row.is-focused .row-chevron {
+      color: var(--text-3);
+    }
+
+    /* Footer */
+    .footer {
+      flex-shrink: 0;
+      width: 100%;
+      padding: 32px 88px 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .storage-label {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text-3);
+      letter-spacing: -0.01em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .storage-label strong {
+      color: var(--text-2);
+      font-weight: 600;
+    }
+
+    .storage-track {
+      width: min(720px, calc(100% - 176px));
+      height: 2px;
+      border-radius: 1px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .storage-fill {
+      height: 100%;
+      width: 22%;
+      background: var(--yellow);
+      border-radius: 1px;
+      box-shadow: 0 0 12px rgba(253, 206, 69, 0.25);
+    }
+  </style>
+</head>
+<body>
+  <div class="screen" role="presentation">
+    <div class="nav-wrap">
+      <nav class="nav-pill" aria-label="Main">
+        <span class="nav-tab">Home</span>
+        <span class="nav-tab is-active is-focused">Files</span>
+        <span class="nav-tab">Search</span>
+        <span class="nav-tab">Settings</span>
+      </nav>
+    </div>
+
+    <div class="toolbar">
+      <div class="breadcrumb">Your Files</div>
+      <div class="sort-chip">Name ↓</div>
+    </div>
+
+    <div class="list-scroll">
+      <div class="list">
+        <div class="row folder-row" role="listitem">
+          <span class="row-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 8.5C4 7.12 5.12 6 6.5 6H9.21C9.76 6 10.28 6.27 10.6 6.73L11.4 7.87C11.72 8.33 12.24 8.6 12.79 8.6H17.5C18.88 8.6 20 9.72 20 11.1V16.5C20 17.88 18.88 19 17.5 19H6.5C5.12 19 4 17.88 4 16.5V8.5Z" fill="var(--yellow)" />
+            </svg>
+          </span>
+          <span class="row-name">movies</span>
+          <div class="row-meta">
+            <span class="row-size">142.8 GB</span>
+            <span class="row-chevron">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="row folder-row" role="listitem">
+          <span class="row-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 8.5C4 7.12 5.12 6 6.5 6H9.21C9.76 6 10.28 6.27 10.6 6.73L11.4 7.87C11.72 8.33 12.24 8.6 12.79 8.6H17.5C18.88 8.6 20 9.72 20 11.1V16.5C20 17.88 18.88 19 17.5 19H6.5C5.12 19 4 17.88 4 16.5V8.5Z" fill="var(--yellow)" />
+            </svg>
+          </span>
+          <span class="row-name">tv-shows</span>
+          <div class="row-meta">
+            <span class="row-size">86.3 GB</span>
+            <span class="row-chevron">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="row folder-row" role="listitem">
+          <span class="row-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 8.5C4 7.12 5.12 6 6.5 6H9.21C9.76 6 10.28 6.27 10.6 6.73L11.4 7.87C11.72 8.33 12.24 8.6 12.79 8.6H17.5C18.88 8.6 20 9.72 20 11.1V16.5C20 17.88 18.88 19 17.5 19H6.5C5.12 19 4 17.88 4 16.5V8.5Z" fill="var(--yellow)" />
+            </svg>
+          </span>
+          <span class="row-name">music</span>
+          <div class="row-meta">
+            <span class="row-size">12.1 GB</span>
+            <span class="row-chevron">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="row folder-row" role="listitem">
+          <span class="row-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 8.5C4 7.12 5.12 6 6.5 6H9.21C9.76 6 10.28 6.27 10.6 6.73L11.4 7.87C11.72 8.33 12.24 8.6 12.79 8.6H17.5C18.88 8.6 20 9.72 20 11.1V16.5C20 17.88 18.88 19 17.5 19H6.5C5.12 19 4 17.88 4 16.5V8.5Z" fill="var(--yellow)" />
+            </svg>
+          </span>
+          <span class="row-name">documents</span>
+          <div class="row-meta">
+            <span class="row-size">890 MB</span>
+            <span class="row-chevron">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="list-gap" aria-hidden="true"></div>
+
+        <div class="row file-row" role="listitem">
+          <span class="row-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3.5" y="5.5" width="17" height="13" rx="2" stroke="var(--icon-video)" stroke-width="1.75" />
+              <path d="M10 10.5L15 13L10 15.5V10.5Z" fill="var(--icon-video)" />
+            </svg>
+          </span>
+          <span class="row-name">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</span>
+          <div class="row-meta">
+            <span class="row-size">1.2 GB</span>
+          </div>
+        </div>
+
+        <div class="row file-row is-focused" role="listitem" aria-current="true">
+          <span class="row-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3.5" y="5.5" width="17" height="13" rx="2" stroke="var(--icon-video)" stroke-width="1.75" />
+              <path d="M10 10.5L15 13L10 15.5V10.5Z" fill="var(--icon-video)" />
+            </svg>
+          </span>
+          <span class="row-name">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</span>
+          <div class="row-meta">
+            <span class="row-size">698 MB</span>
+          </div>
+        </div>
+
+        <div class="row file-row" role="listitem">
+          <span class="row-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 4.5H14L18 8.5V18.5C18 19.05 17.55 19.5 17 19.5H6C5.45 19.5 5 19.05 5 18.5V5.5C5 4.95 5.45 4.5 6 4.5Z" stroke="var(--icon-archive)" stroke-width="1.75" stroke-linejoin="round" />
+              <path d="M14 4.5V8.5H18" stroke="var(--icon-archive)" stroke-width="1.75" stroke-linejoin="round" />
+              <path d="M8 12.5H15M8 15.5H13" stroke="var(--icon-archive)" stroke-width="1.75" stroke-linecap="round" />
+            </svg>
+          </span>
+          <span class="row-name">ubuntu-24.04.1-desktop-amd64.iso</span>
+          <div class="row-meta">
+            <span class="row-size">4.7 GB</span>
+          </div>
+        </div>
+
+        <div class="row file-row" role="listitem">
+          <span class="row-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 18.5V5.5L18.5 12L8 18.5Z" stroke="var(--icon-audio)" stroke-width="1.75" stroke-linejoin="round" />
+              <path d="M5.5 8.5V15.5" stroke="var(--icon-audio)" stroke-width="1.75" stroke-linecap="round" />
+            </svg>
+          </span>
+          <span class="row-name">podcast_ep127_final_mixdown_v2.mp3</span>
+          <div class="row-meta">
+            <span class="row-size">45.2 MB</span>
+          </div>
+        </div>
+
+        <div class="row file-row" role="listitem">
+          <span class="row-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 4.5H17C17.55 4.5 18 4.95 18 5.5V18.5C18 19.05 17.55 19.5 17 19.5H7C6.45 19.5 6 19.05 6 18.5V5.5C6 4.95 6.45 4.5 7 4.5Z" stroke="var(--icon-document)" stroke-width="1.75" />
+              <path d="M8 8.5H16M8 12H14" stroke="var(--icon-document)" stroke-width="1.75" stroke-linecap="round" />
+            </svg>
+          </span>
+          <span class="row-name">document-scan-march-2026.pdf</span>
+          <div class="row-meta">
+            <span class="row-size">2.1 MB</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <div class="storage-label"><strong>11 TB</strong> / 50 TB</div>
+      <div class="storage-track" role="presentation">
+        <div class="storage-fill"></div>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

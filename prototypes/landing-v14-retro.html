@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="cursor/opus-4.6/ui-sh">
+  <title>put.io — Cloud storage since 2011</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0F0E0C;
+      --bg-elevated: #161411;
+      --amber: #C9A227;
+      --amber-muted: rgba(201, 162, 39, 0.35);
+      --yellow: #FDCE45;
+      --text: #E8E4DC;
+      --text-dim: #9A9488;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 120% 80% at 50% -20%, rgba(201, 162, 39, 0.08), transparent 55%),
+        radial-gradient(ellipse 80% 50% at 100% 50%, rgba(253, 206, 69, 0.04), transparent 45%);
+    }
+
+    .scanlines {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0.02) 0px,
+        rgba(255, 255, 255, 0.02) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+    }
+
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding-left: 24px;
+      padding-right: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Nav */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 24px 0;
+      border-bottom: 1px dashed var(--amber-muted);
+    }
+
+    .nav-brand {
+      font-family: "Space Mono", ui-monospace, monospace;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-shadow: 0 0 12px rgba(253, 206, 69, 0.25);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-links a {
+      font-family: "Inter", sans-serif;
+      font-size: 14px;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s ease, text-shadow 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--amber);
+      text-shadow: 0 0 8px rgba(253, 206, 69, 0.2);
+    }
+
+    .nav-cta {
+      font-family: "Inter", sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 0;
+      border: 1px dashed var(--yellow);
+      background: rgba(253, 206, 69, 0.08);
+      color: var(--yellow);
+      text-decoration: none;
+      text-shadow: 0 0 10px rgba(253, 206, 69, 0.35);
+      box-shadow: 0 0 20px rgba(253, 206, 69, 0.12);
+      transition: background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .nav-cta:hover {
+      background: rgba(253, 206, 69, 0.15);
+      box-shadow: 0 0 28px rgba(253, 206, 69, 0.2);
+    }
+
+    /* Sections */
+    section {
+      padding: 80px 0;
+    }
+
+    /* Hero */
+    .hero-headline {
+      font-family: "Space Mono", ui-monospace, monospace;
+      font-weight: 700;
+      font-size: clamp(1.75rem, 4vw, 2.75rem);
+      line-height: 1.15;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      text-shadow:
+        0 0 10px rgba(253, 206, 69, 0.3),
+        0 0 24px rgba(253, 206, 69, 0.12),
+        0 0 40px rgba(201, 162, 39, 0.08);
+      margin: 0 0 20px 0;
+    }
+
+    .hero-headline .cursor {
+      display: inline-block;
+      font-weight: 400;
+      color: var(--yellow);
+      text-shadow: 0 0 12px rgba(253, 206, 69, 0.5);
+      animation: blink 1s step-end infinite;
+      margin-left: 2px;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .hero-sub {
+      font-family: "Inter", sans-serif;
+      font-size: 17px;
+      color: var(--text-dim);
+      max-width: 520px;
+      margin: 0 0 40px 0;
+    }
+
+    .mock {
+      margin: 0;
+      padding: 20px 24px;
+      font-family: "Space Mono", ui-monospace, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--amber);
+      background: var(--bg-elevated);
+      border: 1px dashed var(--amber-muted);
+      border-radius: 0;
+      overflow-x: auto;
+      text-shadow: 0 0 6px rgba(201, 162, 39, 0.25);
+      box-shadow:
+        inset 0 0 60px rgba(0, 0, 0, 0.35),
+        0 0 40px rgba(253, 206, 69, 0.06);
+    }
+
+    /* Features */
+    .features-title {
+      font-family: "Space Mono", monospace;
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      text-shadow: 0 0 10px rgba(253, 206, 69, 0.25);
+      margin: 0 0 32px 0;
+      padding-bottom: 16px;
+      border-bottom: 1px dashed var(--amber-muted);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border: 1px dashed var(--amber-muted);
+      border-radius: 0;
+    }
+
+    .feature {
+      padding: 28px 24px;
+      border-right: 1px dashed var(--amber-muted);
+      border-bottom: 1px dashed var(--amber-muted);
+    }
+
+    .feature:nth-child(2n) {
+      border-right: none;
+    }
+
+    .features-grid .feature:nth-last-child(-n+2) {
+      border-bottom: none;
+    }
+
+    @media (max-width: 640px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      .feature {
+        border-right: none;
+      }
+      .features-grid .feature:nth-last-child(-n+2) {
+        border-bottom: 1px dashed var(--amber-muted);
+      }
+      .features-grid .feature:last-child {
+        border-bottom: none;
+      }
+    }
+
+    .feature h3 {
+      font-family: "Space Mono", monospace;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text);
+      text-shadow: 0 0 8px rgba(253, 206, 69, 0.15);
+      margin: 0 0 12px 0;
+    }
+
+    .feature p {
+      font-family: "Inter", sans-serif;
+      font-size: 14px;
+      color: var(--text-dim);
+      margin: 0;
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      text-align: center;
+      padding: 48px 24px;
+      border: 1px dashed var(--amber-muted);
+      border-radius: 0;
+      background: rgba(22, 20, 17, 0.6);
+    }
+
+    @media (max-width: 640px) {
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-value {
+      font-family: "Space Mono", monospace;
+      font-weight: 700;
+      font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+      letter-spacing: 0.06em;
+      color: var(--yellow);
+      text-shadow:
+        0 0 12px rgba(253, 206, 69, 0.45),
+        0 0 28px rgba(253, 206, 69, 0.2);
+      margin: 0 0 8px 0;
+    }
+
+    .stat-label {
+      font-family: "Inter", sans-serif;
+      font-size: 12px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin: 0;
+    }
+
+    /* Footer */
+    .footer {
+      padding: 48px 0 80px;
+      border-top: 1px dashed var(--amber-muted);
+    }
+
+    .footer pre {
+      font-family: "Space Mono", ui-monospace, monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-dim);
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .footer .accent {
+      color: var(--amber);
+      text-shadow: 0 0 8px rgba(253, 206, 69, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <header class="wrap">
+    <nav class="nav" aria-label="Primary">
+      <span class="nav-brand">PUT.IO</span>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#stats">About</a></li>
+        <li><a href="#footer">Contact</a></li>
+      </ul>
+      <a class="nav-cta" href="#">Enter</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="wrap" aria-labelledby="hero-heading">
+      <h1 id="hero-heading" class="hero-headline">
+        CLOUD STORAGE SINCE 2011<span class="cursor" aria-hidden="true">|</span>
+      </h1>
+      <p class="hero-sub">
+        Your files, fetched and stored in the cloud. Torrents, direct links, and integrations—built for people who still appreciate a terminal and a warm phosphor glow.
+      </p>
+      <pre class="mock" role="img" aria-label="ASCII file browser mockup">┌─────────────────────────────────┐
+│ &gt; movies/          142.8 GB     │
+│ &gt; tv-shows/         86.3 GB    │
+│   The.Wire.S03E04...  1.2 GB   │
+│   ubuntu-24.04...     4.7 GB   │
+└─────────────────────────────────┘</pre>
+    </section>
+
+    <section class="wrap" id="features" aria-labelledby="features-heading">
+      <h2 id="features-heading" class="features-title">// capabilities</h2>
+      <div class="features-grid">
+        <article class="feature">
+          <h3>Fetch anywhere</h3>
+          <p>Add torrents, magnet links, or paste a URL. We pull it in and keep it organized in your cloud drive.</p>
+        </article>
+        <article class="feature">
+          <h3>Stream &amp; share</h3>
+          <p>Play video in the browser, generate links, and connect apps you already use—without leaving the tab.</p>
+        </article>
+        <article class="feature">
+          <h3>Automation</h3>
+          <p>APIs and tools for power users. Script uploads, sync folders, and wire put.io into your own workflows.</p>
+        </article>
+        <article class="feature">
+          <h3>Privacy minded</h3>
+          <p>Your account, your files. We focus on reliable storage and sensible defaults—not noisy dashboards.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="wrap" id="stats" aria-labelledby="stats-heading">
+      <h2 id="stats-heading" class="visually-hidden">Stats</h2>
+      <div class="stats">
+        <div>
+          <p class="stat-value">15+ YEARS</p>
+          <p class="stat-label">Running</p>
+        </div>
+        <div>
+          <p class="stat-value">ISTANBUL</p>
+          <p class="stat-label">Home base</p>
+        </div>
+        <div>
+          <p class="stat-value">1M+ DL</p>
+          <p class="stat-label">Apps &amp; tools</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap footer" id="footer">
+    <pre>&gt; <span class="accent">put.io</span> // istanbul // 2011-present // ᕦ(ò_óˇ)ᕤ</pre>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1440, height=900">
+  <meta name="generator" content="cursor/opus-4.6/ui-sh">
+  <title>put.io — Transfers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: "Inter", system-ui, sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      background: #000;
+      color: #fff;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: geometricPrecision;
+    }
+    .shell {
+      width: 1440px;
+      height: 900px;
+      display: flex;
+      background: #000;
+    }
+    /* Sidebar — 200px */
+    .sidebar {
+      width: 200px;
+      min-width: 200px;
+      background: #000;
+      border-right: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 0 24px 0;
+    }
+    .brand {
+      padding: 0 24px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 16px;
+      margin-bottom: 32px;
+    }
+    .nav {
+      list-style: none;
+      flex: 1;
+    }
+    .nav li { margin: 0; }
+    .nav a {
+      display: block;
+      padding: 8px 24px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      line-height: 16px;
+    }
+    .nav a:hover { color: #fff; }
+    .nav a.is-active {
+      color: #fff;
+      border-left-color: #FDCE45;
+    }
+    .storage {
+      padding: 16px 24px 0;
+      font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.06em;
+      color: rgba(255, 255, 255, 0.3);
+      line-height: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      margin-top: auto;
+    }
+    .storage strong {
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 500;
+    }
+    /* Main */
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 24px 32px 24px 32px;
+    }
+    .title-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      line-height: 32px;
+      color: #fff;
+    }
+    .tabs {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      margin-bottom: 24px;
+      min-height: 24px;
+    }
+    .tabs a {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      padding-bottom: 8px;
+      border-bottom: 2px solid transparent;
+      line-height: 16px;
+    }
+    .tabs a:hover { color: #fff; }
+    .tabs a.is-active {
+      color: #fff;
+      border-bottom-color: #FDCE45;
+    }
+    /* Table */
+    .table-wrap {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .xfer-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    .xfer-table thead th {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.3);
+      text-align: left;
+      padding: 0 0 8px 0;
+      line-height: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      vertical-align: bottom;
+    }
+    .xfer-table thead th:nth-child(1) { width: 48px; padding-left: 0; text-align: center; }
+    .xfer-table thead th:nth-child(2) { width: auto; }
+    .xfer-table thead th:nth-child(3) { width: 160px; }
+    .xfer-table thead th:nth-child(4) { width: 112px; }
+    .xfer-table thead th:nth-child(5) { width: 112px; }
+    .xfer-table thead th:nth-child(6) { width: 96px; text-align: right; }
+    .xfer-table tbody td {
+      height: 48px;
+      padding: 0;
+      vertical-align: middle;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 16px;
+    }
+    .xfer-table tbody td:nth-child(6) { text-align: right; }
+    .icon-cell { text-align: center; }
+    .icon-cell svg { display: block; margin: 0 auto; }
+    .name-cell {
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.6);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding-right: 16px;
+    }
+    .name-cell a {
+      color: inherit;
+      text-decoration: none;
+    }
+    .name-cell a:hover {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .tabular { font-variant-numeric: tabular-nums; }
+    .progress-cell { padding-right: 16px; }
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .progress-track {
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.15);
+      min-width: 48px;
+    }
+    .progress-fill {
+      height: 1px;
+      background: #FDCE45;
+      width: var(--p, 0%);
+      max-width: 100%;
+    }
+    .progress-pct {
+      flex-shrink: 0;
+      width: 40px;
+      text-align: right;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+    .progress-label {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+    .speed-up { color: rgba(255, 255, 255, 0.6); }
+    .row-error .name-cell,
+    .row-error .name-cell a { color: #FF453A; }
+    .row-error .err-msg { color: #FF453A; }
+    .muted { color: rgba(255, 255, 255, 0.3); }
+  </style>
+</head>
+<body>
+  <div class="shell" role="application" aria-label="put.io transfers">
+    <aside class="sidebar">
+      <div class="brand">Put.io</div>
+      <ul class="nav">
+        <li><a href="#">Files</a></li>
+        <li><a href="#" class="is-active" aria-current="page">Transfers</a></li>
+        <li><a href="#">History</a></li>
+        <li><a href="#">Trash</a></li>
+        <li><a href="#">RSS</a></li>
+        <li><a href="#">Links</a></li>
+        <li><a href="#">Family</a></li>
+      </ul>
+      <div class="storage"><strong>11</strong>/50 TB</div>
+    </aside>
+
+    <main class="main">
+      <div class="title-row">
+        <h1>Transfers</h1>
+      </div>
+      <nav class="tabs" aria-label="Transfer filters">
+        <a href="#">All</a>
+        <a href="#" class="is-active" aria-current="true">Active</a>
+        <a href="#">Completed</a>
+      </nav>
+
+      <div class="table-wrap">
+        <table class="xfer-table" aria-label="Transfers">
+          <thead>
+            <tr>
+              <th scope="col">Status</th>
+              <th scope="col">Name</th>
+              <th scope="col">Progress</th>
+              <th scope="col">Size</th>
+              <th scope="col">Speed</th>
+              <th scope="col">ETA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="icon-cell">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <circle cx="8" cy="8" r="5" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+                </svg>
+              </td>
+              <td class="name-cell"><a href="#">Succession.S04E10.With.Open.Eyes.1080p.WEB.h264-ETHEL.mkv</a></td>
+              <td class="progress-cell">
+                <div class="progress-wrap">
+                  <div class="progress-track"><div class="progress-fill" style="--p: 67%"></div></div>
+                  <span class="progress-pct tabular">67%</span>
+                </div>
+              </td>
+              <td class="tabular">5.9/8.9 GB</td>
+              <td class="tabular">42.3 MB/s</td>
+              <td class="tabular">1m 12s</td>
+            </tr>
+            <tr>
+              <td class="icon-cell">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <circle cx="8" cy="8" r="5" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+                </svg>
+              </td>
+              <td class="name-cell"><a href="#">ubuntu-24.04.1-desktop-amd64.iso</a></td>
+              <td class="progress-cell">
+                <div class="progress-wrap">
+                  <div class="progress-track"><div class="progress-fill" style="--p: 34%"></div></div>
+                  <span class="progress-pct tabular">34%</span>
+                </div>
+              </td>
+              <td class="tabular">1.6/4.7 GB</td>
+              <td class="tabular">28.1 MB/s</td>
+              <td class="tabular">3m 41s</td>
+            </tr>
+            <tr>
+              <td class="icon-cell">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <rect x="4" y="4" width="8" height="8" stroke="rgba(255,255,255,0.6)" stroke-width="1" fill="none"/>
+                </svg>
+              </td>
+              <td class="name-cell"><a href="#">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</a></td>
+              <td class="progress-cell"><span class="progress-label">done</span></td>
+              <td class="tabular">1.2 GB</td>
+              <td class="tabular speed-up">2.4 MB/s ↑</td>
+              <td class="tabular">ratio 1.2</td>
+            </tr>
+            <tr>
+              <td class="icon-cell">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M3 5h10L8 12 3 5z" stroke="rgba(255,255,255,0.6)" stroke-width="1" fill="none" stroke-linejoin="miter"/>
+                </svg>
+              </td>
+              <td class="name-cell"><a href="#">Miles.Davis.Kind.Of.Blue.1959.flac</a></td>
+              <td class="progress-cell"><span class="progress-label muted">waiting</span></td>
+              <td class="tabular">1.4 GB</td>
+              <td class="tabular muted">—</td>
+              <td class="tabular muted">—</td>
+            </tr>
+            <tr>
+              <td class="icon-cell">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M4 8.5l2.5 2.5L12 5" stroke="rgba(255,255,255,0.6)" stroke-width="1" fill="none" stroke-linecap="square"/>
+                </svg>
+              </td>
+              <td class="name-cell"><a href="#">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</a></td>
+              <td class="progress-cell"><span class="progress-label">done</span></td>
+              <td class="tabular">698 MB</td>
+              <td class="tabular muted">—</td>
+              <td class="tabular muted">—</td>
+            </tr>
+            <tr class="row-error">
+              <td class="icon-cell">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M5 5l6 6M11 5l-6 6" stroke="#FF453A" stroke-width="1" stroke-linecap="square"/>
+                </svg>
+              </td>
+              <td class="name-cell"><a href="#">homework_answers_DONT_DELETE.zip</a></td>
+              <td class="progress-cell"><span class="progress-label err-msg">failed</span></td>
+              <td class="tabular muted">—</td>
+              <td class="tabular muted">—</td>
+              <td class="tabular err-msg">Connection lost</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
