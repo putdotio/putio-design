@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=1920" name="viewport"/>
+<link href="/favicon/favicon.svg" rel="icon" type="image/svg+xml"/>
+<meta content="#000000" name="theme-color"/>
+<meta content="cursor/gpt-5.4/ui-sh" name="generator"/>
+<title>put.io — tvOS Home (v15 Linear Neutral) — Shelves</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #000000;
+    --surface: #111113;
+    --row: #161618;
+    --border: rgba(255, 255, 255, 0.06);
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+  }
+  html, body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 18px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+  }
+  .proto-shell { width: 1920px; height: 1080px; position: relative; }
+  .proto-shell .proto-frame { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .min-w-0 { min-width: 0; }
+  .screen {
+    height: 1080px;
+    display: flex;
+    flex-direction: column;
+    padding: 44px 80px 36px;
+    background: linear-gradient(180deg, #050506 0%, var(--bg) 28%);
+  }
+  .top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 32px;
+    margin-bottom: 24px;
+    flex-shrink: 0;
+  }
+  .brand {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+  .brand span { color: var(--yellow); }
+  .top-meta {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 17px;
+    color: var(--text-3);
+  }
+  .remote-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.04);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-2);
+  }
+  .remote-hint kbd {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--yellow);
+    letter-spacing: 0.04em;
+  }
+  .section-label {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 12px;
+  }
+  .file-row {
+    display: grid;
+    grid-template-columns: 52px 1fr auto;
+    align-items: center;
+    gap: 18px 24px;
+    min-height: 84px;
+    padding: 12px 20px;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    background: transparent;
+    transition: background 0.18s var(--ease), transform 0.18s var(--ease), box-shadow 0.18s var(--ease), border-color 0.18s var(--ease);
+  }
+  .file-row + .file-row { margin-top: 6px; }
+  .file-row.focused {
+    background: var(--row);
+    border-color: rgba(253, 206, 69, 0.35);
+    transform: scale(1.008);
+    transform-origin: center left;
+    box-shadow: 0 0 0 2px rgba(253, 206, 69, 0.45), 0 12px 40px rgba(0, 0, 0, 0.45);
+  }
+  .file-row.focused .ico { color: var(--yellow); }
+  .ico {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-3);
+  }
+  .name {
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+  .meta {
+    font-size: 17px;
+    color: var(--text-3);
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .side-meta {
+    font-size: 17px;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .progress-track {
+    grid-column: 2 / -1;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    margin-top: 4px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+  /* Guide: split */
+  .guide-body {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 40px;
+  }
+  .rail {
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .rail button {
+    width: 100%;
+    text-align: left;
+    min-height: 64px;
+    padding: 0 16px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-2);
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: default;
+    transition: color 0.18s var(--ease), background 0.18s var(--ease), box-shadow 0.18s var(--ease), border-color 0.18s var(--ease), transform 0.18s var(--ease);
+  }
+  .rail button:focus { outline: none; }
+  .rail button:focus-visible {
+    color: var(--text);
+    background: var(--row);
+    border-color: var(--yellow);
+    box-shadow: 0 0 0 2px rgba(253, 206, 69, 0.35);
+    transform: scale(1.02);
+  }
+  .rail button.active {
+    color: #000;
+    background: var(--yellow);
+    border-color: var(--yellow);
+  }
+  .rail button.active:focus-visible {
+    box-shadow: 0 0 0 3px rgba(253, 206, 69, 0.55);
+  }
+  .guide-main {
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 20px 24px 24px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .guide-main .scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .guide-main .scroll::-webkit-scrollbar { display: none; }
+  /* Shelves */
+  .shelves-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    overflow: hidden;
+  }
+  .shelf {
+    flex-shrink: 0;
+  }
+  .shelf-scroll {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+  }
+  .shelf-scroll::-webkit-scrollbar { display: none; }
+  .shelf-card {
+    flex: 0 0 520px;
+    min-height: 112px;
+    padding: 18px 20px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--row);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease), border-color 0.18s var(--ease);
+  }
+  .shelf-card.focused {
+    transform: scale(1.03);
+    border-color: var(--yellow);
+    box-shadow: 0 0 0 2px rgba(253, 206, 69, 0.4), 0 16px 48px rgba(0, 0, 0, 0.5);
+  }
+  .shelf-card .name { font-size: 20px; }
+  .shelf-card .meta { font-size: 16px; }
+  /* List */
+  .list-body {
+    flex: 1;
+    min-height: 0;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .list-scroll {
+    height: 100%;
+    overflow-y: auto;
+    padding: 20px 24px 28px;
+    scrollbar-width: none;
+  }
+  .list-scroll::-webkit-scrollbar { display: none; }
+  .block + .block { margin-top: 28px; }
+  .folder-row .name { font-family: ui-monospace, monospace; font-size: 20px; font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="proto-shell"><section aria-labelledby="home-shelves-title" class="screen proto-frame">
+<header class="top">
+<div>
+<p class="brand" id="home-shelves-title">put<span>.</span>io</p>
+<p class="section-label" style="margin-top:8px;margin-bottom:0">Home · text-led shelves</p>
+</div>
+<div class="top-meta">
+<span class="remote-hint"><kbd>←</kbd><kbd>→</kbd> across rows · <kbd>↓</kbd> next shelf</span>
+<span>Altay · Plus</span>
+</div>
+</header>
+<div class="shelves-body">
+<div class="shelf">
+<p class="section-label">Continue watching</p>
+<div class="shelf-scroll">
+<div class="shelf-card focused" tabindex="0">
+<p class="name">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</p>
+<p class="meta">Progress 61% · tap play to resume</p>
+<div class="progress-track" style="grid-column:unset;margin-top:6px"><div class="progress-fill" style="width:61%"></div></div>
+</div>
+<div class="shelf-card" tabindex="0">
+<p class="name">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</p>
+<p class="meta">Progress 12%</p>
+<div class="progress-track" style="margin-top:6px"><div class="progress-fill" style="width:12%"></div></div>
+</div>
+<div class="shelf-card" tabindex="0">
+<p class="name">podcast_ep127_final_mixdown_v2.mp3</p>
+<p class="meta">Progress 34%</p>
+<div class="progress-track" style="margin-top:6px"><div class="progress-fill" style="width:34%"></div></div>
+</div>
+</div>
+</div>
+<div class="shelf">
+<p class="section-label">Recent files</p>
+<div class="shelf-scroll">
+<div class="shelf-card" tabindex="0">
+<p class="name">ubuntu-24.04.1-desktop-amd64.iso</p>
+<p class="meta">Added today · 4.4 GB</p>
+</div>
+<div class="shelf-card" tabindex="0">
+<p class="name">document-scan-march-2026.pdf</p>
+<p class="meta">Added today</p>
+</div>
+<div class="shelf-card" tabindex="0">
+<p class="name">IMG_4392.HEIC</p>
+<p class="meta">Added yesterday</p>
+</div>
+</div>
+</div>
+<div class="shelf">
+<p class="section-label">Pinned folders</p>
+<div class="shelf-scroll">
+<div class="shelf-card" tabindex="0">
+<p class="name" style="font-family:ui-monospace,monospace">homework_answers_DONT_DELETE</p>
+<p class="meta">Folder · 128 items</p>
+</div>
+<div class="shelf-card" tabindex="0">
+<p class="name" style="font-family:ui-monospace,monospace">/TV</p>
+<p class="meta">Folder · pinned from phone</p>
+</div>
+</div>
+</div>
+</div>
+</section></div>
+
+</body>
+</html>

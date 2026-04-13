@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=1920" name="viewport"/>
+<link href="/favicon/favicon.svg" rel="icon" type="image/svg+xml"/>
+<meta content="#000000" name="theme-color"/>
+<meta content="cursor/gpt-5.4/ui-sh" name="generator"/>
+<title>put.io — tvOS Auth (v15 Linear Neutral) — Waiting Room</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #000000;
+    --surface: #111113;
+    --elevated: #1C1C1E;
+    --border: rgba(255, 255, 255, 0.08);
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --yellow-glow: rgba(253, 206, 69, 0.14);
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+  }
+  html, body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .proto-shell {
+    width: 1920px;
+    height: 1080px;
+    position: relative;
+  }
+  .proto-shell .proto-frame {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0;
+  }
+  .auth-shell {
+    min-height: 1080px;
+    padding: 72px 96px 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background:
+      radial-gradient(ellipse 90% 55% at 50% 38%, var(--yellow-glow) 0%, transparent 55%),
+      var(--bg);
+  }
+  .brand {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 48px;
+  }
+  .brand span { color: var(--yellow); }
+  .eyebrow {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 16px;
+  }
+  .title {
+    font-size: 44px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    max-width: 920px;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .lede {
+    font-size: 22px;
+    line-height: 1.5;
+    color: var(--text-2);
+    max-width: 760px;
+    margin-bottom: 40px;
+  }
+  .code-strip {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    margin-bottom: 36px;
+  }
+  .code-cell {
+    width: 88px;
+    height: 104px;
+    border-radius: 16px;
+    background: var(--elevated);
+    border: 2px solid var(--border);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 48px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.02em;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  }
+  .link-row {
+    font-size: 24px;
+    color: var(--text-2);
+    margin-bottom: 8px;
+  }
+  .link-strong {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--yellow);
+    letter-spacing: -0.02em;
+  }
+  .meta-line {
+    font-size: 18px;
+    color: var(--text-3);
+    margin-top: 28px;
+  }
+  .split {
+    display: flex;
+    align-items: stretch;
+    gap: 40px;
+    max-width: 1040px;
+    width: 100%;
+    margin-top: 8px;
+  }
+  .qr-card {
+    width: 200px;
+    flex-shrink: 0;
+    border-radius: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  }
+  .qr-card:focus-visible {
+    outline: none;
+    transform: scale(1.04);
+    box-shadow:
+      0 0 0 3px var(--yellow),
+      0 0 32px rgba(253, 206, 69, 0.28);
+  }
+  .qr-placeholder {
+    width: 148px;
+    height: 148px;
+    border-radius: 12px;
+    background: repeating-linear-gradient(
+      45deg,
+      #2a2a2e,
+      #2a2a2e 8px,
+      #1a1a1e 8px,
+      #1a1a1e 16px
+    );
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .qr-caption {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-2);
+    text-align: center;
+    line-height: 1.35;
+  }
+  .stack-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .trust {
+    margin-top: 40px;
+    font-size: 18px;
+    color: var(--text-3);
+    max-width: 640px;
+    line-height: 1.55;
+  }
+  .waiting-panel {
+    margin-top: 32px;
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 28px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text-2);
+  }
+  .spinner {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.12);
+    border-top-color: var(--yellow);
+    animation: spin 0.85s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .phone-layout {
+    max-width: 1100px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 48px;
+    align-items: center;
+    text-align: left;
+  }
+  .phone-frame {
+    border-radius: 28px;
+    padding: 32px 28px;
+    background: linear-gradient(165deg, #161618 0%, #0d0d0f 100%);
+    border: 1px solid var(--border);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+  }
+  .phone-frame:focus-within {
+    box-shadow:
+      0 0 0 3px var(--yellow),
+      0 24px 80px rgba(0, 0, 0, 0.55);
+  }
+  .phone-kicker {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: 12px;
+  }
+  .phone-title {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .phone-body {
+    font-size: 18px;
+    color: var(--text-2);
+    line-height: 1.5;
+    margin-bottom: 24px;
+  }
+  .mini-code {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .mini-code span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: var(--elevated);
+    border: 1px solid var(--border);
+  }
+  .pill-btn {
+    margin-top: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    padding: 0 28px;
+    border-radius: 14px;
+    border: none;
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 600;
+    background: var(--yellow);
+    color: #000;
+    cursor: default;
+    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  }
+  .pill-btn:focus-visible {
+    outline: none;
+    transform: scale(1.04);
+    box-shadow: 0 0 0 3px rgba(253, 206, 69, 0.45), 0 0 28px rgba(253, 206, 69, 0.35);
+  }
+  .waiting-room .code-strip { opacity: 0.92; transform: scale(0.96); }
+  .waiting-room .title { font-size: 40px; }
+  .subtle-pulse {
+    animation: pulse-soft 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.72; }
+  }
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
+</head>
+<body>
+<div class="proto-shell"><section aria-labelledby="v3-title" class="auth-shell waiting-room proto-frame">
+<div aria-hidden="true" class="brand">put<span>.</span>io</div>
+<p class="eyebrow">Almost there</p>
+<h1 class="title" id="v3-title">Hang tight — we are pairing with your account</h1>
+<p class="lede">Leave this screen open. When you finish on your phone, we will jump you straight to your files. No need to re-enter the code if you are quick.</p>
+<div aria-label="Device code" class="code-strip" role="group">
+<div class="code-cell">K</div>
+<div class="code-cell">7</div>
+<div class="code-cell">Q</div>
+<div class="code-cell">2</div>
+<div class="code-cell">N</div>
+<div class="code-cell">9</div>
+</div>
+<p class="link-row">Still need the page?</p>
+<p class="link-strong">put.io/link</p>
+<div class="waiting-panel" style="margin-top:36px;font-size:22px;padding:22px 36px">
+<span aria-hidden="true" class="spinner"></span>
+<span>Waiting for authentication</span>
+</div>
+<div class="split" style="margin-top:48px;max-width:900px">
+<div aria-label="QR shortcut to put.io link" class="qr-card" role="button" style="width:100%;max-width:220px;margin:0 auto" tabindex="0">
+<svg aria-hidden="true" fill="none" height="120" viewbox="0 0 120 120" width="120" xmlns="http://www.w3.org/2000/svg">
+<rect fill="#0A0A0C" height="120" rx="14" width="120"></rect>
+<rect height="34" rx="6" stroke="#FDCE45" stroke-width="2.5" width="34" x="14" y="14"></rect>
+<rect height="34" rx="6" stroke="#FDCE45" stroke-width="2.5" width="34" x="72" y="14"></rect>
+<rect height="34" rx="6" stroke="#FDCE45" stroke-width="2.5" width="34" x="14" y="72"></rect>
+<path d="M56 56h28v28H56z" opacity="0.3" stroke="#FAFAFA" stroke-width="1.5"></path>
+</svg>
+<span class="qr-caption">Or scan to skip typing</span>
+</div>
+<div class="stack-main" style="text-align:left;align-items:flex-start">
+<p class="phone-title" style="font-size:24px;margin-bottom:10px">If nothing happens</p>
+<p class="phone-body" style="margin-bottom:0;font-size:19px">Check Wi‑Fi on both devices, confirm you approved the TV in the browser, then use Try again from the menu. Codes expire after about ten minutes to keep the living room safe.</p>
+</div>
+</div>
+<p class="trust">Premium does not mean pretending TV login is magic. It means generous type, obvious focus, and copy that respects the real, slightly awkward handoff.</p>
+</section></div>
+
+</body>
+</html>

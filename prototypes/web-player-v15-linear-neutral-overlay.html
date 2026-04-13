@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=1440" name="viewport"/>
+<link href="/favicon/favicon.svg" rel="icon" type="image/svg+xml"/>
+<meta content="#09090B" name="theme-color"/>
+<meta content="cursor/gpt-5.4/ui-sh" name="generator"/>
+<title>put.io — Player (v15 Linear Neutral) — Overlay</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --sidebar-bg: #0C0C0E;
+    --surface: #141416;
+    --elevated: #1A1A1D;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #52525B;
+    --yellow: #FDCE45;
+    --yellow-soft: rgba(253, 206, 69, 0.12);
+    --green: #34D399;
+    --sep: rgba(255, 255, 255, 0.06);
+    --font: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* —— Shared chrome —— */
+  .shell {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+  }
+
+  .rail {
+    width: 52px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--sep);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 0;
+    flex-shrink: 0;
+  }
+
+  .rail-mark {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--bg);
+    letter-spacing: -0.02em;
+  }
+
+  .rail-spacer { flex: 1; }
+
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--bg);
+  }
+
+  .top {
+    height: 48px;
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--sep);
+    flex-shrink: 0;
+  }
+
+  .crumb {
+    font-size: 12px;
+    color: var(--text-3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .crumb strong { color: var(--text-2); font-weight: 500; }
+
+  .crumb .here {
+    color: var(--text);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .top-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    color: var(--text-2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .icon-btn:hover {
+    color: var(--text);
+    border-color: rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.05);
+  }
+
+  .icon-btn svg { width: 18px; height: 18px; }
+
+  .fn {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-4);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* —— Filename treatment —— */
+  .raw-name {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+    word-break: break-all;
+  }
+
+  .raw-sub {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* —— CINEMA —— */
+  .cin-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 28px 28px;
+    gap: 20px;
+    min-height: 0;
+  }
+
+  .cin-stage-wrap {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cin-stage {
+    width: 100%;
+    max-width: 1120px;
+    aspect-ratio: 16 / 9;
+    border-radius: 14px;
+    background:
+      radial-gradient(120% 90% at 50% 40%, #1f2937 0%, #0b0f14 55%, #050608 100%);
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,0.6),
+      0 40px 80px -40px rgba(0,0,0,0.9);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cin-vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.55) 100%);
+  }
+
+  .cin-play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 72px;
+    height: 72px;
+    border-radius: 999px;
+    border: none;
+    background: var(--yellow);
+    color: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 18px 50px rgba(253, 206, 69, 0.22);
+  }
+
+  .cin-play svg { width: 28px; height: 28px; margin-left: 4px; }
+
+  .cin-bar {
+    position: absolute;
+    left: 28px;
+    right: 28px;
+    bottom: 22px;
+  }
+
+  .cin-track {
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.12);
+    overflow: hidden;
+  }
+
+  .cin-fill {
+    width: 42%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--yellow), #fbbf24);
+    border-radius: inherit;
+    position: relative;
+  }
+
+  .cin-knob {
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(0,0,0,0.35);
+  }
+
+  .cin-times {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 11px;
+    color: rgba(250,250,250,0.65);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cin-deck {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .cin-primary-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .pill-btn {
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.03);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .pill-btn svg { width: 16px; height: 16px; color: var(--text-2); }
+
+  .pill-btn.accent {
+    background: var(--yellow-soft);
+    border-color: rgba(253, 206, 69, 0.35);
+    color: var(--yellow);
+  }
+
+  .pill-btn.accent svg { color: var(--yellow); }
+
+  .cin-next {
+    width: 320px;
+    border-radius: 12px;
+    border: 1px solid var(--sep);
+    background: var(--surface);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .cin-next-h {
+    padding: 10px 14px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .cin-next-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    cursor: pointer;
+  }
+
+  .cin-next-row:hover { background: rgba(255,255,255,0.03); }
+
+  .cin-next-row.on { background: var(--yellow-soft); }
+
+  .cin-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+  }
+
+  .cin-next-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 12px;
+    color: var(--text-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cin-next-row.on .cin-next-name { color: var(--text); font-weight: 500; }
+
+  .cin-next-meta {
+    flex-shrink: 0;
+    font-size: 11px;
+    color: var(--text-4);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tag-now {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--yellow);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* —— OVERLAY —— */
+  .ov-body {
+    flex: 1;
+    position: relative;
+    min-height: 0;
+  }
+
+  .ov-canvas {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(9,9,11,0.2) 0%, transparent 28%),
+      radial-gradient(100% 70% at 50% 35%, #1e293b 0%, #0a0c10 52%, #040506 100%);
+  }
+
+  .ov-grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.07;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  .ov-ui {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 28px 26px;
+  }
+
+  .ov-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .ov-title-block {
+    max-width: 720px;
+  }
+
+  .ov-spacer { flex: 1; }
+
+  .ov-center-play {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ov-play {
+    width: 80px;
+    height: 80px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(10,10,12,0.55);
+    backdrop-filter: blur(14px);
+    color: var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .ov-play svg { width: 32px; height: 32px; margin-left: 4px; }
+
+  .ov-dock {
+    margin-top: auto;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(12,12,14,0.72);
+    backdrop-filter: blur(18px);
+    padding: 14px 16px 12px;
+  }
+
+  .ov-track {
+    height: 5px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.1);
+    overflow: hidden;
+  }
+
+  .ov-fill {
+    width: 42%;
+    height: 100%;
+    background: var(--yellow);
+  }
+
+  .ov-controls {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 12px;
+  }
+
+  .ov-controls .t {
+    font-size: 11px;
+    color: rgba(250,250,250,0.7);
+    font-variant-numeric: tabular-nums;
+    min-width: 42px;
+  }
+
+  .ov-icon-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 8px;
+  }
+
+  .ov-ico {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: var(--text-2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .ov-ico:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+
+  .ov-ico svg { width: 18px; height: 18px; }
+
+  .ov-ico.hot { color: var(--yellow); }
+
+  .ov-tail {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ov-chip {
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-2);
+    font-family: var(--font);
+    cursor: pointer;
+  }
+
+  /* —— SIDEBAR —— */
+  .sb-body {
+    flex: 1;
+    display: flex;
+    gap: 0;
+    min-height: 0;
+  }
+
+  .sb-player-col {
+    flex: 1.15;
+    min-width: 0;
+    padding: 22px 0 22px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .sb-video {
+    flex: 1;
+    min-height: 0;
+    border-radius: 14px;
+    border: 1px solid var(--sep);
+    background: linear-gradient(145deg, #111827, #030712);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sb-video::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(253,206,69,0.08), transparent 55%);
+    pointer-events: none;
+  }
+
+  .sb-mini-controls {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 18px;
+  }
+
+  .sb-track {
+    height: 3px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.12);
+  }
+
+  .sb-fill {
+    width: 42%;
+    height: 100%;
+    background: var(--yellow);
+    border-radius: inherit;
+  }
+
+  .sb-time {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 11px;
+    color: rgba(250,250,250,0.65);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sb-play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 64px;
+    height: 64px;
+    border-radius: 999px;
+    border: none;
+    background: var(--yellow);
+    color: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .sb-play svg { width: 24px; height: 24px; margin-left: 3px; }
+
+  .sb-side {
+    width: 380px;
+    flex-shrink: 0;
+    border-left: 1px solid var(--sep);
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .sb-side-head {
+    padding: 22px 24px 16px;
+    border-bottom: 1px solid var(--sep);
+  }
+
+  .sb-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .sb-btn {
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font);
+    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--elevated);
+    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .sb-btn svg { width: 15px; height: 15px; color: var(--text-2); }
+
+  .sb-btn.ghost {
+    background: transparent;
+    color: var(--text-2);
+  }
+
+  .sb-list {
+    flex: 1;
+    overflow: auto;
+    padding: 12px 0 20px;
+  }
+
+  .sb-section-label {
+    padding: 8px 24px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-4);
+  }
+
+  .sb-row {
+    padding: 12px 24px;
+    display: grid;
+    grid-template-columns: 10px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    cursor: pointer;
+  }
+
+  .sb-row:hover { background: rgba(255,255,255,0.03); }
+
+  .sb-row.active { background: var(--yellow-soft); }
+
+  .sb-row-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-4);
+  }
+
+  .sb-row.active .sb-row-dot { background: var(--green); }
+
+  .sb-row-name {
+    font-size: 12px;
+    color: var(--text-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  .sb-row.active .sb-row-name {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .sb-row-meta {
+    font-size: 11px;
+    color: var(--text-4);
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="rail">
+<div class="rail-mark">p</div>
+<div class="rail-spacer"></div>
+</aside>
+<div class="main">
+<div class="ov-body">
+<div class="ov-canvas"></div>
+<div class="ov-grain"></div>
+<div class="ov-ui">
+<div class="ov-top">
+<div class="ov-title-block">
+<div class="crumb" style="color:rgba(250,250,250,0.55)">Your files / tv-shows / Season 3</div>
+<div class="raw-name" style="margin-top:8px;color:#fff">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div>
+<div class="raw-sub" style="color:rgba(250,250,250,0.55)">1.2 GB · playing from cloud</div>
+</div>
+<div class="top-actions">
+<button aria-label="Close player" class="icon-btn" style="background:rgba(0,0,0,0.35);border-color:rgba(255,255,255,0.12)" type="button">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+</button>
+</div>
+</div>
+<div class="ov-spacer"></div>
+<div class="ov-center-play">
+<button aria-label="Play" class="ov-play" type="button">
+<svg fill="currentColor" viewbox="0 0 24 24"><polygon points="8 5 19 12 8 19 8 5"></polygon></svg>
+</button>
+</div>
+<div class="ov-dock">
+<div class="ov-track"><div class="ov-fill"></div></div>
+<div class="ov-controls">
+<span class="t">23:47</span>
+<div class="ov-icon-row">
+<button aria-label="Play pause" class="ov-ico" type="button">
+<svg fill="currentColor" viewbox="0 0 24 24"><rect height="14" rx="1" width="4" x="6" y="5"></rect><rect height="14" rx="1" width="4" x="14" y="5"></rect></svg>
+</button>
+<button aria-label="Skip back" class="ov-ico" type="button">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><polygon points="11 19 2 12 11 5 11 19"></polygon><path d="M22 19V5"></path></svg>
+</button>
+<button aria-label="Skip forward" class="ov-ico" type="button">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><polygon points="13 19 22 12 13 5 13 19"></polygon><path d="M2 19V5"></path></svg>
+</button>
+<button aria-label="Download to device" class="ov-ico hot" type="button">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>
+</button>
+</div>
+<span class="t" style="text-align:right">56:14</span>
+<div class="ov-tail">
+<button class="ov-chip" type="button">Subtitles</button>
+<button class="ov-chip" type="button">Audio</button>
+<button class="ov-chip" type="button">Speed</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

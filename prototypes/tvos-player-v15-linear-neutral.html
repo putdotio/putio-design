@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1920">
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<meta name="generator" content="cursor/gpt-5.4/ui-sh">
+<title>put.io — tvOS Player (v15 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #000000;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --yellow: #FDCE45;
+    --sep: rgba(255, 255, 255, 0.08);
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+  }
+  html, body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 18px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+  }
+  [data-uidotsh-pick] { width: 1920px; height: 1080px; position: relative; }
+  [data-uidotsh-option] { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .min-w-0 { min-width: 0; }
+  .stage {
+    width: 1920px;
+    height: 1080px;
+    position: relative;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, #1a1520 0%, transparent 55%),
+      linear-gradient(165deg, #0b0b10 0%, #000 100%);
+  }
+  .video-matte {
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 3px),
+      radial-gradient(circle at 50% 48%, rgba(253,206,69,0.06) 0%, transparent 42%);
+    opacity: 0.9;
+  }
+  .vignette-t {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 220px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.92) 0%, transparent 100%);
+    z-index: 2;
+  }
+  .vignette-b {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 320px;
+    pointer-events: none;
+    background: linear-gradient(to top, rgba(0,0,0,0.94) 0%, transparent 100%);
+    z-index: 2;
+  }
+  .top-ui {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 44px 80px 0;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .top-ui a, .top-ui button { pointer-events: auto; }
+  .crumb {
+    font-size: 17px;
+    color: var(--text-3);
+    margin-bottom: 8px;
+  }
+  .filename {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    max-width: 1500px;
+    word-break: break-all;
+  }
+  .filename-sm {
+    font-size: 20px;
+    font-weight: 500;
+    opacity: 0.92;
+  }
+  .meta-line {
+    font-size: 17px;
+    color: var(--text-3);
+    margin-top: 10px;
+  }
+  .bottom-ui {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0 80px 40px;
+    z-index: 3;
+  }
+  .progress-wrap { margin-bottom: 14px; }
+  .progress-track {
+    position: relative;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--sep);
+  }
+  .progress-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 44%;
+    border-radius: 3px;
+    background: var(--yellow);
+    box-shadow: 0 0 16px rgba(253, 206, 69, 0.35);
+  }
+  .progress-handle {
+    position: absolute;
+    left: 44%;
+    top: 50%;
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+    border-radius: 50%;
+    background: var(--yellow);
+    box-shadow: 0 0 0 3px rgba(253, 206, 69, 0.5);
+  }
+  .progress-track:focus { outline: none; }
+  .progress-track:focus-visible .progress-handle {
+    transform: scale(1.25);
+    box-shadow: 0 0 0 4px #fff, 0 0 28px rgba(253, 206, 69, 0.65);
+  }
+  .time-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-2);
+    margin-bottom: 20px;
+  }
+  .transport {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 28px;
+    margin-bottom: 24px;
+  }
+  .btn-ico {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease), background 0.18s var(--ease);
+  }
+  .btn-ico:focus { outline: none; }
+  .btn-ico:focus-visible {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 3px var(--yellow);
+    background: rgba(255, 255, 255, 0.16);
+  }
+  .btn-play {
+    width: 72px;
+    height: 72px;
+    background: var(--yellow);
+    color: #000;
+  }
+  .btn-play:focus-visible {
+    box-shadow: 0 0 0 3px var(--yellow), 0 0 32px rgba(253, 206, 69, 0.45);
+  }
+  .btn-play svg { margin-left: 4px; }
+  .pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+  .pill {
+    min-height: 46px;
+    padding: 0 22px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.35);
+    color: var(--text-2);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: default;
+    transition: transform 0.18s var(--ease), border-color 0.18s var(--ease), color 0.18s var(--ease), box-shadow 0.18s var(--ease);
+  }
+  .pill:focus { outline: none; }
+  .pill:focus-visible {
+    transform: scale(1.05);
+    border-color: var(--yellow);
+    color: var(--text);
+    box-shadow: 0 0 0 2px rgba(253, 206, 69, 0.4);
+  }
+  .pill--on {
+    border-color: var(--yellow);
+    color: var(--text);
+    background: rgba(253, 206, 69, 0.12);
+  }
+  .remote-hint {
+    position: absolute;
+    top: 44px;
+    right: 80px;
+    z-index: 4;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-3);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.4);
+  }
+  .remote-hint kbd { font: inherit; font-weight: 700; color: var(--yellow); }
+  /* Immersive */
+  .immersive-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+  .big-play {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(253, 206, 69, 0.95);
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  }
+  .big-play:focus { outline: none; }
+  .big-play:focus-visible {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 4px #fff, 0 0 48px rgba(253, 206, 69, 0.55);
+  }
+  .immersive-footer {
+    position: absolute;
+    left: 80px;
+    right: 80px;
+    bottom: 48px;
+    z-index: 3;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+  }
+  .thin-bar {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.12);
+    overflow: hidden;
+  }
+  .thin-fill {
+    width: 44%;
+    height: 100%;
+    background: var(--yellow);
+  }
+  .instant-badge {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--yellow);
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(253,206,69,0.35);
+    background: rgba(253,206,69,0.08);
+  }
+  /* Queue layout */
+  .queue-layout {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    height: 1080px;
+  }
+  .queue-main {
+    position: relative;
+    min-height: 0;
+  }
+  .queue-side {
+    border-left: 1px solid rgba(255,255,255,0.08);
+    background: rgba(8, 8, 10, 0.92);
+    padding: 40px 28px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 4;
+  }
+  .queue-side h2 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .queue-hint {
+    font-size: 16px;
+    color: var(--text-3);
+    line-height: 1.45;
+  }
+  .q-row {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 14px;
+    align-items: center;
+    min-height: 76px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    transition: background 0.18s var(--ease), border-color 0.18s var(--ease), transform 0.18s var(--ease);
+  }
+  .q-row:focus { outline: none; }
+  .q-row.focused {
+    background: rgba(255,255,255,0.06);
+    border-color: var(--yellow);
+    transform: scale(1.02);
+    box-shadow: 0 0 0 2px rgba(253, 206, 69, 0.35);
+  }
+  .q-idx {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-3);
+    text-align: center;
+  }
+  .q-row.focused .q-idx { color: var(--yellow); }
+  .q-name {
+    font-size: 17px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .q-sub { font-size: 15px; color: var(--text-3); margin-top: 4px; }
+  .queue-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 4px;
+    scrollbar-width: none;
+  }
+  .queue-scroll::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body>
+<div data-uidotsh-pick="Player presentation" aria-label="Player presentation variants">
+  <!-- Overlay -->
+  <section class="stage" data-uidotsh-option="Overlay" aria-labelledby="pl-overlay-title">
+    <div class="video-matte" aria-hidden="true"></div>
+    <div class="vignette-t"></div>
+    <div class="vignette-b"></div>
+    <p class="remote-hint"><kbd>PLAY</kbd> pause · <kbd>◀</kbd><kbd>▶</kbd> skip 10s</p>
+    <div class="top-ui">
+      <p class="crumb" id="pl-overlay-title">Files · TV · Playing now</p>
+      <h1 class="filename">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</h1>
+      <p class="meta-line">Direct play · VLC-kit · no conversion wait</p>
+    </div>
+    <div class="bottom-ui">
+      <div class="progress-wrap">
+        <div class="progress-track" tabindex="0" role="slider" aria-valuenow="44" aria-valuemin="0" aria-valuemax="100" aria-label="Playback position">
+          <div class="progress-fill"></div>
+          <div class="progress-handle"></div>
+        </div>
+      </div>
+      <div class="time-row">
+        <span>52:08</span>
+        <span>1:46:22</span>
+      </div>
+      <div class="transport">
+        <button type="button" class="btn-ico" aria-label="Rewind ten seconds">
+          <svg width="22" height="22" viewBox="0 0 256 256" fill="none"><path d="M224 128a96 96 0 1 1-96-96v-32L64 64l64 64V96a80 80 0 1 0 80 80 80 80 0 0 0-24-56.6V128h16Z" fill="currentColor"/></svg>
+        </button>
+        <button type="button" class="btn-ico btn-play" aria-label="Pause">
+          <svg width="28" height="28" viewBox="0 0 256 256" fill="none"><path d="M96 64h32v128H96V64Zm64 0h32v128h-32V64Z" fill="currentColor"/></svg>
+        </button>
+        <button type="button" class="btn-ico" aria-label="Forward ten seconds">
+          <svg width="22" height="22" viewBox="0 0 256 256" fill="none"><path d="M32 128a96 96 0 1 0 96-96v-32l64 64-64 64V96a80 80 0 1 1-80 80 80 80 0 0 1 24-56.6V128H32Z" fill="currentColor"/></svg>
+        </button>
+      </div>
+      <div class="pill-row">
+        <button type="button" class="pill pill--on" autofocus>
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="none"><path d="M48 56h160v144H48V56Zm16 16v112h128V72H64Zm16 16h80v16H80V88Zm0 40h96v16H80v-16Z" fill="currentColor"/></svg>
+          Subtitles · English (embedded)
+        </button>
+        <button type="button" class="pill">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="none"><path d="M128 32a96 96 0 0 0-96 96v96h192v-96a96 96 0 0 0-96-96Zm0 16a80 80 0 0 1 80 80v80H48v-80a80 80 0 0 1 80-80Z" fill="currentColor"/></svg>
+          Audio · AC3 5.1
+        </button>
+        <button type="button" class="pill">Speed · 1×</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Immersive -->
+  <section class="stage" data-uidotsh-option="Immersive" hidden aria-labelledby="pl-imm-title">
+    <div class="video-matte" aria-hidden="true"></div>
+    <div class="vignette-b" style="height:240px;opacity:0.85"></div>
+    <p class="remote-hint">Controls hide after idle · any direction shows chrome</p>
+    <div class="immersive-center">
+      <button type="button" class="big-play" aria-label="Pause playback" autofocus>
+        <svg width="44" height="44" viewBox="0 0 256 256" fill="none"><path d="M96 64h32v128H96V64Zm64 0h32v128h-32V64Z" fill="currentColor"/></svg>
+      </button>
+    </div>
+    <div class="top-ui" style="pointer-events:none;opacity:0.95">
+      <p class="crumb" id="pl-imm-title">Now playing</p>
+      <h1 class="filename filename-sm">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</h1>
+    </div>
+    <div class="immersive-footer">
+      <div style="flex:1;min-width:0">
+        <div class="thin-bar" aria-hidden="true"><div class="thin-fill"></div></div>
+        <div class="time-row" style="margin-top:12px;margin-bottom:0">
+          <span>52:08</span>
+          <span>1:46:22</span>
+        </div>
+      </div>
+      <div class="instant-badge">Instant play</div>
+    </div>
+  </section>
+
+  <!-- Queue -->
+  <section data-uidotsh-option="Queue" hidden aria-labelledby="pl-queue-title">
+    <div class="queue-layout stage" style="background:#000">
+      <div class="queue-main">
+        <div class="video-matte" aria-hidden="true"></div>
+        <div class="vignette-t"></div>
+        <div class="vignette-b"></div>
+        <div class="top-ui">
+          <p class="crumb" id="pl-queue-title">Queue · playing</p>
+          <h1 class="filename">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</h1>
+          <p class="meta-line">Up next keeps the folder order · focus the rail to jump</p>
+        </div>
+        <div class="bottom-ui">
+          <div class="progress-wrap">
+            <div class="progress-track" tabindex="0" aria-label="Playback position">
+              <div class="progress-fill"></div>
+              <div class="progress-handle"></div>
+            </div>
+          </div>
+          <div class="time-row">
+            <span>52:08</span>
+            <span>1:46:22</span>
+          </div>
+          <div class="transport">
+            <button type="button" class="btn-ico btn-play" aria-label="Pause">
+              <svg width="28" height="28" viewBox="0 0 256 256" fill="none"><path d="M96 64h32v128H96V64Zm64 0h32v128h-32V64Z" fill="currentColor"/></svg>
+            </button>
+          </div>
+          <div class="pill-row">
+            <button type="button" class="pill pill--on">Subtitles</button>
+            <button type="button" class="pill">Audio</button>
+            <button type="button" class="pill">Speed</button>
+          </div>
+        </div>
+      </div>
+      <aside class="queue-side" aria-label="Up next">
+        <h2>Up next</h2>
+        <p class="queue-hint">Same folder · alphabetical · select to preview focus</p>
+        <div class="queue-scroll">
+          <div class="q-row focused" tabindex="0">
+            <span class="q-idx">1</span>
+            <div class="min-w-0">
+              <p class="q-name">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</p>
+              <p class="q-sub">Now playing</p>
+            </div>
+          </div>
+          <div class="q-row" tabindex="0">
+            <span class="q-idx">2</span>
+            <div class="min-w-0">
+              <p class="q-name">The.Wire.S03E05.Straight.and.True.1080p.BluRay.x264-DEMAND.mkv</p>
+              <p class="q-sub">Next in folder</p>
+            </div>
+          </div>
+          <div class="q-row" tabindex="0">
+            <span class="q-idx">3</span>
+            <div class="min-w-0">
+              <p class="q-name">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</p>
+              <p class="q-sub">Queued</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+</div>
+<script src="https://ui.sh/ui-picker.js"></script>
+</body>
+</html>

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=1440"/>
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg"/>
+<meta name="theme-color" content="#09090B"/>
+<meta name="generator" content="cursor/gpt-5.4/ui-sh"/>
+<title>put.io — Settings (v15 Linear Neutral)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090B;
+    --sidebar-bg: #0C0C0E;
+    --settings-rail: #111113;
+    --surface: #121214;
+    --elevated: #18181B;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #52525B;
+    --yellow: #FDCE45;
+    --sep: rgba(255, 255, 255, 0.06);
+    --font: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+  }
+
+  /* ---- shared chrome ---- */
+  .logo { font-size: 15px; font-weight: 700; letter-spacing: -0.02em; }
+  .logo-dot { color: var(--yellow); }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 8px;
+    color: var(--text-3);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+  }
+
+  .nav-item:hover { color: var(--text-2); background: rgba(255,255,255,0.04); }
+  .nav-item.on { color: var(--text); background: rgba(255,255,255,0.06); }
+  .nav-item.on svg { color: var(--yellow); }
+  .nav-item svg { width: 17px; height: 17px; color: var(--text-4); flex-shrink: 0; }
+
+  .sn-item {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .sn-item:hover { color: var(--text-2); background: rgba(255,255,255,0.04); }
+  .sn-item.act { color: var(--text); background: rgba(255,255,255,0.06); }
+
+  .grp-lbl {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    padding: 14px 8px 6px;
+    line-height: 1;
+  }
+
+  .grp-lbl:first-child { padding-top: 0; }
+
+  .page-h {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 28px;
+  }
+
+  .sec-h {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--sep);
+    margin-bottom: 0;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    min-height: 52px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--sep);
+    gap: 16px;
+  }
+
+  .row:last-child { border-bottom: none; }
+
+  .row-info { flex: 1; min-width: 0; }
+  .row-lbl { font-size: 13px; font-weight: 500; color: var(--text); }
+  .row-desc { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+  .dd {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-2);
+    background: var(--surface);
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--sep);
+    min-width: 132px;
+    justify-content: space-between;
+    font-family: var(--font);
+  }
+
+  .dd svg { width: 12px; height: 12px; color: var(--text-4); flex-shrink: 0; }
+
+  .tog {
+    width: 38px;
+    height: 22px;
+    border-radius: 999px;
+    background: rgba(253,206,69,0.35);
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .tog::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--yellow);
+    top: 2px;
+    right: 2px;
+  }
+
+  .tog.off { background: rgba(255,255,255,0.1); }
+  .tog.off::after { right: auto; left: 2px; background: var(--text-4); }
+
+  .path-pill {
+    font-size: 12px;
+    color: var(--text-2);
+    background: var(--surface);
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--sep);
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ========== Workspace ========== */
+  .wk .sb-main {
+    width: 200px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--sep);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    padding: 16px 10px 14px;
+  }
+
+  .wk .sb-set {
+    width: 208px;
+    background: var(--settings-rail);
+    border-right: 1px solid var(--sep);
+    padding: 18px 8px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .wk .wk-back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-4);
+    padding: 4px 6px 14px;
+    border: none;
+    background: none;
+    font-family: var(--font);
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+  }
+
+  .wk .wk-back:hover { color: var(--text-3); }
+
+  .wk .wk-back svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  .wk .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 40px 40px;
+    background: var(--bg);
+    min-width: 0;
+  }
+
+  .wk .main-in { max-width: 640px; }
+
+  .wk .sec { margin-bottom: 28px; }
+
+  /* ========== Sections ========== */
+  .sec-only .set-rail {
+    width: 224px;
+    background: var(--settings-rail);
+    border-right: 1px solid var(--sep);
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sec-only .set-body {
+    flex: 1;
+    display: flex;
+    min-width: 0;
+    background: var(--bg);
+  }
+
+  .sec-only .set-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 36px 44px 44px;
+    max-width: 680px;
+  }
+
+  .sec-only .set-fill { flex: 1; background: var(--bg); }
+
+  /* ========== Utility ========== */
+  .ut .ut-shell {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--bg);
+  }
+
+  .ut .ut-bar {
+    height: 52px;
+    padding: 0 28px;
+    border-bottom: 1px solid var(--sep);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .ut .ut-crumb {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-4);
+  }
+
+  .ut .ut-crumb b { color: var(--text); font-weight: 600; }
+
+  .ut .ut-sp { flex: 1; }
+
+  .ut .ut-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--sep);
+    background: var(--surface);
+    width: 240px;
+    color: var(--text-4);
+    font-size: 12px;
+    font-family: var(--font);
+  }
+
+  .ut .ut-search svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  .ut .ut-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 0 28px;
+    border-bottom: 1px solid var(--sep);
+    flex-shrink: 0;
+  }
+
+  .ut .ut-tab {
+    height: 40px;
+    padding: 0 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    border: none;
+    background: none;
+    font-family: var(--font);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+
+  .ut .ut-tab:hover { color: var(--text-2); }
+
+  .ut .ut-tab.on {
+    color: var(--text);
+    border-bottom-color: var(--yellow);
+  }
+
+  .ut .ut-main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px 32px;
+  }
+
+  .ut .ut-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 32px;
+    max-width: 920px;
+  }
+
+  @media (max-width: 1439px) {
+    .ut .ut-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div data-uidotsh-pick="Settings shell">
+
+  <div data-uidotsh-option="Workspace">
+    <div class="app wk">
+      <aside class="sb-main">
+        <div class="logo" style="padding:0 8px 12px">put<span class="logo-dot">.</span>io</div>
+        <nav style="display:flex;flex-direction:column;gap:2px;flex:1">
+          <button type="button" class="nav-item on">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            Files
+          </button>
+          <button type="button" class="nav-item">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Transfers
+          </button>
+          <button type="button" class="nav-item">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2"/></svg>
+            RSS
+          </button>
+        </nav>
+        <div style="font-size:11px;color:var(--text-4);padding:8px;line-height:1.35">You are always one click from the file list</div>
+      </aside>
+      <aside class="sb-set">
+        <button type="button" class="wk-back">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to Files
+        </button>
+        <div class="grp-lbl">Account</div>
+        <button type="button" class="sn-item act">Preferences</button>
+        <button type="button" class="sn-item">Profile</button>
+        <button type="button" class="sn-item">Security</button>
+        <div class="grp-lbl">Workspace</div>
+        <button type="button" class="sn-item">Playback</button>
+        <button type="button" class="sn-item">Downloads</button>
+        <button type="button" class="sn-item">API</button>
+      </aside>
+      <main class="main">
+        <div class="main-in">
+          <h1 class="page-h">Preferences</h1>
+          <section class="sec">
+            <h2 class="sec-h">General</h2>
+            <div class="row">
+              <div class="row-info">
+                <div class="row-lbl">Theme</div>
+                <div class="row-desc">Interface stays dark; accent stays consistent</div>
+              </div>
+              <button type="button" class="dd">Dark <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="row">
+              <div class="row-info">
+                <div class="row-lbl">Default transfer folder</div>
+                <div class="row-desc">New items land here unless a rule overrides</div>
+              </div>
+              <span class="path-pill" title="Your Files / inbox">Your Files / inbox</span>
+            </div>
+          </section>
+          <section class="sec">
+            <h2 class="sec-h">Transfers</h2>
+            <div class="row">
+              <div class="row-info">
+                <div class="row-lbl">Magnet handler</div>
+                <div class="row-desc">Open magnets in this browser session</div>
+              </div>
+              <span class="tog off" aria-hidden="true"></span>
+            </div>
+            <div class="row">
+              <div class="row-info">
+                <div class="row-lbl">Keep original filenames</div>
+                <div class="row-desc">No renaming — what arrives is what you browse</div>
+              </div>
+              <span class="tog" aria-hidden="true"></span>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div data-uidotsh-option="Sections" hidden>
+    <div class="app sec-only">
+      <aside class="set-rail">
+        <button type="button" class="wk-back" style="padding-bottom:12px">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          Close settings
+        </button>
+        <div class="grp-lbl">You</div>
+        <button type="button" class="sn-item act">Preferences</button>
+        <button type="button" class="sn-item">Notifications</button>
+        <button type="button" class="sn-item">Billing</button>
+        <div class="grp-lbl">Product</div>
+        <button type="button" class="sn-item">Playback</button>
+        <button type="button" class="sn-item">Subtitles</button>
+        <button type="button" class="sn-item">Storage</button>
+        <div class="grp-lbl">Integrations</div>
+        <button type="button" class="sn-item">API tokens</button>
+        <button type="button" class="sn-item">Connected clients</button>
+      </aside>
+      <div class="set-body">
+        <div class="set-scroll">
+          <h1 class="page-h">Preferences</h1>
+          <section class="sec">
+            <h2 class="sec-h">Playback</h2>
+            <div class="row">
+              <div class="row-info">
+                <div class="row-lbl">Streaming proxy</div>
+                <div class="row-desc">Closest edge for your current session</div>
+              </div>
+              <button type="button" class="dd">Amsterdam <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="row">
+              <div class="row-info">
+                <div class="row-lbl">Autoplay next file</div>
+                <div class="row-desc">Continues in the same folder order</div>
+              </div>
+              <span class="tog" aria-hidden="true"></span>
+            </div>
+            <div class="row">
+              <div class="row-info">
+                <div class="row-lbl">Default speed</div>
+                <div class="row-desc">Applies to the web player</div>
+              </div>
+              <button type="button" class="dd">1× <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+          </section>
+          <section class="sec">
+            <h2 class="sec-h">Files</h2>
+            <div class="row">
+              <div class="row-info">
+                <div class="row-lbl">Show extensions</div>
+                <div class="row-desc">Helps when filenames are long and similar</div>
+              </div>
+              <span class="tog" aria-hidden="true"></span>
+            </div>
+            <div class="row">
+              <div class="row-info">
+                <div class="row-lbl">Example filename in lists</div>
+                <div class="row-desc">Preview uses real strings, not cleaned titles</div>
+              </div>
+              <code style="font-size:11px;color:var(--text-3);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</code>
+            </div>
+          </section>
+        </div>
+        <div class="set-fill" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+
+  <div data-uidotsh-option="Utility" hidden>
+    <div class="app ut">
+      <div class="ut-shell">
+        <header class="ut-bar">
+          <span class="ut-crumb">put<span style="color:var(--yellow)">.</span>io · <b>Settings</b> · Preferences</span>
+          <div class="ut-sp"></div>
+          <div class="ut-search" style="cursor:default" role="search">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Search settings
+          </div>
+        </header>
+        <div class="ut-tabs" role="tablist">
+          <button type="button" class="ut-tab on">General</button>
+          <button type="button" class="ut-tab">Transfers</button>
+          <button type="button" class="ut-tab">Playback</button>
+          <button type="button" class="ut-tab">API</button>
+        </div>
+        <main class="ut-main">
+          <div class="ut-grid">
+            <section class="sec" style="margin:0">
+              <h2 class="sec-h">General</h2>
+              <div class="row">
+                <div class="row-info">
+                  <div class="row-lbl">Language</div>
+                  <div class="row-desc">UI copy only</div>
+                </div>
+                <button type="button" class="dd">English <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+              </div>
+              <div class="row">
+                <div class="row-info">
+                  <div class="row-lbl">Time zone</div>
+                  <div class="row-desc">Schedules and RSS timestamps</div>
+                </div>
+                <button type="button" class="dd">Europe/Istanbul <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+              </div>
+            </section>
+            <section class="sec" style="margin:0">
+              <h2 class="sec-h">Quiet defaults</h2>
+              <div class="row">
+                <div class="row-info">
+                  <div class="row-lbl">Compress empty states</div>
+                  <div class="row-desc">Fewer panels when nothing is happening</div>
+                </div>
+                <span class="tog" aria-hidden="true"></span>
+              </div>
+              <div class="row">
+                <div class="row-info">
+                  <div class="row-lbl">Show advanced fields</div>
+                  <div class="row-desc">Headers, IDs, and raw paths</div>
+                </div>
+                <span class="tog off" aria-hidden="true"></span>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://ui.sh/ui-picker.js"></script>
+</body>
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=1920" name="viewport"/>
+<link href="/favicon/favicon.svg" rel="icon" type="image/svg+xml"/>
+<meta content="#000000" name="theme-color"/>
+<meta content="cursor/gpt-5.4/ui-sh" name="generator"/>
+<title>put.io — tvOS History (v15 Linear Neutral) — Utility Log</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@450;500&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #000000;
+    --surface: #111113;
+    --row: #161618;
+    --border: rgba(255, 255, 255, 0.06);
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #71717A;
+    --text-4: #52525B;
+    --yellow: #FDCE45;
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+  }
+  html, body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 18px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+  }
+  .proto-shell {
+    width: 1920px;
+    height: 1080px;
+    position: relative;
+  }
+  .proto-shell .proto-frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .screen {
+    height: 1080px;
+    display: flex;
+    flex-direction: column;
+    padding: 48px 88px 40px;
+    background: linear-gradient(180deg, #050506 0%, var(--bg) 32%);
+  }
+  .top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 32px;
+    margin-bottom: 28px;
+    flex-shrink: 0;
+  }
+  .top-left h1 {
+    font-size: 40px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .top-left p {
+    font-size: 20px;
+    color: var(--text-3);
+    max-width: 720px;
+  }
+  .top-right {
+    font-size: 18px;
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+  .list-wrap {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .list-scroll {
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .list-scroll::-webkit-scrollbar { display: none; }
+  .day-block + .day-block {
+    border-top: 1px solid var(--border);
+  }
+  .day-head {
+    padding: 18px 24px 10px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    background: rgba(0, 0, 0, 0.35);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 52px 1fr minmax(200px, 260px) minmax(160px, 200px);
+    align-items: center;
+    gap: 16px 24px;
+    min-height: 88px;
+    padding: 14px 24px;
+    border-top: 1px solid var(--border);
+    transition: background 0.18s var(--ease), transform 0.18s var(--ease);
+    cursor: default;
+  }
+  .row:first-of-type { border-top: none; }
+  .row:hover { background: var(--row); }
+  .row.focused {
+    background: var(--row);
+    transform: scale(1.005);
+    transform-origin: center left;
+    box-shadow: inset 3px 0 0 0 var(--yellow);
+  }
+  .row.focused .ico { color: var(--yellow); }
+  .ico {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-3);
+    flex-shrink: 0;
+  }
+  .name {
+    font-size: 22px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    letter-spacing: -0.01em;
+  }
+  .sub {
+    font-size: 17px;
+    color: var(--text-3);
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .when {
+    font-size: 18px;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  .chip {
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-2);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: border-color 0.18s var(--ease), color 0.18s var(--ease), box-shadow 0.18s var(--ease), transform 0.18s var(--ease);
+  }
+  .chip:focus {
+    outline: none;
+  }
+  .chip:focus-visible {
+    border-color: var(--yellow);
+    color: var(--text);
+    box-shadow: 0 0 0 2px rgba(253, 206, 69, 0.35);
+    transform: scale(1.03);
+  }
+  .chip--primary {
+    background: var(--yellow);
+    color: #000;
+  }
+  .chip--primary:focus-visible {
+    box-shadow: 0 0 0 3px rgba(253, 206, 69, 0.5), 0 0 24px rgba(253, 206, 69, 0.25);
+  }
+  /* Resume bias: second column wider for meter */
+  .variant-resume .row {
+    grid-template-columns: 52px 1fr 140px minmax(200px, 240px) minmax(160px, 200px);
+  }
+  .meter-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .meter-label {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    text-align: right;
+  }
+  .meter-track {
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+  }
+  .meter-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 3px;
+    box-shadow: 0 0 12px rgba(253, 206, 69, 0.25);
+  }
+  .resume-hint {
+    font-size: 15px;
+    color: var(--text-3);
+    text-align: right;
+    line-height: 1.3;
+  }
+  /* Utility log */
+  .variant-log .list-wrap {
+    border-radius: 12px;
+  }
+  .variant-log .row {
+    grid-template-columns: 52px 1fr 120px 120px 200px;
+    min-height: 76px;
+  }
+  .mono {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 15px;
+    font-weight: 450;
+    color: var(--text-2);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .log-action {
+    justify-content: flex-end;
+  }
+  .row--head {
+    min-height: 48px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    background: rgba(0, 0, 0, 0.45);
+    border-bottom: 1px solid var(--border);
+    pointer-events: none;
+  }
+  .row--head:hover,
+  .row--head.focused {
+    background: rgba(0, 0, 0, 0.45);
+    transform: none;
+    box-shadow: none;
+  }
+  .row--head .ico { visibility: hidden; }
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  svg { display: block; }
+</style>
+</head>
+<body>
+<div class="proto-shell"><div aria-labelledby="h1-log" class="screen variant-log proto-frame">
+<header class="top">
+<div class="top-left">
+<h1 id="h1-log">Playback history</h1>
+<p>Dense, scannable rows for power browsing — still human language, still list-led</p>
+</div>
+<p class="top-right">Clear all · in Settings</p>
+</header>
+<div class="list-wrap">
+<div class="list-scroll">
+<div aria-hidden="true" class="row row--head">
+<div class="ico"></div>
+<div class="name" style="font-size:14px;font-weight:600;color:var(--text-3);letter-spacing:0.06em;text-transform:uppercase">File</div>
+<span class="mono" style="color:var(--text-4)">Date</span>
+<span class="mono" style="color:var(--text-4)">Duration</span>
+<div class="log-action"><span class="mono" style="color:var(--text-4)">Action</span></div>
+</div>
+<div class="row focused" tabindex="0">
+<div aria-hidden="true" class="ico">
+<svg fill="none" height="24" viewbox="0 0 24 24" width="24"><path d="M8 5v14l11-7L8 5z" fill="currentColor"></path></svg>
+</div>
+<p class="name">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</p>
+<span class="mono">2026-04-12</span>
+<span class="mono">41m</span>
+<div class="actions log-action">
+<button class="chip chip--primary" tabindex="-1" type="button">Play</button>
+<button class="chip" tabindex="-1" type="button">Files</button>
+</div>
+</div>
+<div class="row" tabindex="0">
+<div aria-hidden="true" class="ico">
+<svg fill="none" height="24" viewbox="0 0 24 24" width="24"><path d="M9 18V5l12-2v13" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path><circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="1.75"></circle><circle cx="18" cy="16" r="3" stroke="currentColor" stroke-width="1.75"></circle></svg>
+</div>
+<p class="name">podcast_ep127_final_mixdown_v2.mp3</p>
+<span class="mono">2026-04-12</span>
+<span class="mono">18m</span>
+<div class="actions log-action">
+<button class="chip chip--primary" tabindex="-1" type="button">Play</button>
+<button class="chip" tabindex="-1" type="button">Files</button>
+</div>
+</div>
+<div class="row" tabindex="0">
+<div aria-hidden="true" class="ico">
+<svg fill="none" height="24" viewbox="0 0 24 24" width="24"><path d="M8 5v14l11-7L8 5z" fill="currentColor"></path></svg>
+</div>
+<p class="name">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</p>
+<span class="mono">2026-04-11</span>
+<span class="mono">52m</span>
+<div class="actions log-action">
+<button class="chip chip--primary" tabindex="-1" type="button">Play</button>
+<button class="chip" tabindex="-1" type="button">Files</button>
+</div>
+</div>
+<div class="row" tabindex="0">
+<div aria-hidden="true" class="ico">
+<svg fill="none" height="24" viewbox="0 0 24 24" width="24"><path d="M8 5v14l11-7L8 5z" fill="currentColor"></path></svg>
+</div>
+<p class="name">homework_answers_DONT_DELETE</p>
+<span class="mono">2026-04-10</span>
+<span class="mono">6m</span>
+<div class="actions log-action">
+<button class="chip chip--primary" tabindex="-1" type="button">Play</button>
+<button class="chip" tabindex="-1" type="button">Files</button>
+</div>
+</div>
+<div class="row" tabindex="0">
+<div aria-hidden="true" class="ico">
+<svg fill="none" height="24" viewbox="0 0 24 24" width="24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"></path><path d="M14 2v6h6" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"></path></svg>
+</div>
+<p class="name">document-scan-march-2026.pdf</p>
+<span class="mono">2026-04-09</span>
+<span class="mono">3m</span>
+<div class="actions log-action">
+<button class="chip chip--primary" tabindex="-1" type="button">Play</button>
+<button class="chip" tabindex="-1" type="button">Files</button>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+
+</body>
+</html>
