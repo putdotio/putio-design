@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=1920"/>
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg"/>
+<meta name="generator" content="cursor/composer-2/ui-sh"/>
+<meta name="theme-color" content="#060608"/>
+<title>put.io — tvOS Home (v16 Nocturne)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #060608;
+    --surface: #0f0f14;
+    --surface-2: #15151c;
+    --text: #f4f4f5;
+    --text-2: #a1a1aa;
+    --text-3: #71717a;
+    --text-4: #52525b;
+    --yellow: #FDCE45;
+    --yellow-dim: rgba(253, 206, 69, 0.12);
+    --sep: rgba(255, 255, 255, 0.08);
+    --font: 'Inter', system-ui, -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    font-family: var(--font);
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    background:
+      radial-gradient(1200px 700px at 10% -10%, rgba(253, 206, 69, 0.07), transparent 55%),
+      radial-gradient(900px 600px at 95% 0%, rgba(96, 165, 250, 0.05), transparent 50%),
+      var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .tv {
+    height: 100%;
+    padding: 54px 96px 70px;
+    display: flex;
+    flex-direction: column;
+    gap: 34px;
+  }
+
+  .top {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-shrink: 0;
+  }
+
+  .brand {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    margin-right: 26px;
+  }
+
+  .brand span { color: var(--yellow); }
+
+  .tabs {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .tab {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-3);
+    padding: 12px 18px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    font-family: inherit;
+    cursor: default;
+  }
+
+  .tab:hover { color: var(--text-2); background: rgba(255, 255, 255, 0.03); }
+
+  .tab.on {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 0 0 1px rgba(253, 206, 69, 0.18);
+  }
+
+  .tab.focus {
+    color: var(--bg);
+    background: var(--yellow);
+    border-color: rgba(253, 206, 69, 0.65);
+    box-shadow: 0 0 0 6px rgba(253, 206, 69, 0.12);
+  }
+
+  .spacer { flex: 1; }
+
+  .hint {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-3);
+    letter-spacing: -0.01em;
+  }
+
+  .row-block { flex-shrink: 0; }
+
+  .row-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 16px;
+  }
+
+  .row-title {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-4);
+  }
+
+  .row-sub {
+    font-size: 16px;
+    color: var(--text-3);
+    font-weight: 500;
+  }
+
+  .h-scroll {
+    display: flex;
+    gap: 14px;
+    overflow: hidden;
+  }
+
+  .tile {
+    width: 720px;
+    flex: 0 0 auto;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 18px 18px 16px;
+    position: relative;
+  }
+
+  .tile::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 14px;
+    bottom: 14px;
+    width: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.10);
+    opacity: 0;
+  }
+
+  .tile.focus {
+    background: rgba(253, 206, 69, 0.08);
+    border-color: rgba(253, 206, 69, 0.55);
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+    transform: translateY(-2px);
+  }
+
+  .tile.focus::before {
+    opacity: 1;
+    background: linear-gradient(180deg, rgba(253, 206, 69, 0.95), rgba(253, 206, 69, 0.25));
+  }
+
+  .tile-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 10px;
+    padding-left: 8px;
+  }
+
+  .tile.small .tile-top { justify-content: flex-start; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-2);
+  }
+
+  .badge svg { width: 18px; height: 18px; color: var(--yellow); flex-shrink: 0; }
+
+  .pct {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+
+  .fname {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    padding-left: 8px;
+    padding-right: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .bar {
+    margin-top: 12px;
+    margin-left: 8px;
+    margin-right: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+  }
+
+  .bar > i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, rgba(253, 206, 69, 0.25), var(--yellow));
+  }
+
+  .tile.small .fname { font-size: 18px; font-weight: 600; }
+
+  .tile-meta {
+    margin-top: 10px;
+    margin-left: 8px;
+    margin-right: 8px;
+    font-family: var(--mono);
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-3);
+  }
+
+  .footer-note {
+    margin-top: auto;
+    padding-top: 10px;
+    font-size: 14px;
+    color: var(--text-3);
+    max-width: 920px;
+    line-height: 1.45;
+  }
+
+  .footer-note strong { color: var(--text-2); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="tv">
+  <header class="top">
+    <div class="brand">put<span>.</span>io</div>
+    <nav class="tabs" aria-label="Primary navigation (prototype)">
+      <button type="button" class="tab focus">Home</button>
+      <button type="button" class="tab">Files</button>
+      <button type="button" class="tab">Search</button>
+    </nav>
+    <div class="spacer"></div>
+    <div class="hint">Signed in · User 01</div>
+  </header>
+
+  <section class="row-block" aria-label="Continue watching (prototype)">
+    <div class="row-head">
+      <div class="row-title">Continue watching</div>
+      <div class="row-sub">Filename-only rows · no library metadata</div>
+    </div>
+    <div class="h-scroll">
+      <article class="tile focus">
+        <div class="tile-top">
+          <div class="badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Video
+          </div>
+          <div class="pct">58%</div>
+        </div>
+        <div class="fname">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div>
+        <div class="bar" aria-hidden="true"><i style="width:58%"></i></div>
+      </article>
+
+      <article class="tile">
+        <div class="tile-top">
+          <div class="badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Video
+          </div>
+          <div class="pct">12%</div>
+        </div>
+        <div class="fname">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</div>
+        <div class="bar" aria-hidden="true"><i style="width:12%"></i></div>
+      </article>
+
+      <article class="tile">
+        <div class="tile-top">
+          <div class="badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            Audio
+          </div>
+          <div class="pct">74%</div>
+        </div>
+        <div class="fname">podcast_ep127_final_mixdown_v2.mp3</div>
+        <div class="bar" aria-hidden="true"><i style="width:74%"></i></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="row-block" aria-label="Recent files (prototype)">
+    <div class="row-head">
+      <div class="row-title">Recent files</div>
+      <div class="row-sub">Newest additions · same list DNA as the browser</div>
+    </div>
+    <div class="h-scroll">
+      <article class="tile small">
+        <div class="tile-top">
+          <div class="badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            File
+          </div>
+        </div>
+        <div class="fname">ubuntu-24.04.1-desktop-amd64.iso</div>
+        <div class="tile-meta">Added 2026-04-13 · 5.9 GB</div>
+      </article>
+
+      <article class="tile small">
+        <div class="tile-top">
+          <div class="badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Image
+          </div>
+        </div>
+        <div class="fname">IMG_4392.HEIC</div>
+        <div class="tile-meta">Added 2026-04-12 · 3.4 MB</div>
+      </article>
+
+      <article class="tile small">
+        <div class="tile-top">
+          <div class="badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            File
+          </div>
+        </div>
+        <div class="fname">document-scan-march-2026.pdf</div>
+        <div class="tile-meta">Added 2026-04-11 · 2.1 MB</div>
+      </article>
+    </div>
+  </section>
+
+  <p class="footer-note">
+    <strong>Prototype note:</strong> TV home uses wide list tiles (not posters). Badges here are file-kind labels, not parsed quality tags
+  </p>
+</div>
+
+</body>
+</html>
