@@ -11,7 +11,7 @@ Current state of put.io's visual system: what exists, what works, what doesn't.
 **Related docs:**
 - [Design Brief](design-brief.md) — why we're redesigning, personas, principles
 - [TV App Spec → Shared Contracts](specs/tv-app.md#shared-contracts) — design tokens, i18n, SDK types for the rewrite
-- [Platform Strategy](platform-strategy.md) — architecture decisions
+- [Platform Strategy](https://github.com/putdotio/workspace-frontend/blob/main/docs/platform-strategy.md) — architecture decisions
 
 **Brand constants:**
 - Yellow: `#FDCE45` (sacred, never changes)
@@ -332,4 +332,3 @@ Features: Files, History, Home, Search, Settings
 - **Missing:** No empty states with personality (except RSS). No onboarding. No progressive disclosure. No contextual feature discovery.
 
 ---
-

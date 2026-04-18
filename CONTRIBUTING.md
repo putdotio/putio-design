@@ -33,7 +33,7 @@ Additional variants explored: Retro, Ink, Neubrutalism, Swiss, Scandi, Glass, St
 
 ## Docs
 
-Read `docs/design-brief.md` and `docs/platform-strategy.md` before adding new prototypes. See [`docs/README.md`](docs/README.md) for the full index.
+Read [`docs/design-brief.md`](docs/design-brief.md) and [`workspace-frontend/docs/platform-strategy.md`](https://github.com/putdotio/workspace-frontend/blob/main/docs/platform-strategy.md) before adding new prototypes.
 
 ## Pull Requests
 
