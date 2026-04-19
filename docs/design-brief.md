@@ -317,7 +317,7 @@ Each platform needs generated outputs from a single token source:
 - **Style Dictionary pipeline** — generates: CSS custom properties (web), Swift extensions (iOS), Compose theme (Android), SCSS variables (landing)
 - **Consolidate yellow** — brand yellow is `#FDCE45` but there are HSL `var(--primary)` references floating around. One yellow, one source
 - **Icon system migration** — Flaticons is a custom icon font, hard to extend. Move to SVG icon system (Lucide, custom, or Figma-exported) that works cross-platform
-- **Typography audit** — GT America is great but only 3 weights (400, 500, 600). Evaluate if this is enough for the full design system or if additional weights / a display face are needed
+- **Typography** — GT America (`standard`, `mono`, `extended`) and Berkeley Mono are served from `static.put.io`. Full weight range 100–900 plus italics is available; prototypes pull what they need via the per-family `font.css` files
 
 ---
 

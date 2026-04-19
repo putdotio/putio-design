@@ -49,16 +49,32 @@ put.io is content-agnostic. We do NOT know what files the user has. We cannot pa
 
 **The design challenge:** Make a list of ugly, truncated filenames feel premium through typography, spacing, and interaction quality alone. The beauty comes from the utility itself — not from pretending we have metadata we don't.
 
+## Typography
+
+All prototypes standardize on two typefaces, served from `static.put.io`:
+
+- **Sans / display:** GT America (`standard`, `extended`, `mono` variants)
+- **Monospace:** Berkeley Mono (variable)
+
+Import in `<style>`:
+
+```css
+@import url('https://static.put.io/fonts/gt-america/standard/font.css');
+@import url('https://static.put.io/fonts/gt-america/mono/font.css');
+@import url('https://static.put.io/fonts/gt-america/extended/font.css');
+@import url('https://static.put.io/fonts/berkeley-mono/variable/font.css');
+```
+
+Stacks:
+
+- Sans: `'GT America', -apple-system, system-ui, sans-serif`
+- Display (wide/editorial): `'GT America Extended', 'GT America', -apple-system, system-ui, sans-serif`
+- Mono: `'Berkeley Mono', ui-monospace, 'SF Mono', Menlo, monospace`
+- Retro pixel slot: `'GT America Mono', ui-monospace, monospace`
+
 ## Design variants
 
-| Variant | Type stack | Reference |
-|---------|-----------|-----------|
-| Clean Modern | Inter | Linear, Raycast |
-| Monospace | JetBrains Mono | Terminal, iA Writer |
-| Brutalist | Inter Black + JetBrains Mono | Oxide Computer |
-| Editorial | DM Serif Display + Inter | Letterboxd, Are.na |
-
-Additional variants explored: Retro, Ink, Neubrutalism, Swiss, Scandi, Glass, Starry.
+Variants differ by color, density, radius, motion, and ornamentation — not typography. Variants explored: Clean Modern, Monospace, Brutalist, Editorial, Retro, Ink, Neubrutalism, Swiss, Scandi, Glass, Starry, Nocturne, Linear Neutral.
 
 ## Prototype naming
 
