@@ -4,13 +4,15 @@ Thanks for contributing to put.io design.
 
 ## Setup
 
-No toolchain required — prototypes are self-contained HTML files.
+No toolchain required. Prototypes are self-contained HTML files that pull fonts from `static.put.io` at runtime — internet access is needed for type to render correctly.
 
 ## Browse Locally
 
 ```bash
 npx serve prototypes
 ```
+
+Prototypes deploy to AWS Amplify on push to `main` — see [`amplify.yml`](amplify.yml).
 
 ## Prototype Conventions
 
@@ -19,17 +21,11 @@ npx serve prototypes
 - Yellow `#FDCE45` is sacred — never change it
 - Icons: inline SVG (Phosphor-style), no emoji
 - Every prototype gets a favicon link and theme-color meta tag
+- Typography: GT America + Berkeley Mono only — see the Typography section in [`AGENTS.md`](AGENTS.md)
 
 ## Design Variants
 
-| Variant | Type stack | Reference |
-|---------|-----------|-----------|
-| Clean Modern | Inter | Linear, Raycast |
-| Monospace | JetBrains Mono | Terminal, iA Writer |
-| Brutalist | Inter Black + JetBrains Mono | Oxide Computer |
-| Editorial | DM Serif Display + Inter | Letterboxd, Are.na |
-
-Additional variants explored: Retro, Ink, Neubrutalism, Swiss, Scandi, Glass, Starry.
+Variants differ by color, density, radius, motion, and ornamentation — not typography. Explored variants include Clean Modern, Monospace, Brutalist, Editorial, Retro, Ink, Neubrutalism, Swiss, Scandi, Glass, Starry, Nocturne, and Linear Neutral.
 
 ## Docs
 

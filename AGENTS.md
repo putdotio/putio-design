@@ -13,7 +13,10 @@ Read these in order:
 docs/              design docs, specs, research
 docs/specs/        feature specs
 docs/references/   platform UI guides, reference images
+docs/archive/      superseded docs kept for history
 prototypes/        HTML design screens + gallery index
+moodboard/         visual references
+amplify.yml        AWS Amplify deploy config (pushes to main auto-deploy)
 ```
 
 ## Key rules

@@ -482,11 +482,15 @@ Key decisions made during design exploration. For TV-specific decisions, see [TV
 
 ### Design Variants Explored
 
-| Variant | Type stack | Reference | Persona fit |
-|---------|-----------|-----------|-------------|
-| Clean Modern | Inter | Linear, Raycast, Notion | Production-ready default |
-| Monospace | JetBrains Mono | Terminal, iA Writer | Pipeline Builder |
-| Brutalist | Inter Black + JetBrains Mono | Oxide Computer | Bold statement |
-| Editorial | DM Serif Display + Inter | Letterboxd, Are.na | Warmth, soul |
+All variants share one type stack — GT America (sans/display) + Berkeley Mono (mono), served from `static.put.io`. Variants differ by color, density, radius, motion, and ornamentation.
 
-376 HTML prototypes across 11 variants in `prototypes/`.
+| Variant | Reference | Persona fit |
+|---------|-----------|-------------|
+| Clean Modern | Linear, Raycast, Notion | Production-ready default |
+| Monospace | Terminal, iA Writer | Pipeline Builder |
+| Brutalist | Oxide Computer | Bold statement |
+| Editorial | Letterboxd, Are.na | Warmth, soul |
+| Linear Neutral | Linear | Muted utility |
+| Glass · Starry · Nocturne · Retro · Ink · Scandi · Swiss · Neubrutalism | Various | Exploratory flavors |
+
+HTML prototypes live in `prototypes/` — see the gallery index for the current set.
