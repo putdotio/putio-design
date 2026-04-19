@@ -10,24 +10,19 @@
 
 <br />
 
-## Browse
+## View
 
-Prototypes deploy automatically to AWS Amplify on push to `main` (config: [`amplify.yml`](amplify.yml)). For local browsing:
+Live prototype gallery: [design.put.io](https://design.put.io)
 
-```bash
-npx serve prototypes
-```
+The site deploys automatically to AWS Amplify on every push to `main` — see [`amplify.yml`](amplify.yml).
 
-## Structure
+## Docs
 
-```
-docs/              design docs, specs, research
-docs/specs/        feature specs
-docs/archive/      historical files
-docs/references/   platform UI guides, reference images
-prototypes/        HTML design screens
-moodboard/         visual references and inspiration
-```
+- [`AGENTS.md`](AGENTS.md) — contributor and agent guidance (conventions, typography, variants)
+- [`docs/design-brief.md`](docs/design-brief.md) — product context, personas, principles
+- [`docs/design-system.md`](docs/design-system.md) — current web design system audit
+- [`docs/specs/`](docs/specs) — feature specs (TV app, etc.)
+- [`docs/references/`](docs/references) — platform UI guides and reference screenshots
 
 ## Contributing
 
