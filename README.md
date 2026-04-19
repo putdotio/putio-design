@@ -12,7 +12,7 @@
 
 ## Browse
 
-Prototypes are deployed automatically on push. For local browsing:
+Prototypes deploy automatically to AWS Amplify on push to `main` (config: [`amplify.yml`](amplify.yml)). For local browsing:
 
 ```bash
 npx serve prototypes
