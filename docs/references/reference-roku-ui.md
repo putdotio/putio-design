@@ -1309,7 +1309,7 @@ When building HTML/CSS prototypes that represent a Roku UI:
 
 ## Additional Notes for put.io
 
-Based on the [put.io TV app spec](../docs/specs/tv-app.md) and [design feedback](../.claude/projects/-Users-glitch-projects-putio-design/memory/feedback_tv_file_browsing.md):
+Based on the [put.io TV app spec](../specs/tv-app.md) and earlier design feedback from the file-browsing exploration:
 
 - **put.io is a file manager, not a media library.** There are no posters, no metadata, no album art. The UI must work with raw file and folder names.
 - Use the **file/list browser pattern** (Pattern 4 above), not Netflix-style poster grids.

@@ -18,20 +18,20 @@ The site deploys automatically to AWS Amplify on every push to `main` — see [`
 
 ## Docs
 
-- [`AGENTS.md`](AGENTS.md) — contributor and agent guidance (conventions, typography, variants)
-- [`docs/design-brief.md`](docs/design-brief.md) — product context, personas, principles
-- [`docs/design-system.md`](docs/design-system.md) — current web design system audit
-- [`docs/specs/`](docs/specs) — feature specs (TV app, etc.)
-- [`docs/references/`](docs/references) — platform UI guides and reference screenshots
+- [Agent guide](AGENTS.md) — contributor and agent guidance
+- [Design brief](docs/design-brief.md) — product context, personas, and principles
+- [Design system audit](docs/design-system.md) — current web design system review
+- [Specs](docs/specs) — feature specs such as the TV app
+- [References](docs/references) — platform UI guides and reference screenshots
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+See [Contributing](CONTRIBUTING.md).
 
 ## Security
 
-See [SECURITY.md](SECURITY.md).
+See [Security](SECURITY.md).
 
 ## License
 
-[MIT](LICENSE)
+This project is available under the [MIT License](LICENSE)
