@@ -10,7 +10,7 @@ Product context, user research, personas, design principles, and scope.
 
 **Related docs:**
 - [Design System](design-system.md) — current UI audit, codebase analysis, brand constants
-- [Platform Strategy](https://github.com/putdotio/putio-workspace-frontend/blob/main/docs/platform-strategy.md) — native vs hybrid, architecture, agent workflow
+- [Platform Strategy](https://github.com/putdotio/putio-frontend-handbook/blob/main/docs/platform-strategy.md) — native vs hybrid, architecture, agent workflow
 - [Research](research.md) — raw interview notes, behavioral patterns, Notion context
 - [TV App Spec](specs/tv-app.md) — complete spec for tvOS + Android TV rewrite
 
@@ -415,7 +415,7 @@ The team cares deeply about type:
 - Mixed content types in the same space (video, audio, documents, archives)
 - Cloud storage mental model, not a media library
 - Cross-platform: web, iOS, tvOS, Android, Android TV — what works on one must translate
-- One frontend engineer (the frontend lead) + AI coding agents — see [Platform Strategy](https://github.com/putdotio/putio-workspace-frontend/blob/main/docs/platform-strategy.md)
+- One frontend engineer (the frontend lead) + AI coding agents — see [Platform Strategy](https://github.com/putdotio/putio-frontend-handbook/blob/main/docs/platform-strategy.md)
 - Open source direction — SDKs and potentially apps
 - Current stack: React (web), Swift (iOS/tvOS), Kotlin (Android) — see [Design System](design-system.md) for codebase analysis
 - Design tokens need to work cross-platform — see shared contracts in [TV App Spec](specs/tv-app.md#shared-contracts)
@@ -424,7 +424,7 @@ The team cares deeply about type:
 
 ## 9. Scope
 
-Scope has evolved into a full platform strategy. See [Platform Strategy](https://github.com/putdotio/putio-workspace-frontend/blob/main/docs/platform-strategy.md) for the architecture and implementation plan.
+Scope has evolved into a full platform strategy. See [Platform Strategy](https://github.com/putdotio/putio-frontend-handbook/blob/main/docs/platform-strategy.md) for the architecture and implementation plan.
 
 **Summary:** Spec-driven native apps. Agents implement specs across platforms in parallel. One human reviews. The spec is the product.
 
