@@ -18,17 +18,17 @@ Open the printed URL and browse the gallery index.
 
 Prototypes are visual artefacts; there are no automated checks. Before opening a pull request:
 
-- Load the prototype in a browser at the viewport listed in [`AGENTS.md`](AGENTS.md)
+- Load the prototype in a browser at the viewport listed in the [Agent guide](AGENTS.md)
 - Confirm fonts load (GT America and Berkeley Mono should render, not system fallbacks)
-- Compare against the relevant spec in [`docs/specs/`](docs/specs) and reference screenshots in [`docs/references/images/`](docs/references/images)
+- Compare against the relevant [Specs](docs/specs) and [Reference screenshots](docs/references/images)
 
 ## Conventions
 
-Prototype naming, viewports, typography, sacred yellow, icons, and design variants are documented in [`AGENTS.md`](AGENTS.md). Read it before adding new prototypes.
+Prototype naming, viewports, typography, sacred yellow, icons, and design variants are documented in the [Agent guide](AGENTS.md). Read it before adding new prototypes.
 
 ## Deploy
 
-Pushes to `main` auto-deploy to [design.put.io](https://design.put.io) via AWS Amplify — config in [`amplify.yml`](amplify.yml).
+Pushes to `main` auto-deploy to [design.put.io](https://design.put.io) via AWS Amplify — config in the [Amplify config](amplify.yml).
 
 ## Pull Requests
 

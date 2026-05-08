@@ -14,7 +14,7 @@
 
 Live prototype gallery: [design.put.io](https://design.put.io)
 
-The site deploys automatically to AWS Amplify on every push to `main` — see [`amplify.yml`](amplify.yml).
+The site deploys automatically to AWS Amplify on every push to `main` — see the [Amplify config](amplify.yml).
 
 ## Docs
 
