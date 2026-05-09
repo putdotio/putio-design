@@ -44,7 +44,10 @@ Only the `production` SST stage is supported. Do not create preview, spike, or
 staging stages for this repo.
 
 GitHub Actions production deploys use AWS OIDC with the `AWS_DEPLOY_ROLE_ARN`
-repository variable. If that variable is unset, the deploy job skips.
+repository variable.
+
+Deploys also read `DESIGN_DOMAIN`, `AWS_REGION`, `AWS_ROUTE53_ZONE_ID`, and
+`AWS_WILDCARD_CERT_ARN` from repository variables.
 
 ## Pull Requests
 

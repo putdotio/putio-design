@@ -1,6 +1,6 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
-export const DESIGN_DOMAIN = "design.put.io";
+export const DESIGN_DOMAIN = requiredEnv("DESIGN_DOMAIN");
 
 export const AWS_ROUTE53_ZONE_ID = requiredEnv("AWS_ROUTE53_ZONE_ID");
 
