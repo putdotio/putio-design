@@ -22,17 +22,17 @@ amplify.yml        AWS Amplify deploy config (pushes to main auto-deploy)
 ## Key rules
 
 - Read the spec before writing code. The spec is the source of truth.
-- Yellow `#FDCE45` is sacred. Never change it.
+- Yellow `#FDCE45` is sacred. Keep it unchanged.
 - Icons: inline SVG (Phosphor-style). No emoji.
 - TV apps are file browsers — list views, not media card grids.
 - Ecosystem apps are out of scope.
 - Check `docs/references/images/` screenshots before designing platform screens.
-- Never stop to ask — loop autonomously when iterating.
-- When writing or updating docs: never include customer PII (real names, emails, employers). Use anonymous IDs (e.g. "User 01"). Never reference third-party apps by name — use generic descriptions instead.
+- Loop autonomously when iterating.
+- When writing or updating docs, use anonymous IDs such as "User 01" and generic third-party app descriptions.
 
 ## Content-agnostic design (critical)
 
-put.io is content-agnostic. We do NOT know what files the user has. We cannot parse, format, or beautify filenames. This is the inherent reality of the product.
+put.io is content-agnostic. We only know raw filenames, not structured media metadata. Design for that reality.
 
 **In prototypes and specs, always use raw filenames exactly as they appear:**
 - `The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv`
@@ -43,14 +43,13 @@ put.io is content-agnostic. We do NOT know what files the user has. We cannot pa
 - `homework_answers_DONT_DELETE`
 - `document-scan-march-2026.pdf`
 
-**Never do any of these:**
-- Parse filenames into clean titles (e.g. showing "Inception" instead of the raw filename)
-- Add quality badges (4K, 1080p) as separate UI elements — that info is in the filename
-- Add source/codec tags as metadata pills
-- Assume we have posters, thumbnails, descriptions, or any structured metadata
-- Show "health indicators" that require parsing torrent data into simplified states
+**Use these constraints:**
+- Show raw filenames instead of parsed clean titles
+- Leave quality, source, and codec details inside the filename
+- Treat posters, thumbnails, descriptions, and structured metadata as unavailable unless the product surface provides them
+- Show only states backed by actual product data
 
-**The design challenge:** Make a list of ugly, truncated filenames feel premium through typography, spacing, and interaction quality alone. The beauty comes from the utility itself — not from pretending we have metadata we don't.
+**The design challenge:** Make a list of ugly, truncated filenames feel premium through typography, spacing, and interaction quality alone. The beauty comes from the utility itself while staying honest about the metadata we have.
 
 ## Typography
 

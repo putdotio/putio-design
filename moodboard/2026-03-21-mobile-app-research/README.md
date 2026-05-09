@@ -37,5 +37,5 @@ Plus: `screenshots/linear-macos-screenshot.jpg` — Linear macOS app screenshot.
 
 - iOS 26 native glass menus are already in Linear and our latest TestFlight.
 - Floating tabbar pattern worth considering. If too complex on Android, a fixed bottom bar is fine.
-- Telegram approach: follow platform conventions closely, avoid cross-platform frameworks.
+- Telegram approach: follow platform conventions closely with native-feeling UI choices.
 - GitHub mobile hierarchy matches web but the UI quality drops significantly.
