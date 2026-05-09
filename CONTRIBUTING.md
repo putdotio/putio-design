@@ -4,7 +4,13 @@ Thanks for contributing to put.io design.
 
 ## Setup
 
-No toolchain required. Prototypes are self-contained HTML files that pull fonts from `static.put.io` at runtime — internet access is needed for type to render correctly.
+Install dependencies from the repository root:
+
+```bash
+pnpm install
+```
+
+Prototypes are self-contained HTML files that pull fonts from `static.put.io` at runtime — internet access is needed for type to render correctly.
 
 ## Run Locally
 
@@ -28,7 +34,22 @@ Prototype naming, viewports, typography, sacred yellow, icons, and design varian
 
 ## Deploy
 
-Pushes to `main` auto-deploy to [design.put.io](https://design.put.io) via AWS Amplify — config in the [Amplify config](amplify.yml).
+`design.put.io` is deployed with SST to AWS S3, CloudFront, and Route 53.
+
+Use a spike stage before changing production:
+
+```bash
+pnpm deploy:spike
+```
+
+Production deploys use:
+
+```bash
+pnpm deploy:production
+```
+
+GitHub Actions production deploys use AWS OIDC with the `AWS_DEPLOY_ROLE_ARN`
+repository variable. If that variable is unset, the deploy job skips.
 
 ## Pull Requests
 

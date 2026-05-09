@@ -16,7 +16,8 @@ docs/references/   platform UI guides, reference images
 docs/archive/      superseded docs kept for history
 prototypes/        HTML design screens + gallery index
 moodboard/         visual references
-amplify.yml        AWS Amplify deploy config (pushes to main auto-deploy)
+infra/             SST-managed AWS static-site infrastructure
+sst.config.ts      SST app entry point for design.put.io
 ```
 
 ## Key rules
@@ -87,3 +88,21 @@ Variants differ by color, density, radius, motion, and ornamentation — not typ
 ## Viewports
 
 Web 1440×900 · iOS 390×844 · Android 412×915 · tvOS 1920×1080 · Android TV 1920×1080
+
+## Deployment
+
+`design.put.io` is an SST-managed static site. SST uploads `prototypes/` to S3,
+serves it through CloudFront, and owns the Route 53 record.
+
+Useful commands:
+
+```bash
+pnpm install
+pnpm check
+pnpm deploy:spike
+pnpm deploy:production
+```
+
+Production deploys from GitHub Actions use AWS OIDC with the
+`AWS_DEPLOY_ROLE_ARN` repository variable. If that variable is unset, the deploy
+job skips.

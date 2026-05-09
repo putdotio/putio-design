@@ -14,7 +14,8 @@
 
 Live prototype gallery: [design.put.io](https://design.put.io)
 
-The site deploys automatically to AWS Amplify on every push to `main` — see the [Amplify config](amplify.yml).
+The site is deployed with SST to AWS S3, CloudFront, and Route 53. The deployed
+artifact is the checked-in [`prototypes`](prototypes) directory.
 
 ## Docs
 
