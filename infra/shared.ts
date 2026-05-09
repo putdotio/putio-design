@@ -2,11 +2,18 @@
 
 export const DESIGN_DOMAIN = "design.put.io";
 
-export const PUTIO_ROUTE53_ZONE_ID = "Z189USQZYRL4QI";
+export const AWS_ROUTE53_ZONE_ID = requiredEnv("AWS_ROUTE53_ZONE_ID");
 
-export const PUTIO_WILDCARD_CERT_ARN =
-  "arn:aws:acm:us-east-1:068203738331:certificate/96ea5e11-d402-48f8-9676-f1a4d1848e1c";
+export const AWS_WILDCARD_CERT_ARN = requiredEnv("AWS_WILDCARD_CERT_ARN");
 
 export function putioDns() {
-  return sst.aws.dns({ zone: PUTIO_ROUTE53_ZONE_ID });
+  return sst.aws.dns({ zone: AWS_ROUTE53_ZONE_ID });
+}
+
+function requiredEnv(name: string) {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`${name} must be set for putio-design infrastructure deploys.`);
+  }
+  return value;
 }

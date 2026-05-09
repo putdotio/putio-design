@@ -25,7 +25,7 @@ export default $config({
       home: "aws",
       providers: {
         aws: {
-          region: "eu-west-1",
+          region: process.env.AWS_REGION ?? "eu-west-1",
           ...(awsProfile ? { profile: awsProfile } : {}),
           defaultTags: {
             tags: {

@@ -26,12 +26,16 @@ jobs:
   deploy:
     if: ${{ vars.AWS_DEPLOY_ROLE_ARN != '' }}
     runs-on: ubuntu-latest
-    environment: production
+    environment:
+      name: production
+      url: https://design.put.io
     permissions:
       contents: read
       id-token: write
     env:
-      AWS_REGION: eu-west-1
+      AWS_REGION: ${{ vars.AWS_REGION || 'eu-west-1' }}
+      AWS_ROUTE53_ZONE_ID: ${{ vars.AWS_ROUTE53_ZONE_ID }}
+      AWS_WILDCARD_CERT_ARN: ${{ vars.AWS_WILDCARD_CERT_ARN }}
     steps:
       - name: Check out repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2

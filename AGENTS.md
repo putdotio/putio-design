@@ -108,3 +108,6 @@ preview, spike, or staging stages.
 Production deploys from GitHub Actions use AWS OIDC with the
 `AWS_DEPLOY_ROLE_ARN` repository variable. If that variable is unset, the deploy
 job skips.
+
+Deploys require `AWS_REGION`, `AWS_ROUTE53_ZONE_ID`, and
+`AWS_WILDCARD_CERT_ARN` repository variables
