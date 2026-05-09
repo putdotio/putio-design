@@ -9,6 +9,10 @@ const COMMON_TAGS = {
 export default $config({
   app(input) {
     const stage = input?.stage ?? "dev";
+    const awsProfile =
+      process.env.AWS_ACCESS_KEY_ID || process.env.AWS_WEB_IDENTITY_TOKEN_FILE
+        ? undefined
+        : process.env.AWS_PROFILE;
 
     return {
       name: "putio-design",
@@ -18,7 +22,7 @@ export default $config({
       providers: {
         aws: {
           region: "eu-west-1",
-          profile: process.env.AWS_PROFILE ?? "default",
+          ...(awsProfile ? { profile: awsProfile } : {}),
           defaultTags: {
             tags: {
               ...COMMON_TAGS,
