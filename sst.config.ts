@@ -14,10 +14,14 @@ export default $config({
         ? undefined
         : process.env.AWS_PROFILE;
 
+    if (stage !== "production") {
+      throw new Error("putio-design only supports the production SST stage.");
+    }
+
     return {
       name: "putio-design",
-      removal: stage === "production" ? "retain" : "remove",
-      protect: stage === "production",
+      removal: "retain",
+      protect: true,
       home: "aws",
       providers: {
         aws: {
@@ -26,7 +30,7 @@ export default $config({
           defaultTags: {
             tags: {
               ...COMMON_TAGS,
-              Stage: stage,
+              Stage: "production",
             },
           },
         },

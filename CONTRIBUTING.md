@@ -36,17 +36,12 @@ Prototype naming, viewports, typography, sacred yellow, icons, and design varian
 
 `design.put.io` is deployed with SST to AWS S3, CloudFront, and Route 53.
 
-Use a spike stage before changing production:
-
-```bash
-pnpm deploy:spike
-```
-
-Production deploys use:
-
 ```bash
 pnpm deploy:production
 ```
+
+Only the `production` SST stage is supported. Do not create preview, spike, or
+staging stages for this repo.
 
 GitHub Actions production deploys use AWS OIDC with the `AWS_DEPLOY_ROLE_ARN`
 repository variable. If that variable is unset, the deploy job skips.

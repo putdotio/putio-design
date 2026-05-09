@@ -1,5 +1,7 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
+export const DESIGN_DOMAIN = "design.put.io";
+
 export const PUTIO_ROUTE53_ZONE_ID = "Z189USQZYRL4QI";
 
 export const PUTIO_WILDCARD_CERT_ARN =
@@ -7,9 +9,4 @@ export const PUTIO_WILDCARD_CERT_ARN =
 
 export function putioDns() {
   return sst.aws.dns({ zone: PUTIO_ROUTE53_ZONE_ID });
-}
-
-export function domainForStage(stage: string): string {
-  if (stage === "production") return "design.put.io";
-  return `design-${stage}.put.io`;
 }

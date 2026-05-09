@@ -99,9 +99,11 @@ Useful commands:
 ```bash
 pnpm install
 pnpm check
-pnpm deploy:spike
 pnpm deploy:production
 ```
+
+Only the `production` SST stage is supported for this repo. Do not create
+preview, spike, or staging stages.
 
 Production deploys from GitHub Actions use AWS OIDC with the
 `AWS_DEPLOY_ROLE_ARN` repository variable. If that variable is unset, the deploy
