@@ -4,7 +4,7 @@
 
 Read these in order:
 1. `docs/design-brief.md` — product context, personas, principles
-2. [Platform Strategy](https://github.com/putdotio/putio-frontend-handbook/blob/main/docs/platform-strategy.md) — how we build (native, agents, VLC-kit)
+2. [Platform Strategy](https://github.com/putdotio/putio-frontend-workspace/blob/main/docs/platform-strategy.md) — how we build (native, agents, VLC-kit)
 3. `docs/specs/tv-app.md` — the spec you're implementing (if working on TV)
 
 ## Repo structure

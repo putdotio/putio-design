@@ -11,7 +11,7 @@ Current state of put.io's visual system: what exists, what works, what doesn't.
 **Related docs:**
 - [Design Brief](design-brief.md) — why we're redesigning, personas, principles
 - [TV App Spec → Shared Contracts](specs/tv-app.md#shared-contracts) — design tokens, i18n, SDK types for the rewrite
-- [Platform Strategy](https://github.com/putdotio/putio-frontend-handbook/blob/main/docs/platform-strategy.md) — architecture decisions
+- [Platform Strategy](https://github.com/putdotio/putio-frontend-workspace/blob/main/docs/platform-strategy.md) — architecture decisions
 
 **Brand constants:**
 - Yellow: `#FDCE45` (sacred, never changes)
