@@ -3,39 +3,38 @@
 ## Before you start
 
 Read these in order:
-1. `docs/design-brief.md` — product context, personas, principles
-2. [Platform Strategy](https://github.com/putdotio/putio-frontend-workspace/blob/main/docs/platform-strategy.md) — how we build (native, agents, VLC-kit)
-3. `docs/specs/tv-app.md` — the spec you're implementing (if working on TV)
+1. [Design Brief](https://github.com/putdotio/putio-frontend-workspace/blob/main/docs/design/design-brief.md) — product context, personas, principles
+2. [Platform Strategy](https://github.com/putdotio/putio-frontend-workspace/blob/main/docs/platform-strategy.md) — how we build across platforms
+3. [TV Product Bar](https://github.com/putdotio/putio-frontend-workspace/blob/main/docs/specs/tv-app/product.md) — what makes a good put.io TV app
+4. [TV App Feature Spec](https://github.com/putdotio/putio-frontend-workspace/blob/main/docs/specs/tv-app/feature-spec.md) — detailed TV feature spec
 
 ## Repo structure
 
 ```
-docs/              design docs, specs, research
-docs/specs/        feature specs
-docs/references/   platform UI guides, reference images
-docs/archive/      superseded docs kept for history
+docs/              pointer to workspace-owned docs
 prototypes/        HTML design screens + gallery index
-moodboard/         visual references
+moodboard/         pointer to workspace-owned moodboards
 infra/             SST-managed AWS static-site infrastructure
 sst.config.ts      SST app entry point for design.put.io
 ```
 
 ## Key rules
 
-- Read the spec before writing code. The spec is the source of truth.
+- Read the workspace spec before writing code. The workspace is the source of truth for durable docs.
 - Yellow `#FDCE45` is sacred. Keep it unchanged.
-- Icons: inline SVG (Phosphor-style). No emoji.
+- Icons: Lucide-style inline SVG for new native TV work. No emoji.
 - TV apps are file browsers — list views, not media card grids.
 - Ecosystem apps are out of scope.
-- Check `docs/references/images/` screenshots before designing platform screens.
+- Check [workspace reference images](https://github.com/putdotio/putio-frontend-workspace/tree/main/docs/references/images) before designing platform screens.
 - Loop autonomously when iterating.
 - When writing or updating docs, use anonymous IDs such as "User 01" and generic third-party app descriptions.
+- Keep this repo focused on prototypes, generated galleries, deployable design-site assets, and raw visual experiments. Durable conclusions, specs, plans, decisions, references, and moodboards belong in [putio-frontend-workspace](https://github.com/putdotio/putio-frontend-workspace).
 
 ## Content-agnostic design (critical)
 
 put.io is content-agnostic. We only know raw filenames, not structured media metadata. Design for that reality.
 
-**In prototypes and specs, always use raw filenames exactly as they appear:**
+**In prototypes, always use raw filenames exactly as they appear:**
 - `The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv`
 - `Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv`
 - `ubuntu-24.04.1-desktop-amd64.iso`
@@ -45,7 +44,7 @@ put.io is content-agnostic. We only know raw filenames, not structured media met
 - `document-scan-march-2026.pdf`
 
 **Use these constraints:**
-- Show raw filenames instead of parsed clean titles
+- Show raw filenames instead of derived display titles
 - Leave quality, source, and codec details inside the filename
 - Treat posters, thumbnails, descriptions, and structured metadata as unavailable unless the product surface provides them
 - Show only states backed by actual product data

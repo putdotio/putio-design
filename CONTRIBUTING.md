@@ -26,7 +26,7 @@ Prototypes are visual artefacts; there are no automated checks. Before opening a
 
 - Load the prototype in a browser at the viewport listed in the [Agent guide](AGENTS.md)
 - Confirm fonts load (GT America and Berkeley Mono should render, not system fallbacks)
-- Compare against the relevant [Specs](docs/specs) and [Reference screenshots](docs/references/images)
+- Compare against the relevant workspace specs and [reference screenshots](https://github.com/putdotio/putio-frontend-workspace/tree/main/docs/references/images)
 
 ## Conventions
 
@@ -52,5 +52,5 @@ Deploys also read `DESIGN_DOMAIN`, `AWS_REGION`, `AWS_ROUTE53_ZONE_ID`, and
 ## Pull Requests
 
 - Keep changes focused and explicit.
-- Read the relevant spec before designing a new screen.
-- Check `docs/references/images/` screenshots before designing platform screens.
+- Read the relevant workspace spec before designing a new screen.
+- Check [workspace reference images](https://github.com/putdotio/putio-frontend-workspace/tree/main/docs/references/images) before designing platform screens.

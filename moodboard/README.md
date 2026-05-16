@@ -1,9 +1,10 @@
-# Moodboard
+# Moodboards
 
-Visual references, inspiration, and design direction for put.io.
+Durable put.io moodboards live in the workspace repo:
 
-Add images, links, and notes here.
+- [Moodboards](https://github.com/putdotio/putio-frontend-workspace/blob/main/docs/moodboards/README.md)
 
-## References
-
-- [Pluribus Opening Titles / Main Titles](https://youtu.be/HhodPPPXfxg?si=KGKtgqGBh4IcybIH)
+Keep this repo focused on prototypes, generated galleries, deployable
+design-site assets, and raw visual experiments. Durable moodboard notes and
+reference assets belong in
+[putio-frontend-workspace](https://github.com/putdotio/putio-frontend-workspace).
