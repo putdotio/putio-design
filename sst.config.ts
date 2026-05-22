@@ -4,6 +4,7 @@ const COMMON_TAGS = {
   Project: "putio-design",
   ManagedBy: "SST",
   Repo: "putdotio/putio-design",
+  costcenter: "frontend",
 } as const;
 
 export default $config({
