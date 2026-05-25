@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head><meta charset="utf-8">
+<title>put.io preview · focus system</title>
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .card { padding: 24px; display:flex; flex-direction:column; gap: 22px; }
+  .label { font-size: 12.5px; font-weight: 500; color: var(--text); }
+  .note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
+  .note b { color: var(--text); }
+  .note code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11.5px; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
+  .cell { background: var(--bg-secondary); padding: 24px 22px 22px; display:flex; flex-direction:column; gap: 16px; }
+  .cell .hd { display: flex; flex-direction: column; gap: 4px; }
+  .cell .name { font-size: 12px; color: var(--yellow-solid); font-weight: 600; letter-spacing: 0; }
+  .cell .where { font-size: 12px; color: var(--text-secondary); }
+  .cell .demo {
+    background: var(--app-bg); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 22px; display: flex; flex-direction: column; gap: 14px; align-items: flex-start;
+    min-height: 120px;
+  }
+  .cell .why { font-size: 12px; color: var(--text-secondary); line-height: 1.55; margin-top: auto; }
+  .cell .why code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11px; }
+
+  /* Buttons — production parity (mirrors components-buttons.html) */
+  .btn {
+    height: 32px; padding: 0 14px; border-radius: var(--radius);
+    border: 1px solid transparent;
+    font-family: var(--font-sans); font-weight: var(--fw-medium); font-size: var(--fs-base);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+    transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+  }
+  .btn.primary { background: var(--yellow-solid); border-color: var(--yellow-solid); color: #000; }
+  .btn.primary:hover { background: var(--yellow-solid-hover); border-color: var(--yellow-solid-hover); }
+  .btn.default { background: var(--component-bg); border-color: var(--border); color: var(--text); }
+  .btn.default:hover { background: var(--component-bg-hover); border-color: var(--border-hover); }
+
+  /* Focus state — yellow halo via shadow-focus token */
+  .btn.is-focused { outline: none; box-shadow: var(--shadow-focus); }
+
+  /* Pointer-hover demo — visually held in hover state */
+  .btn.default.is-hover { background: var(--component-bg-hover); border-color: var(--border-hover); }
+
+  /* Input */
+  .input {
+    width: 220px; height: 36px; padding: 0 12px; box-sizing: border-box;
+    border-radius: var(--radius); border: 1px solid var(--border);
+    background: var(--app-bg); color: var(--text);
+    font-family: var(--font-sans); font-size: var(--fs-base);
+  }
+  .input.is-focused {
+    outline: none;
+    border-color: var(--border-hover);
+    box-shadow: 0 0 0 1px var(--border-hover);
+  }
+
+  /* TV tile */
+  .cell.tv { background: #0a0a0a; }
+  .cell.tv .demo { background: #050505; border-color: hsl(0,0%,16%); }
+  .tv-tile {
+    width: 144px; height: 88px; border-radius: 10px;
+    background: hsl(0,0%,14%); border: 1px solid hsl(0,0%,20%);
+    display: grid; place-items: center;
+    color: hsl(0,0%,62.8%);
+    font-size: 12px; font-weight: 500;
+    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .tv-tile.focused {
+    transform: scale(1.06);
+    background: rgba(255,255,255,0.10);
+    border-color: rgba(255,255,255,0.10);
+    color: var(--text);
+    box-shadow:
+      0 0 0 1px rgba(253,206,69,0.18),
+      0 14px 30px rgba(0,0,0,0.45);
+  }
+  .tv-row { display: flex; gap: 12px; }
+
+  /* Spec table */
+  .spec-tbl {
+    background: var(--bg-secondary); border: 1px solid var(--line);
+    border-radius: var(--radius-lg); overflow: hidden;
+  }
+  .spec-row {
+    display: grid; grid-template-columns: 180px 200px 1fr;
+    gap: 18px; padding: 12px 18px; align-items: center;
+  }
+  .spec-row + .spec-row { border-top: 1px solid var(--line); }
+  .spec-row .k { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
+  .spec-row .v { font-family: var(--font-mono); font-size: 11.5px; color: var(--yellow-solid); }
+  .spec-row .why { color: var(--text-secondary); font-size: 12.5px; line-height: 1.5; }
+  .spec-row .why code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11px; }
+</style></head>
+<body>
+<div class="card">
+
+  <div>
+    <div class="label">Focus system — three contexts, one ring</div>
+    <div class="note">put.io has three focus contexts: <b>keyboard</b> (web), <b>pointer</b> (web, no ring), <b>D-pad</b> (TV). All three resolve to the same brand-yellow halo, scaled to the input device. Never invent another focus style.</div>
+  </div>
+
+  <div class="grid">
+
+    <!-- Keyboard -->
+    <div class="cell">
+      <div class="hd">
+        <div class="name">Keyboard · web</div>
+        <div class="where">Tab / arrows over buttons, inputs, links</div>
+      </div>
+      <div class="demo">
+        <button class="btn primary is-focused">Save changes</button>
+        <input class="input is-focused" value="search" />
+      </div>
+      <div class="why">3px yellow halo at 35% alpha around any button. Sits outside the border, never replaces it. Triggered by <code>:focus-visible</code>, not <code>:focus</code>.</div>
+    </div>
+
+    <!-- Pointer -->
+    <div class="cell">
+      <div class="hd">
+        <div class="name">Pointer · web</div>
+        <div class="where">Mouse hover &amp; click</div>
+      </div>
+      <div class="demo">
+        <button class="btn primary">Save changes</button>
+        <input class="input" value="search" />
+      </div>
+      <div class="why">No halo. Hover lifts background to <code>--yellow-solid-hover</code> on primary, or <code>--component-bg-hover</code> on default. Cursor carries the intent.</div>
+    </div>
+
+    <!-- D-pad -->
+    <div class="cell tv">
+      <div class="hd">
+        <div class="name">D-pad · TV</div>
+        <div class="where">Apple TV · Android TV · Roku · Smart-TV web</div>
+      </div>
+      <div class="demo">
+        <div class="tv-row">
+          <div class="tv-tile">tile</div>
+          <div class="tv-tile focused">focused</div>
+        </div>
+      </div>
+      <div class="why"><code>scale(1.06)</code> + 1px yellow halo at 18% alpha + 14px drop shadow. Engine varies per platform (CSS on web / AndroidTV-web, focusable group on tvOS, BrightScript focus on Roku) — the visual is identical.</div>
+    </div>
+
+  </div>
+
+  <div>
+    <div class="label">Spec — values lifted from <code style="font-family:var(--font-mono);color:var(--yellow-solid);font-size:11px;">system/tokens.css</code></div>
+  </div>
+
+  <div class="spec-tbl">
+    <div class="spec-row"><span class="k">Ring color</span><span class="v">--shadow-focus-color</span><span class="why">Brand yellow at 35% alpha. <code>hsla(47, 100%, 65%, 0.35)</code>.</span></div>
+    <div class="spec-row"><span class="k">Ring · button (web)</span><span class="v">--shadow-focus</span><span class="why">3px yellow halo via <code>box-shadow</code>. Border stays unchanged.</span></div>
+    <div class="spec-row"><span class="k">Ring · input (web)</span><span class="v">--border-hover + 1px ring</span><span class="why">Inputs swap to step-8 border, never paint yellow on the border itself (per <code>form token guidance</code>).</span></div>
+    <div class="spec-row"><span class="k">Ring · TV tile</span><span class="v">scale(1.06) + 1px halo</span><span class="why">10-foot UI needs more presence. <em>Scale</em> is the affordance; the halo is the confirmation.</span></div>
+    <div class="spec-row"><span class="k">Trigger</span><span class="v">:focus-visible</span><span class="why">Never <code>:focus</code> — that paints rings on clicks users don't want.</span></div>
+    <div class="spec-row"><span class="k">Transition</span><span class="v">120ms · ease-out</span><span class="why">Match D-pad latency expectations. Slow focus = laggy app.</span></div>
+  </div>
+
+</div>
+</body></html>

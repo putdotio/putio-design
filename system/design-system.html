@@ -1,0 +1,2095 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>put.io · design system</title>
+<link rel="icon" href="./assets/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="./tokens.css">
+<style>
+  /* ===================================================================
+     BASE
+     ================================================================ */
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  a { color: inherit; text-decoration: none; }
+  .sub a, .d a, .body a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+  }
+  ::selection { background: var(--yellow-solid); color: #000; }
+
+  :root {
+    --ink-meta: var(--text-secondary);
+    --rule-soft: var(--line);
+    --rule-strong: var(--border);
+    --code-bg: color-mix(in srgb, var(--yellow-solid) 10%, transparent);
+    --code-fg: var(--yellow-solid);
+    --pill-bg: color-mix(in srgb, var(--yellow-solid) 12%, transparent);
+    --pill-fg: var(--yellow-solid);
+  }
+
+  code, kbd { font-family: var(--font-mono); }
+  .mono { font-family: var(--font-mono); }
+  .ui-mono { font-family: var(--font-ui-mono); }
+
+  /* ===================================================================
+     SHELL — sticky TOC + main column
+     ================================================================ */
+  .shell {
+    display: grid;
+    grid-template-columns: 248px minmax(0, 1fr);
+    max-width: 1440px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+
+  .toc {
+    position: sticky; top: 0; align-self: start;
+    height: 100vh; overflow-y: auto;
+    padding: 28px 18px 28px 28px;
+    border-right: 1px solid var(--rule-soft);
+    background: var(--bg);
+  }
+  .toc-brand {
+    display: flex; align-items: baseline; gap: 0;
+    font-size: 19px; font-weight: 700; letter-spacing: -0.025em;
+    margin-bottom: 2px;
+  }
+  .toc-brand .dot { color: var(--yellow-solid); }
+  .toc-sub {
+    font-family: var(--font-ui-mono);
+    font-size: 10px;
+    color: var(--ink-meta); letter-spacing: 0.06em;
+    margin-bottom: 16px; text-transform: uppercase;
+  }
+  .toc-theme {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-bottom: 22px;
+    padding: 5px 10px; border-radius: var(--radius-sm);
+    border: 1px solid var(--rule-soft); background: var(--bg-secondary);
+    font-family: var(--font-ui-mono); font-size: 10.5px;
+    color: var(--ink-meta); text-transform: uppercase; letter-spacing: 0.06em;
+    transition: border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .toc-theme:hover { color: var(--text); border-color: var(--border-hover); }
+  .toc-theme .swatch {
+    width: 12px; height: 12px; border-radius: 2px;
+    background: linear-gradient(135deg, #0e0e0f 0 50%, #fafafa 50% 100%);
+    border: 1px solid var(--rule-soft);
+  }
+  .toc nav { display: flex; flex-direction: column; gap: 18px; }
+  .toc nav h4 {
+    font-size: 11px; font-weight: 600;
+    color: var(--text);
+    margin: 0 0 6px;
+    display: flex; align-items: center; gap: 8px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .toc nav h4 .ix {
+    color: var(--yellow-solid); font-family: var(--font-ui-mono);
+    font-size: 10px; letter-spacing: 0.04em;
+  }
+  .toc nav ul {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-direction: column; gap: 0;
+  }
+  .toc nav li { position: relative; }
+  .toc nav a {
+    display: block;
+    padding: 5px 10px 5px 14px;
+    border-left: 2px solid transparent;
+    font-size: 12.5px; color: var(--ink-meta);
+    transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+  }
+  .toc nav a:hover { color: var(--text); }
+  .toc nav a.is-active {
+    color: var(--text);
+    border-left-color: var(--yellow-solid);
+    font-weight: 500;
+  }
+  .toc nav li.toc-group {
+    font-family: var(--font-ui-mono); font-size: 10px;
+    color: var(--ink-meta);
+    padding: 12px 10px 4px 14px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .toc nav li.toc-group:first-child { padding-top: 2px; }
+
+  .toc-foot {
+    margin-top: 28px;
+    padding-top: 14px; border-top: 1px solid var(--rule-soft);
+    font-size: 12px;
+    color: var(--ink-meta);
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .toc-foot a { font-family: var(--font-mono); }
+  .toc-foot a:hover { color: var(--yellow-solid); }
+  .toc-foot .kao {
+    color: var(--yellow-solid); margin-top: 12px;
+    font-family: var(--font-mono); font-size: 13px;
+  }
+
+  /* ============================================== MAIN COLUMN ===== */
+  main { padding: 0 48px 80px; min-width: 0; }
+
+  /* ===================================================================
+     HERO — kept tall; everything after is dense
+     ================================================================ */
+  header.hero {
+    padding: 64px 0 36px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 48px;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  header.hero h1 {
+    font-family: var(--font-sans);
+    font-size: 52px; font-weight: 700;
+    letter-spacing: -0.035em; line-height: 0.95;
+    margin: 0;
+  }
+  header.hero h1 .dot { color: var(--yellow-solid); }
+  header.hero .lede {
+    font-size: 14.5px; color: var(--ink-meta);
+    max-width: 560px; line-height: 1.55;
+    margin-top: 16px;
+  }
+  header.hero .lede b { color: var(--text); font-weight: 500; }
+  header.hero .lede code {
+    font-family: var(--font-mono); font-size: 13px;
+    color: var(--code-fg); font-weight: 500;
+    background: var(--code-bg);
+    padding: 1px 6px; border-radius: 3px;
+  }
+  header.hero .vsn {
+    display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+    font-family: var(--font-ui-mono); font-size: 10.5px;
+    color: var(--ink-meta); letter-spacing: 0.04em;
+  }
+  header.hero .vsn .v {
+    color: var(--text); font-size: 11px;
+    padding: 3px 8px; border: 1px solid var(--rule-strong);
+    border-radius: 999px;
+  }
+  header.hero .vsn .v b { color: var(--yellow-solid); font-weight: 500; }
+  header.hero .vsn a:hover { color: var(--yellow-solid); }
+
+  /* ===================================================================
+     CONTRACT — the reference pipeline panel, right under hero
+     ================================================================ */
+  .contract {
+    border-bottom: 1px solid var(--rule-soft);
+    padding: 28px 0 32px;
+    display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: 32px;
+  }
+  .contract h3 {
+    font-family: var(--font-ui-mono);
+    font-size: 10.5px; font-weight: 500;
+    color: var(--ink-meta); letter-spacing: 0.08em; text-transform: uppercase;
+    margin: 0 0 12px;
+  }
+  .contract .ships p {
+    font-size: 13.5px; color: var(--text); line-height: 1.6;
+    margin: 0 0 8px;
+  }
+  .contract .ships p:last-child { color: var(--ink-meta); font-size: 12.5px; }
+  .contract .ships code {
+    font-family: var(--font-mono); font-size: 12px;
+    color: var(--code-fg); background: var(--code-bg);
+    padding: 1px 6px; border-radius: 3px;
+  }
+  .contract .pipe {
+    background: var(--bg-secondary); border: 1px solid var(--rule-soft);
+    border-radius: 8px; padding: 14px 16px;
+    font-family: var(--font-mono); font-size: 11.5px; color: var(--text);
+    line-height: 1.9;
+    display: flex; flex-direction: column; gap: 0;
+  }
+  .contract .pipe .row { display: grid; grid-template-columns: 96px 1fr; gap: 12px; }
+  .contract .pipe .lbl { color: var(--ink-meta); font-family: var(--font-ui-mono); font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; align-self: center; }
+  .contract .pipe .val { color: var(--text); }
+  .contract .pipe .val .y { color: var(--yellow-solid); }
+
+  .contract .consume {
+    background: var(--bg-secondary); border: 1px solid var(--rule-soft);
+    border-radius: 8px; overflow: hidden;
+  }
+  .contract .consume .tabs {
+    display: flex; border-bottom: 1px solid var(--rule-soft);
+  }
+  .contract .consume .tab {
+    flex: 1; padding: 8px 10px;
+    font-family: var(--font-ui-mono); font-size: 10.5px;
+    color: var(--ink-meta); letter-spacing: 0.04em; text-transform: uppercase;
+    cursor: pointer; text-align: center;
+    border-right: 1px solid var(--rule-soft);
+    transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+  }
+  .contract .consume .tab:last-child { border-right: 0; }
+  .contract .consume .tab:hover { color: var(--text); background: var(--component-bg); }
+  .contract .consume .tab.is-active { color: var(--text); background: var(--component-bg); border-bottom: 1px solid var(--yellow-solid); }
+  .contract .consume pre {
+    margin: 0; padding: 12px 14px;
+    font-family: var(--font-mono); font-size: 11.5px;
+    line-height: 1.6; color: var(--text);
+    white-space: pre; overflow-x: auto;
+  }
+  .contract .consume .pane { display: none; }
+  .contract .consume .pane.is-active { display: block; }
+  .contract .consume pre .c { color: var(--ink-meta); }
+  .contract .consume pre .k { color: var(--yellow-solid); }
+  .contract .consume pre .s { color: var(--green-solid); }
+
+  /* ===================================================================
+     PART (A / B / C) — top-level section header
+     ================================================================ */
+  .part { padding: 56px 0 8px; scroll-margin-top: 16px; }
+  .part > .part-hd {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: end; gap: 32px;
+    padding-bottom: 14px; margin-bottom: 28px;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .part > .part-hd .ix {
+    font-family: var(--font-ui-mono); font-size: 10.5px;
+    color: var(--yellow-solid); letter-spacing: 0.06em;
+    margin-bottom: 10px; text-transform: uppercase;
+  }
+  .part > .part-hd h2 {
+    font-size: 34px; font-weight: 700;
+    letter-spacing: -0.025em; line-height: 1;
+    margin: 0;
+  }
+  .part > .part-hd .sub {
+    font-size: 13.5px; color: var(--ink-meta);
+    max-width: 620px; line-height: 1.55;
+    margin-top: 10px;
+  }
+  .part > .part-hd .sub b { color: var(--text); }
+  .part > .part-hd .src {
+    font-family: var(--font-ui-mono); font-size: 10.5px;
+    color: var(--ink-meta); letter-spacing: 0.04em;
+    text-align: right;
+    display: flex; flex-direction: column; gap: 4px;
+    align-items: flex-end; text-transform: uppercase;
+  }
+  .part > .part-hd .src a { font-family: var(--font-mono); font-size: 11px; text-transform: none; letter-spacing: 0; }
+  .part > .part-hd .src a:hover { color: var(--yellow-solid); }
+
+  /* ===================================================================
+     SECTION — inside a Part
+     ================================================================ */
+  section { padding: 22px 0; scroll-margin-top: 16px; }
+  section > header.sec-hd {
+    display: grid; grid-template-columns: 56px 1fr auto;
+    gap: 20px; align-items: baseline;
+    padding-bottom: 12px; margin-bottom: 14px;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  section > header.sec-hd .ix {
+    font-family: var(--font-ui-mono); font-size: 10.5px;
+    color: var(--ink-meta); letter-spacing: 0.04em;
+  }
+  section > header.sec-hd h3 {
+    font-size: 19px; font-weight: 600;
+    letter-spacing: -0.018em; line-height: 1.1;
+    margin: 0;
+  }
+  section > header.sec-hd .sub {
+    font-size: 13px; color: var(--ink-meta);
+    max-width: 620px; line-height: 1.55;
+    margin-top: 4px;
+  }
+  section > header.sec-hd .src {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--ink-meta);
+    text-align: right;
+  }
+  section > header.sec-hd .src a:hover { color: var(--yellow-solid); }
+
+  /* sub group header inside a Part (Foundations / Brand / UI) */
+  .sub-hd {
+    display: grid; grid-template-columns: 56px 1fr;
+    gap: 20px; margin: 32px 0 10px;
+  }
+  .sub-hd .ix {
+    font-family: var(--font-ui-mono); font-size: 10.5px;
+    color: var(--ink-meta); letter-spacing: 0.04em;
+  }
+  .sub-hd h4 {
+    margin: 0; font-size: 12px; font-weight: 600;
+    color: var(--yellow-solid);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+  }
+  .sub-hd h4 .src {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--ink-meta); font-weight: 400;
+    text-transform: none; letter-spacing: 0;
+  }
+
+  /* ===================================================================
+     SPEC STRIP — the metadata grid under each section header
+     Purpose · Source · Artifact · Usage · Constraints
+     ================================================================ */
+  .spec {
+    display: grid; grid-template-columns: repeat(12, 1fr);
+    gap: 0;
+    background: var(--bg-secondary);
+    border: 1px solid var(--rule-soft);
+    border-radius: 8px;
+    margin: 0 0 16px;
+    overflow: hidden;
+  }
+  .spec > div {
+    padding: 10px 14px;
+    border-right: 1px solid var(--rule-soft);
+    border-bottom: 1px solid var(--rule-soft);
+    display: flex; flex-direction: column; gap: 3px;
+    min-width: 0;
+  }
+  .spec > div.purpose   { grid-column: span 5; }
+  .spec > div.source    { grid-column: span 4; }
+  .spec > div.artifact  { grid-column: span 3; border-right: 0; }
+  .spec > div.usage     { grid-column: span 7; border-bottom: 0; }
+  .spec > div.constraints { grid-column: span 5; border-right: 0; border-bottom: 0; }
+  .spec dt {
+    font-family: var(--font-ui-mono); font-size: 9.5px;
+    color: var(--ink-meta); letter-spacing: 0.08em;
+    text-transform: uppercase; margin: 0;
+  }
+  .spec dd {
+    margin: 0; font-size: 12.5px; color: var(--text); line-height: 1.5;
+  }
+  .spec dd code {
+    font-family: var(--font-mono); font-size: 11.5px;
+    color: var(--code-fg); background: var(--code-bg);
+    padding: 1px 5px; border-radius: 3px;
+  }
+  .spec .usage pre {
+    margin: 4px 0 0; padding: 8px 10px;
+    background: var(--bg); border: 1px solid var(--rule-soft);
+    border-radius: 4px;
+    font-family: var(--font-mono); font-size: 11px;
+    line-height: 1.55; color: var(--text);
+    overflow-x: auto; white-space: pre;
+  }
+  .spec .usage pre .c { color: var(--ink-meta); }
+  .spec .usage pre .k { color: var(--yellow-solid); }
+  .spec .usage pre .s { color: var(--green-solid); }
+  .spec .constraints ul {
+    margin: 0; padding: 0; list-style: none;
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .spec .constraints li {
+    font-size: 12.5px; color: var(--text); line-height: 1.5;
+    padding-left: 14px; position: relative;
+  }
+  .spec .constraints li::before {
+    content: ""; position: absolute; left: 0; top: 8px;
+    width: 6px; height: 1px; background: var(--yellow-solid);
+  }
+  .spec .constraints li.no::before { background: var(--red-solid); }
+
+  /* ===================================================================
+     PRINCIPLES — explicit rules
+     ================================================================ */
+  .rules {
+    display: grid; gap: 0;
+    grid-template-columns: 1fr 1fr;
+    background: var(--rule-soft);
+    border: 1px solid var(--rule-soft);
+    border-radius: 8px; overflow: hidden;
+  }
+  .rule {
+    background: var(--bg-secondary);
+    padding: 18px 20px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .rule .ix {
+    font-family: var(--font-ui-mono); font-size: 10px;
+    color: var(--yellow-solid); letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .rule h4 {
+    margin: 0; font-size: 16px; font-weight: 600;
+    color: var(--text); letter-spacing: -0.012em;
+  }
+  .rule .body {
+    font-size: 13px; color: var(--ink-meta); line-height: 1.55;
+  }
+  .rule .body b { color: var(--text); font-weight: 500; }
+  .rule .body code {
+    font-family: var(--font-mono); font-size: 11.5px;
+    color: var(--code-fg); background: var(--code-bg);
+    padding: 1px 5px; border-radius: 3px;
+  }
+  .rule .meta {
+    display: flex; gap: 14px;
+    margin-top: 4px;
+    font-family: var(--font-ui-mono); font-size: 10px;
+    color: var(--ink-meta); letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .rule .meta .do  { color: var(--green-solid); }
+  .rule .meta .no  { color: var(--red-solid); }
+  .rule .meta b { color: var(--text); font-family: var(--font-mono); font-size: 11px; text-transform: none; letter-spacing: 0; font-weight: 400; }
+
+  /* ===================================================================
+     TOKEN STRIPS — color, type, space, radii, shadows
+     ================================================================ */
+  .tok-grid {
+    display: grid; gap: 1px;
+    background: var(--rule-soft);
+    border: 1px solid var(--rule-soft);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .tok-grid.c-4 { grid-template-columns: repeat(4, 1fr); }
+  .tok-grid.c-6 { grid-template-columns: repeat(6, 1fr); }
+  .tok {
+    background: var(--bg-secondary);
+    padding: 12px;
+    display: flex; flex-direction: column; gap: 6px;
+    min-width: 0;
+  }
+  .tok .swatch {
+    height: 48px;
+    border-radius: 4px;
+    border: 1px solid var(--rule-strong);
+  }
+  .tok .swatch.tall { height: 72px; }
+  .tok .swatch.text {
+    display: grid; place-items: center;
+    font-family: var(--font-ui-mono); font-size: 10px;
+    color: #000; font-weight: 700;
+  }
+  .tok .swatch.text.on-dark { color: #fff; }
+  .tok .name {
+    font-family: var(--font-ui-mono); font-size: 10.5px;
+    color: var(--text); font-weight: 500;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .tok .val  {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--ink-meta);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .tok-row-hd {
+    display: flex; align-items: baseline; justify-content: space-between;
+    font-family: var(--font-ui-mono); font-size: 10.5px;
+    color: var(--ink-meta); letter-spacing: 0.04em; text-transform: uppercase;
+    margin: 18px 0 6px;
+  }
+
+  .type-block {
+    background: var(--bg-secondary);
+    border: 1px solid var(--rule-soft);
+    border-radius: 8px; overflow: hidden;
+  }
+  .type-row {
+    display: grid; grid-template-columns: 140px 120px 1fr;
+    gap: 18px; align-items: baseline;
+    padding: 12px 16px;
+  }
+  .type-row + .type-row { border-top: 1px solid var(--rule-soft); }
+  .type-row .tok-name {
+    font-family: var(--font-ui-mono); font-size: 11px;
+    color: var(--yellow-solid);
+  }
+  .type-row .meta {
+    font-family: var(--font-ui-mono); font-size: 10.5px;
+    color: var(--ink-meta); letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .type-row .sample {
+    color: var(--text); line-height: 1.1;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  .space-block {
+    background: var(--bg-secondary);
+    border: 1px solid var(--rule-soft);
+    border-radius: 8px; overflow: hidden;
+  }
+  .space-row {
+    display: grid; grid-template-columns: 110px 80px 1fr;
+    gap: 16px; align-items: center;
+    padding: 9px 16px;
+    font-family: var(--font-ui-mono); font-size: 11px;
+  }
+  .space-row + .space-row { border-top: 1px solid var(--rule-soft); }
+  .space-row .bar { background: var(--yellow-solid); height: 10px; border-radius: 2px; }
+  .space-row .nm { color: var(--text); }
+  .space-row .v  { color: var(--ink-meta); text-align: right; }
+
+  .radii {
+    display: flex; gap: 22px; flex-wrap: wrap;
+    padding: 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--rule-soft);
+    border-radius: 8px;
+  }
+  .radii .r { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .radii .r .box {
+    width: 56px; height: 56px;
+    background: var(--component-bg);
+    border: 1px solid var(--rule-strong);
+  }
+  .radii .r .nm { font-family: var(--font-ui-mono); font-size: 10px; color: var(--yellow-solid); }
+  .radii .r .v  { font-family: var(--font-mono); font-size: 10px; color: var(--ink-meta); }
+
+  .shadows {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--rule-soft);
+    border: 1px solid var(--rule-soft);
+    border-radius: 8px; overflow: hidden;
+  }
+  .shadows .s {
+    background: var(--bg-secondary);
+    padding: 22px 16px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .shadows .s .box {
+    width: 88px; height: 48px;
+    background: var(--bg);
+    border-radius: 6px;
+    border: 1px solid var(--rule-soft);
+  }
+  .shadows .s .box.sm { box-shadow: var(--shadow-sm); }
+  .shadows .s .box.md { box-shadow: var(--shadow-md); }
+  .shadows .s .box.lg { box-shadow: var(--shadow-lg); }
+  .shadows .s .box.fc { box-shadow: var(--shadow-focus); border-color: var(--yellow-solid); }
+  .shadows .s .nm { font-family: var(--font-ui-mono); font-size: 10px; color: var(--yellow-solid); }
+  .shadows .s .v  { font-family: var(--font-mono); font-size: 9.5px; color: var(--ink-meta); text-align: center; }
+
+  /* ===================================================================
+     EMBEDS — canonical specimen iframes
+     ================================================================ */
+  .embeds { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .embeds.full { grid-template-columns: 1fr; }
+  .embed {
+    background: var(--bg-secondary);
+    border: 1px solid var(--rule-soft);
+    border-radius: 8px;
+    overflow: hidden; min-width: 0;
+  }
+  .embed .ehd {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .embed .ehd .ttl {
+    font-family: var(--font-ui-mono); font-size: 10.5px;
+    color: var(--text); letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .embed .ehd .ttl .dot {
+    display: inline-block; width: 5px; height: 5px;
+    border-radius: 50%; background: var(--yellow-solid);
+    margin-right: 7px; vertical-align: middle;
+  }
+  .embed .ehd .open {
+    font-family: var(--font-mono); font-size: 10.5px;
+    color: var(--ink-meta);
+    border: 1px solid var(--rule-soft); border-radius: 3px;
+    padding: 2px 7px;
+  }
+  .embed .ehd .open:hover { color: var(--yellow-solid); border-color: var(--yellow-solid); }
+  .embed iframe {
+    width: 100%; height: 280px; border: 0; display: block;
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+
+  /* ===================================================================
+     CODE SNIPPETS (standalone)
+     ================================================================ */
+  pre.snippet {
+    margin: 0;
+    background: var(--bg-secondary);
+    border: 1px solid var(--rule-soft);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: var(--font-mono); font-size: 11.5px;
+    line-height: 1.65; color: var(--text);
+    overflow-x: auto; white-space: pre;
+  }
+  pre.snippet .c { color: var(--ink-meta); }
+  pre.snippet .k { color: var(--yellow-solid); }
+  pre.snippet .s { color: var(--green-solid); }
+  pre.snippet .r { color: var(--red-solid); }
+
+  /* ===================================================================
+     PROTO LIST (cross-project canvas refs)
+     ================================================================ */
+  .proto-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .proto {
+    display: grid; grid-template-columns: 32px 1fr auto;
+    gap: 12px; align-items: center;
+    padding: 10px 14px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--rule-soft);
+    border-radius: 6px;
+    transition: border-color var(--dur-fast) var(--ease-out);
+  }
+  .proto:hover { border-color: var(--yellow-border-hover); }
+  .proto .glyph {
+    width: 26px; height: 26px;
+    border-radius: 4px; display: grid; place-items: center;
+    font-family: var(--font-ui-mono); font-size: 9.5px; font-weight: 700;
+  }
+  .proto .glyph.tv  { background: color-mix(in srgb, var(--yellow-solid) 14%, transparent); color: var(--yellow-solid); }
+  .proto .glyph.rk  { background: color-mix(in srgb, #A78BFA 14%, transparent);             color: #A78BFA; }
+  .proto .glyph.web { background: color-mix(in srgb, #60A5FA 14%, transparent);             color: #60A5FA; }
+  .proto .glyph.ios { background: color-mix(in srgb, #34D399 14%, transparent);             color: #34D399; }
+  .proto .nm { font-size: 12.5px; font-weight: 500; color: var(--text); }
+  .proto .meta {
+    font-family: var(--font-mono); font-size: 10.5px;
+    color: var(--ink-meta); margin-top: 2px;
+  }
+  .proto .tag {
+    font-family: var(--font-ui-mono); font-size: 9.5px;
+    padding: 2px 6px; border-radius: 3px;
+    background: var(--pill-bg); color: var(--pill-fg);
+    font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  /* ===================================================================
+     CALLOUT / PLACEHOLDER
+     ================================================================ */
+  .callout {
+    padding: 12px 16px;
+    background: color-mix(in srgb, var(--yellow-solid) 6%, transparent);
+    border: 1px solid color-mix(in srgb, var(--yellow-solid) 22%, transparent);
+    border-radius: 8px;
+    font-size: 12.5px; color: var(--ink-meta); line-height: 1.6;
+  }
+  .callout code {
+    font-family: var(--font-mono); font-size: 11.5px;
+    color: var(--code-fg); background: var(--code-bg);
+    padding: 1px 6px; border-radius: 3px;
+  }
+  .callout strong { color: var(--text); font-weight: 500; }
+
+  .placeholder {
+    padding: 16px 18px;
+    background: var(--bg-secondary);
+    border: 1px dashed var(--rule-strong);
+    border-radius: 8px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .placeholder .t {
+    font-family: var(--font-ui-mono); font-size: 10px;
+    color: var(--ink-meta); font-weight: 500;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .placeholder .n { font-size: 13px; color: var(--text); font-weight: 500; }
+  .placeholder .d { font-size: 12px; color: var(--ink-meta); line-height: 1.55; }
+
+  /* ===================================================================
+     FOOTER
+     ================================================================ */
+  footer {
+    margin-top: 64px; padding: 24px 0 0;
+    border-top: 1px solid var(--rule-soft);
+    font-size: 12px;
+    color: var(--ink-meta); line-height: 1.8;
+  }
+  footer a { color: var(--text); border-bottom: 1px dotted var(--rule-strong); }
+  footer a:hover { color: var(--yellow-solid); border-color: var(--yellow-solid); }
+  footer .kao {
+    color: var(--yellow-solid); font-family: var(--font-mono);
+    font-size: 13px; margin-top: 8px; display: inline-block;
+  }
+
+  @media (max-width: 1000px) {
+    .shell { grid-template-columns: 1fr; }
+    .toc { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule-soft); }
+    main { padding: 0 22px 56px; }
+    .embeds { grid-template-columns: 1fr; }
+    .contract { grid-template-columns: 1fr; }
+    .rules { grid-template-columns: 1fr; }
+    .spec { grid-template-columns: 1fr; }
+    .spec > div { grid-column: span 1 !important; border-right: 0; }
+    header.hero { grid-template-columns: 1fr; padding: 40px 0 24px; }
+    header.hero h1 { font-size: 38px; }
+    .part > .part-hd { grid-template-columns: 1fr; }
+    .part > .part-hd h2 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ============================================================
+       TOC
+       ============================================================ -->
+  <aside class="toc">
+    <div class="toc-brand">put<span class="dot">.</span>io</div>
+    <div class="toc-sub">design system · v0.6</div>
+    <a class="toc-theme" href="./design-system-light.html"><span class="swatch"></span>View light</a>
+    <nav>
+      <div>
+        <h4><span class="ix">·</span>Overview</h4>
+        <ul>
+          <li><a href="#contract">Reference contract</a></li>
+          <li><a href="#principles">Principles</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4><span class="ix">A</span>Principles</h4>
+        <ul>
+          <li><a href="#p-utility">01 · Utility is beautiful</a></li>
+          <li><a href="#p-content-agnostic">02 · Content-agnostic</a></li>
+          <li><a href="#p-rawfilenames">03 · Raw filenames stay raw</a></li>
+          <li><a href="#p-clarity">04 · Clarity over cleverness</a></li>
+          <li><a href="#p-type">05 · Type carries the weight</a></li>
+          <li><a href="#p-oneyellow">06 · One yellow at a time</a></li>
+          <li><a href="#p-tvlist">07 · TV is list-first</a></li>
+          <li><a href="#p-voice">08 · Voice &amp; restraint</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4><span class="ix">B</span>Tokens &amp; primitives</h4>
+        <ul>
+          <li class="toc-group">Foundations</li>
+          <li><a href="#cmp-colors">B.01 · Color</a></li>
+          <li><a href="#cmp-type">B.02 · Type</a></li>
+          <li><a href="#cmp-space">B.03 · Spacing</a></li>
+          <li><a href="#cmp-radii">B.04 · Radii &amp; shadow</a></li>
+          <li><a href="#cmp-motion">B.05 · Motion</a></li>
+          <li class="toc-group">Brand &amp; primitives</li>
+          <li><a href="#cmp-logo">B.06 · Brand &amp; logo</a></li>
+          <li><a href="#cmp-icons">B.07 · Icons</a></li>
+          <li><a href="#cmp-focus">B.08 · Focus</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4><span class="ix">C</span>Components</h4>
+        <ul>
+          <li><a href="#cmp-buttons">C.01 · Buttons</a></li>
+          <li><a href="#cmp-inputs">C.02 · Inputs</a></li>
+          <li><a href="#cmp-form-fields">C.03 · Form fields</a></li>
+          <li><a href="#cmp-form-layouts">C.04 · Form layouts</a></li>
+          <li><a href="#cmp-badges">C.05 · Badges &amp; chips</a></li>
+          <li><a href="#cmp-listitem">C.06 · List items</a></li>
+          <li><a href="#cmp-filerow">C.07 · File row</a></li>
+          <li><a href="#cmp-storage">C.08 · Storage bar</a></li>
+          <li><a href="#cmp-transfer">C.09 · Transfer states</a></li>
+          <li><a href="#cmp-empty">C.10 · Empty &amp; error</a></li>
+          <li><a href="#cmp-modal">C.11 · Overlays</a></li>
+          <li><a href="#cmp-more">C.12 · Other primitives</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4><span class="ix">D</span>Platforms</h4>
+        <ul>
+          <li><a href="#plat-overview">D.00 · Platform contract</a></li>
+          <li class="toc-group">Web</li>
+          <li><a href="#plat-web-shell">D.01 · App shell</a></li>
+          <li><a href="#plat-web-protos">D.02 · Web refs</a></li>
+          <li class="toc-group">Mobile</li>
+          <li><a href="#plat-mob-shell">D.03 · iOS / Android shell</a></li>
+          <li><a href="#plat-mob-bottom">D.04 · Bottom-sheet</a></li>
+          <li><a href="#plat-mob-protos">D.05 · Mobile refs</a></li>
+          <li class="toc-group">TV</li>
+          <li><a href="#plat-tv-foundations">D.06 · Foundations</a></li>
+          <li><a href="#plat-tv-focus">D.07 · Focus</a></li>
+          <li><a href="#plat-tv-nav">D.08 · Top nav</a></li>
+          <li><a href="#plat-tv-menus">D.09 · Action menus</a></li>
+          <li><a href="#plat-tv-player">D.10 · Player chrome</a></li>
+          <li><a href="#plat-tv-matrix">D.11 · Platform matrix</a></li>
+          <li><a href="#plat-tv-protos">D.12 · Canonical refs</a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="toc-foot">
+      <a href="./tokens.css">tokens.css</a>
+      <span class="kao">ᕦ(ò_óˇ)ᕤ</span>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN
+       ============================================================ -->
+  <main>
+
+    <header class="hero">
+      <div>
+        <h1>put<span class="dot">.</span>io design system</h1>
+        <div class="lede">
+          A public reference for engineers and designers building put.io on any runtime.
+          Tokens, primitives, and component specs — generic <code>DTCG / CSS / JSON</code> here, native adaptation in each platform repo.
+          Brand-yellow <code>#FDCE45</code> is the only sacred constant; everything else is a variable.
+        </div>
+      </div>
+      <div class="vsn">
+        <span class="v"><b>v0.6</b> · 2026-05</span>
+        <a href="./tokens.css">tokens.css ↗</a>
+      </div>
+    </header>
+
+    <!-- ============================================================
+         REFERENCE CONTRACT — what this repo ships
+         ============================================================ -->
+    <section class="contract" id="contract">
+      <div class="ships">
+        <h3>What this repo publishes</h3>
+        <p>Generic, framework-free design data: <b>tokens</b> (color, type, space, radii, motion), <b>primitives</b> (focus ring, icon set, logo), and <b>component specs</b> (buttons, list rows, transfer states, overlays).</p>
+        <p>Source of truth is <code>tokens/**/*.tokens.json</code>. This repo generates CSS, DTCG JSON, flat JSON, TypeScript metadata, and Figma-safe exports; platform repos own native adapters.</p>
+      </div>
+      <div class="pipe">
+        <h3 style="grid-column: 1 / -1;">Pipeline</h3>
+        <div class="row"><span class="lbl">Source</span><span class="val">tokens/**/*.tokens.json <span class="y">· canonical</span></span></div>
+        <div class="row"><span class="lbl">DTCG</span><span class="val">dist/tokens.dtcg.json <span class="y">· generated</span></span></div>
+        <div class="row"><span class="lbl">CSS</span><span class="val">dist/css/tokens.css</span></div>
+        <div class="row"><span class="lbl">Flat JSON</span><span class="val">dist/tokens.flat.json</span></div>
+        <div class="row"><span class="lbl">TypeScript</span><span class="val">dist/tokens.ts</span></div>
+        <div class="row"><span class="lbl">Figma</span><span class="val">dist/figma/putio.tokens.json</span></div>
+      </div>
+      <div class="consume">
+        <h3 style="padding: 10px 14px 0;">Consume</h3>
+        <div class="tabs" data-tabs>
+          <div class="tab is-active" data-pane="css">CSS</div>
+          <div class="tab" data-pane="json">JSON</div>
+          <div class="tab" data-pane="ts">TS</div>
+        </div>
+        <div class="pane is-active" data-pane="css"><pre><span class="c">/* import the single source */</span>
+<span class="k">@import</span> <span class="s">"@putdotio/design/css"</span>;
+
+<span class="c">/* use vars as roles, never literals */</span>
+.btn-primary {
+  background: <span class="k">var</span>(--yellow-solid);
+  color: <span class="s">#000</span>;
+  border-radius: <span class="k">var</span>(--radius);
+}</pre></div>
+        <div class="pane" data-pane="json"><pre><span class="c">// dist/tokens.flat.json</span>
+{
+  <span class="s">"color.brand.yellow"</span>: {
+    <span class="s">"value"</span>: <span class="s">"#FDCE45"</span>,
+    <span class="s">"cssName"</span>: <span class="s">"--yellow-solid"</span>
+  }
+}</pre></div>
+        <div class="pane" data-pane="ts"><pre><span class="c">// @putdotio/design/tokens/meta</span>
+<span class="k">import</span> { tokens } <span class="k">from</span> <span class="s">"@putdotio/design/tokens/meta"</span>;
+
+<span class="k">const</span> yellow = tokens[<span class="s">"color.brand.yellow"</span>].value;</pre></div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         A · PRINCIPLES
+         ============================================================ -->
+    <div class="part" id="principles">
+      <header class="part-hd">
+        <div>
+          <div class="ix">Part A</div>
+          <h2>Principles</h2>
+          <div class="sub">Eight rules that govern every token, component, and platform. When something feels off — check it against these first.</div>
+        </div>
+      </header>
+
+      <div class="rules">
+
+        <div class="rule" id="p-utility">
+          <div class="ix">Principle 01</div>
+          <h4>Utility is beautiful</h4>
+          <div class="body">The product's soul comes from making file operations feel premium — not from decoration. A clean transfer row earns more love than any hero illustration. <b>Beauty has to come from the utility itself.</b></div>
+          <div class="meta"><span><span class="do">Lean on</span> <b>type, spacing, motion</b></span><span><span class="no">Don't</span> <b>add hero art</b></span></div>
+        </div>
+
+        <div class="rule" id="p-content-agnostic">
+          <div class="ix">Principle 02</div>
+          <h4>Content-agnostic by default</h4>
+          <div class="body">put.io is the cloud's download folder, <b>not</b> a media library. No posters, no album art, no curated metadata, no "watched" state. Users upload whatever — video, audio, archives, ISOs. The browser treats every file the same.</div>
+          <div class="meta"><span><span class="do">Use</span> <b>filename + size + date</b></span><span><span class="no">No</span> <b>codec / quality / poster badges</b></span></div>
+        </div>
+
+        <div class="rule" id="p-rawfilenames">
+          <div class="ix">Principle 03</div>
+          <h4>Raw filenames stay raw</h4>
+          <div class="body">Never parse <code>The.Wire.S03E04.1080p.x264-GROUP.mkv</code> into "The Wire · Season 3". The user uploaded that name; it is the truth. Render it in Berkeley Mono and let typography make it legible. On TV, mono + tracking, not enrichment.</div>
+          <div class="meta"><span><span class="do">Render</span> <b>verbatim, mono, ellipsis-on-overflow</b></span><span><span class="no">Never</span> <b>rewrite, parse, fake metadata</b></span></div>
+        </div>
+
+        <div class="rule" id="p-clarity">
+          <div class="ix">Principle 04</div>
+          <h4>Clarity over cleverness</h4>
+          <div class="body">Three actions, three icons, three labels — never overlap. <b>Download</b> = to-this-device. <b>Save</b> = to-put.io cloud. <b>Stream</b> = play-without-download. One verb per icon, one icon per verb.</div>
+          <div class="meta"><span><span class="do">Unambiguous</span> <b>verbs &amp; icons</b></span><span><span class="no">Never</span> <b>reuse ⬇ for two actions</b></span></div>
+        </div>
+
+        <div class="rule" id="p-type">
+          <div class="ix">Principle 05</div>
+          <h4>Type carries the weight</h4>
+          <div class="body">No posters, no thumbnails, no curated art to lean on — <b>typography IS the content</b>. GT America does UI &amp; body. GT America Mono does numerics (sizes, speeds, durations). Berkeley Mono does filenames &amp; identifiers.</div>
+          <div class="meta"><span><span class="do">Three families</span> <b>sans · UI mono · code mono</b></span><span><span class="no">No</span> <b>display serif, no script</b></span></div>
+        </div>
+
+        <div class="rule" id="p-oneyellow">
+          <div class="ix">Principle 06</div>
+          <h4>One yellow at a time</h4>
+          <div class="body"><code>#FDCE45</code> is sacred — reserved for <b>exactly one CTA per region</b> and the <b>focus ring</b>. Folder icons too, because the yellow folder is the brand-signature in-product. Never use yellow for decoration, dividers, hover wash, or "make this pop".</div>
+          <div class="meta"><span><span class="do">Use for</span> <b>1 CTA · focus · folder icon</b></span><span><span class="no">Never</span> <b>two yellow buttons in view</b></span></div>
+        </div>
+
+        <div class="rule" id="p-tvlist">
+          <div class="ix">Principle 07</div>
+          <h4>TV is list-first</h4>
+          <div class="body">10ft + D-pad + no metadata = <b>rows, not card walls</b>. Lists let users navigate by filename. Card grids assume thumbnails we don't have. Apple/Plex card UIs solve a different problem — don't copy them.</div>
+          <div class="meta"><span><span class="do">Default</span> <b>vertical list, focus row</b></span><span><span class="no">Don't</span> <b>card grids, hero rails</b></span></div>
+        </div>
+
+        <div class="rule" id="p-voice">
+          <div class="ix">Principle 08</div>
+          <h4>Voice &amp; restraint</h4>
+          <div class="body">Empty states have personality. <code>ᕦ(ò_óˇ)ᕤ</code> stays. Copy is plain, short, English-first. <b>Subtract before you add</b>: if a screen ships without a number or icon, ship it without. Every chrome element earns its keep.</div>
+          <div class="meta"><span><span class="do">Kaomoji</span> <b>in empty states &amp; footers</b></span><span><span class="no">No</span> <b>emoji, no decorative SVG, no slop</b></span></div>
+        </div>
+
+      </div>
+
+      <div class="callout" style="margin-top: 20px;">
+        <strong>Read order.</strong> Principles → Tokens &amp; primitives → Components → Platforms. Source values live in <code>tokens/**/*.tokens.json</code>; generated CSS/JSON files are artifacts. <strong>Never invent a number.</strong>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         B · TOKENS & PRIMITIVES
+         ============================================================ -->
+    <div class="part" id="tokens-primitives">
+      <header class="part-hd">
+        <div>
+          <div class="ix">Part B</div>
+          <h2>Tokens &amp; primitives</h2>
+          <div class="sub"><b>Foundations</b> (color, type, space, radii, motion) followed by <b>brand primitives</b> (logo, icons, focus ring). Single source: <code style="font-family:var(--font-mono);font-size:12px;color:var(--yellow-solid);">tokens/**/*.tokens.json</code> — every artifact is generated from it.</div>
+        </div>
+        <div class="src">
+          <span>source · tokens/**/*.tokens.json</span>
+          <a href="./tokens.css">tokens.css ↗</a>
+        </div>
+      </header>
+
+      <div class="sub-hd"><div class="ix">B · 1</div><h4>Foundations<span class="src">tokens/**/*.tokens.json</span></h4></div>
+
+      <!-- B.01 COLORS -->
+      <section id="cmp-colors">
+        <header class="sec-hd">
+          <div class="ix">B.01</div>
+          <div>
+            <h3>Color</h3>
+            <div class="sub">Radix 12-step scales, dark + light. One brand, three semantic scales, one transfer-state lime.</div>
+          </div>
+          <div class="src"><a href="./tokens.css">tokens.css ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Role-based color tokens. Vars name the role (<code>--bg</code>, <code>--text-secondary</code>), not the hex. Components consume roles, never literals.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>tokens/color.tokens.json</code> · generated <code>system/tokens.css</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd><code>dist/tokens.dtcg.json</code> · <code>dist/tokens.flat.json</code> · <code>dist/css/tokens.css</code></dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre><span class="c">/* light + dark in one stylesheet — toggle .dark on &lt;html&gt; */</span>
+<span class="k">.btn</span> { background: <span class="k">var</span>(--yellow-solid); color: <span class="s">#000</span>; }
+<span class="k">.row</span> { background: <span class="k">var</span>(--bg-secondary); color: <span class="k">var</span>(--text); }
+<span class="k">.row:hover</span> { background: <span class="k">var</span>(--list-item-bg-hover); }</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li><code>--yellow-solid</code> = backgrounds, icons, text-on-dark only — 1.5:1 on light = fail</li>
+            <li>For yellow text on light, use <code>--yellow-text-secondary</code> (4.98:1 AA)</li>
+            <li class="no">No new color literals in component code</li>
+            <li class="no">No semantic scale for decoration — status only</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="tok-row-hd"><span>Brand · sacred</span><span>never changes across modes or platforms</span></div>
+        <div class="tok-grid c-4">
+          <div class="tok"><div class="swatch tall text" style="background:#FDCE45">SACRED</div><div class="name">--yellow-solid</div><div class="val">#FDCE45</div></div>
+          <div class="tok"><div class="swatch tall text" style="background:#FDD868">+ hover · light</div><div class="name">--yellow-solid-hover</div><div class="val">#FDD868</div></div>
+          <div class="tok"><div class="swatch tall text" style="background:#FCBE03">+ hover · dark</div><div class="name">.dark --yellow-solid-hover</div><div class="val">#FCBE03</div></div>
+          <div class="tok"><div class="swatch tall text on-dark" style="background:var(--yellow-bg)">surface</div><div class="name">--yellow-bg</div><div class="val">hsl(45 100% 5.5%)</div></div>
+        </div>
+
+        <div class="tok-row-hd"><span>Neutrals · dark (app default)</span><span>12 steps · radix gray-dark</span></div>
+        <div class="tok-grid c-6">
+          <div class="tok"><div class="swatch" style="background:var(--bg)"></div><div class="name">--bg</div><div class="val">hsl(0 0% 8.5%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--bg-secondary)"></div><div class="name">--bg-secondary</div><div class="val">hsl(0 0% 11%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--component-bg)"></div><div class="name">--component-bg</div><div class="val">hsl(0 0% 13.6%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--component-bg-hover)"></div><div class="name">--component-bg-hover</div><div class="val">hsl(0 0% 15.8%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--component-bg-active)"></div><div class="name">--component-bg-active</div><div class="val">hsl(0 0% 17.9%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--line)"></div><div class="name">--line</div><div class="val">hsl(0 0% 20.5%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--border)"></div><div class="name">--border</div><div class="val">hsl(0 0% 24.3%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--border-hover)"></div><div class="name">--border-hover</div><div class="val">hsl(0 0% 31.2%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--solid)"></div><div class="name">--solid</div><div class="val">hsl(0 0% 43.9%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--solid-hover)"></div><div class="name">--solid-hover</div><div class="val">hsl(0 0% 49.4%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--text-secondary)"></div><div class="name">--text-secondary</div><div class="val">hsl(0 0% 62.8%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--text)"></div><div class="name">--text</div><div class="val">hsl(0 0% 93%)</div></div>
+        </div>
+
+        <div class="tok-row-hd"><span>Semantic · positive · destructive · in-motion</span><span>status only, never decoration</span></div>
+        <div class="tok-grid c-6">
+          <div class="tok"><div class="swatch" style="background:var(--green-solid)"></div><div class="name">--green-solid</div><div class="val">positive</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--green-bg-secondary)"></div><div class="name">--green-bg-secondary</div><div class="val">positive surface</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--red-solid)"></div><div class="name">--red-solid</div><div class="val">destructive</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--red-bg-secondary)"></div><div class="name">--red-bg-secondary</div><div class="val">destructive surface</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--lime-3)"></div><div class="name">--lime-3</div><div class="val">in-motion accent</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--yellow-solid)"></div><div class="name">--yellow-solid</div><div class="val">brand · status accent</div></div>
+        </div>
+
+        <div class="sub-hd" style="margin: 22px 0 8px;"><div class="ix">specimens</div><h4>Color · canonical previews<span class="src">preview/color-*</span></h4></div>
+        <div class="embeds">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Brand yellow</span><a class="open" href="./preview/color-brand.html">open ↗</a></div><iframe data-pid="color-brand" src="./preview/color-brand.html?id=color-brand" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Gray scale</span><a class="open" href="./preview/color-gray-scale.html">open ↗</a></div><iframe data-pid="color-gray-scale" src="./preview/color-gray-scale.html?id=color-gray-scale" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Semantic scales</span><a class="open" href="./preview/color-semantic-scales.html">open ↗</a></div><iframe data-pid="color-semantic-scales" src="./preview/color-semantic-scales.html?id=color-semantic-scales" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Dark-mode surfaces</span><a class="open" href="./preview/color-dark-mode.html">open ↗</a></div><iframe data-pid="color-dark-mode" src="./preview/color-dark-mode.html?id=color-dark-mode" loading="lazy"></iframe></div>
+          <div class="embed" style="grid-column: 1 / -1;"><div class="ehd"><span class="ttl"><span class="dot"></span>Accessibility &amp; contrast audit</span><a class="open" href="./preview/accessibility.html">open ↗</a></div><iframe data-pid="accessibility" src="./preview/accessibility.html?id=accessibility" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.02 TYPE -->
+      <section id="cmp-type">
+        <header class="sec-hd">
+          <div class="ix">B.02</div>
+          <div>
+            <h3>Type</h3>
+            <div class="sub">Three local families. GT America for UI / body / display. GT America Mono for numerics. Berkeley Mono for code &amp; filenames.</div>
+          </div>
+          <div class="src"><a href="./tokens.css">tokens.css ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>One sans + two monos do all the work. Mono families enforce <em>raw filenames stay raw</em> — filenames render in Berkeley Mono, numerics in GT Mono.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>tokens/typography.tokens.json</code> · font CSS hosted at <code>static.put.io/fonts/</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd><code>dist/tokens.flat.json</code> · <code>dist/tokens.ts</code></dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre><span class="c">/* font roles */</span>
+<span class="k">.row</span>          { font-family: <span class="k">var</span>(--font-sans); }      <span class="c">/* GT America */</span>
+<span class="k">.row .size</span>    { font-family: <span class="k">var</span>(--font-ui-mono); font-variant-numeric: tabular-nums; }
+<span class="k">.row .name</span>    { font-family: <span class="k">var</span>(--font-mono); }      <span class="c">/* Berkeley · filenames */</span></pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Weights used: 400 · 500 · 700 · 900 (display only)</li>
+            <li>Mobile body never below 14px · TV body never below 24px</li>
+            <li class="no">No display serif, no script, no system stack fallbacks for body</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="type-block">
+          <div class="type-row"><div class="tok-name">--fs-display</div><div class="meta">96 · 900</div><div class="sample" style="font-family:var(--font-display);font-size:46px;font-weight:900;letter-spacing:-0.02em;">put.io</div></div>
+          <div class="type-row"><div class="tok-name">--fs-3xl</div><div class="meta">48 · 700</div><div class="sample" style="font-size:34px;font-weight:700;letter-spacing:-0.025em;">Display heading</div></div>
+          <div class="type-row"><div class="tok-name">--fs-2xl</div><div class="meta">32 · 700</div><div class="sample" style="font-size:28px;font-weight:700;letter-spacing:-0.02em;">Section heading</div></div>
+          <div class="type-row"><div class="tok-name">--fs-xl</div><div class="meta">24 · 500</div><div class="sample" style="font-size:22px;font-weight:500;">Subheading · card title</div></div>
+          <div class="type-row"><div class="tok-name">--fs-lg</div><div class="meta">18 · 400</div><div class="sample" style="font-size:18px;">Lead copy for long-form</div></div>
+          <div class="type-row"><div class="tok-name">--fs-md</div><div class="meta">16 · 500</div><div class="sample" style="font-size:16px;font-weight:500;">Subheading · dense UI</div></div>
+          <div class="type-row"><div class="tok-name">--fs-base</div><div class="meta">14 · 400</div><div class="sample" style="font-size:14px;">Body — app default</div></div>
+          <div class="type-row"><div class="tok-name">--fs-sm</div><div class="meta">13 · 400</div><div class="sample" style="font-size:13px;color:var(--ink-meta);">Secondary body</div></div>
+          <div class="type-row"><div class="tok-name">--fs-xs</div><div class="meta">12 · 500 · UP</div><div class="sample" style="font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-meta);">Label / caption</div></div>
+          <div class="type-row"><div class="tok-name">--font-ui-mono</div><div class="meta">GT Mono · tabular</div><div class="sample" style="font-family:var(--font-ui-mono);font-variant-numeric:tabular-nums;font-size:14px;">11.20 TB · 12.4 MB/s · 00:03:42</div></div>
+          <div class="type-row"><div class="tok-name">--font-mono</div><div class="meta">Berkeley · filenames</div><div class="sample" style="font-family:var(--font-mono);font-size:13.5px;">ubuntu-22.04.iso · sha1: e3b0c44…</div></div>
+        </div>
+
+        <div class="sub-hd" style="margin: 22px 0 8px;"><div class="ix">specimens</div><h4>Type · canonical previews<span class="src">preview/type-*</span></h4></div>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Families</span><a class="open" href="./preview/type-families.html">open ↗</a></div><iframe data-pid="type-families" src="./preview/type-families.html?id=type-families" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Type scale</span><a class="open" href="./preview/type-scale.html">open ↗</a></div><iframe data-pid="type-scale" src="./preview/type-scale.html?id=type-scale" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Specimen</span><a class="open" href="./preview/type-specimen.html">open ↗</a></div><iframe data-pid="type-specimen" src="./preview/type-specimen.html?id=type-specimen" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.03 SPACING -->
+      <section id="cmp-space">
+        <header class="sec-hd">
+          <div class="ix">B.03</div>
+          <div>
+            <h3>Spacing</h3>
+            <div class="sub">4 px base, aggressive doubling. Reserved for layout — components handle inner padding via their own tokens.</div>
+          </div>
+          <div class="src"><a href="./tokens.css">tokens.css ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Layout rhythm. <code>--space-3</code> (16px) is the default gutter between rows; <code>--space-4</code> (32px) between sections.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>tokens/spacing.tokens.json</code> · generated <code>system/tokens.css</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd><code>spacing.json</code> · platform px / dp scales</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre><span class="k">.list</span>        { display: flex; flex-direction: column; gap: <span class="k">var</span>(--space-1); }   <span class="c">/* 4px between rows */</span>
+<span class="k">.section</span>     { padding: <span class="k">var</span>(--space-4) <span class="k">var</span>(--space-3); }                <span class="c">/* 32 × 16 */</span></pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Use scale tokens — no arbitrary px values in components</li>
+            <li class="no">No half-steps (no 6px / 12px / 24px)</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="space-block">
+          <div class="space-row"><span class="nm">--space-0</span><span class="v">0</span><span class="bar" style="width:0"></span></div>
+          <div class="space-row"><span class="nm">--space-1</span><span class="v">4px</span><span class="bar" style="width:4px"></span></div>
+          <div class="space-row"><span class="nm">--space-2</span><span class="v">8px</span><span class="bar" style="width:8px"></span></div>
+          <div class="space-row"><span class="nm">--space-3</span><span class="v">16px</span><span class="bar" style="width:16px"></span></div>
+          <div class="space-row"><span class="nm">--space-4</span><span class="v">32px</span><span class="bar" style="width:32px"></span></div>
+          <div class="space-row"><span class="nm">--space-5</span><span class="v">64px</span><span class="bar" style="width:64px"></span></div>
+          <div class="space-row"><span class="nm">--space-6</span><span class="v">128px</span><span class="bar" style="width:128px"></span></div>
+          <div class="space-row"><span class="nm">--space-7</span><span class="v">256px</span><span class="bar" style="width:256px"></span></div>
+          <div class="space-row"><span class="nm">--space-8</span><span class="v">512px</span><span class="bar" style="width:512px;max-width:100%"></span></div>
+        </div>
+
+        <div class="embeds full" style="margin-top: 14px;">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Spacing in context</span><a class="open" href="./preview/spacing-scale.html">open ↗</a></div><iframe data-pid="spacing-scale" src="./preview/spacing-scale.html?id=spacing-scale" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.04 RADII -->
+      <section id="cmp-radii">
+        <header class="sec-hd">
+          <div class="ix">B.04</div>
+          <div>
+            <h3>Radii &amp; shadow</h3>
+            <div class="sub">Five radii, four elevations. 6 px is the default for buttons, inputs, cards. Yellow halo is one of the shadows.</div>
+          </div>
+          <div class="src"><a href="./tokens.css">tokens.css ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Radii match component scale. Shadows define elevation roles — hover/focus, popover, modal — and a yellow focus halo that is the focus system.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>tokens/radius.tokens.json</code> · <code>tokens/shadow.tokens.json</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd><code>radii.json</code> · <code>shadows.json</code></dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre><span class="k">.btn</span>     { border-radius: <span class="k">var</span>(--radius); }       <span class="c">/* 6px default */</span>
+<span class="k">.pill</span>    { border-radius: <span class="k">var</span>(--radius-pill); }
+<span class="k">.btn:focus-visible</span> { box-shadow: <span class="k">var</span>(--shadow-focus); }  <span class="c">/* yellow halo */</span></pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li><code>--radius</code> = 6 is the canonical default</li>
+            <li>Only <code>--shadow-focus</code> ever uses yellow</li>
+            <li class="no">No drop shadow on hover — use bg shift instead</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="radii">
+          <div class="r"><div class="box" style="border-radius:var(--radius-sm)"></div><div class="nm">--radius-sm</div><div class="v">4px</div></div>
+          <div class="r"><div class="box" style="border-radius:var(--radius);background:var(--yellow-component-bg);border-color:var(--yellow-border)"></div><div class="nm">--radius</div><div class="v">6px · default</div></div>
+          <div class="r"><div class="box" style="border-radius:var(--radius-md)"></div><div class="nm">--radius-md</div><div class="v">8px</div></div>
+          <div class="r"><div class="box" style="border-radius:var(--radius-lg)"></div><div class="nm">--radius-lg</div><div class="v">10px</div></div>
+          <div class="r"><div class="box" style="border-radius:var(--radius-pill)"></div><div class="nm">--radius-pill</div><div class="v">999px</div></div>
+        </div>
+
+        <div class="shadows" style="margin-top: 14px;">
+          <div class="s"><div class="box sm"></div><div class="nm">--shadow-sm</div><div class="v">hover / focus<br>0 1px 2px / 0.4</div></div>
+          <div class="s"><div class="box md"></div><div class="nm">--shadow-md</div><div class="v">popover, menu<br>0 4px 12px / 0.5</div></div>
+          <div class="s"><div class="box lg"></div><div class="nm">--shadow-lg</div><div class="v">modal, sheet<br>0 16px 40px / 0.6</div></div>
+          <div class="s"><div class="box fc"></div><div class="nm">--shadow-focus</div><div class="v">yellow halo · 3px<br>0 0 0 3px / 0.35</div></div>
+        </div>
+
+        <div class="embeds full" style="margin-top: 14px;">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Radii &amp; shadows · canonical preview</span><a class="open" href="./preview/radii-shadows.html">open ↗</a></div><iframe data-pid="radii-shadows" src="./preview/radii-shadows.html?id=radii-shadows" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.05 MOTION -->
+      <section id="cmp-motion">
+        <header class="sec-hd">
+          <div class="ix">B.05</div>
+          <div>
+            <h3>Motion</h3>
+            <div class="sub">Two easings. Three durations. If a transition doesn't fit one of these, it's wrong.</div>
+          </div>
+          <div class="src"><a href="./tokens.css">tokens.css ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Animation feels consistent across platforms. <code>--dur-fast</code> for hover, <code>--dur-base</code> for menus, <code>--dur-slow</code> for sheets.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>tokens/motion.tokens.json</code> · generated <code>system/tokens.css</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd><code>motion.json</code> · native easing curves</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre><span class="k">.btn</span> { transition: background <span class="k">var</span>(--dur-fast) <span class="k">var</span>(--ease-out); }
+<span class="k">.sheet</span> { transition: transform <span class="k">var</span>(--dur-slow) <span class="k">var</span>(--ease-in-out); }</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Respect <code>prefers-reduced-motion</code> at the component level</li>
+            <li class="no">No bounce / overshoot easings</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Easing &amp; duration scale</span><a class="open" href="./preview/tokens-motion.html">open ↗</a></div><iframe data-pid="tokens-motion" src="./preview/tokens-motion.html?id=tokens-motion" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <div class="sub-hd"><div class="ix">B · 2</div><h4>Brand &amp; primitives<span class="src">preview/brand-* · focus-system · icon-set</span></h4></div>
+
+      <!-- B.06 LOGO -->
+      <section id="cmp-logo">
+        <header class="sec-hd">
+          <div class="ix">B.06</div>
+          <div>
+            <h3>Brand &amp; logo</h3>
+            <div class="sub">Logomark, app-icon family, empty-state catalogue. Kaomoji <code class="mono" style="color:var(--yellow-solid);background:var(--code-bg);padding:1px 5px;border-radius:3px;">ᕦ(ò_óˇ)ᕤ</code> is part of the brand.</div>
+          </div>
+          <div class="src"><a href="./preview/brand-logo.html">preview/brand-* ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Brand identity assets. Logomark = wordmark + dot; app icon = mark on yellow square; empty-state = kaomoji + one-line copy + one yellow CTA.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>system/assets/logo.svg</code> · <code>logo-retro-{dark,light}.svg</code> · <code>app-icon-*.png</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>iOS / Android / web favicons · app icons per platform</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre><span class="c">&lt;!-- always lowercase --&gt;</span>
+&lt;span <span class="k">class</span>=<span class="s">"brand"</span>&gt;put<span class="k">&lt;span</span> <span class="k">class</span>=<span class="s">"dot"</span><span class="k">&gt;</span>.<span class="k">&lt;/span&gt;</span>io&lt;/span&gt;</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Use the lowercase wordmark exactly: <b>put.io</b></li>
+            <li>Package names omit punctuation only when the package format requires it</li>
+            <li class="no">No mark in body text · no shrunk-then-cropped variants</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Logo</span><a class="open" href="./preview/brand-logo.html">open ↗</a></div><iframe data-pid="brand-logo" src="./preview/brand-logo.html?id=brand-logo" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>App icon</span><a class="open" href="./preview/brand-app-icon.html">open ↗</a></div><iframe data-pid="brand-app-icon" src="./preview/brand-app-icon.html?id=brand-app-icon" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Empty-state voice</span><a class="open" href="./preview/brand-empty-state.html">open ↗</a></div><iframe data-pid="brand-empty-state" src="./preview/brand-empty-state.html?id=brand-empty-state" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.07 ICONS -->
+      <section id="cmp-icons">
+        <header class="sec-hd">
+          <div class="ix">B.07</div>
+          <div>
+            <h3>Icons</h3>
+            <div class="sub">Phosphor going forward. Regular stroke by default. <code class="mono" style="color:var(--yellow-solid);">ph-folder-fill</code> tinted <code class="mono" style="color:var(--yellow-solid);">#FDCE45</code> is the signature.</div>
+          </div>
+          <div class="src"><a href="./preview/icon-set.html">preview/icon-set.html ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>One icon family across all platforms. Regular weight default · fill weight for active states. Inline SVG only — no icon fonts in new code.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd>Phosphor icons · <code>phosphor-icons.com</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>Icon specimen and export guidance only</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre><span class="c">&lt;!-- inline SVG, 24×24, currentColor --&gt;</span>
+&lt;svg <span class="k">width</span>=<span class="s">"24"</span> <span class="k">height</span>=<span class="s">"24"</span> <span class="k">viewBox</span>=<span class="s">"0 0 256 256"</span>&gt;
+  &lt;path <span class="k">fill</span>=<span class="s">"currentColor"</span> <span class="k">d</span>=<span class="s">"…"</span>/&gt;
+&lt;/svg&gt;</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>24×24 default, 20×20 in dense tables, 32×32 on TV</li>
+            <li>Folder icon = <code>ph-folder-fill</code> tinted <code>--yellow-solid</code></li>
+            <li class="no">No emoji as icons · no decorative SVG</li>
+            <li class="no">No legacy Flaticons font in new code</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Icon set · Phosphor</span><a class="open" href="./preview/icon-set.html">open ↗</a></div><iframe data-pid="icon-set" src="./preview/icon-set.html?id=icon-set" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.08 FOCUS -->
+      <section id="cmp-focus">
+        <header class="sec-hd">
+          <div class="ix">B.08</div>
+          <div>
+            <h3>Focus</h3>
+            <div class="sub">Three input contexts, one ring. Keyboard / pointer / D-pad resolve to the same brand-yellow halo, scaled to the device.</div>
+          </div>
+          <div class="src"><a href="./preview/focus-system.html">preview/focus-system.html ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Unified focus visual across runtimes. Web/mobile = 3px yellow halo. TV = 4px ring + <code>scale(1.06)</code> + drop shadow.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>tokens.css</code> · <code>--shadow-focus</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>TV variant via <code>tv-shell.css</code></dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre><span class="c">/* web/mobile */</span>
+<span class="k">.btn:focus-visible</span> { box-shadow: <span class="k">var</span>(--shadow-focus); }
+<span class="c">/* TV — overrides for 10ft viewing */</span>
+<span class="k">.tv .card:focus</span> { transform: scale(1.06); box-shadow: 0 0 0 4px <span class="k">var</span>(--yellow-solid), <span class="k">var</span>(--shadow-lg); }</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Always yellow — focus is the one place yellow is mandatory</li>
+            <li>Use <code>:focus-visible</code> on web/mobile, never plain <code>:focus</code></li>
+            <li class="no">No outline removal without a visible replacement</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Focus contexts</span><a class="open" href="./preview/focus-system.html">open ↗</a></div><iframe data-pid="focus-system" src="./preview/focus-system.html?id=focus-system" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ============================================================
+         C · COMPONENTS
+         ============================================================ -->
+    <div class="part" id="components">
+      <header class="part-hd">
+        <div>
+          <div class="ix">Part C</div>
+          <h2>Components</h2>
+          <div class="sub">Reusable, composable, framework-agnostic specs. Each card answers <b>purpose · source · artifact · usage · constraints</b>, then shows the canonical specimen.</div>
+        </div>
+        <div class="src">
+          <span>source · preview/components-*</span>
+          <a href="./preview/">preview/ ↗</a>
+        </div>
+      </header>
+
+      <!-- C.01 BUTTONS -->
+      <section id="cmp-buttons">
+        <header class="sec-hd">
+          <div class="ix">C.01</div>
+          <div>
+            <h3>Buttons</h3>
+            <div class="sub">5 variants × 3 sizes. Primary is brand-yellow on a black ink. Only one primary per region — see <a href="#p-oneyellow">one yellow at a time</a>.</div>
+          </div>
+          <div class="src"><a href="./preview/components-buttons.html">preview/components-buttons.html ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Primary CTA + secondary + ghost + destructive + icon. All states (hover, active, focus-visible, disabled) lift from token roles.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · Button.tsx</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>CSS specimen and component guidance</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre>&lt;button <span class="k">class</span>=<span class="s">"btn btn-primary"</span>&gt;Save&lt;/button&gt;
+&lt;button <span class="k">class</span>=<span class="s">"btn btn-secondary"</span>&gt;Cancel&lt;/button&gt;
+&lt;button <span class="k">class</span>=<span class="s">"btn btn-ghost"</span>&gt;More&lt;/button&gt;
+&lt;button <span class="k">class</span>=<span class="s">"btn btn-destructive"</span>&gt;Delete&lt;/button&gt;</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>One <code>btn-primary</code> per surface region</li>
+            <li>Min-width 96px web · 44px hit-target mobile · 88px focus-target TV</li>
+            <li class="no">No icon-only button without aria-label</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Variants &amp; sizes</span><a class="open" href="./preview/components-buttons.html">open ↗</a></div><iframe data-pid="components-buttons" src="./preview/components-buttons.html?id=components-buttons" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- C.02 INPUTS -->
+      <section id="cmp-inputs">
+        <header class="sec-hd">
+          <div class="ix">C.02</div>
+          <div>
+            <h3>Inputs</h3>
+            <div class="sub">Text, search (with <kbd style="font-family:var(--font-mono);color:var(--yellow-solid);background:var(--code-bg);padding:1px 5px;border-radius:3px;">/</kbd> hint), password, error. Yellow border + halo on <code class="mono" style="color:var(--yellow-solid);">:focus-visible</code>.</div>
+          </div>
+          <div class="src"><a href="./preview/components-inputs.html">preview/components-inputs.html ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Text entry primitive. Search box, password field, validation states use the same shell.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · Input.tsx</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>CSS specimen and field-shell guidance</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre>&lt;input <span class="k">class</span>=<span class="s">"input"</span> <span class="k">type</span>=<span class="s">"text"</span> <span class="k">placeholder</span>=<span class="s">"Search files"</span>&gt;
+&lt;input <span class="k">class</span>=<span class="s">"input is-error"</span> <span class="k">aria-invalid</span>=<span class="s">"true"</span>&gt;</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Label outside the field · placeholder is hint, not label</li>
+            <li>Error message uses <code>--red-solid</code> below the field</li>
+            <li class="no">No placeholders as labels</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Inputs</span><a class="open" href="./preview/components-inputs.html">open ↗</a></div><iframe data-pid="components-inputs" src="./preview/components-inputs.html?id=components-inputs" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- C.03 FORM FIELDS -->
+      <section id="cmp-form-fields">
+        <header class="sec-hd">
+          <div class="ix">C.03</div>
+          <div>
+            <h3>Form fields · extended</h3>
+            <div class="sub">Date · stepper · slider · tag chips · autocomplete · file row · password strength. Plus the full validation vocabulary — error / warning / success / async / counted.</div>
+          </div>
+          <div class="src"><a href="./preview/components-form-fields.html">preview/components-form-fields.html ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Field types beyond plain text. Each inherits Input's shell + adds a behavior. Validation vocabulary is shared.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · Field/*</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>CSS variants · native pickers per platform</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">FieldDate</span> <span class="k">name</span>=<span class="s">"due"</span> <span class="k">value</span>={d} <span class="k">onChange</span>={set} /&gt;
+&lt;<span class="k">FieldSlider</span> <span class="k">min</span>={0} <span class="k">max</span>={100} <span class="k">step</span>={5} /&gt;</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Validation state is a prop, not a class — one source per field</li>
+            <li class="no">No custom-built date picker — defer to platform native on mobile</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Extended fields + validation states</span><a class="open" href="./preview/components-form-fields.html">open ↗</a></div><iframe data-pid="components-form-fields" src="./preview/components-form-fields.html?id=components-form-fields" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- C.04 FORM LAYOUTS -->
+      <section id="cmp-form-layouts">
+        <header class="sec-hd">
+          <div class="ix">C.04</div>
+          <div>
+            <h3>Form layouts</h3>
+            <div class="sub">Seven canonical compositions. Settings row (label-left) · modal stacked · two-column · inline composer · wizard · sticky save bar · click-to-edit.</div>
+          </div>
+          <div class="src"><a href="./preview/components-form-layouts.html">preview/components-form-layouts.html ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Composition patterns. Pick the closest match — don't invent a new one.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · FormLayout</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>Grid templates · responsive breakpoints</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">FormLayout</span> <span class="k">variant</span>=<span class="s">"settings-row"</span>&gt; ... &lt;/<span class="k">FormLayout</span>&gt;
+&lt;<span class="k">FormLayout</span> <span class="k">variant</span>=<span class="s">"two-column"</span>&gt; ... &lt;/<span class="k">FormLayout</span>&gt;</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Sticky save bar appears only on dirty state</li>
+            <li class="no">No mid-form modals — break into a wizard instead</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Seven layout patterns</span><a class="open" href="./preview/components-form-layouts.html">open ↗</a></div><iframe data-pid="components-form-layouts" src="./preview/components-form-layouts.html?id=components-form-layouts" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- C.05 BADGES -->
+      <section id="cmp-badges">
+        <header class="sec-hd">
+          <div class="ix">C.05</div>
+          <div>
+            <h3>Badges &amp; chips</h3>
+            <div class="sub">Lifecycle pills, filter chips, user tags. <b>No codec / quality / "watched" badges</b> — see <a href="#p-content-agnostic">content-agnostic</a>.</div>
+          </div>
+          <div class="src"><a href="./preview/components-badges.html">preview/components-badges.html ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Status communication. Lifecycle (queued/in-progress/done/failed), filter chips, user tags.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · Badge.tsx</code> · <code>Chip.tsx</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>CSS classes · semantic color mapping</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">Badge</span> <span class="k">tone</span>=<span class="s">"positive"</span>&gt;Completed&lt;/<span class="k">Badge</span>&gt;
+&lt;<span class="k">Badge</span> <span class="k">tone</span>=<span class="s">"in-motion"</span>&gt;Downloading&lt;/<span class="k">Badge</span>&gt;
+&lt;<span class="k">Chip</span> <span class="k">selected</span>&gt;Video&lt;/<span class="k">Chip</span>&gt;</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Tone maps to semantic scale (positive/destructive/in-motion)</li>
+            <li class="no">No codec / quality / poster badges on files</li>
+            <li class="no">No "watched" state — we don't track that</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Pills · chips · tags</span><a class="open" href="./preview/components-badges.html">open ↗</a></div><iframe data-pid="components-badges" src="./preview/components-badges.html?id=components-badges" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- C.06 LIST ITEM -->
+      <section id="cmp-listitem">
+        <header class="sec-hd">
+          <div class="ix">C.06</div>
+          <div>
+            <h3>List items</h3>
+            <div class="sub">The most-touched primitive. Sidebar nav · setting row · friend row · activity row — same skeleton, four shapes.</div>
+          </div>
+          <div class="src"><a href="./preview/components-list-item.html">preview/components-list-item.html ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Single horizontal row primitive. Composes leading icon · primary text · secondary text · trailing meta · trailing action.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · ListItem.tsx</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>Slot-based CSS specimen and row anatomy</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">ListItem</span> <span class="k">leading</span>={icon} <span class="k">title</span>=<span class="s">"Files"</span> <span class="k">trailing</span>={count} /&gt;
+&lt;<span class="k">ListItem</span> <span class="k">title</span>=<span class="s">"Theme"</span> <span class="k">subtitle</span>=<span class="s">"Auto"</span> <span class="k">layout</span>=<span class="s">"setting"</span> /&gt;</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Min row height 44px (touch) · 48px (TV focus margin)</li>
+            <li>Trailing meta uses <code>--font-ui-mono</code></li>
+            <li class="no">No more than one trailing element</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Four list-item shapes</span><a class="open" href="./preview/components-list-item.html">open ↗</a></div><iframe data-pid="components-list-item" src="./preview/components-list-item.html?id=components-list-item" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- C.07 FILE ROW -->
+      <section id="cmp-filerow">
+        <header class="sec-hd">
+          <div class="ix">C.07</div>
+          <div>
+            <h3>File row</h3>
+            <div class="sub">The content-agnostic file primitive. Yellow folder icon, mono filename, mono size, mono date. Same skeleton in web tables, mobile lists, TV rows.</div>
+          </div>
+          <div class="src"><a href="./preview/components-file-row.html">preview/components-file-row.html ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Render any file/folder identically: <b>icon · filename · size · date</b>. No metadata enrichment, ever.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · FileRow.tsx</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>Web table / mobile cell / TV row variants</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">FileRow</span>
+  <span class="k">kind</span>=<span class="s">"folder"</span>                            <span class="c">// folder | video | audio | doc | archive | other</span>
+  <span class="k">name</span>=<span class="s">"The.Wire.S03E04.1080p.x264-GROUP.mkv"</span>  <span class="c">// raw, verbatim</span>
+  <span class="k">size</span>=<span class="s">"1.42 GB"</span>
+  <span class="k">date</span>=<span class="s">"2026-05-25"</span> /&gt;</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Filename always Berkeley Mono, ellipsis-on-overflow, hover reveals full</li>
+            <li>Folder = <code>ph-folder-fill</code> in <code>--yellow-solid</code></li>
+            <li class="no">No parsing, no marketing-group stripping</li>
+            <li class="no">No thumbnail · no codec badge · no resolution chip</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>File &amp; folder rows</span><a class="open" href="./preview/components-file-row.html">open ↗</a></div><iframe data-pid="components-file-row" src="./preview/components-file-row.html?id=components-file-row" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- C.08 STORAGE -->
+      <section id="cmp-storage">
+        <header class="sec-hd">
+          <div class="ix">C.08</div>
+          <div>
+            <h3>Storage bar</h3>
+            <div class="sub">Healthy (with file-type breakdown) · warn 80% · over 95%. Compact sidebar variant + plan-upsell card.</div>
+          </div>
+          <div class="src"><a href="./preview/components-storage-bar.html">preview/components-storage-bar.html ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Quota readout. Three thresholds (healthy / warn / over) drive color. Breakdown is by file-type, not metadata.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · StorageBar.tsx</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>Web sidebar + standalone card</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">StorageBar</span>
+  <span class="k">used</span>={11_200_000_000_000}
+  <span class="k">total</span>={50_000_000_000_000}
+  <span class="k">breakdown</span>={[<span class="s">"video"</span>, <span class="s">"audio"</span>, <span class="s">"doc"</span>]} /&gt;</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Threshold colors: green ≤80, yellow 80-95, red &gt;95</li>
+            <li class="no">No "junk file" or "biggest movie" labels — we don't know that</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Disk usage</span><a class="open" href="./preview/components-storage-bar.html">open ↗</a></div><iframe data-pid="components-storage-bar" src="./preview/components-storage-bar.html?id=components-storage-bar" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- C.09 TRANSFER -->
+      <section id="cmp-transfer">
+        <header class="sec-hd">
+          <div class="ix">C.09</div>
+          <div>
+            <h3>Transfer states</h3>
+            <div class="sub">Queued → downloading → completed / seeding / failed. <b>Health indicator</b> replaces torrent jargon (seed ratio, peer count).</div>
+          </div>
+          <div class="src"><a href="./preview/components-transfer-states.html">preview/components-transfer-states.html ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>The "is it working?" answer. One health dot (green/yellow/red) plus a one-line status. Power-user detail (ratio, peers) is in expand.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · TransferRow.tsx</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>Web + mobile + TV transfer-row variants</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">TransferRow</span>
+  <span class="k">state</span>=<span class="s">"downloading"</span>     <span class="c">// queued | downloading | seeding | completed | failed</span>
+  <span class="k">health</span>=<span class="s">"good"</span>             <span class="c">// good | warn | bad</span>
+  <span class="k">progress</span>={0.62}
+  <span class="k">name</span>=<span class="s">"ubuntu-22.04.iso"</span> /&gt;</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Default view is plain-English: "Downloading · 62%"</li>
+            <li>Lime accent (<code>--lime-3</code>) for in-motion surface only</li>
+            <li class="no">No "Seed ratio 2.00/10 days" in default view</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Health-indicator lifecycle</span><a class="open" href="./preview/components-transfer-states.html">open ↗</a></div><iframe data-pid="components-transfer-states" src="./preview/components-transfer-states.html?id=components-transfer-states" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- C.10 EMPTY -->
+      <section id="cmp-empty">
+        <header class="sec-hd">
+          <div class="ix">C.10</div>
+          <div>
+            <h3>Empty &amp; error states</h3>
+            <div class="sub">Kaomoji + one-line copy + one yellow CTA. Loading skeleton above 200ms wait. Red error sheet for real failures.</div>
+          </div>
+          <div class="src"><a href="./preview/brand-empty-state.html">preview/brand-empty-state.html ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Communicate "nothing here yet" or "something broke" with personality and a single clear next action.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · EmptyState.tsx</code> · <code>ErrorSheet.tsx</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>Per-platform empty illustrations as text/kaomoji</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">EmptyState</span>
+  <span class="k">kao</span>=<span class="s">"ᕦ(ò_óˇ)ᕤ"</span>
+  <span class="k">title</span>=<span class="s">"No transfers yet"</span>
+  <span class="k">cta</span>={{ <span class="k">label</span>: <span class="s">"Add a transfer"</span>, <span class="k">onClick</span>: ... }} /&gt;</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>One CTA · one kaomoji · one line of copy</li>
+            <li>Loading skeleton kicks in at 200ms, not earlier</li>
+            <li class="no">No illustration art · no decorative SVG</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Empty-state catalogue</span><a class="open" href="./preview/brand-empty-state.html">open ↗</a></div><iframe data-pid="brand-empty-state-2" src="./preview/brand-empty-state.html?id=brand-empty-state-2" loading="lazy"></iframe></div>
+          <div class="placeholder">
+            <span class="t">Pending preview</span>
+            <span class="n">Loading skeleton + error sheet</span>
+            <span class="d">Skeleton kicks in above 200ms wait; red error sheet for real failures.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- C.11 OVERLAYS -->
+      <section id="cmp-modal">
+        <header class="sec-hd">
+          <div class="ix">C.11</div>
+          <div>
+            <h3>Overlays</h3>
+            <div class="sub">Dialog · sheet · bottom-sheet · confirm. One scrim, one elevation. Bottom-sheet is mobile-first; the others render anywhere.</div>
+          </div>
+          <div class="src"><a href="./preview/components-modal.html">preview/components-modal.html ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Modal surfaces. Dialog (centered) · sheet (right edge) · bottom-sheet (mobile) · confirm (small destructive).</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · Overlay/*</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>CSS + ARIA primitives · native sheets on iOS/Android</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">Dialog</span> <span class="k">open</span>={o} <span class="k">onClose</span>={c}&gt; ... &lt;/<span class="k">Dialog</span>&gt;
+&lt;<span class="k">BottomSheet</span> <span class="k">open</span>={o} <span class="k">onClose</span>={c} <span class="k">actions</span>={[ ... ]} /&gt;</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Scrim opacity from <code>--overlay-full</code> only</li>
+            <li>Bottom-sheet primary action at top; destructive in red</li>
+            <li class="no">No nested overlays</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Four overlay shapes</span><a class="open" href="./preview/components-modal.html">open ↗</a></div><iframe data-pid="components-modal" src="./preview/components-modal.html?id=components-modal" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- C.12 MORE PRIMITIVES -->
+      <section id="cmp-more">
+        <header class="sec-hd">
+          <div class="ix">C.12</div>
+          <div>
+            <h3>Other primitives</h3>
+            <div class="sub">Avatars · breadcrumbs · dropzone · notification · tabs · tooltip. Same token rules, same focus model.</div>
+          </div>
+          <div class="src"><a href="./preview/">preview/components-* ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Smaller, less-touched primitives. Lifted verbatim from the same token roles as everything else.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · Avatar / Breadcrumbs / Dropzone / Notification / Tabs / Tooltip</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>Per-platform variants</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">Avatar</span> <span class="k">name</span>=<span class="s">"user-01"</span> /&gt;
+&lt;<span class="k">Breadcrumbs</span> <span class="k">path</span>={[<span class="s">"Files"</span>, <span class="s">"Movies"</span>]} /&gt;
+&lt;<span class="k">Tabs</span> <span class="k">items</span>={t} /&gt;
+&lt;<span class="k">Tooltip</span> <span class="k">content</span>=<span class="s">"…"</span>&gt;…&lt;/<span class="k">Tooltip</span>&gt;</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Tooltips: keyboard-accessible, dismissible on Esc</li>
+            <li>Notifications: max 3 stacked · auto-dismiss 4s for info, manual for destructive</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Avatars</span><a class="open" href="./preview/components-avatar.html">open ↗</a></div><iframe data-pid="components-avatar" src="./preview/components-avatar.html?id=components-avatar" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Breadcrumbs</span><a class="open" href="./preview/components-breadcrumbs.html">open ↗</a></div><iframe data-pid="components-breadcrumbs" src="./preview/components-breadcrumbs.html?id=components-breadcrumbs" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Dropzone</span><a class="open" href="./preview/components-dropzone.html">open ↗</a></div><iframe data-pid="components-dropzone" src="./preview/components-dropzone.html?id=components-dropzone" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Notifications</span><a class="open" href="./preview/components-notification.html">open ↗</a></div><iframe data-pid="components-notification" src="./preview/components-notification.html?id=components-notification" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Tabs</span><a class="open" href="./preview/components-tabs.html">open ↗</a></div><iframe data-pid="components-tabs" src="./preview/components-tabs.html?id=components-tabs" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Tooltips</span><a class="open" href="./preview/components-tooltip.html">open ↗</a></div><iframe data-pid="components-tooltip" src="./preview/components-tooltip.html?id=components-tooltip" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ============================================================
+         D · PLATFORMS
+         ============================================================ -->
+    <div class="part" id="platforms">
+      <header class="part-hd">
+        <div>
+          <div class="ix">Part D</div>
+          <h2>Platforms</h2>
+          <div class="sub">Where tokens and components compose into the surfaces users actually touch. <b>This repo publishes generic CSS / JSON; platform repos adapt locally.</b> Visual stays put.io.</div>
+        </div>
+      </header>
+
+      <!-- D.00 OVERVIEW -->
+      <section id="plat-overview">
+        <header class="sec-hd">
+          <div class="ix">D.00</div>
+          <div>
+            <h3>Platform contract</h3>
+            <div class="sub">What lives where. This repo = framework-agnostic source of truth. Each platform repo consumes the generated artifact and implements natively.</div>
+          </div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Clarify the seam between <b>generic spec</b> (here) and <b>platform implementation</b> (in each app repo). Spec changes propagate via artifact regeneration, not copy-paste.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>tokens/**/*.tokens.json</code> + <code>system/preview/*.html</code> specimens</dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>CSS · JSON (DTCG) · flat JSON · TypeScript metadata · Figma subset</dd></div>
+          <div class="usage"><dt>Usage · generic package consumption</dt><dd><pre><span class="c">// CSS</span>
+<span class="k">@import</span> <span class="s">"@putdotio/design/css"</span>;
+
+<span class="c">// JSON</span>
+<span class="k">import</span> tokens <span class="k">from</span> <span class="s">"@putdotio/design/tokens"</span>;
+
+<span class="c">// Native repos consume these generic artifacts and build local adapters.</span></pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Platform repos may add — never override — token values</li>
+            <li>Visual matches across platforms; <b>engine</b> (focus, blur, player) is local</li>
+            <li class="no">No platform-specific color in this repo</li>
+            <li class="no">No platform-native token files in this repo</li>
+          </ul></dd></div>
+        </dl>
+
+        <pre class="snippet"><span class="c">// public package surfaces</span>
+@putdotio/design/css             <span class="c">// dist/css/tokens.css</span>
+@putdotio/design/tokens          <span class="c">// dist/tokens.flat.json</span>
+@putdotio/design/tokens/dtcg     <span class="c">// dist/tokens.dtcg.json</span>
+@putdotio/design/tokens/meta     <span class="c">// dist/tokens.ts metadata</span>
+@putdotio/design/design.md       <span class="c">// agent + human design contract</span></pre>
+      </section>
+
+      <div class="sub-hd"><div class="ix">D · 1</div><h4>Web · desktop browser<span class="src">system/preview/web-shell.html</span></h4></div>
+
+      <section id="plat-web-shell">
+        <header class="sec-hd">
+          <div class="ix">D.01</div>
+          <div>
+            <h3>App shell</h3>
+            <div class="sub">Collapsible sidebar · breadcrumb top bar with <kbd style="font-family:var(--font-mono);color:var(--yellow-solid);background:var(--code-bg);padding:1px 5px;border-radius:3px;">/</kbd>-search · selection toolbar · column-headed file table.</div>
+          </div>
+          <div class="src"><a href="./preview/web-shell.html">preview/web-shell.html ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Top-level web layout. Sidebar nav + main content + storage footer. Keyboard-first.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>system/preview/web-shell.html</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>React component · CSS grid template</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">AppShell</span> <span class="k">sidebar</span>={&lt;<span class="k">Sidebar</span> /&gt;} <span class="k">topbar</span>={&lt;<span class="k">TopBar</span> /&gt;}&gt;
+  &lt;<span class="k">FilesView</span> /&gt;
+&lt;/<span class="k">AppShell</span>&gt;</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Sidebar collapsible; persisted preference</li>
+            <li>One yellow CTA on the topbar (New transfer)</li>
+            <li class="no">No second yellow button anywhere in the shell</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Files · main view</span><a class="open" href="./preview/web-shell.html">open ↗</a></div><iframe data-pid="web-shell" src="./preview/web-shell.html?id=web-shell" loading="lazy" style="height: 600px;"></iframe></div>
+        </div>
+      </section>
+
+      <section id="plat-web-protos">
+        <header class="sec-hd">
+          <div class="ix">D.02</div>
+          <div>
+            <h3>Web references</h3>
+            <div class="sub">Reference shells and component specimens published by this repo. Product repos should map them into their own framework without copying private app paths.</div>
+          </div>
+          <div class="src"><span>v12 – v15 · linear-neutral</span></div>
+        </header>
+        <div class="proto-grid">
+          <div class="placeholder">
+            <span class="t">Pending source</span>
+            <span class="n">Files list · Light + Dark</span>
+            <span class="d"><code class="mono" style="color:var(--yellow-solid);">system/preview/web-shell.html</code></span>
+          </div>
+          <div class="placeholder">
+            <span class="t">Pending source</span>
+            <span class="n">File detail / player</span>
+            <span class="d">Right-rail actions, breadcrumbs, and player affordances. Compose from local component specimens.</span>
+          </div>
+          <div class="placeholder">
+            <span class="t">Pending source</span>
+            <span class="n">Command palette · ⌘K</span>
+            <span class="d">New surface. Compose from <a style="color:var(--yellow-solid);" href="#cmp-inputs">Inputs</a> + <a style="color:var(--yellow-solid);" href="#cmp-listitem">List items</a>.</span>
+          </div>
+          <div class="placeholder">
+            <span class="t">Pending source</span>
+            <span class="n">Billing &amp; plans</span>
+            <span class="d">Persona-shaped pricing for trial / casual / plus / power tiers. Composes from <a style="color:var(--yellow-solid);" href="#cmp-buttons">Buttons</a> + <a style="color:var(--yellow-solid);" href="#cmp-listitem">List items</a>.</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="sub-hd"><div class="ix">D · 2</div><h4>Mobile · iOS &amp; Android<span class="src">putio-ios · putio-android</span></h4></div>
+
+      <section id="plat-mob-shell">
+        <header class="sec-hd">
+          <div class="ix">D.03</div>
+          <div>
+            <h3>iOS &amp; Android shells</h3>
+            <div class="sub">iOS Files screen · Android player chrome · shared pairing/activation flow used across iOS, Android, tvOS, Roku.</div>
+          </div>
+          <div class="src"><a href="./preview/mobile-shell.html">preview/mobile-shell.html ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>Touch-first shells. iOS uses native nav stack; Android uses Material You scaffold tinted with brand yellow.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>system/preview/mobile-shell.html</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>Mobile shell specimen and guidance</dd></div>
+          <div class="usage"><dt>Usage · iOS</dt><dd><pre><span class="k">NavigationStack</span> {
+  <span class="k">FilesView</span>()
+    .toolbar { <span class="k">ToolbarItem</span>(placement: .primaryAction) { AddTransferButton() } }
+}</pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>Long-press → bottom-sheet for file actions</li>
+            <li>Destructive items use <code>--red-solid</code> text</li>
+            <li class="no">No swipe-to-delete without confirm</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>iOS Files · Android player · Activation</span><a class="open" href="./preview/mobile-shell.html">open ↗</a></div><iframe data-pid="mobile-shell" src="./preview/mobile-shell.html?id=mobile-shell" loading="lazy" style="height: 800px;"></iframe></div>
+        </div>
+      </section>
+
+      <section id="plat-mob-bottom">
+        <header class="sec-hd">
+          <div class="ix">D.04</div>
+          <div>
+            <h3>Bottom-sheet actions</h3>
+            <div class="sub">Mobile uses the bottom-sheet from <a href="#cmp-modal" style="color:var(--yellow-solid);">Overlays</a> for file actions. Long-press → bottom-sheet → tap; destructive in red.</div>
+          </div>
+          <div class="src"><a href="./preview/components-modal.html">preview/components-modal.html ↗</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Bottom-sheet (within Overlays)</span><a class="open" href="./preview/components-modal.html">open ↗</a></div><iframe data-pid="components-modal-mobile" src="./preview/components-modal.html?id=components-modal-mobile" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <section id="plat-mob-protos">
+        <header class="sec-hd">
+          <div class="ix">D.05</div>
+          <div>
+            <h3>Mobile references</h3>
+            <div class="sub">Pending canonical sources — the new <code class="mono" style="color:var(--yellow-solid);">putio-ios</code> &amp; <code class="mono" style="color:var(--yellow-solid);">putio-android</code> apps are being built spec-first.</div>
+          </div>
+        </header>
+        <div class="proto-grid">
+          <div class="placeholder">
+            <span class="t">Pending source</span>
+            <span class="n">iOS · Transfers queue</span>
+            <span class="d">Swipe-to-act rows. Compose from <a style="color:var(--yellow-solid);" href="#cmp-transfer">Transfer states</a> + iOS shell.</span>
+          </div>
+          <div class="placeholder">
+            <span class="t">Pending source</span>
+            <span class="n">iOS · Player + PiP</span>
+            <span class="d">AVPlayer-backed. Lock Screen / Dynamic Island controls.</span>
+          </div>
+          <div class="placeholder">
+            <span class="t">Pending source</span>
+            <span class="n">Android · Files list</span>
+            <span class="d">Material You scaffold, brand-yellow accent override.</span>
+          </div>
+          <div class="placeholder">
+            <span class="t">Pending source</span>
+            <span class="n">Settings · iOS / Android</span>
+            <span class="d">Compose from <a style="color:var(--yellow-solid);" href="#cmp-listitem">List items</a> — Account · Plan · Privacy · Notifications · Apps &amp; integrations · Storage groups.</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="sub-hd"><div class="ix">D · 3</div><h4>TV · Apple TV · Android TV · Roku · Smart-TV<span class="src">system/preview/tv-*.html</span></h4></div>
+
+      <section id="plat-tv-foundations">
+        <header class="sec-hd">
+          <div class="ix">D.06</div>
+          <div>
+            <h3>Foundations</h3>
+            <div class="sub">Row anatomy · type scale at 10ft · surface materials · content rules. <b>List-first</b> — see <a href="#p-tvlist" style="color:var(--yellow-solid);">principle 07</a>.</div>
+          </div>
+          <div class="src"><a href="./preview/tv-shell.css">preview/tv-shell.css ↗</a></div>
+        </header>
+
+        <dl class="spec">
+          <div class="purpose"><dt>Purpose</dt><dd>10-foot UI primitives. Filename-driven; no thumbnails, no posters. Rows of 56-72px focus targets.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>system/preview/tv-shell.css</code> · <code>system/preview/tv-*.html</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>TV preview CSS and specimen guidance</dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre><span class="c">/* TV body never below 24px */</span>
+<span class="k">.tv .row</span>      { font-size: 28px; line-height: 1.25; padding: 18px 32px; }
+<span class="k">.tv .row .name</span> { font-family: <span class="k">var</span>(--font-mono); }    <span class="c">/* raw filename */</span></pre></dd></div>
+          <div class="constraints"><dt>Constraints</dt><dd><ul>
+            <li>List rows, not card grids · D-pad navigation only</li>
+            <li>Min focus target 88px</li>
+            <li class="no">No card walls · no hero rails · no "Continue Watching" if we can't track it</li>
+          </ul></dd></div>
+        </dl>
+
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Foundations</span><a class="open" href="./preview/tv-foundations.html">open ↗</a></div><iframe data-pid="tv-foundations" src="./preview/tv-foundations.html?id=tv-foundations" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <section id="plat-tv-focus">
+        <header class="sec-hd">
+          <div class="ix">D.07</div>
+          <div>
+            <h3>Focus</h3>
+            <div class="sub"><code class="mono" style="color:var(--yellow-solid);">scale(1.06)</code> + 4px yellow ring + drop shadow. Same visual on every TV platform, different engines drawing it.</div>
+          </div>
+          <div class="src"><a href="./preview/tv-focus.html">preview/tv-focus.html ↗</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Focus states</span><a class="open" href="./preview/tv-focus.html">open ↗</a></div><iframe data-pid="tv-focus" src="./preview/tv-focus.html?id=tv-focus" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <section id="plat-tv-nav">
+        <header class="sec-hd">
+          <div class="ix">D.08</div>
+          <div>
+            <h3>Top navigation</h3>
+            <div class="sub">Glass tabs + search affordance. Backdrop-blur where the runtime supports it; flat fallback where it doesn't.</div>
+          </div>
+          <div class="src"><a href="./preview/tv-navigation.html">preview/tv-navigation.html ↗</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Top navigation</span><a class="open" href="./preview/tv-navigation.html">open ↗</a></div><iframe data-pid="tv-navigation" src="./preview/tv-navigation.html?id=tv-navigation" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <section id="plat-tv-menus">
+        <header class="sec-hd">
+          <div class="ix">D.09</div>
+          <div>
+            <h3>Action menus</h3>
+            <div class="sub">File-actions overlay. Same composition rules as the mobile bottom-sheet — different chrome, identical IA.</div>
+          </div>
+          <div class="src"><a href="./preview/tv-action-menus.html">preview/tv-action-menus.html ↗</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Action menus</span><a class="open" href="./preview/tv-action-menus.html">open ↗</a></div><iframe data-pid="tv-action-menus" src="./preview/tv-action-menus.html?id=tv-action-menus" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <section id="plat-tv-player">
+        <header class="sec-hd">
+          <div class="ix">D.10</div>
+          <div>
+            <h3>Player chrome</h3>
+            <div class="sub">Scrubber, audio/subtitle pickers, info overlay. Player engine is platform-specific (AVPlayer / libVLC / Roku / HTML5).</div>
+          </div>
+          <div class="src"><a href="./preview/tv-player.html">preview/tv-player.html ↗</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Player chrome</span><a class="open" href="./preview/tv-player.html">open ↗</a></div><iframe data-pid="tv-player" src="./preview/tv-player.html?id=tv-player" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <section id="plat-tv-matrix">
+        <header class="sec-hd">
+          <div class="ix">D.11</div>
+          <div>
+            <h3>Platform matrix</h3>
+            <div class="sub">Seven platforms × five differences (focus engine, surface material, player ownership, perf floor, token mapping).</div>
+          </div>
+        </header>
+        <div class="placeholder">
+          <span class="t">Pending preview</span>
+          <span class="n">Strategy &amp; token mapping table</span>
+          <span class="d">Web, mobile, and TV runtimes consume the same generic tokens. Each product repo owns its focus engine, player integration, and native mapping.</span>
+        </div>
+      </section>
+
+      <section id="plat-tv-protos">
+        <header class="sec-hd">
+          <div class="ix">D.12</div>
+          <div>
+            <h3>TV specimens</h3>
+            <div class="sub">Local reference files for list-first, focus-first TV surfaces. Use them as visual guidance; platform repos own their native implementations.</div>
+          </div>
+          <div class="src"><a href="./preview/tv-shell.css">preview/tv-shell.css ↗</a></div>
+        </header>
+
+        <div class="callout" style="margin-bottom: 14px;">
+          <strong>The TV CSS is preview support, not a native adapter.</strong> It captures shared density, focus, and glass rules for the guide. Product repos should consume the generic tokens and implement equivalent behavior in their own runtime.
+        </div>
+
+        <div class="proto-grid">
+          <a class="proto" href="./preview/tv-foundations.html"><div class="glyph tv">TV</div><div><div class="nm">Foundations</div><div class="meta">tv-foundations.html</div></div><div class="tag">guide</div></a>
+          <a class="proto" href="./preview/tv-focus.html"><div class="glyph tv">TV</div><div><div class="nm">Focus states</div><div class="meta">tv-focus.html</div></div><div class="tag">guide</div></a>
+          <a class="proto" href="./preview/tv-navigation.html"><div class="glyph tv">TV</div><div><div class="nm">Top navigation</div><div class="meta">tv-navigation.html</div></div><div class="tag">guide</div></a>
+          <a class="proto" href="./preview/tv-action-menus.html"><div class="glyph tv">TV</div><div><div class="nm">Action menus</div><div class="meta">tv-action-menus.html</div></div><div class="tag">guide</div></a>
+          <a class="proto" href="./preview/tv-player.html"><div class="glyph tv">TV</div><div><div class="nm">Player chrome</div><div class="meta">tv-player.html</div></div><div class="tag">guide</div></a>
+          <a class="proto" href="./preview/tv-shell.css"><div class="glyph tv">CSS</div><div><div class="nm">TV preview CSS</div><div class="meta">preview/tv-shell.css</div></div><div class="tag">css</div></a>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      Tokens: <a href="./tokens.css">tokens.css</a>
+      <br><span class="kao">ᕦ(ò_óˇ)ᕤ</span>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+/* iframe auto-resize — listen for {type:"__preview_h", id, h} from each preview */
+(function () {
+  const map = new Map();
+  document.querySelectorAll('iframe[data-pid]').forEach(f => map.set(f.dataset.pid, f));
+
+  window.addEventListener('message', (e) => {
+    const d = e.data;
+    if (!d || d.type !== '__preview_h' || typeof d.h !== 'number') return;
+    let frame = null;
+    if (d.id) {
+      const trimmed = String(d.id).replace(/\.html$/, '');
+      frame = map.get(trimmed) || map.get(d.id);
+    }
+    if (!frame) {
+      document.querySelectorAll('iframe').forEach(f => { if (f.contentWindow === e.source) frame = f; });
+    }
+    if (!frame) return;
+    const next = Math.max(120, d.h);
+    const cur = parseFloat(frame.style.height) || 0;
+    if (Math.abs(next - cur) < 2) return;
+    frame.style.height = next + 'px';
+  });
+})();
+
+/* TOC active-section on scroll */
+(function () {
+  const links = [...document.querySelectorAll('.toc nav a[href^="#"]')];
+  const byId = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+  const targets = [...byId.keys()].map(id => document.getElementById(id)).filter(Boolean);
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      const id = en.target.id;
+      links.forEach(l => l.classList.remove('is-active'));
+      const a = byId.get(id);
+      if (a) a.classList.add('is-active');
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  targets.forEach(t => io.observe(t));
+})();
+
+/* Contract · consume tab switcher */
+(function () {
+  const tabs = document.querySelectorAll('.contract .tabs [data-pane]');
+  const panes = document.querySelectorAll('.contract .pane[data-pane]');
+  tabs.forEach(t => t.addEventListener('click', () => {
+    const k = t.dataset.pane;
+    tabs.forEach(x => x.classList.toggle('is-active', x.dataset.pane === k));
+    panes.forEach(x => x.classList.toggle('is-active', x.dataset.pane === k));
+  }));
+})();
+</script>
+
+</body>
+</html>

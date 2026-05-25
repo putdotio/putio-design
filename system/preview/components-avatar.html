@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head><meta charset="utf-8">
+<title>put.io preview · components avatar</title>
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .card { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .head { display: flex; align-items: baseline; gap: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+  .head .ix { font-family: var(--font-ui-mono); font-size: 11px; color: var(--yellow-solid); letter-spacing: 0.04em; }
+  .head .t { font-size: 15px; font-weight: 500; color: var(--text); }
+  .head .n { margin-left: auto; font-size: 12px; color: var(--text-secondary); }
+  .note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
+  .note b { color: var(--text); }
+  .note code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11.5px; }
+
+  .row { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; }
+  .pad {
+    padding: 18px;
+    background: var(--bg-secondary); border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .pad .lbl {
+    font-family: var(--font-ui-mono); font-size: 10px;
+    color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em;
+  }
+
+  /* ── Avatar — user (circle) ──
+     Source: preview/Avatar.tsx · radix-avatar
+     user → border-radius: circle. app → squircle (radius default).
+  */
+  .avi {
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    color: var(--text); font-weight: 700;
+    font-family: var(--font-sans); letter-spacing: -0.01em;
+    text-transform: uppercase;
+    background: var(--component-bg);
+    overflow: hidden;
+    user-select: none;
+  }
+  .avi.size-sm { width: 24px; height: 24px; font-size: 10px; }
+  .avi.size-md { width: 32px; height: 32px; font-size: 12px; }
+  .avi.size-lg { width: 48px; height: 48px; font-size: 16px; }
+  .avi.size-xl { width: 72px; height: 72px; font-size: 24px; }
+  .avi.app { border-radius: var(--radius); }
+
+  /* Pastel-but-readable palette derived from semantic tokens */
+  .c-y { background: var(--yellow-solid); color: #000; }
+  .c-g { background: var(--green-solid); color: #fff; }
+  .c-r { background: var(--red-solid); color: #fff; }
+  .c-b { background: hsl(212, 70%, 55%); color: #fff; }
+  .c-p { background: hsl(280, 50%, 55%); color: #fff; }
+  .c-t { background: hsl(170, 50%, 45%); color: #fff; }
+  .c-o { background: hsl(28, 80%, 55%); color: #000; }
+
+  /* Presence indicator */
+  .avi-host { position: relative; display: inline-block; }
+  .avi-host .present {
+    position: absolute; bottom: 0; right: 0;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--green-solid);
+    border: 2px solid var(--app-bg);
+  }
+  .avi-host .present.away { background: var(--yellow-solid); }
+  .avi-host .present.off  { background: var(--solid); }
+
+  /* User chip */
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 4px 10px 4px 4px;
+    background: var(--component-bg); border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-base); color: var(--text);
+  }
+  .chip .x {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--component-bg-hover); color: var(--text-secondary);
+    display: grid; place-items: center; cursor: pointer; border: 0;
+    font-size: 11px;
+  }
+  .chip .x:hover { background: var(--red-component-bg); color: var(--red-solid); }
+
+  /* Stack — overlapping group */
+  .stack { display: inline-flex; padding-left: 0; }
+  .stack .avi { margin-left: -8px; box-shadow: 0 0 0 2px var(--app-bg); }
+  .stack .avi:first-child { margin-left: 0; }
+  .stack .more {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--component-bg); color: var(--text-secondary);
+    border: 0; box-shadow: 0 0 0 2px var(--app-bg);
+    font-family: var(--font-ui-mono); font-size: 11px; font-weight: 700;
+    margin-left: -8px;
+  }
+
+  /* Row with avatar + meta */
+  .urow {
+    display: grid; grid-template-columns: auto 1fr auto; gap: 12px;
+    padding: 10px; align-items: center; border-radius: var(--radius);
+  }
+  .urow:hover { background: var(--list-item-bg-hover); }
+  .urow .nm { font-size: var(--fs-base); color: var(--text); }
+  .urow .nm small { display: block; margin-top: 2px; font-size: 12px; color: var(--text-secondary); }
+  .urow .actions { font-family: var(--font-ui-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); }
+</style></head>
+<body>
+<div class="card">
+
+  <div class="head">
+    <span class="ix">01</span>
+    <span class="t">Avatar — circle (user) / squircle (app)</span>
+    <span class="n">preview specimen · Avatar.tsx</span>
+  </div>
+  <div class="note">
+    Avatars come in two shapes: <b>circle</b> for users, <b>squircle</b> for apps (OAuth integrations, ecosystem). Initials are the fallback — derive a stable background from the username hash so the same user always lands on the same color.
+  </div>
+
+  <div class="pad">
+    <div class="lbl">Sizes — sm 24 · md 32 · lg 48 · xl 72</div>
+    <div class="row">
+      <div class="avi size-sm c-y">A</div>
+      <div class="avi size-md c-y">A</div>
+      <div class="avi size-lg c-y">U1</div>
+      <div class="avi size-xl c-y">U1</div>
+    </div>
+
+    <div class="lbl">Palette — derived from user hash, stable per identity</div>
+    <div class="row">
+      <div class="avi size-md c-y">U1</div>
+      <div class="avi size-md c-g">U2</div>
+      <div class="avi size-md c-r">U3</div>
+      <div class="avi size-md c-b">U4</div>
+      <div class="avi size-md c-p">U5</div>
+      <div class="avi size-md c-t">JK</div>
+      <div class="avi size-md c-o">PT</div>
+    </div>
+
+    <div class="lbl">App avatars — squircle</div>
+    <div class="row">
+      <div class="avi size-md app c-y">P</div>
+      <div class="avi size-md app c-b">V</div>
+      <div class="avi size-md app c-r">P</div>
+      <div class="avi size-md app c-t">N</div>
+    </div>
+  </div>
+
+  <!-- Presence -->
+  <div class="head" style="margin-top: 8px;">
+    <span class="ix">02</span>
+    <span class="t">Presence — online / away / offline</span>
+  </div>
+  <div class="note">
+    The dot in the bottom-right reads at any size. Reserve <b>green for active session</b>, <b>yellow for idle</b>, <b>gray for offline</b>. Never red — that's reserved for destructive / failed states.
+  </div>
+  <div class="row">
+    <div class="avi-host"><div class="avi size-md c-y">U1</div><div class="present"></div></div>
+    <div class="avi-host"><div class="avi size-md c-g">U2</div><div class="present away"></div></div>
+    <div class="avi-host"><div class="avi size-md c-r">U3</div><div class="present off"></div></div>
+    <div class="avi-host"><div class="avi size-lg c-b">U4</div><div class="present" style="width: 14px; height: 14px;"></div></div>
+  </div>
+
+  <!-- Stack -->
+  <div class="head" style="margin-top: 8px;">
+    <span class="ix">03</span>
+    <span class="t">Stack — group / shared with</span>
+  </div>
+  <div class="note">
+    Overlapping avatars with a 2px ring to separate them from the background. Past 4 visible faces, collapse the remainder into a <code>+N</code> chip.
+  </div>
+  <div class="row">
+    <div class="stack">
+      <div class="avi size-md c-y">U1</div>
+      <div class="avi size-md c-g">U2</div>
+      <div class="avi size-md c-r">U3</div>
+      <button class="more">+5</button>
+    </div>
+    <div class="stack">
+      <div class="avi size-md c-b">U4</div>
+      <div class="avi size-md c-p">U5</div>
+    </div>
+  </div>
+
+  <!-- Chip -->
+  <div class="head" style="margin-top: 8px;">
+    <span class="ix">04</span>
+    <span class="t">User chip — share recipients</span>
+  </div>
+  <div class="note">
+    Compact representation of a tagged user — used in share fields and audit logs. Clickable × removes them. Always preceded by the avatar.
+  </div>
+  <div class="row">
+    <div class="chip"><div class="avi size-sm c-y">U1</div>user-01<button class="x">×</button></div>
+    <div class="chip"><div class="avi size-sm c-g">U2</div>user-02<button class="x">×</button></div>
+    <div class="chip"><div class="avi size-sm c-r">U3</div>user-03<button class="x">×</button></div>
+  </div>
+
+  <!-- Rows -->
+  <div class="head" style="margin-top: 8px;">
+    <span class="ix">05</span>
+    <span class="t">Friend / member rows</span>
+  </div>
+  <div class="pad">
+    <div class="urow">
+      <div class="avi-host"><div class="avi size-md c-y">U1</div><div class="present"></div></div>
+      <div class="nm">user-01<small>Sharing files with you</small></div>
+      <div class="actions">★ pinned</div>
+    </div>
+    <div class="urow">
+      <div class="avi-host"><div class="avi size-md c-g">U2</div><div class="present away"></div></div>
+      <div class="nm">user-02<small>You're sharing 4 folders</small></div>
+      <div class="actions">manage</div>
+    </div>
+    <div class="urow">
+      <div class="avi-host"><div class="avi size-md c-r">U3</div><div class="present off"></div></div>
+      <div class="nm">user-03<small>No active shares</small></div>
+      <div class="actions">unfollow</div>
+    </div>
+  </div>
+</div>
+</body></html>

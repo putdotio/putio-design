@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>put.io preview · components form fields</title>
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { margin: 0; background: hsl(0, 0%, 8.5%); color: hsl(0, 0%, 93%); font-family: var(--font-sans); }
+  html, body { font-size: 14px; }
+
+  .surface {
+    --bg: hsl(0, 0%, 8.5%);
+    --bg-secondary: hsl(0, 0%, 11.0%);
+    --component-bg: hsl(0, 0%, 13.6%);
+    --component-bg-hover: hsl(0, 0%, 15.8%);
+    --component-bg-active: hsl(0, 0%, 17.9%);
+    --line: hsl(0, 0%, 20.5%);
+    --border: hsl(0, 0%, 24.3%);
+    --border-hover: hsl(0, 0%, 31.2%);
+    --text-secondary: hsl(0, 0%, 62.8%);
+    --text: hsl(0, 0%, 93.0%);
+    --app-bg: hsl(0, 0%, 8.5%);
+    --red-text-secondary: hsl(358, 100%, 69.5%);
+    --red-border: hsl(357, 60.2%, 31.8%);
+    --red-border-hover: hsl(358, 65%, 40.4%);
+    --red-bg-secondary: hsl(357, 34.4%, 12.0%);
+    --green-text-secondary: hsl(151, 50%, 53.2%);
+    --green-border: hsl(153, 51.8%, 21.8%);
+    --green-bg-secondary: hsl(155, 44.2%, 8.4%);
+    --yellow-text-secondary: hsl(48, 100%, 47%);
+
+    padding: 28px 32px 36px;
+    display: flex; flex-direction: column; gap: 26px;
+  }
+
+  /* Section header */
+  .head {
+    display: flex; align-items: baseline; gap: 14px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--line);
+  }
+  .head .ix {
+    font-family: var(--font-ui-mono); font-size: 11px;
+    color: var(--yellow-solid); letter-spacing: 0.04em;
+  }
+  .head .t { font-size: 15px; font-weight: 500; color: var(--text); }
+  .head .n {
+    margin-left: auto; font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  /* Grid + group primitives — match inputs.html */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .grid.c-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .group { display: flex; flex-direction: column; gap: 6px; }
+  .group.full { grid-column: 1 / -1; }
+  .label {
+    font-size: 12.5px; font-weight: 500;
+    color: var(--text);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .label .req { color: var(--yellow-solid); }
+  .label .opt { color: var(--text-secondary); font-size: 12px; font-weight: 400; }
+  .hint { font-size: 12px; color: var(--text-secondary); line-height: 1.5; display: flex; align-items: center; gap: 6px; }
+  .hint i { font-size: 12px; }
+
+  /* Base field (parity with inputs.html) */
+  .field {
+    width: 100%; height: 36px; padding: 0 12px; box-sizing: border-box;
+    border-radius: var(--radius); border: 1px solid var(--border);
+    background: var(--app-bg); color: var(--text);
+    font-family: var(--font-sans); font-size: var(--fs-base);
+    transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+  }
+  .field:focus { outline: none; border-color: var(--border-hover); box-shadow: 0 0 0 1px var(--border-hover); }
+  .field.mono { font-family: var(--font-mono); font-size: 13px; }
+  .field-wrap { position: relative; }
+  .field-wrap > i.lead {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; color: var(--text-secondary); pointer-events: none;
+  }
+  .field-wrap .field.has-icon { padding-left: 36px; }
+  .field-wrap > i.trail {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; color: var(--text-secondary); pointer-events: none;
+  }
+
+  /* ─── Number stepper ─────────────────────────────────────── */
+  .stepper {
+    display: inline-flex; align-items: center;
+    width: 100%;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--app-bg);
+    overflow: hidden;
+  }
+  .stepper button {
+    width: 34px; height: 34px;
+    background: var(--component-bg); border: 0;
+    color: var(--text); cursor: pointer;
+    display: grid; place-items: center;
+    font-family: var(--font-ui-mono); font-size: 16px; font-weight: 500;
+    transition: background var(--dur-fast) var(--ease-out);
+  }
+  .stepper button:hover { background: var(--component-bg-hover); }
+  .stepper button:disabled { color: var(--text-secondary); cursor: not-allowed; opacity: 0.5; }
+  .stepper .val {
+    flex: 1; text-align: center;
+    font-family: var(--font-ui-mono); font-variant-numeric: tabular-nums;
+    font-size: 14px; color: var(--text);
+    padding: 0 4px;
+  }
+  .stepper .unit {
+    padding-right: 12px; color: var(--text-secondary);
+    font-size: 11px;
+  }
+
+  /* ─── Slider / range ─────────────────────────────────────── */
+  .slider-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 4px 0;
+  }
+  .slider {
+    flex: 1;
+    height: 4px; border-radius: 999px;
+    background: var(--component-bg-active);
+    position: relative;
+  }
+  .slider .fill {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: var(--yellow-solid);
+    border-radius: 999px;
+  }
+  .slider .thumb {
+    position: absolute; top: 50%;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--yellow-solid);
+    transform: translate(-50%, -50%);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    cursor: grab;
+  }
+  .slider .thumb.focused {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--yellow-solid) 32%, transparent), 0 1px 3px rgba(0,0,0,0.5);
+  }
+  .slider-row .num {
+    width: 80px; text-align: right;
+    font-family: var(--font-ui-mono); font-variant-numeric: tabular-nums;
+    font-size: 13px; color: var(--text);
+  }
+  .slider-ticks {
+    display: flex; justify-content: space-between;
+    font-family: var(--font-ui-mono); font-size: 10.5px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  /* ─── Date / date-range ──────────────────────────────────── */
+  .date-range {
+    display: grid; grid-template-columns: 1fr auto 1fr;
+    gap: 8px; align-items: center;
+  }
+  .date-range .arrow { color: var(--text-secondary); font-size: 14px; padding: 0 4px; }
+  .date-pop {
+    border: 1px solid var(--border-hover);
+    border-radius: var(--radius);
+    background: var(--component-bg);
+    box-shadow: var(--shadow-md);
+    padding: 14px; max-width: 320px;
+  }
+  .date-pop .month {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .date-pop .month .m {
+    font-size: 13px; font-weight: 500; color: var(--text);
+  }
+  .date-pop .month button {
+    background: transparent; border: 0; color: var(--text-secondary);
+    width: 22px; height: 22px; border-radius: var(--radius-sm);
+    cursor: pointer; display: grid; place-items: center;
+  }
+  .date-pop .month button:hover { background: var(--component-bg-hover); color: var(--text); }
+  .date-pop .dow {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 0;
+    margin-bottom: 4px;
+  }
+  .date-pop .dow span {
+    text-align: center;
+    font-size: 10px; font-weight: 500;
+    color: var(--text-secondary); text-transform: uppercase;
+  }
+  .date-pop .days {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px;
+  }
+  .date-pop .day {
+    aspect-ratio: 1;
+    display: grid; place-items: center;
+    font-family: var(--font-ui-mono); font-variant-numeric: tabular-nums;
+    font-size: 12px; color: var(--text);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  .date-pop .day:hover { background: var(--component-bg-hover); }
+  .date-pop .day.muted { color: var(--text-secondary); opacity: 0.4; }
+  .date-pop .day.in-range { background: var(--yellow-component-bg); border-radius: 0; }
+  .date-pop .day.start { background: var(--yellow-solid); color: #000; font-weight: 500; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+  .date-pop .day.end { background: var(--yellow-solid); color: #000; font-weight: 500; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+  .date-pop .day.today { box-shadow: inset 0 0 0 1px var(--border-hover); }
+
+  /* ─── Tag / chips input ─────────────────────────────────── */
+  .tag-input {
+    min-height: 36px;
+    padding: 4px 8px;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 4px;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--app-bg);
+  }
+  .tag-input:focus-within {
+    border-color: var(--border-hover);
+    box-shadow: 0 0 0 1px var(--border-hover);
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 24px; padding: 0 6px 0 4px;
+    background: var(--component-bg-active);
+    border-radius: var(--radius-sm);
+    font-size: 12.5px; color: var(--text);
+  }
+  .chip .av {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--yellow-solid); color: #000;
+    display: grid; place-items: center;
+    font-family: var(--font-ui-mono); font-size: 9px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .chip .av.b { background: hsl(217, 91%, 60%); color: #fff; }
+  .chip .av.g { background: var(--green-solid); color: #fff; }
+  .chip .av.r { background: var(--red-solid); color: #fff; }
+  .chip .av.p { background: hsl(280, 75%, 60%); color: #fff; }
+  .chip .x {
+    width: 14px; height: 14px; display: grid; place-items: center;
+    border-radius: 50%; cursor: pointer;
+    color: var(--text-secondary);
+  }
+  .chip .x:hover { background: var(--component-bg-hover); color: var(--text); }
+  .tag-input input {
+    flex: 1; min-width: 80px;
+    height: 26px; border: 0; outline: 0; background: transparent;
+    color: var(--text); font-size: 13px;
+    font-family: var(--font-sans);
+  }
+  .tag-input input::placeholder { color: var(--text-secondary); }
+
+  /* ─── Autocomplete results ──────────────────────────────── */
+  .ac {
+    border: 1px solid var(--border-hover);
+    border-radius: var(--radius);
+    background: var(--component-bg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+  .ac .control {
+    height: 36px; padding: 0 12px 0 36px;
+    display: flex; align-items: center;
+    border-bottom: 1px solid var(--line);
+    font-size: var(--fs-base);
+    position: relative;
+  }
+  .ac .control i.lead {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; color: var(--yellow-solid);
+  }
+  .ac .control .q { color: var(--text); }
+  .ac .control .caret { color: var(--text-secondary); font-family: var(--font-mono); font-size: 11px; margin-left: 2px; animation: blink 1s steps(2, end) infinite; }
+  @keyframes blink { 0%,50% { opacity: 1; } 50.01%,100% { opacity: 0; } }
+  .ac .meta { margin-left: auto; font-size: 11px; color: var(--text-secondary); }
+  .ac .menu { padding: 4px; display: flex; flex-direction: column; gap: 1px; }
+  .ac .opt {
+    padding: 7px 10px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer;
+  }
+  .ac .opt:hover, .ac .opt.sel { background: var(--component-bg-hover); }
+  .ac .opt i.fi { color: var(--yellow-solid); font-size: 14px; }
+  .ac .opt .nm { font-size: 13px; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ac .opt .nm em { font-style: normal; background: color-mix(in srgb, var(--yellow-solid) 22%, transparent); padding: 0 2px; border-radius: 2px; }
+  .ac .opt .sz { font-family: var(--font-ui-mono); font-size: 11px; color: var(--text-secondary); }
+  .ac .group-hd {
+    padding: 8px 12px 4px;
+    font-size: 10.5px; font-weight: 500;
+    color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .ac .foot {
+    border-top: 1px solid var(--line);
+    padding: 6px 12px;
+    display: flex; gap: 14px;
+    font-size: 11px; color: var(--text-secondary);
+  }
+  .ac .foot kbd {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--text); background: var(--component-bg-active);
+    padding: 1px 5px; border-radius: 3px;
+    border: 1px solid var(--line);
+    margin-right: 4px;
+  }
+
+  /* ─── File upload (inline) ──────────────────────────────── */
+  .file-row {
+    display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: center;
+    padding: 12px; border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--bg-secondary);
+  }
+  .file-row .av {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--component-bg-active); color: var(--text-secondary);
+    display: grid; place-items: center;
+    font-family: var(--font-sans); font-weight: 700; font-size: 22px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .file-row .av.img {
+    background: linear-gradient(135deg, var(--yellow-solid) 0%, hsl(40, 90%, 50%) 100%);
+    color: #000;
+  }
+  .file-row .body { min-width: 0; }
+  .file-row .body .ttl { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .file-row .body .sub { font-family: var(--font-ui-mono); font-size: 11px; color: var(--text-secondary); }
+  .file-row .act { display: flex; gap: 6px; }
+  .btn-secondary {
+    height: 28px; padding: 0 10px;
+    background: var(--component-bg); border: 1px solid var(--line);
+    border-radius: var(--radius-sm); color: var(--text);
+    font-family: var(--font-sans); font-size: 12px; font-weight: 500;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .btn-secondary:hover { background: var(--component-bg-hover); border-color: var(--border); }
+  .btn-secondary.danger { color: var(--red-text-secondary); }
+  .btn-secondary.danger:hover { background: var(--red-bg-secondary); border-color: var(--red-border); }
+  .btn-secondary i { font-size: 13px; }
+
+  /* ─── Password strength meter ───────────────────────────── */
+  .strength {
+    display: flex; gap: 4px; margin-top: 4px;
+  }
+  .strength span {
+    flex: 1; height: 4px; border-radius: 999px;
+    background: var(--component-bg-active);
+  }
+  .strength span.on-w { background: var(--red-solid); }
+  .strength span.on-m { background: var(--yellow-solid); }
+  .strength span.on-s { background: var(--green-solid); }
+  .strength-meta {
+    display: flex; justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  .strength-meta .lv { color: var(--text); }
+  .strength-meta .lv.weak { color: var(--red-text-secondary); }
+  .strength-meta .lv.med { color: var(--yellow-text-secondary); }
+  .strength-meta .lv.strong { color: var(--green-text-secondary); }
+
+  /* ─── Character counter ─────────────────────────────────── */
+  .count-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .count-row .c { font-family: var(--font-ui-mono); font-variant-numeric: tabular-nums; }
+  .count-row .c.warn { color: var(--yellow-text-secondary); }
+  .count-row .c.over { color: var(--red-text-secondary); }
+
+  /* ─── Validation states ─────────────────────────────────── */
+  .group.error .field { border-color: var(--red-border); }
+  .group.error .field:focus { border-color: var(--red-border-hover); box-shadow: 0 0 0 1px var(--red-border-hover); }
+  .group.warn .field { border-color: hsl(48, 60%, 35%); }
+  .group.success .field { border-color: var(--green-border); }
+  .group.success .field:focus { border-color: hsl(151, 51%, 38%); box-shadow: 0 0 0 1px hsl(151, 51%, 38%); }
+
+  .msg {
+    font-size: 12px; line-height: 1.5;
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+  .msg i { font-size: 13px; margin-top: 1px; flex-shrink: 0; }
+  .msg.error { color: var(--red-text-secondary); }
+  .msg.warn  { color: var(--yellow-text-secondary); }
+  .msg.success { color: var(--green-text-secondary); }
+  .msg.checking { color: var(--text-secondary); }
+  .msg.checking i { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ─── Validation summary card ───────────────────────────── */
+  .summary {
+    border: 1px solid var(--red-border); border-radius: var(--radius);
+    background: var(--red-bg-secondary);
+    padding: 14px 16px;
+    display: flex; gap: 12px;
+  }
+  .summary > i {
+    color: var(--red-text-secondary); font-size: 20px; flex-shrink: 0; margin-top: 1px;
+  }
+  .summary .body { flex: 1; }
+  .summary .ttl { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .summary ul { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .summary li { font-size: 12.5px; color: var(--red-text-secondary); display: flex; align-items: baseline; gap: 6px; }
+  .summary li::before { content: "·"; font-weight: 700; }
+  .summary li a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
+
+  /* ─── Footer note ─────────────────────────────────────── */
+  .specs-link {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+    line-height: 1.6;
+  }
+  .specs-link b { color: var(--text); font-weight: 500; }
+  .specs-link code {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--yellow-solid);
+  }
+</style></head>
+<body>
+
+<!-- ============================================================
+     A · EXTENDED FIELD TYPES
+     ============================================================ -->
+<div class="surface">
+
+  <div class="head">
+    <span class="ix">A · 01</span>
+    <span class="t">Extended field types</span>
+    <span class="n">date · stepper · slider · tags · autocomplete · file · password</span>
+  </div>
+
+  <!-- ROW · Date + stepper + slider -->
+  <div class="grid c-3">
+    <div class="group">
+      <span class="label">Trial expires <span class="opt">(read-only)</span></span>
+      <div class="field-wrap">
+        <i class="ph ph-calendar-blank lead"></i>
+        <input aria-label="Preview field" class="field has-icon" value="Apr 24, 2026" readonly />
+      </div>
+      <span class="hint">Single date, locale-formatted. Input is a button that opens the picker.</span>
+    </div>
+
+    <div class="group">
+      <span class="label">Max concurrent downloads</span>
+      <div class="stepper">
+        <button aria-label="Preview action">−</button>
+        <span class="val">4</span>
+        <span class="unit">running</span>
+        <button aria-label="Preview action">+</button>
+      </div>
+      <span class="hint">Numeric integer. Use for limits, counts, retry attempts.</span>
+    </div>
+
+    <div class="group">
+      <span class="label">Seeding ratio target</span>
+      <div class="slider-row">
+        <div class="slider">
+          <div class="fill" style="width: 38%;"></div>
+          <div class="thumb focused" style="left: 38%;"></div>
+        </div>
+        <span class="num">1.50×</span>
+      </div>
+      <div class="slider-ticks">
+        <span>0</span><span>1×</span><span>2×</span><span>3×</span><span>∞</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW · Date range + Tag input -->
+  <div class="grid">
+    <div class="group">
+      <span class="label">Show history from … to</span>
+      <div class="date-range">
+        <div class="field-wrap">
+          <i class="ph ph-calendar-blank lead"></i>
+          <input aria-label="Preview field" class="field has-icon" value="Mar 12, 2026" readonly />
+        </div>
+        <i class="ph ph-arrow-right arrow"></i>
+        <div class="field-wrap">
+          <i class="ph ph-calendar-blank lead"></i>
+          <input aria-label="Preview field" class="field has-icon" value="Apr 19, 2026" readonly />
+        </div>
+      </div>
+      <span class="hint"><i class="ph ph-info"></i>Both inputs share one popover with a 2-month grid.</span>
+    </div>
+
+    <div class="group">
+      <span class="label">Share with friends <span class="opt">— up to 8</span></span>
+      <div class="tag-input">
+        <span class="chip"><span class="av">U1</span>user-01<span class="x"><i class="ph ph-x"></i></span></span>
+        <span class="chip"><span class="av b">U4</span>user-04<span class="x"><i class="ph ph-x"></i></span></span>
+        <span class="chip"><span class="av g">U5</span>user-05<span class="x"><i class="ph ph-x"></i></span></span>
+        <input aria-label="Preview field" placeholder="Add another…" />
+      </div>
+      <span class="hint"><i class="ph ph-keyboard"></i><kbd style="font-family:var(--font-mono);font-size:11px;color:var(--text);background:var(--component-bg);padding:1px 5px;border-radius:3px;border:1px solid var(--line);">⏎</kbd> or <kbd style="font-family:var(--font-mono);font-size:11px;color:var(--text);background:var(--component-bg);padding:1px 5px;border-radius:3px;border:1px solid var(--line);">,</kbd> to commit a chip. <kbd style="font-family:var(--font-mono);font-size:11px;color:var(--text);background:var(--component-bg);padding:1px 5px;border-radius:3px;border:1px solid var(--line);">⌫</kbd> deletes the last one.</span>
+    </div>
+  </div>
+
+  <!-- ROW · Date popover (visual) + Autocomplete (visual) -->
+  <div class="grid">
+    <div class="group">
+      <span class="label">Date-range popover · expanded</span>
+      <div class="date-pop">
+        <div class="month">
+          <button aria-label="Preview action"><i class="ph-bold ph-caret-left"></i></button>
+          <span class="m">April 2026</span>
+          <button aria-label="Preview action"><i class="ph-bold ph-caret-right"></i></button>
+        </div>
+        <div class="dow"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+        <div class="days">
+          <span class="day muted">30</span><span class="day muted">31</span>
+          <span class="day">1</span><span class="day">2</span><span class="day">3</span><span class="day">4</span><span class="day">5</span>
+          <span class="day">6</span><span class="day">7</span><span class="day">8</span><span class="day">9</span><span class="day">10</span><span class="day">11</span><span class="day">12</span>
+          <span class="day start">13</span><span class="day in-range">14</span><span class="day in-range">15</span><span class="day in-range">16</span><span class="day in-range">17</span><span class="day in-range">18</span><span class="day end">19</span>
+          <span class="day">20</span><span class="day">21</span><span class="day today">22</span><span class="day">23</span><span class="day">24</span><span class="day">25</span><span class="day">26</span>
+          <span class="day">27</span><span class="day">28</span><span class="day">29</span><span class="day">30</span>
+          <span class="day muted">1</span><span class="day muted">2</span><span class="day muted">3</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="label">Search autocomplete · typing</span>
+      <div class="ac">
+        <div class="control">
+          <i class="ph ph-magnifying-glass lead"></i>
+          <span class="q">wire<span class="caret">|</span></span>
+          <span class="meta">7 results</span>
+        </div>
+        <div class="group-hd">Folders</div>
+        <div class="menu" style="padding-top: 0;">
+          <div class="opt sel"><i class="ph-fill ph-folder fi"></i><span class="nm">homework_answers_DONT_DELETE</span><span class="sz">12 files</span></div>
+        </div>
+        <div class="group-hd">Files</div>
+        <div class="menu" style="padding-top: 0;">
+          <div class="opt"><i class="ph-fill ph-film-strip fi"></i><span class="nm">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</span><span class="sz">2.4 GB</span></div>
+          <div class="opt"><i class="ph-fill ph-film-strip fi"></i><span class="nm">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</span><span class="sz">2.1 GB</span></div>
+          <div class="opt"><i class="ph-fill ph-music-notes fi"></i><span class="nm">podcast_ep127_final_mixdown_v2.mp3</span><span class="sz">312 MB</span></div>
+        </div>
+        <div class="foot">
+          <span><kbd>↑↓</kbd>navigate</span>
+          <span><kbd>⏎</kbd>open</span>
+          <span><kbd>esc</kbd>close</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW · File / Password strength -->
+  <div class="grid">
+    <div class="group">
+      <span class="label">Profile picture <span class="opt">— optional</span></span>
+      <div class="file-row">
+        <div class="av img">K</div>
+        <div class="body">
+          <div class="ttl">avatar.jpg</div>
+          <div class="sub">96 × 96 · 142 KB · square crop</div>
+        </div>
+        <div class="act">
+          <button aria-label="Preview action" class="btn-secondary"><i class="ph ph-pencil-simple"></i>Replace</button>
+          <button aria-label="Preview action" class="btn-secondary danger"><i class="ph ph-trash"></i>Remove</button>
+        </div>
+      </div>
+      <span class="hint"><i class="ph ph-info"></i>JPG, PNG, or WebP — up to 4 MB. Square crops only.</span>
+    </div>
+
+    <div class="group">
+      <span class="label">New password <span class="req">*</span></span>
+      <div class="field-wrap">
+        <input aria-label="Preview field" class="field" type="password" value="••••••••••••••" />
+        <i class="ph ph-eye trail"></i>
+      </div>
+      <div class="strength">
+        <span class="on-w"></span><span class="on-m"></span><span class="on-s"></span><span></span>
+      </div>
+      <div class="strength-meta">
+        <span>Strength</span>
+        <span class="lv med">Good — add a number for great</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================
+     B · VALIDATION STATES
+     ============================================================ -->
+<div class="surface">
+
+  <div class="head">
+    <span class="ix">B · 02</span>
+    <span class="t">Validation — error · warning · success · async · counted</span>
+    <span class="n">color + icon + message · never color alone</span>
+  </div>
+
+  <div class="grid c-3">
+    <div class="group error">
+      <span class="label">Folder name <span class="req">*</span></span>
+      <input aria-label="Preview field" class="field" value="2024/Q1" />
+      <span class="msg error"><i class="ph-fill ph-warning-circle"></i>Folder names can't contain <code style="font-family:var(--font-mono);color:var(--red-text-secondary);">/</code>. Try <code style="font-family:var(--font-mono);color:var(--red-text-secondary);">2024-Q1</code>.</span>
+    </div>
+
+    <div class="group warn">
+      <span class="label">Default download folder</span>
+      <input aria-label="Preview field" class="field" value="/Files/Unsorted" />
+      <span class="msg warn"><i class="ph-fill ph-warning"></i>About to leave you with <strong style="color:var(--text);">0.4 GB</strong> free. Consider clearing Trash first.</span>
+    </div>
+
+    <div class="group success">
+      <span class="label">Magnet link</span>
+      <input aria-label="Preview field" class="field mono" value="magnet:?xt=urn:btih:a1b2c3…" />
+      <span class="msg success"><i class="ph-fill ph-check-circle"></i>Parsed — <strong style="color:var(--text);">The.Wire.S03E04.Back.Burners</strong> · 2.4 GB · 89 files.</span>
+    </div>
+
+    <div class="group">
+      <span class="label">Username <span class="req">*</span></span>
+      <input aria-label="Preview field" class="field" value="user-01" />
+      <span class="msg checking"><i class="ph ph-circle-notch"></i>Checking availability…</span>
+    </div>
+
+    <div class="group">
+      <span class="label">Bio</span>
+      <textarea aria-label="Preview text field" class="field" style="height: 60px; padding: 8px 12px; font-family: var(--font-sans); font-size: 13px;" maxlength="280">Files, links, and shared folders. ᕦ(ò_óˇ)ᕤ</textarea>
+      <div class="count-row">
+        <span class="hint" style="margin: 0;">Visible on your public profile.</span>
+        <span class="c">62 / 280</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="label">Tweet · 240 char limit</span>
+      <textarea aria-label="Preview text field" class="field" style="height: 60px; padding: 8px 12px; font-family: var(--font-sans); font-size: 13px;">Question about storage alerts and automatic conversions for large public-domain archive batches. Please keep my filenames unchanged in the activity log.</textarea>
+      <div class="count-row">
+        <span class="hint" style="margin: 0;">Approaching the limit.</span>
+        <span class="c warn">228 / 240</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Validation summary -->
+  <div class="summary">
+    <i class="ph-fill ph-warning-circle"></i>
+    <div class="body">
+      <div class="ttl">Couldn't save your changes — 3 fields need attention.</div>
+      <ul>
+        <li><a href="../design-system.html">Folder name</a> contains an invalid character.</li>
+        <li><a href="../design-system.html">Email</a> isn't a valid address.</li>
+        <li><a href="../design-system.html">Seeding ratio</a> must be between 0 and 10.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="specs-link">
+    <b>Validation rules.</b>
+    Never color alone — every state pairs <em>color · icon · sentence</em>.
+    <code>--red-solid</code> = blocks the save · <code>--yellow-solid</code> = warns but allows · <code>--green-solid</code> = confirms a parse / async-success ·
+    spinner <code>ph-circle-notch</code> = in-flight (no border-color change).
+    Use a <em>summary card</em> at the top of long forms; inline messages cover focused fields.
+  </div>
+
+</div>
+
+</body></html>

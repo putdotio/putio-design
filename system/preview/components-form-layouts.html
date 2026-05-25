@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>put.io preview · components form layouts</title>
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { margin: 0; background: hsl(0, 0%, 8.5%); color: hsl(0, 0%, 93%); font-family: var(--font-sans); font-size: 14px; }
+
+  .surface {
+    --bg: hsl(0, 0%, 8.5%);
+    --bg-secondary: hsl(0, 0%, 11.0%);
+    --component-bg: hsl(0, 0%, 13.6%);
+    --component-bg-hover: hsl(0, 0%, 15.8%);
+    --component-bg-active: hsl(0, 0%, 17.9%);
+    --line: hsl(0, 0%, 20.5%);
+    --border: hsl(0, 0%, 24.3%);
+    --border-hover: hsl(0, 0%, 31.2%);
+    --text-secondary: hsl(0, 0%, 62.8%);
+    --text: hsl(0, 0%, 93.0%);
+    --app-bg: hsl(0, 0%, 8.5%);
+    --red-solid: hsl(358, 75%, 59%);
+    --red-text-secondary: hsl(358, 100%, 69.5%);
+    --red-bg-secondary: hsl(357, 34.4%, 12.0%);
+    --green-solid: hsl(151, 55%, 41.5%);
+    --green-text-secondary: hsl(151, 50%, 53.2%);
+    --green-bg-secondary: hsl(155, 44%, 8.4%);
+    --yellow-text-secondary: hsl(48, 100%, 47%);
+
+    padding: 28px 32px 36px;
+    display: flex; flex-direction: column; gap: 26px;
+  }
+
+  /* Section header */
+  .head {
+    display: flex; align-items: baseline; gap: 14px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--line);
+  }
+  .head .ix {
+    font-family: var(--font-ui-mono); font-size: 11px;
+    color: var(--yellow-solid); letter-spacing: 0.04em;
+  }
+  .head .t { font-size: 15px; font-weight: 500; color: var(--text); }
+  .head .n {
+    margin-left: auto; font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  /* Layout demos sit in cards w/ a label-strip */
+  .demo {
+    border: 1px solid var(--line); border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+    overflow: hidden;
+  }
+  .demo .demo-hd {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .demo .demo-hd .ix {
+    font-family: var(--font-ui-mono); font-size: 11px;
+    color: var(--yellow-solid); letter-spacing: 0.04em;
+  }
+  .demo .demo-hd .t { font-size: 13px; color: var(--text); font-weight: 500; }
+  .demo .demo-hd .when { margin-left: auto; font-size: 11px; color: var(--text-secondary); }
+  .demo .demo-body { padding: 22px 24px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+  /* ─── Base form primitives ─────────────────────────────── */
+  .label {
+    font-size: 12.5px; font-weight: 500;
+    color: var(--text);
+    margin-bottom: 6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .label .req { color: var(--yellow-solid); }
+  .label .opt { font-size: 12px; color: var(--text-secondary); font-weight: 400; }
+  .hint { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-top: 6px; }
+  .field {
+    width: 100%; height: 36px; padding: 0 12px; box-sizing: border-box;
+    border-radius: var(--radius); border: 1px solid var(--border);
+    background: var(--app-bg); color: var(--text);
+    font-family: var(--font-sans); font-size: var(--fs-base);
+  }
+  .field:focus { outline: none; border-color: var(--border-hover); box-shadow: 0 0 0 1px var(--border-hover); }
+  .field.mono { font-family: var(--font-mono); font-size: 13px; }
+  .group { display: flex; flex-direction: column; }
+  .group + .group { margin-top: 16px; }
+  .group.full { grid-column: 1 / -1; }
+  .field-wrap { position: relative; }
+  .field-wrap > i.lead {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; color: var(--text-secondary);
+  }
+  .field-wrap .field.has-icon { padding-left: 36px; }
+
+  /* ─── Buttons ─────────────────────────────────────── */
+  .btn {
+    height: 36px; padding: 0 16px;
+    border-radius: var(--radius); border: 1px solid transparent;
+    font-family: var(--font-sans); font-size: 13.5px; font-weight: 500;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+  }
+  .btn.primary { background: var(--yellow-solid); color: #000; }
+  .btn.primary:hover { background: var(--yellow-solid-hover); }
+  .btn.primary:disabled { background: var(--component-bg-active); color: var(--text-secondary); cursor: not-allowed; }
+  .btn.secondary { background: var(--component-bg); color: var(--text); border-color: var(--line); }
+  .btn.secondary:hover { background: var(--component-bg-hover); border-color: var(--border); }
+  .btn.ghost { background: transparent; color: var(--text-secondary); }
+  .btn.ghost:hover { background: var(--component-bg); color: var(--text); }
+  .btn.danger { background: var(--red-solid); color: #fff; }
+  .btn.danger:hover { background: hsl(358, 70%, 53%); }
+  .btn.sm { height: 30px; padding: 0 12px; font-size: 12.5px; }
+
+  /* ─── LAYOUT 01 · Settings row · label-left ───────── */
+  .settings-row {
+    display: grid; grid-template-columns: 200px 1fr; gap: 32px;
+    padding: 16px 0;
+    align-items: start;
+  }
+  .settings-row + .settings-row { border-top: 1px solid var(--line); }
+  .settings-row .lhs .ttl { font-size: 13.5px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .settings-row .lhs .sub { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+  .settings-row .rhs { max-width: 420px; }
+
+  /* ─── LAYOUT 02 · Modal stacked ──────────────────── */
+  .modal {
+    max-width: 460px; margin: 0 auto;
+    border: 1px solid var(--line); border-radius: var(--radius-md);
+    background: var(--bg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+  .modal .m-hd {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .modal .m-hd .icon {
+    width: 28px; height: 28px; border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--yellow-solid) 14%, transparent);
+    color: var(--yellow-solid);
+    display: grid; place-items: center; font-size: 14px;
+    flex-shrink: 0;
+  }
+  .modal .m-hd .body { flex: 1; min-width: 0; }
+  .modal .m-hd .ttl { font-size: 14px; font-weight: 500; color: var(--text); }
+  .modal .m-hd .sub { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+  .modal .m-hd .close { color: var(--text-secondary); cursor: pointer; padding: 4px; }
+  .modal .m-body { padding: 18px; }
+  .modal .m-foot {
+    padding: 12px 18px;
+    border-top: 1px solid var(--line);
+    background: var(--bg-secondary);
+    display: flex; gap: 8px; justify-content: flex-end;
+  }
+
+  /* ─── LAYOUT 03 · Inline action composer ────────── */
+  .composer {
+    display: grid; grid-template-columns: 1fr auto auto; gap: 8px;
+    padding: 14px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--line); border-radius: var(--radius-md);
+  }
+  .composer .field-wrap { min-width: 0; }
+  .composer .field { background: var(--bg); }
+  .composer-hint {
+    margin-top: 8px; font-size: 11.5px; color: var(--text-secondary);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .composer-hint span { display: inline-flex; align-items: center; gap: 5px; }
+  .composer-hint i { color: var(--text-secondary); font-size: 12px; }
+  .composer-hint b { color: var(--text); font-weight: 500; }
+
+  /* ─── LAYOUT 04 · Wizard / multi-step ───────────── */
+  .wizard {
+    border: 1px solid var(--line); border-radius: var(--radius-md);
+    background: var(--bg);
+    overflow: hidden;
+  }
+  .steps {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-secondary);
+  }
+  .step {
+    padding: 14px 14px 12px;
+    display: flex; align-items: center; gap: 10px;
+    position: relative;
+    font-family: var(--font-sans);
+  }
+  .step + .step::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 1px; background: var(--line);
+  }
+  .step .num {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: grid; place-items: center;
+    font-family: var(--font-ui-mono); font-size: 11px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step.done .num { background: var(--green-solid); color: #fff; }
+  .step.done .num i { font-size: 13px; }
+  .step.current .num { background: var(--yellow-solid); color: #000; }
+  .step.pending .num { background: var(--component-bg); color: var(--text-secondary); border: 1px solid var(--line); }
+  .step .body { min-width: 0; }
+  .step .lbl {
+    font-size: 10.5px; font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .step .nm { font-size: 13px; color: var(--text); font-weight: 500; margin-top: 1px; }
+  .step.pending .nm { color: var(--text-secondary); font-weight: 400; }
+  .wizard .w-body { padding: 22px 24px; }
+  .wizard .w-foot {
+    padding: 12px 18px;
+    border-top: 1px solid var(--line);
+    background: var(--bg-secondary);
+    display: flex; gap: 8px; justify-content: space-between; align-items: center;
+  }
+  .wizard .w-foot .left { font-size: 12px; color: var(--text-secondary); }
+
+  /* ─── LAYOUT 05 · Sticky submit bar ──────────────── */
+  .page-form {
+    border: 1px solid var(--line); border-radius: var(--radius-md);
+    background: var(--bg);
+    overflow: hidden;
+  }
+  .page-form .p-body {
+    padding: 22px 24px;
+    max-height: 240px; overflow: auto;
+    border-bottom: 1px solid var(--line);
+  }
+  .page-form .p-foot {
+    padding: 12px 18px;
+    background: var(--bg-secondary);
+    display: flex; align-items: center; gap: 12px;
+    border-top: 1px solid var(--yellow-border-hover);
+    box-shadow: 0 -1px 0 0 var(--yellow-solid);
+  }
+  .page-form .dirty {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12.5px; color: var(--text);
+  }
+  .page-form .dirty .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--yellow-solid);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--yellow-solid) 22%, transparent);
+  }
+  .page-form .dirty .ct {
+    font-size: 12px; color: var(--text-secondary);
+  }
+  .page-form .spacer { flex: 1; }
+
+  /* ─── LAYOUT 06 · Inline edit ──────────────────── */
+  .inline-row {
+    display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center;
+    padding: 10px 14px; border-radius: var(--radius);
+  }
+  .inline-row + .inline-row { margin-top: 6px; }
+  .inline-row .l .lbl {
+    font-size: 11px; font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+  }
+  .inline-row .l .val { font-family: var(--font-mono); font-size: 13px; color: var(--text); }
+  .inline-row.editing {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-hover);
+    padding: 12px 14px;
+  }
+  .inline-row.editing .ed {
+    display: flex; gap: 6px; align-items: center;
+  }
+  .inline-row.editing .field { height: 30px; font-size: 13px; }
+  .inline-row .actions { display: flex; gap: 6px; }
+  .inline-row .pencil {
+    color: var(--text-secondary); cursor: pointer; font-size: 14px; padding: 4px;
+  }
+  .inline-row .pencil:hover { color: var(--yellow-solid); }
+
+  /* ─── Footer note ─────────────────────────────────────── */
+  .specs-link {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+    line-height: 1.6;
+  }
+  .specs-link b { color: var(--text); font-weight: 500; }
+  .specs-link code {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--yellow-solid);
+  }
+</style></head>
+<body>
+
+<div class="surface">
+
+  <!-- =============================================================
+       L · 01 — Settings row (label-left, value-right)
+       ============================================================= -->
+  <div class="demo">
+    <div class="demo-hd">
+      <span class="ix">L · 01</span>
+      <span class="t">Settings row · label-left</span>
+      <span class="when">Settings pages · profile · account preferences</span>
+    </div>
+    <div class="demo-body" style="padding-top: 0;">
+      <div class="settings-row">
+        <div class="lhs">
+          <div class="ttl">Default download folder</div>
+          <div class="sub">Where new transfers land before you sort them.</div>
+        </div>
+        <div class="rhs">
+          <div class="field-wrap">
+            <i class="ph ph-folder lead"></i>
+            <input class="field has-icon" value="/Files/Unsorted" />
+          </div>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div class="lhs">
+          <div class="ttl">Auto-convert to MP4</div>
+          <div class="sub">Converts on completion. Costs 1 credit per file; transcoded files stay on put.io.</div>
+        </div>
+        <div class="rhs">
+          <div style="display: inline-flex; background: var(--component-bg); border-radius: var(--radius); padding: 2px;">
+            <button style="height: 28px; padding: 0 14px; border: 0; background: var(--bg); color: var(--text); font-size: 12.5px; font-weight: 500; border-radius: var(--radius-sm); cursor: pointer; box-shadow: var(--shadow-sm);">On</button>
+            <button style="height: 28px; padding: 0 14px; border: 0; background: transparent; color: var(--text-secondary); font-size: 12.5px; font-weight: 500; cursor: pointer;">Off</button>
+          </div>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div class="lhs">
+          <div class="ttl">Seeding ratio target</div>
+          <div class="sub">Stop seeding once this share ratio is reached. <strong style="color:var(--text);">∞</strong> means seed forever.</div>
+        </div>
+        <div class="rhs">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="flex: 1; height: 4px; border-radius: 999px; background: var(--component-bg-active); position: relative;">
+              <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 38%; background: var(--yellow-solid); border-radius: 999px;"></div>
+              <div style="position: absolute; left: 38%; top: 50%; transform: translate(-50%, -50%); width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 2px solid var(--yellow-solid); box-shadow: 0 1px 3px rgba(0,0,0,0.5);"></div>
+            </div>
+            <span style="font-family: var(--font-ui-mono); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--text); width: 50px; text-align: right;">1.50×</span>
+          </div>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div class="lhs">
+          <div class="ttl">Pushover key</div>
+          <div class="sub">Get a push notification when a transfer completes. Find your key at <a style="color: var(--yellow-text-secondary); text-decoration: underline; text-underline-offset: 2px;" href="../design-system.html">pushover.net</a>.</div>
+        </div>
+        <div class="rhs">
+          <input class="field mono" value="ud7nzwhf3k82q…" />
+          <div class="hint" style="margin-top: 4px;">Leave blank to disable.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================================
+       L · 02 — Modal · stacked, two-column body
+       ============================================================= -->
+  <div class="grid-2">
+    <div class="demo">
+      <div class="demo-hd">
+        <span class="ix">L · 02</span>
+        <span class="t">Modal · stacked form</span>
+        <span class="when">Quick action — narrow column</span>
+      </div>
+      <div class="demo-body" style="padding: 20px; background: var(--bg);">
+        <div class="modal" style="max-width: 100%;">
+          <div class="m-hd">
+            <div class="icon"><i class="ph-fill ph-link"></i></div>
+            <div class="body">
+              <div class="ttl">New transfer</div>
+              <div class="sub">Magnet, .torrent URL, or any download link</div>
+            </div>
+            <span class="close"><i class="ph ph-x"></i></span>
+          </div>
+          <div class="m-body">
+            <div class="group">
+              <span class="label">Source <span class="req">*</span></span>
+              <input class="field mono" placeholder="magnet:?xt=urn:btih:…" />
+            </div>
+            <div class="group">
+              <span class="label">Save to</span>
+              <div class="field-wrap">
+                <i class="ph ph-folder lead"></i>
+                <input class="field has-icon" value="/Files/Unsorted" />
+              </div>
+            </div>
+            <div class="group">
+              <span class="label">After completion</span>
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <div style="display: flex; align-items: flex-start; gap: 10px; padding: 6px 8px; border-radius: var(--radius-sm);">
+                  <div style="width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--yellow-solid); background: var(--app-bg); position: relative; flex-shrink: 0; margin-top: 1px;">
+                    <div style="position: absolute; inset: 3px; border-radius: 50%; background: var(--yellow-solid);"></div>
+                  </div>
+                  <div style="font-size: 13.5px; color: var(--text);">Keep on put.io <div style="font-size: 11.5px; color: var(--text-secondary); margin-top: 1px;">Stream or download later</div></div>
+                </div>
+                <div style="display: flex; align-items: flex-start; gap: 10px; padding: 6px 8px; border-radius: var(--radius-sm);">
+                  <div style="width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--border-hover); background: var(--app-bg); flex-shrink: 0; margin-top: 1px;"></div>
+                  <div style="font-size: 13.5px; color: var(--text);">Push to my device <div style="font-size: 11.5px; color: var(--text-secondary); margin-top: 1px;">Sync via the desktop app</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="m-foot">
+            <button class="btn ghost">Cancel</button>
+            <button class="btn primary"><i class="ph-bold ph-arrow-circle-down"></i>Add transfer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============================================================
+         L · 03 — Two-column grid (account info)
+         ============================================================= -->
+    <div class="demo">
+      <div class="demo-hd">
+        <span class="ix">L · 03</span>
+        <span class="t">Two-column grid</span>
+        <span class="when">Account / billing — dense info</span>
+      </div>
+      <div class="demo-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px;">
+          <div class="group">
+            <span class="label">First name</span>
+            <input class="field" value="Kai" />
+          </div>
+          <div class="group">
+            <span class="label">Last name</span>
+            <input class="field" value="Aydemir" />
+          </div>
+          <div class="group" style="grid-column: 1 / -1;">
+            <span class="label">Email <span class="req">*</span></span>
+            <input class="field mono" value="user-01@example.test" />
+          </div>
+          <div class="group">
+            <span class="label">Country</span>
+            <div style="position: relative;">
+              <select class="field" style="padding-right: 36px; appearance: none;">
+                <option>Türkiye</option>
+                <option>United States</option>
+                <option>Germany</option>
+              </select>
+              <i class="ph-bold ph-caret-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-secondary); font-size: 12px;"></i>
+            </div>
+          </div>
+          <div class="group">
+            <span class="label">Time zone</span>
+            <div style="position: relative;">
+              <select class="field" style="padding-right: 36px; appearance: none;">
+                <option>Istanbul (UTC+3)</option>
+                <option>London (UTC+0)</option>
+              </select>
+              <i class="ph-bold ph-caret-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-secondary); font-size: 12px;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================================
+       L · 04 — Inline composer (action bar)
+       ============================================================= -->
+  <div class="demo">
+    <div class="demo-hd">
+      <span class="ix">L · 04</span>
+      <span class="t">Inline composer · one-row action</span>
+      <span class="when">Top of a list view · quick-add</span>
+    </div>
+    <div class="demo-body">
+      <div class="composer">
+        <div class="field-wrap">
+          <i class="ph ph-link lead"></i>
+          <input class="field has-icon mono" placeholder="Paste a magnet link, .torrent URL, or any download URL" />
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <i class="ph ph-folder" style="color: var(--text-secondary); font-size: 14px;"></i>
+          <span style="font-family: var(--font-ui-mono); font-size: 11.5px; color: var(--text-secondary);">/Files/Unsorted</span>
+        </div>
+        <button class="btn primary"><i class="ph-bold ph-plus"></i>Add</button>
+      </div>
+      <div class="composer-hint">
+        <span><i class="ph ph-keyboard"></i>Press <b>N</b> to focus from anywhere</span>
+        <span><i class="ph ph-clipboard-text"></i>Paste shortcut: <b>⌘ + V</b></span>
+        <span><i class="ph ph-info"></i>Up to 8 sources at once, comma-separated</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================================
+       L · 05 — Wizard / multi-step
+       ============================================================= -->
+  <div class="demo">
+    <div class="demo-hd">
+      <span class="ix">L · 05</span>
+      <span class="t">Wizard · multi-step</span>
+      <span class="when">Signup · onboarding · long flows</span>
+    </div>
+    <div class="demo-body" style="padding: 18px;">
+      <div class="wizard">
+        <div class="steps">
+          <div class="step done">
+            <div class="num"><i class="ph-bold ph-check"></i></div>
+            <div class="body">
+              <div class="lbl">Step 1</div>
+              <div class="nm">Account</div>
+            </div>
+          </div>
+          <div class="step done">
+            <div class="num"><i class="ph-bold ph-check"></i></div>
+            <div class="body">
+              <div class="lbl">Step 2</div>
+              <div class="nm">Plan</div>
+            </div>
+          </div>
+          <div class="step current">
+            <div class="num">3</div>
+            <div class="body">
+              <div class="lbl">Step 3 · of 4</div>
+              <div class="nm">Payment</div>
+            </div>
+          </div>
+          <div class="step pending">
+            <div class="num">4</div>
+            <div class="body">
+              <div class="lbl">Step 4</div>
+              <div class="nm">Confirm</div>
+            </div>
+          </div>
+        </div>
+        <div class="w-body">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px;">
+            <div class="group" style="grid-column: 1 / -1;">
+              <span class="label">Card number <span class="req">*</span></span>
+              <div class="field-wrap">
+                <i class="ph ph-credit-card lead"></i>
+                <input class="field has-icon mono" value="4242 4242 4242 4242" />
+                <i class="ph-fill ph-shield-check" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--green-text-secondary); font-size: 14px;"></i>
+              </div>
+            </div>
+            <div class="group">
+              <span class="label">Expiration</span>
+              <input class="field mono" value="12 / 28" />
+            </div>
+            <div class="group">
+              <span class="label">CVC</span>
+              <input class="field mono" value="•••" />
+            </div>
+            <div class="group" style="grid-column: 1 / -1;">
+              <span class="label">Postal code</span>
+              <input class="field mono" value="34000" />
+            </div>
+          </div>
+        </div>
+        <div class="w-foot">
+          <span class="left">Step 3 of 4 — payment</span>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn ghost"><i class="ph-bold ph-arrow-left"></i>Back</button>
+            <button class="btn primary">Continue<i class="ph-bold ph-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================================
+       L · 06 — Sticky save bar · dirty state
+       ============================================================= -->
+  <div class="demo">
+    <div class="demo-hd">
+      <span class="ix">L · 06</span>
+      <span class="t">Sticky save bar · dirty state</span>
+      <span class="when">Long settings pages — bar appears when fields change</span>
+    </div>
+    <div class="demo-body" style="padding: 18px;">
+      <div class="page-form">
+        <div class="p-body">
+          <div class="settings-row" style="padding-top: 0;">
+            <div class="lhs">
+              <div class="ttl">Display name</div>
+              <div class="sub">Shown to friends and on shared links.</div>
+            </div>
+            <div class="rhs"><input class="field" value="user-01" /></div>
+          </div>
+          <div class="settings-row">
+            <div class="lhs">
+              <div class="ttl">Bio</div>
+              <div class="sub">Up to 280 characters.</div>
+            </div>
+            <div class="rhs">
+              <textarea class="field" style="height: 60px; padding: 8px 12px; font-family: var(--font-sans); font-size: 13px;">Files, links, and shared folders.</textarea>
+            </div>
+          </div>
+          <div class="settings-row" style="padding-bottom: 0;">
+            <div class="lhs">
+              <div class="ttl">Public profile</div>
+              <div class="sub">Lets put.io users find you via username.</div>
+            </div>
+            <div class="rhs">
+              <div style="display: inline-flex; background: var(--component-bg); border-radius: var(--radius); padding: 2px;">
+                <button style="height: 28px; padding: 0 14px; border: 0; background: var(--bg); color: var(--text); font-size: 12.5px; font-weight: 500; border-radius: var(--radius-sm); cursor: pointer; box-shadow: var(--shadow-sm);">On</button>
+                <button style="height: 28px; padding: 0 14px; border: 0; background: transparent; color: var(--text-secondary); font-size: 12.5px; font-weight: 500; cursor: pointer;">Off</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="p-foot">
+          <span class="dirty">
+            <span class="dot"></span>
+            <span>Unsaved changes</span>
+            <span class="ct">· 2 fields</span>
+          </span>
+          <span class="spacer"></span>
+          <button class="btn ghost">Discard</button>
+          <button class="btn primary"><i class="ph-bold ph-floppy-disk"></i>Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================================
+       L · 07 — Inline edit
+       ============================================================= -->
+  <div class="demo">
+    <div class="demo-hd">
+      <span class="ix">L · 07</span>
+      <span class="t">Inline edit · click-to-edit row</span>
+      <span class="when">Profile fields · single-value rows · low-stakes updates</span>
+    </div>
+    <div class="demo-body" style="padding: 16px;">
+      <div class="inline-row">
+        <div class="l">
+          <div class="lbl">Username</div>
+          <div class="val">user-01</div>
+        </div>
+        <div class="actions">
+          <span class="pencil"><i class="ph ph-pencil-simple"></i></span>
+        </div>
+      </div>
+      <div class="inline-row editing">
+        <div class="l" style="display: flex; flex-direction: column; gap: 4px;">
+          <div class="lbl">Display name</div>
+          <input class="field" value="Kai A." />
+        </div>
+        <div class="ed">
+          <button class="btn sm ghost">Cancel</button>
+          <button class="btn sm primary"><i class="ph-bold ph-check"></i>Save</button>
+        </div>
+      </div>
+      <div class="inline-row">
+        <div class="l">
+          <div class="lbl">Email</div>
+          <div class="val">user-01@example.test</div>
+        </div>
+        <div class="actions">
+          <span class="pencil"><i class="ph ph-pencil-simple"></i></span>
+        </div>
+      </div>
+      <div class="inline-row">
+        <div class="l">
+          <div class="lbl">Member since</div>
+          <div class="val" style="color: var(--text-secondary);">Aug 14, 2014 · 11 years</div>
+        </div>
+        <div class="actions">
+          <span class="pencil" style="opacity: 0.3; cursor: not-allowed;"><i class="ph ph-lock"></i></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="specs-link">
+    <b>Layout rules.</b>
+    <code>L · 01</code> settings = explanation on the left, controls on the right, max 420 px wide controls so they don't fight for space.
+    <code>L · 02</code> modals stack tightly — labels above fields, primary CTA bottom-right.
+    <code>L · 03</code> two-column grids for personal info; collapse to single column at &lt; 560 px.
+    <code>L · 04</code> the composer is a one-row exception — paste-and-go, no labels.
+    <code>L · 05</code> wizards split long flows into 3–5 steps; the current step gets brand-yellow, completed steps get a green check.
+    <code>L · 06</code> sticky bar only appears once the form is <em>dirty</em>; the top-edge yellow line is the visual cue, never a banner above.
+    <code>L · 07</code> inline edit keeps display rows quiet — pencil reveals on hover.
+  </div>
+
+</div>
+
+</body></html>

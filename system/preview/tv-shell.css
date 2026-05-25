@@ -1,0 +1,699 @@
+/* ============================================================
+   put.io — tv-shell.css
+   TV / 10ft surfaces (tvOS Liquid Glass shell).
+   Globally-scoped classes for .tv artboards (1280×720).
+
+   Load AFTER tokens.css in tv-*.html preview files:
+     <link rel="stylesheet" href="../tokens.css">
+     <link rel="stylesheet" href="./tv-shell.css">
+
+   Classes: .tv, .topnav, .tab, .scr, .row, .btn, .glass-icon,
+            .sheet, .key, .brand (TV variant), .kbd (TV variant),
+            .toggle, .bar, .player-chrome, .code-tile, .ascii.
+
+   Brand and semantic colors are inherited from tokens.css; this file
+   only adds the TV-specific surface system (--surf-*, --text-1..3,
+   --glass-*-bg) and component styles that compose against them.
+   ============================================================ */
+
+
+/* tvOS 26 Liquid Glass — put.io shell
+   ------------------------------------------------------------------
+   Surfaces, glass tiers, type, ambient backdrop.
+   All sized inside a 1280x720 artboard (1.5x typography vs typical web). */
+
+/* TV-only surface system — colors/type already live in tokens.css.
+   These are additions, not overrides. */
+.tv {
+  /* Dark surface system (TV-specific neutrals) */
+  --surf-0: #000;
+  --surf-1: #0a0a0a;
+  --surf-2: #161616;
+  --surf-3: #1f1f1f;
+
+  /* TV-specific text ramp (semi-transparent, for layering over glass) */
+  --text-1: #f4f4f4;
+  --text-2: rgba(244,244,244,0.62);
+  --text-3: rgba(244,244,244,0.38);
+
+  /* Liquid Glass tiers — lower number = more transparent.
+     Each tier: tint, blur, inner highlight, outer shadow. */
+  --glass-1-bg: rgba(255,255,255,0.06);
+  --glass-2-bg: rgba(255,255,255,0.10);
+  --glass-3-bg: rgba(255,255,255,0.14);
+  --glass-border: rgba(255,255,255,0.12);
+  --glass-border-strong: rgba(255,255,255,0.22);
+
+  /* Aliases so existing TV markup keeps working */
+  --putio-yellow: var(--yellow-solid);
+  --putio-yellow-soft: var(--yellow-solid-hover);
+
+  /* TV font stack — adds system fallbacks for capability TVs */
+  --font: "GT America", -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+}
+
+/* TV pages run dark by default and on a dark canvas. */
+html, body { margin: 0; padding: 0; background: #1a1a1a; }
+
+/* ---------------------------------------------------------------- */
+/* Artboard host — every TV screen lives in one of these             */
+/* ---------------------------------------------------------------- */
+.tv {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  color: var(--text-1);
+  font-family: var(--font);
+  font-size: 22px;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+  overflow: hidden;
+  border-radius: inherit;
+  isolation: isolate;
+}
+
+/* Ambient backdrop — a faint warm/cool glow so the chrome glass has
+   something to refract over. (Used to be gated behind a "Vivid" tweak;
+   now baseline.) */
+.tv::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(70% 60% at 18% 12%, rgba(253,206,69,0.08) 0%, transparent 55%),
+    radial-gradient(50% 60% at 92% 90%, rgba(110,140,255,0.05) 0%, transparent 55%),
+    radial-gradient(110% 80% at 50% 50%, #0c0c0c 0%, #050505 70%, #000 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------- */
+/* GLASS MATERIAL ACCENTS — "Vivid" treatment baked in                */
+/* ---------------------------------------------------------------- */
+
+/* Top-nav specular sheen */
+.topnav-tabs::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(150deg,
+    rgba(255,255,255,0.16) 0%,
+    rgba(255,255,255,0) 40%,
+    rgba(255,255,255,0) 60%,
+    rgba(255,255,255,0.06) 100%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* Action pills: stronger material when not focused (focus state unchanged) */
+.btn:not(.focused) {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border-color: rgba(255,255,255,0.18);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.22) inset,
+    0 -1px 0 rgba(0,0,0,0.2) inset;
+}
+
+.tv-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------------------------------------------------------------- */
+/* Specular highlight overlay for tvOS look — apply to .glass via .with-spec */
+.with-spec {
+  position: relative;
+  overflow: hidden;
+}
+.with-spec::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(150deg,
+    rgba(255,255,255,0.18) 0%,
+    rgba(255,255,255,0) 40%,
+    rgba(255,255,255,0) 60%,
+    rgba(255,255,255,0.06) 100%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* Edge fade on scrollable content — apple-style soft fade at top/bottom
+   when content overflows. Apply .with-fade to any vertically scrollable
+   container; mask-image fades 24px at each edge. */
+.with-fade {
+  -webkit-mask-image: linear-gradient(180deg,
+    transparent 0,
+    #000 24px,
+    #000 calc(100% - 24px),
+    transparent 100%);
+  mask-image: linear-gradient(180deg,
+    transparent 0,
+    #000 24px,
+    #000 calc(100% - 24px),
+    transparent 100%);
+}
+
+/* Focused row — default "Subtle" variant: soft glass pill, yellow halo.
+   Scoped to .row so it doesn't bleed into .tab / .btn which override loudly. */
+.row.focused {
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.10);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06) inset,
+    0 1px 0 rgba(255,255,255,0.10) inset,
+    0 0 0 1px rgba(253,206,69,0.18),
+    0 14px 30px rgba(0,0,0,0.45);
+  z-index: 2;
+}
+
+/* ---------------------------------------------------------------- */
+/* TOP NAV — Apple TV-style floating glass tab bar                   */
+/* ---------------------------------------------------------------- */
+.topnav {
+  position: relative;
+  z-index: 5;
+  margin: 22px 22px 0;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  flex: 0 0 auto;
+}
+.topnav-logo {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  justify-self: start;
+  opacity: 0.95;
+}
+.topnav-tabs {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 5px;
+  border-radius: 28px;
+  background: rgba(255,255,255,0.10);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.22) inset,
+    0 -1px 0 rgba(0,0,0,0.25) inset,
+    0 18px 40px rgba(0,0,0,0.4);
+  position: relative;
+  overflow: hidden;
+}
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 18px;
+  border-radius: 22px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-2);
+  transition: background 200ms, color 200ms;
+  white-space: nowrap;
+  position: relative;
+}
+.tab .ico { color: currentColor; }
+.tab.active {
+  color: var(--text-1);
+  background: rgba(255,255,255,0.10);
+}
+.tab.active .ico { color: var(--putio-yellow); }
+
+/* Focused tab — same loud tvOS inversion as action pills.
+   Small chrome can SHOUT; this beats the active-tab styling. */
+.tab.focused {
+  background: rgba(255,255,255,0.96);
+  color: #0a0a0a;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 -1px 0 rgba(0,0,0,0.05) inset,
+    0 18px 38px rgba(0,0,0,0.55);
+}
+.tab.focused .ico { color: #0a0a0a; }
+.tab.focused.active::after { display: none; }
+.topnav-right {
+  justify-self: end;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 0 16px;
+  color: var(--text-3);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------- */
+/* CONTENT REGION                                                    */
+/* ---------------------------------------------------------------- */
+.scr {
+  padding: 52px 60px 40px;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.scr-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 18px;
+}
+.scr-title {
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin: 0;
+}
+.scr-spacer { flex: 1; }
+.scr-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------------------------------------------------------------- */
+/* PILL BUTTONS                                                      */
+/* ---------------------------------------------------------------- */
+/* ---------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-1);
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-sizing: border-box;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.12) inset,
+    0 -1px 0 rgba(0,0,0,0.18) inset;
+  transition: transform 200ms cubic-bezier(.22,1,.36,1),
+              background 180ms,
+              color 180ms,
+              box-shadow 180ms;
+  white-space: nowrap;
+}
+
+/* Focused action pill — standard tvOS: invert to luminous white with
+   black text. Overrides the global .focused yellow-halo style so small
+   chrome reads clearly from across the room. */
+.btn.focused {
+  background: rgba(255,255,255,0.96);
+  color: #0a0a0a;
+  border-color: rgba(255,255,255,0.96);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 -1px 0 rgba(0,0,0,0.05) inset,
+    0 16px 36px rgba(0,0,0,0.55);
+}
+
+/* Destructive primary in a focused state — red fill, white text.
+   Beats .btn.focused (which would otherwise paint a neutral white pill). */
+.btn.btn-danger.focused {
+  background: var(--red-solid);
+  color: #fff;
+  border-color: var(--red-solid);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.18) inset,
+    0 -1px 0 rgba(0,0,0,0.2) inset,
+    0 18px 38px rgba(220,60,60,0.45);
+}
+.btn.btn-danger.focused svg { color: #fff; }
+.btn.btn-danger:not(.focused) { color: var(--red-solid); }
+.btn.focused svg { color: #0a0a0a; }
+.btn-lg {
+  padding: 14px 26px;
+  font-size: 16px;
+}
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/* ---------------------------------------------------------------- */
+/* LIST ROWS — files, settings, history                              */
+/* ---------------------------------------------------------------- */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 26px;
+  border-radius: 18px;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: transform 220ms cubic-bezier(.22,1,.36,1), background 200ms;
+  position: relative;
+}
+.row + .row { margin-top: 2px; }
+.row .ico {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  color: var(--putio-yellow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.row .body { flex: 1 1 auto; min-width: 0; }
+.row .title {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  line-height: 1.2;
+}
+.row .sub {
+  margin-top: 2px;
+  font-size: 16px;
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.row .trailing {
+  margin-left: auto;
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ---------------------------------------------------------------- */
+/* SECTION HEADER                                                    */
+/* ---------------------------------------------------------------- */
+.section-h {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 18px 26px 8px;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- */
+/* TOGGLE                                                            */
+/* ---------------------------------------------------------------- */
+.toggle {
+  width: 52px;
+  height: 30px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.14);
+  position: relative;
+  transition: background 200ms;
+  flex: 0 0 auto;
+}
+.toggle::after {
+  content: "";
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 200ms;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+.toggle.on { background: var(--green-solid); }
+.toggle.on::after { transform: translateX(22px); }
+
+/* ---------------------------------------------------------------- */
+/* MISC                                                              */
+/* ---------------------------------------------------------------- */
+.divider {
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin: 12px 0;
+}
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.chev {
+  width: 18px;
+  height: 18px;
+  color: var(--text-3);
+}
+.eye { color: var(--text-2); }
+
+/* progress bar (storage / playback) */
+.bar {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  overflow: hidden;
+  position: relative;
+}
+.bar > i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--putio-yellow);
+  border-radius: 999px;
+}
+
+/* put.io retro logo block */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font);
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 0;
+  line-height: 1;
+  color: #fff;
+}
+.brand .dotmark {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--putio-yellow);
+  position: relative;
+  display: inline-block;
+}
+.brand .dotmark::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: #0a0a0a;
+}
+
+/* For the auth ASCII figure */
+.ascii {
+  font-family: var(--font-mono);
+  white-space: pre;
+  letter-spacing: -0.02em;
+}
+
+/* Activation code tiles */
+.code-tile {
+  width: 64px;
+  height: 78px;
+  background: #f3f3f0;
+  color: #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  font-weight: 600;
+  border-radius: 14px;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.6) inset,
+    0 -2px 0 rgba(0,0,0,0.06) inset,
+    0 6px 18px rgba(0,0,0,0.35);
+}
+
+/* Video player chrome */
+.player-chrome {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 0 40px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background: linear-gradient(to top,
+    rgba(0,0,0,0.7) 0%,
+    rgba(0,0,0,0) 100%);
+}
+.player-scrub {
+  height: 6px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 999px;
+  position: relative;
+}
+.player-scrub > i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: rgba(255,255,255,0.95);
+  border-radius: 999px;
+}
+.player-scrub > b {
+  position: absolute;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  top: 50%; transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.18), 0 0 14px rgba(255,255,255,0.6);
+}
+
+/* Glass icon button (circular) */
+.glass-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.14);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.22);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.14) inset;
+  color: #fff;
+}
+.glass-icon.solid {
+  background: rgba(255,255,255,0.95);
+  color: #0a0a0a;
+  border-color: rgba(255,255,255,0.95);
+}
+
+/* Modal sheet — proxy picker, subtitles, info */
+.sheet {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+.sheet::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+.sheet-body {
+  position: relative;
+  background: rgba(40,40,44,0.66);
+  backdrop-filter: blur(60px) saturate(200%);
+  -webkit-backdrop-filter: blur(60px) saturate(200%);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 28px;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.24) inset,
+    0 -1px 0 rgba(0,0,0,0.30) inset,
+    0 30px 80px rgba(0,0,0,0.65);
+  width: 600px;
+  max-width: 78%;
+  max-height: 78%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+}
+.sheet-h {
+  padding: 4px 16px 16px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  margin-bottom: 8px;
+}
+.sheet-h .sheet-title {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-1);
+}
+.sheet-h .sheet-cap {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.sheet-list {
+  overflow: auto;
+  padding: 4px 6px;
+}
+.sheet-list .row {
+  padding: 12px 16px;
+  gap: 14px;
+  border-radius: 14px;
+}
+.sheet-list .row .title { font-size: 19px; }
+
+/* Radio circle */
+.radio {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.35);
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.18);
+}
+.radio.on {
+  border-color: var(--putio-yellow);
+  background: rgba(253,206,69,0.12);
+}
+.radio.on::after {
+  content: "";
+  width: 10px; height: 10px;
+  background: var(--putio-yellow);
+  border-radius: 50%;
+}
+
+/* Keyboard (search) */
+.kbd {
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  gap: 6px;
+  padding: 14px;
+  border-radius: 22px;
+  background: var(--glass-1-bg);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid var(--glass-border);
+}
+.key {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  color: var(--text-1);
+}
+.key.focused {
+  background: rgba(255,255,255,0.92);
+  color: #0a0a0a;
+}
+
+/* Visible-only-for-tweak helper */
+.hide { display: none; }

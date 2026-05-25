@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head><meta charset="utf-8">
+<title>put.io preview · mobile shell</title>
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .card { padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 28px; }
+
+  .head { display: flex; align-items: baseline; gap: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+  .head .ix { font-family: var(--font-ui-mono); font-size: 11px; color: var(--yellow-solid); letter-spacing: 0.04em; }
+  .head .t { font-size: 15px; font-weight: 500; color: var(--text); }
+  .head .n { margin-left: auto; font-size: 12px; color: var(--text-secondary); }
+  .note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
+  .note b { color: var(--text); }
+  .note code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11.5px; }
+
+  /* ─── Phone frame ─── */
+  .row { display: flex; gap: 28px; align-items: flex-start; flex-wrap: wrap; }
+  .frame {
+    width: 300px; height: 620px;
+    background: #000; border-radius: 36px;
+    box-shadow: 0 0 0 8px #1a1a1a, 0 0 0 10px #2a2a2a, 0 30px 60px rgba(0,0,0,0.6);
+    overflow: hidden; position: relative;
+    display: flex; flex-direction: column;
+  }
+  .frame .screen {
+    flex: 1; background: hsl(0,0%,8.5%); display: flex; flex-direction: column;
+    color: hsl(0,0%,93%); overflow: hidden;
+    border-radius: 28px;
+  }
+  .frame .status {
+    height: 38px; flex-shrink: 0;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    padding: 0 22px 6px;
+    font-family: var(--font-ui-mono); font-size: 11.5px;
+  }
+  .frame .status .r { display: flex; align-items: center; gap: 6px; opacity: 0.8; }
+  .frame .home-ind { height: 26px; flex-shrink: 0; display: grid; place-items: center; }
+  .frame .home-ind .pill { width: 120px; height: 4px; background: hsl(0,0%,93%); border-radius: 999px; opacity: 0.7; }
+  .frame.android .home-ind { display: none; }
+  .frame.android .nav-bar {
+    height: 34px; flex-shrink: 0; background: #000;
+    display: flex; justify-content: space-around; align-items: center;
+  }
+  .frame.android .nav-bar .gl { width: 12px; height: 12px; border: 1.4px solid hsl(0,0%,62.8%); border-radius: 2px; }
+  .frame.android .nav-bar .gl.tri {
+    border: 0; width: 0; height: 0;
+    border-left: 6px solid transparent; border-right: 6px solid transparent;
+    border-bottom: 10px solid hsl(0,0%,62.8%); transform: rotate(-90deg);
+  }
+  .frame.android .nav-bar .gl.sq { background: hsl(0,0%,62.8%); }
+
+  /* ─── iOS — Files screen ─── */
+  .ios-top {
+    flex-shrink: 0;
+    padding: 4px 20px 4px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 32px;
+  }
+  .ios-top .back {
+    display: inline-flex; align-items: center; gap: 4px;
+    color: var(--yellow-solid); font-size: 15px;
+  }
+  .ios-top .back i { font-size: 14px; }
+  .ios-top .add {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: hsl(0,0%,13.6%);
+    display: grid; place-items: center;
+    color: var(--yellow-solid);
+  }
+  .ios-title {
+    flex-shrink: 0;
+    padding: 8px 20px 14px;
+  }
+  .ios-title .eyebrow {
+    font-size: 11px; font-weight: 500;
+    color: hsl(0,0%,62.8%);
+    text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px;
+  }
+  .ios-title h1 {
+    font-size: 28px; font-weight: 700;
+    letter-spacing: -0.025em; margin: 0; line-height: 1.05;
+  }
+  .ios-search {
+    flex-shrink: 0;
+    margin: 0 20px 12px;
+    padding: 8px 12px; border-radius: 10px;
+    background: hsl(0,0%,13.6%);
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px;
+  }
+  .ios-search i { font-size: 14px; color: hsl(0,0%,62.8%); }
+  .ios-search input {
+    background: none; border: 0; color: inherit;
+    font-size: 14px; font-family: var(--font-sans);
+    width: 100%; outline: none;
+  }
+  .ios-list { flex: 1; min-height: 0; padding: 0 16px; overflow-y: auto; }
+  .ios-list .li {
+    display: grid; grid-template-columns: 28px 1fr auto;
+    gap: 14px; align-items: center;
+    padding: 12px 4px;
+    border-bottom: 1px solid hsl(0,0%,15%);
+  }
+  .ios-list .li:last-child { border-bottom: 0; }
+  .ios-list .li i.glyph { font-size: 22px; color: hsl(0,0%,62.8%); }
+  .ios-list .li i.glyph.fldr { color: var(--yellow-solid); }
+  .ios-list .nm {
+    font-size: 14px; color: hsl(0,0%,93%);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .ios-list .nm small {
+    display: block; margin-top: 2px;
+    font-family: var(--font-ui-mono); font-size: 11px;
+    color: hsl(0,0%,62.8%); font-variant-numeric: tabular-nums;
+  }
+  .ios-list .chev { color: hsl(0,0%,43.9%); font-size: 16px; }
+
+  /* iOS tab bar */
+  .ios-tabbar {
+    flex-shrink: 0;
+    height: 64px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid hsl(0,0%,15%);
+  }
+  .ios-tabbar .t {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 3px;
+    color: hsl(0,0%,62.8%);
+  }
+  .ios-tabbar .t.on { color: var(--yellow-solid); }
+  .ios-tabbar .t i { font-size: 22px; }
+  .ios-tabbar .t .lbl { font-size: 10px; font-weight: 500; }
+
+  /* ─── Android Material 3 — Home ─── */
+  .a-top {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    display: flex; align-items: center; gap: 12px;
+    height: 56px;
+  }
+  .a-top .menu { width: 32px; height: 32px; display: grid; place-items: center; color: hsl(0,0%,93%); }
+  .a-top .title { flex: 1; font-size: 22px; font-weight: 400; }
+  .a-top .icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--yellow-solid); color: #000;
+    display: grid; place-items: center;
+    font-family: var(--font-ui-mono); font-size: 11px; font-weight: 700;
+  }
+  .a-fab {
+    position: absolute; right: 16px; bottom: 78px;
+    width: 56px; height: 56px; border-radius: 16px;
+    background: var(--yellow-solid); color: #000;
+    display: grid; place-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    z-index: 5;
+  }
+  .a-fab i { font-size: 24px; }
+  .a-search {
+    flex-shrink: 0;
+    margin: 0 16px 14px;
+    padding: 12px 14px; border-radius: 28px;
+    background: hsl(0,0%,13.6%);
+    display: flex; align-items: center; gap: 12px;
+    font-size: 14px;
+  }
+  .a-search i { font-size: 16px; color: hsl(0,0%,62.8%); }
+  .a-search .pl { color: hsl(0,0%,62.8%); }
+  .a-list { flex: 1; min-height: 0; overflow-y: auto; padding: 0 8px 12px; }
+  .a-li {
+    display: grid; grid-template-columns: 40px 1fr auto;
+    gap: 14px; align-items: center;
+    padding: 12px 12px; border-radius: 12px;
+  }
+  .a-li i.glyph { font-size: 22px; color: hsl(0,0%,62.8%); justify-self: center; }
+  .a-li i.glyph.fldr { color: var(--yellow-solid); }
+  .a-li .nm { font-size: 14px; color: hsl(0,0%,93%); }
+  .a-li .nm small {
+    display: block; margin-top: 2px;
+    font-family: var(--font-ui-mono); font-size: 11px;
+    color: hsl(0,0%,62.8%); font-variant-numeric: tabular-nums;
+  }
+  .a-li .more {
+    width: 28px; height: 28px;
+    display: grid; place-items: center;
+    color: hsl(0,0%,62.8%);
+  }
+
+  /* Android bottom nav (Material 3) */
+  .a-bottom {
+    flex-shrink: 0;
+    height: 64px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    background: hsl(0,0%,11%);
+    align-items: center;
+  }
+  .a-bottom .t {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2px;
+    color: hsl(0,0%,62.8%);
+  }
+  .a-bottom .t.on { color: hsl(0,0%,93%); }
+  .a-bottom .t.on .pill {
+    background: var(--yellow-component-bg);
+    color: var(--yellow-solid);
+  }
+  .a-bottom .t .pill {
+    display: grid; place-items: center;
+    height: 32px; width: 64px; border-radius: 16px;
+  }
+  .a-bottom .t .pill i { font-size: 22px; }
+  .a-bottom .t .lbl { font-size: 11px; font-weight: 500; }
+
+  /* ─── Bottom sheet — file actions ─── */
+  .sheet-scrim {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 3;
+  }
+  .sheet {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    background: hsl(0,0%,13.6%);
+    border-top-left-radius: 16px; border-top-right-radius: 16px;
+    padding: 8px 6px 14px;
+    z-index: 4;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.4);
+  }
+  .sheet .handle {
+    width: 36px; height: 4px;
+    background: hsl(0,0%,43.9%);
+    border-radius: 999px;
+    margin: 4px auto 12px;
+  }
+  .sheet .filehdr {
+    padding: 4px 14px 12px;
+    border-bottom: 1px solid hsl(0,0%,17.9%);
+    margin-bottom: 6px;
+  }
+  .sheet .filehdr .nm {
+    font-family: var(--font-mono); font-size: 12px;
+    color: hsl(0,0%,93%); white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .sheet .filehdr .sub {
+    font-family: var(--font-ui-mono); font-size: 10px;
+    color: hsl(0,0%,62.8%); margin-top: 4px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .sheet .opt {
+    display: grid; grid-template-columns: 28px 1fr;
+    gap: 14px; align-items: center;
+    padding: 10px 14px; border-radius: 8px;
+    font-size: 14px; color: hsl(0,0%,93%);
+  }
+  .sheet .opt i { font-size: 18px; color: hsl(0,0%,62.8%); }
+  .sheet .opt.destructive { color: hsl(358,100%,69.5%); }
+  .sheet .opt.destructive i { color: hsl(358,75%,59%); }
+
+  /* ─── Player ─── */
+  .player-bg {
+    position: absolute; inset: 0; background:
+      radial-gradient(120% 80% at 30% 20%, rgba(60,55,40,0.7), transparent 60%),
+      linear-gradient(180deg, #1a1612 0%, #060403 100%);
+  }
+  .player-stack {
+    position: relative; z-index: 2;
+    flex: 1; display: flex; flex-direction: column;
+    padding: 16px 16px 18px;
+  }
+  .p-top {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+  }
+  .p-top .btn {
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.10);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    color: hsl(0,0%,93%);
+  }
+  .p-top .btn i { font-size: 16px; }
+  .p-top .ttl {
+    flex: 1; text-align: center;
+    font-family: var(--font-sans);
+    font-size: 13px; font-weight: 500; color: hsl(0,0%,93%);
+  }
+  .p-top .ttl small {
+    display: block; margin-top: 2px;
+    font-size: 11px;
+    color: hsl(0,0%,62.8%);
+  }
+  }
+  .p-center { flex: 1; display: grid; place-items: center; }
+  .p-play {
+    width: 60px; height: 60px; border-radius: 50%;
+    background: rgba(255,255,255,0.16);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: grid; place-items: center;
+    color: hsl(0,0%,93%);
+  }
+  .p-play i { font-size: 24px; }
+  .p-bottom { display: flex; flex-direction: column; gap: 10px; }
+  .p-scrub {
+    height: 4px; background: rgba(255,255,255,0.18);
+    border-radius: 999px; position: relative;
+  }
+  .p-scrub > i {
+    display: block; height: 100%;
+    background: var(--yellow-solid); border-radius: 999px;
+    width: 38%;
+  }
+  .p-scrub::after {
+    content: ''; position: absolute; left: 38%; top: 50%;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--yellow-solid);
+    transform: translate(-50%, -50%);
+  }
+  .p-time {
+    display: flex; justify-content: space-between;
+    font-family: var(--font-ui-mono); font-size: 11px;
+    color: hsl(0,0%,62.8%); font-variant-numeric: tabular-nums;
+  }
+  .p-actions {
+    display: flex; justify-content: space-around;
+    padding: 8px 0 0;
+  }
+  .p-actions .a {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; color: hsl(0,0%,62.8%);
+    font-family: var(--font-ui-mono); font-size: 9.5px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .p-actions .a i { font-size: 18px; }
+  .p-actions .a.on { color: var(--yellow-solid); }
+
+  /* ─── Pairing screen ─── */
+  .pair {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 0 28px; gap: 16px;
+  }
+  .pair .kao {
+    font-family: var(--font-mono); font-size: 26px;
+    color: var(--yellow-solid); line-height: 1.3;
+  }
+  .pair h2 {
+    font-size: 20px; font-weight: 500;
+    letter-spacing: -0.015em; margin: 0;
+  }
+  .pair p {
+    font-size: 13px; color: hsl(0,0%,62.8%);
+    line-height: 1.55; margin: 0;
+    max-width: 240px;
+  }
+  .pair p code {
+    font-family: var(--font-mono);
+    color: var(--yellow-solid); font-size: 12px;
+  }
+  .pair .code {
+    display: flex; gap: 6px; padding: 6px;
+    background: hsl(0,0%,13.6%); border-radius: 10px;
+  }
+  .pair .code .ch {
+    width: 30px; height: 38px; border-radius: 6px;
+    background: hsl(0,0%,8.5%);
+    color: var(--yellow-solid);
+    font-family: var(--font-ui-mono); font-size: 18px; font-weight: 700;
+    display: grid; place-items: center;
+  }
+  .pair .pill-btn {
+    height: 44px; padding: 0 22px; border-radius: 999px;
+    background: var(--yellow-solid); color: #000;
+    font-family: var(--font-sans); font-weight: 500; font-size: 13px;
+    border: 0; text-transform: uppercase; letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+
+  /* Legend */
+  .legend {
+    width: 300px; font-size: 12.5px;
+    color: var(--text-secondary); line-height: 1.55;
+  }
+  .legend h4 {
+    font-size: 11px; font-weight: 600;
+    color: var(--yellow-solid);
+    margin: 0 0 8px;
+  }
+  .legend b { color: var(--text); font-weight: 500; }
+  .legend ul { margin: 6px 0 0; padding-left: 16px; }
+  .legend li { margin-bottom: 4px; }
+  .legend code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11px; }
+
+  /* Inline mobile component cards */
+  .comp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .comp {
+    background: var(--bg-secondary);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .comp .ttl { font-size: 13px; font-weight: 500; color: var(--text); }
+  .comp .ttl small {
+    display: block; margin-top: 3px;
+    font-size: 11.5px; color: var(--text-secondary);
+  }
+
+  /* Pull-to-refresh */
+  .ptr {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding: 14px 0; color: var(--text-secondary);
+    font-size: 11px;
+  }
+  .ptr .spinner {
+    width: 22px; height: 22px;
+    border: 2px solid var(--component-bg-active);
+    border-top-color: var(--yellow-solid);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Swipe action */
+  .swipe-row {
+    display: grid; grid-template-columns: 1fr auto;
+    background: var(--bg-secondary);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .swipe-row .body {
+    display: grid; grid-template-columns: 24px 1fr;
+    align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: var(--app-bg);
+    transform: translateX(-100px);
+  }
+  .swipe-row .body i { font-size: 18px; color: var(--yellow-solid); }
+  .swipe-row .body .nm { font-size: 13.5px; color: var(--text); }
+  .swipe-row .actions {
+    display: flex;
+  }
+  .swipe-row .actions button {
+    border: 0; width: 50px;
+    font-size: 11px; font-weight: 500;
+    color: #fff; cursor: pointer;
+  }
+  .swipe-row .actions .share { background: var(--solid); }
+  .swipe-row .actions .del { background: var(--red-solid); }
+
+  /* Toast */
+  .m-toast {
+    background: hsl(0,0%,13.6%);
+    border: 1px solid hsl(0,0%,18%);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: grid; grid-template-columns: 22px 1fr auto;
+    gap: 12px; align-items: center;
+    color: var(--text); font-size: 13px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .m-toast i { font-size: 16px; color: var(--green-solid); }
+  .m-toast button {
+    border: 0; background: transparent;
+    color: var(--yellow-solid);
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* Segmented (iOS style) */
+  .ios-seg {
+    display: inline-flex; padding: 2px;
+    background: hsl(0,0%,13.6%); border-radius: 8px;
+  }
+  .ios-seg button {
+    border: 0; background: transparent;
+    padding: 6px 14px; border-radius: 6px;
+    color: var(--text-secondary); font-family: var(--font-sans);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+  }
+  .ios-seg button.on {
+    background: hsl(0,0%,18%); color: var(--text);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+
+  /* Setting row */
+  .setrow {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: center; gap: 14px;
+    padding: 12px 14px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+  }
+  .setrow + .setrow { margin-top: 6px; }
+  .setrow .l { font-size: 14px; color: var(--text); }
+  .setrow .l small {
+    display: block; margin-top: 2px;
+    font-size: 12px; color: var(--text-secondary);
+  }
+  .toggle {
+    width: 44px; height: 24px; border-radius: 999px;
+    background: var(--component-bg-active);
+    position: relative; cursor: pointer;
+  }
+  .toggle::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: hsl(0,0%,93%);
+    transition: all var(--dur-fast) var(--ease-out);
+  }
+  .toggle.on { background: var(--green-solid); }
+  .toggle.on::after { left: 22px; }
+</style></head>
+<body>
+<div class="card">
+
+  <!-- ─── SHELLS ─── -->
+  <div class="head">
+    <span class="ix">01</span>
+    <span class="t">iOS &amp; Android shells</span>
+    <span class="n">putio-ios · putio-android</span>
+  </div>
+  <div class="note">
+    Touch is the engine — no focus rings, long-press for context, bottom-sheet for actions. Visual stays put.io: yellow folders, GT America, tabular-mono numerics. Native chrome (status bar, tab bar, FAB, gesture pill) is the only thing that changes between platforms.
+  </div>
+
+  <div class="row">
+    <!-- iOS Files -->
+    <div class="frame ios">
+      <div class="status">
+        <span>9:41</span>
+        <span class="r">
+          <i class="ph-fill ph-cell-signal-high" style="font-size:13px;"></i>
+          <i class="ph-fill ph-battery-high" style="font-size:13px;"></i>
+        </span>
+      </div>
+      <div class="screen">
+        <div class="ios-top">
+          <span class="back"><i class="ph-bold ph-caret-left"></i>Files</span>
+          <span class="add"><i class="ph-bold ph-plus" style="font-size:14px;"></i></span>
+        </div>
+        <div class="ios-title">
+          <div class="eyebrow">your storage</div>
+          <h1>Films</h1>
+        </div>
+        <div class="ios-search">
+          <i class="ph ph-magnifying-glass"></i>
+          <span style="color: hsl(0,0%,62.8%);">Search in Films</span>
+        </div>
+        <div class="ios-list">
+          <div class="li">
+            <i class="ph-fill ph-folder glyph fldr"></i>
+            <div class="nm">2024<small>12 items</small></div>
+            <div class="chev"><i class="ph ph-caret-right"></i></div>
+          </div>
+          <div class="li">
+            <i class="ph-fill ph-folder glyph fldr"></i>
+            <div class="nm">2023 · keep<small>40 items · pinned</small></div>
+            <div class="chev"><i class="ph ph-caret-right"></i></div>
+          </div>
+          <div class="li">
+            <i class="ph ph-file-video glyph"></i>
+            <div class="nm">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv<small>3.42 GB · Mar 14</small></div>
+            <div class="chev"><i class="ph ph-caret-right"></i></div>
+          </div>
+          <div class="li">
+            <i class="ph ph-file-video glyph"></i>
+            <div class="nm">tears_of_steel.mkv<small>1.20 GB · Feb 28</small></div>
+            <div class="chev"><i class="ph ph-caret-right"></i></div>
+          </div>
+          <div class="li">
+            <i class="ph ph-file-text glyph"></i>
+            <div class="nm">subtitles.srt<small>14 kB</small></div>
+            <div class="chev"><i class="ph ph-caret-right"></i></div>
+          </div>
+        </div>
+        <div class="ios-tabbar">
+          <div class="t on"><i class="ph-fill ph-folder"></i><div class="lbl">Files</div></div>
+          <div class="t"><i class="ph ph-arrows-down-up"></i><div class="lbl">Transfers</div></div>
+          <div class="t"><i class="ph ph-clock-counter-clockwise"></i><div class="lbl">Recent</div></div>
+          <div class="t"><i class="ph ph-user-circle"></i><div class="lbl">Account</div></div>
+        </div>
+        <div class="home-ind"><div class="pill"></div></div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <h4>iOS · SwiftUI</h4>
+      <b>Files screen, dark by default.</b>
+      <ul>
+        <li><b>Large title</b> at 28px / 700 with an uppercase mono eyebrow above.</li>
+        <li><b>Search</b> sits below title (iOS large-title pattern); collapses on scroll.</li>
+        <li><b>Tab bar</b> uses yellow for active — never iOS-default blue.</li>
+        <li><b>Long-press</b> a row → bottom-sheet (see overlays).</li>
+        <li><b>Hit-target floor: 44pt.</b> Row height is 50pt min.</li>
+      </ul>
+    </div>
+
+    <!-- Android Home with bottom-sheet -->
+    <div class="frame android">
+      <div class="status">
+        <span style="font-family: var(--font-sans); font-size: 11px;">10:24</span>
+        <span class="r" style="gap: 6px;">
+          <span style="font-size: 10px;">5G</span>
+          <i class="ph-fill ph-cell-signal-high" style="font-size:13px;"></i>
+          <i class="ph-fill ph-battery-high" style="font-size:13px;"></i>
+        </span>
+      </div>
+      <div class="screen">
+        <div class="a-top">
+          <div class="menu"><i class="ph ph-list" style="font-size:22px;"></i></div>
+          <div class="title">Files</div>
+          <div class="icon">U1</div>
+        </div>
+        <div class="a-search">
+          <i class="ph ph-magnifying-glass"></i>
+          <span class="pl">Search files and folders</span>
+        </div>
+        <div class="a-list">
+          <div class="a-li">
+            <i class="ph-fill ph-folder glyph fldr"></i>
+            <div class="nm">Films<small>168 items · 412 GB</small></div>
+            <div class="more"><i class="ph ph-dots-three-vertical" style="font-size:18px;"></i></div>
+          </div>
+          <div class="a-li">
+            <i class="ph-fill ph-folder glyph fldr"></i>
+            <div class="nm">TV Shows<small>42 items · 218 GB</small></div>
+            <div class="more"><i class="ph ph-dots-three-vertical" style="font-size:18px;"></i></div>
+          </div>
+          <div class="a-li">
+            <i class="ph ph-file-video glyph"></i>
+            <div class="nm">tears_of_steel.mkv<small>1.20 GB</small></div>
+            <div class="more"><i class="ph ph-dots-three-vertical" style="font-size:18px;"></i></div>
+          </div>
+        </div>
+
+        <!-- Bottom sheet open -->
+        <div class="sheet-scrim"></div>
+        <div class="sheet">
+          <div class="handle"></div>
+          <div class="filehdr">
+            <div class="nm">tears_of_steel.mkv</div>
+            <div class="sub">1.20 GB · video</div>
+          </div>
+          <div class="opt"><i class="ph-fill ph-play"></i><span>Play here</span></div>
+          <div class="opt"><i class="ph ph-broadcast"></i><span>Cast to TV</span></div>
+          <div class="opt"><i class="ph ph-download-simple"></i><span>Download to device</span></div>
+          <div class="opt destructive"><i class="ph ph-trash"></i><span>Move to trash</span></div>
+        </div>
+
+        <div class="a-bottom" style="opacity: 0.55;">
+          <div class="t on"><div class="pill"><i class="ph-fill ph-folder"></i></div><div class="lbl">Files</div></div>
+          <div class="t"><div class="pill"><i class="ph ph-arrows-down-up"></i></div><div class="lbl">Transfers</div></div>
+          <div class="t"><div class="pill"><i class="ph ph-magnifying-glass"></i></div><div class="lbl">Search</div></div>
+          <div class="t"><div class="pill"><i class="ph ph-user-circle"></i></div><div class="lbl">Account</div></div>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <span class="gl tri"></span>
+        <span class="gl"></span>
+        <span class="gl sq"></span>
+      </div>
+    </div>
+
+    <div class="legend">
+      <h4>Android · Compose · Material 3</h4>
+      <b>Files screen with file-actions sheet open.</b>
+      <ul>
+        <li><b>Top app bar</b> 56dp tall, hamburger ↔ avatar layout.</li>
+        <li><b>Bottom navigation</b> uses M3 pill-on-active pattern; yellow component-bg tint instead of M3 default purple.</li>
+        <li><b>Long-press</b> opens the bottom-sheet with the file name pinned to the top.</li>
+        <li><b>3-dot menu</b> is the canonical row affordance (vs iOS's swipe).</li>
+        <li><b>FAB hidden when sheet open</b> — would compete for taps.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ─── PLAYER + PAIRING ─── -->
+  <div class="row">
+    <!-- Android Player -->
+    <div class="frame android">
+      <div class="status">
+        <span style="font-family: var(--font-sans); font-size: 11px;">10:24</span>
+        <span class="r" style="gap: 6px;">
+          <i class="ph-fill ph-cell-signal-high" style="font-size:13px;"></i>
+          <i class="ph-fill ph-battery-high" style="font-size:13px;"></i>
+        </span>
+      </div>
+      <div class="screen" style="position: relative;">
+        <div class="player-bg"></div>
+        <div class="player-stack">
+          <div class="p-top">
+            <div class="btn"><i class="ph-bold ph-arrow-left"></i></div>
+            <div class="ttl">tears_of_steel.mkv<small>Films · 2023</small></div>
+            <div class="btn"><i class="ph ph-broadcast"></i></div>
+          </div>
+          <div class="p-center">
+            <div class="p-play"><i class="ph-fill ph-play"></i></div>
+          </div>
+          <div class="p-bottom">
+            <div class="p-scrub"><i></i></div>
+            <div class="p-time"><span>00:42:18</span><span>−01:08:42</span></div>
+            <div class="p-actions">
+              <div class="a"><i class="ph ph-speaker-high"></i><span>Audio</span></div>
+              <div class="a"><i class="ph ph-closed-captioning"></i><span>Subs</span></div>
+              <div class="a on"><i class="ph ph-picture-in-picture"></i><span>PiP</span></div>
+              <div class="a"><i class="ph-fill ph-dots-three"></i><span>More</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <span class="gl tri"></span>
+        <span class="gl"></span>
+        <span class="gl sq"></span>
+      </div>
+    </div>
+
+    <div class="legend">
+      <h4>Android · Player chrome</h4>
+      <b>Media3 PlayerView with overlay.</b>
+      <ul>
+        <li><b>Scrubber</b> uses <code>--yellow-solid</code> on a translucent track.</li>
+        <li><b>Cast</b> first-class top-right (Chromecast is primary on Android per the brief).</li>
+        <li><b>PiP active</b> tints yellow — Android handles handoff to system PiP natively.</li>
+        <li><b>Mono numerics</b> for timecode — never reflow on tick.</li>
+      </ul>
+    </div>
+
+    <!-- Pairing on phone -->
+    <div class="frame ios">
+      <div class="status">
+        <span>9:41</span>
+        <span class="r">
+          <i class="ph-fill ph-cell-signal-high" style="font-size:13px;"></i>
+          <i class="ph-fill ph-battery-high" style="font-size:13px;"></i>
+        </span>
+      </div>
+      <div class="screen">
+        <div class="pair">
+          <div class="kao">┌( ಠ_ಠ)┘</div>
+          <h2>Link this device</h2>
+          <p>Open <code>put.io/link</code> on the device showing this code, and enter it.</p>
+          <div class="code">
+            <div class="ch">P</div>
+            <div class="ch">U</div>
+            <div class="ch">T</div>
+            <div class="ch">I</div>
+            <div class="ch">O</div>
+            <div class="ch">7</div>
+          </div>
+          <button class="pill-btn">I'm done</button>
+        </div>
+        <div class="home-ind"><div class="pill"></div></div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <h4>Pairing flow — shared across all native apps</h4>
+      <b>Same kaomoji, same code, same copy.</b>
+      <ul>
+        <li>Kaomoji <code>┌( ಠ_ಠ)┘</code> is the existing welcome on Android TV — keep it.</li>
+        <li>Six-character code in mono at 18pt / 700.</li>
+        <li>Pill CTA at <b>44pt min</b> — iOS hit-target floor.</li>
+        <li>Used on iOS, Android, tvOS, Roku — copy identical, only chrome differs.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ─── MOBILE COMPONENTS ─── -->
+  <div class="head" style="margin-top: 4px;">
+    <span class="ix">02</span>
+    <span class="t">Mobile components — patterns that only exist on touch</span>
+    <span class="n">SwiftUI · Compose · Media3</span>
+  </div>
+  <div class="note">
+    Beyond the shells: native mobile patterns the web app doesn't have. Pull-to-refresh, swipe-to-action, native segmented controls, toast snackbars, setting toggles, FAB. All match the production styling in <code>putio-ios</code> and <code>putio-android</code>.
+  </div>
+
+  <div class="comp-grid">
+    <div class="comp">
+      <div class="ttl">Pull-to-refresh<small>SwiftUI .refreshable · Compose pullToRefresh</small></div>
+      <div class="ptr">
+        <div class="spinner"></div>
+        <span>Updating files…</span>
+      </div>
+    </div>
+
+    <div class="comp">
+      <div class="ttl">Swipe-to-action<small>iOS swipeActions · Compose dismissable item</small></div>
+      <div class="swipe-row">
+        <div class="body">
+          <i class="ph-fill ph-folder"></i>
+          <div class="nm">Films · 2024</div>
+        </div>
+        <div class="actions">
+          <button class="share">Share</button>
+          <button class="del">Trash</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp">
+      <div class="ttl">iOS segmented control<small>UISegmentedControl · SwiftUI Picker(.segmented)</small></div>
+      <div class="ios-seg">
+        <button class="on">List</button>
+        <button>Grid</button>
+        <button>Tree</button>
+      </div>
+    </div>
+
+    <div class="comp">
+      <div class="ttl">Snackbar / toast<small>Material 3 Snackbar · iOS overlay</small></div>
+      <div class="m-toast">
+        <i class="ph-fill ph-check-circle"></i>
+        <span>Saved to <b style="color: var(--text)">/Films/2024</b></span>
+        <button>Undo</button>
+      </div>
+    </div>
+
+    <div class="comp">
+      <div class="ttl">Setting rows<small>iOS Form · Android Preference</small></div>
+      <div>
+        <div class="setrow">
+          <div class="l">Autoplay next file<small>When a video ends, play the next.</small></div>
+          <div class="toggle on"></div>
+        </div>
+        <div class="setrow">
+          <div class="l">Cellular downloads<small>Use mobile data when Wi-Fi is off.</small></div>
+          <div class="toggle"></div>
+        </div>
+        <div class="setrow">
+          <div class="l">Background uploads<small>Continue when the app's not open.</small></div>
+          <div class="toggle on"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp">
+      <div class="ttl">FAB (Floating Action Button)<small>Material 3 only · iOS uses + in nav bar</small></div>
+      <div style="display: flex; gap: 18px; align-items: center; padding: 8px 0;">
+        <div style="width: 48px; height: 48px; border-radius: 16px; background: var(--yellow-solid); color: #000; display: grid; place-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+          <i class="ph ph-plus" style="font-size: 22px;"></i>
+        </div>
+        <div style="width: 56px; height: 56px; border-radius: 16px; background: var(--yellow-solid); color: #000; display: grid; place-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+          <i class="ph ph-plus" style="font-size: 24px;"></i>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text);">md · 48dp</span>
+          <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text);">lg · 56dp (default)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body></html>

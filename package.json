@@ -1,0 +1,48 @@
+{
+  "name": "@putdotio/design",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "DESIGN.md",
+    "dist",
+    "tokens",
+    "system/README.md"
+  ],
+  "exports": {
+    "./css": "./dist/css/tokens.css",
+    "./tokens": "./dist/tokens.flat.json",
+    "./tokens/meta": {
+      "types": "./dist/tokens.d.ts",
+      "default": "./dist/tokens.js"
+    },
+    "./tokens/dtcg": "./dist/tokens.dtcg.json",
+    "./tokens/figma": "./dist/figma/putio.tokens.json",
+    "./design.md": "./DESIGN.md"
+  },
+  "scripts": {
+    "dev": "node scripts/serve-system.ts",
+    "tokens:build": "node scripts/build-tokens.ts",
+    "tokens:check": "pnpm tokens:build && node scripts/verify-design-system.ts && git diff --exit-code -- DESIGN.md dist system/tokens.css",
+    "typecheck:scripts": "tsc --noEmit --ignoreConfig --skipLibCheck --module ESNext --moduleResolution Bundler --target ES2022 --strict --types node scripts/*.ts playwright.config.ts tests/e2e/*.ts sst.config.ts infra/*.ts",
+    "smoke": "node scripts/smoke-static.ts",
+    "html:check": "html-validate \"system/**/*.html\"",
+    "e2e": "playwright test",
+    "verify": "pnpm typecheck:scripts && pnpm tokens:check && pnpm html:check && pnpm smoke && sst version",
+    "verify:full": "pnpm verify && pnpm e2e && npm pack --dry-run",
+    "check": "pnpm verify",
+    "deploy:production": "sst deploy --stage production"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^25.9.1",
+    "html-validate": "^11.2.0",
+    "sst": "^4.14.3",
+    "style-dictionary": "^5.4.1",
+    "typescript": "^6.0.2",
+    "yaml": "^2.9.0"
+  },
+  "packageManager": "pnpm@11.2.2"
+}
