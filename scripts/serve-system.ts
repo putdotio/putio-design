@@ -1,6 +1,6 @@
 import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
-import { createServer } from "node:http";
+import { createServer, type ServerResponse } from "node:http";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -33,6 +33,18 @@ function resolveRequestPath(url: string | undefined): string {
   return resolved;
 }
 
+function sendNotFound(response: ServerResponse) {
+  if (response.writableEnded) return;
+  if (response.headersSent) {
+    response.destroy();
+    return;
+  }
+
+  response.statusCode = 404;
+  response.setHeader("content-type", "text/plain; charset=utf-8");
+  response.end("Not found\n");
+}
+
 const server = createServer(async (request, response) => {
   try {
     let file = resolveRequestPath(request.url);
@@ -43,11 +55,11 @@ const server = createServer(async (request, response) => {
 
     const extension = path.extname(file);
     response.setHeader("content-type", mimeTypes[extension] ?? "application/octet-stream");
-    createReadStream(file).pipe(response);
+    const stream = createReadStream(file);
+    stream.on("error", () => sendNotFound(response));
+    stream.pipe(response);
   } catch {
-    response.statusCode = 404;
-    response.setHeader("content-type", "text/plain; charset=utf-8");
-    response.end("Not found\n");
+    sendNotFound(response);
   }
 });
 

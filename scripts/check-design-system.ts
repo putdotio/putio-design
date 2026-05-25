@@ -20,6 +20,7 @@ type DesignColors = {
 };
 
 const root = process.cwd();
+const placeholderHref = /\bhref\s*=\s*["']\s*#\s*["']/i;
 const forbiddenText = [
   /api\.anthropic\.com/i,
   /\/projects\//i,
@@ -196,7 +197,7 @@ async function checkPublicSafety() {
     for (const pattern of forbiddenText) {
       assert(!pattern.test(text), `${rel} contains forbidden public text: ${pattern}`);
     }
-    assert(!/href="#"/.test(text), `${rel} contains placeholder href="#"`);
+    assert(!placeholderHref.test(text), `${rel} contains placeholder href`);
   }
 }
 
