@@ -1,4 +1,4 @@
-/// <reference path="../.sst/platform/config.d.ts" />
+/// <reference path="../types/sst.d.ts" />
 
 export const DESIGN_DOMAIN = requiredEnv("DESIGN_DOMAIN");
 

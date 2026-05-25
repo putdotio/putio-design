@@ -1,4 +1,4 @@
-/// <reference path="./.sst/platform/config.d.ts" />
+/// <reference path="./types/sst.d.ts" />
 
 const COMMON_TAGS = {
   Project: "putio-design",

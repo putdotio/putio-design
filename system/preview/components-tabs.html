@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<title>put.io design preview</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .card { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .head { display: flex; align-items: baseline; gap: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+  .head .ix { font-family: var(--font-ui-mono); font-size: 11px; color: var(--yellow-solid); letter-spacing: 0.04em; }
+  .head .t { font-size: 15px; font-weight: 500; color: var(--text); }
+  .head .n { margin-left: auto; font-size: 12px; color: var(--text-secondary); }
+  .note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
+  .note b { color: var(--text); }
+  .note code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11.5px; }
+
+  /* ── Tabs — horizontal segmented ──
+     Source: Tabs.tsx · radix-tabs
+     Background: --line (so the triggers float as inset pills with --segmented-control-bg)
+  */
+  .tabs {
+    display: inline-flex; background: var(--line); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1px; gap: 1px;
+  }
+  .tabs button {
+    border: 0; height: 32px; padding: 0 14px;
+    background: var(--segmented-control-bg); color: var(--text-secondary);
+    font-family: var(--font-sans); font-size: var(--fs-base); font-weight: 400;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+  }
+  .tabs button:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+  .tabs button:last-child  { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .tabs button:hover { color: var(--text); }
+  .tabs button.on {
+    background: var(--segmented-control-bg-active); color: var(--text);
+    font-weight: var(--fw-medium);
+  }
+  .tabs button i { font-size: 14px; }
+
+  .tabs.justified { display: flex; width: 100%; }
+  .tabs.justified button { flex: 1; justify-content: center; }
+  .tabs.size-sm button { height: 28px; padding: 0 12px; font-size: var(--fs-sm); }
+
+  /* ── Sidebar / vertical tabs ── */
+  .vtabs {
+    display: flex; gap: 16px;
+    background: var(--bg-secondary); border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    min-height: 220px;
+  }
+  .vtabs nav {
+    display: flex; flex-direction: column; gap: 1px;
+    min-width: 180px;
+    padding-right: 14px; border-right: 1px solid var(--line);
+  }
+  .vtabs nav button {
+    border: 0; height: 32px; padding: 0 10px;
+    background: var(--nav-item-bg); color: var(--text-secondary);
+    font-family: var(--font-sans); font-size: var(--fs-base); font-weight: 500;
+    border-radius: var(--radius-sm);
+    cursor: pointer; text-align: left;
+    display: flex; align-items: center; gap: 10px;
+    transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .vtabs nav button i { font-size: 14px; color: var(--text-secondary); }
+  .vtabs nav button:hover { background: var(--nav-item-bg-hover); color: var(--text); }
+  .vtabs nav button.on { background: var(--nav-item-bg-active); color: var(--text); }
+  .vtabs nav button.on i { color: var(--yellow-solid); }
+  .vtabs .panel {
+    flex: 1; padding: 6px 0;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .vtabs .panel h3 { margin: 0; font-size: 16px; font-weight: 500; color: var(--text); }
+  .vtabs .panel p { margin: 0; font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+
+  /* ── Underline tabs — content nav style ── */
+  .utabs {
+    display: flex; gap: 6px;
+    border-bottom: 1px solid var(--line);
+  }
+  .utabs button {
+    border: 0; background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-sans); font-size: var(--fs-base); font-weight: 500;
+    padding: 10px 12px 11px;
+    cursor: pointer; position: relative; bottom: -1px;
+    display: inline-flex; align-items: center; gap: 8px;
+    border-bottom: 2px solid transparent;
+    transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+  }
+  .utabs button:hover { color: var(--text); }
+  .utabs button.on { color: var(--text); border-bottom-color: var(--yellow-solid); }
+  .utabs button i { font-size: 14px; }
+  .utabs button .count {
+    height: 16px; min-width: 16px; padding: 0 4px;
+    background: var(--component-bg); color: var(--text-secondary);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-ui-mono); font-size: 10px; font-weight: 700;
+    display: inline-grid; place-items: center;
+  }
+  .utabs button.on .count { background: var(--yellow-component-bg); color: var(--yellow-text-secondary); }
+
+  .lucide-icon { width: 1em; height: 1em; display: inline-block; vertical-align: -0.125em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+</style></head>
+<body>
+<div class="card">
+
+  <div class="head">
+    <span class="ix">01</span>
+    <span class="t">Horizontal tabs — radix segmented</span>
+    <span class="n">Tabs.tsx</span>
+  </div>
+  <div class="note">
+    Inset pills with <code>--segmented-control-bg-active</code> for the selected tab on a <code>--line</code> tray. <b>Default size is 32px</b>; <code>sm</code> is 28px for dense areas. Use for 2–5 mutually-exclusive views.
+  </div>
+
+  <div style="display: flex; gap: 18px; flex-wrap: wrap; align-items: center;">
+    <div class="tabs">
+      <button aria-label="Preview action"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>All</button>
+      <button aria-label="Preview action" class="on"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>Folders</button>
+      <button aria-label="Preview action"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>Videos</button>
+      <button aria-label="Preview action"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>Audio</button>
+    </div>
+    <div class="tabs size-sm">
+      <button aria-label="Preview action" class="on">Web</button>
+      <button aria-label="Preview action">Mobile</button>
+      <button aria-label="Preview action">TV</button>
+    </div>
+  </div>
+
+  <div class="tabs justified" style="width: 480px;">
+    <button aria-label="Preview action">Personal</button>
+    <button aria-label="Preview action" class="on">Family</button>
+    <button aria-label="Preview action">Business</button>
+  </div>
+
+  <!-- Underline tabs -->
+  <div class="head" style="margin-top: 8px;">
+    <span class="ix">02</span>
+    <span class="t">Underline tabs — content navigation</span>
+  </div>
+  <div class="note">
+    Use within a page when the tabs swap large content regions. Yellow underline marks the active tab; counts ride at the right of the label.
+  </div>
+
+  <div class="utabs">
+    <button aria-label="Preview action" class="on">Files <span class="count">142</span></button>
+    <button aria-label="Preview action">Transfers <span class="count">3</span></button>
+    <button aria-label="Preview action">Shared <span class="count">8</span></button>
+    <button aria-label="Preview action">Trash</button>
+    <button aria-label="Preview action">Settings</button>
+  </div>
+
+  <!-- Vertical sidebar tabs -->
+  <div class="head" style="margin-top: 8px;">
+    <span class="ix">03</span>
+    <span class="t">Vertical tabs — settings detail</span>
+  </div>
+  <div class="note">
+    For long settings flows. Active item uses <code>--nav-item-bg-active</code> (step 3) with a yellow icon. The right pane scrolls independently.
+  </div>
+
+  <div class="vtabs">
+    <nav>
+      <button aria-label="Preview action"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>Account</button>
+      <button aria-label="Preview action" class="on"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>Billing</button>
+      <button aria-label="Preview action"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>Notifications</button>
+      <button aria-label="Preview action"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>Privacy</button>
+      <button aria-label="Preview action"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>API Keys</button>
+      <button aria-label="Preview action"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>TV &amp; Devices</button>
+      <button aria-label="Preview action"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>Chromecast</button>
+    </nav>
+    <div class="panel">
+      <h3>Billing</h3>
+      <p>Your plan, payment methods, and invoices. You're on the <b style="color:var(--text)">10 TB · monthly</b> plan, billed on the 22nd.</p>
+      <p>Switching plans takes effect immediately; we prorate the rest of the month.</p>
+    </div>
+  </div>
+</div>
+</body></html>

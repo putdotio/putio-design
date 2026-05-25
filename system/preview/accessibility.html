@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<title>put.io design preview</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .card { padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 32px; }
+  .hd { display: flex; flex-direction: column; gap: 6px; }
+  .hd h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+  .hd .sub { font-size: 13px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
+  .hd .sub b { color: var(--text); font-weight: 500; }
+  .hd .sub code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11.5px; }
+
+  /* Section header */
+  .sec {
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .sec-hd {
+    display: flex; align-items: baseline; gap: 14px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--line);
+  }
+  .sec-hd .ix {
+    font-family: var(--font-ui-mono); font-size: 11px;
+    color: var(--yellow-solid); letter-spacing: 0.04em;
+  }
+  .sec-hd .t { font-size: 16px; font-weight: 500; color: var(--text); }
+  .sec-hd .n { font-size: 12px; color: var(--text-secondary); margin-left: auto; }
+
+  /* ─ Contrast matrix table ──────────────────────────────────────── */
+  .matrix {
+    background: var(--bg-secondary);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .mrow {
+    display: grid;
+    grid-template-columns: 220px 220px 90px 1fr;
+    align-items: center;
+    padding: 11px 16px;
+    font-size: 12.5px;
+    border-top: 1px solid var(--line);
+  }
+  .mrow:first-child { border-top: 0; }
+  .mrow.head {
+    background: var(--bg);
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    padding: 12px 16px;
+  }
+  .swatch-pair {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono); font-size: 11.5px;
+    color: var(--text-secondary);
+  }
+  .swatch-pair .sw {
+    width: 18px; height: 18px; border-radius: 4px;
+    border: 1px solid var(--line); flex-shrink: 0;
+  }
+  .demo {
+    padding: 4px 10px; border-radius: var(--radius-sm);
+    font-size: 12.5px;
+    border: 1px solid var(--line);
+    display: inline-flex;
+    width: fit-content;
+  }
+  .ratio {
+    font-family: var(--font-ui-mono); font-variant-numeric: tabular-nums;
+    font-size: 13px; font-weight: 700; color: var(--text);
+  }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 22px; padding: 0 10px; border-radius: var(--radius-pill);
+    font-family: var(--font-ui-mono); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;
+  }
+  .pill.aaa { background: color-mix(in srgb, var(--green-solid) 18%, transparent); color: var(--green-text-secondary); }
+  .pill.aa  { background: color-mix(in srgb, var(--green-solid) 10%, transparent); color: var(--green-text-secondary); }
+  .pill.large { background: var(--yellow-component-bg); color: var(--yellow-text-secondary); }
+  .pill.fail { background: var(--red-component-bg); color: var(--red-text-secondary); }
+  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .note-cell { font-size: 11.5px; color: var(--text-secondary); line-height: 1.5; }
+  .note-cell code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11px; }
+
+  /* ─ Button typography demo ─────────────────────────────────────── */
+  .btn-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  }
+  .btn-cell {
+    background: var(--bg-secondary);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .btn-cell .label {
+    font-size: 11px; font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .btn-cell .demo-area {
+    background: var(--app-bg);
+    border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 24px; display: grid; place-items: center;
+    min-height: 92px;
+  }
+  .btn-cell .specs {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-secondary); line-height: 1.55;
+  }
+  .btn-cell .specs b { color: var(--text); font-weight: 500; }
+
+  .btn {
+    height: 36px; padding: 0 12px; border-radius: var(--radius); border: 1px solid transparent;
+    font-family: var(--font-sans); font-weight: var(--fw-medium); font-size: var(--fs-base);
+    text-transform: uppercase; letter-spacing: 1px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+  }
+  .btn.primary  { background: var(--yellow-solid); border-color: var(--yellow-solid); color: #000; }
+  .btn.success  { background: var(--green-solid); border-color: var(--green-solid); color: #fff; }
+  .btn.danger   { background: var(--red-solid); border-color: var(--red-solid); color: #fff; }
+  .btn.info     { background: var(--solid); border-color: var(--solid); color: #fff; }
+  .btn.default  { background: var(--component-bg); border-color: var(--border); color: var(--text); }
+  .btn.invert   { background: var(--text); border-color: var(--border); color: var(--app-bg); }
+
+  /* ─ Sizing scale demo ──────────────────────────────────────────── */
+  .sizes {
+    background: var(--bg-secondary);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .size-row {
+    display: grid; grid-template-columns: 92px 1fr 220px 1fr;
+    align-items: center; gap: 16px;
+    padding: 12px 16px; border-top: 1px solid var(--line);
+  }
+  .size-row:first-child { border-top: 0; background: var(--bg); }
+  .size-row.head {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+  .size-row .nm { font-family: var(--font-ui-mono); font-size: 11px; color: var(--text); font-weight: 500; }
+  .size-row .specs { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
+  .size-row .verdict { font-size: 11.5px; color: var(--text-secondary); line-height: 1.5; }
+  .size-row .verdict b { color: var(--text); font-weight: 500; }
+
+  /* ─ Hit target demo ────────────────────────────────────────────── */
+  .hits {
+    background: var(--bg-secondary);
+    border: 1px solid var(--line); border-radius: var(--radius-lg);
+    padding: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 22px;
+  }
+  .hit-demo {
+    background: var(--app-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .hit-demo .ttl {
+    font-size: 11px; font-weight: 500;
+    color: var(--yellow-solid);
+  }
+  .hit-stack { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+  .hit-stack .hi {
+    display: flex; align-items: center; gap: 14px;
+    font-family: var(--font-mono); font-size: 11.5px; color: var(--text-secondary);
+  }
+  .target {
+    display: grid; place-items: center;
+    background: var(--component-bg);
+    color: var(--text);
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+  }
+  .target.warn { outline: 1px dashed var(--red-border); outline-offset: 2px; }
+  .target.ok   { outline: 1px dashed var(--green-border); outline-offset: 2px; }
+
+  /* ─ Focus demo ─────────────────────────────────────────────────── */
+  .focus-row {
+    background: var(--bg-secondary);
+    border: 1px solid var(--line); border-radius: var(--radius-lg);
+    padding: 22px;
+    display: flex; gap: 22px; align-items: flex-start; flex-wrap: wrap;
+  }
+  .focus-card { display: flex; flex-direction: column; gap: 10px; min-width: 200px; flex: 1; }
+  .focus-card .l {
+    font-size: 11px; font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .focus-card .demo {
+    background: var(--app-bg); border-radius: var(--radius);
+    padding: 22px; display: grid; place-items: center;
+    border: 1px solid var(--line);
+  }
+  .f-input {
+    height: 36px; padding: 0 12px; box-sizing: border-box;
+    background: var(--app-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); color: var(--text);
+    font-family: var(--font-sans); font-size: 14px; width: 180px;
+  }
+  .f-input.focus { border-color: var(--border-hover); box-shadow: 0 0 0 1px var(--border-hover); outline: none; }
+  .f-input.focus-yellow { border-color: var(--yellow-solid); box-shadow: var(--shadow-focus); outline: none; }
+  .f-btn {
+    height: 36px; padding: 0 12px; border-radius: var(--radius);
+    background: var(--yellow-solid); color: #000; border: 1px solid var(--yellow-solid);
+    font-family: var(--font-sans); font-weight: var(--fw-medium); font-size: var(--fs-base);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .f-btn.focus { box-shadow: var(--shadow-focus); outline: none; }
+  .f-link {
+    color: var(--yellow-solid); font-size: 14px; text-decoration: underline;
+    text-underline-offset: 3px; text-decoration-thickness: 1px;
+  }
+  .f-link.focus { outline: 2px solid var(--yellow-solid); outline-offset: 3px; border-radius: 2px; }
+
+  /* ─ Rules summary ──────────────────────────────────────────────── */
+  .rules {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  }
+  .rule {
+    background: var(--bg-secondary);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .rule.do  { border-left: 3px solid var(--green-solid); }
+  .rule.dont { border-left: 3px solid var(--red-solid); }
+  .rule .hd-row { display: flex; align-items: center; gap: 8px; }
+  .rule .hd-row i {
+    width: 18px; height: 18px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 11px; line-height: 1;
+    font-style: normal; flex-shrink: 0;
+  }
+  .rule.do .hd-row i { background: var(--green-component-bg); color: var(--green-solid); }
+  .rule.dont .hd-row i { background: var(--red-component-bg); color: var(--red-solid); }
+  .rule .ttl { font-size: 13px; font-weight: 500; color: var(--text); }
+  .rule .body { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; }
+  .rule .body code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11.5px; background: color-mix(in srgb, var(--yellow-solid) 10%, transparent); padding: 1px 5px; border-radius: 3px; }
+  .rule .body b { color: var(--text); font-weight: 500; }
+</style></head>
+<body>
+<div class="card">
+
+  <div class="hd">
+    <h1>Accessibility &amp; type audit</h1>
+    <div class="sub">
+      WCAG 2.2 contrast computed against the actual tokens in <code>tokens.css</code>. <b>AAA</b> = ≥7:1 (normal text best practice). <b>AA</b> = ≥4.5:1 normal / ≥3:1 large text (≥18px regular or ≥14px medium+). <b>"Large"</b> covers our uppercase button labels at default size.
+    </div>
+  </div>
+
+  <!-- ============================================================
+       1 · CONTRAST MATRIX
+       ============================================================ -->
+  <div class="sec">
+    <div class="sec-hd">
+      <span class="ix">01</span>
+      <span class="t">Contrast matrix — dark mode (app default)</span>
+      <span class="n">tokens.css · .dark</span>
+    </div>
+
+    <div class="matrix">
+      <div class="mrow head">
+        <span>Foreground</span>
+        <span>Background</span>
+        <span>Ratio</span>
+        <span>Where it's used</span>
+      </div>
+
+      <!-- Primary text -->
+      <div class="mrow">
+        <span class="swatch-pair"><span class="sw" style="background: hsl(0,0%,93%)"></span>--text</span>
+        <span class="swatch-pair"><span class="sw" style="background: hsl(0,0%,8.5%)"></span>--app-bg</span>
+        <span class="ratio">15.5</span>
+        <span class="note-cell"><span class="pill aaa"><span class="dot"></span>AAA</span> &nbsp; Body, headlines, file names</span>
+      </div>
+      <div class="mrow">
+        <span class="swatch-pair"><span class="sw" style="background: hsl(0,0%,93%)"></span>--text</span>
+        <span class="swatch-pair"><span class="sw" style="background: hsl(0,0%,13.6%)"></span>--component-bg</span>
+        <span class="ratio">13.5</span>
+        <span class="note-cell"><span class="pill aaa"><span class="dot"></span>AAA</span> &nbsp; Text inside modals, popovers, sheets</span>
+      </div>
+
+      <!-- Secondary text -->
+      <div class="mrow">
+        <span class="swatch-pair"><span class="sw" style="background: hsl(0,0%,62.8%)"></span>--text-secondary</span>
+        <span class="swatch-pair"><span class="sw" style="background: hsl(0,0%,8.5%)"></span>--app-bg</span>
+        <span class="ratio">6.95</span>
+        <span class="note-cell"><span class="pill aa"><span class="dot"></span>AA</span> &nbsp; Metadata, hints, captions, dates</span>
+      </div>
+      <div class="mrow">
+        <span class="swatch-pair"><span class="sw" style="background: hsl(0,0%,62.8%)"></span>--text-secondary</span>
+        <span class="swatch-pair"><span class="sw" style="background: hsl(0,0%,13.6%)"></span>--component-bg</span>
+        <span class="ratio">6.04</span>
+        <span class="note-cell"><span class="pill aa"><span class="dot"></span>AA</span> &nbsp; Secondary text in elevated surfaces</span>
+      </div>
+
+      <!-- Disabled / placeholder -->
+      <div class="mrow">
+        <span class="swatch-pair"><span class="sw" style="background: hsl(0,0%,43.9%)"></span>--solid</span>
+        <span class="swatch-pair"><span class="sw" style="background: hsl(0,0%,8.5%)"></span>--app-bg</span>
+        <span class="ratio">3.66</span>
+        <span class="note-cell"><span class="pill large"><span class="dot"></span>Large only</span> &nbsp; Use for <b>disabled / placeholder</b> only — never body text</span>
+      </div>
+
+      <!-- Yellow text -->
+      <div class="mrow">
+        <span class="swatch-pair"><span class="sw" style="background: var(--yellow-solid)"></span>--yellow-solid</span>
+        <span class="swatch-pair"><span class="sw" style="background: hsl(0,0%,8.5%)"></span>--app-bg</span>
+        <span class="ratio">12.2</span>
+        <span class="note-cell"><span class="pill aaa"><span class="dot"></span>AAA</span> &nbsp; Links, brand accents, codes — <b>dark mode only</b></span>
+      </div>
+      <div class="mrow">
+        <span class="swatch-pair"><span class="sw" style="background: var(--yellow-solid)"></span>--yellow-solid</span>
+        <span class="swatch-pair"><span class="sw" style="background: white"></span>--app-bg <em>(light)</em></span>
+        <span class="ratio">1.49</span>
+        <span class="note-cell"><span class="pill fail"><span class="dot"></span>FAIL</span> &nbsp; <b>Never use yellow as text on light.</b> Use <code>--yellow-text-secondary</code> instead.</span>
+      </div>
+
+      <!-- Semantic text -->
+      <div class="mrow">
+        <span class="swatch-pair"><span class="sw" style="background: hsl(151,50%,53.2%)"></span>--green-text-secondary</span>
+        <span class="swatch-pair"><span class="sw" style="background: hsl(0,0%,8.5%)"></span>--app-bg</span>
+        <span class="ratio">8.22</span>
+        <span class="note-cell"><span class="pill aaa"><span class="dot"></span>AAA</span> &nbsp; Success messages, healthy states</span>
+      </div>
+      <div class="mrow">
+        <span class="swatch-pair"><span class="sw" style="background: hsl(358,100%,69.5%)"></span>--red-text-secondary</span>
+        <span class="swatch-pair"><span class="sw" style="background: hsl(0,0%,8.5%)"></span>--app-bg</span>
+        <span class="ratio">6.27</span>
+        <span class="note-cell"><span class="pill aa"><span class="dot"></span>AA</span> &nbsp; Error messages, destructive labels</span>
+      </div>
+      <div class="mrow">
+        <span class="swatch-pair"><span class="sw" style="background: hsl(358,100%,69.5%)"></span>--red-text-secondary</span>
+        <span class="swatch-pair"><span class="sw" style="background: hsl(356,43.4%,16.4%)"></span>--red-component-bg</span>
+        <span class="ratio">5.44</span>
+        <span class="note-cell"><span class="pill aa"><span class="dot"></span>AA</span> &nbsp; Red text on red tint — confirm modal glyph</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       2 · BUTTON CONTRAST — the white-on-solid issue
+       ============================================================ -->
+  <div class="sec">
+    <div class="sec-hd">
+      <span class="ix">02</span>
+      <span class="t">Button label contrast</span>
+      <span class="n">Buttons/Button.tsx parity</span>
+    </div>
+
+    <div class="btn-grid">
+      <div class="btn-cell">
+        <span class="label">Primary · yellow</span>
+        <div class="demo-area"><button aria-label="Preview action" class="btn primary">Go to app</button></div>
+        <div class="specs">
+          <b>#000</b> on <b>--yellow-solid</b><br>
+          <b>14.1:1</b> · AAA at any size
+        </div>
+      </div>
+      <div class="btn-cell">
+        <span class="label">Success · green</span>
+        <div class="demo-area"><button aria-label="Preview action" class="btn success">Save changes</button></div>
+        <div class="specs">
+          <b>#fff</b> on <b>--green-solid</b><br>
+          <b>3.2:1</b> · AA-large only — never use <code style="color:var(--yellow-solid);font-family:var(--font-mono)">xs</code> (24px)
+        </div>
+      </div>
+      <div class="btn-cell">
+        <span class="label">Danger · red</span>
+        <div class="demo-area"><button aria-label="Preview action" class="btn danger">Delete forever</button></div>
+        <div class="specs">
+          <b>#fff</b> on <b>--red-solid</b><br>
+          <b>3.9:1</b> · AA-large only — never use <code style="color:var(--yellow-solid);font-family:var(--font-mono)">xs</code>
+        </div>
+      </div>
+      <div class="btn-cell">
+        <span class="label">Info · neutral</span>
+        <div class="demo-area"><button aria-label="Preview action" class="btn info">Show more</button></div>
+        <div class="specs">
+          <b>#fff</b> on <b>--solid</b><br>
+          <b>3.7:1</b> · AA-large only · prefer <span class="specs" style="color:var(--text)">default</span>
+        </div>
+      </div>
+      <div class="btn-cell">
+        <span class="label">Default · neutral</span>
+        <div class="demo-area"><button aria-label="Preview action" class="btn default">Cancel</button></div>
+        <div class="specs">
+          <b>--text</b> on <b>--component-bg</b><br>
+          <b>13.5:1</b> · AAA at any size
+        </div>
+      </div>
+      <div class="btn-cell">
+        <span class="label">Invert · for emphasis</span>
+        <div class="demo-area"><button aria-label="Preview action" class="btn invert">Invite a friend</button></div>
+        <div class="specs">
+          <b>--app-bg</b> on <b>--text</b><br>
+          <b>15.5:1</b> · AAA at any size
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; max-width: 800px;">
+      WCAG considers a button label "large text" (3:1 minimum) when it's <b style="color:var(--text);">≥14px medium-weight</b> uppercase. Our defaults (<code style="color:var(--yellow-solid);font-family:var(--font-mono)">md</code> / <code style="color:var(--yellow-solid);font-family:var(--font-mono)">lg</code>) hit that. <b style="color:var(--text);">Green / red / info / invert buttons must never use the <code style="color:var(--yellow-solid);font-family:var(--font-mono)">xs</code> (24px) size</b> — at 12px the label drops out of the large-text rule and the contrast becomes a fail.
+    </div>
+  </div>
+
+  <!-- ============================================================
+       3 · TYPE SIZE FLOORS
+       ============================================================ -->
+  <div class="sec">
+    <div class="sec-hd">
+      <span class="ix">03</span>
+      <span class="t">Type size floors</span>
+      <span class="n">tokens · --fs-*</span>
+    </div>
+
+    <div class="sizes">
+      <div class="size-row head">
+        <span>Token</span>
+        <span>Sample</span>
+        <span>Specs</span>
+        <span>Notes</span>
+      </div>
+      <div class="size-row">
+        <span class="nm">--fs-xs</span>
+        <span style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500;">Caption · 12px</span>
+        <span class="specs">12px · 500 · uppercase · letter-spacing 0.08em</span>
+        <span class="verdict">Floor for <b>labels, eyebrows, captions</b>. Never body text. Always uppercase + medium weight at this size.</span>
+      </div>
+      <div class="size-row">
+        <span class="nm">--fs-sm</span>
+        <span style="font-size: 13px; color: var(--text-secondary);">Secondary body · 13px regular</span>
+        <span class="specs">13px · 400</span>
+        <span class="verdict">Metadata, file dates, sizes. AA at <code style="color:var(--yellow-solid);font-family:var(--font-mono)">--text-secondary</code>.</span>
+      </div>
+      <div class="size-row">
+        <span class="nm">--fs-base</span>
+        <span style="font-size: 14px;">Body copy · 14px regular — app default</span>
+        <span class="specs">14px · 400</span>
+        <span class="verdict"><b>Default body weight.</b> All body text uses this.</span>
+      </div>
+      <div class="size-row">
+        <span class="nm">--fs-md</span>
+        <span style="font-size: 16px; font-weight: 500;">Subheading · 16px medium</span>
+        <span class="specs">16px · 500</span>
+        <span class="verdict">Subheadings, dense UI emphasis. Mobile body minimum is 16px (prevents iOS auto-zoom on inputs).</span>
+      </div>
+      <div class="size-row">
+        <span class="nm">--fs-lg</span>
+        <span style="font-size: 18px;">Lead copy · 18px regular</span>
+        <span class="specs">18px · 400</span>
+        <span class="verdict">Long-form lead. At this size, AA threshold drops from 4.5 → 3 (large-text rule).</span>
+      </div>
+      <div class="size-row">
+        <span class="nm">TV minimum</span>
+        <span style="font-size: 24px; font-weight: 500;">10-foot reading · 24px+</span>
+        <span class="specs">24px · 500 floor</span>
+        <span class="verdict">10-foot UX: <b>nothing below 24px</b> on a TV surface (see TV foundations).</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       4 · HIT TARGETS
+       ============================================================ -->
+  <div class="sec">
+    <div class="sec-hd">
+      <span class="ix">04</span>
+      <span class="t">Hit-target sizes</span>
+      <span class="n">WCAG 2.5.5 · iOS HIG · Material</span>
+    </div>
+
+    <div class="hits">
+      <div class="hit-demo">
+        <div class="ttl">Pointer (desktop / web)</div>
+        <div class="hit-stack">
+          <div class="hi">
+            <div class="target" style="width: 24px; height: 24px;">xs</div>
+            <span>24×24 · <b style="color:var(--red-text-secondary)">below WCAG AA</b> — toolbar only</span>
+          </div>
+          <div class="hi">
+            <div class="target ok" style="width: 28px; height: 28px;">sm</div>
+            <span>28×28 · AA min (24 hit area + 4 spacing)</span>
+          </div>
+          <div class="hi">
+            <div class="target ok" style="width: 32px; height: 32px;">md</div>
+            <span>32×32 · default for dense UI</span>
+          </div>
+          <div class="hi">
+            <div class="target ok" style="width: 36px; height: 36px;">lg</div>
+            <span>36×36 · default for primary actions</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hit-demo">
+        <div class="ttl">Touch (mobile / iOS / Android)</div>
+        <div class="hit-stack">
+          <div class="hi">
+            <div class="target warn" style="width: 36px; height: 36px;">36</div>
+            <span><b style="color:var(--red-text-secondary)">Below 44pt</b> — fine if margin-padded</span>
+          </div>
+          <div class="hi">
+            <div class="target ok" style="width: 44px; height: 44px;">44</div>
+            <span>44×44 · iOS HIG minimum</span>
+          </div>
+          <div class="hi">
+            <div class="target ok" style="width: 48px; height: 48px;">48</div>
+            <span>48×48 · Material accessibility floor</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; max-width: 800px;">
+      <b style="color:var(--text);">Rule:</b> on mobile, any interactive element below 44×44 needs invisible padding to reach it. Use <code style="color:var(--yellow-solid);font-family:var(--font-mono)">::before</code> with negative inset, or list-item rows with 12px vertical padding + 32px icon = 56px total.
+    </div>
+  </div>
+
+  <!-- ============================================================
+       5 · FOCUS VISIBILITY
+       ============================================================ -->
+  <div class="sec">
+    <div class="sec-hd">
+      <span class="ix">05</span>
+      <span class="t">Focus visibility</span>
+      <span class="n">WCAG 2.4.7 · 2.4.11</span>
+    </div>
+
+    <div class="focus-row">
+      <div class="focus-card">
+        <span class="l">Input · focus</span>
+        <div class="demo">
+          <input aria-label="Preview input" class="f-input focus" value="Focused field" readonly>
+        </div>
+        <span class="specs" style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">
+          border → <b style="color:var(--text)">--border-hover</b><br>
+          + 1px box-shadow ring same color
+        </span>
+      </div>
+
+      <div class="focus-card">
+        <span class="l">Button · focus</span>
+        <div class="demo">
+          <button aria-label="Preview action" class="f-btn focus">Confirm</button>
+        </div>
+        <span class="specs" style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">
+          box-shadow: <b style="color:var(--text)">var(--shadow-focus)</b><br>
+          3px yellow halo · 35% alpha
+        </span>
+      </div>
+
+      <div class="focus-card">
+        <span class="l">Link · focus</span>
+        <div class="demo">
+          <a class="f-link focus" href="../README.md">Open file detail</a>
+        </div>
+        <span class="specs" style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">
+          2px outline + 3px offset<br>
+          Same yellow as links themselves
+        </span>
+      </div>
+
+      <div class="focus-card">
+        <span class="l">D-pad / TV focus</span>
+        <div class="demo">
+          <div style="padding: 14px 22px; border-radius: 8px; background: rgba(255,255,255,0.10); box-shadow: 0 0 0 1px var(--yellow-solid), 0 14px 30px rgba(0,0,0,0.45); color: var(--text); font-size: 14px;">Focused row</div>
+        </div>
+        <span class="specs" style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">
+          scale(1.06) + yellow halo + shadow<br>
+          See <code style="color:var(--yellow-solid)">tv-focus</code> preview
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       6 · RULES
+       ============================================================ -->
+  <div class="sec">
+    <div class="sec-hd">
+      <span class="ix">06</span>
+      <span class="t">Rules &amp; common mistakes</span>
+    </div>
+
+    <div class="rules">
+      <div class="rule do">
+        <div class="hd-row"><i>✓</i><span class="ttl">Use <code>--yellow-solid</code> as text only on dark</span></div>
+        <div class="body">On dark surfaces it's <b>12.2:1 AAA</b>. On light backgrounds it's <b>1.5:1 — invisible</b>. For yellow text on light, use <code>--yellow-text-secondary</code> (4.98:1 AA).</div>
+      </div>
+      <div class="rule dont">
+        <div class="hd-row"><i>✕</i><span class="ttl">Never put yellow text on white</span></div>
+        <div class="body">If you need a yellow accent in light mode, use the <b>yellow-solid as background</b>, not as foreground. Black on yellow = AAA either way.</div>
+      </div>
+
+      <div class="rule do">
+        <div class="hd-row"><i>✓</i><span class="ttl">Default = 36px buttons, sm = 28px</span></div>
+        <div class="body">Anything below 28px should be <b>icon-button only</b> with a tooltip — never a labelled action. Below 24px is for inline toolbar affordances at most.</div>
+      </div>
+      <div class="rule dont">
+        <div class="hd-row"><i>✕</i><span class="ttl">No xs (24px) green/red/info buttons</span></div>
+        <div class="body">At 12px the label drops out of WCAG's "large text" rule and white-on-color falls below 4.5:1 AA. Use the <span style="color:var(--text)"><code>default</code></span> or <span style="color:var(--text)"><code>primary</code></span> variant instead.</div>
+      </div>
+
+      <div class="rule do">
+        <div class="hd-row"><i>✓</i><span class="ttl">Pair color with shape or text</span></div>
+        <div class="body">Transfer health uses <b>color + label + dot</b> (green/yellow/red). Status is never communicated by color alone — covered for color-blindness.</div>
+      </div>
+      <div class="rule dont">
+        <div class="hd-row"><i>✕</i><span class="ttl">No color-only error states</span></div>
+        <div class="body">Invalid form fields get a red border <b>and</b> a text error message below. Failed transfers get a red dot, a red label, <b>and</b> an icon — three signals.</div>
+      </div>
+
+      <div class="rule do">
+        <div class="hd-row"><i>✓</i><span class="ttl">Body weight: regular 400</span></div>
+        <div class="body">Body text is GT America Regular at 14px. Medium 500 is for <b>subheadings, button labels, emphasis</b>. Bold 700 reserved for headlines and numerics where weight earns scan-ability.</div>
+      </div>
+      <div class="rule dont">
+        <div class="hd-row"><i>✕</i><span class="ttl">No black 900 in body</span></div>
+        <div class="body">Black weight is for the wordmark and hero display sizes (96px+). At body size it reads as visual shouting and breaks rhythm. <b>Three weights in product</b>: 400 / 500 / 700.</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</body></html>

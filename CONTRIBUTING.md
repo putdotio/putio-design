@@ -15,18 +15,19 @@ Prototypes are self-contained HTML files that pull fonts from `static.put.io` at
 ## Run Locally
 
 ```bash
-npx serve prototypes
+pnpm dev
 ```
 
-Open the printed URL and browse the gallery index.
+Open the printed URL and browse the design-system guide.
 
 ## Validate
 
-Prototypes are visual artefacts; there are no automated checks. Before opening a pull request:
+Before opening a pull request:
 
-- Load the prototype in a browser at the viewport listed in the [Agent guide](AGENTS.md)
+- Run `pnpm verify`
+- Load the affected guide or preview page in a browser at the viewport listed in the [Agent guide](AGENTS.md)
 - Confirm fonts load (GT America and Berkeley Mono should render, not system fallbacks)
-- Compare against the relevant workspace specs and [reference screenshots](https://github.com/putdotio/putio-frontend-workspace/tree/main/docs/references/images)
+- Keep screenshots, sample filenames, and docs content public-safe and content-agnostic
 
 ## Conventions
 
@@ -52,5 +53,5 @@ Deploys also read `DESIGN_DOMAIN`, `AWS_REGION`, `AWS_ROUTE53_ZONE_ID`, and
 ## Pull Requests
 
 - Keep changes focused and explicit.
-- Read the relevant workspace spec before designing a new screen.
-- Check [workspace reference images](https://github.com/putdotio/putio-frontend-workspace/tree/main/docs/references/images) before designing platform screens.
+- Read `DESIGN.md`, `system/README.md`, and `docs/DISTRIBUTION.md` before changing public design-system behavior.
+- Use anonymous IDs such as `User 01` and raw filename examples from `AGENTS.md`.

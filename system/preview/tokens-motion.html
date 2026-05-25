@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<title>put.io design preview</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--bg); }
+  .card { padding: 24px; display:flex; flex-direction:column; gap: 22px; }
+  .label { font-size: 12.5px; font-weight: 500; color: var(--text); }
+  .note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 720px; }
+  .note b { color: var(--text); }
+
+  /* ─ Easing curves ─ */
+  .ease-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .ease { background: var(--bg-secondary); padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+  .ease .hd { display:flex; justify-content:space-between; align-items: baseline; }
+  .ease .name { font-family: var(--font-ui-mono); font-size: 11px; color: var(--yellow-solid); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .ease .curve { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
+  .ease .desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+  .ease svg { display:block; width: 100%; height: 80px; }
+  .ease svg .grid { stroke: var(--line); stroke-width: 1; }
+  .ease svg path.line { stroke: var(--yellow-solid); stroke-width: 2; fill: none; stroke-linecap: round; }
+  .ease svg circle { fill: var(--yellow-solid); }
+  .ease .demo { position: relative; height: 26px; background: var(--component-bg); border-radius: 4px; overflow: hidden; }
+  .ease .dot {
+    position: absolute; top: 50%; left: 4px; transform: translateY(-50%);
+    width: 18px; height: 18px; border-radius: 4px; background: var(--yellow-solid);
+    animation: slide 2400ms infinite alternate;
+  }
+  .ease.e-out  .dot { animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+  .ease.e-io   .dot { animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+  @keyframes slide { from { left: 4px; } to { left: calc(100% - 22px); } }
+
+  /* ─ Duration scale ─ */
+  .dur-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .dur { background: var(--bg-secondary); padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .dur .name { font-family: var(--font-ui-mono); font-size: 11px; color: var(--yellow-solid); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .dur .ms { font-family: var(--font-mono); font-size: 22px; font-weight: 500; color: var(--text); letter-spacing: -0.01em; }
+  .dur .use { font-size: 12px; color: var(--text-secondary); line-height: 1.45; }
+  .dur .bar { height: 4px; background: var(--component-bg); border-radius: 999px; overflow: hidden; margin-top: 2px; }
+  .dur .bar i { display:block; height: 100%; background: var(--yellow-solid); width: 0; animation: fill ease-out infinite; }
+  .dur.d-fast .bar i { animation-duration: 1200ms; }
+  .dur.d-base .bar i { animation-duration: 2000ms; }
+  .dur.d-slow .bar i { animation-duration: 3200ms; }
+  @keyframes fill { 0% { width: 0; } 60% { width: 100%; } 100% { width: 100%; opacity: 0; } }
+
+  /* ─ Usage table ─ */
+  .use-tbl { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .use-row { display: grid; grid-template-columns: 180px 110px 1fr; gap: 18px; padding: 12px 18px; font-size: 13px; align-items: center; }
+  .use-row + .use-row { border-top: 1px solid var(--line); }
+  .use-row .what { color: var(--text); }
+  .use-row .tok  { font-family: var(--font-mono); font-size: 11.5px; color: var(--yellow-solid); }
+  .use-row .why  { color: var(--text-secondary); font-size: 12.5px; line-height: 1.5; }
+</style></head>
+<body>
+<div class="card">
+
+  <div>
+    <div class="label">Easing curves — 2 only</div>
+    <div class="note">Every state change uses one of these. <b>Out</b> for entries and most UI motion (focus, hover, menus appearing). <b>In-out</b> for symmetric transitions (sheets, page transitions, anything that ends where it started).</div>
+  </div>
+
+  <div class="ease-grid">
+    <div class="ease e-out">
+      <div class="hd">
+        <span class="name">--ease-out</span>
+        <span class="curve">cubic-bezier(0.22, 1, 0.36, 1)</span>
+      </div>
+      <svg viewBox="0 0 200 80" preserveAspectRatio="none">
+        <line class="grid" x1="0" y1="40" x2="200" y2="40"/>
+        <line class="grid" x1="100" y1="0" x2="100" y2="80"/>
+        <path class="line" d="M 0 76 C 44 76, 72 8, 200 4"/>
+        <circle cx="200" cy="4" r="2.5"/>
+      </svg>
+      <div class="demo"><div class="dot"></div></div>
+      <div class="desc">Decelerates into rest. Used for: enter, focus, hover, dropdown, toast in.</div>
+    </div>
+
+    <div class="ease e-io">
+      <div class="hd">
+        <span class="name">--ease-in-out</span>
+        <span class="curve">cubic-bezier(0.65, 0, 0.35, 1)</span>
+      </div>
+      <svg viewBox="0 0 200 80" preserveAspectRatio="none">
+        <line class="grid" x1="0" y1="40" x2="200" y2="40"/>
+        <line class="grid" x1="100" y1="0" x2="100" y2="80"/>
+        <path class="line" d="M 0 76 C 130 76, 70 4, 200 4"/>
+        <circle cx="200" cy="4" r="2.5"/>
+      </svg>
+      <div class="demo"><div class="dot"></div></div>
+      <div class="desc">Symmetric. Used for: sheets, modals, page transitions, anything reversible.</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Duration scale — 3 only</div>
+    <div class="note">If a transition doesn't fit one of these, it's wrong. Most UI is <b>--dur-fast</b>. Reserve <b>--dur-slow</b> for full-screen choreography.</div>
+  </div>
+
+  <div class="dur-grid">
+    <div class="dur d-fast">
+      <div class="name">--dur-fast</div>
+      <div class="ms">120ms</div>
+      <div class="bar"><i></i></div>
+      <div class="use">Hover, focus, toggle, color change, small UI shifts.</div>
+    </div>
+    <div class="dur d-base">
+      <div class="name">--dur-base</div>
+      <div class="ms">200ms</div>
+      <div class="bar"><i></i></div>
+      <div class="use">Dropdowns, popovers, tooltips, list-item enter/exit.</div>
+    </div>
+    <div class="dur d-slow">
+      <div class="name">--dur-slow</div>
+      <div class="ms">320ms</div>
+      <div class="bar"><i></i></div>
+      <div class="use">Sheets, modals, page transitions, large layout shifts.</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Recommended pairings — what to pick</div>
+  </div>
+
+  <div class="use-tbl">
+    <div class="use-row"><span class="what">Hover / focus</span><span class="tok">fast · out</span><span class="why">Feels instant; never blocks input.</span></div>
+    <div class="use-row"><span class="what">Dropdown / menu open</span><span class="tok">base · out</span><span class="why">Acknowledges the surface arriving without delaying.</span></div>
+    <div class="use-row"><span class="what">Toast / notification</span><span class="tok">base · out</span><span class="why">Slide-in, fade-out on dismiss.</span></div>
+    <div class="use-row"><span class="what">Modal / sheet</span><span class="tok">slow · in-out</span><span class="why">Symmetric — the user must perceive both directions.</span></div>
+    <div class="use-row"><span class="what">Page / route change</span><span class="tok">slow · in-out</span><span class="why">Same reasoning as sheets.</span></div>
+    <div class="use-row"><span class="what">Transfer progress bar</span><span class="tok">none · linear</span><span class="why">Real data — don't ease real numbers, the bar's job is to tell the truth.</span></div>
+    <div class="use-row"><span class="what">Focus-ring on TV</span><span class="tok">fast · out</span><span class="why">Match remote-input speed; lag is the #1 TV-UX defect.</span></div>
+  </div>
+
+</div>
+</body></html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<title>put.io design preview</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .card { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .head { display: flex; align-items: baseline; gap: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+  .head .ix { font-family: var(--font-ui-mono); font-size: 11px; color: var(--yellow-solid); letter-spacing: 0.04em; }
+  .head .t { font-size: 15px; font-weight: 500; color: var(--text); }
+  .head .n { margin-left: auto; font-size: 12px; color: var(--text-secondary); }
+  .note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
+  .note b { color: var(--text); }
+  .note code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11.5px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: stretch; }
+
+  /* Stage — a fake app-bg with hint of page content under the scrim */
+  .stage {
+    position: relative;
+    background: var(--app-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    height: 360px;
+  }
+  .stage .ghost {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, transparent 0 24px, var(--component-bg) 24px 60px, transparent 60px 86px, var(--component-bg) 86px 78%, transparent 78%),
+      linear-gradient(to bottom, transparent 0 18px, var(--line) 18px 19px, transparent 19px);
+    background-size: 100% 46px;
+    background-repeat: repeat-y;
+    opacity: 0.4;
+  }
+  .stage .scrim {
+    position: absolute; inset: 0;
+    background: var(--overlay-full);
+    z-index: 1;
+  }
+
+  /* Buttons — production parity */
+  .btn {
+    height: 32px; padding: 0 14px;
+    border: 1px solid transparent; border-radius: var(--radius);
+    font-family: var(--font-sans); font-weight: var(--fw-medium); font-size: var(--fs-base);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    cursor: pointer; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+  }
+  .btn.primary { background: var(--yellow-solid); border-color: var(--yellow-solid); color: #000; }
+  .btn.primary:hover { background: var(--yellow-solid-hover); border-color: var(--yellow-solid-hover); }
+  .btn.default { background: var(--component-bg); border-color: var(--border); color: var(--text); }
+  .btn.default:hover { background: var(--component-bg-hover); border-color: var(--border-hover); }
+  .btn.danger  { background: var(--red-solid); border-color: var(--red-solid); color: #fff; }
+  .btn.danger:hover { background: var(--red-solid-hover); border-color: var(--red-solid-hover); }
+
+  /* ── Centered dialog (Share) ── */
+  .dialog {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 360px;
+    background: var(--component-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    z-index: 2;
+  }
+  .dialog .body { padding: 20px 22px 8px; }
+  .dialog h3 { font-size: 16px; font-weight: 500; color: var(--text); margin: 0 0 6px; letter-spacing: -0.005em; }
+  .dialog p  { font-size: 13.5px; color: var(--text-secondary); line-height: 1.55; margin: 0 0 16px; }
+  .dialog .ft { padding: 14px 22px 18px; display: flex; gap: 10px; justify-content: flex-end; }
+  .dialog .meta {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--line);
+    padding: 12px 22px;
+    display: flex; justify-content: space-between;
+    font-family: var(--font-ui-mono); font-size: 11.5px; color: var(--text-secondary);
+  }
+  .dialog .meta b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .field {
+    width: 100%; height: 34px; padding: 0 12px; box-sizing: border-box;
+    border-radius: var(--radius-sm); border: 1px solid var(--border);
+    background: var(--app-bg); color: var(--text);
+    font-family: var(--font-sans); font-size: 13.5px;
+  }
+  .field-label {
+    display: block; margin-bottom: 6px;
+    font-size: 12.5px; font-weight: 500;
+    color: var(--text);
+  }
+
+  /* ── Right sheet (New transfer) ── */
+  .sheet {
+    position: absolute; top: 0; right: 0; bottom: 0;
+    width: 320px;
+    background: var(--component-bg);
+    border-left: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    padding: 20px 20px 18px;
+    display: flex; flex-direction: column; gap: 14px;
+    box-sizing: border-box;
+    z-index: 2;
+  }
+  .sheet .hd { display: flex; justify-content: space-between; align-items: center; }
+  .sheet .hd .ttl { font-size: 14px; font-weight: 500; color: var(--text); }
+  .sheet .hd .close {
+    width: 26px; height: 26px;
+    background: transparent; color: var(--text-secondary);
+    border: 0; border-radius: var(--radius-sm); cursor: pointer;
+    display: grid; place-items: center;
+  }
+  .sheet .hd .close:hover { background: var(--component-bg-hover); color: var(--text); }
+  .sheet .row { display: flex; flex-direction: column; gap: 4px; }
+  .sheet textarea {
+    width: 100%; padding: 10px 12px; box-sizing: border-box;
+    border-radius: var(--radius-sm); border: 1px solid var(--border);
+    background: var(--app-bg); color: var(--text);
+    font-family: var(--font-sans); font-size: 13px;
+    min-height: 72px; resize: vertical; line-height: 1.5;
+  }
+  .sheet .ft { margin-top: auto; display: flex; gap: 10px; justify-content: flex-end; padding-top: 12px; border-top: 1px solid var(--line); }
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 0;
+  }
+  .toggle {
+    width: 36px; height: 22px; background: var(--component-bg-active);
+    border: 1px solid var(--border); border-radius: var(--radius-pill);
+    position: relative; cursor: pointer; flex-shrink: 0;
+  }
+  .toggle::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--text-secondary);
+  }
+  .toggle.on { background: var(--yellow-solid); border-color: var(--yellow-solid); }
+  .toggle.on::after { left: 16px; background: #000; }
+
+  /* ── Bottom action sheet ── */
+  .bottom {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    background: var(--component-bg);
+    border-top: 1px solid var(--border);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 8px 18px 18px;
+    box-shadow: var(--shadow-lg);
+    z-index: 2;
+  }
+  .bottom .handle { width: 36px; height: 4px; background: var(--border-hover); border-radius: var(--radius-pill); margin: 4px auto 12px; }
+  .bottom .item {
+    padding: 8px 4px 12px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 6px;
+    font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .bottom .opt {
+    display: grid; grid-template-columns: 22px 1fr;
+    gap: 14px; align-items: center;
+    padding: 9px 6px;
+    color: var(--text); cursor: pointer; border-radius: var(--radius-sm);
+    font-size: 14px;
+  }
+  .bottom .opt:hover { background: var(--component-bg-hover); }
+  .bottom .opt i { font-size: 18px; color: var(--text-secondary); line-height: 1; }
+  .bottom .opt.destructive { color: var(--red-text-secondary); }
+  .bottom .opt.destructive i { color: var(--red-solid); }
+
+  /* ── Confirm modal ── */
+  .confirm {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 340px;
+    background: var(--component-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    z-index: 2;
+  }
+  .confirm .body {
+    padding: 24px 22px 6px;
+    text-align: center;
+  }
+  .confirm .glyph {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--red-component-bg); color: var(--red-solid);
+    display: grid; place-items: center;
+    margin: 0 auto 14px;
+  }
+  .confirm .glyph i { font-size: 22px; }
+  .confirm h3 { font-size: 16px; font-weight: 500; color: var(--text); margin: 0 0 6px; }
+  .confirm p { font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin: 0 0 16px; }
+  .confirm .ft { padding: 14px 22px 18px; display: flex; gap: 10px; justify-content: center; }
+
+  /* anatomy */
+  .anat {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    background: var(--bg-secondary);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .anat .cell { padding: 14px 16px; border-left: 1px solid var(--line); background: var(--bg-secondary); }
+  .anat .cell:first-child { border-left: 0; }
+  .anat .k { font-size: 11px; font-weight: 500; color: var(--yellow-solid); margin-bottom: 6px; }
+  .anat .v { font-family: var(--font-mono); font-size: 12px; color: var(--text); }
+  .anat .d { font-size: 11.5px; color: var(--text-secondary); margin-top: 3px; line-height: 1.5; }
+
+  .lucide-icon { width: 1em; height: 1em; display: inline-block; vertical-align: -0.125em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+</style></head>
+<body>
+<div class="card">
+
+  <div class="head">
+    <span class="ix">01</span>
+    <span class="t">Overlays — dialog · sheet · bottom-sheet · confirm</span>
+    <span class="n">component-bg surface · overlay-full scrim</span>
+  </div>
+  <div class="note">
+    Four overlay shapes. All sit on the same <code>--overlay-full</code> scrim and use <b>step-3</b> (<code>--component-bg</code>) as their surface — clearly elevated above the step-1 <code>--app-bg</code> page. Border is <code>--border</code>. Buttons match the canonical <code>primary / default / danger</code> taxonomy.
+  </div>
+
+  <div class="grid">
+
+    <!-- Dialog -->
+    <div class="stage">
+      <div class="ghost"></div>
+      <div class="scrim"></div>
+      <div class="dialog">
+        <div class="body">
+          <h3>Share with a friend</h3>
+          <p>Send a private link to anyone — they don't need a put.io account to watch or download.</p>
+          <div>
+            <span class="field-label">Link</span>
+            <input aria-label="Preview input" class="field" value="put.io/v/3f9a-tears-of-steel" readonly/>
+          </div>
+        </div>
+        <div class="meta">
+          <span>Expires in <b>7 days</b></span>
+          <span><b>0</b> views</span>
+        </div>
+        <div class="ft">
+          <button aria-label="Preview action" class="btn default">Copy link</button>
+          <button aria-label="Preview action" class="btn primary">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sheet -->
+    <div class="stage">
+      <div class="ghost"></div>
+      <div class="scrim"></div>
+      <div class="sheet">
+        <div class="hd">
+          <div class="ttl">New transfer</div>
+          <button aria-label="Preview action" class="close"><svg class="lucide-icon" style="font-size:14px;" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg></button>
+        </div>
+        <div class="row">
+          <span class="field-label">Magnet · URL · .torrent</span>
+          <textarea aria-label="Preview text area">magnet:?xt=urn:btih:a1b2c3d4e5f6&amp;dn=The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND</textarea>
+        </div>
+        <div class="row">
+          <span class="field-label">Destination folder</span>
+          <input aria-label="Preview input" class="field" value="/homework_answers_DONT_DELETE" />
+        </div>
+        <div class="toggle-row">
+          <span class="field-label" style="margin: 0;">Notify when done</span>
+          <div class="toggle on"></div>
+        </div>
+        <div class="ft">
+          <button aria-label="Preview action" class="btn default">Cancel</button>
+          <button aria-label="Preview action" class="btn primary">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom sheet -->
+    <div class="stage">
+      <div class="ghost"></div>
+      <div class="scrim"></div>
+      <div class="bottom">
+        <div class="handle"></div>
+        <div class="item">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv · 3.42 GB</div>
+        <div class="opt"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg><span>Play here</span></div>
+        <div class="opt"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg><span>Cast to TV</span></div>
+        <div class="opt"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg><span>Download to device</span></div>
+        <div class="opt destructive"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg><span>Move to trash</span></div>
+      </div>
+    </div>
+
+    <!-- Confirm -->
+    <div class="stage">
+      <div class="ghost"></div>
+      <div class="scrim"></div>
+      <div class="confirm">
+        <div class="body">
+          <div class="glyph"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg></div>
+          <h3>Delete 4 items forever?</h3>
+          <p>These files won't go to Trash. This action can't be undone.</p>
+        </div>
+        <div class="ft">
+          <button aria-label="Preview action" class="btn default">Cancel</button>
+          <button aria-label="Preview action" class="btn danger">Delete forever</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="anat">
+    <div class="cell">
+      <div class="k">Surface</div>
+      <div class="v">--component-bg</div>
+      <div class="d">step 3 — above app-bg</div>
+    </div>
+    <div class="cell">
+      <div class="k">Scrim</div>
+      <div class="v">--overlay-full</div>
+      <div class="d">hsla(0,0%,0%,0.565)</div>
+    </div>
+    <div class="cell">
+      <div class="k">Elevation</div>
+      <div class="v">--shadow-lg</div>
+      <div class="d">0 16px 40px / 0.6</div>
+    </div>
+    <div class="cell">
+      <div class="k">Nested input</div>
+      <div class="v">--app-bg fill</div>
+      <div class="d">drops to step 1 inside</div>
+    </div>
+  </div>
+
+</div>
+</body></html>

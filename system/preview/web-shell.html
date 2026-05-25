@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<title>put.io design preview</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--html-bg); font-family: var(--font-sans); margin: 0; }
+  .frame {
+    width: 100%; max-width: 1180px; margin: 0 auto;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    display: grid; grid-template-columns: 240px 1fr;
+    min-height: 540px;
+  }
+
+  /* ── Sidebar ── */
+  .side {
+    background: var(--bg);
+    border-right: 1px solid var(--line);
+    padding: 18px 12px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .side .brand {
+    display: flex; align-items: baseline; gap: 0; padding: 6px 10px 18px;
+    font-size: 18px; font-weight: 700; letter-spacing: -0.025em;
+  }
+  .side .brand .d { color: var(--yellow-solid); }
+  .side .sec {
+    font-size: 11px; font-weight: 500;
+    color: var(--text-secondary);
+    padding: 14px 10px 6px;
+  }
+  .side .li {
+    display: flex; align-items: center; gap: 10px;
+    height: 30px; padding: 0 10px; border-radius: 5px;
+    font-size: 13.5px; color: var(--text);
+    cursor: pointer;
+  }
+  .side .li:hover { background: var(--list-item-bg-hover); }
+  .side .li.on { background: var(--list-item-bg-active); color: var(--yellow-solid); }
+  .side .li i { font-size: 16px; line-height: 1; color: var(--text-secondary); flex-shrink: 0; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; }
+  .side .li.on i { color: var(--yellow-solid); }
+  .side .li .count {
+    margin-left: auto; font-family: var(--font-ui-mono); font-size: 10.5px;
+    color: var(--text-secondary); font-variant-numeric: tabular-nums;
+  }
+  .side .li.on .count { color: var(--yellow-text-secondary); }
+  .side .li .badge {
+    margin-left: auto; height: 16px; min-width: 16px; padding: 0 5px;
+    background: var(--yellow-solid); color: #000; border-radius: 999px;
+    font-family: var(--font-ui-mono); font-size: 9.5px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+
+  .side .stor {
+    margin-top: auto; padding: 12px 10px;
+    border-top: 1px solid var(--line);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .side .stor .hd { display: flex; justify-content: space-between; align-items: baseline; }
+  .side .stor .lbl { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
+  .side .stor .free { font-family: var(--font-ui-mono); font-size: 11px; color: var(--text); font-variant-numeric: tabular-nums; }
+  .side .stor .free b { color: var(--green-text-secondary); }
+  .side .stor .track { height: 4px; background: var(--component-bg); border-radius: 999px; overflow: hidden; }
+  .side .stor .track i { display:block; height:100%; width: 22%; background: var(--green-solid); }
+  .side .stor .meta { font-family: var(--font-ui-mono); font-size: 10.5px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .side .user { display:flex; align-items: center; gap: 8px; padding: 8px 10px; border-top: 1px solid var(--line); margin-top: 4px; }
+  .side .user .avi { width: 22px; height: 22px; border-radius: 50%; background: var(--yellow-solid); color: #000; font-family: var(--font-sans); font-size: 10px; font-weight: 700; display: grid; place-items: center; }
+  .side .user .nm { font-size: 13px; color: var(--text); }
+
+  /* ── Main ── */
+  .main { display: flex; flex-direction: column; min-width: 0; }
+  .topbar {
+    height: 56px; border-bottom: 1px solid var(--line);
+    display: grid; grid-template-columns: auto 1fr auto auto; gap: 14px;
+    align-items: center; padding: 0 22px;
+  }
+  .topbar .crumbs {
+    font-family: var(--font-sans); font-size: 14px; color: var(--text);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .topbar .crumbs .sep { color: var(--text-secondary); }
+  .topbar .crumbs .here { color: var(--text); font-weight: 500; }
+  .topbar .crumbs .x { color: var(--text-secondary); }
+  .topbar .search {
+    height: 30px; padding: 0 12px;
+    background: var(--component-bg); border-radius: 5px;
+    display: flex; align-items: center; gap: 10px;
+    width: 320px;
+  }
+  .topbar .search input { background: none; border: 0; outline: 0; color: var(--text); font-size: 13px; flex: 1; }
+  .topbar .search svg { width: 13px; height: 13px; color: var(--text-secondary); }
+  .topbar .search .kbd { font-family: var(--font-ui-mono); font-size: 10px; color: var(--text-secondary); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; }
+  .topbar .btn-ghost { height: 30px; padding: 0 10px; background: transparent; border: 0; color: var(--text-secondary); display:flex; align-items:center; gap: 6px; cursor: pointer; font-size: 13px; }
+  .topbar .btn-y {
+    height: 30px; padding: 0 14px; border-radius: 5px; border: 0; cursor: pointer;
+    background: var(--yellow-solid); color: #000;
+    font-family: var(--font-sans); font-size: 12.5px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .topbar .btn-y svg { width: 12px; height: 12px; }
+
+  .toolbar {
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: center; gap: 14px;
+    padding: 12px 22px; border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .toolbar .checkbox { width: 14px; height: 14px; border: 1.5px solid var(--border); border-radius: 3px; }
+  .toolbar .sel {
+    font-size: 12px; font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .toolbar .right { display: flex; gap: 6px; align-items: center; }
+  .toolbar .drop {
+    height: 26px; padding: 0 10px; background: var(--component-bg);
+    color: var(--text); border-radius: 4px; font-size: 12px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .toolbar .drop i { font-size: 11px; color: var(--text-secondary); }
+  .toolbar .seg {
+    display: flex; padding: 2px; background: var(--component-bg); border-radius: var(--radius-sm); gap: 2px;
+  }
+  .toolbar .seg .sb { width: 26px; height: 22px; display: grid; place-items: center; color: var(--text-secondary); border-radius: 3px; }
+  .toolbar .seg .sb.on { background: var(--bg); color: var(--text); }
+  .toolbar .seg i { font-size: 13px; line-height: 1; }
+
+  /* ── File grid ── */
+  .files {
+    flex: 1; padding: 4px 22px 22px; overflow: hidden;
+    display: grid; grid-template-columns: 22px 22px 1fr 100px 100px 28px;
+    gap: 4px 14px; align-content: start;
+  }
+  .files .hd-cell {
+    padding: 8px 0 6px; font-size: 11px; font-weight: 500;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--line);
+    grid-column: span 1;
+  }
+  .files .hd-cell .arr { font-size: 8px; vertical-align: middle; margin-left: 4px; color: var(--yellow-solid); }
+  .files .row { display: contents; }
+  .files .cell {
+    padding: 9px 0; align-self: center;
+    font-size: 13.5px; color: var(--text);
+    border-bottom: 1px solid var(--line);
+  }
+  .files .cell.right { text-align: right; font-family: var(--font-ui-mono); font-size: 11.5px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .files .cell.menu { color: var(--text-secondary); text-align: center; font-family: var(--font-ui-mono); font-size: 14px; }
+  .files .row.sel .cell { background: var(--list-item-bg-active); }
+  .files i.fldr { font-size: 16px; color: var(--yellow-solid); line-height: 1; align-self: center; }
+  .files i.file-i { font-size: 16px; color: var(--text-secondary); line-height: 1; align-self: center; }
+  .files i.file-i.audio { color: var(--yellow-solid); }
+  .files .cb { width: 12px; height: 12px; border: 1.4px solid var(--border); border-radius: 2.5px; align-self: center; justify-self: center; }
+  .files .cb.on { background: var(--yellow-solid); border-color: var(--yellow-solid); position: relative; }
+  .files .cb.on::after { content:''; position:absolute; left:2.5px; top:0; width: 3.5px; height: 7px; border: solid #000; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+
+  .lucide-icon { width: 1em; height: 1em; display: inline-block; vertical-align: -0.125em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+</style></head>
+<body>
+
+<div class="frame">
+
+  <aside class="side">
+    <div class="brand">put<span class="d">.</span>io</div>
+
+    <div class="li on">
+      <svg class="lucide-icon" style="color: var(--yellow-solid);" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      <span>Files</span>
+      <span class="count">11 TB</span>
+    </div>
+    <div class="li">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      <span>Transfers</span>
+      <span class="badge">3</span>
+    </div>
+    <div class="li">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      <span>RSS</span>
+      <span class="count">2</span>
+    </div>
+    <div class="li">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      <span>Sharing</span>
+    </div>
+    <div class="li">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      <span>History</span>
+    </div>
+    <div class="li">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      <span>Trash</span>
+    </div>
+
+    <div class="sec">Settings</div>
+    <div class="li">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      <span>Preferences</span>
+    </div>
+    <div class="li">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      <span>Billing</span>
+    </div>
+
+    <div class="stor">
+      <div class="hd"><span class="lbl">Storage</span><span class="free"><b>39 TB</b> free</span></div>
+      <div class="track"><i></i></div>
+      <div class="meta">11 TB of 50 TB used</div>
+    </div>
+    <div class="user">
+      <div class="avi">A</div>
+      <span class="nm">user01</span>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="crumbs">
+        <span class="x">homework_answers_DONT_DELETE</span>
+        <span class="sep">/</span>
+        <span class="x">2024</span>
+        <span class="sep">/</span>
+        <span class="here">Q1</span>
+      </div>
+      <div class="search">
+        <svg class="lucide-icon" style="font-size: 14px; color: var(--text-secondary);" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+        <input placeholder="Search files and folders" />
+        <span class="kbd">/</span>
+      </div>
+      <button aria-label="Preview action" class="btn-ghost">
+        <svg class="lucide-icon" style="font-size: 14px;" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+        Invite
+      </button>
+      <button aria-label="Preview action" class="btn-y">
+        <svg class="lucide-icon" style="font-size: 14px;" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+        New transfer
+      </button>
+    </div>
+
+    <div class="toolbar">
+      <div style="display:flex; gap: 14px; align-items:center;">
+        <div class="checkbox"></div>
+        <span class="sel">3 selected</span>
+        <div class="drop">Actions <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg></div>
+        <div class="drop">Move to… <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg></div>
+      </div>
+      <div></div>
+      <div class="right">
+        <div class="drop">Date added <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg></div>
+        <div class="seg">
+          <div class="sb on" title="List"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg></div>
+          <div class="sb" title="Grid"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="files">
+      <div class="hd-cell"></div>
+      <div class="hd-cell"></div>
+      <div class="hd-cell">Name <span class="arr">▼</span></div>
+      <div class="hd-cell">Size</div>
+      <div class="hd-cell">Modified</div>
+      <div class="hd-cell"></div>
+
+      <div class="row sel">
+        <div class="cell"><div class="cb on"></div></div>
+        <div class="cell"><svg class="lucide-icon fldr" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg></div>
+        <div class="cell">January</div>
+        <div class="cell right">—</div>
+        <div class="cell right">Mar 14</div>
+        <div class="cell menu">⋯</div>
+      </div>
+      <div class="row sel">
+        <div class="cell"><div class="cb on"></div></div>
+        <div class="cell"><svg class="lucide-icon fldr" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg></div>
+        <div class="cell">February</div>
+        <div class="cell right">—</div>
+        <div class="cell right">Mar 12</div>
+        <div class="cell menu">⋯</div>
+      </div>
+      <div class="row">
+        <div class="cell"><div class="cb"></div></div>
+        <div class="cell"><svg class="lucide-icon fldr" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg></div>
+        <div class="cell">March</div>
+        <div class="cell right">—</div>
+        <div class="cell right">Today</div>
+        <div class="cell menu">⋯</div>
+      </div>
+      <div class="row sel">
+        <div class="cell"><div class="cb on"></div></div>
+        <div class="cell"><svg class="lucide-icon file-i" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg></div>
+        <div class="cell">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div>
+        <div class="cell right">3.42 GB</div>
+        <div class="cell right">Mar 14</div>
+        <div class="cell menu">⋯</div>
+      </div>
+      <div class="row">
+        <div class="cell"><div class="cb"></div></div>
+        <div class="cell"><svg class="lucide-icon file-i" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg></div>
+        <div class="cell">tears_of_steel.mkv</div>
+        <div class="cell right">1.20 GB</div>
+        <div class="cell right">Feb 28</div>
+        <div class="cell menu">⋯</div>
+      </div>
+      <div class="row">
+        <div class="cell"><div class="cb"></div></div>
+        <div class="cell"><svg class="lucide-icon file-i audio" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg></div>
+        <div class="cell">ambient-session-03.mp3</div>
+        <div class="cell right">72.4 MB</div>
+        <div class="cell right">Feb 29</div>
+        <div class="cell menu">⋯</div>
+      </div>
+      <div class="row">
+        <div class="cell"><div class="cb"></div></div>
+        <div class="cell"><svg class="lucide-icon file-i" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg></div>
+        <div class="cell">Invoices Q1 2026.pdf</div>
+        <div class="cell right">210 kB</div>
+        <div class="cell right">Mar 07</div>
+        <div class="cell menu">⋯</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body></html>

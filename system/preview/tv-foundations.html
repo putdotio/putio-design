@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<title>put.io design preview</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../tv-shell.css">
+<script src="./_resize.js" defer></script>
+<style>
+  /* Preview chrome — sits OUTSIDE the artboard.
+     The artboard itself uses canonical tvos.css unchanged. */
+  html, body { background: #0a0a0a; margin: 0; font-family: var(--font-sans); }
+  .card { padding: 24px; display: flex; flex-direction: column; gap: 22px; color: var(--text); }
+  .label { font-size: 12.5px; font-weight: 500; color: var(--text); }
+  .note  { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 720px; }
+  .note b { color: var(--text); }
+  .src  { font-family: var(--font-mono); font-size: 11px; color: var(--yellow-solid); }
+
+  /* Artboard — 16:9 frame that uses canonical .tv styles inside */
+  .artboard {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.45), 0 0 0 1px var(--line);
+  }
+  .artboard .tv { position: absolute; inset: 0; }
+
+  /* Spec strip below artboard */
+  .spec { background: hsl(0,0%,11%); border: 1px solid hsl(0,0%,18%);
+    border-radius: 10px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    overflow: hidden;
+  }
+  .spec .cell { padding: 14px 16px; border-left: 1px solid hsl(0,0%,18%); background: hsl(0,0%,11%); }
+  .spec .cell:first-child { border-left: 0; }
+  .spec .k {
+    font-family: var(--font-ui-mono); font-size: 10px;
+    color: var(--yellow-solid); text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .spec .v { font-family: var(--font-mono); font-size: 13px; color: var(--text); }
+  .spec .d { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+
+  /* Platform-variation table */
+  .platforms { background: hsl(0,0%,11%); border: 1px solid hsl(0,0%,18%); border-radius: 10px; overflow: hidden; }
+  .ptr { display: grid; grid-template-columns: 160px repeat(4, 1fr); }
+  .ptr + .ptr { border-top: 1px solid hsl(0,0%,18%); }
+  .ptr > div { padding: 12px 14px; font-size: 12px; color: hsl(0,0%,72%); border-left: 1px solid hsl(0,0%,18%); line-height: 1.55; background: hsl(0,0%,11%); }
+  .ptr > div:first-child { border-left: 0; }
+  .ptr.head > div { background: hsl(0,0%,14%); font-size: 11px; color: hsl(0,0%,95%); font-weight: 600; }
+  .ptr .what { background: hsl(0,0%,11%); color: var(--yellow-solid); font-family: var(--font-ui-mono); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; font-weight: 500; }
+
+  /* Icon (inline SVG) */
+  .ico-svg { width: 1em; height: 1em; display: inline-block; vertical-align: middle; }
+
+  /* Force display-only — disable hover/interactive transitions so the
+     focused state stays focused in the static artboard. */
+  .artboard .row, .artboard .tab, .artboard .btn { transition: none !important; }
+  /* Canonical .tv is 1280x720 — keep the design grid; never let the title or row wrap */
+  .artboard .scr-title { white-space: nowrap; }
+  .artboard .row .title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Lucide-style icon helpers */
+  .ico-icon { font-size: 18px; line-height: 1; display: inline-flex; align-items: center; }
+  .chev-icon { font-size: 18px; line-height: 1; color: var(--text-secondary); }
+  .eye-icon { line-height: 1; }
+
+
+  .lucide-icon { width: 1em; height: 1em; display: inline-block; vertical-align: -0.125em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+</style></head>
+<body>
+<div class="card">
+
+  <div>
+    <div class="label">Foundations — the row is everything</div>
+    <div class="note">
+      Reference TV artboard rendered with <code class="src">tv-shell.css</code> — shared surface materials, row anatomy, and focus halo for token consumers. Platform repos own their native adapters.
+    </div>
+  </div>
+
+  <!-- =================================================================
+       ARTBOARD — Files (root) with row focus
+       ============================================================ -->
+  <div class="artboard">
+    <div class="tv">
+      <div class="tv-content">
+
+        <!-- Top nav — canonical floating glass tab bar -->
+        <div class="topnav">
+          <div class="topnav-logo">
+            <span class="brand"><span class="dotmark"></span>PUT.IO</span>
+          </div>
+          <div class="topnav-tabs">
+            <div class="tab active">
+              <svg class="lucide-icon ico-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+              <span>Files</span>
+            </div>
+            <div class="tab">
+              <svg class="ico" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5" stroke-linecap="round"/></svg>
+              <span>Search</span>
+            </div>
+            <div class="tab">
+              <svg class="lucide-icon ico-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+              <span>History</span>
+            </div>
+            <div class="tab">
+              <svg class="lucide-icon ico-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+              <span>Account</span>
+            </div>
+          </div>
+          <div class="topnav-right">
+            <span style="font-family: var(--font-mono);">user01</span>
+          </div>
+        </div>
+
+        <!-- Screen body -->
+        <div class="scr">
+          <div class="scr-head">
+            <h1 class="scr-title">Your Files</h1>
+            <div class="scr-spacer"></div>
+            <div class="scr-actions">
+              <div class="btn">
+                <svg class="lucide-icon" style="font-size:16px;" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+                <span>Refresh</span>
+              </div>
+              <div class="btn">
+                <svg class="lucide-icon" style="font-size:16px;" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+                <span>Name</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Focused row (canonical .row.focused: soft glass pill + yellow halo + drop shadow) -->
+          <div class="row focused">
+            <div class="ico">
+              <svg class="lucide-icon" style="font-size:30px;color:var(--yellow-solid);" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+            </div>
+            <div class="body">
+              <div class="title">__tears_of_steel__</div>
+              <div class="sub">544.89 MB</div>
+            </div>
+            <div class="trailing">
+              <svg class="lucide-icon chev-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="ico">
+              <svg class="lucide-icon" style="font-size:30px;color:var(--yellow-solid);" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+            </div>
+            <div class="body">
+              <div class="title">homework_answers_DONT_DELETE</div>
+              <div class="sub">38 items · 412 GB</div>
+            </div>
+            <div class="trailing">
+              <svg class="lucide-icon chev-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="ico" style="color: var(--text-2);">
+              <svg class="lucide-icon" style="font-size:30px;" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+            </div>
+            <div class="body">
+              <div class="title">The.Wire.S03E04.Hamsterdam.1080p.BluRay.x264-DEMAND.mkv</div>
+              <div class="sub">3.42 GB</div>
+            </div>
+            <div class="trailing">
+              <svg class="lucide-icon eye-icon" style="font-size:22px;opacity:0.55;" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="ico" style="color: var(--text-2);">
+              <svg class="lucide-icon" style="font-size:30px;" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+            </div>
+            <div class="body">
+              <div class="title">codex-live-success-1776851062062.txt</div>
+              <div class="sub">1.11 KB</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================================================================
+       SPEC STRIP — canonical row anatomy
+       ============================================================ -->
+  <div>
+    <div class="label">Row anatomy · lifted from <code class="src" style="font-size:10px;">tvos.css L308 – L360</code></div>
+  </div>
+  <div class="spec">
+    <div class="cell">
+      <div class="k">Padding</div>
+      <div class="v">18px 26px</div>
+      <div class="d">vertical · horizontal</div>
+    </div>
+    <div class="cell">
+      <div class="k">Radius</div>
+      <div class="v">18px</div>
+      <div class="d">soft glass pill</div>
+    </div>
+    <div class="cell">
+      <div class="k">Title</div>
+      <div class="v">22px · 500 · −0.005em</div>
+      <div class="d">GT America</div>
+    </div>
+    <div class="cell">
+      <div class="k">Sub</div>
+      <div class="v">16px · mono · tnum</div>
+      <div class="d">var(--text-2)</div>
+    </div>
+    <div class="cell">
+      <div class="k">Icon</div>
+      <div class="v">30×30 · #fdce45</div>
+      <div class="d">folders only · files muted</div>
+    </div>
+    <div class="cell">
+      <div class="k">Focused bg</div>
+      <div class="v">rgba(255,255,255,0.10)</div>
+      <div class="d">soft glass · no backdrop-filter on row</div>
+    </div>
+    <div class="cell">
+      <div class="k">Focused halo</div>
+      <div class="v">1px · #fdce45 · 18% alpha</div>
+      <div class="d">brand accent · subtle</div>
+    </div>
+    <div class="cell">
+      <div class="k">Focused shadow</div>
+      <div class="v">0 14px 30px / 0.45</div>
+      <div class="d">lifts off the dark surface</div>
+    </div>
+  </div>
+
+  <!-- =================================================================
+       CONTENT RULES — put.io is content-agnostic
+       ============================================================ -->
+  <div>
+    <div class="label">Content rules · put.io ships no metadata</div>
+    <div class="note">Filenames are the title. <b>Never</b> parse <code class="src" style="font-size:11px;">1080p / HEVC / WEB-DL</code> into pretty pills. Never invent a poster. Watched videos show the muted eye icon trailing — that's it.</div>
+  </div>
+
+  <div class="platforms">
+    <div class="ptr head">
+      <div>Rule</div>
+      <div>tvOS</div>
+      <div>Android TV</div>
+      <div>Roku</div>
+      <div>Smart-TV web</div>
+    </div>
+    <div class="ptr">
+      <div class="what">Filenames</div>
+      <div>raw, never parsed</div>
+      <div>raw, never parsed</div>
+      <div>raw, never parsed</div>
+      <div>raw, never parsed</div>
+    </div>
+    <div class="ptr">
+      <div class="what">Folder icon</div>
+      <div>#fdce45 stroke 1.5</div>
+      <div>#fdce45 stroke 1.5</div>
+      <div>#fdce45 stroke 1.5</div>
+      <div>#fdce45 stroke 1.5</div>
+    </div>
+    <div class="ptr">
+      <div class="what">Watched state</div>
+      <div>trailing eye · 55% alpha</div>
+      <div>trailing eye · 55% alpha</div>
+      <div>trailing eye · 55% alpha</div>
+      <div>trailing eye · 55% alpha</div>
+    </div>
+    <div class="ptr">
+      <div class="what">Quality / codec pills</div>
+      <div>never</div>
+      <div>never</div>
+      <div>never</div>
+      <div>never</div>
+    </div>
+    <div class="ptr">
+      <div class="what">Posters / artwork</div>
+      <div>never · except Continue Watching faux-gradient cards</div>
+      <div>never · same</div>
+      <div>never · flat tiles</div>
+      <div>never · flat tiles</div>
+    </div>
+  </div>
+
+</div>
+</body></html>

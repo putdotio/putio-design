@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<title>put.io design preview</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<style>
+  html, body { height: 100%; background: var(--app-bg); color: var(--text); }
+  .card { padding: 24px; display:flex; flex-direction:column; gap: 18px; }
+  .btn-row { display:flex; gap: 10px; align-items:center; flex-wrap: wrap; }
+  .label { font-size: 12.5px; font-weight: 500; color: var(--text); }
+  .label small { font-family: var(--font-mono); text-transform: none; letter-spacing: 0; color: var(--text-secondary); opacity: 0.7; }
+  .note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
+  .note code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11.5px; }
+  .note b { color: var(--text); font-weight: 500; }
+
+  /* ===========================================================
+     Button base — production parity with web consumer Button.tsx
+     - lg (default): h36 / 1.0px letter-spacing
+     - md:           h32 / 0.8px
+     - sm:           h28 / 0.6px
+     - xs:           h24 / 0.3px / font-size: 0 (smaller)
+     1px solid border same color as bg (so disabled/loading reads cleanly)
+  =========================================================== */
+  button {
+    /* fontScale via --tw-fs */
+    font-family: var(--font-sans);
+    font-weight: var(--fw-medium);                  /* 500 */
+    font-size: calc(var(--fs-base) * var(--tw-fs, 1));
+    height: calc(36px * var(--tw-fs, 1));
+    padding: 0 calc(12px * var(--tw-fs, 1));
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    white-space: nowrap;
+    transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    user-select: none;
+  }
+  button i { font-size: 14px; line-height: 1; display: inline-flex; }
+
+  /* Sizes — letter-spacing tracks size, per production */
+  .btn-md { height: calc(32px * var(--tw-fs, 1)) !important; padding: 0 calc(12px * var(--tw-fs, 1)) !important; letter-spacing: 0.8px; }
+  .btn-sm { height: calc(28px * var(--tw-fs, 1)) !important; padding: 0 calc(12px * var(--tw-fs, 1)) !important; letter-spacing: 0.6px; }
+  .btn-xs { height: calc(24px * var(--tw-fs, 1)) !important; padding: 0 calc(8px  * var(--tw-fs, 1)) !important; font-size: calc(var(--fs-xs) * var(--tw-fs, 1)) !important; letter-spacing: 0.3px; }
+  .btn-icon { width: calc(36px * var(--tw-fs, 1)) !important; padding: 0 !important; }
+  .btn-icon.btn-md { width: calc(32px * var(--tw-fs, 1)) !important; }
+  .btn-icon.btn-sm { width: calc(28px * var(--tw-fs, 1)) !important; }
+
+  /* Variants — matches web consumer Button.tsx useVariantColors() */
+  .btn-primary  { background: var(--yellow-solid); border-color: var(--yellow-solid); color: #000; }
+  .btn-primary:hover  { background: var(--yellow-solid-hover); border-color: var(--yellow-solid-hover); }
+  .btn-success  { background: var(--green-solid); border-color: var(--green-solid); color: #fff; }
+  .btn-success:hover  { background: var(--green-solid-hover); border-color: var(--green-solid-hover); }
+  .btn-danger   { background: var(--red-solid); border-color: var(--red-solid); color: #fff; }
+  .btn-danger:hover   { background: var(--red-solid-hover); border-color: var(--red-solid-hover); }
+  .btn-info     { background: var(--solid); border-color: var(--solid); color: #fff; }
+  .btn-info:hover     { background: var(--solid-hover); border-color: var(--solid-hover); }
+  .btn-invert   { background: var(--text); border-color: var(--border); color: var(--app-bg); }
+  .btn-invert:hover   { border-color: var(--border-hover); }
+  .btn-default  { background: var(--component-bg); border-color: var(--border); color: var(--text); }
+  .btn-default:hover  { background: var(--component-bg-hover); border-color: var(--border-hover); }
+
+  /* States */
+  button:disabled { opacity: 0.3; cursor: not-allowed; }
+  button:disabled:hover { background: inherit; border-color: inherit; filter: none; }
+  button.is-loading { color: transparent !important; position: relative; pointer-events: none; opacity: 0.75; }
+  button.is-loading::after {
+    content: ''; position: absolute; inset: 0; margin: auto;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 1.5px solid currentColor; border-top-color: transparent;
+    opacity: 0.75;
+    animation: spin 0.7s linear infinite;
+  }
+  .btn-primary.is-loading::after { color: #000; }
+  .btn-success.is-loading::after, .btn-danger.is-loading::after, .btn-info.is-loading::after, .btn-invert.is-loading::after { color: #fff; }
+  .btn-default.is-loading::after { color: var(--text); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Focus — tokens-driven yellow halo */
+  button:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+
+  /* Tip card */
+  .tip {
+    margin-top: 6px; padding: 14px 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--red-solid);
+    border-radius: var(--radius);
+    font-size: 12.5px; color: var(--text-secondary); line-height: 1.6;
+    max-width: 800px;
+  }
+  .tip b { color: var(--text); font-weight: 500; }
+  .tip code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11.5px; }
+
+  /* ===== Tweaks panel ===== */
+  #tweaks {
+    position: fixed; right: 20px; bottom: 20px; z-index: 9999;
+    width: 260px;
+    background: var(--component-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    font-family: var(--font-sans);
+    display: none; overflow: hidden;
+  }
+  #tweaks.on { display: block; }
+  #tweaks .hd {
+    padding: 11px 14px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary);
+  }
+  #tweaks .hd .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--yellow-solid); display:inline-block; margin-right: 7px; vertical-align: middle; }
+  #tweaks .bd { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
+  #tweaks .ctrl { display: flex; flex-direction: column; gap: 6px; }
+  #tweaks label {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  #tweaks label .val { color: var(--yellow-solid); font-weight: 700; }
+  #tweaks input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 4px; background: var(--line); border-radius: 999px; outline: none;
+  }
+  #tweaks input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--yellow-solid); cursor: pointer;
+    border: 2px solid var(--component-bg); box-shadow: 0 0 0 1px var(--yellow-solid);
+  }
+  #tweaks input[type=range]::-moz-range-thumb {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--yellow-solid); cursor: pointer;
+    border: 2px solid var(--component-bg); box-shadow: 0 0 0 1px var(--yellow-solid);
+  }
+  #tweaks .seg {
+    display: grid; grid-template-columns: 1fr 1fr;
+    background: var(--bg-secondary); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 2px; gap: 2px;
+  }
+  #tweaks .seg button {
+    height: auto; border: 0; background: transparent; color: var(--text-secondary);
+    font-family: var(--font-sans); font-size: 12px; font-weight: 500;
+    padding: 6px 10px; cursor: pointer; border-radius: 4px;
+    text-transform: none; letter-spacing: 0;
+    transition: background .12s, color .12s;
+  }
+  #tweaks .seg button.on { background: var(--component-bg-active); color: var(--text); }
+  #tweaks .seg button:hover:not(.on) { color: var(--text); }
+
+  /* ===== Tweak effects ===== */
+  body.tw-nocaps .card > .btn-row button:not(#tweaks button) { text-transform: none; letter-spacing: normal; }
+  body.tw-bold    .card > .btn-row button:not(#tweaks button) { font-weight: 700; }
+  body.tw-regular .card > .btn-row button:not(#tweaks button) { font-weight: 400; }
+
+  .lucide-icon { width: 1em; height: 1em; display: inline-block; vertical-align: -0.125em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+</style><script src="./_resize.js" defer></script>
+</head>
+<body>
+<div class="card">
+
+  <div class="label">Variants <small>· primary / success / danger / info / invert / default</small></div>
+  <div class="btn-row">
+    <button aria-label="Preview action" class="btn-primary">Go to app
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+    </button>
+    <button aria-label="Preview action" class="btn-success">Save changes</button>
+    <button aria-label="Preview action" class="btn-danger">Delete forever</button>
+    <button aria-label="Preview action" class="btn-info">Show more</button>
+    <button aria-label="Preview action" class="btn-invert">Invite a friend</button>
+    <button aria-label="Preview action" class="btn-default">Cancel</button>
+  </div>
+
+  <div class="label">Sizes <small>· lg 36 · md 32 · sm 28 · xs 24 — letter-spacing tracks size</small></div>
+  <div class="btn-row">
+    <button aria-label="Preview action" class="btn-primary">Large</button>
+    <button aria-label="Preview action" class="btn-primary btn-md">Medium</button>
+    <button aria-label="Preview action" class="btn-primary btn-sm">Small</button>
+    <button aria-label="Preview action" class="btn-primary btn-xs">Tiny</button>
+    <button class="btn-primary btn-icon" aria-label="Add">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+    </button>
+    <button class="btn-default btn-icon btn-md" aria-label="More">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+    </button>
+    <button class="btn-default btn-icon btn-sm" aria-label="Filter">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+    </button>
+  </div>
+
+  <div class="label">With icon <small>· secondary pattern</small></div>
+  <div class="btn-row">
+    <button aria-label="Preview action" class="btn-primary">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      Download
+    </button>
+    <button aria-label="Preview action" class="btn-default">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      Go to file
+    </button>
+    <button aria-label="Preview action" class="btn-danger btn-md">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      Delete
+    </button>
+  </div>
+
+  <div class="label">States <small>· hover · focus · disabled · loading</small></div>
+  <div class="btn-row">
+    <button aria-label="Preview action" class="btn-primary">Default</button>
+    <button aria-label="Preview action" class="btn-primary" disabled>Disabled</button>
+    <button aria-label="Preview action" class="btn-primary is-loading">Saving…</button>
+    <button aria-label="Preview action" class="btn-danger" disabled>Delete forever</button>
+    <button aria-label="Preview action" class="btn-danger is-loading">Deleting…</button>
+    <button aria-label="Preview action" class="btn-default">Tab to focus me</button>
+  </div>
+
+  <div class="tip">
+    <b>Accessibility floor.</b> White-on-green and white-on-red sit at 3.2–3.9 contrast — they only pass WCAG as <em>large text</em> (≥14px medium uppercase). <b>Never use <code>btn-sm</code> or <code>btn-xs</code> for <code>btn-success</code>, <code>btn-danger</code>, or <code>btn-info</code>.</b> For tight rows use <code>btn-primary</code> (yellow on black = 14:1 AAA at any size) or <code>btn-default</code>. See the <em>Accessibility audit</em> preview.
+  </div>
+</div>
+
+<aside id="tweaks" aria-label="Tweaks">
+  <div class="hd"><span><span class="dot"></span>Tweaks</span><span style="font-family:var(--font-sans);text-transform:none;letter-spacing:0;color:var(--text-secondary);font-weight:400;font-size:11px;">live</span></div>
+  <div class="bd">
+    <div class="ctrl">
+      <label>Roundness <span class="val" id="tw-r-val">6px</span></label>
+      <input aria-label="Preview input" type="range" id="tw-r" min="0" max="20" step="1">
+    </div>
+    <div class="ctrl">
+      <label>Font size <span class="val" id="tw-f-val">100%</span></label>
+      <input aria-label="Preview input" type="range" id="tw-f" min="80" max="140" step="2">
+    </div>
+    <div class="ctrl">
+      <label>All caps</label>
+      <div class="seg" id="tw-caps">
+        <button aria-label="Preview action" data-v="0">Off</button>
+        <button aria-label="Preview action" data-v="1">On</button>
+      </div>
+    </div>
+    <div class="ctrl">
+      <label>Weight</label>
+      <div class="seg" id="tw-wt">
+        <button aria-label="Preview action" data-v="regular">Regular</button>
+        <button aria-label="Preview action" data-v="bold">Bold</button>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<script>
+(() => {
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "roundness": 6,
+    "fontScale": 100,
+    "allCaps": true,
+    "weight": "medium"
+  }/*EDITMODE-END*/;
+
+  const state = { ...TWEAK_DEFAULTS };
+  const panel = document.getElementById('tweaks');
+  const rSlider = document.getElementById('tw-r');
+  const rVal    = document.getElementById('tw-r-val');
+  const fSlider = document.getElementById('tw-f');
+  const fVal    = document.getElementById('tw-f-val');
+  const capsSeg = document.getElementById('tw-caps');
+  const wtSeg   = document.getElementById('tw-wt');
+
+  function apply() {
+    const r = state.roundness;
+    document.documentElement.style.setProperty('--radius-sm', Math.max(0, r - 2) + 'px');
+    document.documentElement.style.setProperty('--radius',    r + 'px');
+    document.documentElement.style.setProperty('--radius-md', (r + 2) + 'px');
+    document.documentElement.style.setProperty('--radius-lg', (r + 4) + 'px');
+
+    document.documentElement.style.setProperty('--tw-fs', state.fontScale / 100);
+
+    document.body.classList.toggle('tw-nocaps',    !state.allCaps);
+    document.body.classList.toggle('tw-bold',    state.weight === 'bold');
+    document.body.classList.toggle('tw-regular', state.weight === 'regular');
+
+    rSlider.value = state.roundness;
+    rVal.textContent = state.roundness + 'px';
+    fSlider.value = state.fontScale;
+    fVal.textContent = state.fontScale + '%';
+    capsSeg.querySelectorAll('button').forEach(b =>
+      b.classList.toggle('on', (b.dataset.v === '1') === !!state.allCaps));
+    wtSeg.querySelectorAll('button').forEach(b =>
+      b.classList.toggle('on', b.dataset.v === state.weight));
+  }
+
+  function persist(patch) {
+    try { window.parent.postMessage({ type: '__edit_mode_set_keys', edits: patch }, '*'); } catch {}
+  }
+
+  rSlider.addEventListener('input', e => { state.roundness = +e.target.value; apply(); persist({ roundness: state.roundness }); });
+  fSlider.addEventListener('input', e => { state.fontScale = +e.target.value; apply(); persist({ fontScale: state.fontScale }); });
+  capsSeg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; state.allCaps = b.dataset.v === '1'; apply(); persist({ allCaps: state.allCaps }); });
+  wtSeg.addEventListener('click',   e => { const b = e.target.closest('button'); if (!b) return; state.weight = b.dataset.v; apply(); persist({ weight: state.weight }); });
+
+  window.addEventListener('message', (e) => {
+    const t = e.data && e.data.type;
+    if (t === '__activate_edit_mode')   panel.classList.add('on');
+    if (t === '__deactivate_edit_mode') panel.classList.remove('on');
+  });
+  try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch {}
+
+  apply();
+})();
+</script>
+</body></html>

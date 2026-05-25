@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<title>put.io design preview</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<style>
+  html, body { height: 100%; background: var(--bg); font-family: var(--font-sans); }
+  .card { padding: 24px; display:flex; flex-direction:column; gap: 22px; }
+  .label { font-size: 12.5px; font-weight: 500; color: var(--text); }
+  .note { font-size: 12px; color: var(--text-secondary); line-height: 1.5; max-width: 720px; }
+  .note b { color: var(--text); }
+  .row { display:flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+
+  /* Status pills — tied to transfer / sharing lifecycle, not file contents */
+  .pill {
+    display:inline-flex; align-items:center; gap: 6px; height: 22px; padding: 0 10px;
+    border-radius: 999px; font-size: 12px; font-weight: 500;
+    font-family: var(--font-sans);
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .p-dl  { background: var(--yellow-component-bg-hover); color: var(--yellow-text-secondary); }
+  .p-ok  { background: color-mix(in srgb, var(--green-solid) 15%, transparent); color: var(--green-text-secondary); }
+  .p-err { background: var(--red-component-bg); color: var(--red-text-secondary); }
+  .p-seed{ background: var(--component-bg); color: var(--text-secondary); }
+  .p-wait{ background: var(--bg-secondary); color: var(--text-secondary); border: 1px dashed var(--border); }
+
+  /* Filter chips — removable */
+  .chip {
+    display:inline-flex; align-items:center; gap: 6px; padding: 4px 10px;
+    border-radius: 999px; font-size: 12px; font-weight: 500;
+    border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text);
+    font-family: var(--font-sans);
+  }
+  .chip .x { width: 14px; height: 14px; border-radius:50%; background: var(--component-bg); display:flex; align-items:center; justify-content:center; color: var(--text-secondary); font-size: 10px; }
+  .chip.add { background: transparent; border-style: dashed; color: var(--text-secondary); }
+
+  /* Neutral tag pill — for user-defined labels only */
+  .tag {
+    display:inline-flex; align-items:center; gap: 4px; padding: 2px 8px;
+    border-radius: 3px; font-size: 11px; font-weight: 400;
+    font-family: var(--font-ui-mono); letter-spacing: 0.02em;
+    background: transparent; color: var(--text-secondary); border: 1px solid var(--border);
+  }
+  .tag.gold { color: var(--yellow-text-secondary); border-color: color-mix(in srgb, var(--yellow-solid) 55%, transparent); background: color-mix(in srgb, var(--yellow-solid) 10%, transparent); }
+
+  /* Do / don't */
+  .dont {
+    background: var(--bg-secondary); border: 1px dashed var(--border);
+    border-radius: 6px; padding: 14px 16px;
+    display:flex; gap: 16px; align-items: flex-start;
+  }
+  .dont .mark {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--red-component-bg-hover); color: var(--red-text-secondary);
+    display:flex; align-items:center; justify-content:center;
+    font-weight: 700; font-size: 12px; flex-shrink: 0;
+  }
+  .dont .copy { font-size: 12.5px; color: var(--text); line-height: 1.55; }
+  .dont .copy b { color: var(--text); }
+  .dont .copy code { font-family: var(--font-mono); font-size: 11.5px; background: var(--component-bg); padding: 1px 5px; border-radius: 2px; }
+
+  .lucide-icon { width: 1em; height: 1em; display: inline-block; vertical-align: -0.125em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+</style><script src="./_resize.js" defer></script>
+</head>
+<body>
+<div class="card">
+
+  <!-- Status pills -->
+  <div>
+    <div class="label">Status pills — transfer & share lifecycle</div>
+    <div class="note" style="margin-top: 4px;">
+      The only badges put.io renders. They describe what the <b>system</b> is doing, not what the file contains.
+    </div>
+    <div class="row">
+      <span class="pill p-wait"><span class="dot" style="background: var(--text-secondary)"></span>Queued</span>
+      <span class="pill p-dl"><span class="dot" style="background:var(--yellow-solid)"></span>Downloading</span>
+      <span class="pill p-ok"><span class="dot" style="background:var(--green-solid)"></span>Completed</span>
+      <span class="pill p-seed"><span class="dot" style="background: var(--text-secondary)"></span>Seeding</span>
+      <span class="pill p-err"><span class="dot" style="background:var(--red-solid)"></span>Failed</span>
+    </div>
+  </div>
+
+  <!-- Filter chips -->
+  <div>
+    <div class="label">Filter chips — user-applied facets</div>
+    <div class="note" style="margin-top: 4px;">
+      Chips filter by attributes we actually know: folder, date added, size, owner. Never by inferred type.
+    </div>
+    <div class="row">
+      <span class="chip">Added last 7 days <span class="x">×</span></span>
+      <span class="chip">&gt; 1 GB <span class="x">×</span></span>
+      <span class="chip">Shared with me <span class="x">×</span></span>
+      <span class="chip add">+ Add filter</span>
+    </div>
+  </div>
+
+  <!-- User tags -->
+  <div>
+    <div class="label">User tags — manual, optional</div>
+    <div class="note" style="margin-top: 4px;">
+      Tags are whatever the user writes. We don't assign them. Yellow variant is reserved for a single starred/pinned state.
+    </div>
+    <div class="row">
+      <span class="tag">keep</span>
+      <span class="tag">to-watch</span>
+      <span class="tag">work</span>
+      <span class="tag gold"><svg class="lucide-icon" style="font-size:11px;vertical-align:-1px;" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg> pinned</span>
+    </div>
+  </div>
+
+  <!-- Do not -->
+  <div>
+    <div class="label">Never do this</div>
+    <div style="display:flex; flex-direction:column; gap: 8px; margin-top: 6px;">
+      <div class="dont">
+        <div class="mark">✕</div>
+        <div class="copy">
+          <b>No quality / codec / source badges.</b> put.io is content-agnostic — we don't parse <code>1080p</code>,
+          <code>HEVC</code>, <code>WEB-DL</code> out of filenames. The filename itself is the label.
+        </div>
+      </div>
+      <div class="dont">
+        <div class="mark">✕</div>
+        <div class="copy">
+          <b>No "Watched" / "New" pills on files.</b> We don't track play state for badging purposes. Transfer-lifecycle pills only.
+        </div>
+      </div>
+      <div class="dont">
+        <div class="mark">✕</div>
+        <div class="copy">
+          <b>No genre, rating, or duration badges.</b> We have none of that metadata. If we ever do, it belongs in a detail panel, not as a list-row badge.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body></html>

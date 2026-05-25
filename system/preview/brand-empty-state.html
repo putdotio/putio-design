@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<title>put.io design preview</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<style>
+  html, body { height: 100%; background: hsl(0,0%,8.5%); color: hsl(0,0%,93%); font-family: var(--font-sans); margin: 0; }
+  .wrap { padding: 28px 32px 36px; display:flex; flex-direction:column; gap: 28px; }
+
+  .section-label {
+    font-family: var(--font-ui-mono); font-size: 10px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: .08em;
+    color: hsl(0,0%,62%);
+    padding-bottom: 10px; border-bottom: 1px solid hsl(0,0%,17%);
+    display:flex; align-items:center; gap: 10px;
+  }
+  .section-label .num { color: hsl(0,0%,90%); }
+  .section-label .hint { margin-left:auto; letter-spacing: .04em; text-transform: none; color: hsl(0,0%,55%); font-weight: 400; }
+
+  .intro {
+    font-size: 13px; color: hsl(0,0%,72%); line-height: 1.6;
+    max-width: 760px;
+  }
+  .intro b { color: hsl(0,0%,92%); font-weight: 700; }
+
+  /* Grid of empty-state cards */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .state {
+    background: hsl(0,0%,11%);
+    border: 1px solid hsl(0,0%,17%);
+    border-radius: 8px;
+    overflow: hidden;
+    display:flex; flex-direction:column;
+  }
+
+  /* Context bar — tells us what screen this is */
+  .state .ctx {
+    display:flex; align-items:center; justify-content: space-between;
+    padding: 10px 14px;
+    background: hsl(0,0%,9%);
+    border-bottom: 1px solid hsl(0,0%,16%);
+    font-family: var(--font-ui-mono); font-size: 10px;
+    letter-spacing: .04em;
+    color: hsl(0,0%,58%);
+  }
+  .state .ctx .where { color: hsl(0,0%,82%); }
+  .state .ctx .tone {
+    padding: 2px 7px; border-radius: 3px;
+    font-size: 9px; letter-spacing: .08em; text-transform: uppercase;
+  }
+  .tone-cheeky  { background: hsla(47, 100%, 55%, 0.14); color: var(--yellow-solid); }
+  .tone-instr   { background: hsla(210, 60%, 55%, 0.12); color: hsl(210,70%,75%); }
+  .tone-quiet   { background: hsl(0,0%,15%); color: hsl(0,0%,68%); }
+  .tone-error   { background: hsla(358, 75%, 59%, 0.14); color: hsl(358,85%,75%); }
+
+  /* The actual empty state — follows put.io style: mono kaomoji/glyph + hed + copy */
+  .state .empty {
+    padding: 44px 28px 40px;
+    text-align:center;
+    display:flex; flex-direction:column;
+    align-items:center; gap: 12px;
+    min-height: 200px;
+    justify-content: center;
+  }
+  .state .glyph {
+    font-family: var(--font-mono);
+    font-size: 32px;
+    color: hsl(0,0%,48%);
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+    line-height: 1.4;
+    min-height: 44px;
+    white-space: nowrap;
+  }
+  .state h3 {
+    font-family: var(--font-sans);
+    font-size: 17px; font-weight: 500; color: hsl(0,0%,95%);
+    margin: 0;
+    letter-spacing: -.005em;
+  }
+  .state p {
+    font-family: var(--font-sans);
+    font-size: 13.5px; color: hsl(0,0%,70%);
+    max-width: 440px; margin: 0; line-height: 1.55;
+  }
+  .state a {
+    color: var(--yellow-solid); text-decoration: none; font-weight: 500;
+  }
+  .state a:hover { text-decoration: underline; }
+
+  .state .cta-row {
+    display:flex; gap: 8px; margin-top: 8px;
+  }
+  /* Buttons — exact mirror of components-buttons.html (production parity).
+     Default = lg (h36 · 1.0px letter-spacing). Same paddings, weights, transitions. */
+  button.btn {
+    -webkit-appearance: none; appearance: none;
+    font-family: var(--font-sans);
+    font-weight: var(--fw-medium);
+    font-size: var(--fs-base);
+    height: 36px;
+    padding: 0 12px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    white-space: nowrap;
+    transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    user-select: none;
+  }
+  button.btn.btn-primary { background: var(--yellow-solid); border-color: var(--yellow-solid); color: #000; }
+  button.btn.btn-primary:hover { background: var(--yellow-solid-hover); border-color: var(--yellow-solid-hover); }
+  button.btn.btn-danger  { background: var(--red-solid); border-color: var(--red-solid); color: #fff; }
+  button.btn.btn-danger:hover { background: var(--red-solid-hover); border-color: var(--red-solid-hover); }
+  button.btn.btn-default { background: var(--component-bg); color: var(--text); border-color: var(--border); }
+  button.btn.btn-default:hover { background: var(--component-bg-hover); border-color: var(--border-hover); }
+  button.btn:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+
+  .state .hint-code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: hsl(0,0%,65%);
+    background: hsl(0,0%,8%);
+    border: 1px solid hsl(0,0%,16%);
+    border-radius: 3px;
+    padding: 6px 10px;
+    margin-top: 6px;
+  }
+
+  /* Principles */
+  .principles {
+    background: hsl(0,0%,9.5%);
+    border: 1px dashed hsl(0,0%,20%);
+    border-radius: 8px;
+    padding: 22px 24px;
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 22px;
+    font-size: 13px; color: hsl(0,0%,72%); line-height: 1.6;
+  }
+  .principles .meta { font-family: var(--font-ui-mono); font-size: 10px; color: hsl(0,0%,58%); letter-spacing: .06em; text-transform: uppercase; }
+  .principles ul { margin: 0; padding: 0 0 0 18px; display:flex; flex-direction:column; gap: 8px; }
+  .principles b { color: hsl(0,0%,92%); font-weight: 700; }
+  .code { font-family: var(--font-mono); font-size: 11.5px; background: hsl(0,0%,8%); padding: 1px 6px; border-radius: 3px; color: hsl(0,0%,88%); border: 1px solid hsl(0,0%,17%); }
+</style><script src="./_resize.js" defer></script>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- INTRO -->
+  <div>
+    <div class="section-label">
+      <span class="num">01</span> — Empty states
+      <span class="hint">put.io doesn't do sad mascots or stock illustrations</span>
+    </div>
+    <div class="intro">
+      Empty states in put.io are <b>text-first</b>. A mono-typed glyph or kaomoji sits where an illustration
+      would, followed by a plain-spoken headline and a single actionable sentence. No artwork. No hand-holding tutorials.
+      The tone is dry, occasionally cheeky, never apologetic — the product trusts the user is a grown-up.
+    </div>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid">
+
+    <!-- 1. RSS Automation (original) -->
+    <div class="state">
+      <div class="ctx">
+        <span class="where">Settings › RSS Automation</span>
+        <span class="tone tone-cheeky">cheeky</span>
+      </div>
+      <div class="empty">
+        <div class="glyph">__o-o__</div>
+        <h3>No watched RSS feeds whatsoever.</h3>
+        <p>Add an RSS feed URL from a source you trust. <a href="../README.md">Keep the empty state short and source-agnostic.</a></p>
+      </div>
+    </div>
+
+    <!-- 2. Transfers — nothing downloading -->
+    <div class="state">
+      <div class="ctx">
+        <span class="where">Transfers</span>
+        <span class="tone tone-quiet">quiet</span>
+      </div>
+      <div class="empty">
+        <div class="glyph">( ⌐■_■)</div>
+        <h3>Nothing in the queue.</h3>
+        <p>Drop a magnet link, paste a URL, or install the <a href="../README.md">browser extension</a> — put.io handles the rest.</p>
+        <div class="cta-row">
+          <button aria-label="Preview action" class="btn btn-primary">Add transfer</button>
+          <button aria-label="Preview action" class="btn btn-default">Paste URL</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Files — empty folder -->
+    <div class="state">
+      <div class="ctx">
+        <span class="where">Files › /homework_answers_DONT_DELETE</span>
+        <span class="tone tone-quiet">quiet</span>
+      </div>
+      <div class="empty">
+        <div class="glyph">[  ]</div>
+        <h3>Empty folder.</h3>
+        <p>Drag files here, or move something in from elsewhere.</p>
+      </div>
+    </div>
+
+    <!-- 4. Search — no results -->
+    <div class="state">
+      <div class="ctx">
+        <span class="where">Search · "cassini ring scans"</span>
+        <span class="tone tone-quiet">quiet</span>
+      </div>
+      <div class="empty">
+        <div class="glyph">¯\_(ツ)_/¯</div>
+        <h3>Nothing matches.</h3>
+        <p>No files, folders, or transfers named <span class="code">cassini ring scans</span>. Try fewer words, or <a href="../README.md">search the whole account</a>.</p>
+      </div>
+    </div>
+
+    <!-- 5. Shared with me — nothing shared -->
+    <div class="state">
+      <div class="ctx">
+        <span class="where">Shared with me</span>
+        <span class="tone tone-quiet">quiet</span>
+      </div>
+      <div class="empty">
+        <div class="glyph">&lt;&lt; ·· &gt;&gt;</div>
+        <h3>Nobody's shared anything with you.</h3>
+        <p>When a friend drops you a folder, it'll land here. You can share one back from any file's menu.</p>
+      </div>
+    </div>
+
+    <!-- 6. Trash -->
+    <div class="state">
+      <div class="ctx">
+        <span class="where">Trash</span>
+        <span class="tone tone-quiet">quiet</span>
+      </div>
+      <div class="empty">
+        <div class="glyph">(ง ͠° ͟ʖ ͡°)ง</div>
+        <h3>Trash is empty.</h3>
+        <p>Nothing recoverable. Clean slate.</p>
+      </div>
+    </div>
+
+    <!-- 7. History -->
+    <div class="state">
+      <div class="ctx">
+        <span class="where">Activity history</span>
+        <span class="tone tone-instr">instructive</span>
+      </div>
+      <div class="empty">
+        <div class="glyph">&gt;_</div>
+        <h3>No activity in the last 30 days.</h3>
+        <p>Completed transfers, shares, and renames show up here for 90 days. <a href="../README.md">Adjust retention</a>.</p>
+      </div>
+    </div>
+
+    <!-- 8. TV devices -->
+    <div class="state">
+      <div class="ctx">
+        <span class="where">TV & Devices</span>
+        <span class="tone tone-instr">instructive</span>
+      </div>
+      <div class="empty">
+        <div class="glyph">┌( ಠ_ಠ)┘</div>
+        <h3>No TVs paired.</h3>
+        <p>Install put.io on Apple TV, Android TV, or Fire TV, then enter the code at <a href="../README.md">put.io/pair</a>.</p>
+        <div class="hint-code">put.io/pair · code: — — — —</div>
+      </div>
+    </div>
+
+    <!-- 9. API keys -->
+    <div class="state">
+      <div class="ctx">
+        <span class="where">Settings › API Keys</span>
+        <span class="tone tone-instr">instructive</span>
+      </div>
+      <div class="empty">
+        <div class="glyph">[— — — —]</div>
+        <h3>No OAuth apps yet.</h3>
+        <p>Register an app to get a client ID and secret. Full docs at <a href="../README.md">api.put.io</a>.</p>
+        <div class="cta-row">
+          <button aria-label="Preview action" class="btn btn-primary">Create OAuth app</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. Notifications -->
+    <div class="state">
+      <div class="ctx">
+        <span class="where">Notifications</span>
+        <span class="tone tone-quiet">quiet</span>
+      </div>
+      <div class="empty">
+        <div class="glyph">ᶻ 𝗓 𐰁</div>
+        <h3>All caught up.</h3>
+        <p>No transfers finished, no shares received, nothing on fire.</p>
+      </div>
+    </div>
+
+    <!-- 11. Error — storage full -->
+    <div class="state">
+      <div class="ctx">
+        <span class="where">Transfers · blocked</span>
+        <span class="tone tone-error">error</span>
+      </div>
+      <div class="empty">
+        <div class="glyph">!!</div>
+        <h3>Storage is full.</h3>
+        <p>You've hit your 1 TB plan limit. Delete something, or <a href="../README.md">upgrade to 10 TB</a> — new transfers resume automatically.</p>
+        <div class="cta-row">
+          <button aria-label="Preview action" class="btn btn-danger">Upgrade plan</button>
+          <button aria-label="Preview action" class="btn btn-default">Manage storage</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 12. Error — offline -->
+    <div class="state">
+      <div class="ctx">
+        <span class="where">Connection lost</span>
+        <span class="tone tone-error">error</span>
+      </div>
+      <div class="empty">
+        <div class="glyph">(x_x)</div>
+        <h3>Can't reach put.io.</h3>
+        <p>Your connection dropped, or we did. Retrying automatically in a few seconds.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PRINCIPLES -->
+  <div class="principles">
+    <div class="meta">How to write one</div>
+    <ul>
+      <li><b>One glyph, one line, one sentence.</b> Headline is a period-ended statement of fact. Body is a single sentence with at most one link.</li>
+      <li><b>Mono glyph — no illustrations.</b> Kaomoji, ASCII brackets, or symbols set in <span class="code">var(--font-mono)</span>. Never stock art, never emoji.</li>
+      <li><b>Tone ladder:</b> <span class="tone tone-cheeky">cheeky</span> for quirky screens (RSS, device pairing), <span class="tone tone-instr">instructive</span> when the user actually needs a next step, <span class="tone tone-quiet">quiet</span> by default, <span class="tone tone-error">error</span> when something's wrong.</li>
+      <li><b>Never apologize.</b> Don't say "sorry" or "oops". The user is fine. The product is fine.</li>
+      <li><b>Suggest a next step if one exists.</b> One primary button max. No "Learn more" buttons — link from the sentence instead.</li>
+    </ul>
+  </div>
+
+</div>
+</body></html>

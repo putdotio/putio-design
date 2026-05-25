@@ -1,10 +1,8 @@
 # Moodboards
 
-Durable put.io moodboards live in the workspace repo:
+This folder is reserved for public-safe visual experiments and generated
+moodboard galleries.
 
-- [Moodboards](https://github.com/putdotio/putio-frontend-workspace/blob/main/docs/moodboards/README.md)
-
-Keep this repo focused on prototypes, generated galleries, deployable
-design-site assets, and raw visual experiments. Durable moodboard notes and
-reference assets belong in
-[putio-frontend-workspace](https://github.com/putdotio/putio-frontend-workspace).
+Do not publish private research, account screenshots, team photos, local paths,
+or auth-gated reference links here. Keep unpublished moodboard notes outside
+this public repo unless they are sanitized for release.

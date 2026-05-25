@@ -3,32 +3,32 @@
 ## Before you start
 
 Read these in order:
-1. [Design Brief](https://github.com/putdotio/putio-frontend-workspace/blob/main/docs/design/design-brief.md) — product context, personas, principles
-2. [Platform Strategy](https://github.com/putdotio/putio-frontend-workspace/blob/main/docs/platform-strategy.md) — how we build across platforms
-3. [TV Product Bar](https://github.com/putdotio/putio-frontend-workspace/blob/main/docs/specs/tv-app/product.md) — what makes a good put.io TV app
-4. [TV App Feature Spec](https://github.com/putdotio/putio-frontend-workspace/blob/main/docs/specs/tv-app/feature-spec.md) — detailed TV feature spec
+1. [DESIGN.md](DESIGN.md) — public design contract for humans and agents
+2. [Design system guide](system/README.md) — deployed guide, preview cards, and token usage
+3. [Distribution](docs/DISTRIBUTION.md) — deploy, package, and artifact policy
+4. [README](README.md) — repo overview and commands
 
 ## Repo structure
 
 ```
-docs/              pointer to workspace-owned docs
+tokens/            canonical DTCG-compatible token sources
+dist/              generated package artifacts
+docs/              public repo docs
 prototypes/        HTML design screens + gallery index
-moodboard/         pointer to workspace-owned moodboards
 infra/             SST-managed AWS static-site infrastructure
 sst.config.ts      SST app entry point for design.put.io
 ```
 
 ## Key rules
 
-- Read the workspace spec before writing code. The workspace is the source of truth for durable docs.
+- Treat `tokens/**/*.tokens.json` as the source of truth for design tokens.
 - Yellow `#FDCE45` is sacred. Keep it unchanged.
 - Icons: Lucide-style inline SVG for new native TV work. No emoji.
 - TV apps are file browsers — list views, not media card grids.
 - Ecosystem apps are out of scope.
-- Check [workspace reference images](https://github.com/putdotio/putio-frontend-workspace/tree/main/docs/references/images) before designing platform screens.
 - Loop autonomously when iterating.
 - When writing or updating docs, use anonymous IDs such as "User 01" and generic third-party app descriptions.
-- Keep this repo focused on prototypes, generated galleries, deployable design-site assets, and raw visual experiments. Durable conclusions, specs, plans, decisions, references, and moodboards belong in [putio-frontend-workspace](https://github.com/putdotio/putio-frontend-workspace).
+- Keep this repo focused on public tokens, generated package artifacts, the deployable design-system guide, generated galleries, and raw visual experiments. Private research, plans, and unreleased product decisions stay outside this public repo unless sanitized for publication.
 
 ## Content-agnostic design (critical)
 
@@ -90,7 +90,7 @@ Web 1440×900 · iOS 390×844 · Android 412×915 · tvOS 1920×1080 · Android 
 
 ## Deployment
 
-`design.put.io` is an SST-managed static site. SST uploads `prototypes/` to S3,
+`design.put.io` is an SST-managed static site. SST uploads `system/` to S3,
 serves it through CloudFront, and owns the Route 53 record.
 
 Useful commands:
@@ -98,6 +98,7 @@ Useful commands:
 ```bash
 pnpm install
 pnpm check
+pnpm verify:full
 pnpm deploy:production
 ```
 

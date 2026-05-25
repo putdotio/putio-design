@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<title>put.io design preview</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../tv-shell.css">
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: #0a0a0a; margin: 0; font-family: var(--font-sans); }
+  .card { padding: 24px; display: flex; flex-direction: column; gap: 22px; color: var(--text); }
+  .label { font-size: 12.5px; font-weight: 500; color: var(--text); }
+  .note  { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 740px; }
+  .note b { color: var(--text); }
+  .src  { font-family: var(--font-mono); font-size: 11px; color: var(--yellow-solid); }
+
+  .artboard {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.45), 0 0 0 1px var(--line);
+  }
+  .artboard .tv {
+    position: absolute; inset: 0;
+    background: #050505 !important;
+  }
+  .artboard .tv::before { display: none !important; }
+  .artboard .row, .artboard .tab, .artboard .btn { transition: none !important; }
+  /* Canonical .tv is 1280x720 — keep the design grid; never let the title or row wrap */
+  .artboard .scr-title { white-space: nowrap; }
+  .artboard .row .title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Video backdrop — dimmed faux frame for the chrome to sit on */
+  .video-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(80% 60% at 30% 30%, rgba(80,60,30,0.5) 0%, transparent 60%),
+      radial-gradient(60% 60% at 80% 70%, rgba(40,40,80,0.35) 0%, transparent 60%),
+      linear-gradient(180deg, #1a1612 0%, #050403 100%);
+    z-index: 0;
+  }
+  .video-bg::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent 0 3px, rgba(255,255,255,0.012) 3px 4px);
+  }
+
+  /* Player chrome — lifted from tvos.css L520 – L562 */
+  .pchrome {
+    position: absolute; inset: auto 0 0 0;
+    padding: 0 40px 28px;
+    z-index: 2;
+    display: flex; flex-direction: column;
+    gap: 16px;
+    background: linear-gradient(to top,
+      rgba(0,0,0,0.7) 0%,
+      rgba(0,0,0,0) 100%);
+  }
+  .pchrome .row-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+  }
+  .pchrome .title {
+    font-size: 30px; font-weight: 700;
+    letter-spacing: -0.02em; line-height: 1.15;
+    color: #fff; max-width: 70%;
+    word-break: break-all;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  }
+  .pchrome .corner {
+    display: flex; gap: 12px; align-items: center;
+  }
+  .pchrome .scrub {
+    height: 6px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 999px;
+    position: relative;
+    margin-top: 4px;
+  }
+  .pchrome .scrub > i {
+    position: absolute; inset: 0 auto 0 0;
+    background: rgba(255,255,255,0.95);
+    border-radius: 999px;
+    width: 14%;
+  }
+  .pchrome .scrub > b {
+    position: absolute; left: 14%; top: 50%; transform: translate(-50%, -50%);
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.18), 0 0 18px rgba(255,255,255,0.6);
+  }
+  .pchrome .times {
+    display: flex; justify-content: space-between;
+    font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+    font-size: 15px;
+    color: rgba(255,255,255,0.85);
+    margin-top: 2px;
+  }
+  .pchrome .pills { display: flex; gap: 10px; margin-top: 4px; }
+
+  /* circular glass icon */
+  .gi {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.14);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.22);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.14) inset;
+    color: #fff;
+  }
+  .gi.solid {
+    background: rgba(255,255,255,0.95);
+    color: var(--bg);
+    border-color: rgba(255,255,255,0.95);
+  }
+
+  .platforms { background: hsl(0,0%,11%); border: 1px solid hsl(0,0%,18%); border-radius: 10px; overflow: hidden; }
+  .ptr { display: grid; grid-template-columns: 160px repeat(4, 1fr); }
+  .ptr + .ptr { border-top: 1px solid hsl(0,0%,18%); }
+  .ptr > div { padding: 12px 14px; font-size: 12px; color: hsl(0,0%,72%); border-left: 1px solid hsl(0,0%,18%); line-height: 1.55; background: hsl(0,0%,11%); }
+  .ptr > div:first-child { border-left: 0; }
+  .ptr.head > div { background: hsl(0,0%,14%); font-size: 11px; color: hsl(0,0%,95%); font-weight: 600; }
+  .ptr .what { background: hsl(0,0%,11%); color: var(--yellow-solid); font-family: var(--font-ui-mono); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; font-weight: 500; }
+
+  .anat { background: hsl(0,0%,11%); border: 1px solid hsl(0,0%,18%); border-radius: 10px;
+    display: grid; grid-template-columns: repeat(4, 1fr); overflow: hidden;
+  }
+  .anat .c { padding: 14px 16px; border-left: 1px solid hsl(0,0%,18%); background: hsl(0,0%,11%); }
+  .anat .c:first-child { border-left: 0; }
+  .anat .k { font-size: 11px; font-weight: 500; color: var(--yellow-solid); margin-bottom: 6px; }
+  .anat .v { font-family: var(--font-mono); font-size: 13px; color: var(--text); }
+  .anat .d { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+
+  .lucide-icon { width: 1em; height: 1em; display: inline-block; vertical-align: -0.125em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+</style></head>
+<body>
+<div class="card">
+
+  <div>
+    <div class="label">Player chrome — minimal, bottom-anchored</div>
+    <div class="note">
+      Apple TV owns the player. Minimal overlay: <b>bold filename bottom-left</b>, two glass circles top-right (CC focused white, audio glass), hairline scrubber in the bottom safe area, mono timecodes. <b>No transport buttons</b> — the Siri Remote owns play/pause/scrub. Android TV, Roku, and Smart-TV web mirror this shape, but their apps draw the chrome because those platforms don't ship a system player.
+      Source: <code class="src">tvos.css L520 – L611</code>.
+    </div>
+  </div>
+
+  <!-- =================================================================
+       ARTBOARD — Immersive player
+       ============================================================ -->
+  <div class="artboard">
+    <div class="tv">
+      <div class="video-bg"></div>
+      <div class="pchrome">
+        <div class="row-top">
+          <div class="title">The.Wire.S03E04.Hamsterdam.2160p.UHD.BluRay.Remux.HDR.HEVC.DTS-HD.MA.5.1-DEMAND[rartv].mkv</div>
+          <div class="corner">
+            <div class="gi solid" title="Closed captions">
+              <svg class="lucide-icon" style="font-size:24px;" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+            </div>
+            <div class="gi" title="Audio tracks">
+              <svg class="lucide-icon" style="font-size:24px;" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="scrub">
+          <i></i>
+          <b></b>
+        </div>
+        <div class="times">
+          <span>00:08</span>
+          <span>−12:06</span>
+        </div>
+        <div class="pills">
+          <div class="btn">
+            <svg class="lucide-icon" style="font-size:14px;" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+            <span>Info</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================================================================
+       ANATOMY
+       ============================================================ -->
+  <div>
+    <div class="label">Player chrome anatomy</div>
+  </div>
+  <div class="anat">
+    <div class="c"><div class="k">Filename</div><div class="v">30px · 700 · −0.02em</div><div class="d">break-all on tokens</div></div>
+    <div class="c"><div class="k">Scrubber</div><div class="v">6px track · 14px thumb</div><div class="d">no platform-buttons overlay</div></div>
+    <div class="c"><div class="k">Timecode</div><div class="v">15px · mono · tnum</div><div class="d">remaining: −MM:SS</div></div>
+    <div class="c"><div class="k">Glass circles</div><div class="v">56×56 · blur(30) sat(180)</div><div class="d">CC · Audio · Subtitles</div></div>
+  </div>
+
+  <!-- =================================================================
+       PLATFORM VARIATION
+       ============================================================ -->
+  <div>
+    <div class="label">Platform variation · who owns the player</div>
+  </div>
+
+  <div class="platforms">
+    <div class="ptr head">
+      <div>What</div>
+      <div>tvOS</div>
+      <div>Android TV</div>
+      <div>Roku</div>
+      <div>Smart-TV web</div>
+    </div>
+    <div class="ptr">
+      <div class="what">Player engine</div>
+      <div>AVPlayer · system</div>
+      <div>libVLC · Media3</div>
+      <div>Roku player · HLS / DASH</div>
+      <div>HTML5 Video</div>
+    </div>
+    <div class="ptr">
+      <div class="what">Transport buttons</div>
+      <div>none · Siri Remote</div>
+      <div>app-drawn glass icons</div>
+      <div>app-drawn flat icons</div>
+      <div>app-drawn glass icons</div>
+    </div>
+    <div class="ptr">
+      <div class="what">CC / subtitle picker</div>
+      <div>Liquid Glass sheet</div>
+      <div>M3 bottom sheet</div>
+      <div>SceneGraph dialog</div>
+      <div>solid centred modal</div>
+    </div>
+    <div class="ptr">
+      <div class="what">PiP / multitask</div>
+      <div>system PiP</div>
+      <div>Android PiP</div>
+      <div>—</div>
+      <div>—</div>
+    </div>
+    <div class="ptr">
+      <div class="what">Unsupported codec</div>
+      <div>VLCKit fallback</div>
+      <div>libVLC (already)</div>
+      <div>"Stream via VLC" hint</div>
+      <div>"Stream via VLC" hint</div>
+    </div>
+  </div>
+
+</div>
+</body></html>

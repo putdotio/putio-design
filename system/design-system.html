@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>put.io · design system</title>
+<link rel="icon" href="./assets/favicon.svg">
+<meta name="theme-color" content="#09090B">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="./tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  a { color: inherit; text-decoration: none; }
+  .d a, .sub a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  ::selection { background: var(--yellow-solid); color: #000; }
+
+  /* ===================================================================
+     SHELL — sticky TOC + main column
+     ================================================================ */
+  .shell {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    max-width: 1480px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+
+  .toc {
+    position: sticky; top: 0; align-self: start;
+    height: 100vh; overflow-y: auto;
+    padding: 32px 24px 32px 32px;
+    border-right: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .toc-brand {
+    display: flex; align-items: baseline; gap: 0;
+    font-size: 19px; font-weight: 700; letter-spacing: -0.025em;
+    margin-bottom: 4px;
+  }
+  .toc-brand .dot { color: var(--yellow-solid); }
+  .toc-sub {
+    font-size: 11px;
+    color: var(--text-secondary); letter-spacing: 0;
+    margin-bottom: 14px;
+  }
+  .toc-theme {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-bottom: 24px;
+    padding: 5px 10px; border-radius: var(--radius-sm);
+    border: 1px solid var(--line); background: var(--bg-secondary);
+    font-family: var(--font-ui-mono); font-size: 10.5px;
+    color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em;
+    transition: border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .toc-theme:hover { color: var(--text); border-color: var(--border-hover); }
+  .toc-theme .swatch {
+    width: 12px; height: 12px; border-radius: 2px;
+    background: linear-gradient(135deg, #0e0e0f 0 50%, #fafafa 50% 100%);
+    border: 1px solid var(--line);
+  }
+  .toc nav { display: flex; flex-direction: column; gap: 22px; }
+  .toc nav h4 {
+    font-size: 12px; font-weight: 600;
+    color: var(--text);
+    margin: 0 0 6px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .toc nav h4 .ix {
+    color: var(--yellow-solid); font-family: var(--font-ui-mono);
+    font-size: 10px; letter-spacing: 0.04em;
+  }
+  .toc nav ul { list-style: none; margin: 0; padding: 0 0 0 14px; display: flex; flex-direction: column; gap: 1px; border-left: 1px solid var(--line); }
+  .toc nav a {
+    display: block;
+    padding: 4px 10px; border-radius: 4px;
+    font-size: 12.5px; color: var(--text-secondary);
+    transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .toc nav a:hover { color: var(--text); background: var(--list-item-bg-hover); }
+  .toc nav a.is-active { background: var(--yellow-component-bg); color: var(--yellow-solid); }
+  .toc nav li.toc-group {
+    font-size: 11px; font-weight: 500;
+    color: var(--text-secondary);
+    padding: 10px 10px 4px;
+    margin-left: -14px;
+  }
+  .toc nav li.toc-group:first-child { padding-top: 2px; }
+
+  .toc-foot {
+    margin-top: 36px;
+    padding-top: 16px; border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .toc-foot a { font-family: var(--font-mono); }
+  .toc-foot a:hover { color: var(--yellow-solid); }
+  .toc-foot .kao { color: var(--yellow-solid); margin-top: 12px; text-transform: none; letter-spacing: 0; font-family: var(--font-mono); font-size: 13px; }
+
+  /* ============================================== MAIN COLUMN ===== */
+  main { padding: 0 56px 96px; min-width: 0; }
+
+  /* HERO */
+  header.hero {
+    padding: 80px 0 56px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 48px;
+    border-bottom: 1px solid var(--line);
+  }
+  header.hero h1 {
+    font-family: var(--font-sans);
+    font-size: 64px; font-weight: 700;
+    letter-spacing: -0.04em; line-height: 0.95;
+    margin: 0;
+  }
+  header.hero h1 .dot { color: var(--yellow-solid); }
+  header.hero .lede {
+    font-size: 17px; color: var(--text-secondary);
+    letter-spacing: -0.005em; max-width: 540px;
+    margin-top: 22px; line-height: 1.55;
+  }
+  header.hero .lede b { color: var(--text); font-weight: 500; }
+  header.hero .lede code {
+    font-family: var(--font-mono); font-size: 15px;
+    color: var(--yellow-solid); font-weight: 500;
+  }
+
+  .hero-stats {
+    display: flex; gap: 24px;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .hero-stats > div { display: flex; flex-direction: column; gap: 4px; }
+  .hero-stats .n { font-family: var(--font-sans); font-size: 28px; color: var(--text); font-weight: 700; letter-spacing: -0.02em; }
+  .hero-stats .n b { color: var(--yellow-solid); }
+
+  /* PRINCIPLES STRIP */
+  .principles {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid var(--line);
+  }
+  .principles > div {
+    padding: 22px 24px 26px;
+    border-left: 1px solid var(--line);
+  }
+  .principles > div:first-child { border-left: 0; padding-left: 0; }
+  .principles .k {
+    font-size: 11px; font-weight: 500;
+    color: var(--yellow-solid);
+    margin-bottom: 8px;
+  }
+  .principles .t { font-size: 13.5px; color: var(--text-secondary); line-height: 1.55; }
+  .principles .t b { color: var(--text); }
+
+  /* ── TOP-LEVEL SECTION (Base, Web, Mobile, TV) ────────────────── */
+  .part {
+    padding: 72px 0 8px;
+    scroll-margin-top: 16px;
+  }
+  .part > .part-hd {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 32px;
+    padding-bottom: 18px;
+    margin-bottom: 36px;
+    border-bottom: 1px solid var(--text-secondary);
+  }
+  .part > .part-hd .ix {
+    font-family: var(--font-ui-mono); font-size: 11px;
+    color: var(--yellow-solid); letter-spacing: 0.04em;
+    margin-bottom: 14px;
+  }
+  .part > .part-hd h2 {
+    font-size: 56px; font-weight: 700;
+    letter-spacing: -0.04em; line-height: 0.95;
+    margin: 0;
+  }
+  .part > .part-hd .sub {
+    font-size: 14.5px; color: var(--text-secondary);
+    max-width: 540px; line-height: 1.55;
+    margin-top: 12px;
+  }
+  .part > .part-hd .sub b { color: var(--text); }
+  .part > .part-hd .src {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: right;
+    display: flex; flex-direction: column; gap: 6px;
+    align-items: flex-end;
+  }
+  .part > .part-hd .src a { font-family: var(--font-mono); font-size: 11px; }
+  .part > .part-hd .src a:hover { color: var(--yellow-solid); }
+
+  /* ── SUB-SECTION (Color, Type, etc — within a Part) ──────────── */
+  section {
+    padding: 28px 0;
+    scroll-margin-top: 20px;
+  }
+  section > header.sec-hd {
+    display: grid; grid-template-columns: 64px 1fr auto; gap: 24px; align-items: baseline;
+    padding-bottom: 16px; margin-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  section > header.sec-hd .ix {
+    font-family: var(--font-ui-mono);
+    font-size: 11px; color: var(--text-secondary);
+    letter-spacing: 0.04em;
+  }
+  section > header.sec-hd h3 {
+    font-size: 24px; font-weight: 600;
+    letter-spacing: -0.022em; line-height: 1.1;
+    margin: 0;
+  }
+  section > header.sec-hd .sub {
+    font-size: 13px; color: var(--text-secondary); max-width: 520px; line-height: 1.55;
+    margin-top: 6px;
+  }
+  section > header.sec-hd .src {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-secondary);
+    text-align: right;
+  }
+  section > header.sec-hd .src a:hover { color: var(--yellow-solid); }
+
+  .sub-hd {
+    display: grid; grid-template-columns: 64px 1fr; gap: 24px;
+    margin: 32px 0 12px;
+  }
+  .sub-hd .ix {
+    font-family: var(--font-ui-mono); font-size: 11px;
+    color: var(--text-secondary); letter-spacing: 0.04em;
+  }
+  .sub-hd h4 {
+    margin: 0; font-size: 15px; font-weight: 500;
+    color: var(--text);
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+  }
+  .sub-hd h4 .src {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-secondary); font-weight: 400;
+  }
+  .sub-hd h4 .src a:hover { color: var(--yellow-solid); }
+
+  /* ── TOKEN STRIPS ──────────────────────────────────────────── */
+  .tok-grid {
+    display: grid; gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .tok-grid.c-4 { grid-template-columns: repeat(4, 1fr); }
+  .tok-grid.c-6 { grid-template-columns: repeat(6, 1fr); }
+  .tok {
+    background: var(--bg-secondary);
+    padding: 14px;
+    display: flex; flex-direction: column; gap: 8px;
+    min-width: 0;
+  }
+  .tok .swatch {
+    height: 56px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  .tok .swatch.tall { height: 84px; }
+  .tok .swatch.text { display: grid; place-items: center; font-family: var(--font-ui-mono); font-size: 11px; color: #000; font-weight: 700; }
+  .tok .swatch.text.on-dark { color: #fff; }
+  .tok .name {
+    font-family: var(--font-ui-mono); font-size: 10.5px;
+    color: var(--text); font-weight: 500;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .tok .val  {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--text-secondary);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .tok-row-hd {
+    display: flex; align-items: baseline; justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 22px 0 8px;
+  }
+
+  /* ── TYPE / SPACE / RADII ──────────────────────────────────── */
+  .type-block { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .type-row {
+    display: grid; grid-template-columns: 130px 110px 1fr; gap: 18px;
+    align-items: baseline; padding: 16px 18px;
+  }
+  .type-row + .type-row { border-top: 1px solid var(--line); }
+  .type-row .tok-name { font-family: var(--font-ui-mono); font-size: 11px; color: var(--yellow-solid); }
+  .type-row .meta { font-size: 12px; color: var(--text-secondary); }
+  .type-row .sample { color: var(--text); line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .space-block { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .space-row {
+    display: grid; grid-template-columns: 110px 80px 1fr;
+    gap: 16px; align-items: center; padding: 10px 18px;
+    font-family: var(--font-ui-mono); font-size: 11px;
+  }
+  .space-row + .space-row { border-top: 1px solid var(--line); }
+  .space-row .bar { background: var(--yellow-solid); height: 12px; border-radius: 2px; }
+  .space-row .nm { color: var(--text); }
+  .space-row .v  { color: var(--text-secondary); text-align: right; }
+
+  .radii { display: flex; gap: 22px; flex-wrap: wrap; padding: 22px; background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px; }
+  .radii .r { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .radii .r .box { width: 64px; height: 64px; background: var(--component-bg); border: 1px solid var(--border); }
+  .radii .r .nm { font-family: var(--font-ui-mono); font-size: 10px; color: var(--yellow-solid); }
+  .radii .r .v  { font-family: var(--font-mono); font-size: 10px; color: var(--text-secondary); }
+
+  .shadows { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .shadows .s { background: var(--bg-secondary); padding: 28px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .shadows .s .box { width: 96px; height: 56px; background: var(--bg); border-radius: 6px; border: 1px solid var(--line); }
+  .shadows .s .box.sm { box-shadow: var(--shadow-sm); }
+  .shadows .s .box.md { box-shadow: var(--shadow-md); }
+  .shadows .s .box.lg { box-shadow: var(--shadow-lg); }
+  .shadows .s .box.fc { box-shadow: var(--shadow-focus); border-color: var(--yellow-solid); }
+  .shadows .s .nm { font-family: var(--font-ui-mono); font-size: 10px; color: var(--yellow-solid); }
+  .shadows .s .v  { font-family: var(--font-mono); font-size: 9.5px; color: var(--text-secondary); text-align: center; }
+
+  /* ── EMBED ─────────────────────────────────────────────────── */
+  .embeds { display: grid; gap: 18px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .embeds.full { grid-template-columns: 1fr; }
+  .embed {
+    background: var(--bg-secondary);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    min-width: 0;
+  }
+  .embed .ehd {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .embed .ehd .ttl {
+    font-size: 13px; color: var(--text); font-weight: 500;
+  }
+  .embed .ehd .ttl .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--yellow-solid); margin-right: 8px; vertical-align: middle; }
+  .embed iframe {
+    width: 100%; height: 280px; border: 0; display: block;
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+  .embed .ehd .open {
+    font-size: 11px; color: var(--text-secondary);
+    border: 1px solid var(--line); border-radius: 3px;
+    padding: 2px 7px;
+  }
+  .embed .ehd .open:hover { color: var(--yellow-solid); border-color: var(--yellow-solid); }
+
+  /* ── PROTO LIST ────────────────────────────────────────────── */
+  .proto-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .proto {
+    display: grid; grid-template-columns: 36px 1fr auto; gap: 14px; align-items: center;
+    padding: 12px 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+  }
+  .proto:hover { border-color: var(--yellow-border); }
+  .proto .glyph {
+    width: 28px; height: 28px;
+    border-radius: 6px; display: grid; place-items: center;
+    font-family: var(--font-ui-mono); font-size: 10px; font-weight: 700;
+  }
+  .proto .glyph.tv  { background: color-mix(in srgb, var(--yellow-solid) 14%, transparent); color: var(--yellow-solid); }
+  .proto .glyph.rk  { background: color-mix(in srgb, #A78BFA 14%, transparent);             color: #A78BFA; }
+  .proto .glyph.web { background: color-mix(in srgb, #60A5FA 14%, transparent);             color: #60A5FA; }
+  .proto .glyph.ios { background: color-mix(in srgb, #34D399 14%, transparent);             color: #34D399; }
+  .proto .nm { font-size: 13.5px; font-weight: 500; color: var(--text); }
+  .proto .meta { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+  .proto .tag {
+    font-size: 10px; padding: 2px 7px; border-radius: 3px;
+    background: color-mix(in srgb, var(--yellow-solid) 12%, transparent);
+    color: var(--yellow-solid);
+    font-weight: 500; letter-spacing: 0.02em;
+  }
+
+  /* ── CALLOUT / PLACEHOLDER ─────────────────────────────────── */
+  .callout {
+    padding: 16px 20px;
+    background: color-mix(in srgb, var(--yellow-solid) 6%, transparent);
+    border: 1px solid color-mix(in srgb, var(--yellow-solid) 22%, transparent);
+    border-radius: 8px;
+    font-size: 13px; color: var(--text-secondary); line-height: 1.6;
+  }
+  .callout code {
+    font-family: var(--font-mono); font-size: 12px;
+    color: var(--yellow-solid);
+    background: color-mix(in srgb, var(--yellow-solid) 10%, transparent);
+    padding: 1px 6px; border-radius: 3px;
+  }
+  .callout strong { color: var(--text); }
+
+  .placeholder {
+    padding: 22px 24px;
+    background: var(--bg-secondary);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .placeholder .t {
+    font-size: 11px;
+    color: var(--text-secondary); font-weight: 500;
+  }
+  .placeholder .n { font-size: 14px; color: var(--text); font-weight: 500; }
+  .placeholder .d { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; }
+
+  /* ── FOOTER ────────────────────────────────────────────────── */
+  footer {
+    margin-top: 96px; padding: 32px 0 0;
+    border-top: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--text-secondary); line-height: 1.8;
+  }
+  footer a { color: var(--text); border-bottom: 1px dotted var(--border); }
+  footer a:hover { color: var(--yellow-solid); border-color: var(--yellow-solid); }
+  footer .kao { color: var(--yellow-solid); font-family: var(--font-mono); font-size: 14px; margin-top: 10px; display: inline-block; }
+
+  @media (max-width: 980px) {
+    .shell { grid-template-columns: 1fr; }
+    .toc { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+    main { padding: 0 24px 56px; }
+    .embeds { grid-template-columns: 1fr; }
+    .principles { grid-template-columns: 1fr 1fr; }
+    .principles > div:nth-child(3) { border-left: 0; padding-left: 0; }
+    header.hero { grid-template-columns: 1fr; padding: 48px 0 32px; }
+    header.hero h1 { font-size: 44px; }
+    .part > .part-hd h2 { font-size: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ============================================================
+       TOC
+       ============================================================ -->
+  <aside class="toc">
+    <div class="toc-brand">put<span class="dot">.</span>io</div>
+    <div class="toc-sub">design system · v0.5</div>
+    <a class="toc-theme" href="./design-system-light.html"><span class="swatch"></span>View light</a>
+    <nav>
+      <div>
+        <h4><span class="ix">A</span>Principles</h4>
+        <ul>
+          <li><a href="#principle-utility">01 · Utility is beautiful</a></li>
+          <li><a href="#principle-clarity">02 · Clarity over cleverness</a></li>
+          <li><a href="#principle-type">03 · Type carries the weight</a></li>
+          <li><a href="#principle-onelook">04 · One look across platforms</a></li>
+          <li><a href="#principle-voice">05 · Voice &amp; restraint</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4><span class="ix">B</span>Components</h4>
+        <ul>
+          <li class="toc-group">Foundations</li>
+          <li><a href="#cmp-colors">B.01 · Colors</a></li>
+          <li><a href="#cmp-type">B.02 · Typography</a></li>
+          <li><a href="#cmp-space">B.03 · Spacing</a></li>
+          <li><a href="#cmp-radii">B.04 · Radii &amp; shadows</a></li>
+          <li><a href="#cmp-motion">B.05 · Motion</a></li>
+          <li class="toc-group">Brand &amp; primitives</li>
+          <li><a href="#cmp-logo">B.06 · Brand &amp; logo</a></li>
+          <li><a href="#cmp-icons">B.07 · Icons</a></li>
+          <li><a href="#cmp-focus">B.08 · Focus system</a></li>
+          <li class="toc-group">UI components</li>
+          <li><a href="#cmp-buttons">B.09 · Buttons</a></li>
+          <li><a href="#cmp-inputs">B.10 · Inputs</a></li>
+          <li><a href="#cmp-badges">B.11 · Badges &amp; chips</a></li>
+          <li><a href="#cmp-listitem">B.12 · List items</a></li>
+          <li><a href="#cmp-empty">B.13 · Empty &amp; error</a></li>
+          <li><a href="#cmp-modal">B.14 · Overlays</a></li>
+          <li><a href="#cmp-filerow">B.15 · File row</a></li>
+          <li><a href="#cmp-storage">B.16 · Storage bar</a></li>
+          <li><a href="#cmp-transfer">B.17 · Transfer states</a></li>
+          <li><a href="#cmp-more">B.18 · More primitives</a></li>
+          <li><a href="#cmp-form-fields">B.19 · Form fields</a></li>
+          <li><a href="#cmp-form-layouts">B.20 · Form layouts</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4><span class="ix">C</span>Platforms</h4>
+        <ul>
+          <li class="toc-group">Web</li>
+          <li><a href="#plat-web-shell">C.01 · App shell</a></li>
+          <li><a href="#plat-web-protos">C.02 · Web prototypes</a></li>
+          <li class="toc-group">Mobile</li>
+          <li><a href="#plat-mob-shell">C.03 · iOS &amp; Android shells</a></li>
+          <li><a href="#plat-mob-bottom">C.04 · Bottom-sheet actions</a></li>
+          <li><a href="#plat-mob-protos">C.05 · Mobile prototypes</a></li>
+          <li class="toc-group">TV</li>
+          <li><a href="#plat-tv-foundations">C.06 · Foundations</a></li>
+          <li><a href="#plat-tv-focus">C.07 · Focus states</a></li>
+          <li><a href="#plat-tv-nav">C.08 · Top navigation</a></li>
+          <li><a href="#plat-tv-menus">C.09 · Action menus</a></li>
+          <li><a href="#plat-tv-player">C.10 · Player chrome</a></li>
+          <li><a href="#plat-tv-matrix">C.11 · Platform matrix</a></li>
+          <li><a href="#plat-tv-protos">C.12 · Canonical refs</a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="toc-foot">
+      <a href="./tokens.css">tokens.css</a>
+      <a href="./README.md">system guide</a>
+      <a href="../DESIGN.md">DESIGN.md</a>
+      <span class="kao"></span>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN
+       ============================================================ -->
+  <main>
+
+    <header class="hero">
+      <div>
+        <h1>put<span class="dot">.</span>io design system</h1>
+        <div class="lede">
+          <b>One look across every screen we ship.</b>
+          Tokens, components, and canonical prototypes — organised by the four runtimes we live on.
+          Yellow <code>#FDCE45</code> is sacred. Everything else is a variable.
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div><span class="n"><b>3</b></span><span>parts</span></div>
+        <div><span class="n"><b>5</b></span><span>principles</span></div>
+        <div><span class="n"><b>23</b></span><span>cards in part B</span></div>
+        <div><span class="n"><b>7</b></span><span>platforms</span></div>
+      </div>
+    </header>
+
+<!-- ============================================================
+         A · PRINCIPLES
+         ============================================================ -->
+    <div class="part" id="principles">
+      <header class="part-hd">
+        <div>
+          <div class="ix">Part A</div>
+          <h2>Principles</h2>
+          <div class="sub">Five rules that govern every decision downstream. When a token, a component, or a platform feels off — check it against these first.</div>
+        </div>
+        <div class="src">
+          <span>source · DESIGN.md</span>
+          <a href="../DESIGN.md">DESIGN.md ↗</a>
+          <a href="./preview/principles.html">principles.html ↗</a>
+        </div>
+      </header>
+
+      <div class="principles">
+        <div id="principle-utility">
+          <div class="k">Principle 01</div>
+          <div class="t"><b>Utility is beautiful.</b> The product's soul comes from making file operations feel premium — not from decoration. A clean transfer row earns more love than any hero illustration.</div>
+        </div>
+        <div id="principle-clarity">
+          <div class="k">Principle 02</div>
+          <div class="t"><b>Clarity over cleverness.</b> Every icon, button, and label has exactly one meaning. <em>Download</em> means to-this-device. <em>Save</em> means to-put.io. <em>Stream</em> means play-without-download. Never mix.</div>
+        </div>
+        <div id="principle-type">
+          <div class="k">Principle 03</div>
+          <div class="t"><b>Type carries the weight.</b> We don't have posters, hero art, or metadata to lean on — a filename is the content. GT America does the heavy lifting; mono fonts handle numerics and identifiers.</div>
+        </div>
+        <div id="principle-onelook">
+          <div class="k">Principle 04</div>
+          <div class="t"><b>One look across platforms.</b> What changes between web, mobile, and TV is the <em>engine</em> — focus model, blur support, player ownership. The visual stays put.io.</div>
+        </div>
+      </div>
+
+      <div class="principles" style="grid-template-columns: 1fr; border-top: 0;">
+        <div id="principle-voice" style="border-left: 0; padding-left: 0;">
+          <div class="k">Principle 05</div>
+          <div class="t"><b>Voice &amp; restraint.</b> Brand-yellow <code style="font-family:var(--font-mono);color:var(--yellow-solid);background:color-mix(in srgb, var(--yellow-solid) 10%, transparent);padding:1px 6px;border-radius:3px;">#FDCE45</code> is sacred — used for focus, brand moments, and one CTA at a time. Kaomoji <code style="font-family:var(--font-mono);color:var(--yellow-solid);background:color-mix(in srgb, var(--yellow-solid) 10%, transparent);padding:1px 6px;border-radius:3px;"></code> stays. Everything else is a variable: subtract before you add.</div>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top: 28px;">
+        <strong>Read order.</strong> <span style="color:var(--text);">Principles → Components → Platforms.</span> Principles set the rules. Components are the reusable pieces governed by those rules. Platforms compose those pieces into the surfaces users actually touch. Source values live in <code>tokens.css</code>; every preview card cites the file it lifts from. <strong>Never invent a number.</strong>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         B · COMPONENTS
+         ============================================================ -->
+    <div class="part" id="components">
+      <header class="part-hd">
+        <div>
+          <div class="ix">Part B</div>
+          <h2>Components</h2>
+          <div class="sub">Everything reusable. <b>Foundations</b> (tokens) → <b>Brand &amp; primitives</b> (logo, icons, focus) → <b>UI components</b> (buttons, rows, overlays). If it ships on more than one platform, it lives here.</div>
+        </div>
+        <div class="src">
+          <span>source · tokens.css · @putdotio/ui</span>
+          <a href="./tokens.css">tokens.css ↗</a>
+        </div>
+      </header>
+
+      <!-- ─────────────── Foundations ─────────────── -->
+      <div class="sub-hd" style="margin: 8px 0 -8px;">
+        <div class="ix">B · 1</div>
+        <h4 style="font-size: 13px; color: var(--yellow-solid); font-weight: 600; letter-spacing: 0;">Foundations · tokens<span class="src">tokens.css</span></h4>
+      </div>
+
+      <!-- B.1 COLORS -->
+      <section id="cmp-colors">
+        <header class="sec-hd">
+          <div class="ix">B.01</div>
+          <div>
+            <h3>Color tokens</h3>
+            <div class="sub">Radix 12-step scales, light + dark. One brand, three semantic scales, one transfer-state lime.</div>
+          </div>
+          <div class="src"><a href="./tokens.css">tokens.css · Colors</a></div>
+        </header>
+
+        <div class="tok-row-hd"><span>Brand · sacred</span><span>never changes across modes or platforms</span></div>
+        <div class="tok-grid c-4">
+          <div class="tok"><div class="swatch tall text" style="background:#FDCE45">SACRED</div><div class="name">--yellow-solid</div><div class="val">#FDCE45</div></div>
+          <div class="tok"><div class="swatch tall text" style="background:#FDCE45">+ hover · light</div><div class="name">--yellow-solid-hover</div><div class="val">#FDCE45</div></div>
+          <div class="tok"><div class="swatch tall text" style="background:#FDCE45">+ hover · dark</div><div class="name">.dark --yellow-solid-hover</div><div class="val">#FDCE45</div></div>
+          <div class="tok"><div class="swatch tall text on-dark" style="background:var(--yellow-bg)">surface</div><div class="name">--yellow-bg</div><div class="val">hsl(45 100% 5.5%)</div></div>
+        </div>
+
+        <div class="tok-row-hd"><span>Neutrals · dark mode (app default)</span><span>12 steps · radix gray-dark</span></div>
+        <div class="tok-grid c-6">
+          <div class="tok"><div class="swatch" style="background:var(--bg)"></div><div class="name">--bg</div><div class="val">hsl(0 0% 8.5%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--bg-secondary)"></div><div class="name">--bg-secondary</div><div class="val">hsl(0 0% 11%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--component-bg)"></div><div class="name">--component-bg</div><div class="val">hsl(0 0% 13.6%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--component-bg-hover)"></div><div class="name">--component-bg-hover</div><div class="val">hsl(0 0% 15.8%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--component-bg-active)"></div><div class="name">--component-bg-active</div><div class="val">hsl(0 0% 17.9%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--line)"></div><div class="name">--line</div><div class="val">hsl(0 0% 20.5%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--border)"></div><div class="name">--border</div><div class="val">hsl(0 0% 24.3%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--border-hover)"></div><div class="name">--border-hover</div><div class="val">hsl(0 0% 31.2%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--solid)"></div><div class="name">--solid</div><div class="val">hsl(0 0% 43.9%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--solid-hover)"></div><div class="name">--solid-hover</div><div class="val">hsl(0 0% 49.4%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--text-secondary)"></div><div class="name">--text-secondary</div><div class="val">hsl(0 0% 62.8%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--text)"></div><div class="name">--text</div><div class="val">hsl(0 0% 93%)</div></div>
+        </div>
+
+        <div class="tok-row-hd"><span>Semantic · positive · destructive · in-motion</span><span>status only, never decoration</span></div>
+        <div class="tok-grid c-6">
+          <div class="tok"><div class="swatch" style="background:var(--green-solid)"></div><div class="name">--green-solid</div><div class="val">hsl(151 55% 41.5%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--green-bg-secondary)"></div><div class="name">--green-bg-secondary</div><div class="val">hsl(155 44% 8.4%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--red-solid)"></div><div class="name">--red-solid</div><div class="val">hsl(358 75% 59%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--red-bg-secondary)"></div><div class="name">--red-bg-secondary</div><div class="val">hsl(357 34% 12%)</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--lime-3)"></div><div class="name">--lime-3</div><div class="val">in-motion accent</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--yellow-solid)"></div><div class="name">--yellow-solid</div><div class="val">status as accent</div></div>
+        </div>
+
+        <div class="sub-hd"><div class="ix">in&nbsp;context</div><h4>Color in product<span class="src">preview/color-*</span></h4></div>
+        <div class="embeds">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Brand yellow</span><a class="open" href="./preview/color-brand.html">open ↗</a></div><iframe title="color brand preview" data-pid="color-brand" src="./preview/color-brand.html?id=color-brand" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Gray scale</span><a class="open" href="./preview/color-gray-scale.html">open ↗</a></div><iframe title="color gray scale preview" data-pid="color-gray-scale" src="./preview/color-gray-scale.html?id=color-gray-scale" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Semantic scales</span><a class="open" href="./preview/color-semantic-scales.html">open ↗</a></div><iframe title="color semantic scales preview" data-pid="color-semantic-scales" src="./preview/color-semantic-scales.html?id=color-semantic-scales" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Dark-mode surfaces</span><a class="open" href="./preview/color-dark-mode.html">open ↗</a></div><iframe title="color dark mode preview" data-pid="color-dark-mode" src="./preview/color-dark-mode.html?id=color-dark-mode" loading="lazy"></iframe></div>
+          <div class="embed" style="grid-column: 1 / -1;"><div class="ehd"><span class="ttl"><span class="dot"></span>Accessibility &amp; contrast audit</span><a class="open" href="./preview/accessibility.html">open ↗</a></div><iframe title="accessibility preview" data-pid="accessibility" src="./preview/accessibility.html?id=accessibility" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.2 TYPE -->
+      <section id="cmp-type">
+        <header class="sec-hd">
+          <div class="ix">B.02</div>
+          <div>
+            <h3>Typography</h3>
+            <div class="sub">Three local families. GT America does UI, body, display. GT America Mono does numerics. Berkeley Mono does code &amp; identifiers.</div>
+          </div>
+          <div class="src"><a href="./tokens.css">tokens.css · Type</a></div>
+        </header>
+
+        <div class="type-block">
+          <div class="type-row"><div class="tok-name">--fs-display</div><div class="meta">96px · 900 · UP</div><div class="sample" style="font-family:var(--font-display);font-size:46px;font-weight:900;letter-spacing:-0.02em;text-transform:uppercase;">put.io</div></div>
+          <div class="type-row"><div class="tok-name">--fs-3xl</div><div class="meta">48px · 700</div><div class="sample" style="font-size:34px;font-weight:700;letter-spacing:-0.025em;">Large and in charge</div></div>
+          <div class="type-row"><div class="tok-name">--fs-2xl</div><div class="meta">32px · 700</div><div class="sample" style="font-size:28px;font-weight:700;letter-spacing:-0.02em;">Section heading style</div></div>
+          <div class="type-row"><div class="tok-name">--fs-xl</div><div class="meta">24px · 500</div><div class="sample" style="font-size:22px;font-weight:500;">Subheading · card title</div></div>
+          <div class="type-row"><div class="tok-name">--fs-lg</div><div class="meta">18px · 400</div><div class="sample" style="font-size:18px;">Lead copy for long-form</div></div>
+          <div class="type-row"><div class="tok-name">--fs-md</div><div class="meta">16px · 500</div><div class="sample" style="font-size:16px;font-weight:500;">Subheading · dense UI</div></div>
+          <div class="type-row"><div class="tok-name">--fs-base</div><div class="meta">14px · 400</div><div class="sample" style="font-size:14px;">Body copy — app default</div></div>
+          <div class="type-row"><div class="tok-name">--fs-sm</div><div class="meta">13px · 400</div><div class="sample" style="font-size:13px;color:var(--text-secondary);">Secondary body</div></div>
+          <div class="type-row"><div class="tok-name">--fs-xs</div><div class="meta">12px · 500 · UP</div><div class="sample" style="font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-secondary);">Label / caption</div></div>
+          <div class="type-row"><div class="tok-name">--font-ui-mono</div><div class="meta">GT Mono · tabular</div><div class="sample" style="font-family:var(--font-ui-mono);font-variant-numeric:tabular-nums;font-size:14px;">11.20 TB · 12.4 MB/s · 00:03:42</div></div>
+          <div class="type-row"><div class="tok-name">--font-mono</div><div class="meta">Berkeley · code</div><div class="sample" style="font-family:var(--font-mono);font-size:13.5px;">ubuntu-22.04.iso · sha1: e3b0c44…</div></div>
+        </div>
+
+        <div class="sub-hd"><div class="ix">in&nbsp;context</div><h4>Type in product<span class="src">preview/type-*</span></h4></div>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Families</span><a class="open" href="./preview/type-families.html">open ↗</a></div><iframe title="type families preview" data-pid="type-families" src="./preview/type-families.html?id=type-families" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Type scale</span><a class="open" href="./preview/type-scale.html">open ↗</a></div><iframe title="type scale preview" data-pid="type-scale" src="./preview/type-scale.html?id=type-scale" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Specimen</span><a class="open" href="./preview/type-specimen.html">open ↗</a></div><iframe title="type specimen preview" data-pid="type-specimen" src="./preview/type-specimen.html?id=type-specimen" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.3 SPACING -->
+      <section id="cmp-space">
+        <header class="sec-hd">
+          <div class="ix">B.03</div>
+          <div>
+            <h3>Spacing</h3>
+            <div class="sub">4-px base, aggressive doubling. Reserved for layout — components handle inner padding via their own tokens.</div>
+          </div>
+          <div class="src"><a href="./tokens.css">tokens.css · Spacing</a></div>
+        </header>
+
+        <div class="space-block">
+          <div class="space-row"><span class="nm">--space-0</span><span class="v">0</span><span class="bar" style="width:0"></span></div>
+          <div class="space-row"><span class="nm">--space-1</span><span class="v">4px</span><span class="bar" style="width:4px"></span></div>
+          <div class="space-row"><span class="nm">--space-2</span><span class="v">8px</span><span class="bar" style="width:8px"></span></div>
+          <div class="space-row"><span class="nm">--space-3</span><span class="v">16px</span><span class="bar" style="width:16px"></span></div>
+          <div class="space-row"><span class="nm">--space-4</span><span class="v">32px</span><span class="bar" style="width:32px"></span></div>
+          <div class="space-row"><span class="nm">--space-5</span><span class="v">64px</span><span class="bar" style="width:64px"></span></div>
+          <div class="space-row"><span class="nm">--space-6</span><span class="v">128px</span><span class="bar" style="width:128px"></span></div>
+          <div class="space-row"><span class="nm">--space-7</span><span class="v">256px</span><span class="bar" style="width:256px"></span></div>
+          <div class="space-row"><span class="nm">--space-8</span><span class="v">512px</span><span class="bar" style="width:512px;max-width:100%"></span></div>
+        </div>
+
+        <div class="embeds full" style="margin-top: 18px;">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Spacing in context</span><a class="open" href="./preview/spacing-scale.html">open ↗</a></div><iframe title="spacing scale preview" data-pid="spacing-scale" src="./preview/spacing-scale.html?id=spacing-scale" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.4 RADII -->
+      <section id="cmp-radii">
+        <header class="sec-hd">
+          <div class="ix">B.04</div>
+          <div>
+            <h3>Radii &amp; shadows</h3>
+            <div class="sub">Five radii, four elevations. 6px is the default for buttons, inputs, cards. Yellow focus halo is one of the shadows.</div>
+          </div>
+          <div class="src"><a href="./tokens.css">tokens.css · Radii &amp; shadows</a></div>
+        </header>
+
+        <div class="radii">
+          <div class="r"><div class="box" style="border-radius:var(--radius-sm)"></div><div class="nm">--radius-sm</div><div class="v">4px</div></div>
+          <div class="r"><div class="box" style="border-radius:var(--radius);background:var(--yellow-component-bg);border-color:var(--yellow-border)"></div><div class="nm">--radius</div><div class="v">6px · default</div></div>
+          <div class="r"><div class="box" style="border-radius:var(--radius-md)"></div><div class="nm">--radius-md</div><div class="v">8px</div></div>
+          <div class="r"><div class="box" style="border-radius:var(--radius-lg)"></div><div class="nm">--radius-lg</div><div class="v">10px</div></div>
+          <div class="r"><div class="box" style="border-radius:var(--radius-pill)"></div><div class="nm">--radius-pill</div><div class="v">999px</div></div>
+        </div>
+
+        <div class="shadows" style="margin-top: 18px;">
+          <div class="s"><div class="box sm"></div><div class="nm">--shadow-sm</div><div class="v">hover / focus<br>0 1px 2px / 0.4</div></div>
+          <div class="s"><div class="box md"></div><div class="nm">--shadow-md</div><div class="v">popover, menu<br>0 4px 12px / 0.5</div></div>
+          <div class="s"><div class="box lg"></div><div class="nm">--shadow-lg</div><div class="v">modal, sheet<br>0 16px 40px / 0.6</div></div>
+          <div class="s"><div class="box fc"></div><div class="nm">--shadow-focus</div><div class="v">yellow halo 3px<br>0 0 0 3px / 0.35</div></div>
+        </div>
+
+        <div class="embeds full" style="margin-top: 18px;">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Radii &amp; shadows reference</span><a class="open" href="./preview/radii-shadows.html">open ↗</a></div><iframe title="radii shadows preview" data-pid="radii-shadows" src="./preview/radii-shadows.html?id=radii-shadows" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.5 MOTION -->
+      <section id="cmp-motion">
+        <header class="sec-hd">
+          <div class="ix">B.05</div>
+          <div>
+            <h3>Motion</h3>
+            <div class="sub">Two easing curves. Three durations. If a transition doesn't fit one of these, it's wrong.</div>
+          </div>
+          <div class="src"><a href="./tokens.css">tokens.css · Motion</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Easing &amp; duration scale</span><a class="open" href="./preview/tokens-motion.html">open ↗</a></div><iframe title="tokens motion preview" data-pid="tokens-motion" src="./preview/tokens-motion.html?id=tokens-motion" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- ─────────────── Brand &amp; primitives ─────────────── -->
+      <div class="sub-hd" style="margin: 40px 0 -8px;">
+        <div class="ix">B · 2</div>
+        <h4 style="font-size: 13px; color: var(--yellow-solid); font-weight: 600; letter-spacing: 0;">Brand &amp; primitives<span class="src">preview/brand-* · preview/focus-system · preview/icon-set</span></h4>
+      </div>
+
+      <!-- B.6 LOGO -->
+      <section id="cmp-logo">
+        <header class="sec-hd">
+          <div class="ix">B.06</div>
+          <div>
+            <h3>Brand &amp; logo</h3>
+            <div class="sub">Logomark, app-icon family, and the voice-setting empty-state catalogue. Kaomoji <code style="font-family:var(--font-mono);color:var(--yellow-solid);"></code> stays.</div>
+          </div>
+          <div class="src"><a href="./preview/brand-logo.html">preview/brand-*</a></div>
+        </header>
+        <div class="embeds">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Logo</span><a class="open" href="./preview/brand-logo.html">open ↗</a></div><iframe title="brand logo preview" data-pid="brand-logo" src="./preview/brand-logo.html?id=brand-logo" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>App icon</span><a class="open" href="./preview/brand-app-icon.html">open ↗</a></div><iframe title="brand app icon preview" data-pid="brand-app-icon" src="./preview/brand-app-icon.html?id=brand-app-icon" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Empty-state voice</span><a class="open" href="./preview/brand-empty-state.html">open ↗</a></div><iframe title="brand empty state preview" data-pid="brand-empty-state" src="./preview/brand-empty-state.html?id=brand-empty-state" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.7 ICONS -->
+      <section id="cmp-icons">
+        <header class="sec-hd">
+          <div class="ix">B.07</div>
+          <div>
+            <h3>Icon set</h3>
+            <div class="sub">Lucide-style going forward. Flaticons custom font remains in the legacy web app until migration.</div>
+          </div>
+          <div class="src"><a href="./preview/icon-set.html">preview/icon-set.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Icon set · Lucide-style</span><a class="open" href="./preview/icon-set.html">open ↗</a></div><iframe title="icon set preview" data-pid="icon-set" src="./preview/icon-set.html?id=icon-set" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.8 FOCUS -->
+      <section id="cmp-focus">
+        <header class="sec-hd">
+          <div class="ix">B.08</div>
+          <div>
+            <h3>Focus system</h3>
+            <div class="sub">Three input contexts, one ring. Keyboard / pointer / D-pad resolve to the same brand-yellow halo, scaled to the device.</div>
+          </div>
+          <div class="src"><a href="./preview/focus-system.html">preview/focus-system.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Focus contexts</span><a class="open" href="./preview/focus-system.html">open ↗</a></div><iframe title="focus system preview" data-pid="focus-system" src="./preview/focus-system.html?id=focus-system" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- ─────────────── UI components ─────────────── -->
+      <div class="sub-hd" style="margin: 40px 0 -8px;">
+        <div class="ix">B · 3</div>
+        <h4 style="font-size: 13px; color: var(--yellow-solid); font-weight: 600; letter-spacing: 0;">UI components<span class="src">preview/components-*</span></h4>
+      </div>
+
+      <!-- B.9 BUTTONS -->
+      <section id="cmp-buttons">
+        <header class="sec-hd">
+          <div class="ix">B.09</div>
+          <div>
+            <h3>Buttons</h3>
+            <div class="sub">5 variants × 3 sizes. Tweakable roundness, font size, caps. Source: <code style="font-family:var(--font-mono);color:var(--yellow-solid);font-size:12px;">@putdotio/ui Button.tsx</code>.</div>
+          </div>
+          <div class="src"><a href="./preview/components-buttons.html">preview/components-buttons.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Variants &amp; sizes</span><a class="open" href="./preview/components-buttons.html">open ↗</a></div><iframe title="components buttons preview" data-pid="components-buttons" src="./preview/components-buttons.html?id=components-buttons" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.10 INPUTS -->
+      <section id="cmp-inputs">
+        <header class="sec-hd">
+          <div class="ix">B.10</div>
+          <div>
+            <h3>Inputs</h3>
+            <div class="sub">Text, search (with kbd hint), password, error state. Yellow border + halo on <code style="font-family:var(--font-mono);color:var(--yellow-solid);">:focus</code>.</div>
+          </div>
+          <div class="src"><a href="./preview/components-inputs.html">preview/components-inputs.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Inputs</span><a class="open" href="./preview/components-inputs.html">open ↗</a></div><iframe title="components inputs preview" data-pid="components-inputs" src="./preview/components-inputs.html?id=components-inputs" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.11 BADGES -->
+      <section id="cmp-badges">
+        <header class="sec-hd">
+          <div class="ix">B.11</div>
+          <div>
+            <h3>Badges &amp; chips</h3>
+            <div class="sub">Lifecycle pills, filter chips, user tags. <strong>No codec / quality / "watched" badges</strong> — content-agnostic by design.</div>
+          </div>
+          <div class="src"><a href="./preview/components-badges.html">preview/components-badges.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Pills · chips · tags</span><a class="open" href="./preview/components-badges.html">open ↗</a></div><iframe title="components badges preview" data-pid="components-badges" src="./preview/components-badges.html?id=components-badges" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.12 LIST ITEM -->
+      <section id="cmp-listitem">
+        <header class="sec-hd">
+          <div class="ix">B.12</div>
+          <div>
+            <h3>List items</h3>
+            <div class="sub">The most-touched primitive. Sidebar nav, setting row, friend row, activity row — same skeleton, four shapes.</div>
+          </div>
+          <div class="src"><a href="./preview/components-list-item.html">preview/components-list-item.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Four list-item shapes</span><a class="open" href="./preview/components-list-item.html">open ↗</a></div><iframe title="components list item preview" data-pid="components-list-item" src="./preview/components-list-item.html?id=components-list-item" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.13 EMPTY -->
+      <section id="cmp-empty">
+        <header class="sec-hd">
+          <div class="ix">B.13</div>
+          <div>
+            <h3>Empty &amp; error states</h3>
+            <div class="sub">Kaomoji + one-line copy + one yellow CTA. Loading skeleton above 200ms wait. Red error sheet for real failures.</div>
+          </div>
+          <div class="src"><a href="./preview/brand-empty-state.html">preview/brand-empty-state.html</a></div>
+        </header>
+        <div class="embeds">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Empty‑state catalogue</span><a class="open" href="./preview/brand-empty-state.html">open ↗</a></div><iframe title="brand empty state 2 preview" data-pid="brand-empty-state-2" src="./preview/brand-empty-state.html?id=brand-empty-state-2" loading="lazy"></iframe></div>
+          <div class="placeholder">
+            <span class="t">Pending preview</span>
+            <span class="n">Loading skeleton + error sheet</span>
+            <span class="d">Spec lives in <a style="color:var(--yellow-solid);" href="./README.md">docs/design-system.md</a>. Skeleton appears above 200ms wait; red error sheet is reserved for real failures. Lifts from <a style="color:var(--yellow-solid);" href="#cmp-modal">Components · Overlays</a> + <a style="color:var(--yellow-solid);" href="#cmp-colors">red semantic scale</a>.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- B.14 OVERLAYS -->
+      <section id="cmp-modal">
+        <header class="sec-hd">
+          <div class="ix">B.14</div>
+          <div>
+            <h3>Overlays</h3>
+            <div class="sub">Dialog, sheet, bottom-sheet, confirm. One scrim, one elevation. Bottom-sheet is mobile-first; the others render anywhere.</div>
+          </div>
+          <div class="src"><a href="./preview/components-modal.html">preview/components-modal.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Four overlay shapes</span><a class="open" href="./preview/components-modal.html">open ↗</a></div><iframe title="components modal preview" data-pid="components-modal" src="./preview/components-modal.html?id=components-modal" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.15 FILE ROW -->
+      <section id="cmp-filerow">
+        <header class="sec-hd">
+          <div class="ix">B.15</div>
+          <div>
+            <h3>File row</h3>
+            <div class="sub">Dark by default. Yellow folder icon is the brand signature in-product. Mono numerics for size and date. Used in web tables, mobile lists, and TV grids.</div>
+          </div>
+          <div class="src"><a href="./preview/components-file-row.html">preview/components-file-row.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>File &amp; folder rows</span><a class="open" href="./preview/components-file-row.html">open ↗</a></div><iframe title="components file row preview" data-pid="components-file-row" src="./preview/components-file-row.html?id=components-file-row" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.16 STORAGE -->
+      <section id="cmp-storage">
+        <header class="sec-hd">
+          <div class="ix">B.16</div>
+          <div>
+            <h3>Storage bar</h3>
+            <div class="sub">Healthy (with file-type breakdown), warn 80%, over 95%. Compact sidebar variant + plan upsell card.</div>
+          </div>
+          <div class="src"><a href="./preview/components-storage-bar.html">preview/components-storage-bar.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Disk usage</span><a class="open" href="./preview/components-storage-bar.html">open ↗</a></div><iframe title="components storage bar preview" data-pid="components-storage-bar" src="./preview/components-storage-bar.html?id=components-storage-bar" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.17 TRANSFER STATES -->
+      <section id="cmp-transfer">
+        <header class="sec-hd">
+          <div class="ix">B.17</div>
+          <div>
+            <h3>Transfer states</h3>
+            <div class="sub">Queued → downloading → completed / seeding / failed. Health indicators replace torrent jargon (seeding ratio, peer counts).</div>
+          </div>
+          <div class="src"><a href="./preview/components-transfer-states.html">preview/components-transfer-states.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Health-indicator lifecycle</span><a class="open" href="./preview/components-transfer-states.html">open ↗</a></div><iframe title="components transfer states preview" data-pid="components-transfer-states" src="./preview/components-transfer-states.html?id=components-transfer-states" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.18 MORE PRIMITIVES -->
+      <section id="cmp-more">
+        <header class="sec-hd">
+          <div class="ix">B.18</div>
+          <div>
+            <h3>More UI primitives</h3>
+            <div class="sub">Smaller pieces that ship across surfaces — avatars, breadcrumbs, dropzone, notifications, tabs, tooltips. Same token rules, same focus model.</div>
+          </div>
+          <div class="src"><a href="./preview/">preview/components-*</a></div>
+        </header>
+        <div class="embeds">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Avatars</span><a class="open" href="./preview/components-avatar.html">open ↗</a></div><iframe title="components avatar preview" data-pid="components-avatar" src="./preview/components-avatar.html?id=components-avatar" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Breadcrumbs</span><a class="open" href="./preview/components-breadcrumbs.html">open ↗</a></div><iframe title="components breadcrumbs preview" data-pid="components-breadcrumbs" src="./preview/components-breadcrumbs.html?id=components-breadcrumbs" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Dropzone</span><a class="open" href="./preview/components-dropzone.html">open ↗</a></div><iframe title="components dropzone preview" data-pid="components-dropzone" src="./preview/components-dropzone.html?id=components-dropzone" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Notifications</span><a class="open" href="./preview/components-notification.html">open ↗</a></div><iframe title="components notification preview" data-pid="components-notification" src="./preview/components-notification.html?id=components-notification" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Tabs</span><a class="open" href="./preview/components-tabs.html">open ↗</a></div><iframe title="components tabs preview" data-pid="components-tabs" src="./preview/components-tabs.html?id=components-tabs" loading="lazy"></iframe></div>
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Tooltips</span><a class="open" href="./preview/components-tooltip.html">open ↗</a></div><iframe title="components tooltip preview" data-pid="components-tooltip" src="./preview/components-tooltip.html?id=components-tooltip" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.19 FORM FIELDS -->
+      <section id="cmp-form-fields">
+        <header class="sec-hd">
+          <div class="ix">B.19</div>
+          <div>
+            <h3>Form fields · extended</h3>
+            <div class="sub">Date · stepper · slider · tag chips · autocomplete · file row · password strength. Plus the full validation vocabulary — error / warning / success / async / counted — and a summary card pattern for long forms.</div>
+          </div>
+          <div class="src"><a href="./preview/components-form-fields.html">preview/components-form-fields.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Extended field types + validation states</span><a class="open" href="./preview/components-form-fields.html">open ↗</a></div><iframe title="components form fields preview" data-pid="components-form-fields" src="./preview/components-form-fields.html?id=components-form-fields" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <!-- B.20 FORM LAYOUTS -->
+      <section id="cmp-form-layouts">
+        <header class="sec-hd">
+          <div class="ix">B.20</div>
+          <div>
+            <h3>Form layouts</h3>
+            <div class="sub">Seven canonical compositions. Settings row (label-left), modal stacked, two-column grid, inline composer, multi-step wizard, sticky save bar with dirty state, click-to-edit row.</div>
+          </div>
+          <div class="src"><a href="./preview/components-form-layouts.html">preview/components-form-layouts.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Seven layout patterns</span><a class="open" href="./preview/components-form-layouts.html">open ↗</a></div><iframe title="components form layouts preview" data-pid="components-form-layouts" src="./preview/components-form-layouts.html?id=components-form-layouts" loading="lazy"></iframe></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============================================================
+         C · PLATFORMS
+         ============================================================ -->
+    <div class="part" id="platforms">
+      <header class="part-hd">
+        <div>
+          <div class="ix">Part C</div>
+          <h2>Platforms</h2>
+          <div class="sub">Where components compose into the surfaces users actually touch. <b>Web</b> is keyboard-first and dense. <b>Mobile</b> is touch-first with bottom-sheets. <b>TV</b> is D-pad-first at 10ft. Visual stays put.io.</div>
+        </div>
+        <div class="src">
+          <span>source · DESIGN.md</span>
+          <a href="../DESIGN.md">DESIGN.md ↗</a>
+        </div>
+      </header>
+
+      <!-- ─────────────── Web ─────────────── -->
+      <div class="sub-hd" style="margin: 8px 0 -8px;">
+        <div class="ix">C · 1</div>
+        <h4 style="font-size: 13px; color: var(--yellow-solid); font-weight: 600; letter-spacing: 0;">Web · desktop browser<span class="src">generic web consumer</span></h4>
+      </div>
+
+      <section id="plat-web-shell">
+        <header class="sec-hd">
+          <div class="ix">C.01</div>
+          <div>
+            <h3>App shell</h3>
+            <div class="sub">Collapsible sidebar (Files / Transfers / RSS / Sharing / History / Trash + Settings group), breadcrumb top bar with <kbd style="font-family:var(--font-mono);color:var(--yellow-solid);background:var(--component-bg);padding:1px 5px;border-radius:3px;font-size:11px;">/</kbd>-shortcut search, selection toolbar, and the column-headed file table.</div>
+          </div>
+          <div class="src"><a href="./preview/web-shell.html">preview/web-shell.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Files · main view</span><a class="open" href="./preview/web-shell.html">open ↗</a></div><iframe title="web shell preview" data-pid="web-shell" src="./preview/web-shell.html?id=web-shell" loading="lazy" style="height: 600px;"></iframe></div>
+        </div>
+      </section>
+
+      <section id="plat-web-protos">
+        <header class="sec-hd">
+          <div class="ix">C.02</div>
+          <div>
+            <h3>Web prototypes</h3>
+            <div class="sub">Reference screens for web consumers of the public tokens. Keep implementation paths out of the public guide.</div>
+          </div>
+          <div class="src"><span>v12 – v15 · linear-neutral</span></div>
+        </header>
+        <div class="proto-grid">
+          <div class="placeholder">
+            <span class="t">Pending source</span>
+            <span class="n">Files list · Light + Dark</span>
+            <span class="d">Build from the file-row, toolbar, navigation, and raw-filename guidance in this public guide.</span>
+          </div>
+          <div class="placeholder">
+            <span class="t">Pending source</span>
+            <span class="n">File detail / player</span>
+            <span class="d">Right-rail actions, breadcrumbs, cast controls, and player states should compose the tokenized components here.</span>
+          </div>
+          <div class="placeholder">
+            <span class="t">Pending source</span>
+            <span class="n">Command palette · ⌘K</span>
+            <span class="d">New surface — no canonical version yet. Compose from <a style="color:var(--yellow-solid);" href="#cmp-inputs">Components · Inputs</a> + <a style="color:var(--yellow-solid);" href="#cmp-listitem">List items</a>.</span>
+          </div>
+          <div class="placeholder">
+            <span class="t">Pending source</span>
+            <span class="n">Billing &amp; plans</span>
+            <span class="d">Pricing and billing screens should use the public color, button, form, and density guidance without private source pointers.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─────────────── Mobile ─────────────── -->
+      <div class="sub-hd" style="margin: 40px 0 -8px;">
+        <div class="ix">C · 2</div>
+        <h4 style="font-size: 13px; color: var(--yellow-solid); font-weight: 600; letter-spacing: 0;">Mobile · iOS &amp; Android<span class="src">putio-ios · putio-android</span></h4>
+      </div>
+
+      <section id="plat-mob-shell">
+        <header class="sec-hd">
+          <div class="ix">C.03</div>
+          <div>
+            <h3>iOS &amp; Android shells</h3>
+            <div class="sub">iOS Files screen, Android player chrome, and the shared pairing/activation flow used across iOS, Android, tvOS, Roku.</div>
+          </div>
+          <div class="src"><a href="./preview/mobile-shell.html">preview/mobile-shell.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>iOS Files · Android player · Activation</span><a class="open" href="./preview/mobile-shell.html">open ↗</a></div><iframe title="mobile shell preview" data-pid="mobile-shell" src="./preview/mobile-shell.html?id=mobile-shell" loading="lazy" style="height: 800px;"></iframe></div>
+        </div>
+      </section>
+
+      <section id="plat-mob-bottom">
+        <header class="sec-hd">
+          <div class="ix">C.04</div>
+          <div>
+            <h3>Bottom-sheet actions</h3>
+            <div class="sub">Mobile uses the bottom-sheet from <a style="color:var(--yellow-solid);" href="#cmp-modal">Components · Overlays</a> for file actions. Long-press → bottom-sheet → tap an action; destructive items use red text.</div>
+          </div>
+          <div class="src"><a href="./preview/components-modal.html">preview/components-modal.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Bottom-sheet (within Overlays)</span><a class="open" href="./preview/components-modal.html">open ↗</a></div><iframe title="components modal mobile preview" data-pid="components-modal-mobile" src="./preview/components-modal.html?id=components-modal-mobile" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <section id="plat-mob-protos">
+        <header class="sec-hd">
+          <div class="ix">C.05</div>
+          <div>
+            <h3>Mobile prototypes</h3>
+            <div class="sub">Pending canonical sources — the new <code style="font-family:var(--font-mono);color:var(--yellow-solid);font-size:12px;">putio-ios</code> &amp; <code style="font-family:var(--font-mono);color:var(--yellow-solid);font-size:12px;">putio-android</code> apps are being built spec-first.</div>
+          </div>
+          <div class="src"><a href="../docs/DISTRIBUTION.md">distribution ↗</a></div>
+        </header>
+        <div class="proto-grid">
+          <div class="placeholder">
+            <span class="t">Pending source</span>
+            <span class="n">iOS · Transfers queue</span>
+            <span class="d">Same lifecycle as web (queued / downloading / seeding / failed) but with swipe-to-act on each row. Compose from <a style="color:var(--yellow-solid);" href="#cmp-transfer">Components · Transfer states</a> + iOS shell.</span>
+          </div>
+          <div class="placeholder">
+            <span class="t">Pending source</span>
+            <span class="n">iOS · Player + PiP</span>
+            <span class="d">AVPlayer-backed. Lifts player chrome from Android sample; add Lock Screen / Dynamic Island controls.</span>
+          </div>
+          <div class="placeholder">
+            <span class="t">Pending source</span>
+            <span class="n">Android · Files list</span>
+            <span class="d">Material You scaffold, brand-yellow accent override. Long-press → bottom-sheet flow as documented in mobile-shell.</span>
+          </div>
+          <div class="placeholder">
+            <span class="t">Pending source</span>
+            <span class="n">Settings · iOS / Android</span>
+            <span class="d">Use <a style="color:var(--yellow-solid);" href="#cmp-listitem">Components · List items</a> (setting rows); group identically per <code style="font-family:var(--font-mono);color:var(--yellow-solid);">docs/design-system.md § Settings</code>.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─────────────── TV ─────────────── -->
+      <div class="sub-hd" style="margin: 40px 0 -8px;">
+        <div class="ix">C · 3</div>
+        <h4 style="font-size: 13px; color: var(--yellow-solid); font-weight: 600; letter-spacing: 0;">TV · Apple TV · Android TV · Roku · Smart-TV<span class="src">tv-shell.css</span></h4>
+      </div>
+
+      <section id="plat-tv-foundations">
+        <header class="sec-hd">
+          <div class="ix">C.06</div>
+          <div>
+            <h3>Foundations</h3>
+            <div class="sub">Row anatomy, type scale at 10ft, surface materials, content rules. Shared TV primitives live in <code style="font-family:var(--font-mono);color:var(--yellow-solid);font-size:12px;">tv-shell.css</code>.</div>
+          </div>
+          <div class="src"><a href="./tv-shell.css">tv-shell.css</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Foundations</span><a class="open" href="./preview/tv-foundations.html">open ↗</a></div><iframe title="tv foundations preview" data-pid="tv-foundations" src="./preview/tv-foundations.html?id=tv-foundations" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <section id="plat-tv-focus">
+        <header class="sec-hd">
+          <div class="ix">C.07</div>
+          <div>
+            <h3>Focus states</h3>
+            <div class="sub">scale(1.06) + 4px yellow ring + drop shadow. Same visual on every TV platform, different engines drawing it.</div>
+          </div>
+          <div class="src"><a href="./preview/tv-focus.html">preview/tv-focus.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Focus states</span><a class="open" href="./preview/tv-focus.html">open ↗</a></div><iframe title="tv focus preview" data-pid="tv-focus" src="./preview/tv-focus.html?id=tv-focus" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <section id="plat-tv-nav">
+        <header class="sec-hd">
+          <div class="ix">C.08</div>
+          <div>
+            <h3>Top navigation</h3>
+            <div class="sub">Glass tabs + search affordance. Backdrop-blur where the runtime supports it; flat fallback where it doesn't.</div>
+          </div>
+          <div class="src"><a href="./preview/tv-navigation.html">preview/tv-navigation.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Top navigation</span><a class="open" href="./preview/tv-navigation.html">open ↗</a></div><iframe title="tv navigation preview" data-pid="tv-navigation" src="./preview/tv-navigation.html?id=tv-navigation" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <section id="plat-tv-menus">
+        <header class="sec-hd">
+          <div class="ix">C.09</div>
+          <div>
+            <h3>Action menus</h3>
+            <div class="sub">File-actions overlay. Same composition rules as the mobile bottom-sheet — different chrome, identical IA.</div>
+          </div>
+          <div class="src"><a href="./preview/tv-action-menus.html">preview/tv-action-menus.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Action menus</span><a class="open" href="./preview/tv-action-menus.html">open ↗</a></div><iframe title="tv action menus preview" data-pid="tv-action-menus" src="./preview/tv-action-menus.html?id=tv-action-menus" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <section id="plat-tv-player">
+        <header class="sec-hd">
+          <div class="ix">C.10</div>
+          <div>
+            <h3>Player chrome</h3>
+            <div class="sub">Scrubber, audio/subtitle pickers, info overlay. Player engine is platform-specific (AVPlayer / libVLC / Roku / HTML5).</div>
+          </div>
+          <div class="src"><a href="./preview/tv-player.html">preview/tv-player.html</a></div>
+        </header>
+        <div class="embeds full">
+          <div class="embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Player chrome</span><a class="open" href="./preview/tv-player.html">open ↗</a></div><iframe title="tv player preview" data-pid="tv-player" src="./preview/tv-player.html?id=tv-player" loading="lazy"></iframe></div>
+        </div>
+      </section>
+
+      <section id="plat-tv-matrix">
+        <header class="sec-hd">
+          <div class="ix">C.11</div>
+          <div>
+            <h3>Platform matrix</h3>
+            <div class="sub">Seven platforms × five differences (focus engine, surface material, player ownership, perf floor, token mapping).</div>
+          </div>
+          <div class="src"><a href="../docs/DISTRIBUTION.md">docs/DISTRIBUTION.md</a></div>
+        </header>
+        <div class="placeholder">
+          <span class="t">Pending preview</span>
+          <span class="n">Strategy &amp; token mapping table</span>
+          <span class="d">Web, mobile, and TV consumers should import generic tokens and own their platform adapters. This repo does not publish native platform outputs.</span>
+        </div>
+      </section>
+
+      <section id="plat-tv-protos">
+        <header class="sec-hd">
+          <div class="ix">C.12</div>
+          <div>
+            <h3>Canonical references</h3>
+            <div class="sub">Legacy HTML prototypes stay available as reference material while the design-system guide becomes the deployed surface.</div>
+          </div>
+          <div class="src"><a href="https://github.com/putdotio/putio-design/tree/main/prototypes">prototypes/</a></div>
+        </header>
+
+        <div class="callout" style="margin-bottom: 16px;">
+          <strong>Reference, not source of truth.</strong> Use the previews above for current tokens and component behavior. Use these older prototype files for visual archaeology only, then encode reusable decisions back into <code>tokens.css</code>, <code>tv-shell.css</code>, or a preview card.
+        </div>
+
+        <div class="proto-grid">
+          <a class="proto" href="https://github.com/putdotio/putio-design/blob/main/prototypes/tvos-home-native.html">
+            <div class="glyph tv">TV</div>
+            <div><div class="nm">tvOS · native shell</div><div class="meta">prototypes/tvos-home-native.html</div></div>
+            <div class="tag">ref</div>
+          </a>
+          <a class="proto" href="https://github.com/putdotio/putio-design/blob/main/prototypes/tvos-files-v14-linear-neutral.html">
+            <div class="glyph tv">TV</div>
+            <div><div class="nm">tvOS · files list</div><div class="meta">prototypes/tvos-files-v14-linear-neutral.html</div></div>
+            <div class="tag">ref</div>
+          </a>
+          <a class="proto" href="https://github.com/putdotio/putio-design/blob/main/prototypes/tvos-player-v15-linear-neutral-overlay.html">
+            <div class="glyph tv">TV</div>
+            <div><div class="nm">tvOS · player overlay</div><div class="meta">prototypes/tvos-player-v15-linear-neutral-overlay.html</div></div>
+            <div class="tag">ref</div>
+          </a>
+          <a class="proto" href="https://github.com/putdotio/putio-design/blob/main/prototypes/roku-files-v2-clean.html">
+            <div class="glyph rk">RK</div>
+            <div><div class="nm">Roku · files list</div><div class="meta">prototypes/roku-files-v2-clean.html</div></div>
+            <div class="tag">ref</div>
+          </a>
+          <a class="proto" href="https://github.com/putdotio/putio-design/blob/main/prototypes/roku-player-v12-linear-neutral.html">
+            <div class="glyph rk">RK</div>
+            <div><div class="nm">Roku · player</div><div class="meta">prototypes/roku-player-v12-linear-neutral.html</div></div>
+            <div class="tag">ref</div>
+          </a>
+          <a class="proto" href="https://github.com/putdotio/putio-design/tree/main/prototypes">
+            <div class="glyph web">↗</div>
+            <div><div class="nm">Open legacy prototype archive</div><div class="meta">all checked-in HTML prototypes</div></div>
+            <div class="tag">all</div>
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      Tokens: <a href="./tokens.css">tokens.css</a> ·
+      Docs: <a href="../DESIGN.md">DESIGN.md</a>,
+      <a href="./README.md">system guide</a>,
+      <a href="../docs/DISTRIBUTION.md">distribution</a>
+      <br><span class="kao"></span>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+/* iframe auto-resize — listen for {type:"__preview_h", id, h} from each preview */
+(function () {
+  const map = new Map();
+  document.querySelectorAll('iframe[data-pid]').forEach(f => map.set(f.dataset.pid, f));
+
+  window.addEventListener('message', (e) => {
+    const d = e.data;
+    if (!d || d.type !== '__preview_h' || typeof d.h !== 'number') return;
+    let frame = null;
+    if (d.id) {
+      const trimmed = String(d.id).replace(/\.html$/, '');
+      frame = map.get(trimmed) || map.get(d.id);
+    }
+    if (!frame) {
+      document.querySelectorAll('iframe').forEach(f => { if (f.contentWindow === e.source) frame = f; });
+    }
+    if (!frame) return;
+    const next = Math.max(120, d.h);
+    const cur = parseFloat(frame.style.height) || 0;
+    if (Math.abs(next - cur) < 2) return; // ignore sub-pixel chatter — prevents resize feedback loop
+    frame.style.height = next + 'px';
+  });
+})();
+
+/* TOC active-section on scroll */
+(function () {
+  const links = [...document.querySelectorAll('.toc nav a[href^="#"]')];
+  const byId = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+  const targets = [...byId.keys()].map(id => document.getElementById(id)).filter(Boolean);
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      const id = en.target.id;
+      links.forEach(l => l.classList.remove('is-active'));
+      const a = byId.get(id);
+      if (a) a.classList.add('is-active');
+    });
+  }, { rootMargin: '-25% 0px -65% 0px' });
+  targets.forEach(t => io.observe(t));
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<title>put.io design preview</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .card { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .head { display: flex; align-items: baseline; gap: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+  .head .ix { font-family: var(--font-ui-mono); font-size: 11px; color: var(--yellow-solid); letter-spacing: 0.04em; }
+  .head .t { font-size: 15px; font-weight: 500; color: var(--text); }
+  .head .n { margin-left: auto; font-size: 12px; color: var(--text-secondary); }
+  .note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
+  .note b { color: var(--text); }
+  .note code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11.5px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+  /* ── Inline dropzone — settings / forms ── */
+  .dz {
+    border: 2px dashed var(--border);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: 36px 28px;
+    text-align: center;
+    transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+    cursor: pointer;
+    display: flex; flex-direction: column; gap: 10px; align-items: center;
+  }
+  .dz:hover { border-color: var(--border-hover); }
+  .dz.active {
+    border-color: var(--yellow-solid);
+    background: var(--yellow-component-bg);
+  }
+  .dz.reject {
+    border-color: var(--red-border);
+    background: var(--red-bg-secondary);
+  }
+  .dz i { font-size: 32px; color: var(--text-secondary); }
+  .dz.active i { color: var(--yellow-solid); }
+  .dz.reject i { color: var(--red-solid); }
+  .dz .ttl { font-size: var(--fs-base); color: var(--text); font-weight: 500; }
+  .dz.reject .ttl { color: var(--red-text-secondary); }
+  .dz .sub { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; }
+  .dz .sub a { color: var(--yellow-solid); text-decoration: none; font-weight: 500; cursor: pointer; }
+  .dz .sub a:hover { text-decoration: underline; }
+
+  /* ── Full-screen overlay dropzone ──
+     Triggered by drag-over anywhere in the app
+  */
+  .fs-overlay {
+    position: relative;
+    background: var(--bg-secondary);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    height: 320px; overflow: hidden;
+  }
+  .fs-overlay .ghost-page {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, transparent 0 24px, var(--component-bg) 24px 60px, transparent 60px 86px, var(--component-bg) 86px 78%, transparent 78%),
+      linear-gradient(to bottom, transparent 0 18px, var(--line) 18px 19px, transparent 19px);
+    background-size: 100% 46px;
+    background-repeat: repeat-y;
+    opacity: 0.4;
+  }
+  .fs-overlay .scrim {
+    position: absolute; inset: 14px;
+    background: color-mix(in srgb, var(--yellow-solid) 22%, transparent);
+    border: 3px dashed var(--yellow-solid);
+    border-radius: var(--radius-lg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .fs-overlay .scrim i { font-size: 48px; color: var(--yellow-solid); }
+  .fs-overlay .scrim .ttl { font-size: 20px; font-weight: 500; color: var(--text); }
+  .fs-overlay .scrim .sub { font-size: 13.5px; color: var(--text-secondary); }
+
+  /* ── Upload progress list — after drop ── */
+  .upload-list {
+    background: var(--bg-secondary);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .upload-row {
+    display: grid;
+    grid-template-columns: 24px 1fr 100px 28px;
+    gap: 14px; align-items: center;
+    padding: 12px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .upload-row:first-child { border-top: 0; }
+  .upload-row i.ft { font-size: 18px; color: var(--text-secondary); }
+  .upload-row i.ft.video { color: var(--text-secondary); }
+  .upload-row i.ft.image { color: var(--green-solid); }
+  .upload-row i.ft.archive { color: var(--text-secondary); }
+  .upload-row .body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .upload-row .nm {
+    font-size: var(--fs-base); color: var(--text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .upload-row .bar {
+    height: 3px; background: var(--component-bg);
+    border-radius: var(--radius-pill); overflow: hidden;
+  }
+  .upload-row .bar > div { height: 100%; background: var(--yellow-solid); }
+  .upload-row .meta {
+    font-family: var(--font-ui-mono); font-variant-numeric: tabular-nums;
+    font-size: 11.5px; color: var(--text-secondary); text-align: right;
+  }
+  .upload-row.done .meta { color: var(--green-text-secondary); }
+  .upload-row.done .bar > div { background: var(--green-solid); }
+  .upload-row.failed .meta { color: var(--red-text-secondary); }
+  .upload-row.failed .bar > div { background: var(--red-solid); }
+  .upload-row .x {
+    width: 22px; height: 22px;
+    background: transparent; color: var(--text-secondary);
+    border: 0; cursor: pointer; border-radius: var(--radius-sm);
+    display: grid; place-items: center;
+  }
+  .upload-row .x:hover { background: var(--component-bg-hover); color: var(--text); }
+
+  .lucide-icon { width: 1em; height: 1em; display: inline-block; vertical-align: -0.125em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+</style></head>
+<body>
+<div class="card">
+
+  <div class="head">
+    <span class="ix">01</span>
+    <span class="t">Inline dropzone — three states</span>
+    <span class="n">Dropzone.tsx · react-dropzone</span>
+  </div>
+  <div class="note">
+    Dashed-border dropzone for embedded upload contexts (settings → upload avatar, new transfer modal). <b>Idle</b> → neutral. <b>Drag accept</b> → yellow border + tinted bg. <b>Drag reject</b> → red border + tinted bg. Always shows the "or select" link as a click target.
+  </div>
+
+  <div class="grid">
+    <div class="dz">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      <div class="ttl">Drag and drop, or select files</div>
+      <div class="sub">Any file type, up to 100 GB each. <a>Browse…</a></div>
+    </div>
+
+    <div class="dz active">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      <div class="ttl">Drop to upload</div>
+      <div class="sub">3 files · 4.8 GB</div>
+    </div>
+
+    <div class="dz reject">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      <div class="ttl">Can't upload that</div>
+      <div class="sub">Files larger than 100 GB aren't supported. Try a magnet link instead.</div>
+    </div>
+
+    <div class="dz">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      <div class="ttl">Paste a magnet or URL</div>
+      <div class="sub">Drag a torrent file, or paste a link with <code style="font-family:var(--font-mono);color:var(--yellow-solid);font-size:11.5px;">⌘V</code>.</div>
+    </div>
+  </div>
+
+  <!-- Full-screen overlay -->
+  <div class="head" style="margin-top: 8px;">
+    <span class="ix">02</span>
+    <span class="t">Full-screen overlay — drag-anywhere</span>
+  </div>
+  <div class="note">
+    Triggered when the user drags files <em>anywhere</em> in the app, not just over a dropzone. Yellow-tinted scrim with a 3px dashed border, big cloud glyph centered. The underlying UI dims but stays visible through the backdrop blur.
+  </div>
+
+  <div class="fs-overlay">
+    <div class="ghost-page"></div>
+    <div class="scrim">
+      <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      <div class="ttl">Drop anywhere to upload</div>
+      <div class="sub">Files land in <code style="font-family:var(--font-mono);color:var(--yellow-solid);font-size:11.5px;">/homework_answers_DONT_DELETE</code></div>
+    </div>
+  </div>
+
+  <!-- Upload progress -->
+  <div class="head" style="margin-top: 8px;">
+    <span class="ix">03</span>
+    <span class="t">Upload progress — after drop</span>
+  </div>
+  <div class="note">
+    Once the upload starts, the dropzone collapses into a list of rows. Each row shows file glyph, name, progress bar, percent / rate, and a cancel button. Completed rows turn green; failed turn red and keep their cancel as a "remove" affordance.
+  </div>
+
+  <div class="upload-list">
+    <div class="upload-row">
+      <svg class="lucide-icon ft" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      <div class="body">
+        <div class="nm">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div>
+        <div class="bar"><div style="width: 64%"></div></div>
+      </div>
+      <div class="meta">2.18 GB · 18 MB/s</div>
+      <button aria-label="Preview action" class="x"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg></button>
+    </div>
+    <div class="upload-row done">
+      <svg class="lucide-icon ft image" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      <div class="body">
+        <div class="nm">tears_of_steel-poster.jpg</div>
+        <div class="bar"><div style="width: 100%"></div></div>
+      </div>
+      <div class="meta">DONE</div>
+      <button aria-label="Preview action" class="x"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg></button>
+    </div>
+    <div class="upload-row failed">
+      <svg class="lucide-icon ft archive" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      <div class="body">
+        <div class="nm">archive-2024.zip</div>
+        <div class="bar"><div style="width: 42%"></div></div>
+      </div>
+      <div class="meta">FAILED · TIMEOUT</div>
+      <button aria-label="Preview action" class="x"><svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg></button>
+    </div>
+  </div>
+
+</div>
+</body></html>
