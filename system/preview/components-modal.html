@@ -1,20 +1,45 @@
 <!DOCTYPE html>
-<html lang="en" class="dark"><head><meta charset="utf-8">
-<title>put.io preview · components modal</title>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap — runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV's Liquid Glass, mobile-shell hero).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · components · modal</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 <link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="./_components.css">
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="./_resize.js" defer></script>
 <style>
   html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
-  .card { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
-  .head { display: flex; align-items: baseline; gap: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
-  .head .ix { font-family: var(--font-ui-mono); font-size: 11px; color: var(--yellow-solid); letter-spacing: 0.04em; }
-  .head .t { font-size: 15px; font-weight: 500; color: var(--text); }
-  .head .n { margin-left: auto; font-size: 12px; color: var(--text-secondary); }
-  .note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+.note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
   .note b { color: var(--text); }
   .note code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11.5px; }
 
@@ -27,7 +52,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    height: 360px;
+    height: 400px;
   }
   .stage .ghost {
     position: absolute; inset: 0;
@@ -44,28 +69,11 @@
     z-index: 1;
   }
 
-  /* Buttons — production parity */
-  .btn {
-    height: 32px; padding: 0 14px;
-    border: 1px solid transparent; border-radius: var(--radius);
-    font-family: var(--font-sans); font-weight: var(--fw-medium); font-size: var(--fs-base);
-    text-transform: uppercase; letter-spacing: 0.8px;
-    cursor: pointer; white-space: nowrap;
-    display: inline-flex; align-items: center; gap: 8px;
-    transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
-  }
-  .btn.primary { background: var(--yellow-solid); border-color: var(--yellow-solid); color: #000; }
-  .btn.primary:hover { background: var(--yellow-solid-hover); border-color: var(--yellow-solid-hover); }
-  .btn.default { background: var(--component-bg); border-color: var(--border); color: var(--text); }
-  .btn.default:hover { background: var(--component-bg-hover); border-color: var(--border-hover); }
-  .btn.danger  { background: var(--red-solid); border-color: var(--red-solid); color: #fff; }
-  .btn.danger:hover { background: var(--red-solid-hover); border-color: var(--red-solid-hover); }
-
   /* ── Centered dialog (Share) ── */
   .dialog {
     position: absolute; left: 50%; top: 50%;
     transform: translate(-50%, -50%);
-    width: 360px;
+    width: 400px;
     background: var(--component-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
@@ -73,18 +81,35 @@
     overflow: hidden;
     z-index: 2;
   }
-  .dialog .body { padding: 20px 22px 8px; }
-  .dialog h3 { font-size: 16px; font-weight: 500; color: var(--text); margin: 0 0 6px; letter-spacing: -0.005em; }
-  .dialog p  { font-size: 13.5px; color: var(--text-secondary); line-height: 1.55; margin: 0 0 16px; }
-  .dialog .ft { padding: 14px 22px 18px; display: flex; gap: 10px; justify-content: flex-end; }
+  .dialog .hd {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 20px 22px 0;
+  }
+  .dialog .close {
+    width: 26px; height: 26px;
+    background: transparent; color: var(--text-secondary);
+    border: 0; border-radius: var(--radius-sm); cursor: pointer;
+    display: grid; place-items: center; margin: -4px -6px 0 0;
+  }
+  .dialog .close:hover { background: var(--component-bg-hover); color: var(--text); }
+  .dialog .body { padding: 4px 22px 18px; }
+  .dialog h3 { font-size: 15px; font-weight: 500; color: var(--text); margin: 0 0 6px; letter-spacing: -0.005em; }
+  .dialog p  { font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin: 0 0 16px; max-width: 36ch; }
+  .dialog .ft {
+    padding: 12px 18px;
+    display: flex; gap: 10px; justify-content: flex-end;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--line);
+  }
   .dialog .meta {
     background: var(--bg-secondary);
     border-top: 1px solid var(--line);
-    padding: 12px 22px;
+    padding: 10px 22px;
     display: flex; justify-content: space-between;
-    font-family: var(--font-ui-mono); font-size: 11.5px; color: var(--text-secondary);
+    font-family: var(--font-ui-mono); font-size: 11px; color: var(--text-secondary);
+    letter-spacing: 0.04em; text-transform: uppercase;
   }
-  .dialog .meta b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .dialog .meta b { color: var(--text); font-variant-numeric: tabular-nums; text-transform: none; letter-spacing: 0; }
   .field {
     width: 100%; height: 34px; padding: 0 12px; box-sizing: border-box;
     border-radius: var(--radius-sm); border: 1px solid var(--border);
@@ -100,16 +125,20 @@
   /* ── Right sheet (New transfer) ── */
   .sheet {
     position: absolute; top: 0; right: 0; bottom: 0;
-    width: 320px;
+    width: 340px;
     background: var(--component-bg);
     border-left: 1px solid var(--border);
     box-shadow: var(--shadow-lg);
-    padding: 20px 20px 18px;
-    display: flex; flex-direction: column; gap: 14px;
+    display: flex; flex-direction: column;
     box-sizing: border-box;
     z-index: 2;
   }
-  .sheet .hd { display: flex; justify-content: space-between; align-items: center; }
+  .sheet .hd {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-secondary);
+  }
   .sheet .hd .ttl { font-size: 14px; font-weight: 500; color: var(--text); }
   .sheet .hd .close {
     width: 26px; height: 26px;
@@ -118,19 +147,31 @@
     display: grid; place-items: center;
   }
   .sheet .hd .close:hover { background: var(--component-bg-hover); color: var(--text); }
-  .sheet .row { display: flex; flex-direction: column; gap: 4px; }
+  .sheet .bd {
+    padding: 18px;
+    display: flex; flex-direction: column; gap: 14px;
+    flex: 1; min-height: 0; overflow-y: auto;
+  }
+  .sheet .row { display: flex; flex-direction: column; gap: 6px; }
   .sheet textarea {
     width: 100%; padding: 10px 12px; box-sizing: border-box;
     border-radius: var(--radius-sm); border: 1px solid var(--border);
     background: var(--app-bg); color: var(--text);
-    font-family: var(--font-sans); font-size: 13px;
+    font-family: var(--font-mono); font-size: 12px;
     min-height: 72px; resize: vertical; line-height: 1.5;
   }
-  .sheet .ft { margin-top: auto; display: flex; gap: 10px; justify-content: flex-end; padding-top: 12px; border-top: 1px solid var(--line); }
+  .sheet .ft {
+    display: flex; gap: 10px; justify-content: flex-end;
+    padding: 12px 18px;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--line);
+  }
   .toggle-row {
     display: flex; align-items: center; justify-content: space-between;
     padding: 4px 0;
   }
+  .toggle-row .l { display: flex; flex-direction: column; gap: 2px; }
+  .toggle-row .l .sub { font-size: 11.5px; color: var(--text-secondary); line-height: 1.4; }
   .toggle {
     width: 36px; height: 22px; background: var(--component-bg-active);
     border: 1px solid var(--border); border-radius: var(--radius-pill);
@@ -150,35 +191,57 @@
     background: var(--component-bg);
     border-top: 1px solid var(--border);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    padding: 8px 18px 18px;
+    padding: 8px 10px 14px;
     box-shadow: var(--shadow-lg);
     z-index: 2;
   }
-  .bottom .handle { width: 36px; height: 4px; background: var(--border-hover); border-radius: var(--radius-pill); margin: 4px auto 12px; }
+  .bottom .handle { width: 36px; height: 4px; background: var(--border-hover); border-radius: var(--radius-pill); margin: 4px auto 10px; }
   .bottom .item {
-    padding: 8px 4px 12px;
+    display: grid; grid-template-columns: 36px 1fr; gap: 12px;
+    align-items: center;
+    padding: 8px 8px 12px;
+    margin: 0 0 6px;
     border-bottom: 1px solid var(--line);
-    margin-bottom: 6px;
-    font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary);
+  }
+  .bottom .item .thumb {
+    width: 36px; height: 36px; border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--yellow-solid) 14%, transparent);
+    color: var(--yellow-solid);
+    display: grid; place-items: center; font-size: 18px;
+    flex-shrink: 0;
+  }
+  .bottom .item .name {
+    font-family: var(--font-mono); font-size: 12.5px; color: var(--text);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
+  .bottom .item .meta {
+    font-size: 11px; color: var(--text-secondary); margin-top: 2px;
+    font-family: var(--font-ui-mono);
+  }
   .bottom .opt {
-    display: grid; grid-template-columns: 22px 1fr;
+    display: grid; grid-template-columns: 22px 1fr auto;
     gap: 14px; align-items: center;
-    padding: 9px 6px;
+    padding: 9px 8px;
     color: var(--text); cursor: pointer; border-radius: var(--radius-sm);
     font-size: 14px;
   }
   .bottom .opt:hover { background: var(--component-bg-hover); }
-  .bottom .opt i { font-size: 18px; color: var(--text-secondary); line-height: 1; }
+  .bottom .opt i { font-size: 18px; color: var(--text-secondary); line-height: 1; justify-self: center; }
+  .bottom .opt .kbd {
+    font-family: var(--font-ui-mono); font-size: 10.5px;
+    color: var(--text-secondary);
+    padding: 2px 6px; border-radius: var(--radius-sm);
+    border: 1px solid var(--line); background: var(--bg-secondary);
+  }
   .bottom .opt.destructive { color: var(--red-text-secondary); }
   .bottom .opt.destructive i { color: var(--red-solid); }
+  .bottom .opt.destructive { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 12px; border-radius: 0; }
 
-  /* ── Confirm modal ── */
+  /* ── Confirm modal — left-aligned, no centered illustration ── */
   .confirm {
     position: absolute; left: 50%; top: 50%;
     transform: translate(-50%, -50%);
-    width: 340px;
+    width: 420px;
     background: var(--component-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
@@ -186,20 +249,32 @@
     overflow: hidden;
     z-index: 2;
   }
-  .confirm .body {
-    padding: 24px 22px 6px;
-    text-align: center;
+  .confirm .body { padding: 20px 22px 18px; }
+  .confirm h3 {
+    font-size: 15px; font-weight: 500; color: var(--text);
+    margin: 0 0 8px; letter-spacing: -0.005em;
   }
-  .confirm .glyph {
-    width: 44px; height: 44px; border-radius: 50%;
-    background: var(--red-component-bg); color: var(--red-solid);
-    display: grid; place-items: center;
-    margin: 0 auto 14px;
+  .confirm p {
+    font-size: 13px; color: var(--text-secondary); line-height: 1.55;
+    margin: 0 0 14px; max-width: 44ch;
   }
-  .confirm .glyph i { font-size: 22px; }
-  .confirm h3 { font-size: 16px; font-weight: 500; color: var(--text); margin: 0 0 6px; }
-  .confirm p { font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin: 0 0 16px; }
-  .confirm .ft { padding: 14px 22px 18px; display: flex; gap: 10px; justify-content: center; }
+  .confirm .danger-callout {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 12px;
+    background: var(--red-bg-secondary);
+    border: 1px solid var(--red-component-bg);
+    border-radius: var(--radius);
+    font-size: 12.5px; color: var(--red-text-secondary);
+    line-height: 1.5;
+  }
+  .confirm .danger-callout i { font-size: 16px; flex-shrink: 0; margin-top: 1px; color: var(--red-solid); }
+  .confirm .danger-callout b { color: var(--text); font-weight: 500; font-family: var(--font-mono); }
+  .confirm .ft {
+    padding: 12px 18px;
+    display: flex; gap: 10px; justify-content: flex-end;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--line);
+  }
 
   /* anatomy */
   .anat {
@@ -216,7 +291,7 @@
   .anat .d { font-size: 11.5px; color: var(--text-secondary); margin-top: 3px; line-height: 1.5; }
 </style></head>
 <body>
-<div class="card">
+<div class="preview-shell">
 
   <div class="head">
     <span class="ix">01</span>
@@ -234,8 +309,11 @@
       <div class="ghost"></div>
       <div class="scrim"></div>
       <div class="dialog">
-        <div class="body">
+        <div class="hd">
           <h3>Share with a friend</h3>
+          <button class="close"><i class="ph ph-x" style="font-size:14px;"></i></button>
+        </div>
+        <div class="body">
           <p>Send a private link to anyone — they don't need a put.io account to watch or download.</p>
           <div>
             <span class="field-label">Link</span>
@@ -247,8 +325,8 @@
           <span><b>0</b> views</span>
         </div>
         <div class="ft">
-          <button class="btn default">Copy link</button>
-          <button class="btn primary">Send</button>
+          <button class="btn-default">Copy link</button>
+          <button class="btn-primary">Send</button>
         </div>
       </div>
     </div>
@@ -262,21 +340,26 @@
           <div class="ttl">New transfer</div>
           <button class="close"><i class="ph ph-x" style="font-size:14px;"></i></button>
         </div>
-        <div class="row">
-          <span class="field-label">Magnet · URL · .torrent</span>
-          <textarea>magnet:?xt=urn:btih:a1b2c3d4e5f6&amp;dn=ubuntu-24.04.1-desktop-amd64.iso</textarea>
-        </div>
-        <div class="row">
-          <span class="field-label">Destination folder</span>
-          <input class="field" value="/Films/2024" />
-        </div>
-        <div class="toggle-row">
-          <span class="field-label" style="margin: 0;">Notify when done</span>
-          <div class="toggle on"></div>
+        <div class="bd">
+          <div class="row">
+            <span class="field-label">Magnet · URL · .torrent</span>
+            <textarea>magnet:?xt=urn:btih:a1b2c3d4e5f6&amp;dn=Dune.Part.Two.2024.1080p.WEB-DL</textarea>
+          </div>
+          <div class="row">
+            <span class="field-label">Destination folder</span>
+            <input class="field" value="/Films/2024" />
+          </div>
+          <div class="toggle-row">
+            <div class="l">
+              <span class="field-label" style="margin: 0;">Notify when done</span>
+              <span class="sub">Email when the transfer finishes</span>
+            </div>
+            <div class="toggle on"></div>
+          </div>
         </div>
         <div class="ft">
-          <button class="btn default">Cancel</button>
-          <button class="btn primary">Add</button>
+          <button class="btn-default">Cancel</button>
+          <button class="btn-primary">Add</button>
         </div>
       </div>
     </div>
@@ -287,11 +370,17 @@
       <div class="scrim"></div>
       <div class="bottom">
         <div class="handle"></div>
-        <div class="item">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv · 3.42 GB</div>
-        <div class="opt"><i class="ph-fill ph-play"></i><span>Play here</span></div>
-        <div class="opt"><i class="ph ph-broadcast"></i><span>Cast to TV</span></div>
-        <div class="opt"><i class="ph ph-download-simple"></i><span>Download to device</span></div>
-        <div class="opt destructive"><i class="ph ph-trash"></i><span>Move to trash</span></div>
+        <div class="item">
+          <div class="thumb"><i class="ph-fill ph-film-slate"></i></div>
+          <div>
+            <div class="name">Dune.Part.Two.2024.1080p.WEB-DL.mkv</div>
+            <div class="meta">3.42 GB · MKV · 2h 46m</div>
+          </div>
+        </div>
+        <div class="opt"><i class="ph-fill ph-play"></i><span>Play here</span><span class="kbd">space</span></div>
+        <div class="opt"><i class="ph ph-broadcast"></i><span>Cast to TV</span><span></span></div>
+        <div class="opt"><i class="ph ph-download-simple"></i><span>Download to device</span><span class="kbd">⌘D</span></div>
+        <div class="opt destructive"><i class="ph ph-trash"></i><span>Move to trash</span><span></span></div>
       </div>
     </div>
 
@@ -301,13 +390,16 @@
       <div class="scrim"></div>
       <div class="confirm">
         <div class="body">
-          <div class="glyph"><i class="ph ph-trash"></i></div>
-          <h3>Delete 4 items forever?</h3>
-          <p>These files won't go to Trash. This action can't be undone.</p>
+          <h3>Delete 4 items?</h3>
+          <p>These files will be removed immediately. They won't go to Trash and this can't be undone.</p>
+          <div class="danger-callout">
+            <i class="ph-fill ph-warning-circle"></i>
+            <span>You're about to delete <b>1 folder</b> and <b>3 files</b> totaling <b>3.42 GB</b>.</span>
+          </div>
         </div>
         <div class="ft">
-          <button class="btn default">Cancel</button>
-          <button class="btn danger">Delete forever</button>
+          <button class="btn-default">Cancel</button>
+          <button class="btn-danger"><i class="ph-bold ph-trash"></i>Delete forever</button>
         </div>
       </div>
     </div>

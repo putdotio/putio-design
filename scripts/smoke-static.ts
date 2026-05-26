@@ -3,7 +3,7 @@ import process from "node:process";
 
 const port = Number(process.env.PORT ?? String(4200 + Math.floor(Math.random() * 1000)));
 const baseUrl = `http://127.0.0.1:${port}`;
-const paths = ["/", "/design-system.html", "/design-system-light.html", "/tokens.css", "/preview/web-shell.html"];
+const paths = ["/", "/design-system.html", "/design-system.html?theme=light", "/design-system-light.html", "/tokens.css", "/preview/web-shell.html"];
 
 function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -32,7 +32,8 @@ async function smokePath(pathname: string) {
   }
 
   const text = await response.text();
-  if (pathname.endsWith(".html") || pathname === "/") {
+  const cleanPathname = pathname.split("?", 1)[0] ?? pathname;
+  if (cleanPathname.endsWith(".html") || cleanPathname === "/") {
     if (!text.includes("put.io")) {
       throw new Error(`${pathname} did not include the expected put.io marker`);
     }

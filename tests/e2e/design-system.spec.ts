@@ -21,7 +21,7 @@ const htmlPages = walkHtml(systemDir)
 
 const axePages = [
   "/design-system.html",
-  "/design-system-light.html",
+  "/design-system.html?theme=light",
   "/preview/brand-logo.html",
   "/preview/components-buttons.html",
   "/preview/components-form-fields.html",

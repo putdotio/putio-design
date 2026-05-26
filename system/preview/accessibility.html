@@ -1,15 +1,44 @@
 <!DOCTYPE html>
-<html lang="en" class="dark"><head><meta charset="utf-8">
-<title>put.io preview · accessibility</title>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap — runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV's Liquid Glass, mobile-shell hero).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · accessibility</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 <link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="./_components.css">
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="./_resize.js" defer></script>
 <style>
   html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
-  .card { padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 32px; }
+  .preview-shell { padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 32px; }
   .hd { display: flex; flex-direction: column; gap: 6px; }
   .hd h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
   .hd .sub { font-size: 13px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
@@ -87,8 +116,6 @@
   .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
   .note-cell { font-size: 11.5px; color: var(--text-secondary); line-height: 1.5; }
   .note-cell code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11px; }
-
-  /* ─ Button typography demo ─────────────────────────────────────── */
   .btn-grid {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
   }
@@ -114,21 +141,6 @@
     color: var(--text-secondary); line-height: 1.55;
   }
   .btn-cell .specs b { color: var(--text); font-weight: 500; }
-
-  .btn {
-    height: 36px; padding: 0 12px; border-radius: var(--radius); border: 1px solid transparent;
-    font-family: var(--font-sans); font-weight: var(--fw-medium); font-size: var(--fs-base);
-    text-transform: uppercase; letter-spacing: 1px;
-    cursor: pointer;
-    display: inline-flex; align-items: center; gap: 8px;
-    transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
-  }
-  .btn.primary  { background: var(--yellow-solid); border-color: var(--yellow-solid); color: #000; }
-  .btn.success  { background: var(--green-solid); border-color: var(--green-solid); color: #fff; }
-  .btn.danger   { background: var(--red-solid); border-color: var(--red-solid); color: #fff; }
-  .btn.info     { background: var(--solid); border-color: var(--solid); color: #fff; }
-  .btn.default  { background: var(--component-bg); border-color: var(--border); color: var(--text); }
-  .btn.invert   { background: var(--text); border-color: var(--border); color: var(--app-bg); }
 
   /* ─ Sizing scale demo ──────────────────────────────────────────── */
   .sizes {
@@ -234,8 +246,8 @@
     padding: 18px 20px;
     display: flex; flex-direction: column; gap: 8px;
   }
-  .rule.do  { border-left: 3px solid var(--green-solid); }
-  .rule.dont { border-left: 3px solid var(--red-solid); }
+  .rule.do  { }
+  .rule.dont { }
   .rule .hd-row { display: flex; align-items: center; gap: 8px; }
   .rule .hd-row i {
     width: 18px; height: 18px; border-radius: 50%;
@@ -250,7 +262,7 @@
   .rule .body b { color: var(--text); font-weight: 500; }
 </style></head>
 <body>
-<div class="card">
+<div class="preview-shell">
 
   <div class="hd">
     <h1>Accessibility &amp; type audit</h1>
@@ -362,7 +374,7 @@
     <div class="btn-grid">
       <div class="btn-cell">
         <span class="label">Primary · yellow</span>
-        <div class="demo-area"><button class="btn primary">Go to app</button></div>
+        <div class="demo-area"><button class="btn-primary">Go to app</button></div>
         <div class="specs">
           <b>#000</b> on <b>--yellow-solid</b><br>
           <b>14.1:1</b> · AAA at any size
@@ -370,7 +382,7 @@
       </div>
       <div class="btn-cell">
         <span class="label">Success · green</span>
-        <div class="demo-area"><button class="btn success">Save changes</button></div>
+        <div class="demo-area"><button class="btn-success">Save changes</button></div>
         <div class="specs">
           <b>#fff</b> on <b>--green-solid</b><br>
           <b>3.2:1</b> · AA-large only — never use <code style="color:var(--yellow-solid);font-family:var(--font-mono)">xs</code> (24px)
@@ -378,7 +390,7 @@
       </div>
       <div class="btn-cell">
         <span class="label">Danger · red</span>
-        <div class="demo-area"><button class="btn danger">Delete forever</button></div>
+        <div class="demo-area"><button class="btn-danger">Delete forever</button></div>
         <div class="specs">
           <b>#fff</b> on <b>--red-solid</b><br>
           <b>3.9:1</b> · AA-large only — never use <code style="color:var(--yellow-solid);font-family:var(--font-mono)">xs</code>
@@ -386,7 +398,7 @@
       </div>
       <div class="btn-cell">
         <span class="label">Info · neutral</span>
-        <div class="demo-area"><button class="btn info">Show more</button></div>
+        <div class="demo-area"><button class="btn-info">Show more</button></div>
         <div class="specs">
           <b>#fff</b> on <b>--solid</b><br>
           <b>3.7:1</b> · AA-large only · prefer <span class="specs" style="color:var(--text)">default</span>
@@ -394,7 +406,7 @@
       </div>
       <div class="btn-cell">
         <span class="label">Default · neutral</span>
-        <div class="demo-area"><button class="btn default">Cancel</button></div>
+        <div class="demo-area"><button class="btn-default">Cancel</button></div>
         <div class="specs">
           <b>--text</b> on <b>--component-bg</b><br>
           <b>13.5:1</b> · AAA at any size
@@ -402,7 +414,7 @@
       </div>
       <div class="btn-cell">
         <span class="label">Invert · for emphasis</span>
-        <div class="demo-area"><button class="btn invert">Invite a friend</button></div>
+        <div class="demo-area"><button class="btn-invert">Invite a friend</button></div>
         <div class="specs">
           <b>--app-bg</b> on <b>--text</b><br>
           <b>15.5:1</b> · AAA at any size
@@ -563,7 +575,7 @@
       <div class="focus-card">
         <span class="l">Link · focus</span>
         <div class="demo">
-          <a class="f-link focus" href="../design-system.html">Open file detail</a>
+          <a class="f-link focus" href="">Open file detail</a>
         </div>
         <span class="specs" style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">
           2px outline + 3px offset<br>

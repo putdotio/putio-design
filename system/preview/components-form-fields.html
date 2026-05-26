@@ -1,57 +1,53 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
-<title>put.io preview · components form fields</title>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap — runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV's Liquid Glass, mobile-shell hero).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · components · form fields</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 <link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="./_components.css">
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="./_resize.js" defer></script>
 <style>
-  html, body { margin: 0; background: hsl(0, 0%, 8.5%); color: hsl(0, 0%, 93%); font-family: var(--font-sans); }
+  html, body { margin: 0; background: var(--app-bg); color: var(--text); font-family: var(--font-sans); }
   html, body { font-size: 14px; }
 
   .surface {
-    --bg: hsl(0, 0%, 8.5%);
-    --bg-secondary: hsl(0, 0%, 11.0%);
-    --component-bg: hsl(0, 0%, 13.6%);
-    --component-bg-hover: hsl(0, 0%, 15.8%);
-    --component-bg-active: hsl(0, 0%, 17.9%);
-    --line: hsl(0, 0%, 20.5%);
-    --border: hsl(0, 0%, 24.3%);
-    --border-hover: hsl(0, 0%, 31.2%);
-    --text-secondary: hsl(0, 0%, 62.8%);
-    --text: hsl(0, 0%, 93.0%);
-    --app-bg: hsl(0, 0%, 8.5%);
-    --red-text-secondary: hsl(358, 100%, 69.5%);
-    --red-border: hsl(357, 60.2%, 31.8%);
-    --red-border-hover: hsl(358, 65%, 40.4%);
-    --red-bg-secondary: hsl(357, 34.4%, 12.0%);
-    --green-text-secondary: hsl(151, 50%, 53.2%);
-    --green-border: hsl(153, 51.8%, 21.8%);
-    --green-bg-secondary: hsl(155, 44.2%, 8.4%);
-    --yellow-text-secondary: hsl(48, 100%, 47%);
-
-    padding: 28px 32px 36px;
+    /* tokens come from ../tokens.css via :root + html.dark */
+padding: 28px 32px 36px;
     display: flex; flex-direction: column; gap: 26px;
   }
 
   /* Section header */
-  .head {
-    display: flex; align-items: baseline; gap: 14px;
-    padding-bottom: 10px; border-bottom: 1px solid var(--line);
-  }
-  .head .ix {
-    font-family: var(--font-ui-mono); font-size: 11px;
-    color: var(--yellow-solid); letter-spacing: 0.04em;
-  }
-  .head .t { font-size: 15px; font-weight: 500; color: var(--text); }
-  .head .n {
-    margin-left: auto; font-size: 12px;
-    color: var(--text-secondary);
-  }
-
-  /* Grid + group primitives — match inputs.html */
+/* Grid + group primitives — match inputs.html */
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
   .grid.c-3 { grid-template-columns: 1fr 1fr 1fr; }
   .group { display: flex; flex-direction: column; gap: 6px; }
@@ -137,11 +133,11 @@
     width: 16px; height: 16px; border-radius: 50%;
     background: #fff; border: 2px solid var(--yellow-solid);
     transform: translate(-50%, -50%);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    box-shadow: var(--shadow-md);
     cursor: grab;
   }
   .slider .thumb.focused {
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--yellow-solid) 32%, transparent), 0 1px 3px rgba(0,0,0,0.5);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--yellow-solid) 32%, transparent), var(--shadow-md);
   }
   .slider-row .num {
     width: 80px; text-align: right;
@@ -375,9 +371,9 @@
   /* ─── Validation states ─────────────────────────────────── */
   .group.error .field { border-color: var(--red-border); }
   .group.error .field:focus { border-color: var(--red-border-hover); box-shadow: 0 0 0 1px var(--red-border-hover); }
-  .group.warn .field { border-color: hsl(48, 60%, 35%); }
+  .group.warn .field { border-color: var(--yellow-border); }
   .group.success .field { border-color: var(--green-border); }
-  .group.success .field:focus { border-color: hsl(151, 51%, 38%); box-shadow: 0 0 0 1px hsl(151, 51%, 38%); }
+  .group.success .field:focus { border-color: var(--green-border-hover); box-shadow: 0 0 0 1px var(--green-border-hover); }
 
   .msg {
     font-size: 12px; line-height: 1.5;
@@ -441,7 +437,7 @@
       <span class="label">Trial expires <span class="opt">(read-only)</span></span>
       <div class="field-wrap">
         <i class="ph ph-calendar-blank lead"></i>
-        <input aria-label="Preview field" class="field has-icon" value="Apr 24, 2026" readonly />
+        <input class="field has-icon" aria-label="Selected date" value="Apr 24, 2026" readonly />
       </div>
       <span class="hint">Single date, locale-formatted. Input is a button that opens the picker.</span>
     </div>
@@ -449,10 +445,10 @@
     <div class="group">
       <span class="label">Max concurrent downloads</span>
       <div class="stepper">
-        <button aria-label="Preview action">−</button>
+        <button>−</button>
         <span class="val">4</span>
         <span class="unit">running</span>
-        <button aria-label="Preview action">+</button>
+        <button>+</button>
       </div>
       <span class="hint">Numeric integer. Use for limits, counts, retry attempts.</span>
     </div>
@@ -479,12 +475,12 @@
       <div class="date-range">
         <div class="field-wrap">
           <i class="ph ph-calendar-blank lead"></i>
-          <input aria-label="Preview field" class="field has-icon" value="Mar 12, 2026" readonly />
+          <input class="field has-icon" aria-label="Start date" value="Mar 12, 2026" readonly />
         </div>
         <i class="ph ph-arrow-right arrow"></i>
         <div class="field-wrap">
           <i class="ph ph-calendar-blank lead"></i>
-          <input aria-label="Preview field" class="field has-icon" value="Apr 19, 2026" readonly />
+          <input class="field has-icon" aria-label="End date" value="Apr 19, 2026" readonly />
         </div>
       </div>
       <span class="hint"><i class="ph ph-info"></i>Both inputs share one popover with a 2-month grid.</span>
@@ -493,10 +489,10 @@
     <div class="group">
       <span class="label">Share with friends <span class="opt">— up to 8</span></span>
       <div class="tag-input">
-        <span class="chip"><span class="av">U1</span>user-01<span class="x"><i class="ph ph-x"></i></span></span>
-        <span class="chip"><span class="av b">U4</span>user-04<span class="x"><i class="ph ph-x"></i></span></span>
-        <span class="chip"><span class="av g">U5</span>user-05<span class="x"><i class="ph ph-x"></i></span></span>
-        <input aria-label="Preview field" placeholder="Add another…" />
+        <span class="chip"><span class="av">K</span>kai<span class="x"><i class="ph ph-x"></i></span></span>
+        <span class="chip"><span class="av b">N</span>nova<span class="x"><i class="ph ph-x"></i></span></span>
+        <span class="chip"><span class="av g">W</span>wren<span class="x"><i class="ph ph-x"></i></span></span>
+        <input aria-label="Add another email" placeholder="Add another…" />
       </div>
       <span class="hint"><i class="ph ph-keyboard"></i><kbd style="font-family:var(--font-mono);font-size:11px;color:var(--text);background:var(--component-bg);padding:1px 5px;border-radius:3px;border:1px solid var(--line);">⏎</kbd> or <kbd style="font-family:var(--font-mono);font-size:11px;color:var(--text);background:var(--component-bg);padding:1px 5px;border-radius:3px;border:1px solid var(--line);">,</kbd> to commit a chip. <kbd style="font-family:var(--font-mono);font-size:11px;color:var(--text);background:var(--component-bg);padding:1px 5px;border-radius:3px;border:1px solid var(--line);">⌫</kbd> deletes the last one.</span>
     </div>
@@ -508,9 +504,9 @@
       <span class="label">Date-range popover · expanded</span>
       <div class="date-pop">
         <div class="month">
-          <button aria-label="Preview action"><i class="ph-bold ph-caret-left"></i></button>
+          <button aria-label="Previous month"><i class="ph-bold ph-caret-left"></i></button>
           <span class="m">April 2026</span>
-          <button aria-label="Preview action"><i class="ph-bold ph-caret-right"></i></button>
+          <button aria-label="Next month"><i class="ph-bold ph-caret-right"></i></button>
         </div>
         <div class="dow"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
         <div class="days">
@@ -530,17 +526,17 @@
       <div class="ac">
         <div class="control">
           <i class="ph ph-magnifying-glass lead"></i>
-          <span class="q">wire<span class="caret">|</span></span>
+          <span class="q">dune<span class="caret">|</span></span>
           <span class="meta">7 results</span>
         </div>
         <div class="group-hd">Folders</div>
         <div class="menu" style="padding-top: 0;">
-          <div class="opt sel"><i class="ph-fill ph-folder fi"></i><span class="nm">homework_answers_DONT_DELETE</span><span class="sz">12 files</span></div>
+          <div class="opt sel"><i class="ph-fill ph-folder fi"></i><span class="nm"><em>Dune</em> · screenplays</span><span class="sz">12 files</span></div>
         </div>
         <div class="group-hd">Files</div>
         <div class="menu" style="padding-top: 0;">
-          <div class="opt"><i class="ph-fill ph-film-strip fi"></i><span class="nm">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</span><span class="sz">2.4 GB</span></div>
-          <div class="opt"><i class="ph-fill ph-film-strip fi"></i><span class="nm">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</span><span class="sz">2.1 GB</span></div>
+          <div class="opt"><i class="ph-fill ph-film-strip fi"></i><span class="nm"><em>Dune</em>.Part.Two.2024.1080p.mkv</span><span class="sz">2.4 GB</span></div>
+          <div class="opt"><i class="ph-fill ph-film-strip fi"></i><span class="nm"><em>Dune</em>.Part.One.2021.1080p.mkv</span><span class="sz">2.1 GB</span></div>
           <div class="opt"><i class="ph-fill ph-music-notes fi"></i><span class="nm">podcast_ep127_final_mixdown_v2.mp3</span><span class="sz">312 MB</span></div>
         </div>
         <div class="foot">
@@ -563,8 +559,8 @@
           <div class="sub">96 × 96 · 142 KB · square crop</div>
         </div>
         <div class="act">
-          <button aria-label="Preview action" class="btn-secondary"><i class="ph ph-pencil-simple"></i>Replace</button>
-          <button aria-label="Preview action" class="btn-secondary danger"><i class="ph ph-trash"></i>Remove</button>
+          <button class="btn-secondary"><i class="ph ph-pencil-simple"></i>Replace</button>
+          <button class="btn-secondary danger"><i class="ph ph-trash"></i>Remove</button>
         </div>
       </div>
       <span class="hint"><i class="ph ph-info"></i>JPG, PNG, or WebP — up to 4 MB. Square crops only.</span>
@@ -573,7 +569,7 @@
     <div class="group">
       <span class="label">New password <span class="req">*</span></span>
       <div class="field-wrap">
-        <input aria-label="Preview field" class="field" type="password" value="••••••••••••••" />
+        <input class="field" type="password" aria-label="New password" value="••••••••••••••" />
         <i class="ph ph-eye trail"></i>
       </div>
       <div class="strength">
@@ -602,31 +598,31 @@
   <div class="grid c-3">
     <div class="group error">
       <span class="label">Folder name <span class="req">*</span></span>
-      <input aria-label="Preview field" class="field" value="2024/Q1" />
+      <input class="field" aria-label="Folder name" value="2024/Q1" />
       <span class="msg error"><i class="ph-fill ph-warning-circle"></i>Folder names can't contain <code style="font-family:var(--font-mono);color:var(--red-text-secondary);">/</code>. Try <code style="font-family:var(--font-mono);color:var(--red-text-secondary);">2024-Q1</code>.</span>
     </div>
 
     <div class="group warn">
       <span class="label">Default download folder</span>
-      <input aria-label="Preview field" class="field" value="/Files/Unsorted" />
+      <input class="field" aria-label="Default download folder" value="/Movies/Unsorted" />
       <span class="msg warn"><i class="ph-fill ph-warning"></i>About to leave you with <strong style="color:var(--text);">0.4 GB</strong> free. Consider clearing Trash first.</span>
     </div>
 
     <div class="group success">
       <span class="label">Magnet link</span>
-      <input aria-label="Preview field" class="field mono" value="magnet:?xt=urn:btih:a1b2c3…" />
-      <span class="msg success"><i class="ph-fill ph-check-circle"></i>Parsed — <strong style="color:var(--text);">The.Wire.S03E04.Back.Burners</strong> · 2.4 GB · 89 files.</span>
+      <input class="field mono" aria-label="Magnet link" value="magnet:?xt=urn:btih:a1b2c3…" />
+      <span class="msg success"><i class="ph-fill ph-check-circle"></i>Parsed — <strong style="color:var(--text);">Dune.Part.Two.2024</strong> · 2.4 GB · 89 files.</span>
     </div>
 
     <div class="group">
       <span class="label">Username <span class="req">*</span></span>
-      <input aria-label="Preview field" class="field" value="user-01" />
+      <input class="field" aria-label="Username" value="kai" />
       <span class="msg checking"><i class="ph ph-circle-notch"></i>Checking availability…</span>
     </div>
 
     <div class="group">
       <span class="label">Bio</span>
-      <textarea aria-label="Preview text field" class="field" style="height: 60px; padding: 8px 12px; font-family: var(--font-sans); font-size: 13px;" maxlength="280">Files, links, and shared folders. ᕦ(ò_óˇ)ᕤ</textarea>
+      <textarea class="field" aria-label="Bio" style="height: 60px; padding: 8px 12px; font-family: var(--font-sans); font-size: 13px;" maxlength="280">Movies, shows, and the occasional disk-image rip. ᕦ(ò_óˇ)ᕤ</textarea>
       <div class="count-row">
         <span class="hint" style="margin: 0;">Visible on your public profile.</span>
         <span class="c">62 / 280</span>
@@ -635,7 +631,7 @@
 
     <div class="group">
       <span class="label">Tweet · 240 char limit</span>
-      <textarea aria-label="Preview text field" class="field" style="height: 60px; padding: 8px 12px; font-family: var(--font-sans); font-size: 13px;">Question about storage alerts and automatic conversions for large public-domain archive batches. Please keep my filenames unchanged in the activity log.</textarea>
+      <textarea class="field" aria-label="Tweet" style="height: 60px; padding: 8px 12px; font-family: var(--font-sans); font-size: 13px;">Just finished setting up RSS auto-fetch + auto-convert to MP4 on put.io and I am never going back. 10TB plan finally felt overkill until I started archiving entire seasons in a single night —</textarea>
       <div class="count-row">
         <span class="hint" style="margin: 0;">Approaching the limit.</span>
         <span class="c warn">228 / 240</span>
@@ -649,9 +645,9 @@
     <div class="body">
       <div class="ttl">Couldn't save your changes — 3 fields need attention.</div>
       <ul>
-        <li><a href="../design-system.html">Folder name</a> contains an invalid character.</li>
-        <li><a href="../design-system.html">Email</a> isn't a valid address.</li>
-        <li><a href="../design-system.html">Seeding ratio</a> must be between 0 and 10.</li>
+        <li><a href="">Folder name</a> contains an invalid character.</li>
+        <li><a href="">Email</a> isn't a valid address.</li>
+        <li><a href="">Seeding ratio</a> must be between 0 and 10.</li>
       </ul>
     </div>
   </div>

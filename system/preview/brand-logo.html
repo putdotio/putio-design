@@ -1,21 +1,45 @@
 <!DOCTYPE html>
-<html lang="en" class="dark"><head><meta charset="utf-8">
-<title>put.io preview · brand logo</title>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap — runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV's Liquid Glass, mobile-shell hero).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · brand · logo</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 <link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="./_components.css">
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="./_resize.js" defer></script>
 <style>
   html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
-  .card { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 26px; }
-
-  .head { display: flex; align-items: baseline; gap: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
-  .head .ix { font-family: var(--font-ui-mono); font-size: 11px; color: var(--yellow-solid); letter-spacing: 0.04em; }
-  .head .t { font-size: 15px; font-weight: 500; color: var(--text); }
-  .head .n { margin-left: auto; font-size: 12px; color: var(--text-secondary); }
-  .note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 26px; }
+.note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
   .note b { color: var(--text); }
   .note code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11.5px; }
 
@@ -97,12 +121,12 @@
   }
 </style></head>
 <body>
-<div class="card">
+<div class="preview-shell">
 
   <div class="head">
     <span class="ix">01</span>
     <span class="t">Retro pixel wordmark — primary mark</span>
-    <span class="n">system/assets/logo-retro-*.svg</span>
+    <span class="n">product implementation · ui/Logo/LogoRetro</span>
   </div>
   <div class="note">
     Two color variants. <b>Dark</b> (white &amp; yellow) for dark surfaces. <b>Light</b> (charcoal &amp; yellow) for light surfaces and yellow brand tiles. The yellow pixels stay on both. <b>Never recolor</b> — pick a variant, don't tint.
@@ -118,11 +142,6 @@
       <div class="tile light"><img src="../assets/logo-retro-light.svg" alt="put.io retro · light"></div>
       <div class="cap"><b>logo-retro-light</b></div>
       <div class="cap">on <code style="font-family:var(--font-mono);color:var(--yellow-solid);font-size:11px;">white</code> / light surfaces</div>
-    </div>
-    <div class="unit">
-      <div class="tile yellow"><img src="../assets/logo-retro-light.svg" alt="put.io retro · on yellow"></div>
-      <div class="cap"><b>logo-retro-light</b></div>
-      <div class="cap">on <code style="font-family:var(--font-mono);color:var(--yellow-solid);font-size:11px;">--yellow-solid</code> · brand tiles</div>
     </div>
   </div>
 

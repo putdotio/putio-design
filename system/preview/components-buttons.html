@@ -1,99 +1,49 @@
 <!DOCTYPE html>
-<html lang="en" class="dark"><head><meta charset="utf-8">
-<title>put.io preview · components buttons</title>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap — runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV's Liquid Glass, mobile-shell hero).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · components · buttons</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 <link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="./_components.css">
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <style>
-  html, body { height: 100%; background: var(--app-bg); color: var(--text); }
-  .card { padding: 24px; display:flex; flex-direction:column; gap: 18px; }
+  html, body { background: var(--app-bg); color: var(--text); }
+  .preview-shell { padding: 24px; display:flex; flex-direction:column; gap: 18px; }
   .btn-row { display:flex; gap: 10px; align-items:center; flex-wrap: wrap; }
   .label { font-size: 12.5px; font-weight: 500; color: var(--text); }
   .label small { font-family: var(--font-mono); text-transform: none; letter-spacing: 0; color: var(--text-secondary); opacity: 0.7; }
   .note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
   .note code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11.5px; }
   .note b { color: var(--text); font-weight: 500; }
-
-  /* ===========================================================
-     Button base — production parity with product app Button.tsx
-     - lg (default): h36 / 1.0px letter-spacing
-     - md:           h32 / 0.8px
-     - sm:           h28 / 0.6px
-     - xs:           h24 / 0.3px / font-size: 0 (smaller)
-     1px solid border same color as bg (so disabled/loading reads cleanly)
-  =========================================================== */
-  button {
-    /* fontScale via --tw-fs */
-    font-family: var(--font-sans);
-    font-weight: var(--fw-medium);                  /* 500 */
-    font-size: calc(var(--fs-base) * var(--tw-fs, 1));
-    height: calc(36px * var(--tw-fs, 1));
-    padding: 0 calc(12px * var(--tw-fs, 1));
-    border: 1px solid transparent;
-    border-radius: var(--radius);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    white-space: nowrap;
-    transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
-    user-select: none;
-  }
-  button i { font-size: 14px; line-height: 1; display: inline-flex; }
-
-  /* Sizes — letter-spacing tracks size, per production */
-  .btn-md { height: calc(32px * var(--tw-fs, 1)) !important; padding: 0 calc(12px * var(--tw-fs, 1)) !important; letter-spacing: 0.8px; }
-  .btn-sm { height: calc(28px * var(--tw-fs, 1)) !important; padding: 0 calc(12px * var(--tw-fs, 1)) !important; letter-spacing: 0.6px; }
-  .btn-xs { height: calc(24px * var(--tw-fs, 1)) !important; padding: 0 calc(8px  * var(--tw-fs, 1)) !important; font-size: calc(var(--fs-xs) * var(--tw-fs, 1)) !important; letter-spacing: 0.3px; }
-  .btn-icon { width: calc(36px * var(--tw-fs, 1)) !important; padding: 0 !important; }
-  .btn-icon.btn-md { width: calc(32px * var(--tw-fs, 1)) !important; }
-  .btn-icon.btn-sm { width: calc(28px * var(--tw-fs, 1)) !important; }
-
-  /* Variants — matches product app Button.tsx useVariantColors() */
-  .btn-primary  { background: var(--yellow-solid); border-color: var(--yellow-solid); color: #000; }
-  .btn-primary:hover  { background: var(--yellow-solid-hover); border-color: var(--yellow-solid-hover); }
-  .btn-success  { background: var(--green-solid); border-color: var(--green-solid); color: #fff; }
-  .btn-success:hover  { background: var(--green-solid-hover); border-color: var(--green-solid-hover); }
-  .btn-danger   { background: var(--red-solid); border-color: var(--red-solid); color: #fff; }
-  .btn-danger:hover   { background: var(--red-solid-hover); border-color: var(--red-solid-hover); }
-  .btn-info     { background: var(--solid); border-color: var(--solid); color: #fff; }
-  .btn-info:hover     { background: var(--solid-hover); border-color: var(--solid-hover); }
-  .btn-invert   { background: var(--text); border-color: var(--border); color: var(--app-bg); }
-  .btn-invert:hover   { border-color: var(--border-hover); }
-  .btn-default  { background: var(--component-bg); border-color: var(--border); color: var(--text); }
-  .btn-default:hover  { background: var(--component-bg-hover); border-color: var(--border-hover); }
-
-  /* States */
-  button:disabled { opacity: 0.3; cursor: not-allowed; }
-  button:disabled:hover { background: inherit; border-color: inherit; filter: none; }
-  button.is-loading { color: transparent !important; position: relative; pointer-events: none; opacity: 0.75; }
-  button.is-loading::after {
-    content: ''; position: absolute; inset: 0; margin: auto;
-    width: 14px; height: 14px; border-radius: 50%;
-    border: 1.5px solid currentColor; border-top-color: transparent;
-    opacity: 0.75;
-    animation: spin 0.7s linear infinite;
-  }
-  .btn-primary.is-loading::after { color: #000; }
-  .btn-success.is-loading::after, .btn-danger.is-loading::after, .btn-info.is-loading::after, .btn-invert.is-loading::after { color: #fff; }
-  .btn-default.is-loading::after { color: var(--text); }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Focus — tokens-driven yellow halo */
-  button:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
-
-  /* Tip card */
-  .tip {
-    margin-top: 6px; padding: 14px 16px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--line);
-    border-left: 3px solid var(--red-solid);
-    border-radius: var(--radius);
-    font-size: 12.5px; color: var(--text-secondary); line-height: 1.6;
-    max-width: 800px;
-  }
   .tip b { color: var(--text); font-weight: 500; }
   .tip code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11.5px; }
 
@@ -161,7 +111,7 @@
 </style><script src="./_resize.js" defer></script>
 </head>
 <body>
-<div class="card">
+<div class="preview-shell">
 
   <div class="label">Variants <small>· primary / success / danger / info / invert / default</small></div>
   <div class="btn-row">

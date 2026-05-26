@@ -1,0 +1,155 @@
+/* ============================================================
+   put.io \u00b7 preview/_components.css
+   Shared UI primitives consumed across preview specimens.
+
+   Single source of truth for:
+     - Button system (matches product implementation)
+     - .head specimen marker (yellow Berkeley-Mono index)
+     - .field input reset
+
+   Linked AFTER tokens.css in each preview. Don't duplicate these
+   rules locally; if you need a per-page tweak, add a more-specific
+   selector inline in the file's <style> block.
+   ============================================================ */
+
+/* ===========================================================
+   Button base \u2014 production parity with product implementation Button.tsx
+   - lg (default): h36 / 1.0px letter-spacing
+   - md:           h32 / 0.8px
+   - sm:           h28 / 0.6px
+   - xs:           h24 / 0.3px / fs-xs
+   --tw-fs scales the whole thing for breakpoints (unset = 1).
+   =========================================================== */
+button {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-medium);
+  font-size: calc(var(--fs-base) * var(--tw-fs, 1));
+  height: calc(36px * var(--tw-fs, 1));
+  padding: 0 calc(12px * var(--tw-fs, 1));
+  /* Real starting bg so transition has something to interpolate
+     from \u2014 otherwise UA `buttonface` paints silver until hover. */
+  background-color: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  border-radius: var(--radius);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  white-space: nowrap;
+  appearance: none; -webkit-appearance: none;
+  transition: background-color var(--dur-fast) var(--ease-out),
+              border-color    var(--dur-fast) var(--ease-out),
+              color           var(--dur-fast) var(--ease-out);
+  user-select: none;
+}
+button i { font-size: 14px; line-height: 1; display: inline-flex; }
+
+/* Sizes \u2014 letter-spacing tracks size */
+.btn-md { height: calc(32px * var(--tw-fs, 1)) !important; padding: 0 calc(12px * var(--tw-fs, 1)) !important; letter-spacing: 0.8px; }
+.btn-sm { height: calc(28px * var(--tw-fs, 1)) !important; padding: 0 calc(12px * var(--tw-fs, 1)) !important; letter-spacing: 0.6px; }
+.btn-xs { height: calc(24px * var(--tw-fs, 1)) !important; padding: 0 calc(8px  * var(--tw-fs, 1)) !important; font-size: calc(var(--fs-xs) * var(--tw-fs, 1)) !important; letter-spacing: 0.3px; }
+
+/* Icon-only modifier \u2014 square, no text padding, no text transform */
+.btn-icon { width: calc(36px * var(--tw-fs, 1)) !important; padding: 0 !important; text-transform: none; letter-spacing: normal; }
+.btn-icon.btn-md { width: calc(32px * var(--tw-fs, 1)) !important; }
+.btn-icon.btn-sm { width: calc(28px * var(--tw-fs, 1)) !important; }
+
+/* Layout-only modifier \u2014 full-width CTA */
+.btn-block { width: 100%; }
+
+/* Variants \u2014 token-driven. Foreground hex literals match the
+   --*-foreground tokens in tokens.css; kept inline for performance. */
+.btn-primary  { background: var(--yellow-solid);  border-color: var(--yellow-solid);  color: #000; }
+.btn-primary:hover  { background: var(--yellow-solid-hover);  border-color: var(--yellow-solid-hover); }
+.btn-success  { background: var(--green-solid);   border-color: var(--green-solid);   color: #fff; }
+.btn-success:hover  { background: var(--green-solid-hover);   border-color: var(--green-solid-hover); }
+.btn-danger   { background: var(--red-solid);     border-color: var(--red-solid);     color: #fff; }
+.btn-danger:hover   { background: var(--red-solid-hover);     border-color: var(--red-solid-hover); }
+.btn-info     { background: var(--solid);         border-color: var(--solid);         color: #fff; }
+.btn-info:hover     { background: var(--solid-hover);         border-color: var(--solid-hover); }
+.btn-invert   { background: var(--text);          border-color: var(--border);        color: var(--app-bg); }
+.btn-invert:hover   { border-color: var(--border-hover); }
+.btn-default  { background: var(--component-bg);  border-color: var(--border);        color: var(--text); }
+.btn-default:hover  { background: var(--component-bg-hover);  border-color: var(--border-hover); }
+
+/* States */
+button:disabled { opacity: 0.3; cursor: not-allowed; }
+button:disabled:hover { background: inherit; border-color: inherit; }
+button:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+
+/* Loading state \u2014 hides label, paints a CSS spinner over the button */
+button.is-loading { color: transparent !important; position: relative; pointer-events: none; opacity: 0.75; }
+button.is-loading::after {
+  content: ''; position: absolute; inset: 0; margin: auto;
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 1.5px solid currentColor; border-top-color: transparent;
+  opacity: 0.75;
+  animation: btn-spin 0.7s linear infinite;
+}
+.btn-primary.is-loading::after { color: #000; }
+.btn-success.is-loading::after,
+.btn-danger.is-loading::after,
+.btn-info.is-loading::after,
+.btn-invert.is-loading::after { color: #fff; }
+.btn-default.is-loading::after { color: var(--text); }
+@keyframes btn-spin { to { transform: rotate(360deg); } }
+
+/* Inputs/textareas/selects inherit nothing from the button reset.
+   These are dropped for safety in case they ever do. */
+input, textarea, select { text-transform: none; letter-spacing: normal; }
+
+
+/* ===========================================================
+   Specimen header \u2014 the yellow-mono index marker that anchors
+   each preview card. 11 files used to duplicate this verbatim.
+   =========================================================== */
+.head {
+  display: flex; align-items: baseline; gap: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.head .ix {
+  font-family: var(--font-ui-mono); font-size: 11px;
+  color: var(--yellow-solid); letter-spacing: 0.04em;
+}
+.head .t { font-size: 15px; font-weight: 500; color: var(--text); }
+.head .n {
+  margin-left: auto;
+  font-size: 12px; color: var(--text-secondary);
+}
+
+
+/* ===========================================================
+   Surface primitives — two roles, two chromes.
+
+     .card  = focal, elevated component surface. Sits ON --bg,
+              uses --component-bg so it reads as raised in dark
+              and contained in light. Auth card, modal, settings
+              card, anything the user's attention should go TO.
+
+     .panel = quiet inline reference container. Sits ON --bg,
+              uses --bg-secondary so it stays recessive but
+              still bordered. Code blocks, info asides, sidebar
+              panels, callouts. Lower visual weight than a card.
+
+   Both use the same hairline border + 8–10 px radius — the
+   ONLY thing that differs is the surface fill. Pick the role,
+   not the chrome.
+   =========================================================== */
+.card {
+  background: var(--component-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+.card-md { padding: 24px; }
+.card-lg { padding: 32px 32px 28px; }
+
+.panel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.panel-pad     { padding: 14px 16px; }
+.panel-pad-lg  { padding: 18px 20px; }

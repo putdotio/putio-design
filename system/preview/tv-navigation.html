@@ -1,6 +1,34 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
-<title>put.io preview · tv navigation</title>
+<html lang="en" class="dark" data-theme-lock="dark"><head>
+<script>
+  /* Theme bootstrap — runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV's Liquid Glass, mobile-shell hero).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · TV · navigation</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
@@ -9,8 +37,8 @@
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="./_resize.js" defer></script>
 <style>
-  html, body { background: #0a0a0a; margin: 0; font-family: var(--font-sans); }
-  .card { padding: 24px; display: flex; flex-direction: column; gap: 22px; color: var(--text); }
+  html, body { background: var(--app-bg); margin: 0; font-family: var(--font-sans); }
+  .preview-shell { padding: 24px; display: flex; flex-direction: column; gap: 22px; color: var(--text); }
   .label { font-size: 12.5px; font-weight: 500; color: var(--text); }
   .note  { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 720px; }
   .note b { color: var(--text); }
@@ -31,13 +59,13 @@
   .artboard .scr-title { white-space: nowrap; }
   .artboard .row .title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  .platforms { background: hsl(0,0%,11%); border: 1px solid hsl(0,0%,18%); border-radius: 10px; overflow: hidden; }
+  .platforms { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
   .ptr { display: grid; grid-template-columns: 160px repeat(4, 1fr); }
-  .ptr + .ptr { border-top: 1px solid hsl(0,0%,18%); }
-  .ptr > div { padding: 12px 14px; font-size: 12px; color: hsl(0,0%,72%); border-left: 1px solid hsl(0,0%,18%); line-height: 1.55; background: hsl(0,0%,11%); }
+  .ptr + .ptr { border-top: 1px solid var(--line); }
+  .ptr > div { padding: 12px 14px; font-size: 12px; color: var(--text-secondary); border-left: 1px solid var(--line); line-height: 1.55; background: var(--bg-secondary); }
   .ptr > div:first-child { border-left: 0; }
-  .ptr.head > div { background: hsl(0,0%,14%); font-size: 11px; color: hsl(0,0%,95%); font-weight: 600; }
-  .ptr .what { background: hsl(0,0%,11%); color: var(--yellow-solid); font-family: var(--font-ui-mono); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; font-weight: 500; }
+  .ptr.head > div { background: var(--component-bg); font-size: 11px; color: var(--text); font-weight: 600; }
+  .ptr .what { background: var(--bg-secondary); color: var(--yellow-solid); font-family: var(--font-ui-mono); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; font-weight: 500; }
 
   /* Anatomy strip */
   .anat {
@@ -56,13 +84,13 @@
 
 </style></head>
 <body>
-<div class="card">
+<div class="preview-shell">
 
   <div>
     <div class="label">Top navigation — floating glass tab bar</div>
     <div class="note">
       Centred at the top of every primary screen. Four destinations only: <b>Files / Search / History / Account</b>. Pixel retro <code class="src">put.io</code> wordmark on the left; user identity on the right.
-      Source: <code class="src">preview/tv-shell.css L159 – L237</code>.
+      Source: <code class="src">tvos.css L159 – L237</code>.
     </div>
   </div>
 
@@ -95,7 +123,7 @@
             </div>
           </div>
           <div class="topnav-right">
-            <span style="font-family: var(--font-mono);">user-01</span>
+            <span style="font-family: var(--font-mono);">kai</span>
           </div>
         </div>
 

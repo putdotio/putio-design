@@ -1,6 +1,34 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
-<title>put.io preview · tv player</title>
+<html lang="en" class="dark" data-theme-lock="dark"><head>
+<script>
+  /* Theme bootstrap — runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV's Liquid Glass, mobile-shell hero).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · TV · player</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
@@ -9,8 +37,8 @@
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="./_resize.js" defer></script>
 <style>
-  html, body { background: #0a0a0a; margin: 0; font-family: var(--font-sans); }
-  .card { padding: 24px; display: flex; flex-direction: column; gap: 22px; color: var(--text); }
+  html, body { background: var(--app-bg); margin: 0; font-family: var(--font-sans); }
+  .preview-shell { padding: 24px; display: flex; flex-direction: column; gap: 22px; color: var(--text); }
   .label { font-size: 12.5px; font-weight: 500; color: var(--text); }
   .note  { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 740px; }
   .note b { color: var(--text); }
@@ -27,7 +55,7 @@
   }
   .artboard .tv {
     position: absolute; inset: 0;
-    background: #050505 !important;
+    background: var(--bg-secondary) !important;
   }
   .artboard .tv::before { display: none !important; }
   .artboard .row, .artboard .tab, .artboard .btn { transition: none !important; }
@@ -51,7 +79,7 @@
       repeating-linear-gradient(0deg, transparent 0 3px, rgba(255,255,255,0.012) 3px 4px);
   }
 
-  /* Player chrome — lifted from preview/tv-shell.css L520 – L562 */
+  /* Player chrome — lifted from tvos.css L520 – L562 */
   .pchrome {
     position: absolute; inset: auto 0 0 0;
     padding: 0 40px 28px;
@@ -123,31 +151,31 @@
     border-color: rgba(255,255,255,0.95);
   }
 
-  .platforms { background: hsl(0,0%,11%); border: 1px solid hsl(0,0%,18%); border-radius: 10px; overflow: hidden; }
+  .platforms { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
   .ptr { display: grid; grid-template-columns: 160px repeat(4, 1fr); }
-  .ptr + .ptr { border-top: 1px solid hsl(0,0%,18%); }
-  .ptr > div { padding: 12px 14px; font-size: 12px; color: hsl(0,0%,72%); border-left: 1px solid hsl(0,0%,18%); line-height: 1.55; background: hsl(0,0%,11%); }
+  .ptr + .ptr { border-top: 1px solid var(--line); }
+  .ptr > div { padding: 12px 14px; font-size: 12px; color: var(--text-secondary); border-left: 1px solid var(--line); line-height: 1.55; background: var(--bg-secondary); }
   .ptr > div:first-child { border-left: 0; }
-  .ptr.head > div { background: hsl(0,0%,14%); font-size: 11px; color: hsl(0,0%,95%); font-weight: 600; }
-  .ptr .what { background: hsl(0,0%,11%); color: var(--yellow-solid); font-family: var(--font-ui-mono); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; font-weight: 500; }
+  .ptr.head > div { background: var(--component-bg); font-size: 11px; color: var(--text); font-weight: 600; }
+  .ptr .what { background: var(--bg-secondary); color: var(--yellow-solid); font-family: var(--font-ui-mono); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; font-weight: 500; }
 
-  .anat { background: hsl(0,0%,11%); border: 1px solid hsl(0,0%,18%); border-radius: 10px;
+  .anat { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px;
     display: grid; grid-template-columns: repeat(4, 1fr); overflow: hidden;
   }
-  .anat .c { padding: 14px 16px; border-left: 1px solid hsl(0,0%,18%); background: hsl(0,0%,11%); }
+  .anat .c { padding: 14px 16px; border-left: 1px solid var(--line); background: var(--bg-secondary); }
   .anat .c:first-child { border-left: 0; }
   .anat .k { font-size: 11px; font-weight: 500; color: var(--yellow-solid); margin-bottom: 6px; }
   .anat .v { font-family: var(--font-mono); font-size: 13px; color: var(--text); }
   .anat .d { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
 </style></head>
 <body>
-<div class="card">
+<div class="preview-shell">
 
   <div>
     <div class="label">Player chrome — minimal, bottom-anchored</div>
     <div class="note">
       Apple TV owns the player. Minimal overlay: <b>bold filename bottom-left</b>, two glass circles top-right (CC focused white, audio glass), hairline scrubber in the bottom safe area, mono timecodes. <b>No transport buttons</b> — the Siri Remote owns play/pause/scrub. Android TV, Roku, and Smart-TV web mirror this shape, but their apps draw the chrome because those platforms don't ship a system player.
-      Source: <code class="src">preview/tv-shell.css L520 – L611</code>.
+      Source: <code class="src">tvos.css L520 – L611</code>.
     </div>
   </div>
 

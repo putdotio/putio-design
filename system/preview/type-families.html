@@ -1,12 +1,40 @@
 <!DOCTYPE html>
-<html lang="en" class="dark"><head><meta charset="utf-8">
-<title>put.io preview · type families</title>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap — runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV's Liquid Glass, mobile-shell hero).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · type · families</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 <link rel="stylesheet" href="../tokens.css">
 <style>
-  html, body { height: 100%; background: var(--bg); margin: 0; }
+  html, body { background: var(--bg); margin: 0; }
   .wrap { padding: 32px 36px 48px; display: flex; flex-direction: column; gap: 44px; }
 
   .section-label {
@@ -375,7 +403,7 @@
     <div class="meta">On loading</div>
     <div>
       All three families load from <span class="code">static.put.io/fonts/</span> — the same source
-      as <span class="code">product app</span> production. <b>One CDN, zero local font files.</b>
+      as <span class="code">product implementation</span> production. <b>One CDN, zero local font files.</b>
       We dropped GT America Compressed; one sans family now carries hero display at weight 900.
     </div>
   </div>

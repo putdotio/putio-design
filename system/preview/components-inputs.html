@@ -1,6 +1,34 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
-<title>put.io preview · components inputs</title>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap — runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV's Liquid Glass, mobile-shell hero).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · components · inputs</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
@@ -10,52 +38,10 @@
 <style>
   html, body { margin: 0; background: var(--app-bg); color: var(--text); font-family: var(--font-sans); }
 
-  /* Two stacked surface contexts — dark, then light */
+  /* Surface follows the global theme — tokens come from ../tokens.css via :root + html.dark. */
   .surface {
     padding: 28px 32px 36px;
     display: flex; flex-direction: column; gap: 22px;
-  }
-  .surface.light { background: hsl(0, 0%, 100%); color: hsl(0, 0%, 9.0%); }
-  .surface.light {
-    --bg: hsl(0, 0%, 99.0%);
-    --bg-secondary: hsl(0, 0%, 97.3%);
-    --component-bg: hsl(0, 0%, 95.1%);
-    --component-bg-hover: hsl(0, 0%, 93.0%);
-    --component-bg-active: hsl(0, 0%, 90.9%);
-    --line: hsl(0, 0%, 88.7%);
-    --border: hsl(0, 0%, 85.8%);
-    --border-hover: hsl(0, 0%, 78.0%);
-    --solid: hsl(0, 0%, 56.1%);
-    --solid-hover: hsl(0, 0%, 52.3%);
-    --text-secondary: hsl(0, 0%, 43.5%);
-    --text: hsl(0, 0%, 9.0%);
-    --app-bg: white;
-    --red-text-secondary: hsl(358, 65%, 48.7%);
-    --red-border: hsl(359, 74.2%, 81.7%);
-    --red-border-hover: hsl(359, 69.5%, 74.3%);
-    --red-component-bg: hsl(360, 100%, 96.8%);
-    --yellow-text-secondary: hsl(42, 100%, 29%);
-  }
-  .surface.dark { background: hsl(0, 0%, 8.5%); color: hsl(0, 0%, 93%); }
-  .surface.dark {
-    --bg: hsl(0, 0%, 8.5%);
-    --bg-secondary: hsl(0, 0%, 11.0%);
-    --component-bg: hsl(0, 0%, 13.6%);
-    --component-bg-hover: hsl(0, 0%, 15.8%);
-    --component-bg-active: hsl(0, 0%, 17.9%);
-    --line: hsl(0, 0%, 20.5%);
-    --border: hsl(0, 0%, 24.3%);
-    --border-hover: hsl(0, 0%, 31.2%);
-    --solid: hsl(0, 0%, 43.9%);
-    --solid-hover: hsl(0, 0%, 49.4%);
-    --text-secondary: hsl(0, 0%, 62.8%);
-    --text: hsl(0, 0%, 93.0%);
-    --app-bg: hsl(0, 0%, 8.5%);
-    --red-text-secondary: hsl(358, 100%, 69.5%);
-    --red-border: hsl(357, 60.2%, 31.8%);
-    --red-border-hover: hsl(358, 65%, 40.4%);
-    --red-component-bg: hsl(356, 43.4%, 16.4%);
-    --yellow-text-secondary: hsl(48, 100%, 47%);
   }
 
   .surface .head {
@@ -303,21 +289,21 @@
 <body>
 
 <!-- ============================================================
-     DARK SURFACE
+     FORM LIBRARY — follows the global theme (html.dark / no class)
      ============================================================ -->
-<div class="surface dark">
+<div class="surface">
 
   <div class="head">
-    <span class="ix">D · 01</span>
-    <span class="t">Form library — dark mode (app default)</span>
-    <span class="n">form controls · dropdown · switch</span>
+    <span class="ix">01</span>
+    <span class="t">Form library</span>
+    <span class="n">product implementation · Form / Dropdown / Switch parity</span>
   </div>
 
   <!-- ROW 1 · Text inputs -->
   <div class="grid">
     <div class="group full">
       <span class="label">Magnet · URL · .torrent</span>
-      <input class="field mono" value="magnet:?xt=urn:btih:a1b2c3…&dn=ubuntu-24.04.1-desktop-amd64.iso" />
+      <input class="field mono" value="magnet:?xt=urn:btih:a1b2c3…&dn=Dune.Part.Two.2024.1080p" />
       <span class="hint">Paste a magnet link, .torrent URL, or any supported download URL.</span>
     </div>
 
@@ -385,7 +371,7 @@
           <div class="opt"><span>Size (largest)</span></div>
         </div>
       </div>
-      <span class="hint">Custom dropdown — for searchable / icon-rich choices. Source: <code style="font-family:var(--font-mono);color:var(--yellow-solid);">preview/Dropdown.tsx</code></span>
+      <span class="hint">Custom dropdown — for searchable / icon-rich choices. Source: <code style="font-family:var(--font-mono);color:var(--yellow-solid);">product implementation</code></span>
     </div>
 
     <div class="group">
@@ -460,101 +446,6 @@
       <div class="l">RSS auto-fetch<small>Check feeds every 15 minutes.</small></div>
       <div class="toggle on"></div>
     </div>
-  </div>
-
-</div>
-
-<!-- ============================================================
-     LIGHT SURFACE
-     ============================================================ -->
-<div class="surface light">
-
-  <div class="head">
-    <span class="ix">L · 02</span>
-    <span class="t">Form library — light mode</span>
-    <span class="n">same components, light tokens</span>
-  </div>
-
-  <div class="grid">
-    <div class="group">
-      <span class="label">Search</span>
-      <div class="field-wrap">
-        <i class="ph ph-magnifying-glass lead"></i>
-        <input class="field has-icon" placeholder="Search files and folders"/>
-        <div class="kbd">/</div>
-      </div>
-    </div>
-
-    <div class="group">
-      <span class="label">Native select</span>
-      <div class="select-wrap">
-        <select class="select">
-          <option>Date added (newest)</option>
-          <option>Date added (oldest)</option>
-          <option>Name</option>
-        </select>
-        <i class="ph-bold ph-caret-down caret"></i>
-      </div>
-    </div>
-
-    <div class="group error">
-      <span class="label">Password</span>
-      <input class="field" type="password" value="••••••" />
-      <span class="err-msg">That password doesn't match.</span>
-    </div>
-
-    <div class="group">
-      <span class="label">Segmented</span>
-      <div class="seg">
-        <button class="on"><i class="ph ph-list"></i>List</button>
-        <button><i class="ph ph-squares-four"></i>Grid</button>
-      </div>
-    </div>
-
-    <div class="group">
-      <span class="label">Radio</span>
-      <div class="radio-list">
-        <div class="radio-item on">
-          <div class="radio-dot"></div>
-          <div class="radio-text">Stream</div>
-        </div>
-        <div class="radio-item">
-          <div class="radio-dot"></div>
-          <div class="radio-text">Download</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="group">
-      <span class="label">Checkbox</span>
-      <div class="check-list">
-        <div class="check-item on">
-          <div class="check-box"></div>
-          <div class="radio-text">Notify when finished</div>
-        </div>
-        <div class="check-item">
-          <div class="check-box"></div>
-          <div class="radio-text">Auto-convert to MP4</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="group full">
-      <span class="label">Toggle · setting</span>
-      <div class="toggle-row">
-        <div class="l">Autoplay next file<small>When a video ends, play the next.</small></div>
-        <div class="toggle on"></div>
-      </div>
-      <div class="toggle-row">
-        <div class="l">Invisible mode<small>Hidden from friends list.</small></div>
-        <div class="toggle"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="specs-link">
-    <b>Same component, same tokens, two themes.</b>
-    All form controls read from <code style="font-family:var(--font-mono);color:var(--yellow-text-secondary);">--app-bg / --border / --border-hover / --component-bg / --text / --text-secondary</code> — swap the theme class on <code style="font-family:var(--font-mono);color:var(--yellow-text-secondary);">&lt;html&gt;</code> and every input flips. Yellow stays sacred in both modes for: <em>focused/checked/on</em> states only.
   </div>
 
 </div>

@@ -1,14 +1,42 @@
 <!DOCTYPE html>
-<html lang="en" class="dark"><head><meta charset="utf-8">
-<title>put.io preview · color dark mode</title>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap — runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV's Liquid Glass, mobile-shell hero).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · color · dark mode</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 <link rel="stylesheet" href="../tokens.css">
 <script src="./_resize.js" defer></script>
 <style>
-  html, body { height: 100%; background: var(--app-bg); color: var(--text); margin: 0; }
-  .card { padding: 24px; display:flex; flex-direction:column; gap: 22px; }
+  html, body { background: var(--app-bg); color: var(--text); margin: 0; }
+  .preview-shell { padding: 24px; display:flex; flex-direction:column; gap: 22px; }
   .label {
     font-family: var(--font-ui-mono); font-size: 10px; font-weight: 500;
     text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary);
@@ -100,7 +128,7 @@
   .demo-menu .item.sel { background: var(--component-bg-active); }
 </style></head>
 <body>
-<div class="card">
+<div class="preview-shell">
 
   <div class="label">Dark mode · gray scale + surface roles</div>
   <div class="note">

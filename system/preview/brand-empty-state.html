@@ -1,29 +1,58 @@
 <!DOCTYPE html>
-<html lang="en" class="dark"><head><meta charset="utf-8">
-<title>put.io preview · brand empty state</title>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap — runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV's Liquid Glass, mobile-shell hero).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · brand · empty state</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 <link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="./_components.css">
 <style>
-  html, body { height: 100%; background: hsl(0,0%,8.5%); color: hsl(0,0%,93%); font-family: var(--font-sans); margin: 0; }
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
   .wrap { padding: 28px 32px 36px; display:flex; flex-direction:column; gap: 28px; }
 
   .section-label {
     font-family: var(--font-ui-mono); font-size: 10px; font-weight: 500;
     text-transform: uppercase; letter-spacing: .08em;
-    color: hsl(0,0%,62%);
-    padding-bottom: 10px; border-bottom: 1px solid hsl(0,0%,17%);
+    color: var(--text-secondary);
+    padding-bottom: 10px; border-bottom: 1px solid var(--component-bg-active);
     display:flex; align-items:center; gap: 10px;
   }
-  .section-label .num { color: hsl(0,0%,90%); }
-  .section-label .hint { margin-left:auto; letter-spacing: .04em; text-transform: none; color: hsl(0,0%,55%); font-weight: 400; }
+  .section-label .num { color: var(--text); }
+  .section-label .hint { margin-left:auto; letter-spacing: .04em; text-transform: none; color: var(--solid); font-weight: 400; }
 
   .intro {
-    font-size: 13px; color: hsl(0,0%,72%); line-height: 1.6;
+    font-size: 13px; color: var(--text-secondary); line-height: 1.6;
     max-width: 760px;
   }
-  .intro b { color: hsl(0,0%,92%); font-weight: 700; }
+  .intro b { color: var(--text); font-weight: 700; }
 
   /* Grid of empty-state cards */
   .grid {
@@ -33,8 +62,8 @@
   }
 
   .state {
-    background: hsl(0,0%,11%);
-    border: 1px solid hsl(0,0%,17%);
+    background: var(--bg-secondary);
+    border: 1px solid var(--component-bg-active);
     border-radius: 8px;
     overflow: hidden;
     display:flex; flex-direction:column;
@@ -44,21 +73,21 @@
   .state .ctx {
     display:flex; align-items:center; justify-content: space-between;
     padding: 10px 14px;
-    background: hsl(0,0%,9%);
-    border-bottom: 1px solid hsl(0,0%,16%);
+    background: var(--app-bg);
+    border-bottom: 1px solid var(--component-bg-active);
     font-family: var(--font-ui-mono); font-size: 10px;
     letter-spacing: .04em;
-    color: hsl(0,0%,58%);
+    color: var(--text-secondary);
   }
-  .state .ctx .where { color: hsl(0,0%,82%); }
+  .state .ctx .where { color: var(--text); }
   .state .ctx .tone {
     padding: 2px 7px; border-radius: 3px;
     font-size: 9px; letter-spacing: .08em; text-transform: uppercase;
   }
-  .tone-cheeky  { background: hsla(47, 100%, 55%, 0.14); color: var(--yellow-solid); }
-  .tone-instr   { background: hsla(210, 60%, 55%, 0.12); color: hsl(210,70%,75%); }
-  .tone-quiet   { background: hsl(0,0%,15%); color: hsl(0,0%,68%); }
-  .tone-error   { background: hsla(358, 75%, 59%, 0.14); color: hsl(358,85%,75%); }
+  .tone-cheeky  { background: var(--yellow-bg-secondary); color: var(--yellow-text-secondary); }
+  .tone-instr   { background: color-mix(in srgb, var(--text-secondary) 14%, transparent); color: var(--text-secondary); }
+  .tone-quiet   { background: var(--component-bg-hover); color: var(--text-secondary); }
+  .tone-error   { background: var(--red-bg-secondary); color: var(--red-text-secondary); }
 
   /* The actual empty state — follows put.io style: mono kaomoji/glyph + hed + copy */
   .state .empty {
@@ -72,7 +101,7 @@
   .state .glyph {
     font-family: var(--font-mono);
     font-size: 32px;
-    color: hsl(0,0%,48%);
+    color: var(--solid-hover);
     letter-spacing: -1px;
     margin-bottom: 8px;
     line-height: 1.4;
@@ -81,13 +110,13 @@
   }
   .state h3 {
     font-family: var(--font-sans);
-    font-size: 17px; font-weight: 500; color: hsl(0,0%,95%);
+    font-size: 17px; font-weight: 500; color: var(--text);
     margin: 0;
     letter-spacing: -.005em;
   }
   .state p {
     font-family: var(--font-sans);
-    font-size: 13.5px; color: hsl(0,0%,70%);
+    font-size: 13.5px; color: var(--text-secondary);
     max-width: 440px; margin: 0; line-height: 1.55;
   }
   .state a {
@@ -98,41 +127,12 @@
   .state .cta-row {
     display:flex; gap: 8px; margin-top: 8px;
   }
-  /* Buttons — exact mirror of components-buttons.html (production parity).
-     Default = lg (h36 · 1.0px letter-spacing). Same paddings, weights, transitions. */
-  button.btn {
-    -webkit-appearance: none; appearance: none;
-    font-family: var(--font-sans);
-    font-weight: var(--fw-medium);
-    font-size: var(--fs-base);
-    height: 36px;
-    padding: 0 12px;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: var(--radius);
-    color: var(--text);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    white-space: nowrap;
-    transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
-    user-select: none;
-  }
-  button.btn.btn-primary { background: var(--yellow-solid); border-color: var(--yellow-solid); color: #000; }
-  button.btn.btn-primary:hover { background: var(--yellow-solid-hover); border-color: var(--yellow-solid-hover); }
-  button.btn.btn-danger  { background: var(--red-solid); border-color: var(--red-solid); color: #fff; }
-  button.btn.btn-danger:hover { background: var(--red-solid-hover); border-color: var(--red-solid-hover); }
-  button.btn.btn-default { background: var(--component-bg); color: var(--text); border-color: var(--border); }
-  button.btn.btn-default:hover { background: var(--component-bg-hover); border-color: var(--border-hover); }
-  button.btn:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
-
   .state .hint-code {
     font-family: var(--font-mono);
     font-size: 11px;
-    color: hsl(0,0%,65%);
-    background: hsl(0,0%,8%);
-    border: 1px solid hsl(0,0%,16%);
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    border: 1px solid var(--component-bg-active);
     border-radius: 3px;
     padding: 6px 10px;
     margin-top: 6px;
@@ -140,19 +140,19 @@
 
   /* Principles */
   .principles {
-    background: hsl(0,0%,9.5%);
-    border: 1px dashed hsl(0,0%,20%);
+    background: var(--app-bg);
+    border: 1px dashed var(--line);
     border-radius: 8px;
     padding: 22px 24px;
     display: grid;
     grid-template-columns: 180px 1fr;
     gap: 22px;
-    font-size: 13px; color: hsl(0,0%,72%); line-height: 1.6;
+    font-size: 13px; color: var(--text-secondary); line-height: 1.6;
   }
-  .principles .meta { font-family: var(--font-ui-mono); font-size: 10px; color: hsl(0,0%,58%); letter-spacing: .06em; text-transform: uppercase; }
+  .principles .meta { font-family: var(--font-ui-mono); font-size: 10px; color: var(--text-secondary); letter-spacing: .06em; text-transform: uppercase; }
   .principles ul { margin: 0; padding: 0 0 0 18px; display:flex; flex-direction:column; gap: 8px; }
-  .principles b { color: hsl(0,0%,92%); font-weight: 700; }
-  .code { font-family: var(--font-mono); font-size: 11.5px; background: hsl(0,0%,8%); padding: 1px 6px; border-radius: 3px; color: hsl(0,0%,88%); border: 1px solid hsl(0,0%,17%); }
+  .principles b { color: var(--text); font-weight: 700; }
+  .code { font-family: var(--font-mono); font-size: 11.5px; background: var(--bg-secondary); padding: 1px 6px; border-radius: 3px; color: var(--text); border: 1px solid var(--component-bg-active); }
 </style><script src="./_resize.js" defer></script>
 </head>
 <body>
@@ -183,7 +183,7 @@
       <div class="empty">
         <div class="glyph">__o-o__</div>
         <h3>No watched RSS feeds whatsoever.</h3>
-        <p>If you don't know where to start, try a public-domain sample URL. <a href="../design-system.html">You'll see the light.</a></p>
+        <p>If you don't know where to start, just google "magnet links". <a href="">You'll see the light.</a></p>
       </div>
     </div>
 
@@ -196,7 +196,7 @@
       <div class="empty">
         <div class="glyph">( ⌐■_■)</div>
         <h3>Nothing in the queue.</h3>
-        <p>Drop a magnet link, paste a URL, or install the <a href="../design-system.html">browser extension</a> — put.io handles the rest.</p>
+        <p>Drop a magnet link, paste a URL, or install the <a href="">browser extension</a> — put.io handles the rest.</p>
         <div class="cta-row">
           <button class="btn btn-primary">Add transfer</button>
           <button class="btn btn-default">Paste URL</button>
@@ -226,7 +226,7 @@
       <div class="empty">
         <div class="glyph">¯\_(ツ)_/¯</div>
         <h3>Nothing matches.</h3>
-        <p>No files, folders, or transfers named <span class="code">cassini ring scans</span>. Try fewer words, or <a href="../design-system.html">search the whole account</a>.</p>
+        <p>No files, folders, or transfers named <span class="code">cassini ring scans</span>. Try fewer words, or <a href="">search the whole account</a>.</p>
       </div>
     </div>
 
@@ -265,7 +265,7 @@
       <div class="empty">
         <div class="glyph">&gt;_</div>
         <h3>No activity in the last 30 days.</h3>
-        <p>Completed transfers, shares, and renames show up here for 90 days. <a href="../design-system.html">Adjust retention</a>.</p>
+        <p>Completed transfers, shares, and renames show up here for 90 days. <a href="">Adjust retention</a>.</p>
       </div>
     </div>
 
@@ -278,7 +278,7 @@
       <div class="empty">
         <div class="glyph">┌( ಠ_ಠ)┘</div>
         <h3>No TVs paired.</h3>
-        <p>Install put.io on Apple TV, Android TV, or Fire TV, then enter the code at <a href="../design-system.html">put.io/pair</a>.</p>
+        <p>Install put.io on Apple TV, Android TV, or Fire TV, then enter the code at <a href="">put.io/pair</a>.</p>
         <div class="hint-code">put.io/pair · code: — — — —</div>
       </div>
     </div>
@@ -292,7 +292,7 @@
       <div class="empty">
         <div class="glyph">[— — — —]</div>
         <h3>No OAuth apps yet.</h3>
-        <p>Register an app to get a client ID and secret. Full docs at <a href="../design-system.html">api.put.io</a>.</p>
+        <p>Register an app to get a client ID and secret. Full docs at <a href="">api.put.io</a>.</p>
         <div class="cta-row">
           <button class="btn btn-primary">Create OAuth app</button>
         </div>
@@ -321,7 +321,7 @@
       <div class="empty">
         <div class="glyph">!!</div>
         <h3>Storage is full.</h3>
-        <p>You've hit your 1 TB plan limit. Delete something, or <a href="../design-system.html">upgrade to 10 TB</a> — new transfers resume automatically.</p>
+        <p>You've hit your 1 TB plan limit. Delete something, or <a href="">upgrade to 10 TB</a> — new transfers resume automatically.</p>
         <div class="cta-row">
           <button class="btn btn-danger">Upgrade plan</button>
           <button class="btn btn-default">Manage storage</button>

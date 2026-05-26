@@ -6,18 +6,43 @@
 (() => {
   if (window.top === window) return;            // only when embedded
   const params = new URLSearchParams(location.search);
-  // Parent can request light mode by adding ?theme=light to the iframe src.
-  // We toggle the class on <html> at script-eval time, before paint.
-  if (params.get('theme') === 'light') document.documentElement.classList.remove('dark');
+  // Initial theme — applied at script-eval time, before paint.
+  // The parent can also flip the theme at runtime via postMessage:
+  //   { type: '__theme', theme: 'light' | 'dark' }
+  // Same DOM, same components — only the .dark class on <html> changes.
+  function applyTheme(t) {
+    if (t === 'light') document.documentElement.classList.remove('dark');
+    else                document.documentElement.classList.add('dark');
+  }
+  // The bootstrap in <head> already resolved theme from lock / localStorage /
+  // URL. Re-apply ONLY the URL override here, and ONLY if not locked, so a
+  // URL theme param can't override <html data-theme-lock>.
+  if (!document.documentElement.getAttribute('data-theme-lock')) {
+    if      (params.get('theme') === 'light') applyTheme('light');
+    else if (params.get('theme') === 'dark')  applyTheme('dark');
+  }
   const id = params.get('id') || location.pathname.split('/').pop();
+
+  window.addEventListener('message', (e) => {
+    const d = e.data;
+    if (d && d.type === '__theme') {
+      // Files marked <html data-theme-lock="..."> are fixed-mode product
+      // mockups (e.g. TV's Liquid Glass) and ignore parent broadcasts.
+      if (document.documentElement.getAttribute('data-theme-lock')) return;
+      applyTheme(d.theme === 'light' ? 'light' : 'dark');
+    }
+  });
+  // Tell the parent we're alive so it can push the current theme.
+  try { parent.postMessage({ type: '__preview_ready', id }, '*'); } catch {}
   let last = 0;
   function send() {
     const b = document.body;
-    const h = Math.max(
-      b.scrollHeight, b.offsetHeight,
-      document.documentElement.scrollHeight,
-      document.documentElement.offsetHeight
-    );
+    if (!b) return;
+    // Use body's own content height, not documentElement — the html element
+    // grows to fill the iframe's viewport, which would lock us at the parent's
+    // CSS default and never shrink.
+    const h = Math.max(b.scrollHeight, b.offsetHeight);
+    if (h <= 0) return;
     if (Math.abs(h - last) < 2) return;
     last = h;
     try { parent.postMessage({ type: '__preview_h', id, h }, '*'); } catch {}

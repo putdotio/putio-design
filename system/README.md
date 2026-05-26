@@ -8,8 +8,8 @@ This is the `system/` folder inside [`putdotio/putio-design`](https://github.com
 project root/
 └── system/
     ├── index.html           ← redirects to the design-system guide
-    ├── design-system.html   ← dark-mode guide and preview-card index
-    ├── design-system-light.html
+    ├── design-system.html   ← guide and preview-card index
+    ├── design-system-light.html ← legacy redirect to design-system.html?theme=light
     ├── tokens.css           ← generated from ../tokens/**/*.tokens.json
     ├── assets/              ← logos, favicons, retro marks, app icons
     └── preview/             ← atomic review cards for foundations + components + brand + platforms
@@ -49,10 +49,22 @@ For **TV preview cards**, also load `preview/tv-shell.css` — it adds the `.tv`
 
 ## Core rules
 
-- **Yellow `#FDCE45` is sacred.** Never gradient, tint, or replace. Primary CTAs, folder icons, focus rings (at 35% alpha), progress bars.
+- **Yellow `#FDCE45` is sacred.** Never gradient, tint, or replace. Primary CTAs, folder icons, focus rings (at 35% alpha), progress bars. `--yellow-solid` is the brand value; for yellow text on light backgrounds use `--yellow-text-secondary` instead.
 - **Icons: Phosphor-style inline SVG.** No emoji, ever.
-- **Dark is app-default, light is landing-default.** Both are in tokens; toggle with `.dark` on `<html>`.
+- **One design, two modes.** Light and dark are the same markup and components with different token values. Toggle `.dark` on `<html>`; do not fork the page or rebuild a light-specific copy.
 - **Content-agnostic.** put.io doesn't know what the user's files are. Never parse `The.Wire.S03E04.1080p.mkv` into `The Wire`. Raw filenames only. See the root [`DESIGN.md`](../DESIGN.md) for the full principle.
+
+## Theme System
+
+The guide owns the theme toggle. It stores `putio-ds-theme` in `localStorage`,
+updates `html.dark`, and broadcasts the current mode to embedded preview iframes.
+Standalone preview pages read the same storage key before paint. A URL query
+(`?theme=light` or `?theme=dark`) can override the preview mode for screenshots.
+
+Fixed-mode previews opt out with `<html data-theme-lock="dark">`. This is only
+for product mockups whose visual language is intrinsically one mode, such as TV
+and mobile shell specimens. Component previews should stay token-driven and work
+in both modes.
 
 ## Design variants
 
