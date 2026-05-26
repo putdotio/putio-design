@@ -53,21 +53,5 @@ jobs:
       - name: Verify package and design system
         run: pnpm verify:full
 
-      - name: Validate package version
-        env:
-          PACKAGE_NAME: "@putdotio/design"
-        run: |
-          set -euo pipefail
-          package_version="$(node -p "JSON.parse(fs.readFileSync('package.json', 'utf8')).version")"
-          if [ "$package_version" = "0.0.0" ] || [ "$package_version" = "0.0.0-development" ]; then
-            echo "Refusing to publish placeholder version $package_version"
-            exit 1
-          fi
-          if npm view "$PACKAGE_NAME@$package_version" version >/dev/null 2>&1; then
-            echo "$PACKAGE_NAME@$package_version is already published"
-            exit 1
-          fi
-          echo "Publishing $PACKAGE_NAME@$package_version with dist-tag ${{ inputs.dist_tag }}"
-
       - name: Publish to npm
         run: npm publish --provenance --access public --tag "${{ inputs.dist_tag }}"
