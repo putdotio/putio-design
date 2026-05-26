@@ -30,11 +30,12 @@ Do not publish platform-native outputs from this repo in v1. Web, iOS, Android,
 Roku, and TV repos should consume the generic token artifacts and own their
 platform adapters.
 
-Package publishing uses the manual `Publish Package` GitHub Actions workflow.
-The workflow runs `pnpm verify:full`, publishes with npm provenance, and expects
-npm Trusted Publishing to be configured for the `release` GitHub Environment.
-Use the `next` dist-tag for pre-release or adoption-test packages, and `latest`
-only for a release that should become the default npm install target.
+Package publishing uses semantic-release in the `Publish Package` GitHub Actions
+workflow. On `main`, design artifact changes run `pnpm verify:full` and then
+publish a package release when the commit history contains a releasable
+Conventional Commit. Commits such as `docs:` or `ci:` do not publish a package.
+
+Published packages use npm provenance and the default `latest` dist-tag.
 
 Before the first publish, an npm maintainer must trust this workflow for the
 package:
