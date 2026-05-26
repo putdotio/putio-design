@@ -30,19 +30,36 @@ Do not publish platform-native outputs from this repo in v1. Web, iOS, Android,
 Roku, and TV repos should consume the generic token artifacts and own their
 platform adapters.
 
-Package publishing uses semantic-release in the `Publish Package` GitHub Actions
-workflow. On `main`, design artifact changes run `pnpm verify:full` and then
-publish a package release when the commit history contains a releasable
-Conventional Commit. Commits such as `docs:` or `ci:` do not publish a package.
+Package publishing follows the same release flow as the other public put.io
+tooling packages. Merges to `main` are considered publishable. The CI workflow
+runs:
 
-Published packages use npm provenance and the default `latest` dist-tag.
+1. `pnpm verify:full` on pull requests and `main` pushes.
+2. semantic-release on `main` after verification passes.
+
+semantic-release analyzes Conventional Commits, publishes to npm, creates
+GitHub Releases, and commits released package metadata back to `main` with
+`[skip ci]`.
+
+Published packages use npm Trusted Publishing and provenance.
 
 Before the first publish, an npm maintainer must trust this workflow for the
 package:
 
 ```bash
-npx -y npm@^11.10.0 trust github @putdotio/design --repo putdotio/putio-design --file publish-package.yml --env release --allow-publish --yes
+npx -y npm@^11.10.0 trust github @putdotio/design --repo putdotio/putio-design --file ci.yml --env release --allow-publish --yes
 ```
+
+The release job uses the `release` GitHub Environment with `deployment: false`.
+
+Required protected inputs:
+
+- `PUTIO_RELEASE_BOT_CLIENT_ID` as a repository or Environment variable
+- `PUTIO_RELEASE_BOT_PRIVATE_KEY` as an Environment secret
+
+Release GitHub writes use the put.io release bot. The default `GITHUB_TOKEN`
+remains read-only, and the release-bot remote is configured only after
+dependencies are installed.
 
 ## Generated Files
 
