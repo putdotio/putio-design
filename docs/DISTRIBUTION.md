@@ -1,7 +1,7 @@
 # Distribution
 
 `putio-design` ships two public surfaces: the static design guide at
-`design.put.io` and optional package artifacts from `@putdotio/design`.
+`design.put.io` and package artifacts from `@putdotio/design`.
 
 ## Static Site
 
@@ -16,9 +16,8 @@ The deploy workflow must run `pnpm verify` before publishing the site.
 
 ## Package Artifacts
 
-The package stays private until an explicit publishing decision is made. Its
-exports are prepared so a future public npm release can expose the same generic
-surfaces without redesigning the repo:
+`@putdotio/design` is a public scoped npm package. It exposes generic token
+artifacts and the design contract only:
 
 - `@putdotio/design/css`
 - `@putdotio/design/tokens`
@@ -30,6 +29,19 @@ surfaces without redesigning the repo:
 Do not publish platform-native outputs from this repo in v1. Web, iOS, Android,
 Roku, and TV repos should consume the generic token artifacts and own their
 platform adapters.
+
+Package publishing uses the manual `Publish Package` GitHub Actions workflow.
+The workflow runs `pnpm verify:full`, publishes with npm provenance, and expects
+npm Trusted Publishing to be configured for the `release` GitHub Environment.
+Use the `next` dist-tag for pre-release or adoption-test packages, and `latest`
+only for a release that should become the default npm install target.
+
+Before the first publish, an npm maintainer must trust this workflow for the
+package:
+
+```bash
+npx -y npm@^11.10.0 trust github @putdotio/design --repo putdotio/putio-design --file publish-package.yml --env release --allow-publish --yes
+```
 
 ## Generated Files
 

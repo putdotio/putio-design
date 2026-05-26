@@ -1,0 +1,73 @@
+name: Publish Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      dist_tag:
+        description: npm dist-tag
+        required: true
+        default: next
+        type: choice
+        options:
+          - next
+          - latest
+
+concurrency:
+  group: putio-design-publish-package
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: release
+      url: https://www.npmjs.com/package/@putdotio/design
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
+        with:
+          node-version-file: .node-version
+          registry-url: https://registry.npmjs.org
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+        with:
+          cache: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify package and design system
+        run: pnpm verify:full
+
+      - name: Validate package version
+        env:
+          PACKAGE_NAME: "@putdotio/design"
+        run: |
+          set -euo pipefail
+          package_version="$(node -p "JSON.parse(fs.readFileSync('package.json', 'utf8')).version")"
+          if [ "$package_version" = "0.0.0" ] || [ "$package_version" = "0.0.0-development" ]; then
+            echo "Refusing to publish placeholder version $package_version"
+            exit 1
+          fi
+          if npm view "$PACKAGE_NAME@$package_version" version >/dev/null 2>&1; then
+            echo "$PACKAGE_NAME@$package_version is already published"
+            exit 1
+          fi
+          echo "Publishing $PACKAGE_NAME@$package_version with dist-tag ${{ inputs.dist_tag }}"
+
+      - name: Publish to npm
+        run: npm publish --provenance --access public --tag "${{ inputs.dist_tag }}"

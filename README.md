@@ -20,6 +20,10 @@ This repo owns the public contract behind it: DTCG token sources, generated CSS/
 
 Token sources live in [`tokens`](tokens). Generated package artifacts live in [`dist`](dist).
 
+```bash
+npm install @putdotio/design
+```
+
 Common entrypoints:
 
 - CSS custom properties: [`dist/css/tokens.css`](dist/css/tokens.css)
