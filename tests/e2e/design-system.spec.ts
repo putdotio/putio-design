@@ -50,7 +50,7 @@ test.describe("design.put.io static guide", () => {
     test(`${pagePath} has no serious automated accessibility violations`, async ({ page }, testInfo) => {
       test.skip(testInfo.project.name !== "chromium-desktop", "Axe coverage runs once; render smoke covers TV framing.");
       await page.goto(pagePath, { waitUntil: "domcontentloaded" });
-      const builder = new AxeBuilder({ page }).disableRules(["color-contrast", "scrollable-region-focusable"]);
+      const builder = new AxeBuilder({ page });
       if (pagePath.startsWith("/design-system")) {
         builder.exclude("iframe");
       }
