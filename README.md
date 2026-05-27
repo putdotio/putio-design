@@ -22,7 +22,7 @@ This repo owns the public contract behind it: DTCG token sources, generated
 CSS/JSON/TypeScript artifacts, brand assets, preview cards, and deployable
 static guidance.
 
-## Use
+## Install
 
 Token sources live in [`tokens`](tokens). Generated package artifacts live in
 [`dist`](dist). Package-safe brand assets live in [`system/assets`](system/assets).
@@ -31,7 +31,19 @@ Token sources live in [`tokens`](tokens). Generated package artifacts live in
 npm install @putdotio/design
 ```
 
-Common entrypoints:
+## Use
+
+Import the generated CSS when a web surface needs put.io custom properties:
+
+```css
+@import "@putdotio/design/css";
+```
+
+Component recipes should consume semantic aliases such as `--field-*`,
+`--panel-*`, `--primary`, `--success`, and `--destructive` instead of reaching
+into palette tokens directly.
+
+Package entrypoints:
 
 - CSS custom properties: [`dist/css/tokens.css`](dist/css/tokens.css)
 - DTCG token tree: [`dist/tokens.dtcg.json`](dist/tokens.dtcg.json)
@@ -59,6 +71,11 @@ Use `pnpm tokens:build` after token edits.
 - [Contributing](CONTRIBUTING.md)
 - [Security](SECURITY.md)
 - [Agent guide](AGENTS.md)
+
+## Contributing
+
+See [Contributing](CONTRIBUTING.md) for local setup, validation, and pull
+request expectations.
 
 ## License
 

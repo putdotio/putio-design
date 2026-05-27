@@ -27,6 +27,10 @@ artifacts, package-safe brand assets, and the design contract:
 - `@putdotio/design/tokens/figma`
 - `@putdotio/design/design.md`
 
+The CSS export is the web custom-property contract. It includes palette tokens,
+component aliases such as `--field-*` and `--panel-*`, and contrast-safe action
+aliases such as `--primary`, `--success`, and `--destructive`.
+
 Do not publish platform-native outputs from this repo in v1. Web, iOS, Android,
 Roku, and TV repos should consume the generic token artifacts and brand assets,
 then own their platform adapters.
@@ -78,6 +82,10 @@ so package consumers and the static site do not need a build step:
 
 Run `pnpm tokens:build` after token edits. `pnpm tokens:check` rebuilds and
 fails if generated files drift.
+
+Color tokens are emitted as `hsl()` / `hsla()` CSS values. Brand yellow remains
+canonical `#FDCE45` in prose and identity guidance, with the generated CSS value
+`hsl(44.7, 97.9%, 63.1%)`.
 
 ## Readiness Checks
 

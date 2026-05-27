@@ -43,7 +43,7 @@ test.describe("design.put.io static guide", () => {
     await page.goto("/design-system.html");
     await expect.poll(async () => {
       return page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--yellow-solid").trim());
-    }).toBe("#FDCE45");
+    }).toBe("hsl(44.7, 97.9%, 63.1%)");
   });
 
   for (const pagePath of axePages) {

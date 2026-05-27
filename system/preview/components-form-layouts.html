@@ -78,34 +78,7 @@
   .label .req { color: var(--yellow-solid); }
   .label .opt { font-size: 12px; color: var(--text-secondary); font-weight: 400; }
   .hint { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-top: 6px; }
-  .field {
-    width: 100%; height: 36px; padding: 0 12px; box-sizing: border-box;
-    border-radius: var(--radius); border: 1px solid var(--border);
-    background: var(--app-bg); color: var(--text);
-    font-family: var(--font-sans); font-size: var(--fs-base);
-    transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
-  }
-  .field::placeholder { color: var(--text-secondary); }
-  .field:hover { border-color: var(--border-hover); }
-  .field:focus { outline: none; border-color: var(--yellow-solid); box-shadow: var(--shadow-focus); }
-  /* Invalid — Base UI / a11y convention. CSS-targetable via attribute,
-     no .has-error class needed. The DOM contract matches React state. */
-  .field[aria-invalid="true"] {
-    border-color: var(--red-border-hover);
-    background: var(--red-bg);
-  }
-  .field[aria-invalid="true"]:focus {
-    border-color: var(--red-solid);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--red-solid) 28%, transparent);
-  }
-  /* Success — use sparingly. Most successful fields don't need green,
-     they're "valid by default". Reserve for after-async-validation
-     (username available, code verified, etc). */
-  .field[data-state="success"] {
-    border-color: var(--green-border-hover);
-    padding-right: 36px;       /* leave room for the check icon */
-  }
-  .field.mono { font-family: var(--font-mono); font-size: 13px; }
+  /* .field primitive lives in _components.css and reads --field-* tokens. */
   .group { display: flex; flex-direction: column; }
   /* Vertical stacking: parents own the rhythm via `gap`. Don't use an
      adjacent-sibling margin here — it leaks into grid cells and breaks
@@ -118,15 +91,6 @@
   }
   .field-wrap .field.has-icon { padding-left: 36px; }
 
-  /* Inline status icon — sits at the right of a field-wrap, used to
-     surface validation state next to the input. */
-  .field-wrap > .trailing-icon {
-    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-    font-size: 16px; line-height: 1; pointer-events: none;
-  }
-  .field-wrap > .trailing-icon[data-state="error"]   { color: var(--red-solid); }
-  .field-wrap > .trailing-icon[data-state="success"] { color: var(--green-solid); }
-  .field-wrap > .trailing-icon[data-state="loading"] { color: var(--text-secondary); animation: spin 0.9s linear infinite; }
   .form-callout i { font-size: 14px; line-height: 1.4; flex-shrink: 0; }
   .form-callout[data-state="error"] {
     color: var(--red-text-secondary);
@@ -143,11 +107,11 @@
     background: var(--bg-secondary);
     border-color: var(--line);
   }
-  /* Inline (field-level) variant: no chrome, just iconed red text below
-     the input. Matches ChatGPT / Manus / Profound pattern. */
+  /* Inline (field-level) variant: no chrome, just red text below the input. */
   .form-callout.inline {
     padding: 0; border: 0; background: transparent;
     margin-top: 6px; gap: 6px;
+    font-size: 12px; line-height: 1.5;
   }
 
   /* Sizes — letter-spacing tracks size, per production */
@@ -209,7 +173,6 @@
     border: 1px solid var(--line); border-radius: var(--radius-md);
   }
   .composer .field-wrap { min-width: 0; }
-  .composer .field { background: var(--bg); }
   .composer-hint {
     margin-top: 8px; font-size: 11.5px; color: var(--text-secondary);
     display: flex; align-items: center; gap: 14px;
@@ -364,10 +327,10 @@
     margin: 8px 0 0; font-size: 13px;
     color: var(--text-secondary); line-height: 1.5;
   }
-  .auth .a-body { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+  .auth .a-body { margin-bottom: 20px; }
   .auth .a-body .label-row {
     display: flex; justify-content: space-between; align-items: baseline;
-    margin-bottom: 6px;
+    gap: 12px;
   }
   .auth .a-body .label-row .label { margin-bottom: 0; }
   .auth .a-body .label-row a {
@@ -377,7 +340,7 @@
   .auth .a-body .label-row a:hover { color: var(--text); }
   .auth .a-body .field { height: 40px; }
   .auth .a-body .hint-inline {
-    font-size: 12px; color: var(--text-secondary); margin-top: 6px; line-height: 1.5;
+    font-size: 12px; color: var(--text-secondary); margin-top: 0; line-height: 1.5;
   }
   .auth .a-link {
     margin-top: 0;
@@ -434,34 +397,42 @@
   }
   .otp .slot {
     width: 44px; height: 52px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius);
-    background: var(--bg);
+    background: var(--field-bg);
     display: grid; place-items: center;
     font-family: var(--font-ui-mono); font-variant-numeric: tabular-nums;
-    font-size: 22px; color: var(--text);
-    transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+    font-size: 22px; color: var(--field-text);
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out),
+      background var(--dur-fast) var(--ease-out);
   }
-  .otp .slot[data-state="filled"] { border-color: var(--border-hover); }
+  .otp .slot[data-state="filled"] { border-color: var(--field-border-hover); }
   .otp .slot[data-state="focused"] {
-    border-color: var(--yellow-solid);
-    box-shadow: var(--shadow-focus);
+    border-color: var(--field-border-focus);
+    box-shadow: var(--field-ring);
   }
-  /* Error: ALL slots flip red together. Matches the Posh pattern —
-     the whole code is wrong, not one digit. */
+  /* Error: ALL slots flip red together. Border + text only; no red fill. */
   .otp[data-state="error"] .slot {
     border-color: var(--red-border-hover);
-    background: var(--red-bg);
     color: var(--red-text-secondary);
   }
   .otp[data-state="success"] .slot {
     border-color: var(--green-border-hover);
-    background: var(--green-bg);
     color: var(--green-text-secondary);
   }
+  .otp[data-state="loading"] .slot,
+  .otp[data-state="loading"] .slot[data-state="focused"],
+  .otp[aria-disabled="true"] .slot {
+    box-shadow: none;
+    background: var(--field-bg-disabled);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+  }
   /* Backwards compatibility for old class flag (used in earlier specimen) */
-  .otp .slot.filled  { border-color: var(--border-hover); }
-  .otp .slot.focused { border-color: var(--yellow-solid); box-shadow: var(--shadow-focus); }
+  .otp .slot.filled  { border-color: var(--field-border-hover); }
+  .otp .slot.focused { border-color: var(--field-border-focus); box-shadow: var(--field-ring); }
   .otp .sep { color: var(--text-secondary); font-size: 18px; padding: 0 4px; }
   .auth-resend {
     margin-top: 22px;
@@ -555,7 +526,7 @@
           <div style="display: flex; align-items: center; gap: 14px;">
             <div style="flex: 1; height: 4px; border-radius: 999px; background: var(--component-bg-active); position: relative;">
               <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 38%; background: var(--yellow-solid); border-radius: 999px;"></div>
-              <div style="position: absolute; left: 38%; top: 50%; transform: translate(-50%, -50%); width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 2px solid var(--yellow-solid); box-shadow: 0 1px 3px rgba(0,0,0,0.5);"></div>
+              <div style="position: absolute; left: 38%; top: 50%; transform: translate(-50%, -50%); width: 16px; height: 16px; border-radius: 50%; background: hsl(0, 0%, 100%); border: 2px solid var(--yellow-solid); box-shadow: 0 1px 3px hsla(0,0%,0%,0.5);"></div>
             </div>
             <span style="font-family: var(--font-ui-mono); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--text); width: 50px; text-align: right;">1.50×</span>
           </div>
@@ -591,19 +562,19 @@
             <button class="close" type="button" aria-label="Close"><i class="ph ph-x" style="font-size:14px;"></i></button>
           </div>
           <div class="m-body">
-            <div class="group">
+            <div class="group form-group">
               <span class="label">Source <span class="req">*</span></span>
               <input class="field mono" placeholder="magnet:?xt=urn:btih:…" />
               <span class="hint">Magnet, .torrent URL, or any supported download link.</span>
             </div>
-            <div class="group">
+            <div class="group form-group">
               <span class="label">Save to</span>
               <div class="field-wrap">
                 <i class="ph ph-folder lead"></i>
                 <input class="field has-icon" value="/Movies/Unsorted" />
               </div>
             </div>
-            <div class="group">
+            <div class="group form-group">
               <span class="label">After completion</span>
               <div style="display: flex; flex-direction: column; gap: 2px;">
                 <div style="display: flex; align-items: flex-start; gap: 10px; padding: 6px 8px; border-radius: var(--radius-sm);">
@@ -638,19 +609,19 @@
       </div>
       <div class="demo-body">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px;">
-          <div class="group">
+          <div class="group form-group">
             <span class="label">First name</span>
             <input class="field" value="Kai" />
           </div>
-          <div class="group">
+          <div class="group form-group">
             <span class="label">Last name</span>
             <input class="field" value="Özmen" />
           </div>
-          <div class="group" style="grid-column: 1 / -1;">
+          <div class="group form-group" style="grid-column: 1 / -1;">
             <span class="label">Email <span class="req">*</span></span>
             <input class="field mono" value="kai@example.com" />
           </div>
-          <div class="group">
+          <div class="group form-group">
             <span class="label">Country</span>
             <div style="position: relative;">
               <select class="field" style="padding-right: 36px; appearance: none;">
@@ -661,7 +632,7 @@
               <i class="ph-bold ph-caret-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-secondary); font-size: 12px;"></i>
             </div>
           </div>
-          <div class="group">
+          <div class="group form-group">
             <span class="label">Time zone</span>
             <div style="position: relative;">
               <select class="field" style="padding-right: 36px; appearance: none;">
@@ -736,7 +707,7 @@
         </div>
         <div class="w-body">
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px;">
-            <div class="group" style="grid-column: 1 / -1;">
+            <div class="group form-group" style="grid-column: 1 / -1;">
               <span class="label">Card number <span class="req">*</span></span>
               <div class="field-wrap">
                 <i class="ph ph-credit-card lead"></i>
@@ -744,15 +715,15 @@
                 <i class="ph-fill ph-shield-check" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--green-text-secondary); font-size: 14px;"></i>
               </div>
             </div>
-            <div class="group">
+            <div class="group form-group">
               <span class="label">Expiration</span>
               <input class="field mono" value="12 / 28" />
             </div>
-            <div class="group">
+            <div class="group form-group">
               <span class="label">CVC</span>
               <input class="field mono" value="•••" />
             </div>
-            <div class="group" style="grid-column: 1 / -1;">
+            <div class="group form-group" style="grid-column: 1 / -1;">
               <span class="label">Postal code</span>
               <input class="field mono" value="34000" />
             </div>
@@ -890,12 +861,12 @@
         <div class="a-hd">
                     <h3>Login</h3>
         </div>
-        <div class="a-body">
-          <div class="group">
+        <div class="a-body form-stack">
+          <div class="group form-group">
             <span class="label">Username or email address</span>
             <input class="field" value="" />
           </div>
-          <div class="group">
+          <div class="group form-group">
             <div class="label-row">
               <span class="label">Password</span>
               <a href="">Forgot your password?</a>
@@ -930,8 +901,8 @@
         <div class="a-hd">
                     <h3>Two-factor authentication</h3>
         </div>
-        <div class="a-body">
-          <div class="group">
+        <div class="a-body form-stack">
+          <div class="group form-group">
             <span class="label">Authentication code</span>
             <div class="otp">
               <div class="slot" data-state="filled">3</div>
@@ -969,22 +940,20 @@
         <div class="a-hd" data-slot="auth-header">
                     <h3>Welcome back</h3>
         </div>
-        <div class="a-body" data-slot="auth-body">
-          <div class="group">
+        <div class="a-body form-stack" data-slot="auth-body">
+          <div class="group form-group">
             <span class="label">Username or email address</span>
             <input class="field" value="kai@example.com" />
           </div>
-          <div class="group">
+          <div class="group form-group">
             <div class="label-row">
               <span class="label">Password</span>
               <a href="">Forgot your password?</a>
             </div>
             <div class="field-wrap">
               <input class="field" type="password" value="••••••••••" aria-invalid="true" aria-describedby="login-err" />
-              <i class="ph-fill ph-warning-circle trailing-icon" data-state="error" aria-hidden="true"></i>
             </div>
             <div class="form-callout inline" data-state="error" id="login-err" role="alert">
-              <i class="ph-fill ph-warning-circle"></i>
               <span>That username and password didn't match. Try again, or <a href="" style="color: inherit; text-decoration: underline;">reset your password</a>.</span>
             </div>
           </div>
@@ -1013,8 +982,8 @@
         <div class="a-hd" data-slot="auth-header">
                     <h3>Two-factor authentication</h3>
         </div>
-        <div class="a-body" data-slot="auth-body">
-          <div class="group">
+        <div class="a-body form-stack" data-slot="auth-body">
+          <div class="group form-group">
             <span class="label">Authentication code</span>
             <div class="otp" data-state="error" role="group" aria-label="6-digit code">
               <div class="slot" data-state="filled">8</div>
@@ -1026,7 +995,6 @@
               <div class="slot" data-state="filled">6</div>
             </div>
             <div class="form-callout inline" data-state="error" role="alert">
-              <i class="ph-fill ph-warning-circle"></i>
               <span>That code didn't match. Codes expire after 30s — generate a new one in your authenticator.</span>
             </div>
           </div>
@@ -1087,12 +1055,12 @@
           <h3>Create your account</h3>
           <p>Free 7-day trial. No card required.</p>
         </div>
-        <div class="a-body" data-slot="auth-body">
-          <div class="group">
+        <div class="a-body form-stack" data-slot="auth-body">
+          <div class="group form-group">
             <span class="label">Email</span>
             <input class="field" value="kai@example.com" />
           </div>
-          <div class="group">
+          <div class="group form-group">
             <span class="label">Username</span>
             <input class="field mono" value="kai" />
             <span class="hint-inline">Lowercase letters, numbers, and dashes. 3–20 characters.</span>
@@ -1126,8 +1094,8 @@
           <h3>Reset your password</h3>
           <p>Enter the email on your account — we'll send you a link to set a new password.</p>
         </div>
-        <div class="a-body" data-slot="auth-body">
-          <div class="group">
+        <div class="a-body form-stack" data-slot="auth-body">
+          <div class="group form-group">
             <span class="label">Email</span>
             <input class="field" value="kai@example.com" />
           </div>
@@ -1157,8 +1125,8 @@
           <h3>Set a new password</h3>
           <p>For <b style="color: var(--text); font-weight: 500;">kai@example.com</b>. You'll be signed in after.</p>
         </div>
-        <div class="a-body" data-slot="auth-body">
-          <div class="group">
+        <div class="a-body form-stack" data-slot="auth-body">
+          <div class="group form-group">
             <span class="label">New password</span>
             <div class="field-wrap">
               <input class="field" type="password" value="•••••••••••" />
@@ -1172,7 +1140,7 @@
               <span>11 chars</span>
             </div>
           </div>
-          <div class="group">
+          <div class="group form-group">
             <span class="label">Confirm new password</span>
             <input class="field" type="password" value="•••••••••••" />
           </div>
@@ -1198,8 +1166,8 @@
         <div class="a-hd" data-slot="auth-header">
           <h3>Two-factor authentication</h3>
         </div>
-        <div class="a-body" data-slot="auth-body">
-          <div class="group">
+        <div class="a-body form-stack" data-slot="auth-body">
+          <div class="group form-group">
             <span class="label">Authentication code</span>
             <div class="otp" role="group" aria-label="6-digit code">
               <div class="slot" data-state="filled">3</div>

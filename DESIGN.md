@@ -3,17 +3,17 @@ version: "0.1.0"
 name: "put.io Design System"
 description: "Public token and guidance contract for put.io product surfaces."
 colors:
-  brand: "#FDCE45"
+  brand: "hsl(44.7, 97.9%, 63.1%)"
   dark:
     app-bg: "hsl(0, 0%, 8.5%)"
-    page-bg: "black"
+    page-bg: "hsl(0, 0%, 0%)"
     text: "hsl(0, 0%, 93.0%)"
     text-muted: "hsl(0, 0%, 62.8%)"
     border: "hsl(0, 0%, 24.3%)"
     success: "hsl(151, 55.0%, 41.5%)"
     danger: "hsl(358, 75.0%, 59.0%)"
   light:
-    app-bg: "white"
+    app-bg: "hsl(0, 0%, 100%)"
     page-bg: "hsl(0, 0%, 97.3%)"
     text: "hsl(0, 0%, 9.0%)"
     text-muted: "hsl(0, 0%, 43.5%)"
@@ -95,6 +95,8 @@ The default radius is `6px`. Use `4px` for tight controls, `8px` or `10px` for l
 ## Components
 
 Buttons use yellow only for primary commands. Secondary buttons should feel quiet and tokenized against the active surface. File rows are the core component: preserve raw names, keep metadata compact, and make hover/focus states obvious without inflating row height.
+
+Form fields use the shared `--field-*` aliases: `--field-bg` for the fill, `--field-border` for the resting border, and `--field-ring` for focus. Invalid fields opt in with `aria-invalid="true"` and use red border/text only; do not add red fill. Raised panels use the shared `--panel-*` aliases instead of auth- or screen-specific panel variables.
 
 TV components are list-first and focus-first. A TV app is still a file browser, not a poster wall. Roku, native Apple, Android, and web TV repos should consume the generic tokens and generate their own platform bindings.
 

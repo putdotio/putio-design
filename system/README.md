@@ -37,8 +37,8 @@ Canonical weight mapping (matches `putdotio/putio-static`):
 
 The canonical source is DTCG-compatible JSON in [`../tokens`](../tokens). This
 CSS file is generated for the design site and package consumers. Everything else
-is a variable. The only hard-coded value you should ever write is `#FDCE45` —
-and even that is exposed as `var(--yellow-solid)`.
+is a variable. Brand yellow is emitted as `var(--yellow-solid)`; its CSS token
+value is `hsl(44.7, 97.9%, 63.1%)`, the hsl form of canonical `#FDCE45`.
 
 For **TV preview cards**, also load `preview/tv-shell.css` — it adds the `.tv`, `.topnav`, `.scr`, glass tiers, and player chrome on top of the tokens. This is preview-only support CSS; platform repos implement TV components in their native UI stacks:
 
@@ -49,9 +49,11 @@ For **TV preview cards**, also load `preview/tv-shell.css` — it adds the `.tv`
 
 ## Core rules
 
-- **Yellow `#FDCE45` is sacred.** Never gradient, tint, or replace. Primary CTAs, folder icons, focus rings (at 35% alpha), progress bars. `--yellow-solid` is the brand value; for yellow text on light backgrounds use `--yellow-text-secondary` instead.
+- **Yellow `#FDCE45` is sacred.** Never gradient, tint, or replace. Primary CTAs, folder icons, button/nav/TV focus rings (at 35% alpha), progress bars. `--yellow-solid` is the brand value; for yellow text on light backgrounds use `--yellow-text-secondary` instead.
 - **Icons: Phosphor-style inline SVG.** No emoji, ever.
 - **One design, two modes.** Light and dark are the same markup and components with different token values. Toggle `.dark` on `<html>`; do not fork the page or rebuild a light-specific copy.
+- **Fields stay quiet.** Use `--field-bg`, `--field-border`, and `--field-ring` for text entry. Invalid fields use `aria-invalid="true"` with red border/text only, never a red fill.
+- **Panels are shared.** Use `--panel-bg`, `--panel-border`, `--panel-radius`, and `--panel-shadow` for raised cards and auth-style shells instead of screen-specific variables.
 - **Content-agnostic.** put.io doesn't know what the user's files are. Never parse `The.Wire.S03E04.1080p.mkv` into `The Wire`. Raw filenames only. See the root [`DESIGN.md`](../DESIGN.md) for the full principle.
 
 ## Theme System

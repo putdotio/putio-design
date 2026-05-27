@@ -58,24 +58,20 @@ button i { font-size: 14px; line-height: 1; display: inline-flex; }
 /* Layout-only modifier \u2014 full-width CTA */
 .btn-block { width: 100%; }
 
-/* Variants \u2014 token-driven. Foreground hex literals match the
-   --*-foreground tokens in tokens.css; kept inline for performance. */
-.btn-primary  { background: var(--yellow-solid);  border-color: var(--yellow-solid);  color: #000; }
+/* Variants \u2014 token-driven. Foregrounds read from --*-foreground
+   aliases in tokens.css so "what color on top" lives in one place. */
+.btn-primary  { background: var(--yellow-solid);  border-color: var(--yellow-solid);  color: var(--primary-foreground); }
 .btn-primary:hover  { background: var(--yellow-solid-hover);  border-color: var(--yellow-solid-hover); }
-.btn-success  { background: var(--green-text-secondary); border-color: var(--green-text-secondary); color: #fff; }
-.btn-success:hover  { background: var(--green-text-secondary); border-color: var(--green-text-secondary); }
-.btn-danger   { background: var(--red-text-secondary); border-color: var(--red-text-secondary); color: #fff; }
-.btn-danger:hover   { background: var(--red-text-secondary); border-color: var(--red-text-secondary); }
-.btn-info     { background: var(--solid);         border-color: var(--solid);         color: #fff; }
+.btn-success  { background: var(--success);       border-color: var(--success);       color: var(--success-foreground); }
+.btn-success:hover  { background: var(--success); border-color: var(--success); }
+.btn-danger   { background: var(--destructive);   border-color: var(--destructive);   color: var(--destructive-foreground); }
+.btn-danger:hover   { background: var(--destructive); border-color: var(--destructive); }
+.btn-info     { background: var(--solid);         border-color: var(--solid);         color: var(--solid-foreground); }
 .btn-info:hover     { background: var(--solid-hover);         border-color: var(--solid-hover); }
 .btn-invert   { background: var(--text);          border-color: var(--border);        color: var(--app-bg); }
 .btn-invert:hover   { border-color: var(--border-hover); }
 .btn-default  { background: var(--component-bg);  border-color: var(--border);        color: var(--text); }
 .btn-default:hover  { background: var(--component-bg-hover);  border-color: var(--border-hover); }
-html.dark .btn-success { background: var(--green-border-hover); border-color: var(--green-border-hover); }
-html.dark .btn-success:hover { background: var(--green-border-hover); border-color: var(--green-border-hover); }
-html.dark .btn-danger { background: var(--red-border-hover); border-color: var(--red-border-hover); }
-html.dark .btn-danger:hover { background: var(--red-border-hover); border-color: var(--red-border-hover); }
 
 /* States */
 button:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -91,11 +87,11 @@ button.is-loading::after {
   opacity: 0.75;
   animation: btn-spin 0.7s linear infinite;
 }
-.btn-primary.is-loading::after { color: #000; }
-.btn-success.is-loading::after,
-.btn-danger.is-loading::after,
-.btn-info.is-loading::after,
-.btn-invert.is-loading::after { color: #fff; }
+.btn-primary.is-loading::after { color: var(--primary-foreground); }
+.btn-success.is-loading::after { color: var(--success-foreground); }
+.btn-danger.is-loading::after { color: var(--destructive-foreground); }
+.btn-info.is-loading::after { color: var(--solid-foreground); }
+.btn-invert.is-loading::after { color: var(--app-bg); }
 .btn-default.is-loading::after { color: var(--text); }
 @keyframes btn-spin { to { transform: rotate(360deg); } }
 
@@ -142,9 +138,10 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
    not the chrome.
    =========================================================== */
 .card {
-  background: var(--component-bg);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--panel-radius);
+  box-shadow: var(--panel-shadow);
 }
 .card-md { padding: 24px; }
 .card-lg { padding: 32px 32px 28px; }
@@ -157,3 +154,101 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 }
 .panel-pad     { padding: 14px 16px; }
 .panel-pad-lg  { padding: 18px 20px; }
+
+/* ===========================================================
+   Field primitives \u2014 product-form parity.
+
+   One source of truth for input chrome. Local preview files can
+   override geometry (height, padding, layout) but should not
+   redefine the surface, border, focus, or invalid-state tokens.
+
+   Surface contract:
+     bg            -> --field-bg          (= --app-bg)
+     border        -> --field-border      (= --border)
+     border:hover  -> --field-border-hover
+     focus ring    -> --field-ring        (1px border-hover, not yellow)
+     placeholder   -> --field-placeholder
+     disabled bg   -> --field-bg-disabled
+
+   Invalid: opt in with aria-invalid="true". The border and ring
+   flip red; the field surface stays --field-bg with no red fill.
+   =========================================================== */
+.field {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border-radius: var(--radius);
+  border: 1px solid var(--field-border);
+  background: var(--field-bg);
+  color: var(--field-text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+.field::placeholder { color: var(--field-placeholder); }
+.field:hover { border-color: var(--field-border-hover); }
+.field:focus,
+.field:focus-visible {
+  outline: none;
+  border-color: var(--field-border-focus);
+  box-shadow: var(--field-ring);
+}
+.field:disabled,
+.field[aria-disabled="true"] {
+  background: var(--field-bg-disabled);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+}
+.field[aria-invalid="true"] {
+  border-color: var(--red-border-hover);
+}
+.field[aria-invalid="true"]:focus,
+.field[aria-invalid="true"]:focus-visible {
+  border-color: var(--red-border-hover);
+  box-shadow: 0 0 0 1px var(--red-border-hover);
+}
+.field[data-state="loading"]:focus,
+.field[data-state="loading"]:focus-visible {
+  box-shadow: none;
+}
+.field.mono { font-family: var(--font-mono); font-size: 13px; }
+
+/* ===========================================================
+   Form layout recipes \u2014 rhythm comes from gap, not per-screen
+   label margins or helper offsets.
+   =========================================================== */
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.form-stack.tight { gap: 10px; }
+.form-stack.loose { gap: 20px; }
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-group .label { margin-bottom: 0; }
+.form-group .hint { margin-top: 0; }
+.form-group > .form-callout.inline { margin-top: 0; }
+
+.form-group .label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.form-group .label-row .label { margin-bottom: 0; }
+.form-group .label-row a {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.form-group .label-row a:hover { color: var(--text); }

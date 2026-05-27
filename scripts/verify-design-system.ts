@@ -20,6 +20,7 @@ type DesignColors = {
 };
 
 const root = process.cwd();
+const sacredYellowCss = "hsl(44.7, 97.9%, 63.1%)";
 const placeholderHref = /\bhref\s*=\s*["']\s*#\s*["']/i;
 const restrictedPublicText: Array<{ name: string; pattern: RegExp }> = [
   { name: "Anthropic design API URL", pattern: /api\.anthropic\.com/i },
@@ -34,6 +35,8 @@ const restrictedPublicText: Array<{ name: string; pattern: RegExp }> = [
   { name: "private repo name", pattern: /putio-web/i },
   { name: "private planning doc", pattern: /design-brief|platform-strategy/i },
   { name: "Lucide icon reference", pattern: /Lucide|@lucide|lucide-icon/i },
+  { name: "legacy token package path", pattern: /@putdotio\/design-tokens-(?:css|ts)|\bdesign-tokens(?:\.flat)?\.json\b|putio-design-tokens\.figma\.json/i },
+  { name: "alternate brand yellow", pattern: /#fdd868|#fcbe03/i },
   { name: "incorrect put.io wordmark casing", pattern: /\b(?:PUT\.IO|Put\.io|PUTIO)\b/ },
   { name: "non-agnostic sample content", pattern: /RSS torrents|Hans Zimmer|preview token/i },
 ];
@@ -107,14 +110,16 @@ async function checkTokens() {
   const flat = JSON.parse(await readFile(path.join(root, "dist/tokens.flat.json"), "utf8")) as Record<string, TokenRecord>;
   const yellow = flat["color.brand.yellow"];
   assert(yellow, "Missing color.brand.yellow token");
-  assert(yellow.value === "#FDCE45", "color.brand.yellow must stay exactly #FDCE45");
-  assert(flat["color.yellow.light.solidHover"]?.value === "#FDCE45", "light yellow solid hover must reuse sacred yellow");
-  assert(flat["color.yellow.dark.solidHover"]?.value === "#FDCE45", "dark yellow solid hover must reuse sacred yellow");
+  assert(yellow.value === sacredYellowCss, "color.brand.yellow must stay hsl(44.7, 97.9%, 63.1%), the CSS form of #FDCE45");
+  assert(flat["color.yellow.light.solidHover"]?.value === sacredYellowCss, "light yellow solid hover must reuse sacred yellow");
+  assert(flat["color.yellow.dark.solidHover"]?.value === sacredYellowCss, "dark yellow solid hover must reuse sacred yellow");
 
   for (const [name, token] of Object.entries(flat)) {
     assert(token.cssName.startsWith("--"), `${name} cssName must be a CSS custom property`);
     assert(token.type.length > 0 && token.type !== "unknown", `${name} must include a supported type`);
     assert(token.mode.length > 0, `${name} must include a mode`);
+    assert(!String(token.value).includes("var(--"), `${name} public token value must not depend on CSS custom properties`);
+    assert(!String(token.originalValue).includes("var(--"), `${name} public token source must not depend on CSS custom properties`);
   }
 }
 

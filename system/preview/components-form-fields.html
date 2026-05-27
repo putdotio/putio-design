@@ -62,16 +62,7 @@ padding: 28px 32px 36px;
   .hint { font-size: 12px; color: var(--text-secondary); line-height: 1.5; display: flex; align-items: center; gap: 6px; }
   .hint i { font-size: 12px; }
 
-  /* Base field (parity with inputs.html) */
-  .field {
-    width: 100%; height: 36px; padding: 0 12px; box-sizing: border-box;
-    border-radius: var(--radius); border: 1px solid var(--border);
-    background: var(--app-bg); color: var(--text);
-    font-family: var(--font-sans); font-size: var(--fs-base);
-    transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
-  }
-  .field:focus { outline: none; border-color: var(--border-hover); box-shadow: 0 0 0 1px var(--border-hover); }
-  .field.mono { font-family: var(--font-mono); font-size: 13px; }
+  /* .field primitive lives in _components.css and reads --field-* tokens. */
   .field-wrap { position: relative; }
   .field-wrap > i.lead {
     position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
@@ -131,7 +122,7 @@ padding: 28px 32px 36px;
   .slider .thumb {
     position: absolute; top: 50%;
     width: 16px; height: 16px; border-radius: 50%;
-    background: #fff; border: 2px solid var(--yellow-solid);
+    background: hsl(0, 0%, 100%); border: 2px solid var(--yellow-solid);
     transform: translate(-50%, -50%);
     box-shadow: var(--shadow-md);
     cursor: grab;
@@ -200,8 +191,8 @@ padding: 28px 32px 36px;
   .date-pop .day:hover { background: var(--component-bg-hover); }
   .date-pop .day.muted { color: var(--text-secondary); }
   .date-pop .day.in-range { background: var(--yellow-component-bg); border-radius: 0; }
-  .date-pop .day.start { background: var(--yellow-solid); color: #000; font-weight: 500; border-top-right-radius: 0; border-bottom-right-radius: 0; }
-  .date-pop .day.end { background: var(--yellow-solid); color: #000; font-weight: 500; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+  .date-pop .day.start { background: var(--yellow-solid); color: var(--primary-foreground); font-weight: 500; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+  .date-pop .day.end { background: var(--yellow-solid); color: var(--primary-foreground); font-weight: 500; border-top-left-radius: 0; border-bottom-left-radius: 0; }
   .date-pop .day.today { box-shadow: inset 0 0 0 1px var(--border-hover); }
 
   /* ─── Tag / chips input ─────────────────────────────────── */
@@ -209,12 +200,12 @@ padding: 28px 32px 36px;
     min-height: 36px;
     padding: 4px 8px;
     display: flex; align-items: center; flex-wrap: wrap; gap: 4px;
-    border: 1px solid var(--border); border-radius: var(--radius);
-    background: var(--app-bg);
+    border: 1px solid var(--field-border); border-radius: var(--radius);
+    background: var(--field-bg);
   }
   .tag-input:focus-within {
-    border-color: var(--border-hover);
-    box-shadow: 0 0 0 1px var(--border-hover);
+    border-color: var(--field-border-focus);
+    box-shadow: var(--field-ring);
   }
   .chip {
     display: inline-flex; align-items: center; gap: 6px;
@@ -225,15 +216,15 @@ padding: 28px 32px 36px;
   }
   .chip .av {
     width: 18px; height: 18px; border-radius: 50%;
-    background: var(--yellow-solid); color: #000;
+    background: var(--yellow-solid); color: var(--primary-foreground);
     display: grid; place-items: center;
     font-family: var(--font-ui-mono); font-size: 9px; font-weight: 700;
     flex-shrink: 0;
   }
-  .chip .av.b { background: hsl(217, 91%, 60%); color: #fff; }
-  .chip .av.g { background: var(--green-solid); color: #fff; }
-  .chip .av.r { background: var(--red-solid); color: #fff; }
-  .chip .av.p { background: hsl(280, 75%, 60%); color: #fff; }
+  .chip .av.b { background: hsl(217, 91%, 60%); color: var(--solid-foreground); }
+  .chip .av.g { background: var(--green-solid); color: var(--success-foreground); }
+  .chip .av.r { background: var(--red-solid); color: var(--destructive-foreground); }
+  .chip .av.p { background: hsl(280, 75%, 60%); color: var(--solid-foreground); }
   .chip .x {
     width: 14px; height: 14px; display: grid; place-items: center;
     border-radius: 50%; cursor: pointer;
@@ -317,7 +308,7 @@ padding: 28px 32px 36px;
   }
   .file-row .av.img {
     background: linear-gradient(135deg, var(--yellow-solid) 0%, hsl(40, 90%, 50%) 100%);
-    color: #000;
+    color: var(--primary-foreground);
   }
   .file-row .body { min-width: 0; }
   .file-row .body .ttl { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
@@ -369,23 +360,17 @@ padding: 28px 32px 36px;
   .count-row .c.over { color: var(--red-text-secondary); }
 
   /* ─── Validation states ─────────────────────────────────── */
-  .group.error .field { border-color: var(--red-border); }
-  .group.error .field:focus { border-color: var(--red-border-hover); box-shadow: 0 0 0 1px var(--red-border-hover); }
   .group.warn .field { border-color: var(--yellow-border); }
   .group.success .field { border-color: var(--green-border); }
   .group.success .field:focus { border-color: var(--green-border-hover); box-shadow: 0 0 0 1px var(--green-border-hover); }
 
   .msg {
     font-size: 12px; line-height: 1.5;
-    display: flex; align-items: flex-start; gap: 6px;
   }
-  .msg i { font-size: 13px; margin-top: 1px; flex-shrink: 0; }
   .msg.error { color: var(--red-text-secondary); }
   .msg.warn  { color: var(--yellow-text-secondary); }
   .msg.success { color: var(--green-text-secondary); }
   .msg.checking { color: var(--text-secondary); }
-  .msg.checking i { animation: spin 1s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ─── Validation summary card ───────────────────────────── */
   .summary {
@@ -592,32 +577,32 @@ padding: 28px 32px 36px;
   <div class="head">
     <span class="ix">B · 02</span>
     <span class="t">Validation — error · warning · success · async · counted</span>
-    <span class="n">color + icon + message · never color alone</span>
+    <span class="n">state color + text · summary cards keep icons</span>
   </div>
 
   <div class="grid c-3">
-    <div class="group error">
+    <div class="group">
       <span class="label">Folder name <span class="req">*</span></span>
-      <input class="field" aria-label="Folder name" value="2024/Q1" />
-      <span class="msg error"><i class="ph-fill ph-warning-circle"></i>Folder names can't contain <code style="font-family:var(--font-mono);color:var(--red-text-secondary);">/</code>. Try <code style="font-family:var(--font-mono);color:var(--red-text-secondary);">2024-Q1</code>.</span>
+      <input class="field" aria-label="Folder name" value="2024/Q1" aria-invalid="true" aria-describedby="folder-name-error" />
+      <span class="msg error" id="folder-name-error">Folder names can't contain <code style="font-family:var(--font-mono);color:var(--red-text-secondary);">/</code>. Try <code style="font-family:var(--font-mono);color:var(--red-text-secondary);">2024-Q1</code>.</span>
     </div>
 
     <div class="group warn">
       <span class="label">Default download folder</span>
       <input class="field" aria-label="Default download folder" value="/Movies/Unsorted" />
-      <span class="msg warn"><i class="ph-fill ph-warning"></i>About to leave you with <strong style="color:var(--text);">0.4 GB</strong> free. Consider clearing Trash first.</span>
+      <span class="msg warn">About to leave you with <strong style="color:var(--text);">0.4 GB</strong> free. Consider clearing Trash first.</span>
     </div>
 
     <div class="group success">
       <span class="label">Magnet link</span>
       <input class="field mono" aria-label="Magnet link" value="magnet:?xt=urn:btih:a1b2c3…" />
-      <span class="msg success"><i class="ph-fill ph-check-circle"></i>Parsed — <strong style="color:var(--text);">Dune.Part.Two.2024</strong> · 2.4 GB · 89 files.</span>
+      <span class="msg success">Parsed — <strong style="color:var(--text);">Dune.Part.Two.2024</strong> · 2.4 GB · 89 files.</span>
     </div>
 
     <div class="group">
       <span class="label">Username <span class="req">*</span></span>
       <input class="field" aria-label="Username" value="kai" />
-      <span class="msg checking"><i class="ph ph-circle-notch"></i>Checking availability…</span>
+      <span class="msg checking">Checking availability…</span>
     </div>
 
     <div class="group">
@@ -654,10 +639,10 @@ padding: 28px 32px 36px;
 
   <div class="specs-link">
     <b>Validation rules.</b>
-    Never color alone — every state pairs <em>color · icon · sentence</em>.
+    Inline validation uses <em>state color · sentence</em> with no icon.
     <code>--red-solid</code> = blocks the save · <code>--yellow-solid</code> = warns but allows · <code>--green-solid</code> = confirms a parse / async-success ·
-    spinner <code>ph-circle-notch</code> = in-flight (no border-color change).
-    Use a <em>summary card</em> at the top of long forms; inline messages cover focused fields.
+    checking text = in-flight (no border-color change).
+    Use an icon in a <em>summary card</em> at the top of long forms; inline messages cover focused fields.
   </div>
 
 </div>
