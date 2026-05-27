@@ -31,20 +31,31 @@ Canonical weight mapping (matches `putdotio/putio-static`):
 
 ## Using tokens
 
+For the static guide, pages in `system/` load the generated site stylesheet:
+
 ```html
-<link rel="stylesheet" href="system/tokens.css">
+<link rel="stylesheet" href="./tokens.css">
 ```
 
 The canonical source is DTCG-compatible JSON in [`../tokens`](../tokens). This
-CSS file is generated for the design site and package consumers. Everything else
-is a variable. Brand yellow is emitted as `var(--yellow-solid)`; its CSS token
-value is `hsl(44.7, 97.9%, 63.1%)`, the hsl form of canonical `#FDCE45`.
+site stylesheet (`system/tokens.css`) and the package stylesheet
+(`dist/css/tokens.css`, exported as `@putdotio/design/css`) are generated from
+the same source. Guide and component CSS should consume custom properties rather
+than hard-coded palette values. Brand yellow is emitted as
+`var(--yellow-solid)`; its CSS token value is `hsl(44.7, 97.9%, 63.1%)`, the
+hsl form of canonical `#FDCE45`.
+
+Web package consumers import the package CSS export:
+
+```css
+@import "@putdotio/design/css";
+```
 
 For **TV preview cards**, also load `preview/tv-shell.css` — it adds the `.tv`, `.topnav`, `.scr`, glass tiers, and player chrome on top of the tokens. This is preview-only support CSS; platform repos implement TV components in their native UI stacks:
 
 ```html
-<link rel="stylesheet" href="system/tokens.css">
-<link rel="stylesheet" href="system/preview/tv-shell.css">
+<link rel="stylesheet" href="./tokens.css">
+<link rel="stylesheet" href="./preview/tv-shell.css">
 ```
 
 ## Core rules
