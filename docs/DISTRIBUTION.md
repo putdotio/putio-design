@@ -17,8 +17,9 @@ The deploy workflow must run `pnpm verify` before publishing the site.
 ## Package Artifacts
 
 `@putdotio/design` is a public scoped npm package. It exposes generic token
-artifacts and the design contract only:
+artifacts, package-safe brand assets, and the design contract:
 
+- `@putdotio/design/assets/*`
 - `@putdotio/design/css`
 - `@putdotio/design/tokens`
 - `@putdotio/design/tokens/meta`
@@ -27,8 +28,8 @@ artifacts and the design contract only:
 - `@putdotio/design/design.md`
 
 Do not publish platform-native outputs from this repo in v1. Web, iOS, Android,
-Roku, and TV repos should consume the generic token artifacts and own their
-platform adapters.
+Roku, and TV repos should consume the generic token artifacts and brand assets,
+then own their platform adapters.
 
 Package publishing follows the same release flow as the other public put.io
 tooling packages. Merges to `main` are considered publishable. The CI workflow
@@ -92,8 +93,9 @@ changes or large guide updates.
 
 Tokens may reference GT America, GT America Mono, and Berkeley Mono family
 names. Do not publish proprietary font files from this package unless licensing
-is explicitly cleared. The design guide loads production font CSS from
-`static.put.io`.
+is explicitly cleared. Package-safe brand assets under `system/assets/` are
+published through `@putdotio/design/assets/*`. The design guide loads production
+font CSS from `static.put.io`.
 
 ## Public Safety
 

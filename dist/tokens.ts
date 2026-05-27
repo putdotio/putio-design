@@ -248,6 +248,62 @@ export const tokens = {
     "value": "0 14px 30px rgba(0,0,0,0.45)",
     "originalValue": "0 14px 30px rgba(0,0,0,0.45)"
   },
+  "context.tv.channelArt.production.posterBackground": {
+    "cssName": "--tv-channel-art-production-poster-bg",
+    "type": "color",
+    "mode": "tv",
+    "value": "#333333",
+    "originalValue": "#333333"
+  },
+  "context.tv.channelArt.production.splashBackground": {
+    "cssName": "--tv-channel-art-production-splash-bg",
+    "type": "color",
+    "mode": "tv",
+    "value": "hsl(0, 0%, 8.5%)",
+    "originalValue": "{color.neutral.dark.bg}"
+  },
+  "context.tv.channelArt.development.background": {
+    "cssName": "--tv-channel-art-development-bg",
+    "type": "color",
+    "mode": "tv",
+    "value": "#248FE5",
+    "originalValue": "#248FE5"
+  },
+  "context.tv.channelArt.development.accent": {
+    "cssName": "--tv-channel-art-development-accent",
+    "type": "color",
+    "mode": "tv",
+    "value": "#9FD5FF",
+    "originalValue": "#9FD5FF"
+  },
+  "context.tv.channelArt.development.grid": {
+    "cssName": "--tv-channel-art-development-grid",
+    "type": "color",
+    "mode": "tv",
+    "value": "rgba(255,255,255,0.18)",
+    "originalValue": "rgba(255,255,255,0.18)"
+  },
+  "context.tv.channelArt.lab.background": {
+    "cssName": "--tv-channel-art-lab-bg",
+    "type": "color",
+    "mode": "tv",
+    "value": "#0a0f0a",
+    "originalValue": "#0a0f0a"
+  },
+  "context.tv.channelArt.lab.foreground": {
+    "cssName": "--tv-channel-art-lab-fg",
+    "type": "color",
+    "mode": "tv",
+    "value": "#e8ffe4",
+    "originalValue": "#e8ffe4"
+  },
+  "context.tv.channelArt.lab.accent": {
+    "cssName": "--tv-channel-art-lab-accent",
+    "type": "color",
+    "mode": "tv",
+    "value": "#39FF14",
+    "originalValue": "#39FF14"
+  },
   "color.brand.yellow": {
     "cssName": "--yellow-solid",
     "type": "color",
