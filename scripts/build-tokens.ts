@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 
@@ -36,11 +36,12 @@ type FlatToken = {
 const root = process.cwd();
 const allowedTokenTypes = new Set(["color", "cubicBezier", "dimension", "fontFamily", "fontWeight", "number", "duration", "string"]);
 const allowedModes = new Set(["light", "dark", "global", "tv"]);
+const retiredOutputs = ["dist/tokens.ts"];
 const generatedHeader = `/* ============================================================
    put.io design tokens
    Do not edit directly. Generated from DTCG token JSON in tokens/.
 
-   Brand constant: Yellow #FDCE45 (sacred - never changes)
+   Brand constant: Yellow #FDCE45 in both light and dark modes.
    Canonical source: DTCG-compatible JSON in tokens/
    ============================================================ */`;
 
@@ -59,6 +60,22 @@ async function walk(dir: string): Promise<string[]> {
     }),
   );
   return files.flat();
+}
+
+function hasErrorCode(error: unknown, code: string): boolean {
+  return typeof error === "object" && error !== null && "code" in error && error.code === code;
+}
+
+async function removeRetiredOutputs() {
+  for (const file of retiredOutputs) {
+    try {
+      await unlink(path.join(root, file));
+    } catch (error) {
+      if (!hasErrorCode(error, "ENOENT")) {
+        throw error;
+      }
+    }
+  }
 }
 
 function mergeJson(target: JsonObject, source: JsonObject, file: string): JsonObject {
@@ -204,14 +221,6 @@ function nestedFlatJson(tokens: FlatToken[]): JsonObject {
   );
 }
 
-function typescriptForTokens(tokens: FlatToken[]): string {
-  return `// Do not edit directly. Generated from tokens/**/*.tokens.json.\n\nexport const tokens = ${JSON.stringify(
-    nestedFlatJson(tokens),
-    null,
-    2,
-  )} as const;\n\nexport type PutioTokenName = keyof typeof tokens;\n`;
-}
-
 function javascriptForTokens(tokens: FlatToken[]): string {
   return `// Do not edit directly. Generated from tokens/**/*.tokens.json.\n\nexport const tokens = ${JSON.stringify(nestedFlatJson(tokens), null, 2)};\n`;
 }
@@ -266,12 +275,12 @@ async function main() {
   await mkdir(path.join(root, "dist/css"), { recursive: true });
   await mkdir(path.join(root, "dist/figma"), { recursive: true });
   await mkdir(path.join(root, "system"), { recursive: true });
+  await removeRetiredOutputs();
 
   await writeFile(path.join(root, "dist/css/tokens.css"), css);
   await writeFile(path.join(root, "system/tokens.css"), css);
   await writeFile(path.join(root, "dist/tokens.dtcg.json"), `${JSON.stringify(source, null, 2)}\n`);
   await writeFile(path.join(root, "dist/tokens.flat.json"), `${JSON.stringify(nestedFlatJson(tokens), null, 2)}\n`);
-  await writeFile(path.join(root, "dist/tokens.ts"), typescriptForTokens(tokens));
   await writeFile(path.join(root, "dist/tokens.js"), javascriptForTokens(tokens));
   await writeFile(path.join(root, "dist/tokens.d.ts"), declarationForTokens(tokens));
   await writeFile(path.join(root, "dist/figma/putio.tokens.json"), `${JSON.stringify(figmaTokens(tokens), null, 2)}\n`);

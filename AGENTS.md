@@ -22,7 +22,7 @@ Use `pnpm tokens:build` after editing `tokens/**/*.tokens.json`.
 
 - `tokens/**/*.tokens.json` is the source of truth.
 - Generated artifacts live in `dist/` and `system/tokens.css`.
-- Yellow `#FDCE45` is sacred; CSS emits it as `hsl(44.7, 97.9%, 63.1%)`.
+- Yellow `#FDCE45` is the fixed brand constant; CSS emits it as `hsl(44.7, 97.9%, 63.1%)`.
 - Shared form and panel chrome lives in `--field-*` and `--panel-*` aliases.
 - Icons use Phosphor-style inline SVG. No emoji as UI icons.
 - TV surfaces are file browsers: list-first, focus-first, not poster grids.

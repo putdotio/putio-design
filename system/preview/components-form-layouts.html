@@ -210,11 +210,11 @@
     font-family: var(--font-ui-mono); font-size: 10.5px; font-weight: 700;
     flex-shrink: 0;
   }
-  /* Step variants — driven by data-state, the Base UI / Radix convention.
+  /* Step variants — driven by data-state, the headless-primitive convention.
      `data-state` survives JSX state binding (e.g. <Step state={status} />)
      much better than ad-hoc class flags like .done / .current / .pending,
      and CSS attribute selectors are queryable from devtools at a glance. */
-  .step[data-state="completed"] .num { background: var(--success); color: var(--success-foreground); }
+  .step[data-state="completed"] .num { background: var(--green-component-bg); color: var(--green-text-secondary); }
   .step[data-state="completed"] .num i { font-size: 11px; }
   .step[data-state="active"]    .num { background: var(--primary); color: var(--primary-foreground); }
   .step[data-state="pending"]   .num { background: var(--component-bg); color: var(--text-secondary); border: 1px solid var(--line); }
@@ -413,14 +413,25 @@
     border-color: var(--field-border-focus);
     box-shadow: var(--field-ring);
   }
-  /* Error: ALL slots flip red together. Border + text only; no red fill. */
+  /* Error/success: ALL slots flip together at rest; focused slot uses
+     the step-8 hover/focus border. Border + text only; no surface fill. */
   .otp[data-state="error"] .slot {
-    border-color: var(--red-border-hover);
+    border-color: var(--red-border);
     color: var(--red-text-secondary);
   }
+  .otp[data-state="error"] .slot:focus,
+  .otp[data-state="error"] .slot[data-state="focused"] {
+    border-color: var(--red-border-hover);
+    box-shadow: 0 0 0 1px var(--red-border-hover);
+  }
   .otp[data-state="success"] .slot {
-    border-color: var(--green-border-hover);
+    border-color: var(--green-border);
     color: var(--green-text-secondary);
+  }
+  .otp[data-state="success"] .slot:focus,
+  .otp[data-state="success"] .slot[data-state="focused"] {
+    border-color: var(--green-border-hover);
+    box-shadow: 0 0 0 1px var(--green-border-hover);
   }
   .otp[data-state="loading"] .slot,
   .otp[data-state="loading"] .slot[data-state="focused"],
@@ -430,9 +441,6 @@
     color: var(--text-secondary);
     cursor: not-allowed;
   }
-  /* Backwards compatibility for old class flag (used in earlier specimen) */
-  .otp .slot.filled  { border-color: var(--field-border-hover); }
-  .otp .slot.focused { border-color: var(--field-border-focus); box-shadow: var(--field-ring); }
   .otp .sep { color: var(--text-secondary); font-size: 18px; padding: 0 4px; }
   .auth-resend {
     margin-top: 22px;

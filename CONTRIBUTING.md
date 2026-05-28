@@ -36,4 +36,4 @@ Use `pnpm verify:full` before large guide, token, package, or deploy changes.
 
 - Keep changes focused.
 - Update docs when public behavior, commands, tokens, or delivery changes.
-- Include the relevant verification command in the PR.
+- Use the pull request template and include the relevant verification command.

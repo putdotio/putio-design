@@ -50,7 +50,7 @@ Package entrypoints:
 - Flat token metadata: [`dist/tokens.flat.json`](dist/tokens.flat.json)
 - Figma-safe subset: [`dist/figma/putio.tokens.json`](dist/figma/putio.tokens.json)
 - Brand assets: [`system/assets`](system/assets) via `@putdotio/design/assets/<file>`
-- Human and AI design contract: [`DESIGN.md`](DESIGN.md)
+- Design contract: [`DESIGN.md`](DESIGN.md)
 
 ## Commands
 

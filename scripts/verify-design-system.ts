@@ -19,8 +19,45 @@ type DesignColors = {
   light?: Record<string, string>;
 };
 
+type TokenMode = "light" | "dark" | "global";
+type TokenAliasContract = { name: string; source: string; cssName: string; mode: TokenMode };
+type TokenValueContract = { name: string; cssName: string; value: string; mode: TokenMode };
+
 const root = process.cwd();
-const sacredYellowCss = "hsl(44.7, 97.9%, 63.1%)";
+const brandYellowCss = "hsl(44.7, 97.9%, 63.1%)";
+const tokenAliasContracts: TokenAliasContract[] = [
+  { name: "component.button.primary.background", source: "color.brand.yellow", cssName: "--button-primary-bg", mode: "global" },
+  { name: "component.button.success.background", source: "color.green.light.solid", cssName: "--button-success-bg", mode: "light" },
+  { name: "component.button.success.backgroundDark", source: "color.green.dark.solid", cssName: "--button-success-bg", mode: "dark" },
+  { name: "component.button.danger.background", source: "color.red.light.solid", cssName: "--button-danger-bg", mode: "light" },
+  { name: "component.button.danger.backgroundDark", source: "color.red.dark.solid", cssName: "--button-danger-bg", mode: "dark" },
+  { name: "component.button.primary.backgroundHover", source: "color.yellow.light.solidHover", cssName: "--button-primary-bg-hover", mode: "light" },
+  { name: "component.button.primary.backgroundHoverDark", source: "color.yellow.dark.solidHover", cssName: "--button-primary-bg-hover", mode: "dark" },
+  { name: "component.button.success.backgroundHover", source: "color.green.light.solidHover", cssName: "--button-success-bg-hover", mode: "light" },
+  { name: "component.button.success.backgroundHoverDark", source: "color.green.dark.solidHover", cssName: "--button-success-bg-hover", mode: "dark" },
+  { name: "component.button.danger.backgroundHover", source: "color.red.light.solidHover", cssName: "--button-danger-bg-hover", mode: "light" },
+  { name: "component.button.danger.backgroundHoverDark", source: "color.red.dark.solidHover", cssName: "--button-danger-bg-hover", mode: "dark" },
+  { name: "component.button.info.backgroundHover", source: "color.neutral.light.solidHover", cssName: "--button-info-bg-hover", mode: "light" },
+  { name: "component.button.info.backgroundHoverDark", source: "color.neutral.dark.solidHover", cssName: "--button-info-bg-hover", mode: "dark" },
+  { name: "component.button.primary.foreground", source: "component.alias.primaryForeground", cssName: "--button-primary-fg", mode: "global" },
+  { name: "component.button.success.foreground", source: "component.alias.successForeground", cssName: "--button-success-fg", mode: "global" },
+  { name: "component.button.danger.foreground", source: "component.alias.destructiveForeground", cssName: "--button-danger-fg", mode: "global" },
+  { name: "component.alias.primary", source: "color.brand.yellow", cssName: "--primary", mode: "global" },
+  { name: "component.alias.success", source: "color.green.light.solid", cssName: "--success", mode: "light" },
+  { name: "component.alias.successDark", source: "color.green.dark.solid", cssName: "--success", mode: "dark" },
+  { name: "component.alias.destructive", source: "color.red.light.solid", cssName: "--destructive", mode: "light" },
+  { name: "component.alias.destructiveDark", source: "color.red.dark.solid", cssName: "--destructive", mode: "dark" },
+  { name: "component.alias.invertForeground", source: "surface.light.appBg", cssName: "--invert-foreground", mode: "light" },
+  { name: "component.alias.invertForegroundDark", source: "surface.dark.appBg", cssName: "--invert-foreground", mode: "dark" },
+];
+const tokenValueContracts: TokenValueContract[] = [
+  { name: "component.alias.primaryForeground", cssName: "--primary-foreground", value: "hsl(38, 65%, 10%)", mode: "global" },
+  { name: "component.alias.successForeground", cssName: "--success-foreground", value: "hsl(0, 0%, 100%)", mode: "global" },
+  { name: "component.alias.destructiveForeground", cssName: "--destructive-foreground", value: "hsl(0, 0%, 100%)", mode: "global" },
+];
+const apcaContrastButtonVariants = ["btn-success", "btn-danger"] as const;
+const apcaSizeFloorButtonVariants = ["btn-success", "btn-danger", "btn-info"] as const;
+const apcaDisallowedButtonSizes = ["btn-sm", "btn-xs"] as const;
 const placeholderHref = /\bhref\s*=\s*["']\s*#\s*["']/i;
 const restrictedPublicText: Array<{ name: string; pattern: RegExp }> = [
   { name: "Anthropic design API URL", pattern: /api\.anthropic\.com/i },
@@ -65,8 +102,50 @@ function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
 
+function hasErrorCode(error: unknown, code: string): boolean {
+  return typeof error === "object" && error !== null && "code" in error && error.code === code;
+}
+
 async function assertExists(file: string) {
   await access(path.join(root, file));
+}
+
+async function assertNotExists(file: string) {
+  try {
+    await access(path.join(root, file));
+  } catch (error) {
+    if (hasErrorCode(error, "ENOENT")) return;
+    throw error;
+  }
+  throw new Error(`${file} must not exist`);
+}
+
+function lineNumberAt(text: string, index: number): number {
+  return text.slice(0, index).split("\n").length;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function extractHtmlAttribute(attrs: string, name: string): string | undefined {
+  const match = attrs.match(new RegExp(`\\b${escapeRegExp(name)}\\s*=\\s*(["'])([\\s\\S]*?)\\1`, "i"));
+  return match?.[2];
+}
+
+function classList(attrs: string): string[] {
+  return (extractHtmlAttribute(attrs, "class") ?? "").split(/\s+/).filter(Boolean);
+}
+
+function assertTokenAlias(flat: Record<string, TokenRecord>, contract: TokenAliasContract) {
+  const token = flat[contract.name];
+  const source = flat[contract.source];
+  assert(token, `Missing ${contract.name} token`);
+  assert(source, `Missing ${contract.source} source token`);
+  assert(token.cssName === contract.cssName, `${contract.name} must export ${contract.cssName}`);
+  assert(token.mode === contract.mode, `${contract.name} must be ${contract.mode} mode`);
+  assert(token.originalValue === `{${contract.source}}`, `${contract.name} must alias {${contract.source}}`);
+  assert(token.value === source.value, `${contract.name} must resolve to ${contract.source}`);
 }
 
 async function publicSurfaceTextFiles(): Promise<string[]> {
@@ -110,9 +189,33 @@ async function checkTokens() {
   const flat = JSON.parse(await readFile(path.join(root, "dist/tokens.flat.json"), "utf8")) as Record<string, TokenRecord>;
   const yellow = flat["color.brand.yellow"];
   assert(yellow, "Missing color.brand.yellow token");
-  assert(yellow.value === sacredYellowCss, "color.brand.yellow must stay hsl(44.7, 97.9%, 63.1%), the CSS form of #FDCE45");
-  assert(flat["color.yellow.light.solidHover"]?.value === sacredYellowCss, "light yellow solid hover must reuse sacred yellow");
-  assert(flat["color.yellow.dark.solidHover"]?.value === sacredYellowCss, "dark yellow solid hover must reuse sacred yellow");
+  assert(yellow.value === brandYellowCss, "color.brand.yellow must stay hsl(44.7, 97.9%, 63.1%), the CSS form of #FDCE45");
+  for (const contract of tokenAliasContracts) {
+    assertTokenAlias(flat, contract);
+  }
+  for (const contract of tokenValueContracts) {
+    const token = flat[contract.name];
+    assert(token, `Missing ${contract.name} token`);
+    assert(token.cssName === contract.cssName, `${contract.name} must export ${contract.cssName}`);
+    assert(token.mode === contract.mode, `${contract.name} must be ${contract.mode} mode`);
+    assert(token.value === contract.value, `${contract.name} must resolve to ${contract.value}`);
+  }
+  assert(
+    flat["component.button.success.backgroundHover"]?.value !== flat["component.alias.success"]?.value,
+    "button success light hover must differ from the resting success background",
+  );
+  assert(
+    flat["component.button.success.backgroundHoverDark"]?.value !== flat["component.alias.successDark"]?.value,
+    "button success dark hover must differ from the resting success background",
+  );
+  assert(
+    flat["component.button.danger.backgroundHover"]?.value !== flat["component.alias.destructive"]?.value,
+    "button danger light hover must differ from the resting destructive background",
+  );
+  assert(
+    flat["component.button.danger.backgroundHoverDark"]?.value !== flat["component.alias.destructiveDark"]?.value,
+    "button danger dark hover must differ from the resting destructive background",
+  );
 
   for (const [name, token] of Object.entries(flat)) {
     assert(token.cssName.startsWith("--"), `${name} cssName must be a CSS custom property`);
@@ -120,6 +223,9 @@ async function checkTokens() {
     assert(token.mode.length > 0, `${name} must include a mode`);
     assert(!String(token.value).includes("var(--"), `${name} public token value must not depend on CSS custom properties`);
     assert(!String(token.originalValue).includes("var(--"), `${name} public token source must not depend on CSS custom properties`);
+    if (token.type === "color") {
+      assert(/^(?:hsl|hsla)\(/.test(String(token.value)), `${name} color token must resolve to hsl() or hsla()`);
+    }
   }
 }
 
@@ -228,6 +334,48 @@ async function checkHtmlLinks() {
   }
 }
 
+async function checkButtonContrastContracts() {
+  const htmlFiles = (await walk(path.join(root, "system"))).filter((file) => file.endsWith(".html"));
+  const buttonPattern = /<button\b([^>]*)>/gi;
+
+  for (const file of htmlFiles) {
+    const html = await readFile(file, "utf8");
+    const rel = path.relative(root, file);
+
+    for (const match of html.matchAll(buttonPattern)) {
+      const attrs = match[1] ?? "";
+      const classes = classList(attrs);
+      const label = classes.length > 0 ? classes.join(" ") : "<unclassed>";
+      const line = lineNumberAt(html, match.index ?? 0);
+      const contrastContract = extractHtmlAttribute(attrs, "data-contrast-contract");
+      const apcaVariant = apcaContrastButtonVariants.find((variant) => classes.includes(variant));
+      const sizeFloorVariant = apcaSizeFloorButtonVariants.find((variant) => classes.includes(variant));
+      const disallowedSize = apcaDisallowedButtonSizes.find((size) => classes.includes(size));
+
+      assert(
+        contrastContract === undefined || contrastContract === "apca",
+        `${rel}:${line} data-contrast-contract must be "apca" when present`,
+      );
+      assert(
+        contrastContract !== "apca" || apcaVariant !== undefined,
+        `${rel}:${line} data-contrast-contract="apca" is only for solid success/danger button specimens (${label})`,
+      );
+      assert(
+        apcaVariant === undefined || contrastContract === "apca",
+        `${rel}:${line} ${apcaVariant} must declare data-contrast-contract="apca" (${label})`,
+      );
+      assert(
+        contrastContract !== "apca" || disallowedSize === undefined,
+        `${rel}:${line} APCA contrast button specimens must not use ${disallowedSize} (${label})`,
+      );
+      assert(
+        sizeFloorVariant === undefined || disallowedSize === undefined,
+        `${rel}:${line} ${sizeFloorVariant} must not use ${disallowedSize}; use btn-md or the default size (${label})`,
+      );
+    }
+  }
+}
+
 async function checkCss() {
   const tvShell = await readFile(path.join(root, "system/preview/tv-shell.css"), "utf8");
   const generatedCss = await readFile(path.join(root, "system/tokens.css"), "utf8");
@@ -244,15 +392,16 @@ async function main() {
     assertExists("dist/tokens.flat.json"),
     assertExists("dist/tokens.js"),
     assertExists("dist/tokens.d.ts"),
-    assertExists("dist/tokens.ts"),
     assertExists("dist/figma/putio.tokens.json"),
     assertExists("DESIGN.md"),
+    assertNotExists("dist/tokens.ts"),
   ]);
 
   await checkTokens();
   await checkDesignMd();
   await checkPublicSurface();
   await checkHtmlLinks();
+  await checkButtonContrastContracts();
   await checkCss();
   console.log("Design system checks passed");
 }

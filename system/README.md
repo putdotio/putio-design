@@ -1,6 +1,6 @@
 # put.io design system
 
-This is the `system/` folder inside [`putdotio/putio-design`](https://github.com/putdotio/putio-design). It holds the **tokens**, **preview cards**, and an **index** of the design system.
+This folder holds the generated site tokens, preview cards, and design-system index.
 
 ## Layout
 
@@ -18,16 +18,8 @@ project root/
 
 ## Fonts
 
-Fonts are loaded directly from `static.put.io`, so the design system uses the same public type families as put.io product surfaces. Each HTML file links three stylesheets in `<head>`:
-
-```html
-<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
-<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
-<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
-```
-
-Canonical weight mapping (matches `putdotio/putio-static`):
-`100 ultra-light · 200 thin · 300 light · 400 regular · 500 medium · 700 bold · 900 black`
+Preview pages load the public put.io font CSS from `static.put.io`: GT America,
+GT America Mono, and Berkeley Mono. Do not commit font files here.
 
 ## Using tokens
 
@@ -43,7 +35,8 @@ site stylesheet (`system/tokens.css`) and the package stylesheet
 the same source. Guide and component CSS should consume custom properties rather
 than hard-coded palette values. Brand yellow is emitted as
 `var(--yellow-solid)`; its CSS token value is `hsl(44.7, 97.9%, 63.1%)`, the
-hsl form of canonical `#FDCE45`.
+hsl form of canonical `#FDCE45`. Primary hover feedback uses
+`--yellow-solid-hover`, exposed to consumers as `--button-primary-bg-hover`.
 
 Web package consumers import the package CSS export:
 
@@ -60,7 +53,7 @@ For **TV preview cards**, also load `preview/tv-shell.css` — it adds the `.tv`
 
 ## Core rules
 
-- **Yellow `#FDCE45` is sacred.** Never gradient, tint, or replace. Primary CTAs, folder icons, button/nav/TV focus rings (at 35% alpha), progress bars. `--yellow-solid` is the brand value; for yellow text on light backgrounds use `--yellow-text-secondary` instead.
+- **Yellow `#FDCE45` is the brand fill in both modes.** Use it for primary CTAs, folder icons, button/nav/TV focus rings (at 35% alpha), and progress bars. Use `--yellow-solid-hover` / `--button-primary-bg-hover` for CTA hover feedback, `--primary-foreground` for labels on yellow, and `--yellow-text-secondary` for yellow text on light backgrounds.
 - **Icons: Phosphor-style inline SVG.** No emoji, ever.
 - **One design, two modes.** Light and dark are the same markup and components with different token values. Toggle `.dark` on `<html>`; do not fork the page or rebuild a light-specific copy.
 - **Fields stay quiet.** Use `--field-bg`, `--field-border`, and `--field-ring` for text entry. Invalid fields use `aria-invalid="true"` with red border/text only, never a red fill.
@@ -92,6 +85,4 @@ Four documented type stacks — pick one per surface:
 
 ## Preview cards
 
-Open `system/design-system.html` for the full index. Each card renders a single concept against the actual tokens — read it like a spec.
-
-See the root [`AGENTS.md`](../AGENTS.md) for naming conventions and the rules agents must follow.
+Open `system/design-system.html` for the full index. Each card renders a single concept against the actual tokens; treat it as the visual spec.

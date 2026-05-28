@@ -1,7 +1,7 @@
 # Distribution
 
-`putio-design` ships two public surfaces: the static design guide at
-`design.put.io` and package artifacts from `@putdotio/design`.
+This repo ships two public surfaces: the static guide at `design.put.io` and the
+`@putdotio/design` npm package.
 
 ## Static Site
 
@@ -28,43 +28,21 @@ artifacts, package-safe brand assets, and the design contract:
 - `@putdotio/design/design.md`
 
 The CSS export is the web custom-property contract. It includes palette tokens,
-component aliases such as `--field-*` and `--panel-*`, and contrast-safe action
-aliases such as `--primary`, `--success`, and `--destructive`.
+component aliases such as `--field-*` and `--panel-*`, plus action aliases such
+as `--primary`, `--success`, `--destructive`, and their `--*-foreground`
+companions.
 
 Do not publish platform-native outputs from this repo in v1. Web, iOS, Android,
 Roku, and TV repos should consume the generic token artifacts and brand assets,
 then own their platform adapters.
 
-Package publishing follows the same release flow as the other public put.io
-tooling packages. Merges to `main` are considered publishable. The CI workflow
-runs:
+Merges to `main` are considered publishable. The CI workflow runs:
 
 1. `pnpm verify:full` on pull requests and `main` pushes.
 2. semantic-release on `main` after verification passes.
 
 semantic-release analyzes Conventional Commits, publishes to npm, creates
-GitHub Releases, and commits released package metadata back to `main` with
-`[skip ci]`.
-
-Published packages use npm Trusted Publishing and provenance.
-
-Before the first publish, an npm maintainer must trust this workflow for the
-package:
-
-```bash
-npx -y npm@^11.10.0 trust github @putdotio/design --repo putdotio/putio-design --file ci.yml --env release --allow-publish --yes
-```
-
-The release job uses the `release` GitHub Environment with `deployment: false`.
-
-Required protected inputs:
-
-- `PUTIO_RELEASE_BOT_CLIENT_ID` as a repository or Environment variable
-- `PUTIO_RELEASE_BOT_PRIVATE_KEY` as an Environment secret
-
-Release GitHub writes use the put.io release bot. The default `GITHUB_TOKEN`
-remains read-only, and the release-bot remote is configured only after
-dependencies are installed.
+GitHub Releases, and publishes the package with npm provenance.
 
 ## Generated Files
 
@@ -76,22 +54,22 @@ so package consumers and the static site do not need a build step:
 - `dist/tokens.flat.json`
 - `dist/tokens.js`
 - `dist/tokens.d.ts`
-- `dist/tokens.ts`
 - `dist/figma/putio.tokens.json`
 - `system/tokens.css`
 
-Run `pnpm tokens:build` after token edits. `pnpm tokens:check` rebuilds and
-fails if generated files drift.
+Run `pnpm tokens:build` after token edits. `pnpm tokens:check` verifies that
+generated files match the token sources.
 
 Color tokens are emitted as `hsl()` / `hsla()` CSS values. Brand yellow remains
 canonical `#FDCE45` in prose and identity guidance, with the generated CSS value
-`hsl(44.7, 97.9%, 63.1%)`.
+`hsl(44.7, 97.9%, 63.1%)`. Primary button hover uses the separate
+`--button-primary-bg-hover` alias, generated from `--yellow-solid-hover`.
 
 ## Readiness Checks
 
-`pnpm verify` is the fast local gate. It typechecks readiness scripts,
-rebuilds tokens, validates generated drift, validates deployed HTML, starts a
-local static server, smokes important pages, and checks `sst version`.
+`pnpm verify` is the fast local gate. It typechecks scripts, validates generated
+token artifacts, checks HTML, smokes important pages through a local static
+server, and checks `sst version`.
 
 `pnpm verify:full` is the PR CI gate. It adds Playwright browser coverage, an
 axe accessibility pass, and `npm pack --dry-run`. Use it before release-like
@@ -107,6 +85,6 @@ font CSS from `static.put.io`.
 
 ## Public Safety
 
-Do not publish private research, local paths, auth-gated links, Claude project
+Do not publish private research, local paths, auth-gated links, internal project
 links, screenshots from private workspaces, team photos, account data, discount
 strategy, or tracker notes in this repo.

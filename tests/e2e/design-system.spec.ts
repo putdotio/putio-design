@@ -2,7 +2,7 @@ import { readdirSync, statSync } from "node:fs";
 import path from "node:path";
 
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 function walkHtml(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -30,20 +30,64 @@ const axePages = [
   "/preview/web-shell.html",
 ];
 
+const tvSmokePages = new Set([
+  "/preview/mobile-shell.html",
+  "/preview/tv-action-menus.html",
+  "/preview/tv-focus.html",
+  "/preview/tv-foundations.html",
+  "/preview/tv-navigation.html",
+  "/preview/tv-player.html",
+  "/preview/web-shell.html",
+]);
+
+const apcaContrastContractSelector = '[data-contrast-contract="apca"]';
+
+const buttonHoverAliases = [
+  [".btn-primary", "--button-primary-bg-hover"],
+  [".btn-success", "--button-success-bg-hover"],
+  [".btn-danger", "--button-danger-bg-hover"],
+  [".btn-info", "--button-info-bg-hover"],
+] as const;
+
+async function resolvedCssColor(page: Page, variableName: string): Promise<string> {
+  return page.evaluate((name) => {
+    const styles = getComputedStyle(document.documentElement);
+    const probe = document.createElement("div");
+    probe.style.backgroundColor = styles.getPropertyValue(name).trim();
+    document.body.append(probe);
+    const color = getComputedStyle(probe).backgroundColor;
+    probe.remove();
+    return color;
+  }, variableName);
+}
+
 test.describe("design.put.io static guide", () => {
   for (const pagePath of htmlPages) {
-    test(`${pagePath} renders non-empty local content`, async ({ page }) => {
+    test(`${pagePath} renders non-empty local content`, async ({ page }, testInfo) => {
+      test.skip(testInfo.project.name === "chromium-tv" && !tvSmokePages.has(pagePath), "Desktop smoke covers generic pages; TV project covers shell/TV framing.");
       const response = await page.goto(pagePath, { waitUntil: "domcontentloaded" });
       expect(response?.ok(), `${pagePath} should return HTTP 2xx`).toBe(true);
       await expect(page.locator("body")).toContainText(/\S{3,}/);
     });
   }
 
-  test("generated tokens are available to the browser", async ({ page }) => {
+  test("generated tokens are available to the browser", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium-desktop", "Token availability is viewport-independent.");
     await page.goto("/design-system.html");
     await expect.poll(async () => {
       return page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--yellow-solid").trim());
     }).toBe("hsl(44.7, 97.9%, 63.1%)");
+  });
+
+  test("button variants consume hover aliases", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium-desktop", "Hover contract is browser behavior; render smoke covers TV framing.");
+    await page.goto("/preview/components-buttons.html?theme=light", { waitUntil: "domcontentloaded" });
+
+    for (const [selector, variableName] of buttonHoverAliases) {
+      const button = page.locator(selector).first();
+      await button.hover();
+      await expect.poll(async () => button.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe(await resolvedCssColor(page, variableName));
+    }
   });
 
   for (const pagePath of axePages) {
@@ -54,6 +98,8 @@ test.describe("design.put.io static guide", () => {
       if (pagePath.startsWith("/design-system")) {
         builder.exclude("iframe");
       }
+      // Axe checks WCAG 2.x contrast; explicitly marked specimens follow the APCA handoff contract.
+      builder.exclude(apcaContrastContractSelector);
       const results = await builder.analyze();
       const seriousViolations = results.violations.filter((violation) => violation.impact === "critical" || violation.impact === "serious");
       expect(seriousViolations).toEqual([]);

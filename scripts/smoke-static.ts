@@ -4,7 +4,7 @@ import process from "node:process";
 const port = Number(process.env.PORT ?? String(4200 + Math.floor(Math.random() * 1000)));
 const baseUrl = `http://127.0.0.1:${port}`;
 const paths = ["/", "/design-system.html", "/design-system.html?theme=light", "/design-system-light.html", "/tokens.css", "/preview/web-shell.html"];
-const sacredYellowCss = "--yellow-solid: hsl(44.7, 97.9%, 63.1%)";
+const brandYellowCss = "--yellow-solid: hsl(44.7, 97.9%, 63.1%)";
 
 function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -40,8 +40,8 @@ async function smokePath(pathname: string) {
     }
   }
 
-  if (pathname.endsWith(".css") && !text.includes(sacredYellowCss)) {
-    throw new Error(`${pathname} did not include generated sacred yellow token`);
+  if (pathname.endsWith(".css") && !text.includes(brandYellowCss)) {
+    throw new Error(`${pathname} did not include generated brand yellow token`);
   }
 }
 

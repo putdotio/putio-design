@@ -10,16 +10,16 @@ colors:
     text: "hsl(0, 0%, 93.0%)"
     text-muted: "hsl(0, 0%, 62.8%)"
     border: "hsl(0, 0%, 24.3%)"
-    success: "hsl(151, 55.0%, 41.5%)"
-    danger: "hsl(358, 75.0%, 59.0%)"
+    success: "hsl(151, 55%, 41.5%)"
+    danger: "hsl(358, 75%, 59%)"
   light:
     app-bg: "hsl(0, 0%, 100%)"
     page-bg: "hsl(0, 0%, 97.3%)"
     text: "hsl(0, 0%, 9.0%)"
     text-muted: "hsl(0, 0%, 43.5%)"
     border: "hsl(0, 0%, 85.8%)"
-    success: "hsl(151, 55.0%, 41.5%)"
-    danger: "hsl(358, 75.0%, 59.0%)"
+    success: "hsl(151, 55%, 41.5%)"
+    danger: "hsl(358, 75%, 59%)"
 typography:
   ui:
     family: "\"GT America\", sans-serif"
@@ -64,11 +64,11 @@ components:
 
 put.io is a content-agnostic cloud file product. The interface should feel premium because the file browser is useful, fast, quiet, and honest about the data it has. Design for raw filenames, folders, transfers, storage, playback controls, and settings without pretending that structured media metadata is always available.
 
-The canonical source for tokens is DTCG-compatible JSON in `tokens/`. Generated artifacts in `dist/` and `system/tokens.css` are outputs. This file is the human and agent-readable contract that explains how to use those tokens.
+The canonical source for tokens is DTCG-compatible JSON in `tokens/`. Generated artifacts in `dist/` and `system/tokens.css` are outputs. This file explains how to use those tokens.
 
 ## Colors
 
-Yellow `#FDCE45` is sacred. Use it for the put.io brand mark, primary action fill, folder/file emphasis, progress, and focus affordances. Do not tint it into a new brand color, gradient it into a different accent, or use it as foreground text on light surfaces.
+Yellow `#FDCE45` is the resting `--yellow-solid` brand value in both light and dark modes. Use it for the put.io brand mark, primary action fill, folder/file emphasis, progress, and focus affordances. Use `--yellow-solid-hover` for primary button hover feedback; do not invent alternate yellows, gradient yellow into a different accent, or use yellow as foreground text on light surfaces.
 
 Dark app surfaces are the default product mode, but the token contract includes both dark and light palettes. Light surfaces are allowed for landing, docs, and narrow product states where readability is stronger. Semantic red, green, and neutral scales should come from tokens rather than one-off CSS values.
 
@@ -94,7 +94,7 @@ The default radius is `6px`. Use `4px` for tight controls, `8px` or `10px` for l
 
 ## Components
 
-Buttons use yellow only for primary commands. Secondary buttons should feel quiet and tokenized against the active surface. File rows are the core component: preserve raw names, keep metadata compact, and make hover/focus states obvious without inflating row height.
+Buttons use yellow only for primary commands. Primary buttons use `--button-primary-bg` at rest and `--button-primary-bg-hover` on hover so the CTA never feels inert. Secondary buttons should feel quiet and tokenized against the active surface. File rows are the core component: preserve raw names, keep metadata compact, and make hover/focus states obvious without inflating row height.
 
 Form fields use the shared `--field-*` aliases: `--field-bg` for the fill, `--field-border` for the resting border, and `--field-ring` for focus. Invalid fields opt in with `aria-invalid="true"` and use red border/text only; do not add red fill. Raised panels use the shared `--panel-*` aliases instead of auth- or screen-specific panel variables.
 
@@ -108,6 +108,6 @@ Do use Phosphor-style inline SVG for forward-looking icon guidance and no emoji 
 
 Do keep `DESIGN.md`, `tokens/`, `dist/`, and `system/tokens.css` in agreement.
 
-Don't publish private research, local file paths, Claude project links, screenshots, team photos, account data, discount strategy, or auth-gated workspace URLs in the public design repo.
+Don't publish private research, local file paths, internal project links, screenshots, team photos, account data, discount strategy, or auth-gated workspace URLs in the public design repo.
 
 Don't generate Swift, Kotlin, Android XML, or Roku outputs from this repo until a consuming platform repo asks for an adapter.

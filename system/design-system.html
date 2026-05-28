@@ -983,9 +983,12 @@
 
 <span class="c">/* use vars as roles, never literals */</span>
 .btn-primary {
-  background: <span class="k">var</span>(--yellow-solid);
-  color: <span class="s">#000</span>;
-  border-radius: <span class="k">var</span>(--radius);
+  background: <span class="k">var</span>(--button-primary-bg);
+  color: <span class="k">var</span>(--button-primary-fg);
+  border-radius: <span class="k">var</span>(--button-radius);
+}
+.btn-primary:hover {
+  background: <span class="k">var</span>(--button-primary-bg-hover);
 }</pre></div>
         <div class="pane" data-pane="dtcg"><pre><span class="c">// @putdotio/design/tokens/dtcg · W3C DTCG</span>
 {
@@ -995,14 +998,14 @@
     }
   },
   <span class="k">"radius"</span>: {
-    <span class="k">"base"</span>: { <span class="k">"$value"</span>: <span class="s">"6px"</span>, <span class="k">"$type"</span>: <span class="s">"dimension"</span> }
+    <span class="k">"default"</span>: { <span class="k">"$value"</span>: <span class="s">"6px"</span>, <span class="k">"$type"</span>: <span class="s">"dimension"</span> }
   }
 }</pre></div>
         <div class="pane" data-pane="ts"><pre><span class="c">// @putdotio/design/tokens/meta · typed metadata</span>
 <span class="k">import</span> { tokens } <span class="k">from</span> <span class="s">"@putdotio/design/tokens/meta"</span>;
 
-tokens["color.brand.yellow"] <span class="c">// "hsl(44.7, 97.9%, 63.1%)"</span>
-tokens.radius.base          <span class="c">// "6px"</span>
+tokens["color.brand.yellow"].value <span class="c">// "hsl(44.7, 97.9%, 63.1%)"</span>
+tokens["radius.default"].value     <span class="c">// "6px"</span>
 
 <span class="c">// platform adapters live in app repos, not here</span></pre></div>
       </div>
@@ -1048,7 +1051,7 @@ tokens.radius.base          <span class="c">// "6px"</span>
           <div class="ix">A.01</div>
           <div>
             <h3>Color</h3>
-            <div class="sub">Radix 12-step scales, dark + light. One brand, three semantic scales, one transfer-state lime.</div>
+            <div class="sub">12-step scales, light + dark. One brand, three semantic scales, one transfer-state lime.</div>
           </div>
         </header>
 
@@ -1056,26 +1059,28 @@ tokens.radius.base          <span class="c">// "6px"</span>
           <div class="purpose"><dt>Purpose</dt><dd>Role-based color tokens. Vars name the role (<code>--bg</code>, <code>--text-secondary</code>), not the hex. Components consume roles, never literals.</dd></div>
           <div class="source"><dt>Source of truth</dt><dd><code>tokens/**/*.tokens.json</code> — generated into <code>system/tokens.css</code></dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre><span class="c">/* light + dark in one stylesheet — toggle .dark on &lt;html&gt; */</span>
-<span class="k">.btn</span> { background: <span class="k">var</span>(--yellow-solid); color: <span class="s">#000</span>; }
+<span class="k">.btn</span> { background: <span class="k">var</span>(--button-primary-bg); color: <span class="k">var</span>(--button-primary-fg); }
+<span class="k">.btn:hover</span> { background: <span class="k">var</span>(--button-primary-bg-hover); }
 <span class="k">.row</span> { background: <span class="k">var</span>(--bg-secondary); color: <span class="k">var</span>(--text); }
 <span class="k">.row:hover</span> { background: <span class="k">var</span>(--list-item-bg-hover); }</pre></dd></div>
           <div class="constraints"><dt>Constraints</dt><dd><ul>
-            <li><code>--yellow-solid</code> = backgrounds, icons, text-on-dark only — 1.5:1 on light = fail</li>
-            <li>For yellow text on light, use <code>--yellow-text-secondary</code> (4.98:1 AA)</li>
+            <li><code>--yellow-solid</code> is fill-only. For yellow text, use <code>--yellow-text-secondary</code>.</li>
+            <li><code>--primary-foreground</code> is the warm dark label color on yellow.</li>
+            <li><code>--success-foreground</code>, <code>--destructive-foreground</code>, and <code>--invert-foreground</code> own solid-button label color.</li>
             <li class="no">No new color literals in component code</li>
             <li class="no">No semantic scale for decoration — status only</li>
           </ul></dd></div>
         </dl>
 
-        <div class="tok-row-hd"><span>Brand · sacred</span><span>never changes across modes or platforms</span></div>
+        <div class="tok-row-hd"><span>Brand</span><span>same resting fill in both modes; hover is the canonical darker companion</span></div>
         <div class="tok-grid c-4">
-          <div class="tok"><div class="swatch tall text" style="background:var(--yellow-solid)">SACRED</div><div class="name">--yellow-solid</div><div class="val">hsl(44.7, 97.9%, 63.1%)</div><div class="use">Brand fill: CTAs, button/nav/TV focus halos (35% alpha), folder icons, progress bars. <b>Never as text on light.</b></div></div>
-          <div class="tok"><div class="swatch tall text" style="background:var(--yellow-solid-hover)">hover · light</div><div class="name">--yellow-solid-hover</div><div class="val">hsl(44.7, 97.9%, 63.1%)</div><div class="use">CTA hover keeps the sacred yellow value in light mode.</div></div>
-          <div class="tok"><div class="swatch tall text" style="background:var(--yellow-solid-hover)">hover · dark</div><div class="name">.dark --yellow-solid-hover</div><div class="val">hsl(44.7, 97.9%, 63.1%)</div><div class="use">CTA hover keeps the sacred yellow value in dark mode.</div></div>
-          <div class="tok"><div class="swatch tall text on-dark" style="background:var(--yellow-bg)">surface</div><div class="name">--yellow-bg</div><div class="val">hsl(45 100% 5.5%)</div><div class="use">Faint brand tint backdrop (dark mode); near-white in light.</div></div>
+          <div class="tok"><div class="swatch tall text" style="background:var(--yellow-solid)">BRAND</div><div class="name">--yellow-solid</div><div class="val">#FDCE45</div><div class="use">Brand fill: CTAs, focus halos (35% alpha), folder icons, progress bars. <b>Never as text on light.</b></div></div>
+          <div class="tok"><div class="swatch tall text" style="background:var(--yellow-solid-hover)">hover</div><div class="name">--yellow-solid-hover</div><div class="val">#F3C437</div><div class="use">CTA hover — slightly darker brand yellow without turning olive.</div></div>
+          <div class="tok"><div class="swatch tall text" style="background:var(--primary-foreground); color:var(--yellow-solid);">contrast</div><div class="name">--primary-foreground</div><div class="val">#292109</div><div class="use">Label text on yellow-solid — warm dark, not pure black.</div></div>
+          <div class="tok"><div class="swatch tall text on-dark" style="background:var(--yellow-bg)">surface</div><div class="name">--yellow-bg</div><div class="val">step 1 · light tint / dark black</div><div class="use">Faintest tint backdrop in light; drops to pure black in dark.</div></div>
         </div>
 
-        <div class="tok-row-hd"><span>Neutrals · dark (app default)</span><span>12 steps · radix gray-dark</span></div>
+        <div class="tok-row-hd"><span>Neutrals · dark (app default)</span><span>12 steps · gray scale</span></div>
         <div class="tok-grid c-6">
           <div class="tok"><div class="swatch" style="background:var(--bg)"></div><div class="name">--bg</div><div class="val">hsl(0 0% 8.5%)</div><div class="use">Page background — the dominant app surface. Sidebars, body, full-screen modals.</div></div>
           <div class="tok"><div class="swatch" style="background:var(--bg-secondary)"></div><div class="name">--bg-secondary</div><div class="val">hsl(0 0% 11%)</div><div class="use">Inset panel · quiet aside. Code blocks, reference panels, secondary nav.</div></div>
@@ -1098,15 +1103,12 @@ tokens.radius.base          <span class="c">// "6px"</span>
           <div class="tok"><div class="swatch" style="background:var(--red-solid)"></div><div class="name">--red-solid</div><div class="val">destructive</div><div class="use"><code>btn-danger</code> · error icons · invalid input border.</div></div>
           <div class="tok"><div class="swatch" style="background:var(--red-bg-secondary)"></div><div class="name">--red-bg-secondary</div><div class="val">destructive surface</div><div class="use">Error callout backdrop. Invalid fields keep <code>--field-bg</code>.</div></div>
           <div class="tok"><div class="swatch" style="background:var(--lime-3)"></div><div class="name">--lime-3</div><div class="val">in-motion accent</div><div class="use">Transfer downloading / completing rows. <em>put.io-specific.</em></div></div>
-          <div class="tok"><div class="swatch" style="background:var(--yellow-solid)"></div><div class="name">--yellow-solid</div><div class="val">brand · status accent</div><div class="use">Primary CTA fill · button/nav/TV focus halo · active step · brand mark.</div></div>
         </div>
 
         <div class="sub-hd" style="margin: 22px 0 8px;"><div class="ix">specimens</div><h4>Color · canonical previews<span class="src">preview/color-*</span></h4></div>
         <div class="embeds full">
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Brand yellow</span><a class="open" href="./preview/color-brand.html">open ↗</a></div><iframe data-pid="color-brand" src="./preview/color-brand.html?id=color-brand" loading="lazy"></iframe></div>
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Gray scale</span><a class="open" href="./preview/color-gray-scale.html">open ↗</a></div><iframe data-pid="color-gray-scale" src="./preview/color-gray-scale.html?id=color-gray-scale" loading="lazy"></iframe></div>
           <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Semantic scales</span><a class="open" href="./preview/color-semantic-scales.html">open ↗</a></div><iframe data-pid="color-semantic-scales" src="./preview/color-semantic-scales.html?id=color-semantic-scales" loading="lazy"></iframe></div>
-          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Dark-mode surfaces</span><a class="open" href="./preview/color-dark-mode.html">open ↗</a></div><iframe data-pid="color-dark-mode" src="./preview/color-dark-mode.html?id=color-dark-mode" loading="lazy"></iframe></div>
+          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Surface roles</span><a class="open" href="./preview/color-dark-mode.html">open ↗</a></div><iframe data-pid="color-dark-mode" src="./preview/color-dark-mode.html?id=color-dark-mode" loading="lazy"></iframe></div>
           <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Accessibility &amp; contrast audit</span><a class="open" href="./preview/accessibility.html">open ↗</a></div><iframe data-pid="accessibility" src="./preview/accessibility.html?id=accessibility" loading="lazy"></iframe></div>
         </div>
       </section>
@@ -1124,7 +1126,7 @@ tokens.radius.base          <span class="c">// "6px"</span>
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>One sans + two monos do all the work. Mono families enforce <em>raw filenames stay raw</em> — filenames render in Berkeley Mono, numerics in GT Mono.</dd></div>
           <div class="source"><dt>Source of truth</dt><dd><code>system/tokens.css</code> · font CSS hosted at <code>static.put.io/fonts/</code></dd></div>
-          <div class="artifact"><dt>Generated</dt><dd><code>type.tokens.json</code> · CSS custom properties · TS metadata</dd></div>
+          <div class="artifact"><dt>Generated</dt><dd><code>dist/tokens.d.ts</code> · CSS custom properties · TS metadata</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre><span class="c">/* font roles */</span>
 <span class="k">.row</span>          { font-family: <span class="k">var</span>(--font-sans); }      <span class="c">/* GT America */</span>
 <span class="k">.row .size</span>    { font-family: <span class="k">var</span>(--font-ui-mono); font-variant-numeric: tabular-nums; }
