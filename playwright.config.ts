@@ -24,10 +24,12 @@ export default defineConfig({
   projects: [
     {
       name: "chromium-desktop",
+      grep: /@desktop/,
       use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
     },
     {
       name: "chromium-tv",
+      grep: /@tv/,
       use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 } },
     },
   ],

@@ -30,7 +30,7 @@ const axePages = [
   "/preview/web-shell.html",
 ];
 
-const tvSmokePages = new Set([
+const tvSmokePages = [
   "/preview/mobile-shell.html",
   "/preview/tv-action-menus.html",
   "/preview/tv-focus.html",
@@ -38,7 +38,7 @@ const tvSmokePages = new Set([
   "/preview/tv-navigation.html",
   "/preview/tv-player.html",
   "/preview/web-shell.html",
-]);
+];
 
 const apcaContrastContractSelector = '[data-contrast-contract="apca"]';
 
@@ -63,24 +63,29 @@ async function resolvedCssColor(page: Page, variableName: string): Promise<strin
 
 test.describe("design.put.io static guide", () => {
   for (const pagePath of htmlPages) {
-    test(`${pagePath} renders non-empty local content`, async ({ page }, testInfo) => {
-      test.skip(testInfo.project.name === "chromium-tv" && !tvSmokePages.has(pagePath), "Desktop smoke covers generic pages; TV project covers shell/TV framing.");
+    test(`${pagePath} renders non-empty local content @desktop`, async ({ page }) => {
       const response = await page.goto(pagePath, { waitUntil: "domcontentloaded" });
       expect(response?.ok(), `${pagePath} should return HTTP 2xx`).toBe(true);
       await expect(page.locator("body")).toContainText(/\S{3,}/);
     });
   }
 
-  test("generated tokens are available to the browser", async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name !== "chromium-desktop", "Token availability is viewport-independent.");
+  for (const pagePath of tvSmokePages) {
+    test(`${pagePath} renders non-empty TV content @tv`, async ({ page }) => {
+      const response = await page.goto(pagePath, { waitUntil: "domcontentloaded" });
+      expect(response?.ok(), `${pagePath} should return HTTP 2xx`).toBe(true);
+      await expect(page.locator("body")).toContainText(/\S{3,}/);
+    });
+  }
+
+  test("generated tokens are available to the browser @desktop", async ({ page }) => {
     await page.goto("/design-system.html");
     await expect.poll(async () => {
       return page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--yellow-solid").trim());
     }).toBe("hsl(44.7, 97.9%, 63.1%)");
   });
 
-  test("button variants consume hover aliases", async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name !== "chromium-desktop", "Hover contract is browser behavior; render smoke covers TV framing.");
+  test("button variants consume hover aliases @desktop", async ({ page }) => {
     await page.goto("/preview/components-buttons.html?theme=light", { waitUntil: "domcontentloaded" });
 
     for (const [selector, variableName] of buttonHoverAliases) {
@@ -91,8 +96,7 @@ test.describe("design.put.io static guide", () => {
   });
 
   for (const pagePath of axePages) {
-    test(`${pagePath} has no serious automated accessibility violations`, async ({ page }, testInfo) => {
-      test.skip(testInfo.project.name !== "chromium-desktop", "Axe coverage runs once; render smoke covers TV framing.");
+    test(`${pagePath} has no serious automated accessibility violations @desktop`, async ({ page }) => {
       await page.goto(pagePath, { waitUntil: "domcontentloaded" });
       const builder = new AxeBuilder({ page });
       if (pagePath.startsWith("/design-system")) {
