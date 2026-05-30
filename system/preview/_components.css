@@ -3,7 +3,7 @@
    Shared UI primitives consumed across preview specimens.
 
    Single source of truth for:
-     - Button system (matches product implementation)
+     - Button system (matches Button)
      - .head specimen marker (yellow Berkeley-Mono index)
      - .field input reset
 
@@ -13,27 +13,25 @@
    ============================================================ */
 
 /* ===========================================================
-   Button base \u2014 production parity with product implementation Button.tsx
+   Button base \u2014 production parity with the web app Button
    - lg (default): h36 / 1.0px letter-spacing
    - md:           h32 / 0.8px
    - sm:           h28 / 0.6px
    - xs:           h24 / 0.3px / fs-xs
    --tw-fs scales the whole thing for breakpoints (unset = 1).
    =========================================================== */
+/* NOTE: uppercase + tracking + sizing live on `.btn` — NOT on bare <button>.
+   Plain <button> elements (tabs, menu items, segmented controls) inherit
+   the reset below but stay sentence case at the size their component chooses. */
 button {
   font-family: var(--font-sans);
   font-weight: var(--fw-medium);
   font-size: calc(var(--fs-base) * var(--tw-fs, 1));
-  height: calc(36px * var(--tw-fs, 1));
-  padding: 0 calc(12px * var(--tw-fs, 1));
   /* Real starting bg so transition has something to interpolate
-     from \u2014 otherwise UA `buttonface` paints silver until hover. */
+     from — otherwise UA `buttonface` paints silver until hover. */
   background-color: transparent;
   border: 1px solid transparent;
   color: var(--text);
-  border-radius: var(--radius);
-  text-transform: uppercase;
-  letter-spacing: 1px;
   cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   white-space: nowrap;
@@ -44,6 +42,18 @@ button {
   user-select: none;
 }
 button i { font-size: 14px; line-height: 1; display: inline-flex; }
+
+/* Brand button — uppercase + tracking + default sizing live HERE, not on
+   bare <button>. Anything that shouts "do a thing" (primary / secondary /
+   destructive) is a `.btn-*` variant and inherits these. */
+.btn,
+.btn-primary, .btn-success, .btn-danger, .btn-info, .btn-invert, .btn-default {
+  height: calc(36px * var(--tw-fs, 1));
+  padding: 0 calc(12px * var(--tw-fs, 1));
+  border-radius: var(--button-radius);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
 
 /* Sizes \u2014 letter-spacing tracks size */
 .btn-md { height: calc(32px * var(--tw-fs, 1)) !important; padding: 0 calc(12px * var(--tw-fs, 1)) !important; letter-spacing: 0.8px; }
@@ -59,25 +69,33 @@ button i { font-size: 14px; line-height: 1; display: inline-flex; }
 .btn-block { width: 100%; }
 
 /* Variants \u2014 token-driven. Foregrounds read from --*-foreground
-   aliases in tokens.css so "what color on top" lives in one place.
-   Success/danger solids intentionally follow the APCA-tuned handoff;
-   do not darken them for WCAG 4.5, and do not use sm/xs sizes. */
-.btn-primary  { background: var(--button-primary-bg);  border-color: var(--button-primary-bg);  color: var(--button-primary-fg); }
-.btn-primary:hover  { background: var(--button-primary-bg-hover);  border-color: var(--button-primary-bg-hover); }
-.btn-success  { background: var(--button-success-bg);   border-color: var(--button-success-bg);   color: var(--button-success-fg); }
-.btn-success:hover  { background: var(--button-success-bg-hover);  border-color: var(--button-success-bg-hover); }
-.btn-danger   { background: var(--button-danger-bg);    border-color: var(--button-danger-bg);    color: var(--button-danger-fg); }
-.btn-danger:hover   { background: var(--button-danger-bg-hover);   border-color: var(--button-danger-bg-hover); }
-.btn-info     { background: var(--solid);         border-color: var(--solid);         color: var(--solid-foreground); }
-.btn-info:hover     { background: var(--button-info-bg-hover);      border-color: var(--button-info-bg-hover); }
+   tokens in tokens.css so "what color on top" lives in one place.
+
+   CONTRAST CONTRACT: solid success/danger/info fills are tuned for
+   APCA Lc 60+ on white text (WCAG 2.x AA-large, not AA-normal). Mark
+   specimens that use them with data-contrast-contract="apca" so an
+   automated WCAG audit can tell an intentional APCA target from an
+   accidental low-contrast bug. Never use these variants at xs/sm — the
+   label drops below the large-text threshold. */
+.btn-primary  { background: var(--button-primary-bg); border-color: var(--button-primary-bg); color: var(--button-primary-fg); }
+.btn-primary:hover:not(:disabled)  { background: var(--button-primary-bg-hover); border-color: var(--button-primary-bg-hover); }
+.btn-success  { background: var(--button-success-bg); border-color: var(--button-success-bg); color: var(--button-success-fg); }
+.btn-success:hover:not(:disabled)  { background: var(--button-success-bg-hover); border-color: var(--button-success-bg-hover); }
+.btn-danger   { background: var(--button-danger-bg);  border-color: var(--button-danger-bg);  color: var(--button-danger-fg); }
+.btn-danger:hover:not(:disabled)   { background: var(--button-danger-bg-hover);  border-color: var(--button-danger-bg-hover); }
+.btn-info     { background: var(--button-info-bg);    border-color: var(--button-info-bg);    color: var(--button-info-fg); }
+.btn-info:hover:not(:disabled)     { background: var(--button-info-bg-hover);    border-color: var(--button-info-bg-hover); }
 .btn-invert   { background: var(--text);          border-color: var(--border);        color: var(--invert-foreground); }
-.btn-invert:hover   { border-color: var(--border-hover); }
-.btn-default  { background: var(--component-bg);  border-color: var(--border);        color: var(--text); }
-.btn-default:hover  { background: var(--component-bg-hover);  border-color: var(--border-hover); }
+.btn-invert:hover:not(:disabled)   { border-color: var(--border-hover); }
+.btn-default  { background: var(--button-default-bg); border-color: var(--border);        color: var(--button-default-fg); }
+.btn-default:hover:not(:disabled)  { background: var(--button-default-bg-hover); border-color: var(--border-hover); }
 
 /* States */
+/* Disabled buttons freeze their resting fill at reduced opacity and ignore
+   hover entirely — hover styles above are gated on :not(:disabled), so there
+   is no need to (and we must not) reset background to `inherit` here, which
+   would strip a disabled primary/danger button of its color on hover. */
 button:disabled { opacity: 0.3; cursor: not-allowed; }
-button:disabled:hover { background: inherit; border-color: inherit; }
 button:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
 
 /* Loading state \u2014 hides label, paints a CSS spinner over the button */
@@ -90,10 +108,10 @@ button.is-loading::after {
   animation: btn-spin 0.7s linear infinite;
 }
 .btn-primary.is-loading::after { color: var(--primary-foreground); }
-.btn-success.is-loading::after { color: var(--button-success-fg); }
-.btn-danger.is-loading::after { color: var(--button-danger-fg); }
-.btn-info.is-loading::after { color: var(--solid-foreground); }
-.btn-invert.is-loading::after { color: var(--invert-foreground); }
+.btn-success.is-loading::after,
+.btn-danger.is-loading::after,
+.btn-info.is-loading::after,
+.btn-invert.is-loading::after { color: var(--destructive-foreground); }
 .btn-default.is-loading::after { color: var(--text); }
 @keyframes btn-spin { to { transform: rotate(360deg); } }
 
@@ -140,10 +158,9 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
    not the chrome.
    =========================================================== */
 .card {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: var(--panel-radius);
-  box-shadow: var(--panel-shadow);
+  background: var(--component-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
 }
 .card-md { padding: 24px; }
 .card-lg { padding: 32px 32px 28px; }
@@ -158,22 +175,25 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 .panel-pad-lg  { padding: 18px 20px; }
 
 /* ===========================================================
-   Field primitives \u2014 product-form parity.
+   Field primitives — production parity with app.put.io forms.
 
-   One source of truth for input chrome. Local preview files can
-   override geometry (height, padding, layout) but should not
-   redefine the surface, border, focus, or invalid-state tokens.
+   ONE source of truth for input chrome. Local preview files used
+   to redefine `.field` three times with different focus rings;
+   now they all inherit from here. To override per-screen, change
+   geometry (height/padding) — not the surface tokens.
 
    Surface contract:
-     bg            -> --field-bg          (= --app-bg)
-     border        -> --field-border      (= --border)
-     border:hover  -> --field-border-hover
-     focus ring    -> --field-ring        (1px border-hover, not yellow)
-     placeholder   -> --field-placeholder
-     disabled bg   -> --field-bg-disabled
+     bg            → --field-bg          (= --app-bg)
+     border        → --field-border      (= --border)
+     border:hover  → --field-border-hover
+     focus ring    → --field-ring        (1px border-hover, NOT yellow)
+     placeholder   → --field-placeholder
+     disabled bg   → --field-bg-disabled
 
-   Invalid: opt in with aria-invalid="true". The border and ring
-   flip red; the field surface stays --field-bg with no red fill.
+   Invalid: opt in via `aria-invalid="true"` — NO `.has-error`
+   class. The DOM contract is the same React state pushes to the
+   input. Border + ring flip red; the surface stays --field-bg
+   (no red fill) per app.put.io behavior.
    =========================================================== */
 .field {
   width: 100%;
@@ -188,8 +208,8 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   font-size: var(--fs-base);
   transition:
     border-color var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out),
-    background var(--dur-fast) var(--ease-out);
+    box-shadow   var(--dur-fast) var(--ease-out),
+    background   var(--dur-fast) var(--ease-out);
 }
 .field::placeholder { color: var(--field-placeholder); }
 .field:hover { border-color: var(--field-border-hover); }
@@ -205,13 +225,22 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   color: var(--text-secondary);
   cursor: not-allowed;
 }
-.field[aria-invalid="true"] { border-color: var(--red-border); }
-.field[aria-invalid="true"]:hover { border-color: var(--red-border-hover); }
+/* Invalid — border + text only, no surface fill.
+   Step convention: rest = step 7 (--red-border),
+   focus/hover = step 8 (--red-border-hover). */
+.field[aria-invalid="true"] {
+  border-color: var(--red-border);
+}
+.field[aria-invalid="true"]:hover {
+  border-color: var(--red-border-hover);
+}
 .field[aria-invalid="true"]:focus,
 .field[aria-invalid="true"]:focus-visible {
   border-color: var(--red-border-hover);
   box-shadow: 0 0 0 1px var(--red-border-hover);
 }
+/* Loading / async-validating — suppress focus ring so the spinner
+   reads as the dominant signal. */
 .field[data-state="loading"]:focus,
 .field[data-state="loading"]:focus-visible {
   box-shadow: none;
@@ -219,13 +248,14 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 .field.mono { font-family: var(--font-mono); font-size: 13px; }
 
 /* ===========================================================
-   Form layout recipes \u2014 rhythm comes from gap, not per-screen
-   label margins or helper offsets.
+   Form layout recipes — the rhythm comes from gap, not from
+   per-screen margins. Use these instead of stacking ad-hoc
+   pixel values on every label/hint/error.
    =========================================================== */
 .form-stack {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 14px;       /* between label-group rows (label + field + helper) */
 }
 .form-stack.tight { gap: 10px; }
 .form-stack.loose { gap: 20px; }
@@ -233,12 +263,14 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 6px;        /* label ↔ field ↔ helper/error */
 }
-.form-group .label { margin-bottom: 0; }
-.form-group .hint { margin-top: 0; }
+.form-group .label { margin-bottom: 0; }   /* gap owns the rhythm now */
+.form-group .hint  { margin-top: 0; }
 .form-group > .form-callout.inline { margin-top: 0; }
 
+/* Label-row: label on the left, link on the right (e.g. "Forgot your
+   password?"). Sits ABOVE the field, inside a .form-group. */
 .form-group .label-row {
   display: flex;
   justify-content: space-between;
