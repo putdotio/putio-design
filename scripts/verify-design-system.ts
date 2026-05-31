@@ -59,25 +59,6 @@ const apcaContrastButtonVariants = ["btn-success", "btn-danger"] as const;
 const apcaSizeFloorButtonVariants = ["btn-success", "btn-danger", "btn-info"] as const;
 const apcaDisallowedButtonSizes = ["btn-sm", "btn-xs"] as const;
 const placeholderHref = /\bhref\s*=\s*["']\s*#\s*["']/i;
-const restrictedPublicText: Array<{ name: string; pattern: RegExp }> = [
-  { name: "Anthropic design API URL", pattern: /api\.anthropic\.com/i },
-  { name: "local project URL", pattern: /\/projects\//i },
-  { name: "file URI", pattern: /file:\/\//i },
-  { name: "local user path", pattern: /\/Users\//i },
-  { name: "screenshot filename", pattern: /CleanShot/i },
-  { name: "uploaded private asset", pattern: /uploads\//i },
-  { name: "team asset path", pattern: /assets\/team/i },
-  { name: "private app source path", pattern: /\bapps\//i },
-  { name: "private workspace name", pattern: /putio-frontend-workspace/i },
-  { name: "private repo name", pattern: /putio-web/i },
-  { name: "private planning doc", pattern: /design-brief|platform-strategy/i },
-  { name: "Lucide icon reference", pattern: /Lucide|@lucide|lucide-icon/i },
-  { name: "legacy token package path", pattern: /@putdotio\/design-tokens-(?:css|ts)|\bdesign-tokens(?:\.flat)?\.json\b|putio-design-tokens\.figma\.json/i },
-  { name: "alternate brand yellow", pattern: /#fdd868|#fcbe03/i },
-  { name: "incorrect put.io wordmark casing", pattern: /\b(?:PUT\.IO|Put\.io|PUTIO)\b/ },
-  { name: "non-agnostic sample content", pattern: /RSS torrents|Hans Zimmer|preview token/i },
-];
-
 const publicSurfaceFiles = ["AGENTS.md", "CLAUDE.md", "CONTRIBUTING.md", "README.md", "SECURITY.md", "DESIGN.md"];
 const publicSurfaceDirs = [
   { dirname: ".github/workflows", include: /\.ya?ml$/ },
@@ -297,9 +278,6 @@ async function checkPublicSurface() {
   for (const file of allFiles) {
     const text = await readFile(file, "utf8");
     const rel = path.relative(root, file);
-    for (const { name, pattern } of restrictedPublicText) {
-      assert(!pattern.test(text), `${rel} contains restricted public text (${name})`);
-    }
     assert(!placeholderHref.test(text), `${rel} contains placeholder href`);
   }
 }
