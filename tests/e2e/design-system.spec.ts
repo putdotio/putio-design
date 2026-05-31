@@ -45,8 +45,6 @@ const tvSmokePages = [
   "/preview/web-shell.html",
 ];
 
-const apcaContrastContractSelector = '[data-contrast-contract="apca"]';
-
 const buttonHoverAliases = [
   [".btn-primary", "--button-primary-bg-hover"],
   [".btn-success", "--button-success-bg-hover"],
@@ -107,10 +105,8 @@ test.describe("design.put.io static guide", () => {
       if (pagePath.startsWith("/design-system")) {
         builder.exclude("iframe");
       }
-      // Solid success/danger fills follow the documented APCA contract, and
-      // loading buttons hide their label behind a spinner (color: transparent) —
-      // neither is a real WCAG-2.x text-contrast surface.
-      builder.exclude(apcaContrastContractSelector);
+      // Loading buttons hide their label behind a spinner (color: transparent),
+      // so the label isn't a real text-contrast surface.
       builder.exclude(".is-loading");
       const results = await builder.analyze();
       const serious = results.violations.filter((violation) => violation.impact === "critical" || violation.impact === "serious");

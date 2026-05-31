@@ -55,9 +55,6 @@ const tokenValueContracts: TokenValueContract[] = [
   { name: "component.alias.successForeground", cssName: "--success-foreground", value: "hsl(0, 0%, 100%)", mode: "global" },
   { name: "component.alias.destructiveForeground", cssName: "--destructive-foreground", value: "hsl(0, 0%, 100%)", mode: "global" },
 ];
-const apcaContrastButtonVariants = ["btn-success", "btn-danger"] as const;
-const apcaSizeFloorButtonVariants = ["btn-success", "btn-danger", "btn-info"] as const;
-const apcaDisallowedButtonSizes = ["btn-sm", "btn-xs"] as const;
 const placeholderHref = /\bhref\s*=\s*["']\s*#\s*["']/i;
 const publicSurfaceFiles = ["AGENTS.md", "CLAUDE.md", "CONTRIBUTING.md", "README.md", "SECURITY.md", "DESIGN.md"];
 const publicSurfaceDirs = [
@@ -99,23 +96,6 @@ async function assertNotExists(file: string) {
     throw error;
   }
   throw new Error(`${file} must not exist`);
-}
-
-function lineNumberAt(text: string, index: number): number {
-  return text.slice(0, index).split("\n").length;
-}
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function extractHtmlAttribute(attrs: string, name: string): string | undefined {
-  const match = attrs.match(new RegExp(`\\b${escapeRegExp(name)}\\s*=\\s*(["'])([\\s\\S]*?)\\1`, "i"));
-  return match?.[2];
-}
-
-function classList(attrs: string): string[] {
-  return (extractHtmlAttribute(attrs, "class") ?? "").split(/\s+/).filter(Boolean);
 }
 
 function assertTokenAlias(flat: Record<string, TokenRecord>, contract: TokenAliasContract) {
@@ -312,48 +292,6 @@ async function checkHtmlLinks() {
   }
 }
 
-async function checkButtonContrastContracts() {
-  const htmlFiles = (await walk(path.join(root, "system"))).filter((file) => file.endsWith(".html"));
-  const buttonPattern = /<button\b([^>]*)>/gi;
-
-  for (const file of htmlFiles) {
-    const html = await readFile(file, "utf8");
-    const rel = path.relative(root, file);
-
-    for (const match of html.matchAll(buttonPattern)) {
-      const attrs = match[1] ?? "";
-      const classes = classList(attrs);
-      const label = classes.length > 0 ? classes.join(" ") : "<unclassed>";
-      const line = lineNumberAt(html, match.index ?? 0);
-      const contrastContract = extractHtmlAttribute(attrs, "data-contrast-contract");
-      const apcaVariant = apcaContrastButtonVariants.find((variant) => classes.includes(variant));
-      const sizeFloorVariant = apcaSizeFloorButtonVariants.find((variant) => classes.includes(variant));
-      const disallowedSize = apcaDisallowedButtonSizes.find((size) => classes.includes(size));
-
-      assert(
-        contrastContract === undefined || contrastContract === "apca",
-        `${rel}:${line} data-contrast-contract must be "apca" when present`,
-      );
-      assert(
-        contrastContract !== "apca" || apcaVariant !== undefined,
-        `${rel}:${line} data-contrast-contract="apca" is only for solid success/danger button specimens (${label})`,
-      );
-      assert(
-        apcaVariant === undefined || contrastContract === "apca",
-        `${rel}:${line} ${apcaVariant} must declare data-contrast-contract="apca" (${label})`,
-      );
-      assert(
-        contrastContract !== "apca" || disallowedSize === undefined,
-        `${rel}:${line} APCA contrast button specimens must not use ${disallowedSize} (${label})`,
-      );
-      assert(
-        sizeFloorVariant === undefined || disallowedSize === undefined,
-        `${rel}:${line} ${sizeFloorVariant} must not use ${disallowedSize}; use btn-md or the default size (${label})`,
-      );
-    }
-  }
-}
-
 async function checkCss() {
   const tvShell = await readFile(path.join(root, "system/preview/tv-shell.css"), "utf8");
   const generatedCss = await readFile(path.join(root, "system/tokens.css"), "utf8");
@@ -379,7 +317,6 @@ async function main() {
   await checkDesignMd();
   await checkPublicSurface();
   await checkHtmlLinks();
-  await checkButtonContrastContracts();
   await checkCss();
   console.log("Design system checks passed");
 }
