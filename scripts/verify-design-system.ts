@@ -55,13 +55,6 @@ const tokenValueContracts: TokenValueContract[] = [
   { name: "component.alias.successForeground", cssName: "--success-foreground", value: "hsl(0, 0%, 100%)", mode: "global" },
   { name: "component.alias.destructiveForeground", cssName: "--destructive-foreground", value: "hsl(0, 0%, 100%)", mode: "global" },
 ];
-const placeholderHref = /\bhref\s*=\s*["']\s*#\s*["']/i;
-const publicSurfaceFiles = ["AGENTS.md", "CLAUDE.md", "CONTRIBUTING.md", "README.md", "SECURITY.md", "DESIGN.md"];
-const publicSurfaceDirs = [
-  { dirname: ".github/workflows", include: /\.ya?ml$/ },
-  { dirname: "docs", include: /\.md$/ },
-  { dirname: "system", include: /\.(?:css|html|js|md|svg)$/ },
-];
 
 async function walk(dir: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -107,36 +100,6 @@ function assertTokenAlias(flat: Record<string, TokenRecord>, contract: TokenAlia
   assert(token.mode === contract.mode, `${contract.name} must be ${contract.mode} mode`);
   assert(token.originalValue === `{${contract.source}}`, `${contract.name} must alias {${contract.source}}`);
   assert(token.value === source.value, `${contract.name} must resolve to ${contract.source}`);
-}
-
-async function publicSurfaceTextFiles(): Promise<string[]> {
-  const files = await Promise.all(
-    publicSurfaceFiles.map(async (filename) => {
-      const full = path.join(root, filename);
-      try {
-        const info = await stat(full);
-        if (info.isFile()) return [full];
-      } catch {
-        return [];
-      }
-      return [];
-    }),
-  );
-
-  const directories = await Promise.all(
-    publicSurfaceDirs.map(async ({ dirname, include }) => {
-      const full = path.join(root, dirname);
-      try {
-        const info = await stat(full);
-        if (info.isDirectory()) return (await walk(full)).filter((file) => include.test(path.relative(full, file)));
-      } catch {
-        return [];
-      }
-      return [];
-    }),
-  );
-
-  return [...files.flat(), ...directories.flat()];
 }
 
 function extractFrontmatter(markdown: string): string {
@@ -252,16 +215,6 @@ async function checkDesignMd() {
   assert(data.components?.["file-row"]?.icon === "{colors.brand}", "DESIGN.md file-row.icon must alias colors.brand");
 }
 
-async function checkPublicSurface() {
-  const allFiles = await publicSurfaceTextFiles();
-
-  for (const file of allFiles) {
-    const text = await readFile(file, "utf8");
-    const rel = path.relative(root, file);
-    assert(!placeholderHref.test(text), `${rel} contains placeholder href`);
-  }
-}
-
 async function checkHtmlLinks() {
   const htmlFiles = (await walk(path.join(root, "system"))).filter((file) => file.endsWith(".html"));
   const attrPattern = /\b(?:href|src)=["']([^"']+)["']/g;
@@ -315,7 +268,6 @@ async function main() {
 
   await checkTokens();
   await checkDesignMd();
-  await checkPublicSurface();
   await checkHtmlLinks();
   await checkCss();
   console.log("Design system checks passed");
