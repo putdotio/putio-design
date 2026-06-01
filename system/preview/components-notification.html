@@ -41,12 +41,12 @@
   .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
 .note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
   .note b { color: var(--text); }
-  .note code { font-family: var(--font-mono); color: var(--yellow-solid); font-size: 11.5px; }
+  .note code { font-family: var(--font-mono); color: var(--yellow-text-secondary); font-size: 11.5px; }
 
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
   /* ── Notification base ──
-     Source: product implementation
+     Source: Notification
      Surface: --component-bg + --line, tinted icon left, optional title + body + CTA + dismiss
   */
   .toast {
@@ -82,7 +82,7 @@
   .toast .act {
     display: flex; gap: 8px; margin-top: 8px;
   }
-  .toast .act button {
+  .toast .act .btn {
     height: 28px; padding: 0 12px;
     border: 1px solid transparent; border-radius: var(--radius);
     font-family: var(--font-sans); font-weight: var(--fw-medium); font-size: var(--fs-sm);
@@ -90,10 +90,19 @@
     cursor: pointer; white-space: nowrap;
   }
   .toast .act .btn-primary {
-    background: var(--button-primary-bg); border-color: var(--button-primary-bg); color: var(--button-primary-fg);
+    background: var(--yellow-solid); border-color: var(--yellow-solid); color: var(--primary-foreground);
   }
   .toast .act .btn-primary:hover {
-    background: var(--button-primary-bg-hover); border-color: var(--button-primary-bg-hover);
+    background: var(--yellow-solid-hover); border-color: var(--yellow-solid-hover);
+  }
+  /* Destructive overrides for danger toasts only */
+  .toast.danger .act .btn-primary {
+    background: var(--red-solid); border-color: var(--red-solid); color: var(--destructive-foreground);
+    /* destructive action on a danger toast — same APCA contrast contract
+       as .btn-danger (white on red-9, APCA Lc 70.9 / WCAG AA-large). */
+  }
+  .toast.danger .act .btn-primary:hover {
+    background: var(--red-solid-hover); border-color: var(--red-solid-hover);
   }
   .toast .act .btn-default {
     background: var(--component-bg); border-color: var(--border); color: var(--text);
@@ -171,12 +180,12 @@
     position: absolute; top: -4px; right: -6px;
     height: 14px; min-width: 14px; padding: 0 4px;
     border-radius: var(--radius-pill);
-    background: var(--red-component-bg); color: var(--red-text-secondary);
+    background: hsl(358, 70%, 45%); color: #fff;
     font-family: var(--font-ui-mono); font-size: 9px; font-weight: 700;
     display: grid; place-items: center;
     border: 2px solid var(--app-bg);
   }
-  .dot-host .badge.yellow { background: var(--button-primary-bg); color: var(--primary-foreground); }
+  .dot-host .badge.yellow { background: var(--yellow-solid); color: var(--primary-foreground); }
 </style></head>
 <body>
 <div class="preview-shell">
@@ -184,7 +193,7 @@
   <div class="head">
     <span class="ix">01</span>
     <span class="t">Notifications — four types, inline format</span>
-    <span class="n">product implementation · Notification.tsx</span>
+    <span class="n">Notification</span>
   </div>
   <div class="note">
     Notifications use a single body chrome (<code>--component-bg</code> + <code>--line</code>) and tint only the icon. Four severities: <b>info / success / warning / danger</b>. Title is medium-weight; the optional message sits below in secondary text. One primary action max, plus dismiss.
@@ -197,7 +206,7 @@
         <div class="ttl">Conversion in progress</div>
         <div class="msg">We're converting <code>Dune.Part.Two.mkv</code> to MP4 so it plays anywhere. About 2 minutes left.</div>
       </div>
-      <button class="close"><i class="ph ph-x"></i></button>
+      <button class="close" aria-label="Dismiss notification"><i class="ph ph-x" aria-hidden="true"></i></button>
     </div>
 
     <div class="toast success">
@@ -210,7 +219,7 @@
           <button class="btn-default">Show in folder</button>
         </div>
       </div>
-      <button class="close"><i class="ph ph-x"></i></button>
+      <button class="close" aria-label="Dismiss notification"><i class="ph ph-x" aria-hidden="true"></i></button>
     </div>
 
     <div class="toast warning">
@@ -223,7 +232,7 @@
           <button class="btn-default">Manage storage</button>
         </div>
       </div>
-      <button class="close"><i class="ph ph-x"></i></button>
+      <button class="close" aria-label="Dismiss notification"><i class="ph ph-x" aria-hidden="true"></i></button>
     </div>
 
     <div class="toast danger">
@@ -236,7 +245,7 @@
           <button class="btn-default">Remove</button>
         </div>
       </div>
-      <button class="close"><i class="ph ph-x"></i></button>
+      <button class="close" aria-label="Dismiss notification"><i class="ph ph-x" aria-hidden="true"></i></button>
     </div>
   </div>
 
@@ -257,7 +266,7 @@
           <div class="ttl">Saved</div>
           <div class="msg">Folder renamed to <code>2026-Q1</code>.</div>
         </div>
-        <button class="close"><i class="ph ph-x"></i></button>
+        <button class="close" aria-label="Dismiss notification"><i class="ph ph-x" aria-hidden="true"></i></button>
       </div>
       <div class="toast info">
         <div class="icon"><i class="ph-bold ph-info"></i></div>
@@ -266,7 +275,7 @@
           <div class="msg">Auto-empty in 30 days.</div>
           <div class="act"><button class="btn-primary">Undo</button></div>
         </div>
-        <button class="close"><i class="ph ph-x"></i></button>
+        <button class="close" aria-label="Dismiss notification"><i class="ph ph-x" aria-hidden="true"></i></button>
       </div>
     </div>
   </div>

@@ -1588,18 +1588,9 @@ export const tokens = {
   "elevation.focus": {
     "cssName": "--shadow-focus",
     "type": "string",
-    "mode": "light",
-    "value": "0 0 0 2px hsla(47, 100%, 65%, 0.35), 0 0 0 3.5px hsl(0, 0%, 9.0%)",
-    "originalValue": "0 0 0 2px {elevation.focusColor}, 0 0 0 3.5px hsl(0, 0%, 9.0%)",
-    "description": "Focus ring: brand-yellow inner band + high-contrast text-color outer edge so the indicator clears WCAG 1.4.11 (3:1) on any surface. Light-mode edge."
-  },
-  "elevation.focusDark": {
-    "cssName": "--shadow-focus",
-    "type": "string",
-    "mode": "dark",
-    "value": "0 0 0 2px hsla(47, 100%, 65%, 0.35), 0 0 0 3.5px hsl(0, 0%, 93.0%)",
-    "originalValue": "0 0 0 2px {elevation.focusColor}, 0 0 0 3.5px hsl(0, 0%, 93.0%)",
-    "description": "Dark-mode focus ring: brand-yellow inner band + high-contrast text-color outer edge (WCAG 1.4.11)."
+    "mode": "global",
+    "value": "0 0 0 3px hsla(47, 100%, 65%, 0.35)",
+    "originalValue": "0 0 0 3px {elevation.focusColor}"
   },
   "typography.fontFamily.sans": {
     "cssName": "--font-sans",

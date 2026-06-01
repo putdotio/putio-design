@@ -57,12 +57,13 @@ padding: 28px 32px 36px;
     color: var(--text);
     display: flex; align-items: center; gap: 6px;
   }
-  .label .req { color: var(--yellow-solid); }
+  .label .req { color: var(--yellow-text-secondary); }
   .label .opt { color: var(--text-secondary); font-size: 12px; font-weight: 400; }
   .hint { font-size: 12px; color: var(--text-secondary); line-height: 1.5; display: flex; align-items: center; gap: 6px; }
   .hint i { font-size: 12px; }
 
-  /* .field primitive lives in _components.css and reads --field-* tokens. */
+  /* .field primitive lives in _components.css — token-driven
+     (--field-* tokens, border-hover focus ring). Don't redeclare. */
   .field-wrap { position: relative; }
   .field-wrap > i.lead {
     position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
@@ -90,7 +91,7 @@ padding: 28px 32px 36px;
     font-family: var(--font-ui-mono); font-size: 16px; font-weight: 500;
     transition: background var(--dur-fast) var(--ease-out);
   }
-  .stepper button:hover { background: var(--component-bg-hover); }
+  .stepper button:hover:not(:disabled) { background: var(--component-bg-hover); }
   .stepper button:disabled { color: var(--text-secondary); cursor: not-allowed; opacity: 0.5; }
   .stepper .val {
     flex: 1; text-align: center;
@@ -122,7 +123,7 @@ padding: 28px 32px 36px;
   .slider .thumb {
     position: absolute; top: 50%;
     width: 16px; height: 16px; border-radius: 50%;
-    background: hsl(0, 0%, 100%); border: 2px solid var(--yellow-solid);
+    background: #fff; border: 2px solid var(--yellow-solid);
     transform: translate(-50%, -50%);
     box-shadow: var(--shadow-md);
     cursor: grab;
@@ -200,12 +201,12 @@ padding: 28px 32px 36px;
     min-height: 36px;
     padding: 4px 8px;
     display: flex; align-items: center; flex-wrap: wrap; gap: 4px;
-    border: 1px solid var(--field-border); border-radius: var(--radius);
-    background: var(--field-bg);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--app-bg);
   }
   .tag-input:focus-within {
-    border-color: var(--field-border-focus);
-    box-shadow: var(--field-ring);
+    border-color: var(--border-hover);
+    box-shadow: 0 0 0 1px var(--border-hover);
   }
   .chip {
     display: inline-flex; align-items: center; gap: 6px;
@@ -221,10 +222,10 @@ padding: 28px 32px 36px;
     font-family: var(--font-ui-mono); font-size: 9px; font-weight: 700;
     flex-shrink: 0;
   }
-  .chip .av.b { background: hsl(217, 91%, 60%); color: var(--solid-foreground); }
-  .chip .av.g { background: var(--green-component-bg); color: var(--green-text-secondary); }
-  .chip .av.r { background: var(--red-component-bg); color: var(--red-text-secondary); }
-  .chip .av.p { background: hsl(280, 75%, 60%); color: var(--solid-foreground); }
+  .chip .av.b { background: hsl(211, 55%, 46%); color: #fff; }
+  .chip .av.g { background: hsl(151, 55%, 33%); color: #fff; }
+  .chip .av.r { background: hsl(358, 55%, 46%); color: #fff; }
+  .chip .av.p { background: hsl(280, 48%, 46%); color: #fff; }
   .chip .x {
     width: 14px; height: 14px; display: grid; place-items: center;
     border-radius: 50%; cursor: pointer;
@@ -360,17 +361,23 @@ padding: 28px 32px 36px;
   .count-row .c.over { color: var(--red-text-secondary); }
 
   /* ─── Validation states ─────────────────────────────────── */
+  .group.error .field { border-color: var(--red-border); }
+  .group.error .field:focus { border-color: var(--red-border-hover); box-shadow: 0 0 0 1px var(--red-border-hover); }
   .group.warn .field { border-color: var(--yellow-border); }
   .group.success .field { border-color: var(--green-border); }
   .group.success .field:focus { border-color: var(--green-border-hover); box-shadow: 0 0 0 1px var(--green-border-hover); }
 
   .msg {
     font-size: 12px; line-height: 1.5;
+    display: flex; align-items: flex-start; gap: 6px;
   }
+  .msg i { font-size: 13px; margin-top: 1px; flex-shrink: 0; }
   .msg.error { color: var(--red-text-secondary); }
   .msg.warn  { color: var(--yellow-text-secondary); }
   .msg.success { color: var(--green-text-secondary); }
   .msg.checking { color: var(--text-secondary); }
+  .msg.checking i { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ─── Validation summary card ───────────────────────────── */
   .summary {
@@ -400,7 +407,7 @@ padding: 28px 32px 36px;
   .specs-link b { color: var(--text); font-weight: 500; }
   .specs-link code {
     font-family: var(--font-mono); font-size: 11px;
-    color: var(--yellow-solid);
+    color: var(--yellow-text-secondary);
   }
 </style></head>
 <body>
@@ -422,7 +429,7 @@ padding: 28px 32px 36px;
       <span class="label">Trial expires <span class="opt">(read-only)</span></span>
       <div class="field-wrap">
         <i class="ph ph-calendar-blank lead"></i>
-        <input class="field has-icon" aria-label="Selected date" value="Apr 24, 2026" readonly />
+        <input class="field has-icon" value="Apr 24, 2026" readonly aria-label="Date" />
       </div>
       <span class="hint">Single date, locale-formatted. Input is a button that opens the picker.</span>
     </div>
@@ -460,12 +467,12 @@ padding: 28px 32px 36px;
       <div class="date-range">
         <div class="field-wrap">
           <i class="ph ph-calendar-blank lead"></i>
-          <input class="field has-icon" aria-label="Start date" value="Mar 12, 2026" readonly />
+          <input class="field has-icon" value="Mar 12, 2026" readonly aria-label="Start date" />
         </div>
         <i class="ph ph-arrow-right arrow"></i>
         <div class="field-wrap">
           <i class="ph ph-calendar-blank lead"></i>
-          <input class="field has-icon" aria-label="End date" value="Apr 19, 2026" readonly />
+          <input class="field has-icon" value="Apr 19, 2026" readonly aria-label="End date" />
         </div>
       </div>
       <span class="hint"><i class="ph ph-info"></i>Both inputs share one popover with a 2-month grid.</span>
@@ -477,7 +484,7 @@ padding: 28px 32px 36px;
         <span class="chip"><span class="av">K</span>kai<span class="x"><i class="ph ph-x"></i></span></span>
         <span class="chip"><span class="av b">N</span>nova<span class="x"><i class="ph ph-x"></i></span></span>
         <span class="chip"><span class="av g">W</span>wren<span class="x"><i class="ph ph-x"></i></span></span>
-        <input aria-label="Add another email" placeholder="Add another…" />
+        <input placeholder="Add another…" aria-label="Add a person" />
       </div>
       <span class="hint"><i class="ph ph-keyboard"></i><kbd style="font-family:var(--font-mono);font-size:11px;color:var(--text);background:var(--component-bg);padding:1px 5px;border-radius:3px;border:1px solid var(--line);">⏎</kbd> or <kbd style="font-family:var(--font-mono);font-size:11px;color:var(--text);background:var(--component-bg);padding:1px 5px;border-radius:3px;border:1px solid var(--line);">,</kbd> to commit a chip. <kbd style="font-family:var(--font-mono);font-size:11px;color:var(--text);background:var(--component-bg);padding:1px 5px;border-radius:3px;border:1px solid var(--line);">⌫</kbd> deletes the last one.</span>
     </div>
@@ -489,9 +496,9 @@ padding: 28px 32px 36px;
       <span class="label">Date-range popover · expanded</span>
       <div class="date-pop">
         <div class="month">
-          <button aria-label="Previous month"><i class="ph-bold ph-caret-left"></i></button>
+          <button aria-label="Previous month"><i class="ph-bold ph-caret-left" aria-hidden="true"></i></button>
           <span class="m">April 2026</span>
-          <button aria-label="Next month"><i class="ph-bold ph-caret-right"></i></button>
+          <button aria-label="Next month"><i class="ph-bold ph-caret-right" aria-hidden="true"></i></button>
         </div>
         <div class="dow"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
         <div class="days">
@@ -522,7 +529,7 @@ padding: 28px 32px 36px;
         <div class="menu" style="padding-top: 0;">
           <div class="opt"><i class="ph-fill ph-film-strip fi"></i><span class="nm"><em>Dune</em>.Part.Two.2024.1080p.mkv</span><span class="sz">2.4 GB</span></div>
           <div class="opt"><i class="ph-fill ph-film-strip fi"></i><span class="nm"><em>Dune</em>.Part.One.2021.1080p.mkv</span><span class="sz">2.1 GB</span></div>
-          <div class="opt"><i class="ph-fill ph-music-notes fi"></i><span class="nm">podcast_ep127_final_mixdown_v2.mp3</span><span class="sz">312 MB</span></div>
+          <div class="opt"><i class="ph-fill ph-music-notes fi"></i><span class="nm"><em>Dune</em>.2021.Soundtrack.flac</span><span class="sz">312 MB</span></div>
         </div>
         <div class="foot">
           <span><kbd>↑↓</kbd>navigate</span>
@@ -554,7 +561,7 @@ padding: 28px 32px 36px;
     <div class="group">
       <span class="label">New password <span class="req">*</span></span>
       <div class="field-wrap">
-        <input class="field" type="password" aria-label="New password" value="••••••••••••••" />
+        <input class="field" type="password" value="••••••••••••••" aria-label="New password" />
         <i class="ph ph-eye trail"></i>
       </div>
       <div class="strength">
@@ -577,37 +584,37 @@ padding: 28px 32px 36px;
   <div class="head">
     <span class="ix">B · 02</span>
     <span class="t">Validation — error · warning · success · async · counted</span>
-    <span class="n">state color + text · summary cards keep icons</span>
+    <span class="n">color + icon + message · never color alone</span>
   </div>
 
   <div class="grid c-3">
-    <div class="group">
+    <div class="group error">
       <span class="label">Folder name <span class="req">*</span></span>
-      <input class="field" aria-label="Folder name" value="2024/Q1" aria-invalid="true" aria-describedby="folder-name-error" />
-      <span class="msg error" id="folder-name-error">Folder names can't contain <code style="font-family:var(--font-mono);color:var(--red-text-secondary);">/</code>. Try <code style="font-family:var(--font-mono);color:var(--red-text-secondary);">2024-Q1</code>.</span>
+      <input class="field" value="2024/Q1" aria-label="Folder name" />
+      <span class="msg error"><i class="ph-fill ph-warning-circle"></i>Folder names can't contain <code style="font-family:var(--font-mono);color:var(--red-text-secondary);">/</code>. Try <code style="font-family:var(--font-mono);color:var(--red-text-secondary);">2024-Q1</code>.</span>
     </div>
 
     <div class="group warn">
       <span class="label">Default download folder</span>
-      <input class="field" aria-label="Default download folder" value="/Movies/Unsorted" />
-      <span class="msg warn">About to leave you with <strong style="color:var(--text);">0.4 GB</strong> free. Consider clearing Trash first.</span>
+      <input class="field" value="/Movies/Unsorted" aria-label="Default download folder" />
+      <span class="msg warn"><i class="ph-fill ph-warning"></i>About to leave you with <strong style="color:var(--text);">0.4 GB</strong> free. Consider clearing Trash first.</span>
     </div>
 
     <div class="group success">
       <span class="label">Magnet link</span>
-      <input class="field mono" aria-label="Magnet link" value="magnet:?xt=urn:btih:a1b2c3…" />
-      <span class="msg success">Parsed — <strong style="color:var(--text);">Dune.Part.Two.2024</strong> · 2.4 GB · 89 files.</span>
+      <input class="field mono" value="magnet:?xt=urn:btih:a1b2c3…" aria-label="Magnet link" />
+      <span class="msg success"><i class="ph-fill ph-check-circle"></i>Parsed — <strong style="color:var(--text);">Dune.Part.Two.2024</strong> · 2.4 GB · 89 files.</span>
     </div>
 
     <div class="group">
       <span class="label">Username <span class="req">*</span></span>
-      <input class="field" aria-label="Username" value="kai" />
-      <span class="msg checking">Checking availability…</span>
+      <input class="field" value="kai" aria-label="Username" />
+      <span class="msg checking"><i class="ph ph-circle-notch"></i>Checking availability…</span>
     </div>
 
     <div class="group">
       <span class="label">Bio</span>
-      <textarea class="field" aria-label="Bio" style="height: 60px; padding: 8px 12px; font-family: var(--font-sans); font-size: 13px;" maxlength="280">Movies, shows, and the occasional disk-image rip. ᕦ(ò_óˇ)ᕤ</textarea>
+      <textarea class="field" style="height: 60px; padding: 8px 12px; font-family: var(--font-sans); font-size: 13px;" maxlength="280" aria-label="Bio">Movies, shows, and the occasional disk-image rip. ᕦ(ò_óˇ)ᕤ</textarea>
       <div class="count-row">
         <span class="hint" style="margin: 0;">Visible on your public profile.</span>
         <span class="c">62 / 280</span>
@@ -616,7 +623,7 @@ padding: 28px 32px 36px;
 
     <div class="group">
       <span class="label">Tweet · 240 char limit</span>
-      <textarea class="field" aria-label="Tweet" style="height: 60px; padding: 8px 12px; font-family: var(--font-sans); font-size: 13px;">Just finished setting up RSS auto-fetch + auto-convert to MP4 on put.io and I am never going back. 10TB plan finally felt overkill until I started archiving entire seasons in a single night —</textarea>
+      <textarea class="field" style="height: 60px; padding: 8px 12px; font-family: var(--font-sans); font-size: 13px;" aria-label="Status update">Just finished setting up RSS auto-fetch + auto-convert to MP4 on put.io and I am never going back. 10TB plan finally felt overkill until I started archiving entire seasons in a single night —</textarea>
       <div class="count-row">
         <span class="hint" style="margin: 0;">Approaching the limit.</span>
         <span class="c warn">228 / 240</span>
@@ -639,10 +646,10 @@ padding: 28px 32px 36px;
 
   <div class="specs-link">
     <b>Validation rules.</b>
-    Inline validation uses <em>state color · sentence</em> with no icon.
+    Never color alone — every state pairs <em>color · icon · sentence</em>.
     <code>--red-solid</code> = blocks the save · <code>--yellow-solid</code> = warns but allows · <code>--green-solid</code> = confirms a parse / async-success ·
-    checking text = in-flight (no border-color change).
-    Use an icon in a <em>summary card</em> at the top of long forms; inline messages cover focused fields.
+    spinner <code>ph-circle-notch</code> = in-flight (no border-color change).
+    Use a <em>summary card</em> at the top of long forms; inline messages cover focused fields.
   </div>
 
 </div>

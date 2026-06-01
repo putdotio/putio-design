@@ -13,8 +13,9 @@
      Same markup, same components — only token values change. */
   (function () {
     try {
+      var urlTheme = new URLSearchParams(location.search).get('theme');
       var saved = localStorage.getItem('putio-ds-theme');
-      var dark  = saved ? saved === 'dark' : true;
+      var dark  = urlTheme ? urlTheme === 'dark' : (saved ? saved === 'dark' : true);
       if (dark) document.documentElement.classList.add('dark');
       var meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.setAttribute('content', dark ? '#09090B' : '#FFFFFF');
@@ -39,7 +40,10 @@
     -webkit-font-smoothing: antialiased;
   }
   a { color: inherit; text-decoration: none; }
-  .sub a, .d a, .body a {
+  /* In-text links must be distinguishable beyond color alone
+     (WCAG 1.4.1 / axe link-in-text-block). Scoped to running-text
+     containers so nav lists, source refs and chrome stay clean. */
+  .sub a, .vsn a, .placeholder .d a, .callout a, .spec dd a {
     text-decoration: underline;
     text-underline-offset: 2px;
     text-decoration-thickness: 1px;
@@ -257,7 +261,7 @@
     font-family: var(--font-ui-mono); font-size: 10px;
     color: var(--primary-foreground); font-weight: 700;
   }
-  .tok .swatch.text.on-dark { color: hsl(0, 0%, 100%); }
+  .tok .swatch.text.on-dark { color: var(--text); }
   .tok .name {
     font-family: var(--font-ui-mono); font-size: 10.5px;
     color: var(--text); font-weight: 500;
@@ -391,8 +395,8 @@
   }
   pre.snippet .c { color: var(--ink-meta); }
   pre.snippet .k { color: var(--accent); }
-  pre.snippet .s { color: var(--green-solid); }
-  pre.snippet .r { color: var(--red-solid); }
+  pre.snippet .s { color: var(--green-text-secondary); }
+  pre.snippet .r { color: var(--red-text-secondary); }
 
   /* ===================================================================
      PROTO LIST (cross-project canvas refs)
@@ -418,9 +422,12 @@
     font-family: var(--font-ui-mono); font-size: 9.5px; font-weight: 700;
   }
   .proto .glyph.tv  { background: color-mix(in srgb, var(--yellow-solid) 14%, transparent); color: var(--accent); }
-  .proto .glyph.rk  { background: color-mix(in srgb, #A78BFA 14%, transparent);             color: #A78BFA; }
-  .proto .glyph.web { background: color-mix(in srgb, #60A5FA 14%, transparent);             color: #60A5FA; }
-  .proto .glyph.ios { background: color-mix(in srgb, #34D399 14%, transparent);             color: #34D399; }
+  .proto .glyph.rk  { background: color-mix(in srgb, #A78BFA 14%, transparent);             color: #6D28D9; }
+  .proto .glyph.web { background: color-mix(in srgb, #60A5FA 14%, transparent);             color: #1D4ED8; }
+  .proto .glyph.ios { background: color-mix(in srgb, #34D399 14%, transparent);             color: #067A55; }
+  html.dark .proto .glyph.rk  { background: color-mix(in srgb, #A78BFA 16%, transparent); color: #A78BFA; }
+  html.dark .proto .glyph.web { background: color-mix(in srgb, #60A5FA 16%, transparent); color: #60A5FA; }
+  html.dark .proto .glyph.ios { background: color-mix(in srgb, #34D399 16%, transparent); color: #34D399; }
   .proto .nm { font-size: 12.5px; font-weight: 500; color: var(--text); }
   .proto .meta {
     font-family: var(--font-mono); font-size: 10.5px;
@@ -429,7 +436,7 @@
   .proto .tag {
     font-family: var(--font-ui-mono); font-size: 9.5px;
     padding: 2px 6px; border-radius: 3px;
-    background: var(--pill-bg); color: var(--pill-fg);
+    background: var(--component-bg); color: var(--text-secondary);
     font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase;
   }
 
@@ -546,11 +553,7 @@
   .contract .consume .pane.is-active { display: block; }
   .contract .consume pre .c { color: var(--ink-meta); }
   .contract .consume pre .k { color: var(--accent); }
-  .contract .consume pre .s { color: var(--green-solid); }
-  pre[tabindex="0"]:focus-visible {
-    outline: none;
-    box-shadow: var(--shadow-focus);
-  }
+  .contract .consume pre .s { color: var(--green-text-secondary); }
 
   /* ===================================================================
      PART / SECTION / SUB-HD — section header hierarchy
@@ -660,15 +663,20 @@
     white-space: pre; overflow-x: auto;
   }
   .spec .usage pre .k { color: var(--accent); }
-  .spec .usage pre .s { color: var(--green-solid); }
+  .spec .usage pre .s { color: var(--green-text-secondary); }
   .spec .usage pre .c { color: var(--ink-meta); }
   .spec .constraints ul { margin: 4px 0 0; padding-left: 18px; }
   .spec .constraints li { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
   .spec .constraints li::marker { color: var(--accent); }
   .spec .constraints li code { font-family: var(--font-mono); color: var(--accent); }
+  /* Don't items render distinct from allowed constraints: red marker + text. */
+  .spec .constraints li.no { color: var(--red-text-secondary); }
+  .spec .constraints li.no::marker { color: var(--red-text-secondary); }
+  .spec .constraints li.no { list-style-type: square; }
+  .spec .constraints li.no code { color: var(--red-text-secondary); }
 
   /* ===================================================================
-     v0.7 · BREATHING PASS
+     v1.0 · BREATHING PASS
      Goal: previews are the artifact, specs are the metadata.
      Calmer headers. Less bordered-grid noise. More air between beats.
      ================================================================ */
@@ -866,7 +874,7 @@
        ============================================================ -->
   <aside class="toc">
     <div class="toc-brand">put<span class="dot">.</span>io</div>
-    <div class="toc-sub">design system · v0.6</div>
+    <div class="toc-sub">design system · v1.0</div>
     <button class="toc-theme" type="button" id="theme-toggle" aria-label="Toggle color theme">
       <span class="swatch" aria-hidden="true"></span>
       <span class="lbl-light">View light</span><span class="lbl-dark">View dark</span>
@@ -952,7 +960,7 @@
         </div>
       </div>
       <div class="vsn">
-        <span class="v"><b>v0.6</b> · 2026-05</span>
+        <span class="v"><b>v1.0</b> · 2026-05</span>
         <a href="./tokens.css">tokens.css ↗</a>
       </div>
     </header>
@@ -963,49 +971,49 @@
     <section class="contract" id="contract">
       <div class="panel pipe">
         <h3 style="grid-column: 1 / -1;">Pipeline</h3>
-        <div class="row"><span class="lbl">Source</span><span class="val">tokens/**/*.tokens.json <span class="y">· canonical</span></span></div>
-        <div class="row"><span class="lbl">Generated</span><span class="val">system/tokens.css <span class="y">· build output</span></span></div>
-        <div class="row"><span class="lbl">CSS</span><span class="val">@putdotio/design/css</span></div>
-        <div class="row"><span class="lbl">DTCG</span><span class="val">@putdotio/design/tokens/dtcg</span></div>
-        <div class="row"><span class="lbl">Flat JSON</span><span class="val">@putdotio/design/tokens</span></div>
-        <div class="row"><span class="lbl">TS</span><span class="val">@putdotio/design/tokens/meta</span></div>
-        <div class="row"><span class="lbl">Figma</span><span class="val">@putdotio/design/tokens/figma</span></div>
+        <div class="row"><span class="lbl">Source</span><span class="val">tokens/*.tokens.json <span class="y">· canonical DTCG</span></span></div>
+        <div class="row"><span class="lbl">Generator</span><span class="val">scripts/build-tokens.ts</span></div>
+        <div class="row"><span class="lbl">Output</span><span class="val">system/tokens.css <span class="y">· generated</span></span></div>
+        <div class="row"><span class="lbl">Base</span><span class="val">tokens/foundation.css <span class="y">· static layer</span></span></div>
+        <div class="row"><span class="lbl">Targets</span><span class="val">CSS now · Figma / iOS / Android via the same graph</span></div>
       </div>
       <div class="panel consume">
         <h3 style="padding: 10px 14px 0;">Consume</h3>
         <div class="tabs" data-tabs>
           <div class="tab is-active" data-pane="css">CSS</div>
           <div class="tab" data-pane="dtcg">DTCG JSON</div>
-          <div class="tab" data-pane="ts">TS</div>
+          <div class="tab" data-pane="ts">Build</div>
         </div>
-        <div class="pane is-active" data-pane="css"><pre><span class="c">/* import the single source */</span>
-<span class="k">@import</span> <span class="s">"@putdotio/design/css"</span>;
+        <div class="pane is-active" data-pane="css"><pre><span class="c">/* generated output — import in any page */</span>
+<span class="k">@import</span> <span class="s">"system/tokens.css"</span>;
 
 <span class="c">/* use vars as roles, never literals */</span>
 .btn-primary {
-  background: <span class="k">var</span>(--button-primary-bg);
-  color: <span class="k">var</span>(--button-primary-fg);
-  border-radius: <span class="k">var</span>(--button-radius);
-}
-.btn-primary:hover {
-  background: <span class="k">var</span>(--button-primary-bg-hover);
+  background: <span class="k">var</span>(--yellow-solid);
+  color: <span class="k">var</span>(--primary-foreground);
+  border-radius: <span class="k">var</span>(--radius);
 }</pre></div>
-        <div class="pane" data-pane="dtcg"><pre><span class="c">// @putdotio/design/tokens/dtcg · W3C DTCG</span>
+        <div class="pane" data-pane="dtcg"><pre><span class="c">// tokens/*.tokens.json · W3C DTCG — paths map 1:1 to CSS vars</span>
 {
-  <span class="k">"color"</span>: {
-    <span class="k">"brand"</span>: {
-      <span class="k">"yellow"</span>: { <span class="k">"$value"</span>: <span class="s">"hsl(44.7, 97.9%, 63.1%)"</span>, <span class="k">"$type"</span>: <span class="s">"color"</span> }
+  <span class="k">"yellow"</span>: {
+    <span class="k">"solid"</span>: {
+      <span class="k">"$value"</span>: <span class="s">"hsl(44.7, 97.9%, 63.1%)"</span>,
+      <span class="k">"$type"</span>: <span class="s">"color"</span>,
+      <span class="k">"$description"</span>: <span class="s">"Brand · #FDCE45 · → --yellow-solid"</span>
     }
   },
   <span class="k">"radius"</span>: {
-    <span class="k">"default"</span>: { <span class="k">"$value"</span>: <span class="s">"6px"</span>, <span class="k">"$type"</span>: <span class="s">"dimension"</span> }
+    <span class="k">"radius"</span>: {
+      <span class="k">"$value"</span>: <span class="s">"6px"</span>, <span class="k">"$type"</span>: <span class="s">"dimension"</span>,
+      <span class="k">"$description"</span>: <span class="s">"Default radius · → --radius"</span>
+    }
   }
 }</pre></div>
-        <div class="pane" data-pane="ts"><pre><span class="c">// @putdotio/design/tokens/meta · typed metadata</span>
-<span class="k">import</span> { tokens } <span class="k">from</span> <span class="s">"@putdotio/design/tokens/meta"</span>;
+        <div class="pane" data-pane="ts"><pre><span class="c">// regenerate after editing tokens/*.tokens.json</span>
+<span class="k">$</span> node scripts/build-tokens.ts
 
-tokens["color.brand.yellow"].value <span class="c">// "hsl(44.7, 97.9%, 63.1%)"</span>
-tokens["radius.default"].value     <span class="c">// "6px"</span>
+<span class="c">// any tool that speaks DTCG can read the same graph</span>
+<span class="k">read</span>(<span class="s">"tokens/*.tokens.json"</span>)   <span class="c">// Style Dictionary, Tokens Studio, …</span>
 
 <span class="c">// platform adapters live in app repos, not here</span></pre></div>
       </div>
@@ -1023,7 +1031,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
         <li><b>Raw filenames stay raw.</b> Never parse, rewrite or fake metadata from a filename. Render verbatim, mono.</li>
         <li><b>Clarity over cleverness.</b> One verb per icon, one icon per verb. <i>Download / Save / Stream</i> never overlap.</li>
         <li><b>Type carries the weight.</b> Three families — sans for UI, two monos for numerics and identifiers.</li>
-        <li><b>One yellow at a time.</b> <code>#FDCE45</code> is the single CTA, button/nav/TV focus halo, and brand accent. Not decoration.</li>
+        <li><b>One yellow at a time.</b> <code>#FDCE45</code> is the single CTA and the focus ring. Not decoration.</li>
         <li><b>TV is list-first.</b> Without thumbnails, rows beat card walls. Don’t copy Apple TV or Plex.</li>
         <li><b>Voice and restraint.</b> Plain, short, English-first. Subtract before you add.</li>
       </ol>
@@ -1037,7 +1045,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
         <div>
           <div class="ix">Part A</div>
           <h2>Tokens &amp; primitives</h2>
-          <div class="sub"><b>Foundations</b> (color, type, space, radii, motion) followed by <b>brand primitives</b> (logo, icons, focus ring). Single source: <code style="font-family:var(--font-mono);font-size:12px;color:var(--accent);">tokens.css</code> — every other artifact is generated from it.</div>
+          <div class="sub"><b>Foundations</b> (color, type, space, radii, motion) followed by <b>brand primitives</b> (logo, icons, focus ring). Canonical source: <code style="font-family:var(--font-mono);font-size:12px;color:var(--accent);">tokens/*.tokens.json</code> — <code style="font-family:var(--font-mono);font-size:12px;color:var(--accent);">tokens.css</code> and every other artifact is generated from it.</div>
         </div>
       </header>
 
@@ -1051,33 +1059,30 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
           <div class="ix">A.01</div>
           <div>
             <h3>Color</h3>
-            <div class="sub">12-step scales, light + dark. One brand, three semantic scales, one transfer-state lime.</div>
+            <div class="sub">12-step scales, light + dark. One brand, three semantic, one transfer-state lime.</div>
           </div>
         </header>
 
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>Role-based color tokens. Vars name the role (<code>--bg</code>, <code>--text-secondary</code>), not the hex. Components consume roles, never literals.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>tokens/**/*.tokens.json</code> — generated into <code>system/tokens.css</code></dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>tokens/*.tokens.json</code> (canonical) → <code>tokens.css</code> — light <code>:root</code> + <code>.dark</code> overlay</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre><span class="c">/* light + dark in one stylesheet — toggle .dark on &lt;html&gt; */</span>
-<span class="k">.btn</span> { background: <span class="k">var</span>(--button-primary-bg); color: <span class="k">var</span>(--button-primary-fg); }
-<span class="k">.btn:hover</span> { background: <span class="k">var</span>(--button-primary-bg-hover); }
+<span class="k">.btn</span> { background: <span class="k">var</span>(--yellow-solid); color: <span class="k">var</span>(--primary-foreground); }
 <span class="k">.row</span> { background: <span class="k">var</span>(--bg-secondary); color: <span class="k">var</span>(--text); }
 <span class="k">.row:hover</span> { background: <span class="k">var</span>(--list-item-bg-hover); }</pre></dd></div>
           <div class="constraints"><dt>Constraints</dt><dd><ul>
-            <li><code>--yellow-solid</code> is fill-only. For yellow text, use <code>--yellow-text-secondary</code>.</li>
-            <li><code>--primary-foreground</code> is the warm dark label color on yellow.</li>
-            <li><code>--success-foreground</code>, <code>--destructive-foreground</code>, and <code>--invert-foreground</code> own solid-button label color.</li>
+            <li><code>--yellow-solid</code> is fill-only. For yellow <em>text</em>, use <code>--yellow-text-secondary</code> (AA on light bg).</li>
             <li class="no">No new color literals in component code</li>
             <li class="no">No semantic scale for decoration — status only</li>
           </ul></dd></div>
         </dl>
 
-        <div class="tok-row-hd"><span>Brand</span><span>same resting fill in both modes; hover is the canonical darker companion</span></div>
+        <div class="tok-row-hd"><span>Brand</span><span>step 9 shifts between modes; everything else flips like a normal 12-step scale</span></div>
         <div class="tok-grid c-4">
           <div class="tok"><div class="swatch tall text" style="background:var(--yellow-solid)">BRAND</div><div class="name">--yellow-solid</div><div class="val">#FDCE45</div><div class="use">Brand fill: CTAs, focus halos (35% alpha), folder icons, progress bars. <b>Never as text on light.</b></div></div>
-          <div class="tok"><div class="swatch tall text" style="background:var(--yellow-solid-hover)">hover</div><div class="name">--yellow-solid-hover</div><div class="val">#F3C437</div><div class="use">CTA hover — slightly darker brand yellow without turning olive.</div></div>
-          <div class="tok"><div class="swatch tall text" style="background:var(--primary-foreground); color:var(--yellow-solid);">contrast</div><div class="name">--primary-foreground</div><div class="val">#292109</div><div class="use">Label text on yellow-solid — warm dark, not pure black.</div></div>
-          <div class="tok"><div class="swatch tall text on-dark" style="background:var(--yellow-bg)">surface</div><div class="name">--yellow-bg</div><div class="val">step 1 · light tint / dark black</div><div class="use">Faintest tint backdrop in light; drops to pure black in dark.</div></div>
+          <div class="tok"><div class="swatch tall text" style="background:var(--yellow-solid-hover)">+ hover</div><div class="name">--yellow-solid-hover</div><div class="val">#F3C437</div><div class="use">CTA hover — slightly darker brand yellow. Yellow can't darken much without going olive; this is the most we can shift.</div></div>
+          <div class="tok"><div class="swatch tall text" style="background:var(--primary-foreground); color:var(--yellow-solid);">contrast</div><div class="name">--primary-foreground</div><div class="val">#292109</div><div class="use">Label text on yellow-solid — warm dark, not pure black. <code>yellow-contrast</code>.</div></div>
+          <div class="tok"><div class="swatch tall text on-dark" style="background:var(--yellow-bg)">surface</div><div class="name">--yellow-bg</div><div class="val">step 1 · #FEFDFA / #000</div><div class="use">Faintest tint backdrop in light; drops to pure black at the deepest step in dark.</div></div>
         </div>
 
         <div class="tok-row-hd"><span>Neutrals · dark (app default)</span><span>12 steps · gray scale</span></div>
@@ -1101,7 +1106,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
           <div class="tok"><div class="swatch" style="background:var(--green-solid)"></div><div class="name">--green-solid</div><div class="val">positive</div><div class="use"><code>btn-success</code> · check icons · progress complete.</div></div>
           <div class="tok"><div class="swatch" style="background:var(--green-bg-secondary)"></div><div class="name">--green-bg-secondary</div><div class="val">positive surface</div><div class="use">Success callout backdrop · confirmation tint.</div></div>
           <div class="tok"><div class="swatch" style="background:var(--red-solid)"></div><div class="name">--red-solid</div><div class="val">destructive</div><div class="use"><code>btn-danger</code> · error icons · invalid input border.</div></div>
-          <div class="tok"><div class="swatch" style="background:var(--red-bg-secondary)"></div><div class="name">--red-bg-secondary</div><div class="val">destructive surface</div><div class="use">Error callout backdrop. Invalid fields keep <code>--field-bg</code>.</div></div>
+          <div class="tok"><div class="swatch" style="background:var(--red-bg-secondary)"></div><div class="name">--red-bg-secondary</div><div class="val">destructive surface</div><div class="use">Error callout backdrop · invalid input fill.</div></div>
           <div class="tok"><div class="swatch" style="background:var(--lime-3)"></div><div class="name">--lime-3</div><div class="val">in-motion accent</div><div class="use">Transfer downloading / completing rows. <em>put.io-specific.</em></div></div>
         </div>
 
@@ -1125,8 +1130,8 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
 
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>One sans + two monos do all the work. Mono families enforce <em>raw filenames stay raw</em> — filenames render in Berkeley Mono, numerics in GT Mono.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>system/tokens.css</code> · font CSS hosted at <code>static.put.io/fonts/</code></dd></div>
-          <div class="artifact"><dt>Generated</dt><dd><code>dist/tokens.d.ts</code> · CSS custom properties · TS metadata</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>tokens/*.tokens.json</code> (type group) → <code>tokens.css</code> · brand fonts from put.io's font CDN, system fallbacks</dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>CSS custom properties (<code>--font-*</code>, <code>--fs-*</code>)</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre><span class="c">/* font roles */</span>
 <span class="k">.row</span>          { font-family: <span class="k">var</span>(--font-sans); }      <span class="c">/* GT America */</span>
 <span class="k">.row .size</span>    { font-family: <span class="k">var</span>(--font-ui-mono); font-variant-numeric: tabular-nums; }
@@ -1192,20 +1197,20 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
           <div class="ix">A.04</div>
           <div>
             <h3>Radii &amp; shadow</h3>
-            <div class="sub">Five radii, four elevations. 6 px is the default for buttons and fields. The yellow halo is reserved for button, link, nav, and TV focus.</div>
+            <div class="sub">Five radii, four elevations. 6 px is the default for buttons, inputs, cards. Yellow halo is one of the shadows.</div>
           </div>
         </header>
 
         <dl class="spec">
-          <div class="purpose"><dt>Purpose</dt><dd>Radii match component scale. Shadows define elevation roles — popover, modal, raised panels — plus a yellow focus halo for non-field controls.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>system/tokens.css</code> · <code>--radius-*</code> · <code>--shadow-*</code></dd></div>
-          <div class="artifact"><dt>Generated</dt><dd><code>radii.json</code> · <code>shadows.json</code></dd></div>
+          <div class="purpose"><dt>Purpose</dt><dd>Radii match component scale. Shadows define elevation roles — hover/focus, popover, modal — and a yellow focus halo that is the focus system.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>tokens/*.tokens.json</code> → <code>tokens.css</code> · <code>--radius-*</code> · <code>--shadow-*</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>CSS custom properties</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre><span class="k">.btn</span>     { border-radius: <span class="k">var</span>(--radius); }       <span class="c">/* 6px default */</span>
 <span class="k">.pill</span>    { border-radius: <span class="k">var</span>(--radius-pill); }
 <span class="k">.btn:focus-visible</span> { box-shadow: <span class="k">var</span>(--shadow-focus); }  <span class="c">/* yellow halo */</span></pre></dd></div>
           <div class="constraints"><dt>Constraints</dt><dd><ul>
             <li><code>--radius</code> = 6 is the canonical default</li>
-            <li><code>--shadow-focus</code> uses yellow; form fields use <code>--field-ring</code></li>
+            <li>Only <code>--shadow-focus</code> ever uses yellow</li>
             <li class="no">No drop shadow on hover — use bg shift instead</li>
           </ul></dd></div>
         </dl>
@@ -1222,7 +1227,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
           <div class="s"><div class="box sm"></div><div class="nm">--shadow-sm</div><div class="v">hover / focus<br>0 1px 2px / 0.4</div></div>
           <div class="s"><div class="box md"></div><div class="nm">--shadow-md</div><div class="v">popover, menu<br>0 4px 12px / 0.5</div></div>
           <div class="s"><div class="box lg"></div><div class="nm">--shadow-lg</div><div class="v">modal, sheet<br>0 16px 40px / 0.6</div></div>
-          <div class="s"><div class="box fc"></div><div class="nm">--shadow-focus</div><div class="v">yellow halo · 3px<br>0 0 0 3px / 0.35</div></div>
+          <div class="s"><div class="box fc"></div><div class="nm">--shadow-focus</div><div class="v">soft halo<br>0 0 0 3px / 0.35</div></div>
         </div>
 
         <div class="embeds full" style="margin-top: 14px;">
@@ -1242,8 +1247,8 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
 
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>Animation feels consistent across platforms. <code>--dur-fast</code> for hover, <code>--dur-base</code> for menus, <code>--dur-slow</code> for sheets.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>tokens.css</code> · <code>--ease-*</code> · <code>--dur-*</code></dd></div>
-          <div class="artifact"><dt>Generated</dt><dd><code>motion.json</code> · native easing curves</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>tokens/*.tokens.json</code> → <code>tokens.css</code> · <code>--ease-*</code> · <code>--dur-*</code></dd></div>
+          <div class="artifact"><dt>Generated</dt><dd>CSS custom properties · native easing curves</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre><span class="k">.btn</span> { transition: background <span class="k">var</span>(--dur-fast) <span class="k">var</span>(--ease-out); }
 <span class="k">.sheet</span> { transition: transform <span class="k">var</span>(--dur-slow) <span class="k">var</span>(--ease-in-out); }</pre></dd></div>
           <div class="constraints"><dt>Constraints</dt><dd><ul>
@@ -1277,8 +1282,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
           <div class="usage"><dt>Usage</dt><dd><pre><span class="c">&lt;!-- always lowercase --&gt;</span>
 &lt;span <span class="k">class</span>=<span class="s">"brand"</span>&gt;put<span class="k">&lt;span</span> <span class="k">class</span>=<span class="s">"dot"</span><span class="k">&gt;</span>.<span class="k">&lt;/span&gt;</span>io&lt;/span&gt;</pre></dd></div>
           <div class="constraints"><dt>Constraints</dt><dd><ul>
-            <li>Wordmark is <b>put.io</b> — never uppercase, title-case, or spaceless variants</li>
-            <li>Public package names like <code>@putdotio/design</code> are exempt</li>
+            <li>Wordmark is always lowercase <b>put.io</b> — never upper-cased, title-cased, or dot-less</li>
             <li class="no">No mark in body text · no shrunk-then-cropped variants</li>
           </ul></dd></div>
         </dl>
@@ -1296,7 +1300,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
           <div class="ix">A.07</div>
           <div>
             <h3>Icons</h3>
-            <div class="sub">Phosphor going forward. regular line weight. <code class="mono" style="color:var(--accent);">ph-folder-fill</code> tinted <code class="mono" style="color:var(--accent);">#FDCE45</code> is the signature.</div>
+            <div class="sub">Phosphor going forward. <code class="mono" style="color:var(--accent);">ph-fill ph-folder</code> tinted <code class="mono" style="color:var(--accent);">#FDCE45</code> is the signature.</div>
           </div>
           <div class="src"><a href="./preview/icon-set.html">preview/icon-set.html ↗</a></div>
         </header>
@@ -1311,7 +1315,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
 &lt;/svg&gt;</pre></dd></div>
           <div class="constraints"><dt>Constraints</dt><dd><ul>
             <li>24×24 default, 20×20 in dense tables, 32×32 on TV</li>
-            <li>Folder icon = <code>ph-folder-fill</code> tinted <code>--yellow-solid</code></li>
+            <li>Folder icon = <code>ph-fill ph-folder</code> tinted <code>--yellow-solid</code></li>
             <li class="no">No emoji as icons · no decorative SVG</li>
             <li class="no">No legacy Flaticons font in new code</li>
           </ul></dd></div>
@@ -1328,23 +1332,21 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
           <div class="ix">A.08</div>
           <div>
             <h3>Focus</h3>
-            <div class="sub">Three input contexts, one focus contract. Buttons and nav get the brand halo; text entry gets the quiet field ring; TV focus scales for distance.</div>
+            <div class="sub">Three input contexts, one ring. Keyboard / pointer / D-pad resolve to the same brand-yellow halo, scaled to the device.</div>
           </div>
           <div class="src"><a href="./preview/focus-system.html">preview/focus-system.html ↗</a></div>
         </header>
 
         <dl class="spec">
-          <div class="purpose"><dt>Purpose</dt><dd>Unified focus visual across runtimes. Buttons, links, and nav use the brand-yellow halo. Text fields and OTP slots use the quieter <code>--field-ring</code>. TV adds scale + drop shadow.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>tokens.css</code> · <code>--shadow-focus</code> · <code>--field-ring</code></dd></div>
+          <div class="purpose"><dt>Purpose</dt><dd>Unified focus visual across runtimes. Web/mobile = soft 3px brand-yellow halo (35% alpha). TV = 4px ring + <code>scale(1.06)</code> + drop shadow.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>tokens/*.tokens.json</code> → <code>tokens.css</code> · <code>--shadow-focus</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>TV variant via <code>tv-shell.css</code></dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre><span class="c">/* web/mobile */</span>
 <span class="k">.btn:focus-visible</span> { box-shadow: <span class="k">var</span>(--shadow-focus); }
-<span class="k">.field:focus-visible</span> { box-shadow: <span class="k">var</span>(--field-ring); }
 <span class="c">/* TV — overrides for 10ft viewing */</span>
 <span class="k">.tv .card:focus</span> { transform: scale(1.06); box-shadow: 0 0 0 4px <span class="k">var</span>(--yellow-solid), <span class="k">var</span>(--shadow-lg); }</pre></dd></div>
           <div class="constraints"><dt>Constraints</dt><dd><ul>
-            <li>Use yellow focus for buttons, links, nav, and TV focus</li>
-            <li>Use <code>--field-ring</code>, not yellow, for text entry controls</li>
+            <li>Always yellow — focus is the one place yellow is mandatory</li>
             <li>Use <code>:focus-visible</code> on web/mobile, never plain <code>:focus</code></li>
             <li class="no">No outline removal without a visible replacement</li>
           </ul></dd></div>
@@ -1385,13 +1387,13 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
         </header>
 
         <dl class="spec">
-          <div class="purpose"><dt>Purpose</dt><dd>Primary CTA + secondary + ghost + destructive + icon. All states (hover, active, focus-visible, disabled) lift from token roles.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · Button.tsx</code></dd></div>
+          <div class="purpose"><dt>Purpose</dt><dd>Primary CTA + success + danger + info + invert + default + icon. All states (hover, active, focus-visible, disabled) lift from token roles.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>Button</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>CSS class set · DTCG component tokens · TS prop types</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre>&lt;button <span class="k">class</span>=<span class="s">"btn btn-primary"</span>&gt;Save&lt;/button&gt;
-&lt;button <span class="k">class</span>=<span class="s">"btn btn-secondary"</span>&gt;Cancel&lt;/button&gt;
-&lt;button <span class="k">class</span>=<span class="s">"btn btn-ghost"</span>&gt;More&lt;/button&gt;
-&lt;button <span class="k">class</span>=<span class="s">"btn btn-destructive"</span>&gt;Delete&lt;/button&gt;</pre></dd></div>
+&lt;button <span class="k">class</span>=<span class="s">"btn btn-default"</span>&gt;Cancel&lt;/button&gt;
+&lt;button <span class="k">class</span>=<span class="s">"btn btn-info"</span>&gt;Retry&lt;/button&gt;
+&lt;button <span class="k">class</span>=<span class="s">"btn btn-danger"</span>&gt;Delete&lt;/button&gt;</pre></dd></div>
           <div class="constraints"><dt>Constraints</dt><dd><ul>
             <li>One <code>btn-primary</code> per surface region</li>
             <li>Min-width 96px web · 44px hit-target mobile · 88px focus-target TV</li>
@@ -1410,20 +1412,20 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
           <div class="ix">B.02</div>
           <div>
             <h3>Inputs</h3>
-            <div class="sub">Text, search (with <kbd style="font-family:var(--font-mono);color:var(--accent);background:var(--code-bg);padding:1px 5px;border-radius:3px;">/</kbd> hint), password, error. Fields use <code class="mono" style="color:var(--accent);">--field-bg</code> and a quiet <code class="mono" style="color:var(--accent);">--field-ring</code> on focus.</div>
+            <div class="sub">Text, search (with <kbd style="font-family:var(--font-mono);color:var(--accent);background:var(--code-bg);padding:1px 5px;border-radius:3px;">/</kbd> hint), password, error. Yellow border + halo on <code class="mono" style="color:var(--accent);">:focus-visible</code>.</div>
           </div>
           <div class="src"><a href="./preview/components-inputs.html">preview/components-inputs.html ↗</a></div>
         </header>
 
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>Text entry primitive. Search box, password field, validation states use the same shell.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · Input.tsx</code></dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>Input</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>CSS class set · platform-native field shells</dd></div>
-          <div class="usage"><dt>Usage</dt><dd><pre>&lt;input <span class="k">class</span>=<span class="s">"field"</span> <span class="k">type</span>=<span class="s">"text"</span> <span class="k">placeholder</span>=<span class="s">"Search files"</span>&gt;
-&lt;input <span class="k">class</span>=<span class="s">"field"</span> <span class="k">aria-invalid</span>=<span class="s">"true"</span> <span class="k">aria-describedby</span>=<span class="s">"field-error"</span>&gt;</pre></dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre>&lt;input <span class="k">class</span>=<span class="s">"input"</span> <span class="k">type</span>=<span class="s">"text"</span> <span class="k">placeholder</span>=<span class="s">"Search files"</span>&gt;
+&lt;input <span class="k">class</span>=<span class="s">"input is-error"</span> <span class="k">aria-invalid</span>=<span class="s">"true"</span>&gt;</pre></dd></div>
           <div class="constraints"><dt>Constraints</dt><dd><ul>
             <li>Label outside the field · placeholder is hint, not label</li>
-            <li>Invalid state is <code>aria-invalid="true"</code>: red border + red text, no red fill</li>
+            <li>Error message uses <code>--red-solid</code> below the field</li>
             <li class="no">No placeholders as labels</li>
           </ul></dd></div>
         </dl>
@@ -1446,7 +1448,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
 
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>Field types beyond plain text. Each inherits Input's shell + adds a behavior. Validation vocabulary is shared.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · Field/*</code></dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>Field/*</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>CSS variants · native pickers per platform</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">FieldDate</span> <span class="k">name</span>=<span class="s">"due"</span> <span class="k">value</span>={d} <span class="k">onChange</span>={set} /&gt;
 &lt;<span class="k">FieldSlider</span> <span class="k">min</span>={0} <span class="k">max</span>={100} <span class="k">step</span>={5} /&gt;</pre></dd></div>
@@ -1474,7 +1476,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
 
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>Composition patterns. Pick the closest match — don't invent a new one.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · FormLayout</code></dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>FormLayout</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>Grid templates · responsive breakpoints</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">FormLayout</span> <span class="k">variant</span>=<span class="s">"settings-row"</span>&gt; ... &lt;/<span class="k">FormLayout</span>&gt;
 &lt;<span class="k">FormLayout</span> <span class="k">variant</span>=<span class="s">"two-column"</span>&gt; ... &lt;/<span class="k">FormLayout</span>&gt;</pre></dd></div>
@@ -1502,7 +1504,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
 
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>Status communication. Lifecycle (queued/in-progress/done/failed), filter chips, user tags.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · Badge.tsx</code> · <code>Chip.tsx</code></dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>Badge</code> · <code>Chip</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>CSS classes · semantic color mapping</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">Badge</span> <span class="k">tone</span>=<span class="s">"positive"</span>&gt;Completed&lt;/<span class="k">Badge</span>&gt;
 &lt;<span class="k">Badge</span> <span class="k">tone</span>=<span class="s">"in-motion"</span>&gt;Downloading&lt;/<span class="k">Badge</span>&gt;
@@ -1532,7 +1534,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
 
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>Single horizontal row primitive. Composes leading icon · primary text · secondary text · trailing meta · trailing action.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · ListItem.tsx</code></dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>ListItem</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>Slot-based CSS · TS prop types</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">ListItem</span> <span class="k">leading</span>={icon} <span class="k">title</span>=<span class="s">"Files"</span> <span class="k">trailing</span>={count} /&gt;
 &lt;<span class="k">ListItem</span> <span class="k">title</span>=<span class="s">"Theme"</span> <span class="k">subtitle</span>=<span class="s">"Auto"</span> <span class="k">layout</span>=<span class="s">"setting"</span> /&gt;</pre></dd></div>
@@ -1561,7 +1563,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
 
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>Render any file/folder identically: <b>icon · filename · size · date</b>. No metadata enrichment, ever.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · FileRow.tsx</code></dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>FileRow</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>Web table / mobile cell / TV row variants</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">FileRow</span>
   <span class="k">kind</span>=<span class="s">"folder"</span>                            <span class="c">// folder | video | audio | doc | archive | other</span>
@@ -1570,7 +1572,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
   <span class="k">date</span>=<span class="s">"2026-05-25"</span> /&gt;</pre></dd></div>
           <div class="constraints"><dt>Constraints</dt><dd><ul>
             <li>Filename always Berkeley Mono, ellipsis-on-overflow, hover reveals full</li>
-            <li>Folder = <code>ph-folder-fill</code> in <code>--yellow-solid</code></li>
+            <li>Folder = <code>ph-fill ph-folder</code> in <code>--yellow-solid</code></li>
             <li class="no">No parsing, no marketing-group stripping</li>
             <li class="no">No thumbnail · no codec badge · no resolution chip</li>
           </ul></dd></div>
@@ -1594,7 +1596,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
 
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>Quota readout. Three thresholds (healthy / warn / over) drive color. Breakdown is by file-type, not metadata.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · StorageBar.tsx</code></dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>StorageBar</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>Web sidebar + standalone card</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">StorageBar</span>
   <span class="k">used</span>={11_200_000_000_000}
@@ -1624,7 +1626,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
 
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>The "is it working?" answer. One health dot (green/yellow/red) plus a one-line status. Power-user detail (ratio, peers) is in expand.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · TransferRow.tsx</code></dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>TransferRow</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>Web + mobile + TV transfer-row variants</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">TransferRow</span>
   <span class="k">state</span>=<span class="s">"downloading"</span>     <span class="c">// queued | downloading | seeding | completed | failed</span>
@@ -1656,7 +1658,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
 
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>Communicate "nothing here yet" or "something broke" with personality and a single clear next action.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · EmptyState.tsx</code> · <code>ErrorSheet.tsx</code></dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>EmptyState</code> · <code>ErrorSheet</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>Per-platform empty illustrations as text/kaomoji</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">EmptyState</span>
   <span class="k">kao</span>=<span class="s">"ᕦ(ò_óˇ)ᕤ"</span>
@@ -1687,7 +1689,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
 
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>Modal surfaces. Dialog (centered) · sheet (right edge) · bottom-sheet (mobile) · confirm (small destructive).</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · Overlay/*</code></dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>Overlay/*</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>CSS + ARIA primitives · native sheets on iOS/Android</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">Dialog</span> <span class="k">open</span>={o} <span class="k">onClose</span>={c}&gt; ... &lt;/<span class="k">Dialog</span>&gt;
 &lt;<span class="k">BottomSheet</span> <span class="k">open</span>={o} <span class="k">onClose</span>={c} <span class="k">actions</span>={[ ... ]} /&gt;</pre></dd></div>
@@ -1716,7 +1718,7 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
 
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>Smaller, less-touched primitives. Lifted verbatim from the same token roles as everything else.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>@putdotio/ui · Avatar / Breadcrumbs / Dropzone / Notification / Tabs / Tooltip</code></dd></div>
+          <div class="source"><dt>Source of truth</dt><dd><code>Avatar / Breadcrumbs / Dropzone / Notification / Tabs / Tooltip</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>Per-platform variants</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">Avatar</span> <span class="k">name</span>=<span class="s">"kai"</span> /&gt;
 &lt;<span class="k">Breadcrumbs</span> <span class="k">path</span>={[<span class="s">"Files"</span>, <span class="s">"Movies"</span>]} /&gt;
@@ -1767,31 +1769,32 @@ tokens["radius.default"].value     <span class="c">// "6px"</span>
           <div class="source"><dt>Source of truth</dt><dd><code>system/tokens.css</code> + <code>preview/*.html</code> specimens</dd></div>
           <div class="artifact"><dt>Generated</dt><dd>CSS · DTCG JSON · flat JSON · TypeScript metadata · Figma export</dd></div>
           <div class="usage"><dt>Usage · per-platform consumption</dt><dd><pre><span class="c">// any web / JS runtime — install the CSS package</span>
-<span class="k">import</span> <span class="s">"@putdotio/design/css"</span>;
+<span class="k">import</span> <span class="s">"the generated CSS bundle"</span>;
 
 <span class="c">// any tool that speaks DTCG JSON (Style Dictionary, Tokens Studio …)</span>
-<span class="k">read</span>(<span class="s">"@putdotio/design/tokens/dtcg"</span>) <span class="c">// → consume in your own build</span>
+<span class="k">read</span>(<span class="s">"tokens/*.tokens.json"</span>) <span class="c">// → consume in your own build</span>
 
 <span class="c">// native app repos build their own adapter from the same JSON</span></pre></dd></div>
           <div class="constraints"><dt>Constraints</dt><dd><ul>
             <li>Platform repos may add — never override — token values</li>
             <li>Visual matches across platforms; <b>engine</b> (focus, blur, player) is local</li>
             <li class="no">No platform-specific color in this repo</li>
-            <li class="no">No "TV-only" tokens here — TV adaptation lives in putio-ios / android</li>
+            <li class="no">No "TV-only" tokens here — TV adaptation lives in the iOS app / android</li>
           </ul></dd></div>
         </dl>
 
-        <pre class="snippet"><span class="c">// repo split</span>
-putio-design/        <span class="c">// THIS REPO — tokens, component specs, flow specs</span>
-                     <span class="c">// ships: CSS · DTCG JSON · TS · Figma export</span>
+        <pre class="snippet"><span class="c">// distribution model</span>
+this design system     <span class="c">// tokens, component specs, flow specs</span>
+                       <span class="c">// ships: CSS · DTCG JSON · TS · Figma export</span>
 
-product implementation<span class="c">// consumes @putdotio/design/css</span>
-putio-tv-web/        <span class="c">// lightweight JS runtime · same CSS</span>
-putio-{ios,android,roku}/  <span class="c">// build their OWN adapters from DTCG JSON</span>
-                     <span class="c">// — this repo doesn't ship Swift / Kotlin / BrightScript</span></pre>
+           <span class="c">// consumes the generated CSS bundle</span>
+the web apps           <span class="c">// desktop + smart-TV · same CSS</span>
+the native apps        <span class="c">// iOS / Android / Roku — build their OWN</span>
+                       <span class="c">// adapters from the DTCG JSON; this system</span>
+                       <span class="c">// doesn't ship Swift / Kotlin / BrightScript</span></pre>
       </section>
 
-      <div class="sub-hd"><div class="ix">B · 1</div><h4>Web · desktop browser<span class="src">putdotio/product implementation</span></h4></div>
+      <div class="sub-hd"><div class="ix">B · 1</div><h4>Web · desktop browser<span class="src">the web app</span></h4></div>
 
       <section id="plat-web-shell">
         <header class="sec-hd">
@@ -1805,7 +1808,7 @@ putio-{ios,android,roku}/  <span class="c">// build their OWN adapters from DTCG
 
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>Top-level web layout. Sidebar nav + main content + storage footer. Keyboard-first.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd><code>product app shell</code></dd></div>
+          <div class="source"><dt>Source of truth</dt><dd>the web app · main layout</dd></div>
           <div class="artifact"><dt>Generated</dt><dd>React component · CSS grid template</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">AppShell</span> <span class="k">sidebar</span>={&lt;<span class="k">Sidebar</span> /&gt;} <span class="k">topbar</span>={&lt;<span class="k">TopBar</span> /&gt;}&gt;
   &lt;<span class="k">FilesView</span> /&gt;
@@ -1827,7 +1830,7 @@ putio-{ios,android,roku}/  <span class="c">// build their OWN adapters from DTCG
           <div class="ix">C.02</div>
           <div>
             <h3>Web references</h3>
-            <div class="sub">Convergent ground-truth screens to lift from. Live in <code class="mono" style="color:var(--accent);">putdotio/product implementation</code>; cross-project canvases mirror them here.</div>
+            <div class="sub">Convergent ground-truth screens to lift from. Live in <code class="mono" style="color:var(--accent);">the web app</code>; cross-project canvases mirror them here.</div>
           </div>
           <div class="src"><span>v12 – v15 · linear-neutral</span></div>
         </header>
@@ -1835,12 +1838,12 @@ putio-{ios,android,roku}/  <span class="c">// build their OWN adapters from DTCG
           <div class="panel placeholder">
             <span class="t">Pending source</span>
             <span class="n">Files list · Light + Dark</span>
-            <span class="d"><code class="mono" style="color:var(--accent);">putdotio/product implementation · product file browser surface</code></span>
+            <span class="d">the web app · files feature</span>
           </div>
           <div class="panel placeholder">
             <span class="t">Pending source</span>
             <span class="n">File detail / player</span>
-            <span class="d">Right-rail actions, breadcrumbs, Chromecast button. <code class="mono" style="color:var(--accent);">product file-detail surface</code></span>
+            <span class="d">Right-rail actions, breadcrumbs, Chromecast button. <span class="mono" style="color:var(--accent);">the web app · file detail</span></span>
           </div>
           <div class="panel placeholder">
             <span class="t">Pending source</span>
@@ -1855,7 +1858,7 @@ putio-{ios,android,roku}/  <span class="c">// build their OWN adapters from DTCG
         </div>
       </section>
 
-      <div class="sub-hd"><div class="ix">B · 2</div><h4>Mobile · iOS &amp; Android<span class="src">putio-ios · putio-android</span></h4></div>
+      <div class="sub-hd"><div class="ix">B · 2</div><h4>Mobile · iOS &amp; Android<span class="src">iOS · Android</span></h4></div>
 
       <section id="plat-mob-shell">
         <header class="sec-hd">
@@ -1869,7 +1872,7 @@ putio-{ios,android,roku}/  <span class="c">// build their OWN adapters from DTCG
 
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>Touch-first shells. iOS uses native nav stack; Android uses Material You scaffold tinted with brand yellow.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd>Platform repos (out-of-tree). Shells composed from <code>@putdotio/ui</code> primitives in each platform's idiom.</dd></div>
+          <div class="source"><dt>Source of truth</dt><dd>Platform repos (out-of-tree). Shells composed from <code>the component library</code> primitives in each platform's idiom.</dd></div>
           <div class="artifact"><dt>Generated</dt><dd>Spec only — platform repos implement natively</dd></div>
           <div class="usage"><dt>Usage · iOS</dt><dd><pre><span class="k">NavigationStack</span> {
   <span class="k">FilesView</span>()
@@ -1906,7 +1909,7 @@ putio-{ios,android,roku}/  <span class="c">// build their OWN adapters from DTCG
           <div class="ix">C.05</div>
           <div>
             <h3>Mobile references</h3>
-            <div class="sub">Pending canonical sources — the new <code class="mono" style="color:var(--accent);">putio-ios</code> &amp; <code class="mono" style="color:var(--accent);">putio-android</code> apps are being built spec-first.</div>
+            <div class="sub">Pending canonical sources — the new <code class="mono" style="color:var(--accent);">the iOS app</code> &amp; <code class="mono" style="color:var(--accent);">the Android app</code> apps are being built spec-first.</div>
           </div>
         </header>
         <div class="proto-grid">
@@ -2031,7 +2034,7 @@ putio-{ios,android,roku}/  <span class="c">// build their OWN adapters from DTCG
         <div class="panel placeholder">
           <span class="t">Pending preview</span>
           <span class="n">Strategy &amp; token mapping table</span>
-          <span class="d">Web · iOS · Android · Apple TV · Android TV · Roku · Smart-TV web. Per-platform engine, surface, player-ownership and token-mapping breakdown lives in the platform repos.</span>
+          <span class="d">Web · iOS · Android · Apple TV · Android TV · Roku · Smart-TV web. Each consuming platform repo owns its own engine, surface, player-ownership and token-mapping breakdown.</span>
         </div>
       </section>
 
@@ -2060,10 +2063,10 @@ putio-{ios,android,roku}/  <span class="c">// build their OWN adapters from DTCG
 
         <div class="tok-row-hd" style="margin-top: 32px;"><span>Native consumers · out-of-tree</span><span>not shipped from this repo</span></div>
         <div class="proto-grid">
-          <div class="proto"><div class="glyph ios">iOS</div><div><div class="nm">Apple TV · tvOS app</div><div class="meta">putio-ios (separate repo)</div></div><div class="tag">native</div></div>
-          <div class="proto"><div class="glyph rk">AT</div><div><div class="nm">Android TV / Google TV</div><div class="meta">putio-android (separate repo)</div></div><div class="tag">native</div></div>
-          <div class="proto"><div class="glyph rk">RK</div><div><div class="nm">Roku channel</div><div class="meta">putio-roku (separate repo)</div></div><div class="tag">native</div></div>
-          <div class="proto"><div class="glyph web">SM</div><div><div class="nm">Smart-TV web · Tizen / webOS</div><div class="meta">putio-tv-web (separate repo)</div></div><div class="tag">native</div></div>
+          <div class="proto"><div class="glyph ios">iOS</div><div><div class="nm">Apple TV · tvOS app</div><div class="meta">native app</div></div><div class="tag">native</div></div>
+          <div class="proto"><div class="glyph rk">AT</div><div><div class="nm">Android TV / Google TV</div><div class="meta">native app</div></div><div class="tag">native</div></div>
+          <div class="proto"><div class="glyph rk">RK</div><div><div class="nm">Roku channel</div><div class="meta">native app</div></div><div class="tag">native</div></div>
+          <div class="proto"><div class="glyph web">SM</div><div><div class="nm">Smart-TV web · Tizen / webOS</div><div class="meta">web app</div></div><div class="tag">native</div></div>
         </div>
       </section>
     </div>
@@ -2176,14 +2179,6 @@ putio-{ios,android,roku}/  <span class="c">// build their OWN adapters from DTCG
   }));
 })();
 
-/* Keyboard access for horizontally scrollable code snippets. */
-(function () {
-  document.querySelectorAll('pre').forEach((pre) => {
-    pre.setAttribute('tabindex', '0');
-    if (!pre.hasAttribute('aria-label')) pre.setAttribute('aria-label', 'Scrollable code example');
-  });
-})();
-
 /* ---- Theme toggle ----
    One token-driven design system. .dark on <html> = dark mode, no class = light.
    Same markup, same components, same preview layout — only token values change.
@@ -2213,6 +2208,20 @@ putio-{ios,android,roku}/  <span class="c">// build their OWN adapters from DTCG
     const d = e.data;
     if (!d || d.type !== '__preview_ready') return;
     try { e.source && e.source.postMessage({ type: '__theme', theme: currentTheme() }, '*'); } catch (err) {}
+  });
+
+  // Belt-and-braces: also push theme on the iframe's `load` event. The
+  // __preview_ready ping from each iframe can miss this listener (it's
+  // registered late in the page), so on every iframe load we re-broadcast
+  // current theme directly. Same end state, no race.
+  document.querySelectorAll('iframe').forEach(f => {
+    f.addEventListener('load', () => {
+      try { f.contentWindow.postMessage({ type: '__theme', theme: currentTheme() }, '*'); } catch (err) {}
+    });
+    // If the iframe is already loaded (cached), fire once now.
+    if (f.contentDocument && f.contentDocument.readyState === 'complete') {
+      try { f.contentWindow.postMessage({ type: '__theme', theme: currentTheme() }, '*'); } catch (err) {}
+    }
   });
 
   if (btn) {

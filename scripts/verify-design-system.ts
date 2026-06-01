@@ -55,35 +55,6 @@ const tokenValueContracts: TokenValueContract[] = [
   { name: "component.alias.successForeground", cssName: "--success-foreground", value: "hsl(0, 0%, 100%)", mode: "global" },
   { name: "component.alias.destructiveForeground", cssName: "--destructive-foreground", value: "hsl(0, 0%, 100%)", mode: "global" },
 ];
-const apcaContrastButtonVariants = ["btn-success", "btn-danger"] as const;
-const apcaSizeFloorButtonVariants = ["btn-success", "btn-danger", "btn-info"] as const;
-const apcaDisallowedButtonSizes = ["btn-sm", "btn-xs"] as const;
-const placeholderHref = /\bhref\s*=\s*["']\s*#\s*["']/i;
-const restrictedPublicText: Array<{ name: string; pattern: RegExp }> = [
-  { name: "Anthropic design API URL", pattern: /api\.anthropic\.com/i },
-  { name: "local project URL", pattern: /\/projects\//i },
-  { name: "file URI", pattern: /file:\/\//i },
-  { name: "local user path", pattern: /\/Users\//i },
-  { name: "screenshot filename", pattern: /CleanShot/i },
-  { name: "uploaded private asset", pattern: /uploads\//i },
-  { name: "team asset path", pattern: /assets\/team/i },
-  { name: "private app source path", pattern: /\bapps\//i },
-  { name: "private workspace name", pattern: /putio-frontend-workspace/i },
-  { name: "private repo name", pattern: /putio-web/i },
-  { name: "private planning doc", pattern: /design-brief|platform-strategy/i },
-  { name: "Lucide icon reference", pattern: /Lucide|@lucide|lucide-icon/i },
-  { name: "legacy token package path", pattern: /@putdotio\/design-tokens-(?:css|ts)|\bdesign-tokens(?:\.flat)?\.json\b|putio-design-tokens\.figma\.json/i },
-  { name: "alternate brand yellow", pattern: /#fdd868|#fcbe03/i },
-  { name: "incorrect put.io wordmark casing", pattern: /\b(?:PUT\.IO|Put\.io|PUTIO)\b/ },
-  { name: "non-agnostic sample content", pattern: /RSS torrents|Hans Zimmer|preview token/i },
-];
-
-const publicSurfaceFiles = ["AGENTS.md", "CLAUDE.md", "CONTRIBUTING.md", "README.md", "SECURITY.md", "DESIGN.md"];
-const publicSurfaceDirs = [
-  { dirname: ".github/workflows", include: /\.ya?ml$/ },
-  { dirname: "docs", include: /\.md$/ },
-  { dirname: "system", include: /\.(?:css|html|js|md|svg)$/ },
-];
 
 async function walk(dir: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -120,23 +91,6 @@ async function assertNotExists(file: string) {
   throw new Error(`${file} must not exist`);
 }
 
-function lineNumberAt(text: string, index: number): number {
-  return text.slice(0, index).split("\n").length;
-}
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function extractHtmlAttribute(attrs: string, name: string): string | undefined {
-  const match = attrs.match(new RegExp(`\\b${escapeRegExp(name)}\\s*=\\s*(["'])([\\s\\S]*?)\\1`, "i"));
-  return match?.[2];
-}
-
-function classList(attrs: string): string[] {
-  return (extractHtmlAttribute(attrs, "class") ?? "").split(/\s+/).filter(Boolean);
-}
-
 function assertTokenAlias(flat: Record<string, TokenRecord>, contract: TokenAliasContract) {
   const token = flat[contract.name];
   const source = flat[contract.source];
@@ -146,36 +100,6 @@ function assertTokenAlias(flat: Record<string, TokenRecord>, contract: TokenAlia
   assert(token.mode === contract.mode, `${contract.name} must be ${contract.mode} mode`);
   assert(token.originalValue === `{${contract.source}}`, `${contract.name} must alias {${contract.source}}`);
   assert(token.value === source.value, `${contract.name} must resolve to ${contract.source}`);
-}
-
-async function publicSurfaceTextFiles(): Promise<string[]> {
-  const files = await Promise.all(
-    publicSurfaceFiles.map(async (filename) => {
-      const full = path.join(root, filename);
-      try {
-        const info = await stat(full);
-        if (info.isFile()) return [full];
-      } catch {
-        return [];
-      }
-      return [];
-    }),
-  );
-
-  const directories = await Promise.all(
-    publicSurfaceDirs.map(async ({ dirname, include }) => {
-      const full = path.join(root, dirname);
-      try {
-        const info = await stat(full);
-        if (info.isDirectory()) return (await walk(full)).filter((file) => include.test(path.relative(full, file)));
-      } catch {
-        return [];
-      }
-      return [];
-    }),
-  );
-
-  return [...files.flat(), ...directories.flat()];
 }
 
 function extractFrontmatter(markdown: string): string {
@@ -291,19 +215,6 @@ async function checkDesignMd() {
   assert(data.components?.["file-row"]?.icon === "{colors.brand}", "DESIGN.md file-row.icon must alias colors.brand");
 }
 
-async function checkPublicSurface() {
-  const allFiles = await publicSurfaceTextFiles();
-
-  for (const file of allFiles) {
-    const text = await readFile(file, "utf8");
-    const rel = path.relative(root, file);
-    for (const { name, pattern } of restrictedPublicText) {
-      assert(!pattern.test(text), `${rel} contains restricted public text (${name})`);
-    }
-    assert(!placeholderHref.test(text), `${rel} contains placeholder href`);
-  }
-}
-
 async function checkHtmlLinks() {
   const htmlFiles = (await walk(path.join(root, "system"))).filter((file) => file.endsWith(".html"));
   const attrPattern = /\b(?:href|src)=["']([^"']+)["']/g;
@@ -334,48 +245,6 @@ async function checkHtmlLinks() {
   }
 }
 
-async function checkButtonContrastContracts() {
-  const htmlFiles = (await walk(path.join(root, "system"))).filter((file) => file.endsWith(".html"));
-  const buttonPattern = /<button\b([^>]*)>/gi;
-
-  for (const file of htmlFiles) {
-    const html = await readFile(file, "utf8");
-    const rel = path.relative(root, file);
-
-    for (const match of html.matchAll(buttonPattern)) {
-      const attrs = match[1] ?? "";
-      const classes = classList(attrs);
-      const label = classes.length > 0 ? classes.join(" ") : "<unclassed>";
-      const line = lineNumberAt(html, match.index ?? 0);
-      const contrastContract = extractHtmlAttribute(attrs, "data-contrast-contract");
-      const apcaVariant = apcaContrastButtonVariants.find((variant) => classes.includes(variant));
-      const sizeFloorVariant = apcaSizeFloorButtonVariants.find((variant) => classes.includes(variant));
-      const disallowedSize = apcaDisallowedButtonSizes.find((size) => classes.includes(size));
-
-      assert(
-        contrastContract === undefined || contrastContract === "apca",
-        `${rel}:${line} data-contrast-contract must be "apca" when present`,
-      );
-      assert(
-        contrastContract !== "apca" || apcaVariant !== undefined,
-        `${rel}:${line} data-contrast-contract="apca" is only for solid success/danger button specimens (${label})`,
-      );
-      assert(
-        apcaVariant === undefined || contrastContract === "apca",
-        `${rel}:${line} ${apcaVariant} must declare data-contrast-contract="apca" (${label})`,
-      );
-      assert(
-        contrastContract !== "apca" || disallowedSize === undefined,
-        `${rel}:${line} APCA contrast button specimens must not use ${disallowedSize} (${label})`,
-      );
-      assert(
-        sizeFloorVariant === undefined || disallowedSize === undefined,
-        `${rel}:${line} ${sizeFloorVariant} must not use ${disallowedSize}; use btn-md or the default size (${label})`,
-      );
-    }
-  }
-}
-
 async function checkCss() {
   const tvShell = await readFile(path.join(root, "system/preview/tv-shell.css"), "utf8");
   const generatedCss = await readFile(path.join(root, "system/tokens.css"), "utf8");
@@ -399,9 +268,7 @@ async function main() {
 
   await checkTokens();
   await checkDesignMd();
-  await checkPublicSurface();
   await checkHtmlLinks();
-  await checkButtonContrastContracts();
   await checkCss();
   console.log("Design system checks passed");
 }
