@@ -82,7 +82,17 @@ pnpm verify:full
    - This should cover type checks, token generation drift, design-system contract checks, HTML validation, static smoke, Playwright accessibility/render checks, and `npm pack --dry-run`.
    - If a check fails, fix the root cause or report the exact blocker. Do not call the work done while relevant verification is red.
 
-7. Write Claude Design feedback.
+7. Refresh the project's token mirror.
+   - After a round lands (tokens built, checks green), run:
+
+```bash
+pnpm design:mirror
+```
+
+   - It reads the fetched project graph as a structural template (`tmp/design-handoff/project/system/tokens.json`) and `dist/tokens.flat.json` for values, and writes `tmp/design-mirror/{tokens.json,tokens.css,tokens.base.css}` in the project's annotated flavor (hex comments, `@kind` hints). Refs that no longer resolve to repo values are replaced with repo literals and warned — carry those warnings into the feedback note.
+   - Push the three files to the project's `system/` with DesignSync (`finalize_plan` → `write_files` with `localPath`). `CLAUDE.md` is write-protected; token mirror files are not.
+
+8. Write Claude Design feedback.
    - Save feedback under `tmp/design-handoff/feedback-to-design-tool.md` unless the user asks for another path.
    - Write it as a copyable note for Claude Design, not as a repo changelog.
    - Use `references/feedback-template.md` for the feedback shape.
