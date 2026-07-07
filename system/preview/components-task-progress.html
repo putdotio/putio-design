@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap — applies html.dark before paint; full comment in components-tabs.html. */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · components · tasks</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="./_components.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
+  .note b { color: var(--text); }
+  .note code { font-family: var(--font-mono); color: var(--yellow-text-secondary); font-size: 11.5px; }
+
+  /* ── Task list ──
+     Zip creation, remote upload, bulk move — anything the server does
+     while the user waits. Distinct from transfers (those have their own
+     component); tasks are ephemeral and dismiss on completion. */
+  .tasks { display: flex; flex-direction: column; max-width: 640px; border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
+  .task {
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    align-items: center; gap: 2px 10px;
+    padding: 12px 14px;
+    background: var(--bg-secondary);
+  }
+  .task + .task { border-top: 1px solid var(--line); }
+  .task .t-ico {
+    grid-row: span 2;
+    width: 32px; height: 32px; border-radius: var(--radius-sm);
+    background: var(--component-bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: var(--text-secondary);
+  }
+  .task .t-name {
+    font-size: var(--fs-sm); font-weight: var(--fw-medium); color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .task .t-name code { font-family: var(--font-mono); font-size: 12px; font-weight: 400; }
+  .task .t-status {
+    grid-column: 3; grid-row: span 2;
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--font-ui-mono); font-variant-numeric: tabular-nums;
+    font-size: 11.5px; color: var(--text-secondary); white-space: nowrap;
+  }
+  .task .t-bar {
+    grid-column: 2; height: 4px; border-radius: var(--radius-pill);
+    background: var(--component-bg-active);
+    overflow: hidden; position: relative; margin-top: 4px;
+  }
+  .task .t-bar .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: var(--radius-pill); background: var(--yellow-solid); }
+
+  .task[data-state="pending"] .t-bar .fill { width: 0; }
+  .task[data-state="completed"] .t-ico { color: var(--green-text-secondary); background: var(--green-component-bg); }
+  .task[data-state="completed"] .t-bar { display: none; }
+  .task[data-state="failed"] .t-ico { color: var(--red-text-secondary); background: var(--red-component-bg); }
+  .task[data-state="failed"] .t-bar .fill { background: var(--red-solid); }
+  .task[data-state="failed"] .t-err { grid-column: 2; font-size: 12px; color: var(--red-text-secondary); margin-top: 2px; }
+
+  /* Indeterminate — width unknown (server-side scan, queue position) */
+  .task[data-state="loading"] .t-bar .fill { width: 30%; }
+  @media (prefers-reduced-motion: no-preference) {
+    .task[data-state="loading"] .t-bar .fill { animation: task-slide 1.4s var(--ease-in-out) infinite; }
+  }
+  @keyframes task-slide {
+    0%   { left: -30%; }
+    100% { left: 100%; }
+  }
+
+  /* ── Progress primitives ── */
+  .prim-grid { display: grid; grid-template-columns: 140px 1fr; gap: 14px 20px; align-items: center; max-width: 640px; }
+  .prim-grid .lab { font-family: var(--font-ui-mono); font-size: 11px; color: var(--text-secondary); letter-spacing: 0.04em; }
+  .pbar { position: relative; border-radius: var(--radius-pill); background: var(--component-bg-active); overflow: hidden; }
+  .pbar .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: var(--radius-pill); background: var(--yellow-solid); }
+  .pbar.h2 { height: 2px; } .pbar.h4 { height: 4px; } .pbar.h8 { height: 8px; }
+
+  .spinner { border-radius: 50%; border-style: solid; border-color: var(--component-bg-active); border-top-color: var(--yellow-solid); display: inline-block; }
+  .spinner.s16 { width: 16px; height: 16px; border-width: 2px; }
+  .spinner.s20 { width: 20px; height: 20px; border-width: 2px; }
+  .spinner.s28 { width: 28px; height: 28px; border-width: 3px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .spinner { animation: task-spin 0.8s linear infinite; }
+  }
+  @keyframes task-spin { to { transform: rotate(360deg); } }
+</style></head>
+<body>
+<div class="preview-shell">
+
+  <div class="head">
+    <span class="ix">01</span>
+    <span class="t">Task list</span>
+    <span class="n">Tasks</span>
+  </div>
+  <div class="note">
+    Server-side jobs the user waits on — zip creation, remote upload, bulk move. States ride <code>data-state="pending | loading | active | completed | failed"</code>. Determinate progress is a 4px <code>--yellow-solid</code> fill on <code>--component-bg-active</code>; unknown duration uses the sliding indeterminate bar (paused under reduced motion). Completed flips the icon tile green; failed goes red with an inline reason and a quiet Retry — <b>never a red-filled row</b>.
+  </div>
+
+  <div class="tasks">
+    <div class="task" data-state="active">
+      <div class="t-ico"><i class="ph ph-file-zip" aria-hidden="true"></i></div>
+      <div class="t-name">Creating zip · <code>backup-photos-2025.zip</code></div>
+      <div class="t-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="64" aria-label="Zip progress"><div class="fill" style="width: 64%;"></div></div>
+      <div class="t-status">64% · 41.1 of 64.2 GB</div>
+    </div>
+    <div class="task" data-state="loading">
+      <div class="t-ico"><i class="ph ph-cloud-arrow-up" aria-hidden="true"></i></div>
+      <div class="t-name">Uploading to remote storage</div>
+      <div class="t-bar" role="progressbar" aria-label="Upload progress"><div class="fill"></div></div>
+      <div class="t-status">preparing&hellip;</div>
+    </div>
+    <div class="task" data-state="pending">
+      <div class="t-ico"><i class="ph ph-folder-simple" aria-hidden="true"></i></div>
+      <div class="t-name">Moving 214 items to <code>/archive</code></div>
+      <div class="t-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Move progress"><div class="fill"></div></div>
+      <div class="t-status">queued</div>
+    </div>
+    <div class="task" data-state="completed">
+      <div class="t-ico"><i class="ph ph-check" aria-hidden="true"></i></div>
+      <div class="t-name">Zip ready · <code>concert-recordings.zip</code></div>
+      <div class="t-status"><button class="btn btn-default btn-sm">Download</button></div>
+    </div>
+    <div class="task" data-state="failed">
+      <div class="t-ico"><i class="ph ph-x" aria-hidden="true"></i></div>
+      <div class="t-name">Remote upload failed</div>
+      <div class="t-err">Destination out of space (needs 12.1 GB, 3.4 GB free)</div>
+      <div class="t-status"><button class="btn btn-default btn-sm"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i>Retry</button></div>
+    </div>
+  </div>
+
+  <div class="head" style="margin-top: 8px;">
+    <span class="ix">02</span>
+    <span class="t">Progress primitives</span>
+  </div>
+  <div class="note">
+    Three bar heights: <b>2px</b> hairline (inside rows, under toolbars), <b>4px</b> default (tasks, transfers), <b>8px</b> emphasis (storage bar). Fill is <code>--yellow-solid</code> on <code>--component-bg-active</code> — green/red only as terminal states, never as in-flight colors. Spinners are a yellow arc on <code>--component-bg-active</code> at 16 / 20 / 28px.
+  </div>
+
+  <div class="prim-grid">
+    <span class="lab">2px hairline</span>
+    <div class="pbar h2"><div class="fill" style="width: 38%;"></div></div>
+    <span class="lab">4px default</span>
+    <div class="pbar h4"><div class="fill" style="width: 64%;"></div></div>
+    <span class="lab">8px emphasis</span>
+    <div class="pbar h8"><div class="fill" style="width: 82%;"></div></div>
+    <span class="lab">spinners 16 · 20 · 28</span>
+    <span style="display: inline-flex; gap: 16px; align-items: center;">
+      <span class="spinner s16" role="status" aria-label="Loading"></span>
+      <span class="spinner s20" role="status" aria-label="Loading"></span>
+      <span class="spinner s28" role="status" aria-label="Loading"></span>
+    </span>
+  </div>
+
+</div>
+</body></html>

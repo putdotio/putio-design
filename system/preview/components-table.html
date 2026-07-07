@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap — applies html.dark before paint; full comment in components-tabs.html. */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · components · data table</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="./_components.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
+  .note b { color: var(--text); }
+  .note code { font-family: var(--font-mono); color: var(--yellow-text-secondary); font-size: 11.5px; }
+
+  /* ── Data table ──
+     File-browser first: divider rows (--list-item-border), no zebra
+     stripes, no card-per-row. Selection = --list-item-bg-active. */
+  .dt { width: 100%; border-collapse: collapse; }
+  .dt th {
+    font-family: var(--font-ui-mono); font-size: 11px; font-weight: 400;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--text-secondary); text-align: left;
+    padding: 0 12px; height: 36px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  .dt th button {
+    all: unset; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 5px;
+    font: inherit; color: inherit; letter-spacing: inherit;
+  }
+  .dt th button:hover { color: var(--text); }
+  .dt th[aria-sort] button { color: var(--text); }
+  .dt th i { font-size: 12px; }
+  .dt td {
+    padding: 0 12px; height: 44px;
+    border-bottom: 1px solid var(--list-item-border);
+    font-size: var(--fs-sm); color: var(--text);
+    background: var(--list-item-bg);
+  }
+  .dt tr:hover td { background: var(--list-item-bg-hover); }
+  .dt tr[data-state="selected"] td { background: var(--list-item-bg-active); }
+  .dt .c-check { width: 36px; padding-right: 0; }
+  .dt input[type="checkbox"] {
+    width: 15px; height: 15px; margin: 0; display: block;
+    accent-color: var(--yellow-solid); cursor: pointer;
+  }
+  .dt .fname {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--font-mono); font-size: 12.5px;
+    max-width: 480px;
+  }
+  /* Ellipsis needs a block container — text-overflow does nothing on the
+     flex box itself, so the name sits in its own span. */
+  .dt .fname .t { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dt .fname i { font-size: 17px; color: var(--yellow-solid); flex-shrink: 0; }
+  .dt .fname i.plain { color: var(--text-secondary); }
+  .dt .num-cell {
+    text-align: right;
+    font-family: var(--font-ui-mono); font-variant-numeric: tabular-nums;
+    font-size: 12px; color: var(--text-secondary);
+    white-space: nowrap;
+  }
+  .dt th.num-h { text-align: right; }
+  .dt .row-actions { width: 40px; text-align: right; }
+  .dt .row-actions button {
+    all: unset; cursor: pointer; padding: 6px; border-radius: var(--radius-sm);
+    color: var(--text-secondary); font-size: 15px; line-height: 0;
+  }
+  .dt .row-actions button:hover { background: var(--component-bg-hover); color: var(--text); }
+
+  /* ── Selection toolbar — replaces the header row while ≥1 row selected.
+     Sticky over the scrolling table at --z-sticky. */
+  .sel-bar {
+    display: flex; align-items: center; gap: 8px;
+    height: 44px; padding: 0 10px 0 12px;
+    background: var(--component-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    position: sticky; top: 0; z-index: var(--z-sticky);
+  }
+  .sel-bar .count { font-size: var(--fs-sm); font-weight: var(--fw-medium); color: var(--text); margin-right: 8px; }
+  .sel-bar .spacer { flex: 1; }
+</style></head>
+<body>
+<div class="preview-shell">
+
+  <div class="head">
+    <span class="ix">01</span>
+    <span class="t">Files table</span>
+    <span class="n">DataTable</span>
+  </div>
+  <div class="note">
+    Rows divide with <code>--list-item-border</code> — <b>no zebra stripes, no per-row cards</b>. Hover is <code>--list-item-bg-hover</code>, selection <code>--list-item-bg-active</code>. Headers are 11px uppercase <code>--font-ui-mono</code>; the sorted column carries <code>aria-sort</code> and a caret. Size and date columns right-align in <code>--font-ui-mono</code> with tabular numerals. Filenames render raw, in <code>--font-mono</code>, ellipsized — never parsed.
+  </div>
+
+  <table class="dt" aria-label="Files">
+    <thead>
+      <tr>
+        <th class="c-check"><input type="checkbox" id="dt-select-all" aria-label="Select all" checked></th>
+        <th><button>Name</button></th>
+        <th class="num-h"><button>Size</button></th>
+        <th class="num-h" aria-sort="descending"><button>Modified <i class="ph ph-caret-down" aria-hidden="true"></i></button></th>
+        <th class="row-actions"><span class="sr-only" style="position:absolute;clip:rect(0 0 0 0);">Actions</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-state="selected">
+        <td class="c-check"><input type="checkbox" aria-label="Select row" checked></td>
+        <td><span class="fname"><i class="ph-fill ph-folder" aria-hidden="true"></i><span class="t">incoming</span></span></td>
+        <td class="num-cell">18.4 GB</td>
+        <td class="num-cell">2026-07-01 23:41</td>
+        <td class="row-actions"><button aria-label="Row actions"><i class="ph ph-dots-three" aria-hidden="true"></i></button></td>
+      </tr>
+      <tr data-state="selected">
+        <td class="c-check"><input type="checkbox" aria-label="Select row" checked></td>
+        <td><span class="fname"><i class="ph ph-file-video plain" aria-hidden="true"></i><span class="t">Glacier.Hike.2024.2160p.HDR.x265-GROUP.mkv</span></span></td>
+        <td class="num-cell">12.1 GB</td>
+        <td class="num-cell">2026-06-29 08:12</td>
+        <td class="row-actions"><button aria-label="Row actions"><i class="ph ph-dots-three" aria-hidden="true"></i></button></td>
+      </tr>
+      <tr data-state="selected">
+        <td class="c-check"><input type="checkbox" aria-label="Select row" checked></td>
+        <td><span class="fname"><i class="ph ph-file-audio plain" aria-hidden="true"></i><span class="t">field-recordings-batch-07.flac</span></span></td>
+        <td class="num-cell">840 MB</td>
+        <td class="num-cell">2026-06-27 19:03</td>
+        <td class="row-actions"><button aria-label="Row actions"><i class="ph ph-dots-three" aria-hidden="true"></i></button></td>
+      </tr>
+      <tr>
+        <td class="c-check"><input type="checkbox" aria-label="Select row"></td>
+        <td><span class="fname"><i class="ph ph-file-zip plain" aria-hidden="true"></i><span class="t">backup-photos-2025.zip</span></span></td>
+        <td class="num-cell">64.2 GB</td>
+        <td class="num-cell">2026-06-25 11:30</td>
+        <td class="row-actions"><button aria-label="Row actions"><i class="ph ph-dots-three" aria-hidden="true"></i></button></td>
+      </tr>
+      <tr>
+        <td class="c-check"><input type="checkbox" aria-label="Select row"></td>
+        <td><span class="fname"><i class="ph ph-file plain" aria-hidden="true"></i><span class="t">notes.txt</span></span></td>
+        <td class="num-cell">2 KB</td>
+        <td class="num-cell">2026-06-20 14:55</td>
+        <td class="row-actions"><button aria-label="Row actions"><i class="ph ph-dots-three" aria-hidden="true"></i></button></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="head" style="margin-top: 8px;">
+    <span class="ix">02</span>
+    <span class="t">Selection toolbar</span>
+  </div>
+  <div class="note">
+    When &ge;1 row is selected, the toolbar appears above the table (sticky, <code>--z-sticky</code>). Actions are quiet <code>btn-default</code> — the destructive one keeps its red only in the confirm step, not in the bar. Esc or the &times; clears selection.
+  </div>
+
+  <div class="sel-bar" role="toolbar" aria-label="Selection actions">
+    <span class="count">3 selected</span>
+    <button class="btn btn-default btn-sm"><i class="ph ph-download-simple" aria-hidden="true"></i>Download</button>
+    <button class="btn btn-default btn-sm"><i class="ph ph-file-zip" aria-hidden="true"></i>Zip</button>
+    <button class="btn btn-default btn-sm"><i class="ph ph-folder-simple" aria-hidden="true"></i>Move</button>
+    <button class="btn btn-default btn-sm"><i class="ph ph-trash" aria-hidden="true"></i>Trash</button>
+    <span class="spacer"></span>
+    <button class="btn btn-default btn-sm btn-icon" aria-label="Clear selection"><i class="ph ph-x" aria-hidden="true"></i></button>
+  </div>
+
+</div>
+<script>
+  /* 3 of 5 rows selected — the select-all checkbox shows the mixed state. */
+  document.getElementById('dt-select-all').indeterminate = true;
+</script>
+</body></html>
