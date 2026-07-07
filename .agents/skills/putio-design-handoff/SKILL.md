@@ -69,7 +69,7 @@ rg -n "tokens.json|tokens.base.css|tools/build-tokens|yellow-solid|button-primar
    - `tv-shell.css` must stay `!important`-free — the check greps the whole file, so comments mentioning `!important` fail too.
    - New preview cards: strip the `@dsCard` marker, register embeds in `system/design-system.html`, and remember axe runs on every card in both modes (3:1 floor) unless `data-theme-lock` pins one mode.
    - If a Claude prototype value conflicts with `DESIGN.md`, `system/README.md`, or token checks, prefer the repo contract unless the user explicitly asks to change it.
-   - Governance claims in the project (e.g. "this project is the sole authoring layer; the repo's `tokens/` is generated output") are decisions for the maintainer — surface them, don't silently adopt them.
+   - Governance (decided 2026-07): this repo's `tokens/**/*.tokens.json` is the canonical authoring source; the design project is the design layer and mirrors the built values. Token changes in a handoff are proposals until they land here. If the project's docs re-assert authoring-layer status, correct them via feedback (see `uploads/putio-design-governance-2026-07.md` in the project).
 
 6. Verify.
    - For investigation-only work, at least run targeted checks that prove the answer.
