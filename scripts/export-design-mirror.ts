@@ -20,9 +20,9 @@ type JsonObject = Record<string, unknown>;
 
 type MirrorToken = {
   $type?: string;
-  $value: string;
+  $value: string | number;
   $description?: string;
-  $extensions?: { "putio.mode"?: { dark?: string } };
+  $extensions?: { "putio.mode"?: { dark?: string | number } };
 };
 
 type FlatToken = { cssName: string; mode: "light" | "dark" | "global" | "tv"; value: string | number };
@@ -47,11 +47,11 @@ async function main() {
   const flatRaw = JSON.parse(await readFile(path.join(root, "dist/tokens.flat.json"), "utf8")) as Record<string, FlatToken>;
   const foundation = await readFile(path.join(root, "tokens/foundation.css"), "utf8");
 
-  const byCss = new Map<string, Partial<Record<FlatToken["mode"], string>>>();
+  const byCss = new Map<string, Partial<Record<FlatToken["mode"], string | number>>>();
   for (const token of Object.values(flatRaw)) {
     const cssName = token.cssName.replace(/^--/, "");
     const modes = byCss.get(cssName) ?? {};
-    modes[token.mode] = String(token.value);
+    modes[token.mode] = token.value;
     byCss.set(cssName, modes);
   }
 
@@ -121,13 +121,13 @@ async function main() {
       if (!isToken(token)) continue;
       const ours = byCss.get(cssNameOf(group, key));
       const light = ours?.light ?? ours?.global;
-      if (light !== undefined && String(token.$value).includes("{") && resolveRef(String(token.$value), "light") !== light) {
+      if (light !== undefined && String(token.$value).includes("{") && resolveRef(String(token.$value), "light") !== String(light)) {
         warnings.push(`ref mismatch (replaced with repo literal): ${group}.${key} resolved to ${resolveRef(String(token.$value), "light")}, repo builds ${light}`);
         token.$value = light;
       }
       const modeExt = token.$extensions?.["putio.mode"];
       const dark = ours?.dark ?? ours?.global;
-      if (modeExt?.dark !== undefined && dark !== undefined && String(modeExt.dark).includes("{") && resolveRef(String(modeExt.dark), "dark") !== dark) {
+      if (modeExt?.dark !== undefined && dark !== undefined && String(modeExt.dark).includes("{") && resolveRef(String(modeExt.dark), "dark") !== String(dark)) {
         warnings.push(`dark ref mismatch (replaced with repo literal): ${group}.${key} resolved to ${resolveRef(String(modeExt.dark), "dark")}, repo builds ${dark}`);
         modeExt.dark = dark;
       }
