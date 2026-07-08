@@ -44,9 +44,9 @@ site stylesheet (`system/tokens.css`) and the package stylesheet
 (`dist/css/tokens.css`, exported as `@putdotio/design/css`) are generated from
 the same source. Guide and component CSS should consume custom properties rather
 than hard-coded palette values. Brand yellow is `var(--yellow-solid)` —
-canonical `#FDCE45`; the emitted hsl form and the `--yellow-solid-hover` →
-`--button-primary-bg-hover` derivation are specified in
-[`../DESIGN.md`](../DESIGN.md) front-matter and the repo's
+canonical `#FDCE45`; the emitted hsl form is pinned in
+[`../DESIGN.md`](../DESIGN.md) front-matter, and the `--yellow-solid-hover` →
+`--button-primary-bg-hover` derivation is specified in the repo's
 `docs/DISTRIBUTION.md`.
 
 Stacking and breakpoints are tokenized (`--z-*`, `--bp-*`) and the root
@@ -140,10 +140,11 @@ hand-written HTML, and so devtools can read the component's state at a glance.
 ### Compound parts via `data-slot`
 
 shadcn marks parts of compound components with `data-slot="card-header"`,
-`data-slot="card-title"`, etc. We do the same on the modal and folder picker
+`data-slot="card-title"`, etc. We do the same on the folder picker
 (`data-slot="modal" / "modal-header" / "modal-body" / "modal-footer"`) and the
-auth card. This lets external CSS tweak one part without inventing nested class
-chains.
+auth card in `components-form-layouts.html` (`data-slot="auth" / "auth-header"
+/ "auth-body"`). This lets external CSS tweak one part without inventing
+nested class chains.
 
 ## Design variants
 

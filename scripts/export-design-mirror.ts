@@ -102,13 +102,16 @@ async function main() {
   // alias structure no longer encodes the repo's truth. Mismatched refs are
   // replaced with the repo literal so the mirror always carries repo values;
   // the warning is the signal to fix the alias upstream.
-  const resolveRef = (value: string, depth = 0): string => {
+  // Dark-context refs resolve through the target's dark value when it has one,
+  // so a dark alias is never checked against the target's light literal.
+  const resolveRef = (value: string, mode: "light" | "dark", depth = 0): string => {
     if (depth > 8) throw new Error(`circular ref chain at ${value}`);
     return value.replace(/\{([^}]+)\}/g, (_match, refPath: string) => {
       const [group, key] = refPath.split(".", 2) as [string, string];
       const node = (template[group] as JsonObject | undefined)?.[key];
       if (!isToken(node)) throw new Error(`unknown ref {${refPath}}`);
-      return resolveRef(String(node.$value), depth + 1);
+      const raw = mode === "dark" ? node.$extensions?.["putio.mode"]?.dark ?? node.$value : node.$value;
+      return resolveRef(String(raw), mode, depth + 1);
     });
   };
   for (const group of groups) {
@@ -118,14 +121,14 @@ async function main() {
       if (!isToken(token)) continue;
       const ours = byCss.get(cssNameOf(group, key));
       const light = ours?.light ?? ours?.global;
-      if (light !== undefined && String(token.$value).includes("{") && resolveRef(String(token.$value)) !== light) {
-        warnings.push(`ref mismatch (replaced with repo literal): ${group}.${key} resolved to ${resolveRef(String(token.$value))}, repo builds ${light}`);
+      if (light !== undefined && String(token.$value).includes("{") && resolveRef(String(token.$value), "light") !== light) {
+        warnings.push(`ref mismatch (replaced with repo literal): ${group}.${key} resolved to ${resolveRef(String(token.$value), "light")}, repo builds ${light}`);
         token.$value = light;
       }
       const modeExt = token.$extensions?.["putio.mode"];
       const dark = ours?.dark ?? ours?.global;
-      if (modeExt?.dark !== undefined && dark !== undefined && String(modeExt.dark).includes("{") && resolveRef(String(modeExt.dark)) !== dark) {
-        warnings.push(`dark ref mismatch (replaced with repo literal): ${group}.${key} resolved to ${resolveRef(String(modeExt.dark))}, repo builds ${dark}`);
+      if (modeExt?.dark !== undefined && dark !== undefined && String(modeExt.dark).includes("{") && resolveRef(String(modeExt.dark), "dark") !== dark) {
+        warnings.push(`dark ref mismatch (replaced with repo literal): ${group}.${key} resolved to ${resolveRef(String(modeExt.dark), "dark")}, repo builds ${dark}`);
         modeExt.dark = dark;
       }
     }

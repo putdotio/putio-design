@@ -17,7 +17,7 @@ description: Import, inspect, implement, verify, and respond to design handoffs 
    **Option A — Claude Design project URL** (`https://claude.ai/design/p/<project-uuid>`): use the `DesignSync` tool (load it via ToolSearch; it needs one-time auth via `/design-login` — ask the user to run that if calls return an authorization error).
    - `get_project` with the UUID from the URL to confirm the name/type, then `list_files` for the full inventory.
    - Fetch every relevant text file with `get_file` and write it verbatim to `tmp/design-handoff/project/<same path>`. Fan the fetches out across parallel subagents (they can load DesignSync via ToolSearch too) so file contents stay out of the main context; have each agent report per-file byte counts and `truncated` flags.
-   - Skip binaries you don't need: `uploads/`, `scraps/`, `.thumbnail`, PNG assets. Fetch `components/` and `templates/` only as reference material — they are never imported.
+   - Skip binaries you don't need: `scraps/`, `.thumbnail`, PNG assets. Skip `uploads/` screenshots, but fetch its markdown notes (prior feedback and the governance decision note) when you need round history. Fetch `components/` and `templates/` only as reference material — they are never imported.
 
    **Option B — export/bundle URL**: download and extract:
 
