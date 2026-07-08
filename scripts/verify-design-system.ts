@@ -221,6 +221,7 @@ async function checkHtmlLinks() {
 
   for (const file of htmlFiles) {
     const html = await readFile(file, "utf8");
+    assert(!/^<!--\s*@dsCard/.test(html), `${path.relative(root, file)} still carries a design-tool @dsCard marker — strip it on import`);
     for (const match of html.matchAll(attrPattern)) {
       const target = match[1];
       if (
