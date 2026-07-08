@@ -1,6 +1,6 @@
 # Feedback Template
 
-Save feedback to `tmp/design-handoff/feedback-to-design-tool.md` unless the user requests another path.
+The save path lives in SKILL.md step 8.
 
 ```md
 # Feedback for Claude Design

@@ -19,11 +19,8 @@ Use this when comparing a Claude Design prototype bundle with this repo.
 
 ## Fixed Checks
 
-- Yellow brand fill: `#FDCE45` / `hsl(44.7, 97.9%, 63.1%)`
-- Primary hover: `#F3C435` / `hsl(45, 89%, 58%)` (watch for the recurring `#F3C437` caption typo)
+Fixed values and gates live in SKILL.md step 5. Unique to this reference:
+
 - `--solid-foreground` is mode-aware (light: black, 6.5:1 on the gray solid; dark: white, 4.96:1) — reject graph versions that flatten it to global white
-- Token source edits happen under `tokens/`
-- Generated token artifacts must stay current after `pnpm tokens:build`
-- `DESIGN.md` front-matter typography sizes are string-compared to built `fontSize.base/sm/display` values
-- `tv-shell.css`: no `!important` anywhere in the file (comments included); TV tokens scoped to `.tv`
+- Watch for the recurring `#F3C437` hover-caption typo (canonical hover hex is in SKILL.md step 5)
 - Platform-native adapters stay in consuming platform repos

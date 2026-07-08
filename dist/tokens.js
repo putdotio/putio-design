@@ -1262,7 +1262,7 @@ export const tokens = {
     "type": "color",
     "mode": "dark",
     "value": "hsl(151, 55%, 41.5%)",
-    "originalValue": "hsl(151, 55%, 41.5%)"
+    "originalValue": "{color.green.light.solid}"
   },
   "color.green.dark.solidHover": {
     "cssName": "--green-solid-hover",
@@ -1430,7 +1430,7 @@ export const tokens = {
     "type": "color",
     "mode": "dark",
     "value": "hsl(358, 75%, 59%)",
-    "originalValue": "hsl(358, 75%, 59%)"
+    "originalValue": "{color.red.light.solid}"
   },
   "color.red.dark.solidHover": {
     "cssName": "--red-solid-hover",
@@ -1592,7 +1592,7 @@ export const tokens = {
     "type": "color",
     "mode": "dark",
     "value": "hsl(45, 89%, 58%)",
-    "originalValue": "hsl(45, 89%, 58%)",
+    "originalValue": "{color.yellow.light.solidHover}",
     "description": "Primary-button hover yellow for dark mode."
   },
   "color.yellow.dark.textSecondary": {
@@ -1685,7 +1685,7 @@ export const tokens = {
     "type": "fontFamily",
     "mode": "global",
     "value": "\"GT America\", sans-serif",
-    "originalValue": "\"GT America\", sans-serif"
+    "originalValue": "{typography.fontFamily.sans}"
   },
   "typography.fontFamily.uiMono": {
     "cssName": "--font-ui-mono",
@@ -1699,7 +1699,7 @@ export const tokens = {
     "type": "fontFamily",
     "mode": "global",
     "value": "\"Berkeley Mono\", \"GT America Mono\", monospace",
-    "originalValue": "\"Berkeley Mono\", \"GT America Mono\", monospace"
+    "originalValue": "\"Berkeley Mono\", {typography.fontFamily.uiMono}"
   },
   "typography.fontSize.xs": {
     "cssName": "--fs-xs",
@@ -2058,7 +2058,7 @@ export const tokens = {
     "type": "color",
     "mode": "light",
     "value": "hsl(0, 0%, 97.3%)",
-    "originalValue": "hsl(0, 0%, 97.3%)"
+    "originalValue": "{color.neutral.light.bgSecondary}"
   },
   "surface.light.appBg": {
     "cssName": "--app-bg",
@@ -2072,7 +2072,7 @@ export const tokens = {
     "type": "color",
     "mode": "light",
     "value": "hsl(0, 0%, 100%)",
-    "originalValue": "hsl(0, 0%, 100%)"
+    "originalValue": "{surface.light.appBg}"
   },
   "surface.light.navItemBg": {
     "cssName": "--nav-item-bg",
@@ -2086,14 +2086,14 @@ export const tokens = {
     "type": "color",
     "mode": "light",
     "value": "hsl(0, 0%, 95.1%)",
-    "originalValue": "hsl(0, 0%, 95.1%)"
+    "originalValue": "{color.neutral.light.componentBg}"
   },
   "surface.light.navItemBgActive": {
     "cssName": "--nav-item-bg-active",
     "type": "color",
     "mode": "light",
     "value": "hsl(0, 0%, 95.1%)",
-    "originalValue": "hsl(0, 0%, 95.1%)"
+    "originalValue": "{color.neutral.light.componentBg}"
   },
   "surface.light.listItemBg": {
     "cssName": "--list-item-bg",
@@ -2107,14 +2107,14 @@ export const tokens = {
     "type": "color",
     "mode": "light",
     "value": "hsl(0, 0%, 97.3%)",
-    "originalValue": "hsl(0, 0%, 97.3%)"
+    "originalValue": "{color.neutral.light.bgSecondary}"
   },
   "surface.light.listItemBgActive": {
     "cssName": "--list-item-bg-active",
     "type": "color",
     "mode": "light",
     "value": "hsl(0, 0%, 97.3%)",
-    "originalValue": "hsl(0, 0%, 97.3%)"
+    "originalValue": "{color.neutral.light.bgSecondary}"
   },
   "surface.light.listItemBorder": {
     "cssName": "--list-item-border",
@@ -2128,35 +2128,35 @@ export const tokens = {
     "type": "color",
     "mode": "light",
     "value": "hsl(0, 0%, 95.1%)",
-    "originalValue": "hsl(0, 0%, 95.1%)"
+    "originalValue": "{color.neutral.light.componentBg}"
   },
   "surface.light.segmentedControlBgActive": {
     "cssName": "--segmented-control-bg-active",
     "type": "color",
     "mode": "light",
     "value": "hsl(0, 0%, 100%)",
-    "originalValue": "hsl(0, 0%, 100%)"
+    "originalValue": "{surface.light.appBg}"
   },
   "surface.light.transferListItemCompletingBg": {
     "cssName": "--transfer-list-item-completing-bg",
     "type": "color",
     "mode": "light",
     "value": "hsl(85, 76.0%, 92.3%)",
-    "originalValue": "hsl(85, 76.0%, 92.3%)"
+    "originalValue": "{color.transfer.light.lime3}"
   },
   "surface.light.transferListItemDownloadingBg": {
     "cssName": "--transfer-list-item-downloading-bg",
     "type": "color",
     "mode": "light",
     "value": "hsl(85, 76.0%, 92.3%)",
-    "originalValue": "hsl(85, 76.0%, 92.3%)"
+    "originalValue": "{color.transfer.light.lime3}"
   },
   "surface.light.transferListItemFinishedBg": {
     "cssName": "--transfer-list-item-finished-bg",
     "type": "color",
     "mode": "light",
     "value": "hsl(0, 0%, 97.3%)",
-    "originalValue": "hsl(0, 0%, 97.3%)"
+    "originalValue": "{color.neutral.light.bgSecondary}"
   },
   "surface.light.transferListItemPassiveBg": {
     "cssName": "--transfer-list-item-passive-bg",
@@ -2170,14 +2170,14 @@ export const tokens = {
     "type": "color",
     "mode": "light",
     "value": "hsl(0, 0%, 9.0%)",
-    "originalValue": "hsl(0, 0%, 9.0%)"
+    "originalValue": "{color.neutral.light.text}"
   },
   "surface.light.loContrast": {
     "cssName": "--lo-contrast",
     "type": "color",
     "mode": "light",
     "value": "hsl(0, 0%, 99.0%)",
-    "originalValue": "hsl(0, 0%, 99.0%)"
+    "originalValue": "{color.neutral.light.bg}"
   },
   "surface.light.transparent": {
     "cssName": "--transparent",
@@ -2219,7 +2219,7 @@ export const tokens = {
     "type": "color",
     "mode": "dark",
     "value": "hsl(0, 0%, 8.5%)",
-    "originalValue": "hsl(0, 0%, 8.5%)"
+    "originalValue": "{surface.dark.appBg}"
   },
   "surface.dark.navItemBg": {
     "cssName": "--nav-item-bg",
@@ -2233,14 +2233,14 @@ export const tokens = {
     "type": "color",
     "mode": "dark",
     "value": "hsl(0, 0%, 13.6%)",
-    "originalValue": "hsl(0, 0%, 13.6%)"
+    "originalValue": "{color.neutral.dark.componentBg}"
   },
   "surface.dark.navItemBgActive": {
     "cssName": "--nav-item-bg-active",
     "type": "color",
     "mode": "dark",
     "value": "hsl(0, 0%, 13.6%)",
-    "originalValue": "hsl(0, 0%, 13.6%)"
+    "originalValue": "{color.neutral.dark.componentBg}"
   },
   "surface.dark.listItemBg": {
     "cssName": "--list-item-bg",
@@ -2254,14 +2254,14 @@ export const tokens = {
     "type": "color",
     "mode": "dark",
     "value": "hsl(0, 0%, 11.0%)",
-    "originalValue": "hsl(0, 0%, 11.0%)"
+    "originalValue": "{color.neutral.dark.bgSecondary}"
   },
   "surface.dark.listItemBgActive": {
     "cssName": "--list-item-bg-active",
     "type": "color",
     "mode": "dark",
     "value": "hsl(0, 0%, 11.0%)",
-    "originalValue": "hsl(0, 0%, 11.0%)"
+    "originalValue": "{color.neutral.dark.bgSecondary}"
   },
   "surface.dark.listItemBorder": {
     "cssName": "--list-item-border",
@@ -2275,14 +2275,14 @@ export const tokens = {
     "type": "color",
     "mode": "dark",
     "value": "hsl(0, 0%, 8.5%)",
-    "originalValue": "hsl(0, 0%, 8.5%)"
+    "originalValue": "{surface.dark.appBg}"
   },
   "surface.dark.segmentedControlBgActive": {
     "cssName": "--segmented-control-bg-active",
     "type": "color",
     "mode": "dark",
     "value": "hsl(0, 0%, 13.6%)",
-    "originalValue": "hsl(0, 0%, 13.6%)"
+    "originalValue": "{color.neutral.dark.componentBg}"
   },
   "surface.dark.transferListItemCompletingBg": {
     "cssName": "--transfer-list-item-completing-bg",
@@ -2303,7 +2303,7 @@ export const tokens = {
     "type": "color",
     "mode": "dark",
     "value": "hsl(0, 0%, 11.0%)",
-    "originalValue": "hsl(0, 0%, 11.0%)"
+    "originalValue": "{color.neutral.dark.bgSecondary}"
   },
   "surface.dark.transferListItemPassiveBg": {
     "cssName": "--transfer-list-item-passive-bg",
@@ -2317,14 +2317,14 @@ export const tokens = {
     "type": "color",
     "mode": "dark",
     "value": "hsl(0, 0%, 93.0%)",
-    "originalValue": "hsl(0, 0%, 93.0%)"
+    "originalValue": "{color.neutral.dark.text}"
   },
   "surface.dark.loContrast": {
     "cssName": "--lo-contrast",
     "type": "color",
     "mode": "dark",
     "value": "hsl(0, 0%, 8.5%)",
-    "originalValue": "hsl(0, 0%, 8.5%)"
+    "originalValue": "{color.neutral.dark.bg}"
   },
   "surface.dark.overlayInline": {
     "cssName": "--overlay-inline",

@@ -93,15 +93,5 @@ pnpm design:mirror
    - Push the three files to the project's `system/` with DesignSync (`finalize_plan` → `write_files` with `localPath`). `CLAUDE.md` is write-protected; token mirror files are not.
 
 8. Write Claude Design feedback.
-   - Save feedback under `tmp/design-handoff/feedback-to-design-tool.md` unless the user asks for another path.
-   - Write it as a copyable note for Claude Design, not as a repo changelog.
-   - Use `references/feedback-template.md` for the feedback shape.
-   - Include:
-     - What was accepted and implemented.
-     - Discrepancies between prototype claims and repo-verified truth.
-     - Failed checks or stale captions/values, with the exact expected value.
-     - Prototype artifacts intentionally not imported.
-     - Repo-specific pipeline differences Claude Design should honor next time.
-     - Verification evidence, summarized without leaking local machine paths.
-
-Keep feedback factual and actionable. Prefer examples like "`--yellow-solid-hover` renders as `#F3C435`; one caption said `#F3C437`" over broad criticism.
+   - Save it to `tmp/design-handoff/feedback-to-design-tool.md` unless the user asks for another path, written as a copyable note for Claude Design, not a repo changelog.
+   - Follow `references/feedback-template.md` for the sections, tone, and worked example.

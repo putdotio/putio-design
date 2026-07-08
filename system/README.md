@@ -43,18 +43,17 @@ The canonical source is DTCG-compatible JSON in [`../tokens`](../tokens). This
 site stylesheet (`system/tokens.css`) and the package stylesheet
 (`dist/css/tokens.css`, exported as `@putdotio/design/css`) are generated from
 the same source. Guide and component CSS should consume custom properties rather
-than hard-coded palette values. Brand yellow is emitted as
-`var(--yellow-solid)`; its CSS token value is `hsl(44.7, 97.9%, 63.1%)`, the
-hsl form of canonical `#FDCE45`. Primary hover feedback uses
-`--yellow-solid-hover`, exposed to consumers as `--button-primary-bg-hover`.
+than hard-coded palette values. Brand yellow is `var(--yellow-solid)` —
+canonical `#FDCE45`; the emitted hsl form and the `--yellow-solid-hover` →
+`--button-primary-bg-hover` derivation are specified in
+[`../DESIGN.md`](../DESIGN.md) front-matter and the repo's
+`docs/DISTRIBUTION.md`.
 
-Stacking uses the token scale — `--z-dropdown` (1000) < `--z-sticky` (1100) <
-`--z-modal` (1300) < `--z-notification` (1400) < `--z-tooltip` (1500). Never
-invent z-index numbers. Breakpoints (`--bp-sm`/`--bp-md`/`--bp-lg` =
-640/768/1280px) mirror the product's responsive tiers; they are generator-facing
-values — CSS media queries can't read custom properties, so write the literal
-px in `@media` and keep it in sync with the token. The root font-size is
-responsive like production: 14px, stepping to 15px at ≥ `--bp-lg`.
+Stacking and breakpoints are tokenized (`--z-*`, `--bp-*`) and the root
+font-size is responsive; the canonical values live in
+[`../DESIGN.md`](../DESIGN.md) (Layout & Spacing, Typography). Guide-specific
+rule: CSS media queries can't read custom properties, so write the literal px
+in `@media` and keep it in sync with the `--bp-*` token.
 
 Web package consumers import the package CSS export:
 
@@ -71,13 +70,12 @@ For **TV preview cards**, also load `preview/tv-shell.css` — it adds the `.tv`
 
 ## Core rules
 
-- **Yellow `#FDCE45` is the brand constant at rest.** Never gradient, tint, or replace `--yellow-solid`. The rule applies to the resting state — `--yellow-solid-hover` (`#F3C435`) is a peer brand color with its own canonical hex, used for hover in both modes. Primary CTAs, folder icons, button/nav/TV focus rings (at 35% alpha), progress bars.
+- **Yellow `#FDCE45` is the brand constant at rest** — full rule and approved uses in [`../DESIGN.md`](../DESIGN.md) (Colors). Guide specifics: `--yellow-solid-hover` (`#F3C435`) is the hover peer with its own canonical hex in both modes, and focus rings use the yellow at 35% alpha (`--shadow-focus-color`).
 - **Yellow as text on light needs `--yellow-text-secondary`** (≈5:1, AA) — the brand `--yellow-solid` is fill-only on light backgrounds.
 - **Labels on yellow** use `--primary-foreground` (`hsl(38, 65%, 10%)` — warm dark, never pure black). Passes AA on the yellow fill without feeling "hard."
 - **Icons: Phosphor-style inline SVG.** No emoji, ever.
 - **One design, two modes.** Light and dark are the same markup and components with different token values. Toggle `.dark` on `<html>`; do not fork the page or rebuild a light-specific copy. Components must consume semantic tokens (`--bg`, `--text`, `--border`, `--accent`, …), not raw `#hex` or `hsl()`.
-- **Fields stay quiet.** Use `--field-bg`, `--field-border`, and `--field-ring` for text entry. Invalid fields use `aria-invalid="true"` with red border/text only, never a red fill.
-- **Panels are shared.** Use `--panel-bg`, `--panel-border`, `--panel-radius`, and `--panel-shadow` for raised cards and auth-style shells instead of screen-specific variables.
+- **Fields and panels use the shared aliases** (`--field-*`, `--panel-*`) — full rules, including the `aria-invalid` red-border-only requirement, in [`../DESIGN.md`](../DESIGN.md) (Components).
 - **Content-agnostic.** put.io doesn't know what the user's files are. Never parse `The.Wire.S03E04.1080p.mkv` into `The Wire`. Raw filenames only. See the root [`DESIGN.md`](../DESIGN.md) for the full principle.
 
 ## Theme System
