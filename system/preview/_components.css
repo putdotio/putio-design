@@ -26,7 +26,7 @@
 button {
   font-family: var(--font-sans);
   font-weight: var(--fw-medium);
-  font-size: calc(var(--fs-base) * var(--tw-fs, 1));
+  font-size: calc(var(--fs-sm) * var(--tw-fs, 1));  /* production button = fontSize 0 (0.875rem) */
   /* Real starting bg so transition has something to interpolate
      from — otherwise UA `buttonface` paints silver until hover. */
   background-color: transparent;
@@ -71,9 +71,12 @@ button i { font-size: 14px; line-height: 1; display: inline-flex; }
 /* Variants \u2014 token-driven. Foregrounds read from --*-foreground
    tokens in tokens.css so "what color on top" lives in one place.
 
-   CONTRAST: solid success/danger/info fills are tuned for APCA Lc 60+
-   on white text (WCAG 2.x AA-large, not AA-normal). Keep them at md/lg
-   sizes — at xs/sm the label drops below the large-text threshold. */
+   CONTRAST CONTRACT: solid success/danger/info fills are tuned for
+   APCA Lc 60+ on white text (WCAG 2.x AA-large, not AA-normal). Mark
+   specimens that use them with data-contrast-contract="apca" so an
+   automated WCAG audit can tell an intentional APCA target from an
+   accidental low-contrast bug. Never use these variants at xs/sm — the
+   label drops below the large-text threshold. */
 .btn-primary  { background: var(--button-primary-bg); border-color: var(--button-primary-bg); color: var(--button-primary-fg); }
 .btn-primary:hover:not(:disabled)  { background: var(--button-primary-bg-hover); border-color: var(--button-primary-bg-hover); }
 .btn-success  { background: var(--button-success-bg); border-color: var(--button-success-bg); color: var(--button-success-fg); }
@@ -102,7 +105,7 @@ button.is-loading::after {
   width: 14px; height: 14px; border-radius: 50%;
   border: 1.5px solid currentColor; border-top-color: transparent;
   opacity: 0.75;
-  animation: btn-spin 0.7s linear infinite;
+  animation: spin 0.7s linear infinite;
 }
 .btn-primary.is-loading::after { color: var(--primary-foreground); }
 .btn-success.is-loading::after,
@@ -110,7 +113,27 @@ button.is-loading::after {
 .btn-info.is-loading::after,
 .btn-invert.is-loading::after { color: var(--destructive-foreground); }
 .btn-default.is-loading::after { color: var(--text); }
-@keyframes btn-spin { to { transform: rotate(360deg); } }
+/* Shared by every card that loads this file — do not redefine locally. */
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Floating-menu surface — one recipe for dropdowns, context menus,
+   submenus, and on-player popovers. Cards keep their item styles local. */
+.menu-pop {
+  min-width: 216px;
+  background: var(--component-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  padding: 4px;
+  z-index: var(--z-dropdown);
+  display: flex; flex-direction: column; gap: 1px;
+}
+.menu-pop .menu-label {
+  padding: 6px 10px 4px;
+  font-family: var(--font-ui-mono); font-size: 10.5px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-secondary);
+}
 
 /* Inputs/textareas/selects inherit nothing from the button reset.
    These are dropped for safety in case they ever do. */

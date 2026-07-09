@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap — applies html.dark before paint; full comment in components-tabs.html. */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · components · folder picker</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="./_components.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
+  .note b { color: var(--text); }
+  .note code { font-family: var(--font-mono); color: var(--yellow-text-secondary); font-size: 11.5px; }
+
+  /* ── Folder picker dialog — composes the shared .card surface + data-slot parts ── */
+  .picker {
+    width: 440px;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .picker [data-slot="modal-header"] {
+    padding: 16px 18px 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .picker h3 { margin: 0; font-size: 15px; font-weight: var(--fw-medium); color: var(--text); flex: 1; }
+  .picker .x {
+    all: unset; cursor: pointer; padding: 6px; border-radius: var(--radius-sm);
+    color: var(--text-secondary); font-size: 15px; line-height: 0;
+  }
+  .picker .x:hover { background: var(--component-bg-hover); color: var(--text); }
+
+  .picker [data-slot="modal-body"] {
+    background: var(--app-bg);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    max-height: 320px; overflow-y: auto;
+    padding: 6px;
+  }
+
+  /* Tree rows: 32px, 20px indent per level, folders always yellow. */
+  .tree { display: flex; flex-direction: column; gap: 1px; }
+  .tree [role="treeitem"] {
+    all: unset; cursor: pointer; box-sizing: border-box;
+    display: flex; align-items: center; gap: 8px;
+    height: 32px; padding: 0 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm); color: var(--text);
+    width: 100%;
+  }
+  .tree [role="treeitem"]:hover { background: var(--list-item-bg-hover); }
+  .tree [role="treeitem"][aria-selected="true"] { background: var(--list-item-bg-active); }
+  /* Crisper 2px double-ring instead of --shadow-focus: the soft 35%-alpha
+     halo washes out on 32px in-tray rows sitting on the raised card surface.
+     Open spec question relayed to the design tool — either this becomes the
+     documented list/tree focus recipe or these adopt the halo. */
+  .tree [role="treeitem"]:focus-visible {
+    box-shadow: 0 0 0 2px var(--yellow-solid), 0 0 0 3.5px var(--text);
+  }
+  .tree .caret { font-size: 12px; color: var(--text-secondary); width: 14px; flex-shrink: 0; }
+  .tree .caret.leaf { visibility: hidden; }
+  .tree [role="treeitem"] > .f-ico { font-size: 17px; color: var(--yellow-solid); flex-shrink: 0; }
+  .tree .f-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-mono); font-size: 12.5px; }
+  .tree .sel-check { margin-left: auto; font-size: 14px; color: var(--yellow-text-secondary); }
+  .tree [role="treeitem"][aria-disabled="true"] { cursor: default; }
+  .tree [role="treeitem"][aria-disabled="true"] .f-name,
+  .tree [role="treeitem"][aria-disabled="true"] .here { color: var(--text-secondary); }
+  .tree [role="treeitem"][aria-disabled="true"] > .f-ico { color: var(--text-secondary); }
+  .tree [role="treeitem"][aria-disabled="true"]:hover { background: transparent; }
+  .tree .here { margin-left: auto; font-family: var(--font-ui-mono); font-size: 10.5px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .ind-1 { padding-left: 28px !important; }
+  .ind-2 { padding-left: 48px !important; }
+
+  .picker [data-slot="modal-footer"] {
+    padding: 12px 18px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .picker [data-slot="modal-footer"] .spacer { flex: 1; }
+</style></head>
+<body>
+<div class="preview-shell">
+
+  <div class="head">
+    <span class="ix">01</span>
+    <span class="t">Folder picker — move destination</span>
+    <span class="n">FolderPicker</span>
+  </div>
+  <div class="note">
+    The move/copy destination dialog. Standard modal recipe with <code>data-slot</code> parts; the tree body drops to <code>--field-bg</code>-style <code>--app-bg</code> so rows read as content, not chrome. Rows are 32px, indent is 20px per level, and <b>folder icons are always <code>--yellow-solid</code></b>. The selected destination holds <code>--list-item-bg-active</code> plus a trailing check; the items&rsquo; <b>current location is visible but disabled</b> (<code>aria-disabled</code>, &ldquo;current&rdquo; tag) — hiding it would make the tree look wrong. Keyboard: <code>&uarr;&darr;</code> move, <code>&rarr;</code> expand, <code>&larr;</code> collapse, <code>&#8629;</code> confirms.
+  </div>
+
+  <div class="picker card" role="dialog" aria-label="Move 3 items" data-slot="modal">
+    <div data-slot="modal-header">
+      <h3>Move 3 items</h3>
+      <button class="x" aria-label="Close"><i class="ph ph-x" aria-hidden="true"></i></button>
+    </div>
+    <div data-slot="modal-body">
+      <div class="tree" role="tree" aria-label="Choose destination folder">
+        <button role="treeitem" aria-expanded="true">
+          <i class="ph ph-caret-down caret" aria-hidden="true"></i>
+          <i class="ph-fill ph-folder f-ico" aria-hidden="true"></i>
+          <span class="f-name">Your Files</span>
+        </button>
+        <button role="treeitem" class="ind-1" aria-disabled="true" aria-expanded="false">
+          <i class="ph ph-caret-right caret" aria-hidden="true"></i>
+          <i class="ph-fill ph-folder f-ico" aria-hidden="true"></i>
+          <span class="f-name">incoming</span>
+          <span class="here">current</span>
+        </button>
+        <button role="treeitem" class="ind-1" aria-expanded="true">
+          <i class="ph ph-caret-down caret" aria-hidden="true"></i>
+          <i class="ph-fill ph-folder f-ico" aria-hidden="true"></i>
+          <span class="f-name">archive</span>
+        </button>
+        <button role="treeitem" class="ind-2" aria-selected="true">
+          <i class="ph ph-caret-right caret leaf" aria-hidden="true"></i>
+          <i class="ph-fill ph-folder f-ico" aria-hidden="true"></i>
+          <span class="f-name">2025</span>
+          <i class="ph ph-check sel-check" aria-hidden="true"></i>
+        </button>
+        <button role="treeitem" class="ind-2">
+          <i class="ph ph-caret-right caret leaf" aria-hidden="true"></i>
+          <i class="ph-fill ph-folder f-ico" aria-hidden="true"></i>
+          <span class="f-name">2024</span>
+        </button>
+        <button role="treeitem" class="ind-1" aria-expanded="false">
+          <i class="ph ph-caret-right caret" aria-hidden="true"></i>
+          <i class="ph ph-folder-lock f-ico" aria-hidden="true"></i>
+          <span class="f-name">private</span>
+        </button>
+        <button role="treeitem" class="ind-1">
+          <i class="ph ph-caret-right caret leaf" aria-hidden="true"></i>
+          <i class="ph-fill ph-folder f-ico" aria-hidden="true"></i>
+          <span class="f-name">shared-with-family</span>
+        </button>
+      </div>
+    </div>
+    <div data-slot="modal-footer">
+      <button class="btn btn-default btn-sm"><i class="ph ph-folder-plus" aria-hidden="true"></i>New folder</button>
+      <span class="spacer"></span>
+      <button class="btn btn-default btn-md">Cancel</button>
+      <button class="btn btn-primary btn-md">Move here</button>
+    </div>
+  </div>
+
+</div>
+</body></html>

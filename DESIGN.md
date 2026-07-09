@@ -24,17 +24,17 @@ typography:
   ui:
     family: "\"GT America\", sans-serif"
     weight: 400
-    size: "0.875rem"
+    size: "1rem"
     lineHeight: 1.45
   display:
     family: "\"GT America\", sans-serif"
     weight: 900
-    size: "6rem"
+    size: "96px"
     lineHeight: 1.1
   mono:
     family: "\"Berkeley Mono\", \"GT America Mono\", monospace"
     weight: 400
-    size: "0.8125rem"
+    size: "0.875rem"
     lineHeight: 1.45
 rounded:
   sm: "4px"
@@ -78,11 +78,15 @@ Use GT America for product UI and display. Use GT America Mono for compact produ
 
 Body UI text should stay readable and dense. Use medium weight for labels and controls, bold weight only where the hierarchy earns it, and black weight for deliberate display moments.
 
+The root font-size is responsive like the product: 14px, stepping to 15px at the `--bp-lg` breakpoint. Body, labels, and inputs sit at `--fs-base` (1rem, equal to the root); captions and button labels sit at `--fs-sm` (0.875rem). The display tiers (`--fs-2xl`, `--fs-3xl`, `--fs-display`) are fixed pixel sizes and do not scale with the root.
+
 ## Layout & Spacing
 
 put.io layouts are file-browser layouts first: lists, rows, columns, sidebars, toolbars, and sheets. Prefer whitespace and subtle dividers before card-heavy composition.
 
 The spacing scale is intentionally steep: `4, 8, 16, 32, 64, 128, 256, 512`. Use it consistently rather than tuning one-off gaps.
+
+Stacking uses the token scale — `--z-dropdown` (1000), `--z-sticky` (1100), `--z-modal` (1300), `--z-notification` (1400), `--z-tooltip` (1500) — gapped for platform chrome; never invent z-index numbers. Breakpoints (`--bp-sm`/`--bp-md`/`--bp-lg` = 640/768/1280px) mirror the product's responsive tiers; CSS media queries cannot read custom properties, so write the literal pixels in `@media` and keep them in sync with the tokens.
 
 ## Elevation & Depth
 
@@ -108,6 +112,6 @@ Do use Phosphor-style inline SVG for forward-looking icon guidance and no emoji 
 
 Do keep `DESIGN.md`, `tokens/`, `dist/`, and `system/tokens.css` in agreement.
 
-Don't publish private research, local file paths, internal project links, screenshots, team photos, account data, discount strategy, or auth-gated workspace URLs in the public design repo.
+Don't publish private material in this public repo — the enumerated list lives in the repo's `docs/DISTRIBUTION.md` (Public Safety).
 
-Don't generate Swift, Kotlin, Android XML, or Roku outputs from this repo until a consuming platform repo asks for an adapter.
+Don't generate platform-native outputs (Swift, Kotlin, Android XML, Roku) from this repo — platform repos own their adapters. Policy in the repo's `docs/DISTRIBUTION.md`.

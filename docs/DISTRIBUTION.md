@@ -32,9 +32,10 @@ component aliases such as `--field-*` and `--panel-*`, plus action aliases such
 as `--primary`, `--success`, `--destructive`, and their `--*-foreground`
 companions.
 
-Do not publish platform-native outputs from this repo in v1. Web, iOS, Android,
-Roku, and TV repos should consume the generic token artifacts and brand assets,
-then own their platform adapters.
+Do not publish platform-native outputs from this repo. Web, iOS, Android,
+Roku, and TV repos consume the generic token artifacts and brand assets and
+own their platform adapters; revisit only if a consuming platform repo
+explicitly asks for a generated adapter.
 
 Merges to `main` are considered publishable. The CI workflow runs:
 
@@ -85,6 +86,7 @@ font CSS from `static.put.io`.
 
 ## Public Safety
 
-Do not publish private research, local paths, auth-gated links, internal project
-links, screenshots from private workspaces, team photos, account data, discount
-strategy, or tracker notes in this repo.
+Do not publish private research, local paths, auth-gated links or workspace
+URLs, internal project links, screenshots from private workspaces, team photos,
+account data, discount strategy, or tracker notes in this repo. This is the
+canonical list; other docs point here.
