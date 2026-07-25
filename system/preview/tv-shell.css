@@ -168,7 +168,6 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
   background: var(--component-bg);
   border: 1px solid var(--border);
   box-sizing: border-box;
-  transition: background 180ms, border-color 180ms;
   white-space: nowrap;
 }
 
@@ -193,6 +192,11 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
 
 /* ---------------------------------------------------------------- */
 /* LIST ROWS — files, settings, history                              */
+/* No transition on focus anywhere in this file: pressable.tsx is a  */
+/* bare re-export of RN's Pressable styled by a function of focused, */
+/* with no Animated and no timing curve, so D-pad focus applies      */
+/* instantly. The .toggle rules below DO animate — a switch knob     */
+/* sliding is a real state change, not a focus affordance.           */
 /* ---------------------------------------------------------------- */
 .tv .row {
   display: flex;
@@ -202,7 +206,6 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
   border-radius: var(--radius-tv);
   background: transparent;
   border: 1px solid transparent;
-  transition: background 200ms, border-color 200ms;
   position: relative;
 }
 .tv .row .ico {
@@ -473,7 +476,10 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
   justify-content: center;
   font-size: 18px;
   border-radius: var(--radius-tv);
-  background: var(--component-bg-active);
+  /* Resting fill must differ from the focused one, or focus reads as a
+     bare border and the fill-based contract stops holding. */
+  background: var(--component-bg);
+  border: 1px solid transparent;
   color: var(--text-1);
 }
 .tv .key.focused {
