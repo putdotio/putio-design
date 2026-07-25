@@ -90,7 +90,7 @@ async function main() {
       }
       const modeExt = token.$extensions?.["putio.mode"];
       if (modeExt && modeExt.dark !== undefined && !String(modeExt.dark).includes("{")) {
-        modeExt.dark = ours.dark ?? ours.global ?? modeExt.dark;
+        modeExt.dark = ours.dark ?? ours.global ?? ours.tv ?? modeExt.dark;
       }
     }
   }
@@ -130,7 +130,7 @@ async function main() {
         token.$value = light;
       }
       const modeExt = token.$extensions?.["putio.mode"];
-      const dark = ours?.dark ?? ours?.global;
+      const dark = ours?.dark ?? ours?.global ?? ours?.tv;
       if (modeExt?.dark !== undefined && dark !== undefined && String(modeExt.dark).includes("{") && resolveRef(String(modeExt.dark), "dark") !== String(dark)) {
         warnings.push(`dark ref mismatch (replaced with repo literal): ${group}.${key} resolved to ${resolveRef(String(modeExt.dark), "dark")}, repo builds ${dark}`);
         modeExt.dark = dark;
