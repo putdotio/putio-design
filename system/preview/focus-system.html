@@ -4,7 +4,7 @@
   /* Theme bootstrap — runs synchronously before paint.
      One token-driven design system. .dark on <html> = dark; no class = light.
      Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
-       fixed-mode product mockups: TV's Liquid Glass, mobile-shell hero).
+       fixed-mode product mockups: TV surfaces, mobile-shell hero).
      Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
      URL ?theme=light|dark wins for screenshots / shared links.
      Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
@@ -30,7 +30,6 @@
 </script>
 <title>put.io · focus system</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
-<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 <link rel="stylesheet" href="../tokens.css">
 <link rel="stylesheet" href="./_components.css">
@@ -79,21 +78,16 @@
   .cell.tv { background: var(--app-bg); }
   .cell.tv .demo { background: var(--bg-secondary); border-color: var(--component-bg-active); }
   .tv-tile {
-    width: 144px; height: 88px; border-radius: 10px;
-    background: var(--component-bg); border: 1px solid var(--line);
+    width: 144px; height: 88px; border-radius: var(--radius-tv);
+    background: var(--component-bg); border: 1px solid var(--border);
     display: grid; place-items: center;
     color: var(--text-secondary);
     font-size: 12px; font-weight: 500;
-    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   .tv-tile.focused {
-    transform: scale(1.06);
-    background: rgba(255,255,255,0.10);
-    border-color: rgba(255,255,255,0.10);
+    background: var(--component-bg-active);
+    border-color: var(--border-hover);
     color: var(--text);
-    box-shadow:
-      0 0 0 1px rgba(253,206,69,0.18),
-      0 14px 30px rgba(0,0,0,0.45);
   }
   .tv-row { display: flex; gap: 12px; }
 
@@ -116,8 +110,8 @@
 <div class="preview-shell">
 
   <div>
-    <div class="label">Focus system — three contexts, one ring</div>
-    <div class="note">put.io has three focus contexts: <b>keyboard</b> (web), <b>pointer</b> (web, no ring), <b>D-pad</b> (TV). All three resolve to the same brand-yellow halo, scaled to the input device. Never invent another focus style.</div>
+    <div class="label">Focus system — three contexts, two answers</div>
+    <div class="note">put.io has three focus contexts: <b>keyboard</b> (web), <b>pointer</b> (web, no ring), <b>D-pad</b> (TV). Web keyboard focus is the brand-yellow halo. <b>TV is different</b> — it fills the surface with <code>--component-bg-active</code> and steps the border to <code>--border-hover</code>: no halo, no scale, no shadow. Never invent a third answer.</div>
   </div>
 
   <div class="grid">
@@ -129,7 +123,7 @@
         <div class="where">Tab / arrows over buttons, inputs, links</div>
       </div>
       <div class="demo">
-        <button class="btn btn-primary is-focused">Save changes</button>
+        <button class="btn-primary is-focused">Save changes</button>
         <input aria-label="search" class="input is-focused" value="search" />
       </div>
       <div class="why">Soft 3px brand-yellow halo (35% alpha) around any button. Sits outside the border, never replaces it. Triggered by <code>:focus-visible</code>, not <code>:focus</code>.</div>
@@ -160,7 +154,7 @@
           <div class="tv-tile focused">focused</div>
         </div>
       </div>
-      <div class="why"><code>scale(1.06)</code> + 1px yellow halo at 18% alpha + 14px drop shadow. Engine varies per platform (CSS on web / AndroidTV-web, focusable group on tvOS, BrightScript focus on Roku) — the visual is identical.</div>
+      <div class="why">A <b>fill</b>, not a lift: <code>--component-bg-active</code> + <code>--border-hover</code>. No scale, no halo, no shadow — matching <code>list-item.tsx</code> / <code>button.tsx</code>. Engine varies per platform (CSS on web / AndroidTV-web, focusable group on tvOS, BrightScript focus on Roku); the visual is identical.</div>
     </div>
 
   </div>
@@ -173,7 +167,7 @@
     <div class="spec-row"><span class="k">Ring color</span><span class="v">--shadow-focus-color</span><span class="why">Translucent brand yellow — <code>hsla(47, 100%, 65%, 0.35)</code> (Radix-style accent-a8, not <code>--yellow-solid</code>). Also the shadcn <code>--ring</code> color.</span></div>
     <div class="spec-row"><span class="k">Ring · button (web)</span><span class="v">--shadow-focus</span><span class="why">Soft 3px translucent halo via <code>box-shadow</code> (Radix-style accent-a8). Border stays unchanged.</span></div>
     <div class="spec-row"><span class="k">Ring · input (web)</span><span class="v">--field-ring</span><span class="why">Quiet, not yellow: border shifts to step-8 <code>--border-hover</code> + a 1px ring of the same color. Error/success states swap to red/green.</span></div>
-    <div class="spec-row"><span class="k">Ring · TV tile</span><span class="v">scale(1.06) + 1px halo</span><span class="why">10-foot UI needs more presence. <em>Scale</em> is the affordance; the halo is the confirmation.</span></div>
+    <div class="spec-row"><span class="k">Focus · TV</span><span class="v">--component-bg-active</span><span class="why">10-foot focus is a surface fill, plus <code>--border-hover</code> on anything that already has a border. Yellow is <em>not</em> used for TV focus.</span></div>
     <div class="spec-row"><span class="k">Trigger</span><span class="v">:focus-visible</span><span class="why">Never <code>:focus</code> — that paints rings on clicks users don't want.</span></div>
     <div class="spec-row"><span class="k">Transition</span><span class="v">120ms · ease-out</span><span class="why">Match D-pad latency expectations. Slow focus = laggy app.</span></div>
   </div>

@@ -50,7 +50,9 @@ Do not invent titles, posters, thumbnails, descriptions, codecs, or metadata the
 
 ## Typography
 
-The guide references GT America, GT America Mono, and Berkeley Mono by family name. Do not commit proprietary font files unless licensing is explicitly cleared.
+The guide references GT America and Berkeley Mono by family name. Berkeley Mono is the
+only mono face; TV surfaces have no mono at all. Do not commit proprietary font files
+unless licensing is explicitly cleared.
 
 ## Deploy
 
