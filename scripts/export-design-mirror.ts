@@ -80,7 +80,11 @@ async function main() {
         warnings.push(`template-only token kept as-is: ${group}.${key} (--${cssName})`);
         continue;
       }
-      const light = ours.light ?? ours.global;
+      // mode "tv" tokens have a single value with no light/dark split, so they
+      // fill from ours.tv. Without this they pass through with whatever value
+      // the template already carried — which silently preserved five wrong
+      // tv-channel-art-* values the first time the graph included them.
+      const light = ours.light ?? ours.global ?? ours.tv;
       if (light !== undefined && !String(token.$value).includes("{")) {
         token.$value = light;
       }
@@ -120,7 +124,7 @@ async function main() {
       const token = groupNode[key];
       if (!isToken(token)) continue;
       const ours = byCss.get(cssNameOf(group, key));
-      const light = ours?.light ?? ours?.global;
+      const light = ours?.light ?? ours?.global ?? ours?.tv;
       if (light !== undefined && String(token.$value).includes("{") && resolveRef(String(token.$value), "light") !== String(light)) {
         warnings.push(`ref mismatch (replaced with repo literal): ${group}.${key} resolved to ${resolveRef(String(token.$value), "light")}, repo builds ${light}`);
         token.$value = light;
