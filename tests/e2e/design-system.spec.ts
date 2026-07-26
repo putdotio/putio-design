@@ -93,6 +93,46 @@ test.describe("design.put.io static guide", () => {
     }
   });
 
+  test("web shell keeps search centered and filenames ellipsized @desktop", async ({ page }) => {
+    await page.goto("/preview/web-shell.html", { waitUntil: "domcontentloaded" });
+    const appbar = await page.locator(".appbar").boundingBox();
+    const search = await page.locator(".appbar .search").boundingBox();
+    expect(appbar).not.toBeNull();
+    expect(search).not.toBeNull();
+    expect(Math.abs((appbar?.x ?? 0) + (appbar?.width ?? 0) / 2 - ((search?.x ?? 0) + (search?.width ?? 0) / 2))).toBeLessThanOrEqual(1);
+
+    const filenameStyles = await page.locator(".files .cell > .t").first().evaluate((element) => {
+      const styles = getComputedStyle(element);
+      return {
+        overflow: styles.overflow,
+        textOverflow: styles.textOverflow,
+        whiteSpace: styles.whiteSpace,
+      };
+    });
+    expect(filenameStyles).toEqual({
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+    });
+  });
+
+  test("TV focus uses the canonical fill and border treatments @tv", async ({ page }) => {
+    await page.goto("/preview/tv-focus.html", { waitUntil: "domcontentloaded" });
+    const active = await resolvedCssColor(page, "--component-bg-active");
+    const hoverBorder = await resolvedCssColor(page, "--border-hover");
+    const rowStyles = await page.locator(".row.focused").first().evaluate((element) => {
+      const styles = getComputedStyle(element);
+      return { background: styles.backgroundColor, border: styles.borderTopColor };
+    });
+    const buttonStyles = await page.locator(".btn.focused").first().evaluate((element) => {
+      const styles = getComputedStyle(element);
+      return { background: styles.backgroundColor, border: styles.borderTopColor };
+    });
+
+    expect(rowStyles).toEqual({ background: active, border: "rgba(0, 0, 0, 0)" });
+    expect(buttonStyles).toEqual({ background: active, border: hoverBorder });
+  });
+
   for (const pagePath of axePages) {
     test(`${pagePath} has no serious automated accessibility violations @desktop`, async ({ page }) => {
       await page.goto(pagePath, { waitUntil: "domcontentloaded" });

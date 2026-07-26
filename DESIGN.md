@@ -110,7 +110,7 @@ TV components are list-first and focus-first. A TV app is still a file browser, 
 
 TV surfaces are solid token colors — no translucent materials and no blur. Focus is expressed as a fill, never a lift: rows go transparent to `--component-bg-active`, and buttons step both their fill and their border. Navigation is a Home hub that pushes full screens onto a stack; there is no tab bar. Menus are centred modals, not popovers anchored to a trigger.
 
-The 10-foot scale lives in the `tv` token group — type steps, spacing ramp, overscan percentages, screen paddings, and z-indices — carried as data for platform emitters rather than emitted into web CSS. Two rules do not cross over: TV has no mono face, and TV stacks `--tv-z-overlay` above `--tv-z-toast`, the reverse of the web `--z-*` order. Emit the two scales separately.
+The 10-foot scale lives in the `tv` token group — type steps, spacing ramp, overscan ratios, radius, and z-indices — carried as data for platform adapters rather than emitted into web CSS. Overscan ratios declare their viewport axis: multiply `tv.overscan.x` by viewport width and `tv.overscan.y` by viewport height, then compose screen padding locally with the spacing tokens. Two rules do not cross over: TV has no mono face, and TV stacks `--tv-z-overlay` above `--tv-z-toast`, the reverse of the web `--z-*` order. Emit the two scales separately.
 
 ## Do's and Don'ts
 

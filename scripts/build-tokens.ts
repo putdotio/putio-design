@@ -16,6 +16,8 @@ type TokenNode = {
       mode?: "light" | "dark" | "global" | "tv";
       category?: string;
       figma?: boolean;
+      basis?: "viewport-width" | "viewport-height";
+      deprecated?: boolean;
     };
   };
 };
@@ -31,6 +33,8 @@ type FlatToken = {
   mode: "light" | "dark" | "global" | "tv";
   category?: string;
   figma: boolean;
+  basis?: "viewport-width" | "viewport-height";
+  deprecated?: boolean;
 };
 
 const root = process.cwd();
@@ -139,6 +143,8 @@ function flattenTokens(node: unknown, parts: string[] = []): FlatToken[] {
         mode,
         category: putio?.category,
         figma: putio?.figma ?? (mode !== "dark" && mode !== "tv"),
+        basis: putio?.basis,
+        deprecated: putio?.deprecated,
       },
     ];
   }
@@ -216,6 +222,8 @@ function nestedFlatJson(tokens: FlatToken[]): JsonObject {
         value: token.resolvedValue,
         originalValue: token.value,
         description: token.description,
+        ...(token.basis ? { basis: token.basis } : {}),
+        ...(token.deprecated ? { deprecated: true } : {}),
       },
     ]),
   );
@@ -227,7 +235,7 @@ function javascriptForTokens(tokens: FlatToken[]): string {
 
 function declarationForTokens(tokens: FlatToken[]): string {
   const names = tokens.map((token) => JSON.stringify(token.name)).join(" | ");
-  return `// Do not edit directly. Generated from tokens/**/*.tokens.json.\n\nexport type PutioTokenName = ${names};\n\nexport type PutioToken = {\n  readonly cssName: string;\n  readonly type: string;\n  readonly mode: \"light\" | \"dark\" | \"global\" | \"tv\";\n  readonly value: string | number;\n  readonly originalValue: string | number;\n  readonly description?: string;\n};\n\nexport declare const tokens: Readonly<Record<PutioTokenName, PutioToken>>;\n`;
+  return `// Do not edit directly. Generated from tokens/**/*.tokens.json.\n\nexport type PutioTokenName = ${names};\n\nexport type PutioToken = {\n  readonly cssName: string;\n  readonly type: string;\n  readonly mode: \"light\" | \"dark\" | \"global\" | \"tv\";\n  readonly value: string | number;\n  readonly originalValue: string | number;\n  readonly description?: string;\n  readonly basis?: \"viewport-width\" | \"viewport-height\";\n  readonly deprecated?: boolean;\n};\n\nexport declare const tokens: Readonly<Record<PutioTokenName, PutioToken>>;\n`;
 }
 
 function figmaTokens(tokens: FlatToken[]): JsonObject {

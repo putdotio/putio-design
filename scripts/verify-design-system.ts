@@ -11,6 +11,8 @@ type TokenRecord = {
   value: string | number;
   originalValue: string | number;
   description?: string;
+  basis?: "viewport-width" | "viewport-height";
+  deprecated?: boolean;
 };
 
 type DesignColors = {
@@ -19,7 +21,7 @@ type DesignColors = {
   light?: Record<string, string>;
 };
 
-type TokenMode = "light" | "dark" | "global";
+type TokenMode = "light" | "dark" | "global" | "tv";
 type TokenAliasContract = { name: string; source: string; cssName: string; mode: TokenMode };
 type TokenValueContract = { name: string; cssName: string; value: string; mode: TokenMode };
 
@@ -49,6 +51,23 @@ const tokenAliasContracts: TokenAliasContract[] = [
   { name: "component.alias.destructiveDark", source: "color.red.dark.solid", cssName: "--destructive", mode: "dark" },
   { name: "component.alias.invertForeground", source: "surface.light.appBg", cssName: "--invert-foreground", mode: "light" },
   { name: "component.alias.invertForegroundDark", source: "surface.dark.appBg", cssName: "--invert-foreground", mode: "dark" },
+  { name: "component.field.radius", source: "radius.default", cssName: "--field-radius", mode: "global" },
+  { name: "component.input.background", source: "component.field.background", cssName: "--input-bg", mode: "light" },
+  { name: "component.input.backgroundDark", source: "component.field.backgroundDark", cssName: "--input-bg", mode: "dark" },
+  { name: "component.input.border", source: "component.field.border", cssName: "--input-border", mode: "light" },
+  { name: "component.input.borderDark", source: "component.field.borderDark", cssName: "--input-border", mode: "dark" },
+  { name: "component.input.borderHover", source: "component.field.borderHover", cssName: "--input-border-hover", mode: "light" },
+  { name: "component.input.borderHoverDark", source: "component.field.borderHoverDark", cssName: "--input-border-hover", mode: "dark" },
+  { name: "component.input.borderFocus", source: "component.field.borderFocus", cssName: "--input-border-focus", mode: "light" },
+  { name: "component.input.borderFocusDark", source: "component.field.borderFocusDark", cssName: "--input-border-focus", mode: "dark" },
+  { name: "component.input.ring", source: "component.field.ring", cssName: "--input-ring", mode: "light" },
+  { name: "component.input.ringDark", source: "component.field.ringDark", cssName: "--input-ring", mode: "dark" },
+  { name: "component.input.text", source: "component.field.text", cssName: "--input-text", mode: "light" },
+  { name: "component.input.textDark", source: "component.field.textDark", cssName: "--input-text", mode: "dark" },
+  { name: "component.input.placeholder", source: "component.field.placeholder", cssName: "--input-placeholder", mode: "light" },
+  { name: "component.input.placeholderDark", source: "component.field.placeholderDark", cssName: "--input-placeholder", mode: "dark" },
+  { name: "component.input.radius", source: "component.field.radius", cssName: "--input-radius", mode: "global" },
+  { name: "context.tv.text.tertiary", source: "context.tv.text.secondary", cssName: "--text-3", mode: "tv" },
 ];
 const tokenValueContracts: TokenValueContract[] = [
   { name: "component.alias.primaryForeground", cssName: "--primary-foreground", value: "hsl(38, 65%, 10%)", mode: "global" },
@@ -140,6 +159,13 @@ async function checkTokens() {
     flat["component.button.danger.backgroundHoverDark"]?.value !== flat["component.alias.destructiveDark"]?.value,
     "button danger dark hover must differ from the resting destructive background",
   );
+  assert(flat["context.tv.text.tertiary"]?.deprecated === true, "context.tv.text.tertiary must remain marked deprecated");
+  assert(flat["tv.overscan.x"]?.type === "number", "tv.overscan.x must be a portable number ratio");
+  assert(flat["tv.overscan.x"]?.value === 0.04, "tv.overscan.x must equal 0.04");
+  assert(flat["tv.overscan.x"]?.basis === "viewport-width", "tv.overscan.x must declare viewport-width basis");
+  assert(flat["tv.overscan.y"]?.type === "number", "tv.overscan.y must be a portable number ratio");
+  assert(flat["tv.overscan.y"]?.value === 0.02, "tv.overscan.y must equal 0.02");
+  assert(flat["tv.overscan.y"]?.basis === "viewport-height", "tv.overscan.y must declare viewport-height basis");
 
   for (const [name, token] of Object.entries(flat)) {
     assert(token.cssName.startsWith("--"), `${name} cssName must be a CSS custom property`);
@@ -149,6 +175,9 @@ async function checkTokens() {
     assert(!String(token.originalValue).includes("var(--"), `${name} public token source must not depend on CSS custom properties`);
     if (token.type === "color") {
       assert(/^(?:hsl|hsla)\(/.test(String(token.value)), `${name} color token must resolve to hsl() or hsla()`);
+    }
+    if (token.mode === "tv" && token.type === "dimension") {
+      assert(!/calc\(|%/.test(String(token.value)), `${name} TV dimension must be portable and must not contain CSS-only calc() or percentages`);
     }
   }
 }
@@ -252,6 +281,7 @@ async function checkCss() {
   assert(!/\.with-spec\s*\{\s*\/\*[\s\S]*?\.with-fade\s*\{/.test(tvShell), "tv-shell.css still nests .with-fade inside .with-spec");
   assert(!/!important/.test(tvShell), "tv-shell.css preview support styles must not use !important");
   assert(!/^:root\s*\{[\s\S]*?--surf-/m.test(tvShell), "TV-specific tokens must be scoped to .tv, not :root");
+  assert(!/^\.tv-content\s*\{/m.test(tvShell), "tv-shell.css component selectors must remain scoped under .tv");
   assert(!/#fdd868|#fcbe03/i.test(generatedCss), "Generated CSS must not introduce alternate brand yellows");
 }
 
@@ -264,6 +294,7 @@ async function main() {
     assertExists("dist/tokens.d.ts"),
     assertExists("dist/figma/putio.tokens.json"),
     assertExists("DESIGN.md"),
+    assertExists("system/assets/app-icon-beta.png"),
     assertNotExists("dist/tokens.ts"),
   ]);
 

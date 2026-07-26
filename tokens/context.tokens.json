@@ -3,11 +3,11 @@
   "context": {
     "tv": {
       "text": {
-        "$description": "tv-native uses exactly two text roles — theme.colors.text and theme.colors[\"text-secondary\"] — so this ramp has two steps, not three. The former semi-transparent 95.7%/0.62/0.38 ramp existed to layer over the Liquid Glass fills and went with them: TV text is now solid.",
+        "$description": "TV uses two semantic text roles. The tertiary name remains as a deprecated alias of secondary so existing consumers keep working; TV text is solid.",
         "primary": {
           "$type": "color",
           "$value": "{color.neutral.dark.text}",
-          "$description": "theme.colors.text. Row titles, modal option labels, button labels.",
+          "$description": "Row titles, modal option labels, and button labels.",
           "$extensions": {
             "putio": {
               "cssName": "text-1",
@@ -18,11 +18,23 @@
         "secondary": {
           "$type": "color",
           "$value": "{color.neutral.dark.textSecondary}",
-          "$description": "theme.colors[\"text-secondary\"]. Row sublines, modal titles, section headers, accessories.",
+          "$description": "Row sublines, modal titles, section headers, and accessories.",
           "$extensions": {
             "putio": {
               "cssName": "text-2",
               "mode": "tv"
+            }
+          }
+        },
+        "tertiary": {
+          "$type": "color",
+          "$value": "{context.tv.text.secondary}",
+          "$description": "Deprecated compatibility alias. Use context.tv.text.secondary.",
+          "$extensions": {
+            "putio": {
+              "cssName": "text-3",
+              "mode": "tv",
+              "deprecated": true
             }
           }
         }
@@ -118,7 +130,7 @@
     }
   },
   "tv": {
-    "$description": "The 10-foot scale, mirroring apps/tv-native/src/lib/theme.tsx. These are mode \"tv\" tokens: they are graph data for native TV emitters and are not emitted into the web CSS, so preview support CSS declares the matching --tv-* properties under .tv. Two things do not fold into the web scales — TV has no mono face, and TV z-order is not the web z-order.",
+    "$description": "The portable 10-foot scale. These mode \"tv\" tokens are graph data for platform adapters and are not emitted into web CSS; preview support CSS declares matching --tv-* properties under .tv. TV has no mono face, and its z-order is distinct from the web stack.",
     "text": {
       "heading": {
         "$type": "dimension",
@@ -206,48 +218,16 @@
     },
     "overscan": {
       "x": {
-        "$type": "dimension",
-        "$value": "4%",
-        "$description": "overscanSafeMargins.left/right — a fraction of viewport width (76.8px on a 1920-wide canvas). Native emitters resolve this against the viewport.",
-        "$extensions": { "putio": { "cssName": "tv-overscan-x", "mode": "tv" } }
+        "$type": "number",
+        "$value": 0.04,
+        "$description": "Horizontal safe-area ratio. Platform adapters multiply this value by viewport width.",
+        "$extensions": { "putio": { "cssName": "tv-overscan-x", "mode": "tv", "basis": "viewport-width" } }
       },
       "y": {
-        "$type": "dimension",
-        "$value": "2%",
-        "$description": "overscanSafeMargins.top/bottom — a fraction of viewport HEIGHT (21.6px on a 1080-tall canvas). CSS resolves percentage padding against width, so web previews must derive the vertical overscan explicitly rather than writing 2%.",
-        "$extensions": { "putio": { "cssName": "tv-overscan-y", "mode": "tv" } }
-      }
-    },
-    "screen": {
-      "paddingX": {
-        "$type": "dimension",
-        "$value": "{tv.overscan.x}",
-        "$description": "screen.header.paddingLeft/Right — the screen gutter is the overscan margin itself. 76.8px on a 1920-wide canvas.",
-        "$extensions": { "putio": { "cssName": "tv-screen-padding-x", "mode": "tv" } }
-      },
-      "headerPaddingTop": {
-        "$type": "dimension",
-        "$value": "calc({tv.space.md} + {tv.overscan.y})",
-        "$description": "screen.header.paddingTop — space.md plus the top overscan margin. Resolves to 53.6px on a 1920×1080 canvas. The percentage is of viewport HEIGHT, so native emitters must compute it against the viewport rather than passing the calc() through to CSS.",
-        "$extensions": { "putio": { "cssName": "tv-screen-header-padding-top", "mode": "tv" } }
-      },
-      "headerPaddingBottom": {
-        "$type": "dimension",
-        "$value": "{tv.space.md}",
-        "$description": "screen.header.paddingBottom = space.md, viewport-independent.",
-        "$extensions": { "putio": { "cssName": "tv-screen-header-padding-bottom", "mode": "tv" } }
-      },
-      "marginTop": {
-        "$type": "dimension",
-        "$value": "{tv.space.md}",
-        "$description": "screen.marginTop = space.md, viewport-independent.",
-        "$extensions": { "putio": { "cssName": "tv-screen-margin-top", "mode": "tv" } }
-      },
-      "marginBottom": {
-        "$type": "dimension",
-        "$value": "calc({tv.space.md} + {tv.overscan.y})",
-        "$description": "screen.marginBottom — space.md plus the bottom overscan margin. Resolves to 53.6px on a 1920×1080 canvas; the percentage is of viewport height.",
-        "$extensions": { "putio": { "cssName": "tv-screen-margin-bottom", "mode": "tv" } }
+        "$type": "number",
+        "$value": 0.02,
+        "$description": "Vertical safe-area ratio. Platform adapters multiply this value by viewport height.",
+        "$extensions": { "putio": { "cssName": "tv-overscan-y", "mode": "tv", "basis": "viewport-height" } }
       }
     },
     "radius": {

@@ -16,7 +16,7 @@
    NOTE ON SIZES: the px values here are tuned for the ~876px-wide
    preview artboards on this page (roughly 0.46x of a 1080p screen) —
    they are NOT the 1:1 TV values. For real 1920x1080 numbers use
-   tv-foundations.html's "Row anatomy" table, or tv-native's theme.tsx
+   tv-foundations.html's "Row anatomy" table or the built `tv` token group
    (text.body 36 / caption 32 / label 48, spacing.md 32, radii 12).
    Only --radius-tv is resolution-independent and correct as-is.
 
@@ -24,8 +24,8 @@
             .sheet, .key, .brand (TV variant), .kbd (TV variant),
             .toggle, .bar, .player-chrome, .code-tile.
 
-   NOTE: no mono anywhere. tv-native's theme has exactly two families
-   (GTAmerica-Rg / -Md); numerics use tabular figures in GT America,
+   NOTE: no mono anywhere. TV uses GT America regular and medium;
+   numerics use tabular figures in GT America,
    not Berkeley Mono. Berkeley Mono is a web/mobile rule only.
 
    Brand and semantic colors come from tokens.css; this file adds the
@@ -36,11 +36,11 @@
    Those are mode: "tv" tokens and are deliberately absent from the web
    CSS output — read them from dist/tokens.flat.json. The px values in
    this stylesheet are preview-scaled; the token group is the source of
-   truth for type steps, spacing, overscan, screen paddings, and
+   truth for type steps, spacing, overscan ratios, and
    z-indices. --radius-tv is the one value here that is already
    resolution-independent.
 
-   NO TAB BAR. tv-native is a stack navigator with the header hidden;
+   NO TAB BAR. TV navigation uses a stack with the header hidden;
    the top-level surface is a Home hub of destinations. There is no
    segmented top-nav, no tab bar, and no persistent chrome — earlier
    revisions of these specimens documented one that does not exist.
@@ -49,12 +49,8 @@
 /* TV-only surface aliases — colors/type already live in tokens.css.
    Scoped to .tv so they never leak into non-TV preview pages. */
 .tv {
-  /* TV text ramp — solid, mapped to the token text roles. tv-native has
-     exactly two: theme.colors.text and theme.colors["text-secondary"].
-     --text-3 is a preview-only convenience that deliberately resolves to
-     the same value as --text-2; there is no third role in the app, and the
-     graph's `tv` text group has two steps to match. The old third step was
-     a 0.38-alpha value for layering over glass and went with it. */
+  /* TV text ramp — solid, mapped to two semantic roles.
+     --text-3 is a deprecated compatibility alias of --text-2. */
   --text-1: var(--text);
   --text-2: var(--text-secondary);
   --text-3: var(--text-secondary);
@@ -87,7 +83,7 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
   isolation: isolate;
 }
 
-.tv-content {
+.tv .tv-content {
   position: relative;
   z-index: 1;
   height: 100%;
@@ -111,8 +107,7 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
     transparent 100%);
 }
 
-/* Focused row — solid raised surface, matching tv-native's list-item
-   (a plain background fill; no shadow, no scale, no halo). */
+/* Focused row — a plain background fill; no shadow, scale, or halo. */
 .tv .row.focused {
   background: var(--component-bg-active);
   border-color: transparent;
@@ -121,8 +116,8 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
 
 /* ---------------------------------------------------------------- */
 /* SCREEN — header + hairline divider + list of rows                 */
-/* screen.tsx exposes title / actions / header / fullScreen only:    */
-/* there is NO subtitle or description slot.                         */
+/* Screens expose title, actions, header, and full-screen content.   */
+/* There is no subtitle or description slot.                         */
 /* ---------------------------------------------------------------- */
 .tv .scr {
   padding: 52px 60px 40px;
@@ -171,11 +166,8 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
   white-space: nowrap;
 }
 
-/* Focused button — a FILL plus a border step. Never a white-invert pill,
-   never a shadow, never a lift. Per button.tsx:
-     backgroundColor: focused ? component-bg-active : component-bg
-     borderColor:     focused ? border-hover        : border
-   Label and icon stay theme.colors.text in both states. */
+/* Focused button — a fill plus a border step. Never a white-invert pill,
+   shadow, or lift. Label and icon keep the primary text color. */
 .tv .btn.focused {
   background: var(--component-bg-active);
   border-color: var(--border-hover);
@@ -192,9 +184,7 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
 
 /* ---------------------------------------------------------------- */
 /* LIST ROWS — files, settings, history                              */
-/* No transition on focus anywhere in this file: pressable.tsx is a  */
-/* bare re-export of RN's Pressable styled by a function of focused, */
-/* with no Animated and no timing curve, so D-pad focus applies      */
+/* No transition on focus anywhere in this file: D-pad focus applies */
 /* instantly. The .toggle rules below DO animate — a switch knob     */
 /* sliding is a real state change, not a focus affordance.           */
 /* ---------------------------------------------------------------- */
@@ -224,8 +214,7 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
   letter-spacing: -0.005em;
   line-height: 1.2;
 }
-/* Row subline — GTAmerica-Rg, NOT mono: tv-native's theme has no mono
-   family (text.caption is GTAmerica-Rg). Tabular figures stay on so
+/* Row subline — GT America regular, not mono. Tabular figures stay on so
    file sizes still align in a column. */
 .tv .row .sub {
   margin-top: 2px;

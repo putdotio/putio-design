@@ -82,7 +82,7 @@ buttons go `--component-bg` → `--component-bg-active` with the border stepping
 to `--border-hover`. There is no scale, shadow, halo, or white invert.
 
 The 10-foot scale itself is graph data, not CSS. The `tv` token group
-(`--tv-text-*`, `--tv-space-*`, `--tv-overscan-*`, `--tv-screen-*`,
+(`--tv-text-*`, `--tv-space-*`, `--tv-overscan-*`,
 `--tv-radius`, `--tv-z-*`) carries the 1:1 values for native emitters and is
 `mode: "tv"`, so it is deliberately **not** emitted into `tokens.css` — read it
 from `dist/tokens.flat.json`. Only `--radius-tv` (12px, the single radius for

@@ -95,8 +95,8 @@ async function main() {
     }
   }
 
-  for (const [cssName, modes] of byCss) {
-    if (!seenCss.has(cssName) && modes.tv === undefined) {
+  for (const [cssName] of byCss) {
+    if (!seenCss.has(cssName)) {
       warnings.push(`repo token missing from mirror template: --${cssName}`);
     }
   }
