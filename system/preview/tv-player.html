@@ -4,7 +4,7 @@
   /* Theme bootstrap — runs synchronously before paint.
      One token-driven design system. .dark on <html> = dark; no class = light.
      Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
-       fixed-mode product mockups: TV's Liquid Glass, mobile-shell hero).
+       fixed-mode product mockups: TV surfaces, mobile-shell hero).
      Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
      URL ?theme=light|dark wins for screenshots / shared links.
      Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
@@ -30,7 +30,6 @@
 </script>
 <title>put.io · TV · player</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
-<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 <link rel="stylesheet" href="../tokens.css">
 <link rel="stylesheet" href="./_components.css">
@@ -56,10 +55,9 @@
   }
   .artboard .tv {
     position: absolute; inset: 0;
-    background: var(--bg-secondary) !important;
+    background: var(--bg-secondary);
   }
-  .artboard .tv::before { display: none !important; }
-  .artboard .row, .artboard .tab, .artboard .btn { transition: none !important; }
+    .artboard .row, .artboard .btn { transition: none; }
   /* Canonical .tv is 1280x720 — keep the design grid; never let the title or row wrap */
   .artboard .scr-title { white-space: nowrap; }
   .artboard .row .title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -127,29 +125,32 @@
   }
   .pchrome .times {
     display: flex; justify-content: space-between;
-    font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums;
     font-size: 15px;
     color: rgba(255,255,255,0.85);
     margin-top: 2px;
   }
   .pchrome .pills { display: flex; gap: 10px; margin-top: 4px; }
 
-  /* circular glass icon */
+  /* circular icon button */
   .gi {
     width: 56px; height: 56px;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    background: rgba(255,255,255,0.14);
-    backdrop-filter: blur(30px) saturate(180%);
-    -webkit-backdrop-filter: blur(30px) saturate(180%);
-    border: 1px solid rgba(255,255,255,0.22);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.14) inset;
+    background: var(--component-bg);
+    border: 1px solid var(--line);
     color: #fff;
   }
+  /* The one TV surface our focus contract does NOT govern. On tvOS the
+     system player draws this chrome, and white-invert is Apple's own focus
+     idiom — see the "Apple TV owns the player" note below. Everything put.io
+     draws focuses with the --component-bg-active fill instead — plus
+     --border-hover where a border already exists (buttons, keys), never
+     on rows. */
   .gi.solid {
-    background: rgba(255,255,255,0.95);
+    background: #fff;
     color: var(--bg);
-    border-color: rgba(255,255,255,0.95);
+    border-color: #fff;
   }
 
   .platforms { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
@@ -158,7 +159,7 @@
   .ptr > div { padding: 12px 14px; font-size: 12px; color: var(--text-secondary); border-left: 1px solid var(--line); line-height: 1.55; background: var(--bg-secondary); }
   .ptr > div:first-child { border-left: 0; }
   .ptr.head > div { background: var(--component-bg); font-size: 11px; color: var(--text); font-weight: 600; }
-  .ptr .what { background: var(--bg-secondary); color: var(--yellow-text-secondary); font-family: var(--font-ui-mono); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; font-weight: 500; }
+  .ptr .what { background: var(--bg-secondary); color: var(--yellow-text-secondary); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; font-weight: 500; }
 
   .anat { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px;
     display: grid; grid-template-columns: repeat(4, 1fr); overflow: hidden;
@@ -175,7 +176,9 @@
   <div>
     <div class="label">Player chrome — minimal, bottom-anchored</div>
     <div class="note">
-      Apple TV owns the player. Minimal overlay: <b>bold filename bottom-left</b>, two glass circles top-right (CC focused white, audio glass), hairline scrubber in the bottom safe area, mono timecodes. <b>No transport buttons</b> — the Siri Remote owns play/pause/scrub. Android TV, Roku, and Smart-TV web mirror this shape, but their apps draw the chrome because those platforms don't ship a system player.
+      Apple TV owns the player. Minimal overlay: <b>bold filename bottom-left</b>, two icon circles top-right, hairline scrubber in the bottom safe area, GT America timecodes with tabular figures. <b>No transport buttons</b> — the Siri Remote owns play/pause/scrub. Android TV, Roku, and Smart-TV web mirror this shape, but their apps draw the chrome because those platforms don't ship a system player.
+      <br><br>
+      <b>This is the one TV surface outside our focus contract.</b> The focused CC circle inverts to white because that is <b>Apple's</b> focus idiom and Apple draws this chrome — not ours. Everything put.io draws focuses with the <code>--component-bg-active</code> fill and never a white invert — rows take that fill alone, while bordered chrome (buttons, keys) also steps <code>--border</code> to <code>--border-hover</code>. On the platforms that <em>do</em> draw their own player, use the standard treatment.
       Source: <code class="src">tv-shell.css</code>.
     </div>
   </div>
@@ -191,10 +194,10 @@
           <div class="title">The.Wire.S03E04.Hamsterdam.2160p.UHD.BluRay.Remux.HDR.HEVC.DTS-HD.MA.5.1-DEMAND[rartv].mkv</div>
           <div class="corner">
             <div class="gi solid" title="Closed captions">
-              <i class="ph ph-closed-captioning" style="font-size:24px;"></i>
+              <i class="ph ph-closed-captioning" style="font-size:24px;" aria-hidden="true"></i>
             </div>
             <div class="gi" title="Audio tracks">
-              <i class="ph ph-speaker-high" style="font-size:24px;"></i>
+              <i class="ph ph-speaker-high" style="font-size:24px;" aria-hidden="true"></i>
             </div>
           </div>
         </div>
@@ -208,7 +211,7 @@
         </div>
         <div class="pills">
           <div class="btn">
-            <i class="ph ph-info" style="font-size:14px;"></i>
+            <i class="ph ph-info" style="font-size:14px;" aria-hidden="true"></i>
             <span>Info</span>
           </div>
         </div>
@@ -225,8 +228,8 @@
   <div class="anat">
     <div class="c"><div class="k">Filename</div><div class="v">30px · 700 · −0.02em</div><div class="d">break-all on tokens</div></div>
     <div class="c"><div class="k">Scrubber</div><div class="v">6px track · 14px thumb</div><div class="d">no platform-buttons overlay</div></div>
-    <div class="c"><div class="k">Timecode</div><div class="v">15px · mono · tnum</div><div class="d">remaining: −MM:SS</div></div>
-    <div class="c"><div class="k">Glass circles</div><div class="v">56×56 · blur(30) sat(180)</div><div class="d">CC · Audio · Subtitles</div></div>
+    <div class="c"><div class="k">Timecode</div><div class="v">15px · GT America · tnum</div><div class="d">remaining: −MM:SS · TV has no mono</div></div>
+    <div class="c"><div class="k">Icon circles</div><div class="v">56×56 · solid</div><div class="d">CC · Audio · Subtitles</div></div>
   </div>
 
   <!-- =================================================================
@@ -254,13 +257,13 @@
     <div class="ptr">
       <div class="what">Transport buttons</div>
       <div>none · Siri Remote</div>
-      <div>app-drawn glass icons</div>
+      <div>app-drawn icons</div>
       <div>app-drawn flat icons</div>
-      <div>app-drawn glass icons</div>
+      <div>app-drawn icons</div>
     </div>
     <div class="ptr">
       <div class="what">CC / subtitle picker</div>
-      <div>Liquid Glass sheet</div>
+      <div>solid sheet</div>
       <div>M3 bottom sheet</div>
       <div>SceneGraph dialog</div>
       <div>solid centred modal</div>

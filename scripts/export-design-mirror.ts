@@ -80,19 +80,23 @@ async function main() {
         warnings.push(`template-only token kept as-is: ${group}.${key} (--${cssName})`);
         continue;
       }
-      const light = ours.light ?? ours.global;
+      // mode "tv" tokens have a single value with no light/dark split, so they
+      // fill from ours.tv. Without this they pass through with whatever value
+      // the template already carried — which silently preserved five wrong
+      // tv-channel-art-* values the first time the graph included them.
+      const light = ours.light ?? ours.global ?? ours.tv;
       if (light !== undefined && !String(token.$value).includes("{")) {
         token.$value = light;
       }
       const modeExt = token.$extensions?.["putio.mode"];
       if (modeExt && modeExt.dark !== undefined && !String(modeExt.dark).includes("{")) {
-        modeExt.dark = ours.dark ?? ours.global ?? modeExt.dark;
+        modeExt.dark = ours.dark ?? ours.global ?? ours.tv ?? modeExt.dark;
       }
     }
   }
 
-  for (const [cssName, modes] of byCss) {
-    if (!seenCss.has(cssName) && modes.tv === undefined) {
+  for (const [cssName] of byCss) {
+    if (!seenCss.has(cssName)) {
       warnings.push(`repo token missing from mirror template: --${cssName}`);
     }
   }
@@ -120,13 +124,13 @@ async function main() {
       const token = groupNode[key];
       if (!isToken(token)) continue;
       const ours = byCss.get(cssNameOf(group, key));
-      const light = ours?.light ?? ours?.global;
+      const light = ours?.light ?? ours?.global ?? ours?.tv;
       if (light !== undefined && String(token.$value).includes("{") && resolveRef(String(token.$value), "light") !== String(light)) {
         warnings.push(`ref mismatch (replaced with repo literal): ${group}.${key} resolved to ${resolveRef(String(token.$value), "light")}, repo builds ${light}`);
         token.$value = light;
       }
       const modeExt = token.$extensions?.["putio.mode"];
-      const dark = ours?.dark ?? ours?.global;
+      const dark = ours?.dark ?? ours?.global ?? ours?.tv;
       if (modeExt?.dark !== undefined && dark !== undefined && String(modeExt.dark).includes("{") && resolveRef(String(modeExt.dark), "dark") !== String(dark)) {
         warnings.push(`dark ref mismatch (replaced with repo literal): ${group}.${key} resolved to ${resolveRef(String(modeExt.dark), "dark")}, repo builds ${dark}`);
         modeExt.dark = dark;

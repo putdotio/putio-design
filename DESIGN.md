@@ -32,7 +32,7 @@ typography:
     size: "96px"
     lineHeight: 1.1
   mono:
-    family: "\"Berkeley Mono\", \"GT America Mono\", monospace"
+    family: "\"Berkeley Mono\", monospace"
     weight: 400
     size: "0.875rem"
     lineHeight: 1.45
@@ -74,7 +74,9 @@ Dark app surfaces are the default product mode, but the token contract includes 
 
 ## Typography
 
-Use GT America for product UI and display. Use GT America Mono for compact product numerics where it matches the app. Use Berkeley Mono for code, logs, identifiers, hashes, and raw technical strings.
+Use GT America for product UI and display. Berkeley Mono is the single mono face: numerics, timestamps, file sizes, ETAs, counts, code, logs, identifiers, hashes, magnet URIs, and filenames. Its tabular figures keep metadata columns aligned, so pair it with `font-variant-numeric: tabular-nums` wherever numbers sit in a column.
+
+The mono role is web and mobile only. TV surfaces have no mono face — 10-foot numerics render in GT America with tabular figures.
 
 Body UI text should stay readable and dense. Use medium weight for labels and controls, bold weight only where the hierarchy earns it, and black weight for deliberate display moments.
 
@@ -94,7 +96,9 @@ Elevation should clarify interaction, not decorate. Use borders and soft shadows
 
 ## Shapes
 
-The default radius is `6px`. Use `4px` for tight controls, `8px` or `10px` for larger panels, and pill radius for segmented controls, badges, and TV action pills.
+The default radius is `6px`. Use `4px` for tight controls, `8px` or `10px` for larger panels, and pill radius for segmented controls and badges.
+
+TV is the exception: every 10-foot surface — list rows, buttons, sheets, cards, code tiles, keys — uses the single `--radius-tv` (`12px`). TV has one radius, not a scale; the only other radii on a TV surface are intentional pills and circles.
 
 ## Components
 
@@ -103,6 +107,10 @@ Buttons use yellow only for primary commands. Primary buttons use `--button-prim
 Form fields use the shared `--field-*` aliases: `--field-bg` for the fill, `--field-border` for the resting border, and `--field-ring` for focus. Invalid fields opt in with `aria-invalid="true"` and use red border/text only; do not add red fill. Raised panels use the shared `--panel-*` aliases instead of auth- or screen-specific panel variables.
 
 TV components are list-first and focus-first. A TV app is still a file browser, not a poster wall. Roku, native Apple, Android, and web TV repos should consume the generic tokens and generate their own platform bindings.
+
+TV surfaces are solid token colors — no translucent materials and no blur. Focus is expressed as a fill, never a lift: rows go transparent to `--component-bg-active`, and buttons step both their fill and their border. Navigation is a Home hub that pushes full screens onto a stack; there is no tab bar. Menus are centred modals, not popovers anchored to a trigger.
+
+The 10-foot scale lives in the `tv` token group — type steps, spacing ramp, overscan ratios, radius, and z-indices — carried as data for platform adapters rather than emitted into web CSS. Overscan ratios declare their viewport axis: multiply `tv.overscan.x` by viewport width and `tv.overscan.y` by viewport height, then compose screen padding locally with the spacing tokens. Two rules do not cross over: TV has no mono face, and TV stacks `--tv-z-overlay` above `--tv-z-toast`, the reverse of the web `--z-*` order. Emit the two scales separately.
 
 ## Do's and Don'ts
 

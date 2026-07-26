@@ -4,7 +4,7 @@
   /* Theme bootstrap — runs synchronously before paint.
      One token-driven design system. .dark on <html> = dark; no class = light.
      Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
-       fixed-mode product mockups: TV's Liquid Glass, mobile-shell hero).
+       fixed-mode product mockups: TV surfaces, mobile-shell hero).
      Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
      URL ?theme=light|dark wins for screenshots / shared links.
      Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
@@ -30,7 +30,6 @@
 </script>
 <title>put.io · TV · action menus</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
-<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 <link rel="stylesheet" href="../tokens.css">
 <link rel="stylesheet" href="./_components.css">
@@ -51,58 +50,53 @@
     aspect-ratio: 16 / 9;
     border-radius: 14px;
     overflow: hidden;
-    background: #000;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.45), 0 0 0 1px var(--line);
+    background: hsl(0, 0%, 0%);
+    box-shadow: 0 24px 64px hsla(0, 0%, 0%, 0.45), 0 0 0 1px var(--line);
   }
   .artboard .tv { position: absolute; inset: 0; }
-  .artboard .row, .artboard .tab, .artboard .btn { transition: none !important; }
+  .artboard .row, .artboard .btn { transition: none; }
   /* Canonical .tv is 1280x720 — keep the design grid; never let the title or row wrap */
   .artboard .scr-title { white-space: nowrap; }
   .artboard .row .title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  /* Popover sheet — lifted from tv-shell.css (.sheet, .sheet-body) */
-  .popover {
-    position: absolute;
-    top: 132px; right: 80px;
-    width: 360px;
-    background: rgba(40,40,44,0.66);
-    backdrop-filter: blur(60px) saturate(200%);
-    -webkit-backdrop-filter: blur(60px) saturate(200%);
-    border: 1px solid rgba(255,255,255,0.18);
-    border-radius: 22px;
-    box-shadow:
-      0 1px 0 rgba(255,255,255,0.24) inset,
-      0 -1px 0 rgba(0,0,0,0.30) inset,
-      0 30px 80px rgba(0,0,0,0.65);
-    padding: 8px;
-    z-index: 5;
+  /* Select modal — centred overlay, not anchored to the trigger.
+     The 1:1 contract uses width 25% (min 25%,
+     max 50%), spacing.md (32px) padding, radii.default, 1px line border,
+     title text.body (36px) in --text-secondary with spacing.sm below,
+     rows spacing.sm padding with a spacing.xs (8px) separator.
+     Everything below is those values at the artboard's ~0.46x scale. */
+  .m-overlay {
+    position: absolute; inset: 0; z-index: 5;
+    display: flex; align-items: center; justify-content: center;
   }
+  .m-root {
+    box-sizing: border-box;
+    flex: 0 0 25%;
+    min-width: 25%; max-width: 50%;
+    background: var(--app-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-tv);
+    padding: 15px;
+  }
+  .m-title {
+    color: var(--text-secondary);
+    font-size: 17px; font-weight: 500;
+    padding-bottom: 7px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .m-list { display: flex; flex-direction: column; gap: 4px; }
   .pop-item {
-    display: flex; align-items: center; gap: 14px;
-    padding: 12px 16px; border-radius: 14px;
-    font-size: 19px; color: var(--text-1);
+    display: flex; align-items: center; gap: 7px;
+    padding: 7px; border-radius: var(--radius-tv);
+    font-size: 15px; color: var(--text-1);
+    background: transparent;
   }
-  .pop-item.focused {
-    background: rgba(255,255,255,0.96);
-    color: #0a0a0a;
-    box-shadow: 0 12px 28px rgba(0,0,0,0.4);
-  }
-  .pop-item .check {
-    width: 22px; height: 22px; display: grid; place-items: center;
-    color: var(--putio-yellow);
-  }
-  .pop-item.focused .check { color: #0a0a0a; }
-  .pop-item .lbl { flex: 1; }
-
-  /* Dim layer beneath popover (canonical does brightness(0.55) — we use overlay) */
-  .dim-layer {
-    position: absolute; inset: 0;
-    background: rgba(0,0,0,0.45);
-    backdrop-filter: blur(20px) saturate(140%);
-    -webkit-backdrop-filter: blur(20px) saturate(140%);
-    pointer-events: none;
-    z-index: 3;
-  }
+  .pop-item.focused { background: var(--component-bg-active); color: var(--text); }
+  .pop-item.destructive { color: var(--red-text-secondary); }
+  .pop-item.destructive.focused { background: var(--red-solid); color: var(--text); }
+  .pop-item .ico-l { font-size: 17px; display: grid; place-items: center; }
+  .pop-item .lbl { flex-grow: 1; max-width: 90%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pop-item .check { margin-left: auto; font-size: 15px; color: var(--text); }
 
   .platforms { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
   .ptr { display: grid; grid-template-columns: 160px repeat(4, 1fr); }
@@ -110,7 +104,7 @@
   .ptr > div { padding: 12px 14px; font-size: 12px; color: var(--text-secondary); border-left: 1px solid var(--line); line-height: 1.55; background: var(--bg-secondary); }
   .ptr > div:first-child { border-left: 0; }
   .ptr.head > div { background: var(--component-bg); font-size: 11px; color: var(--text); font-weight: 600; }
-  .ptr .what { background: var(--bg-secondary); color: var(--yellow-text-secondary); font-family: var(--font-ui-mono); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; font-weight: 500; }
+  .ptr .what { background: var(--bg-secondary); color: var(--yellow-text-secondary); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; font-weight: 500; }
   /* Phosphor icon helpers */
   .ico-ph { font-size: 18px; line-height: 1; display: inline-flex; align-items: center; }
   .chev-ph { font-size: 18px; line-height: 1; color: var(--text-secondary); }
@@ -121,90 +115,92 @@
 <div class="preview-shell">
 
   <div>
-    <div class="label">Sort &amp; action menus — Liquid Glass popover</div>
+    <div class="label">Sort &amp; action menus — centred select modal</div>
     <div class="note">
-      Triggered by <b>long-OK</b> or <b>Menu</b> on a row, or by activating an action pill. The popover is anchored to its trigger; the underlying screen dims 55% so it's clear the menu owns input. Focused item flips to the loud white pill — same chrome-focus voice as action buttons.
-      Source: <code class="src">tv-shell.css</code>.
+      Every TV menu is the same <b>centred modal</b> — never a popover anchored to its trigger. A full <code>--overlay-full</code> scrim covers the screen; the panel sits on <code>--app-bg</code> with a 1px <code>--line</code> border, 32px padding, and width 25% (max 50%). Title is 36px <code>--text-secondary</code>. Rows are transparent until focused, then <code>--component-bg-active</code> — the same fill every focusable TV surface uses. Destructive rows read <code>--red-text-secondary</code> at rest and fill <code>--red-solid</code> when focused, but the <b>label stays <code>--text</code></b> — focus resets the text colour regardless of destructive. Default focus is the row matching the current value, else the first row.
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Sort list · option filtering</div>
+    <div class="note">
+      Six sort keys × two directions = twelve options, filtered down per current value. An option survives if it shares the current <b>key</b> <em>or</em> the current <b>direction</b> — so the current value itself is <b>kept and checked</b>, and the opposite direction of the current key is kept and carries a <b>chevron disclosure</b>. Every other key appears once, in the current direction, with no icon. For <code>NAME_ASC</code> that is <b>seven rows</b>, shown below.
+      <br><br>
+      The two name-direction rows intentionally share the <b>Name</b> label; the checked state and chevron communicate their different actions.
     </div>
   </div>
 
   <!-- =================================================================
-       ARTBOARD — Files with sort popover anchored to Name pill
+       ARTBOARD — Files with the centred sort SelectModal
        ============================================================ -->
   <div class="artboard">
     <div class="tv">
       <div class="tv-content">
-        <div class="topnav">
-          <div class="topnav-logo">
-            <span class="brand"><span class="dotmark"></span>put.io</span>
-          </div>
-          <div class="topnav-tabs">
-            <div class="tab active">
-              <i class="ph-fill ph-folder ico-ph"></i>
-              <span>Files</span>
-            </div>
-            <div class="tab">
-              <svg class="ico" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5" stroke-linecap="round"/></svg>
-              <span>Search</span>
-            </div>
-            <div class="tab">
-              <i class="ph ph-clock-counter-clockwise ico-ph"></i>
-              <span>History</span>
-            </div>
-            <div class="tab">
-              <i class="ph ph-user-circle ico-ph"></i>
-              <span>Account</span>
-            </div>
-          </div>
-          <div class="topnav-right"><span style="font-family: var(--font-mono);">kai</span></div>
-        </div>
-
         <div class="scr">
           <div class="scr-head">
             <h1 class="scr-title">Your Files</h1>
             <div class="scr-spacer"></div>
             <div class="scr-actions">
               <div class="btn">
-                <i class="ph ph-arrow-clockwise" style="font-size:16px;"></i>
+                <i class="ph ph-arrow-counter-clockwise" style="font-size:16px;" aria-hidden="true"></i>
                 <span>Refresh</span>
               </div>
               <div class="btn">
-                <i class="ph ph-funnel" style="font-size:16px;"></i>
+                <i class="ph ph-sort-descending" style="font-size:16px;" aria-hidden="true"></i>
                 <span>Name</span>
               </div>
             </div>
           </div>
-          <div class="row"><div class="ico"><i class="ph-fill ph-folder" style="font-size:30px;color:var(--yellow-solid);"></i></div><div class="body"><div class="title">__tears_of_steel__</div><div class="sub">544.89 MB</div></div></div>
-          <div class="row"><div class="ico"><i class="ph-fill ph-folder" style="font-size:30px;color:var(--yellow-solid);"></i></div><div class="body"><div class="title">Movies</div><div class="sub">38 items · 412 GB</div></div></div>
-          <div class="row"><div class="ico" style="color: var(--text-2)"><i class="ph ph-file-video" style="font-size:30px;"></i></div><div class="body"><div class="title">multi-audio-mp4</div><div class="sub">4.34 GB</div></div></div>
+          <div class="row"><div class="ico"><i class="ph ph-folder" style="font-size:30px;color:var(--yellow-solid);" aria-hidden="true"></i></div><div class="body"><div class="title">__tears_of_steel__</div><div class="sub">544.89 MB</div></div></div>
+          <div class="row"><div class="ico"><i class="ph ph-folder" style="font-size:30px;color:var(--yellow-solid);" aria-hidden="true"></i></div><div class="body"><div class="title">Movies</div><div class="sub">412 GB</div></div></div>
+          <div class="row"><div class="ico"><i class="ph ph-film-strip" style="font-size:30px;" aria-hidden="true"></i></div><div class="body"><div class="title">multi-audio-mp4</div><div class="sub">4.34 GB</div></div></div>
         </div>
 
-        <!-- Dim layer beneath popover -->
-        <div class="dim-layer"></div>
-
-        <!-- Popover -->
-        <div class="popover">
-          <div class="pop-item focused">
-            <div class="check">
-              <i class="ph-bold ph-check" style="font-size:20px;"></i>
+        <!-- Full overlay + centred SelectModal (sort) -->
+        <div class="m-overlay" style="background: var(--overlay-full);">
+          <div class="m-root" style="width: 25%;">
+            <div class="m-title">Sort by</div>
+            <div class="m-list">
+            <div class="pop-item focused"><div class="lbl">Name</div><i class="ph ph-check check" aria-hidden="true"></i></div>
+            <div class="pop-item"><i class="ph ph-caret-down ico-l" aria-hidden="true"></i><div class="lbl">Name</div></div>
+            <div class="pop-item"><div class="lbl">Size</div></div>
+            <div class="pop-item"><div class="lbl">Date added</div></div>
+            <div class="pop-item"><div class="lbl">Date modified</div></div>
+            <div class="pop-item"><div class="lbl">Type</div></div>
+            <div class="pop-item"><div class="lbl">Watch status</div></div>
             </div>
-            <div class="lbl">Name</div>
           </div>
-          <div class="pop-item">
-            <div class="check"></div>
-            <div class="lbl">Date added (newest)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Long-press file actions · same modal, different contents</div>
+    <div class="note">
+      <b>Long-OK</b> or <b>right arrow</b> on a row opens the same select modal, titled with the <b>raw filename</b>. Items are filtered by capability, so the set is never fixed: <b>Play in VLC</b> only when a stream URL exists and the VLC scheme is installed; <b>Mark as watched / unwatched</b> only for non-shared videos with start-from enabled; <b>Trash</b> (or <b>Delete</b> when the account has trash off) for anything not shared. If nothing qualifies, no menu opens at all.
+    </div>
+  </div>
+
+  <div class="artboard">
+    <div class="tv">
+      <div class="tv-content">
+        <div class="scr">
+          <div class="scr-head">
+            <h1 class="scr-title">Your Files</h1>
           </div>
-          <div class="pop-item">
-            <div class="check"></div>
-            <div class="lbl">Date added (oldest)</div>
-          </div>
-          <div class="pop-item">
-            <div class="check"></div>
-            <div class="lbl">Size (largest)</div>
-          </div>
-          <div class="pop-item">
-            <div class="check"></div>
-            <div class="lbl">Size (smallest)</div>
+          <div class="row"><div class="ico"><i class="ph ph-film-strip" style="font-size:30px;" aria-hidden="true"></i></div><div class="body"><div class="title">Glacier.Hike.2024.2160p.HDR.x265-GROUP.mkv</div><div class="sub">12.1 GB</div></div></div>
+          <div class="row"><div class="ico"><i class="ph ph-folder" style="font-size:30px;color:var(--yellow-solid);" aria-hidden="true"></i></div><div class="body"><div class="title">Movies</div><div class="sub">412 GB</div></div></div>
+        </div>
+
+        <div class="m-overlay" style="background: var(--overlay-full);">
+          <div class="m-root" style="width: 25%;">
+            <div class="m-title">Glacier.Hike.2024.2160p.HDR.x265-GROUP.mkv</div>
+            <div class="m-list">
+              <div class="pop-item focused"><i class="ph ph-monitor-play ico-l" aria-hidden="true"></i><div class="lbl">Play in VLC</div></div>
+              <div class="pop-item"><i class="ph ph-eye ico-l" aria-hidden="true"></i><div class="lbl">Mark as watched</div></div>
+              <div class="pop-item destructive"><i class="ph ph-trash ico-l" aria-hidden="true"></i><div class="lbl">Trash</div></div>
+            </div>
           </div>
         </div>
       </div>
@@ -228,45 +224,38 @@
     </div>
     <div class="ptr">
       <div class="what">Trigger</div>
-      <div>long-OK · Menu key</div>
-      <div>long-OK · Menu key</div>
-      <div>Star (<i class="ph-fill ph-star" style="font-size:14px;color:var(--yellow-solid);vertical-align:middle;"></i>)</div>
+      <div>long-OK · right arrow</div>
+      <div>long-OK · right arrow</div>
+      <div>Star (<i class="ph-fill ph-star" style="font-size:14px;color:var(--yellow-solid);vertical-align:middle;" aria-hidden="true"></i>)</div>
       <div>Yellow / Tools</div>
     </div>
     <div class="ptr">
       <div class="what">Surface</div>
-      <div>Liquid Glass · blur(60) · 22% radius</div>
-      <div>solid #1f1f1f popover</div>
-      <div>SceneGraph dialog</div>
-      <div>solid · centered modal</div>
+      <div>--app-bg · 1px --line</div>
+      <div>--app-bg · 1px --line</div>
+      <div>--app-bg · 1px --line</div>
+      <div>--app-bg · 1px --line</div>
     </div>
     <div class="ptr">
-      <div class="what">Anchor</div>
-      <div>to trigger pill</div>
-      <div>to trigger pill</div>
-      <div>centered (cert)</div>
-      <div>centered (perf)</div>
+      <div class="what">Placement</div>
+      <div>centred</div>
+      <div>centred</div>
+      <div>centred (cert)</div>
+      <div>centred (perf)</div>
     </div>
     <div class="ptr">
       <div class="what">Default focus</div>
-      <div>current selection</div>
-      <div>current selection</div>
-      <div>current selection</div>
-      <div>current selection</div>
+      <div>current value, else row 1</div>
+      <div>current value, else row 1</div>
+      <div>current value, else row 1</div>
+      <div>current value, else row 1</div>
     </div>
     <div class="ptr">
       <div class="what">Destructive item</div>
-      <div>red text · never default-focused</div>
-      <div>red text · never default-focused</div>
-      <div>red text · never default-focused</div>
-      <div>red text · never default-focused</div>
-    </div>
-    <div class="ptr">
-      <div class="what">Animation</div>
-      <div>fade + scale 95→100</div>
-      <div>M3 enter · 200ms</div>
-      <div>none (perf)</div>
-      <div>fade only</div>
+      <div>red text · --red-solid on focus</div>
+      <div>red text · --red-solid on focus</div>
+      <div>red text · --red-solid on focus</div>
+      <div>red text · --red-solid on focus</div>
     </div>
   </div>
 

@@ -37,7 +37,7 @@ tar -xzf tmp/design-handoff/handoff.tar.gz -C tmp/design-handoff/extracted
 
 3. Read intent before diffing.
    - Read the project/bundle `README.md` and `AUDIT.md` first.
-   - Read the dated handoff note under `handoffs/handoff-YYYY-MM.md` — since mid-2026 this is the canonical per-round change log and maps to what must be ported.
+   - Read the dated handoff note under `handoffs/handoff-YYYY-MM.md`; it is the canonical per-round change log and maps to what must be ported.
    - Read all `chats/*.md` enough to understand where the user and Claude Design landed.
    - Read handoff/change-log files such as `handoff-codex.md`, `FEEDBACK-RESPONSE.md`, and uploaded feedback notes if present.
    - Read the `open_file` target from the URL or bundle, usually `project/system/design-system.html`, then follow its local imports.
@@ -53,10 +53,9 @@ for f in $(cd tmp/design-handoff/project/system && find . -type f | sed 's|^\./|
   n=$(diff <(grep -v '^<!-- @dsCard' "$repo") <(grep -v '^<!-- @dsCard' "$proj") | grep -c '^[<>]')
   [ "$n" -gt 0 ] && echo "CHANGED($n): $f"
 done
-rg -n "tokens.json|tokens.base.css|tools/build-tokens|yellow-solid|button-primary-bg-hover|field-ring|panel-bg|data-contrast-contract|solid-foreground|F3C437|F3C435" system tokens scripts dist
 ```
 
-   - **Expect regeneration regressions.** The design tool rewrites whole files, so fixes from previous rounds can silently reappear reversed (past examples: the `#F3C437` hover caption came back after being corrected; `role="img"` / `role="switch"` / calendar `aria-label`s were dropped from cards the repo had already fixed). Audit every changed hunk in both directions — the repo side is often ahead on a11y — and fact-check numeric caption claims (contrast ratios, hexes, ring sizes) against actual token values and demo CSS before porting them.
+   - **Expect regeneration regressions.** Audit every changed hunk in both directions because the repo side may be ahead on accessibility and correctness. Follow the regression watchlist and token audit command in `references/repo-pipeline.md`.
    - Do not import prototype-only process material such as `uploads/`, `scraps/`, screenshots, chat logs, or generated notes into public package outputs.
 
 5. Implement scoped changes.
@@ -69,7 +68,7 @@ rg -n "tokens.json|tokens.base.css|tools/build-tokens|yellow-solid|button-primar
    - `tv-shell.css` must stay `!important`-free — the check greps the whole file, so comments mentioning `!important` fail too.
    - New preview cards: strip the `@dsCard` marker, register embeds in `system/design-system.html`, and remember axe runs on every card in both modes (3:1 floor) unless `data-theme-lock` pins one mode.
    - If a Claude prototype value conflicts with `DESIGN.md`, `system/README.md`, or token checks, prefer the repo contract unless the user explicitly asks to change it.
-   - Governance (decided 2026-07): this repo's `tokens/**/*.tokens.json` is the canonical authoring source; the design project is the design layer and mirrors the built values. Token changes in a handoff are proposals until they land here. If the project's docs re-assert authoring-layer status, correct them via feedback (see `uploads/putio-design-governance-2026-07.md` in the project).
+   - This repo's `tokens/**/*.tokens.json` is the canonical authoring source; the design project is the design layer and mirrors the built values. Token changes in a handoff are proposals until they land here. If the project's docs re-assert authoring-layer status, correct them via feedback (see `uploads/putio-design-governance-2026-07.md` in the project).
 
 6. Verify.
    - For investigation-only work, at least run targeted checks that prove the answer.
@@ -95,3 +94,8 @@ pnpm design:mirror
 8. Write Claude Design feedback.
    - Save it to `tmp/design-handoff/feedback-to-design-tool.md` unless the user asks for another path, written as a copyable note for Claude Design, not a repo changelog.
    - Follow `references/feedback-template.md` for the sections, tone, and worked example.
+
+## Provenance
+
+- Dated handoff notes became the canonical per-round change log in mid-2026.
+- The repo-authoring/design-mirror token governance rule was decided in 2026-07.

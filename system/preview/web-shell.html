@@ -4,7 +4,7 @@
   /* Theme bootstrap — runs synchronously before paint.
      One token-driven design system. .dark on <html> = dark; no class = light.
      Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
-       fixed-mode product mockups: TV's Liquid Glass, mobile-shell hero).
+       fixed-mode product mockups: mobile-shell hero).
      Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
      URL ?theme=light|dark wins for screenshots / shared links.
      Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
@@ -30,7 +30,6 @@
 </script>
 <title>put.io · web shell</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
-<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 <link rel="stylesheet" href="../tokens.css">
 <link rel="stylesheet" href="./_components.css">
@@ -44,314 +43,326 @@
     border: 1px solid var(--line);
     border-radius: 10px;
     overflow: hidden;
-    display: grid; grid-template-columns: 240px 1fr;
-    min-height: 540px;
+    display: flex; flex-direction: column;
+    min-height: 560px;
   }
+
+  /* ── Full-width header (matches app.put.io: logo · search · new transfer) ── */
+  .appbar {
+    height: 60px; flex-shrink: 0;
+    background: var(--nav-bg);
+    border-bottom: 1px solid var(--line);
+    /* Three columns rather than flex + auto margins. With `margin: 0 auto` on
+       the search and `margin-left: auto` on the CTA, both compete for the same
+       free space, so the asymmetric logo and button widths drag the search off
+       centre. A 1fr auto 1fr grid centres it on the header itself. */
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px;
+    padding: 0 20px;
+  }
+  .appbar .logo { display: flex; align-items: center; justify-self: start; }
+  .appbar .logo img { height: 26px; width: auto; display: block; }
+  .appbar .logo img.brand-dark { display: none; }
+  .appbar .logo img.brand-light { display: block; }
+  .dark .appbar .logo img.brand-dark { display: block; }
+  .dark .appbar .logo img.brand-light { display: none; }
+  .appbar .search {
+    height: 36px; padding: 0 12px;
+    background: var(--field-bg); border: 1px solid var(--field-border); border-radius: 8px;
+    display: flex; align-items: center; gap: 10px;
+    width: 360px; justify-self: center;
+  }
+  .appbar .search input { background: none; border: 0; outline: 0; color: var(--text); font-size: 13.5px; flex: 1; font-family: var(--font-sans); }
+  .appbar .search input::placeholder { color: var(--field-placeholder); }
+  .appbar .search i { font-size: 15px; color: var(--text-secondary); }
+  .appbar .search .kbd { font-family: var(--font-mono); font-size: 10px; color: var(--text-secondary); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; }
+  .appbar .btn-y {
+    height: 36px; padding: 0 16px; border-radius: 8px; border: 0; cursor: pointer;
+    background: var(--yellow-solid); color: var(--primary-foreground);
+    font-family: var(--font-sans); font-size: 12.5px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 7px; justify-self: end;
+  }
+  .appbar .btn-y i { font-size: 15px; }
+
+  /* ── Body: sidebar + main ── */
+  .body { flex: 1; display: grid; grid-template-columns: 240px 1fr; min-height: 0; }
 
   /* ── Sidebar ── */
   .side {
-    background: var(--bg);
+    background: var(--nav-bg);
     border-right: 1px solid var(--line);
-    padding: 18px 12px;
-    display: flex; flex-direction: column; gap: 6px;
+    padding: 20px 12px 16px;
+    display: flex; flex-direction: column; gap: 3px;
   }
-  .side .brand {
-    display: flex; align-items: baseline; gap: 0; padding: 6px 10px 18px;
-    font-size: 18px; font-weight: 700; letter-spacing: -0.025em;
-  }
-  .side .brand .d { color: var(--yellow-text-secondary); }
   .side .sec {
     font-size: 11px; font-weight: 500;
     color: var(--text-secondary);
-    padding: 14px 10px 6px;
+    padding: 16px 12px 6px;
   }
   .side .li {
-    display: flex; align-items: center; gap: 10px;
-    height: 30px; padding: 0 10px; border-radius: 5px;
-    font-size: 13.5px; color: var(--text);
+    display: flex; align-items: center; gap: 12px;
+    height: 34px; padding: 0 12px; border-radius: var(--radius);
+    font-size: 14px; color: var(--text);
     cursor: pointer;
   }
-  .side .li:hover { background: var(--list-item-bg-hover); }
-  .side .li.on { background: var(--list-item-bg-active); color: var(--yellow-text-secondary); }
-  .side .li i { font-size: 16px; line-height: 1; color: var(--text-secondary); flex-shrink: 0; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; }
-  .side .li.on i { color: var(--yellow-solid); }
+  .side .li:hover { background: var(--nav-item-bg-hover); }
+  .side .li.on { background: var(--nav-item-bg-active); font-weight: 500; }
+  .side .li i { font-size: 18px; line-height: 1; color: var(--text); flex-shrink: 0; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; }
   .side .li .count {
-    margin-left: auto; font-family: var(--font-ui-mono); font-size: 10.5px;
+    margin-left: auto; font-family: var(--font-mono); font-size: 11px;
     color: var(--text-secondary); font-variant-numeric: tabular-nums;
   }
-  .side .li.on .count { color: var(--yellow-text-secondary); }
   .side .li .badge {
-    margin-left: auto; height: 16px; min-width: 16px; padding: 0 5px;
-    background: var(--yellow-solid); color: var(--primary-foreground); border-radius: 999px;
-    font-family: var(--font-ui-mono); font-size: 9.5px; font-weight: 700;
+    margin-left: auto; height: 18px; min-width: 18px; padding: 0 5px;
+    background: var(--yellow-solid); color: var(--primary-foreground); border-radius: var(--radius-pill);
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700;
     display: inline-flex; align-items: center; justify-content: center;
   }
 
   .side .stor {
-    margin-top: auto; padding: 12px 10px;
+    margin-top: auto; padding: 14px 12px 10px;
     border-top: 1px solid var(--line);
     display: flex; flex-direction: column; gap: 8px;
   }
   .side .stor .hd { display: flex; justify-content: space-between; align-items: baseline; }
   .side .stor .lbl { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
-  .side .stor .free { font-family: var(--font-ui-mono); font-size: 11px; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .side .stor .free { font-family: var(--font-mono); font-size: 11px; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
   .side .stor .free b { color: var(--green-text-secondary); }
-  .side .stor .track { height: 4px; background: var(--component-bg); border-radius: 999px; overflow: hidden; }
+  .side .stor .track { height: 4px; background: var(--component-bg); border-radius: var(--radius-pill); overflow: hidden; }
   .side .stor .track i { display:block; height:100%; width: 22%; background: var(--green-solid); }
-  .side .stor .meta { font-family: var(--font-ui-mono); font-size: 10.5px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
-  .side .user { display:flex; align-items: center; gap: 8px; padding: 8px 10px; border-top: 1px solid var(--line); margin-top: 4px; }
-  .side .user .avi { width: 22px; height: 22px; border-radius: 50%; background: var(--yellow-solid); color: var(--primary-foreground); font-family: var(--font-sans); font-size: 10px; font-weight: 700; display: grid; place-items: center; }
-  .side .user .nm { font-size: 13px; color: var(--text); }
+  .side .stor .meta { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .side .user { display:flex; align-items: center; gap: 10px; padding: 10px 12px 2px; }
+  .side .user .avi { width: 24px; height: 24px; border-radius: 50%; background: var(--yellow-solid); color: var(--primary-foreground); font-family: var(--font-sans); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+  .side .user .nm { font-size: 13.5px; color: var(--text); flex: 1; }
+  .side .user .cog { color: var(--text-secondary); font-size: 16px; }
 
   /* ── Main ── */
   .main { display: flex; flex-direction: column; min-width: 0; }
-  .topbar {
-    height: 56px; border-bottom: 1px solid var(--line);
-    display: grid; grid-template-columns: auto 1fr auto auto; gap: 14px;
-    align-items: center; padding: 0 22px;
+  .pagehead {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 22px; border-bottom: 1px solid var(--line);
   }
-  .topbar .crumbs {
-    font-family: var(--font-sans); font-size: 14px; color: var(--text);
-    display: flex; align-items: center; gap: 6px;
+  .pagehead .crumbs {
+    font-size: 15px; color: var(--text);
+    display: flex; align-items: center; gap: 7px; flex: 1; min-width: 0;
   }
-  .topbar .crumbs .sep { color: var(--text-secondary); }
-  .topbar .crumbs .here { color: var(--text); font-weight: 500; }
-  .topbar .crumbs .x { color: var(--text-secondary); }
-  .topbar .search {
-    height: 30px; padding: 0 12px;
-    background: var(--component-bg); border-radius: 5px;
-    display: flex; align-items: center; gap: 10px;
-    width: 100%; max-width: 320px; min-width: 120px;
+  .pagehead .crumbs .x { color: var(--text-secondary); }
+  .pagehead .crumbs .sep { color: var(--text-secondary); opacity: 0.6; }
+  .pagehead .crumbs .here { color: var(--text); font-weight: 600; }
+  .pagehead .drop {
+    height: 30px; padding: 0 12px; background: var(--component-bg);
+    color: var(--text); border-radius: var(--radius); font-size: 12.5px;
+    display: inline-flex; align-items: center; gap: 7px;
   }
-  .topbar .search input { background: none; border: 0; outline: 0; color: var(--text); font-size: 13px; flex: 1; }
-  .topbar .search svg { width: 13px; height: 13px; color: var(--text-secondary); }
-  .topbar .search .kbd { font-family: var(--font-ui-mono); font-size: 10px; color: var(--text-secondary); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; }
-  .topbar .btn-ghost { height: 30px; padding: 0 10px; background: transparent; border: 0; color: var(--text-secondary); display:flex; align-items:center; gap: 6px; cursor: pointer; font-size: 13px; }
-  .topbar .btn-y {
-    height: 30px; padding: 0 14px; border-radius: 5px; border: 0; cursor: pointer;
-    background: var(--yellow-solid); color: var(--primary-foreground);
-    font-family: var(--font-sans); font-size: 12.5px; font-weight: 500;
-    text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap;
-    display: inline-flex; align-items: center; gap: 6px;
+  .pagehead .drop i { font-size: 12px; color: var(--text-secondary); }
+  .pagehead .seg {
+    display: flex; padding: 2px; background: var(--component-bg); border-radius: var(--radius); gap: 2px;
   }
-  .topbar .btn-y svg { width: 12px; height: 12px; }
+  .pagehead .seg .sb { width: 28px; height: 24px; display: grid; place-items: center; color: var(--text-secondary); border-radius: var(--radius-sm); }
+  .pagehead .seg .sb.on { background: var(--bg); color: var(--text); }
+  .pagehead .seg i { font-size: 14px; line-height: 1; }
 
-  .toolbar {
-    display: grid; grid-template-columns: auto 1fr auto;
-    align-items: center; gap: 14px;
-    padding: 12px 22px; border-bottom: 1px solid var(--line);
-    background: var(--bg);
+  .selbar {
+    display: flex; align-items: center; gap: 14px;
+    padding: 10px 22px; border-bottom: 1px solid var(--line);
+    background: var(--bg-secondary);
   }
-  .toolbar .checkbox { width: 14px; height: 14px; border: 1.5px solid var(--border); border-radius: 3px; }
-  .toolbar .sel {
-    font-size: 12px; font-weight: 500;
-    color: var(--text-secondary);
+  .selbar .sel { font-size: 12.5px; font-weight: 500; color: var(--text); }
+  .selbar .drop {
+    height: 28px; padding: 0 11px; background: var(--component-bg);
+    color: var(--text); border-radius: var(--radius); font-size: 12.5px;
+    display: inline-flex; align-items: center; gap: 7px;
   }
-  .toolbar .right { display: flex; gap: 6px; align-items: center; }
-  .toolbar .drop {
-    height: 26px; padding: 0 10px; background: var(--component-bg);
-    color: var(--text); border-radius: 4px; font-size: 12px;
-    display: inline-flex; align-items: center; gap: 6px;
-  }
-  .toolbar .drop i { font-size: 11px; color: var(--text-secondary); }
-  .toolbar .seg {
-    display: flex; padding: 2px; background: var(--component-bg); border-radius: var(--radius-sm); gap: 2px;
-  }
-  .toolbar .seg .sb { width: 26px; height: 22px; display: grid; place-items: center; color: var(--text-secondary); border-radius: 3px; }
-  .toolbar .seg .sb.on { background: var(--bg); color: var(--text); }
-  .toolbar .seg i { font-size: 13px; line-height: 1; }
+  .selbar .drop i { font-size: 11px; color: var(--text-secondary); }
+  .selbar .clear { margin-left: auto; font-size: 12.5px; color: var(--text-secondary); cursor: pointer; }
 
-  /* ── File grid ── */
+  /* ── File table ── */
   .files {
     flex: 1; padding: 4px 22px 22px; overflow: hidden;
-    display: grid; grid-template-columns: 26px 28px 1fr 100px 100px 28px;
-    gap: 0; align-content: start;
+    display: grid; grid-template-columns: 28px 30px 1fr 110px 120px 32px;
+    align-content: start;
   }
   .files .hd-cell {
-    padding: 8px 14px 6px 0; font-size: 11px; font-weight: 500;
+    padding: 10px 14px 8px 0; font-size: 11.5px; font-weight: 500;
     color: var(--text-secondary);
     border-bottom: 1px solid var(--line);
-    grid-column: span 1;
   }
+  .files .hd-cell.right { text-align: right; }
   .files .hd-cell .arr { font-size: 8px; vertical-align: middle; margin-left: 4px; color: var(--yellow-text-secondary); }
   .files .row { display: contents; }
   .files .cell {
-    padding: 9px 14px 9px 0; align-self: stretch;
+    padding: 11px 14px 11px 0; align-self: stretch; min-width: 0;
     display: flex; align-items: center;
-    font-size: 13.5px; color: var(--text);
-    border-bottom: 1px solid var(--line);
+    font-size: 14px; color: var(--text);
+    white-space: nowrap; overflow: hidden;
+    border-bottom: 1px solid var(--list-item-border);
   }
-  .files .cell.right { justify-content: flex-end; text-align: right; font-family: var(--font-ui-mono); font-size: 11.5px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
-  .files .cell.menu { justify-content: center; padding-right: 0; color: var(--text-secondary); text-align: center; font-family: var(--font-ui-mono); font-size: 14px; }
+  /* Filenames ellipsize rather than clip — the documented file-row rule.
+     The text needs its own shrinkable box: text-overflow does not apply to
+     an anonymous flex item, so a bare string in .cell would just be cut. */
+  .files .cell > .t { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .files .cell.right { justify-content: flex-end; text-align: right; font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .files .cell.menu { justify-content: center; padding-right: 0; color: var(--text-secondary); text-align: center; font-size: 15px; }
   .files .row:hover .cell { background: var(--list-item-bg-hover); }
   .files .row.sel .cell { background: var(--list-item-bg-active); }
-  .files i.fldr { font-size: 16px; color: var(--yellow-solid); line-height: 1; align-self: center; }
-  .files i.file-i { font-size: 16px; color: var(--text-secondary); line-height: 1; align-self: center; }
-  .files i.file-i.audio { color: var(--yellow-solid); }
-  .files .cb { width: 12px; height: 12px; border: 1.4px solid var(--border); border-radius: 2.5px; align-self: center; justify-self: center; }
+  .files i.file-i { font-size: 18px; color: var(--file-row-icon); line-height: 1; align-self: center; }
+  .files .cb { width: 14px; height: 14px; border: 1.5px solid var(--border); border-radius: 3px; align-self: center; justify-self: center; }
   .files .cb.on { background: var(--yellow-solid); border-color: var(--yellow-solid); position: relative; }
-  .files .cb.on::after { content:''; position:absolute; left:2.5px; top:0; width: 3.5px; height: 7px; border: solid var(--primary-foreground); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+  .files .cb.on::after { content:''; position:absolute; left:3px; top:0.5px; width: 4px; height: 8px; border: solid var(--primary-foreground); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
 </style></head>
 <body>
 
 <div class="frame">
 
-  <aside class="side">
-    <div class="brand">put<span class="d">.</span>io</div>
+  <header class="appbar">
+    <div class="logo"><img class="brand-light" src="../assets/logo-retro-light.svg" alt="put.io"><img class="brand-dark" src="../assets/logo-retro-dark.svg" alt="put.io"></div>
+    <div class="search">
+      <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+      <input aria-label="Search files and folders" placeholder="Search files and folders" />
+      <span class="kbd">/</span>
+    </div>
+    <button class="btn-y"><i class="ph-bold ph-plus" aria-hidden="true"></i>New transfer</button>
+  </header>
 
-    <div class="li on">
-      <i class="ph-fill ph-folder" style="color: var(--yellow-solid);"></i>
-      <span>Files</span>
-      <span class="count">11 TB</span>
-    </div>
-    <div class="li">
-      <i class="ph ph-arrows-down-up"></i>
-      <span>Transfers</span>
-      <span class="badge">3</span>
-    </div>
-    <div class="li">
-      <i class="ph ph-rss"></i>
-      <span>RSS</span>
-      <span class="count">2</span>
-    </div>
-    <div class="li">
-      <i class="ph ph-users"></i>
-      <span>Sharing</span>
-    </div>
-    <div class="li">
-      <i class="ph ph-clock-counter-clockwise"></i>
-      <span>History</span>
-    </div>
-    <div class="li">
-      <i class="ph ph-trash"></i>
-      <span>Trash</span>
-    </div>
-
-    <div class="sec">Settings</div>
-    <div class="li">
-      <i class="ph ph-gear"></i>
-      <span>Preferences</span>
-    </div>
-    <div class="li">
-      <i class="ph ph-credit-card"></i>
-      <span>Billing</span>
-    </div>
-
-    <div class="stor">
-      <div class="hd"><span class="lbl">Storage</span><span class="free"><b>39 TB</b> free</span></div>
-      <div class="track"><i></i></div>
-      <div class="meta">11 TB of 50 TB used</div>
-    </div>
-    <div class="user">
-      <div class="avi">K</div>
-      <span class="nm">kai</span>
-    </div>
-  </aside>
-
-  <div class="main">
-    <div class="topbar">
-      <div class="crumbs">
-        <span class="x">Films</span>
-        <span class="sep">/</span>
-        <span class="x">2024</span>
-        <span class="sep">/</span>
-        <span class="here">Q1</span>
+  <div class="body">
+    <aside class="side">
+      <div class="li on">
+        <i class="ph ph-folder" aria-hidden="true"></i>
+        <span>Files</span>
+        <span class="count">11 TB</span>
       </div>
-      <div class="search">
-        <i class="ph ph-magnifying-glass" style="font-size: 14px; color: var(--text-secondary);"></i>
-        <input aria-label="Search files and folders" placeholder="Search files and folders" />
-        <span class="kbd">/</span>
+      <div class="li">
+        <i class="ph ph-arrows-down-up" aria-hidden="true"></i>
+        <span>Transfers</span>
+        <span class="badge">3</span>
       </div>
-      <button class="btn-ghost">
-        <i class="ph ph-user-plus" style="font-size: 14px;"></i>
-        Invite
-      </button>
-      <button class="btn-y">
-        <i class="ph-bold ph-plus" style="font-size: 14px;"></i>
-        New transfer
-      </button>
-    </div>
+      <div class="li">
+        <i class="ph ph-rss" aria-hidden="true"></i>
+        <span>RSS</span>
+        <span class="count">2</span>
+      </div>
+      <div class="li">
+        <i class="ph ph-users" aria-hidden="true"></i>
+        <span>Sharing</span>
+      </div>
+      <div class="li">
+        <i class="ph ph-clock-counter-clockwise" aria-hidden="true"></i>
+        <span>History</span>
+      </div>
+      <div class="li">
+        <i class="ph ph-trash" aria-hidden="true"></i>
+        <span>Trash</span>
+      </div>
 
-    <div class="toolbar">
-      <div style="display:flex; gap: 14px; align-items:center;">
-        <div class="checkbox"></div>
-        <span class="sel">3 selected</span>
-        <div class="drop">Actions <i class="ph-bold ph-caret-down"></i></div>
-        <div class="drop">Move to… <i class="ph-bold ph-caret-down"></i></div>
+      <div class="sec">Settings</div>
+      <div class="li">
+        <i class="ph ph-gear" aria-hidden="true"></i>
+        <span>Preferences</span>
       </div>
-      <div></div>
-      <div class="right">
-        <div class="drop">Date added <i class="ph-bold ph-caret-down"></i></div>
+      <div class="li">
+        <i class="ph ph-credit-card" aria-hidden="true"></i>
+        <span>Billing</span>
+      </div>
+
+      <div class="stor">
+        <div class="hd"><span class="lbl">Storage</span><span class="free"><b>39 TB</b> free</span></div>
+        <div class="track"><i></i></div>
+        <div class="meta">11 TB of 50 TB used</div>
+      </div>
+      <div class="user">
+        <div class="avi">K</div>
+        <span class="nm">kai</span>
+        <i class="ph ph-caret-up-down cog" aria-hidden="true"></i>
+      </div>
+    </aside>
+
+    <div class="main">
+      <div class="pagehead">
+        <div class="crumbs">
+          <span class="x">Films</span>
+          <span class="sep">/</span>
+          <span class="x">2024</span>
+          <span class="sep">/</span>
+          <span class="here">Q1</span>
+        </div>
+        <div class="drop">Date added <i class="ph-bold ph-caret-down" aria-hidden="true"></i></div>
         <div class="seg">
-          <div class="sb on" title="List"><i class="ph ph-list"></i></div>
-          <div class="sb" title="Grid"><i class="ph ph-squares-four"></i></div>
+          <div class="sb on" title="List"><i class="ph ph-list" aria-hidden="true"></i></div>
+          <div class="sb" title="Grid"><i class="ph ph-squares-four" aria-hidden="true"></i></div>
         </div>
       </div>
-    </div>
 
-    <div class="files">
-      <div class="hd-cell"></div>
-      <div class="hd-cell"></div>
-      <div class="hd-cell">Name <i class="ph ph-caret-down arr" role="img" aria-label="Sorted descending"></i></div>
-      <div class="hd-cell">Size</div>
-      <div class="hd-cell">Modified</div>
-      <div class="hd-cell"></div>
+      <div class="selbar">
+        <span class="sel">3 selected</span>
+        <div class="drop">Actions <i class="ph-bold ph-caret-down" aria-hidden="true"></i></div>
+        <div class="drop">Move to… <i class="ph-bold ph-caret-down" aria-hidden="true"></i></div>
+        <span class="clear">Clear</span>
+      </div>
 
-      <div class="row sel">
-        <div class="cell"><div class="cb on"></div></div>
-        <div class="cell"><i class="ph-fill ph-folder fldr"></i></div>
-        <div class="cell">January</div>
-        <div class="cell right">—</div>
-        <div class="cell right">Mar 14</div>
-        <div class="cell menu"><i class="ph ph-dots-three" role="img" aria-label="Row actions"></i></div>
-      </div>
-      <div class="row sel">
-        <div class="cell"><div class="cb on"></div></div>
-        <div class="cell"><i class="ph-fill ph-folder fldr"></i></div>
-        <div class="cell">February</div>
-        <div class="cell right">—</div>
-        <div class="cell right">Mar 12</div>
-        <div class="cell menu"><i class="ph ph-dots-three" role="img" aria-label="Row actions"></i></div>
-      </div>
-      <div class="row">
-        <div class="cell"><div class="cb"></div></div>
-        <div class="cell"><i class="ph-fill ph-folder fldr"></i></div>
-        <div class="cell">March</div>
-        <div class="cell right">—</div>
-        <div class="cell right">Today</div>
-        <div class="cell menu"><i class="ph ph-dots-three" role="img" aria-label="Row actions"></i></div>
-      </div>
-      <div class="row sel">
-        <div class="cell"><div class="cb on"></div></div>
-        <div class="cell"><i class="ph ph-file-video file-i"></i></div>
-        <div class="cell">Dune.Part.Two.2024.1080p.WEB-DL.x264-GROUP.mkv</div>
-        <div class="cell right">3.42 GB</div>
-        <div class="cell right">Mar 14</div>
-        <div class="cell menu"><i class="ph ph-dots-three" role="img" aria-label="Row actions"></i></div>
-      </div>
-      <div class="row">
-        <div class="cell"><div class="cb"></div></div>
-        <div class="cell"><i class="ph ph-file-video file-i"></i></div>
-        <div class="cell">tears_of_steel.mkv</div>
-        <div class="cell right">1.20 GB</div>
-        <div class="cell right">Feb 28</div>
-        <div class="cell menu"><i class="ph ph-dots-three" role="img" aria-label="Row actions"></i></div>
-      </div>
-      <div class="row">
-        <div class="cell"><div class="cb"></div></div>
-        <div class="cell"><i class="ph ph-file-audio file-i audio"></i></div>
-        <div class="cell">ambient-session-03.mp3</div>
-        <div class="cell right">72.4 MB</div>
-        <div class="cell right">Feb 29</div>
-        <div class="cell menu"><i class="ph ph-dots-three" role="img" aria-label="Row actions"></i></div>
-      </div>
-      <div class="row">
-        <div class="cell"><div class="cb"></div></div>
-        <div class="cell"><i class="ph ph-file-text file-i"></i></div>
-        <div class="cell">Invoices Q1 2026.pdf</div>
-        <div class="cell right">210 kB</div>
-        <div class="cell right">Mar 07</div>
-        <div class="cell menu"><i class="ph ph-dots-three" role="img" aria-label="Row actions"></i></div>
+      <div class="files">
+        <div class="hd-cell"></div>
+        <div class="hd-cell"></div>
+        <div class="hd-cell">Name <i class="ph ph-caret-down arr" role="img" aria-label="Sorted descending"></i></div>
+        <div class="hd-cell right">Size</div>
+        <div class="hd-cell right">Modified</div>
+        <div class="hd-cell"></div>
+
+        <div class="row sel">
+          <div class="cell"><div class="cb on"></div></div>
+          <div class="cell"><i class="ph-fill ph-folder file-i" aria-hidden="true"></i></div>
+          <div class="cell"><span class="t">January</span></div>
+          <div class="cell right">—</div>
+          <div class="cell right">Mar 14</div>
+          <div class="cell menu"><i class="ph ph-dots-three" role="img" aria-label="Row actions"></i></div>
+        </div>
+        <div class="row sel">
+          <div class="cell"><div class="cb on"></div></div>
+          <div class="cell"><i class="ph-fill ph-folder file-i" aria-hidden="true"></i></div>
+          <div class="cell"><span class="t">February</span></div>
+          <div class="cell right">—</div>
+          <div class="cell right">Mar 12</div>
+          <div class="cell menu"><i class="ph ph-dots-three" role="img" aria-label="Row actions"></i></div>
+        </div>
+        <div class="row">
+          <div class="cell"><div class="cb"></div></div>
+          <div class="cell"><i class="ph-fill ph-folder file-i" aria-hidden="true"></i></div>
+          <div class="cell"><span class="t">March</span></div>
+          <div class="cell right">—</div>
+          <div class="cell right">Today</div>
+          <div class="cell menu"><i class="ph ph-dots-three" role="img" aria-label="Row actions"></i></div>
+        </div>
+        <div class="row sel">
+          <div class="cell"><div class="cb on"></div></div>
+          <div class="cell"><i class="ph ph-file-video file-i" aria-hidden="true"></i></div>
+          <div class="cell"><span class="t">Dune.Part.Two.2024.1080p.WEB-DL.x264-GROUP.mkv</span></div>
+          <div class="cell right">3.42 GB</div>
+          <div class="cell right">Mar 14</div>
+          <div class="cell menu"><i class="ph ph-dots-three" role="img" aria-label="Row actions"></i></div>
+        </div>
+        <div class="row">
+          <div class="cell"><div class="cb"></div></div>
+          <div class="cell"><i class="ph ph-file-video file-i" aria-hidden="true"></i></div>
+          <div class="cell"><span class="t">tears_of_steel.mkv</span></div>
+          <div class="cell right">1.20 GB</div>
+          <div class="cell right">Feb 28</div>
+          <div class="cell menu"><i class="ph ph-dots-three" role="img" aria-label="Row actions"></i></div>
+        </div>
+        <div class="row">
+          <div class="cell"><div class="cb"></div></div>
+          <div class="cell"><i class="ph ph-file-audio file-i" aria-hidden="true"></i></div>
+          <div class="cell"><span class="t">ambient-session-03.mp3</span></div>
+          <div class="cell right">72.4 MB</div>
+          <div class="cell right">Feb 29</div>
+          <div class="cell menu"><i class="ph ph-dots-three" role="img" aria-label="Row actions"></i></div>
+        </div>
+        <div class="row">
+          <div class="cell"><div class="cb"></div></div>
+          <div class="cell"><i class="ph ph-file-text file-i" aria-hidden="true"></i></div>
+          <div class="cell"><span class="t">Invoices Q1 2026.pdf</span></div>
+          <div class="cell right">210 kB</div>
+          <div class="cell right">Mar 07</div>
+          <div class="cell menu"><i class="ph ph-dots-three" role="img" aria-label="Row actions"></i></div>
+        </div>
       </div>
     </div>
   </div>

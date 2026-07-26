@@ -27,7 +27,7 @@
     const d = e.data;
     if (d && d.type === '__theme') {
       // Files marked <html data-theme-lock="..."> are fixed-mode product
-      // mockups (e.g. TV's Liquid Glass) and ignore parent broadcasts.
+      // mockups (e.g. the dark-only TV surfaces) and ignore parent broadcasts.
       if (document.documentElement.getAttribute('data-theme-lock')) return;
       applyTheme(d.theme === 'light' ? 'light' : 'dark');
     }

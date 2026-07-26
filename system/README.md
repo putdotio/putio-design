@@ -20,13 +20,17 @@ project root/
 
 Preview pages load the public put.io font CSS from `static.put.io` (the same
 source as the product), so the design system always matches production. Do not
-commit font files here. Each HTML file links three stylesheets in `<head>`:
+commit font files here. Two families, so each HTML file links two stylesheets in
+`<head>`:
 
 ```html
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
-<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 ```
+
+GT America Mono is retired. `--font-ui-mono` no longer exists and everything mono
+reads `--font-mono` (Berkeley Mono), whose tabular figures carry the numerics the
+UI mono used to. Do not re-add the `gt-america/mono/font.css` load.
 
 Canonical weight mapping (matches the brand font host):
 `100 ultra-light · 200 thin · 300 light · 400 regular · 500 medium · 700 bold · 900 black`
@@ -61,12 +65,30 @@ Web package consumers import the package CSS export:
 @import "@putdotio/design/css";
 ```
 
-For **TV preview cards**, also load `preview/tv-shell.css` — it adds the `.tv`, `.topnav`, `.scr`, glass tiers, and player chrome on top of the tokens. Every component selector is scoped under `.tv`, so the file is safe to bundle globally without bleeding into web components. This is preview-only support CSS; platform repos implement TV components in their native UI stacks:
+For **TV preview cards**, also load `preview/tv-shell.css` — it adds the `.tv`,
+`.scr`, `.row`, solid surface tiers, and player chrome on top of the tokens.
+Every component selector is scoped under `.tv`, so the file is safe to bundle
+globally without bleeding into web components. This is preview-only support CSS;
+platform repos implement TV components in their native UI stacks:
 
 ```html
 <link rel="stylesheet" href="./tokens.css">
 <link rel="stylesheet" href="./preview/tv-shell.css">
 ```
+
+TV surfaces are **solid token colors** — no `backdrop-filter`, no translucent
+white fills. Focus is a fill: rows go transparent → `--component-bg-active`,
+buttons go `--component-bg` → `--component-bg-active` with the border stepping
+to `--border-hover`. There is no scale, shadow, halo, or white invert.
+
+The 10-foot scale itself is graph data, not CSS. The `tv` token group
+(`--tv-text-*`, `--tv-space-*`, `--tv-overscan-*`,
+`--tv-radius`, `--tv-z-*`) carries the 1:1 values for native emitters and is
+`mode: "tv"`, so it is deliberately **not** emitted into `tokens.css` — read it
+from `dist/tokens.flat.json`. Only `--radius-tv` (12px, the single radius for
+every TV surface) is global and reachable in CSS. Two things must not be folded
+into the web scales: TV has no mono face, and TV orders `--tv-z-overlay` (300)
+*above* `--tv-z-toast` (200), the opposite of the web `--z-*` stack.
 
 ## Core rules
 
@@ -89,10 +111,9 @@ the parent broadcast when embedded. A URL query (`?theme=light` or
 `?theme=dark`) overrides both — useful for screenshots.
 
 Fixed-mode previews opt out with `<html data-theme-lock="dark">`. This is only
-for product mockups whose visual language is intrinsically one mode — TV's
-translucent glass material and on-video player chrome can't render on a light
-surface, so `tv-*.html`, `mobile-shell.html`, and `components-player-web.html`
-are locked. Locked previews ignore both `localStorage` and parent broadcasts.
+for product mockups whose visual language is intrinsically one mode — a 10-foot
+screen and on-video player chrome are dark-only surfaces, so `tv-*.html`,
+`mobile-shell.html`, and `components-player-web.html` are locked. Locked previews ignore both `localStorage` and parent broadcasts.
 If you write a new component preview, you almost certainly don't want the
 lock — let the tokens do the work and your specimen will render correctly in
 both modes.
@@ -117,6 +138,12 @@ the two name systems can't drift.
 | `--input` | `--border` |
 | `--ring` | `--shadow-focus-color` |
 | `--background` / `--foreground` | `--bg` / `--text` |
+
+There is also a full `--input-*` set (`-bg`, `-border`, `-border-hover`,
+`-border-focus`, `-ring`, `-text`, `-placeholder`, `-radius`) that aliases the
+`--field-*` tokens one-for-one, so shadcn-shaped input code themes without
+renaming. **Author against `--field-*`;** the `--input-*` names exist only as the
+alias bridge and must never carry their own value.
 
 The foreground tokens (`--primary-foreground`, `--destructive-foreground`,
 `--success-foreground`) encode the mode-safe inverse pair — always read these

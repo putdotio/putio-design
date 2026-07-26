@@ -4,7 +4,7 @@
   /* Theme bootstrap — runs synchronously before paint.
      One token-driven design system. .dark on <html> = dark; no class = light.
      Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
-       fixed-mode product mockups: TV's Liquid Glass, mobile-shell hero).
+       fixed-mode product mockups: TV surfaces, mobile-shell hero).
      Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
      URL ?theme=light|dark wins for screenshots / shared links.
      Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
@@ -30,7 +30,6 @@
 </script>
 <title>put.io · TV · navigation</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
-<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/mono/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 <link rel="stylesheet" href="../tokens.css">
 <link rel="stylesheet" href="./_components.css">
@@ -41,7 +40,7 @@
   html, body { background: var(--app-bg); margin: 0; font-family: var(--font-sans); }
   .preview-shell { padding: 24px; display: flex; flex-direction: column; gap: 22px; color: var(--text); }
   .label { font-size: 12.5px; font-weight: 500; color: var(--text); }
-  .note  { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 720px; }
+  .note  { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 760px; }
   .note b { color: var(--text); }
   .src  { font-family: var(--font-mono); font-size: 11px; color: var(--yellow-text-secondary); }
 
@@ -51,14 +50,14 @@
     aspect-ratio: 16 / 9;
     border-radius: 14px;
     overflow: hidden;
-    background: #000;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.45), 0 0 0 1px var(--line);
+    background: var(--bg);
+    box-shadow: var(--shadow-lg), 0 0 0 1px var(--line);
   }
   .artboard .tv { position: absolute; inset: 0; }
-  .artboard .row, .artboard .tab, .artboard .btn { transition: none !important; }
-  /* Canonical .tv is 1280x720 — keep the design grid; never let the title or row wrap */
+  .artboard .row { transition: none; }
   .artboard .scr-title { white-space: nowrap; }
   .artboard .row .title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .artboard .scr-head img { height: 40px; width: auto; display: block; }
 
   .platforms { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
   .ptr { display: grid; grid-template-columns: 160px repeat(4, 1fr); }
@@ -66,83 +65,59 @@
   .ptr > div { padding: 12px 14px; font-size: 12px; color: var(--text-secondary); border-left: 1px solid var(--line); line-height: 1.55; background: var(--bg-secondary); }
   .ptr > div:first-child { border-left: 0; }
   .ptr.head > div { background: var(--component-bg); font-size: 11px; color: var(--text); font-weight: 600; }
-  .ptr .what { background: var(--bg-secondary); color: var(--yellow-text-secondary); font-family: var(--font-ui-mono); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; font-weight: 500; }
+  .ptr .what { background: var(--bg-secondary); color: var(--yellow-text-secondary); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; font-weight: 500; }
 
-  /* Anatomy strip */
   .anat {
     background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px;
-    display: grid; grid-template-columns: repeat(5, 1fr); overflow: hidden;
+    display: grid; grid-template-columns: repeat(4, 1fr); overflow: hidden;
   }
   .anat .c { padding: 14px 16px; border-left: 1px solid var(--line); }
   .anat .c:first-child { border-left: 0; }
   .anat .k { font-size: 11px; font-weight: 500; color: var(--yellow-text-secondary); margin-bottom: 6px; }
   .anat .v { font-family: var(--font-mono); font-size: 13px; color: var(--text); }
   .anat .d { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
-  /* Phosphor icon helpers */
-  .ico-ph { font-size: 18px; line-height: 1; display: inline-flex; align-items: center; }
-  .chev-ph { font-size: 18px; line-height: 1; color: var(--text-secondary); }
-  .eye-ph { line-height: 1; }
-
+  .chev-ph { font-size: 26px; line-height: 1; color: var(--text-secondary); }
 </style></head>
 <body>
 <div class="preview-shell">
 
   <div>
-    <div class="label">Top navigation — floating glass tab bar</div>
+    <div class="label">Navigation — a Home hub, no persistent chrome</div>
     <div class="note">
-      Centred at the top of every primary screen. Four destinations only: <b>Files / Search / History / Account</b>. Pixel retro <code class="src">put.io</code> wordmark on the left; user identity on the right.
-      Source: <code class="src">tv-shell.css</code>.
+      TV navigation is a <b>stack with the header hidden</b> — there is <b>no tab bar and no floating top nav</b>. The first screen is <b>Home</b>: a hub whose body is a plain list of destination rows (<b>Your Files · Search · History · Account</b>). Selecting a row <b>pushes a full screen</b>; the remote <b>Back</b> button pops it. Every screen shares one anatomy — a header (the <b>logo</b> on Home, a <b>title</b> elsewhere) over a list of rows.
     </div>
   </div>
 
   <!-- =================================================================
-       ARTBOARD — Full topnav in context
+       ARTBOARD — the real Home hub screen
        ============================================================ -->
   <div class="artboard">
     <div class="tv">
       <div class="tv-content">
-        <div class="topnav">
-          <div class="topnav-logo">
-            <span class="brand"><span class="dotmark"></span>put.io</span>
-          </div>
-          <div class="topnav-tabs">
-            <div class="tab active">
-              <i class="ph-fill ph-folder ico-ph"></i>
-              <span>Files</span>
-            </div>
-            <div class="tab">
-              <svg class="ico" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5" stroke-linecap="round"/></svg>
-              <span>Search</span>
-            </div>
-            <div class="tab">
-              <i class="ph ph-clock-counter-clockwise ico-ph"></i>
-              <span>History</span>
-            </div>
-            <div class="tab">
-              <i class="ph ph-user-circle ico-ph"></i>
-              <span>Account</span>
-            </div>
-          </div>
-          <div class="topnav-right">
-            <span style="font-family: var(--font-mono);">kai</span>
-          </div>
-        </div>
-
-        <!-- Faint content underneath so the tab bar reads as floating -->
         <div class="scr">
           <div class="scr-head">
-            <h1 class="scr-title" style="opacity: 0.7;">Your Files</h1>
-            <div class="scr-spacer"></div>
-            <div class="scr-actions" style="opacity: 0.55;">
-              <div class="btn"><span>Refresh</span></div>
-              <div class="btn"><span>Name</span></div>
-            </div>
+            <img src="../assets/logo-retro-dark.svg" alt="put.io">
           </div>
-          <div class="row" style="opacity: 0.4;">
-            <div class="ico">
-              <i class="ph-fill ph-folder" style="font-size:30px;color:var(--yellow-solid);"></i>
-            </div>
-            <div class="body"><div class="title">Movies</div><div class="sub">38 items · 412 GB</div></div>
+
+          <div class="row focused">
+            <div class="ico"><i class="ph ph-folder" style="font-size:30px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
+            <div class="body"><div class="title">Your Files</div></div>
+            <div class="trailing"><i class="ph ph-caret-right chev-ph" aria-hidden="true"></i></div>
+          </div>
+          <div class="row">
+            <div class="ico"><i class="ph ph-magnifying-glass" style="font-size:30px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
+            <div class="body"><div class="title">Search</div></div>
+            <div class="trailing"><i class="ph ph-caret-right chev-ph" aria-hidden="true"></i></div>
+          </div>
+          <div class="row">
+            <div class="ico"><i class="ph ph-clock-counter-clockwise" style="font-size:30px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
+            <div class="body"><div class="title">History</div></div>
+            <div class="trailing"><i class="ph ph-caret-right chev-ph" aria-hidden="true"></i></div>
+          </div>
+          <div class="row">
+            <div class="ico"><i class="ph ph-user" style="font-size:30px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
+            <div class="body"><div class="title">Account</div></div>
+            <div class="trailing"><i class="ph ph-caret-right chev-ph" aria-hidden="true"></i></div>
           </div>
         </div>
       </div>
@@ -153,14 +128,13 @@
        ANATOMY
        ============================================================ -->
   <div>
-    <div class="label">Anatomy · 5 measurements</div>
+    <div class="label">Anatomy</div>
   </div>
   <div class="anat">
-    <div class="c"><div class="k">Container</div><div class="v">5px pad · 28px radius</div><div class="d">.topnav-tabs</div></div>
-    <div class="c"><div class="k">Surface</div><div class="v">10% white · blur 40 sat 200</div><div class="d">Liquid Glass</div></div>
-    <div class="c"><div class="k">Tab idle</div><div class="v">16px · 500 · 9px 18px pad</div><div class="d">text-2 colour</div></div>
-    <div class="c"><div class="k">Tab active</div><div class="v">10% white pill</div><div class="d">yellow icon · text-1</div></div>
-    <div class="c"><div class="k">Tab focused</div><div class="v">96% white invert</div><div class="d">black text · drop shadow</div></div>
+    <div class="c"><div class="k">Home header</div><div class="v">retro logo</div><div class="d">title elsewhere · hairline divider under</div></div>
+    <div class="c"><div class="k">Row</div><div class="v">icon · title · chevron</div><div class="d">yellow icon · link accessory</div></div>
+    <div class="c"><div class="k">Focus</div><div class="v">--component-bg-active</div><div class="d">solid fill · 12px radius</div></div>
+    <div class="c"><div class="k">Safe area</div><div class="v">4% / 2%</div><div class="d">overscan L·R / T·B</div></div>
   </div>
 
   <!-- =================================================================
@@ -168,7 +142,7 @@
        ============================================================ -->
   <div>
     <div class="label">Platform variation</div>
-    <div class="note">The bar floats with the same proportions on every platform. Only the surface treatment underneath it changes.</div>
+    <div class="note">Same hub-and-stack model on every platform; only the native navigator underneath differs.</div>
   </div>
 
   <div class="platforms">
@@ -180,39 +154,32 @@
       <div>Smart-TV web</div>
     </div>
     <div class="ptr">
-      <div class="what">Bar surface</div>
-      <div>Liquid Glass · blur(40)</div>
-      <div>solid #1f1f1f · scrim</div>
-      <div>solid #161616 · no scrim</div>
-      <div>blur if available · else solid</div>
+      <div class="what">Navigator</div>
+      <div>UINavigationController</div>
+      <div>Compose Navigation</div>
+      <div>SceneGraph stack</div>
+      <div>history stack</div>
     </div>
     <div class="ptr">
-      <div class="what">Specular sheen</div>
-      <div>linear 150° on top edge</div>
-      <div>—</div>
-      <div>—</div>
-      <div>—</div>
+      <div class="what">Move focus</div>
+      <div>UIFocusGuide</div>
+      <div>Compose focus</div>
+      <div>SceneGraph focus</div>
+      <div>spatial-nav polyfill</div>
     </div>
     <div class="ptr">
-      <div class="what">Tab focused style</div>
-      <div>white pill invert</div>
-      <div>white pill invert</div>
-      <div>yellow fill · black text</div>
-      <div>white pill invert</div>
+      <div class="what">Back</div>
+      <div>Menu / Back</div>
+      <div>Back button</div>
+      <div>Back button</div>
+      <div>Escape / Back</div>
     </div>
     <div class="ptr">
-      <div class="what">Brand wordmark</div>
-      <div>retro pixel SVG · top-left</div>
-      <div>retro pixel SVG · top-left</div>
-      <div>retro pixel SVG · top-left</div>
-      <div>retro pixel SVG · top-left</div>
-    </div>
-    <div class="ptr">
-      <div class="what">User identity</div>
-      <div>mono · top-right</div>
-      <div>mono · top-right</div>
-      <div>mono · top-right</div>
-      <div>mono · top-right</div>
+      <div class="what">Row focus</div>
+      <div>--component-bg-active</div>
+      <div>--component-bg-active</div>
+      <div>--component-bg-active</div>
+      <div>--component-bg-active</div>
     </div>
   </div>
 
