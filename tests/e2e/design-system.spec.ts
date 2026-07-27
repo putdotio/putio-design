@@ -102,6 +102,8 @@ test.describe("design.put.io static guide", () => {
     const palette = page.locator(".palette").first();
     await expect.poll(async () => palette.evaluate((element) => getComputedStyle(element).width)).toBe("560px");
     await expect.poll(async () => palette.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe(await resolvedCssColor(page, "--palette-bg"));
+    await expect(page.locator("#palette-results > [role=group]")).toHaveCount(3);
+    await expect(page.locator("#palette-results > :not([role=group])")).toHaveCount(0);
 
     await page.goto("/preview/components-sheet.html?theme=light", { waitUntil: "domcontentloaded" });
     const sheet = page.locator(".sheet");
