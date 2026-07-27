@@ -93,6 +93,24 @@ test.describe("design.put.io static guide", () => {
     }
   });
 
+  test("overlay primitives consume their semantic token groups @desktop", async ({ page }) => {
+    await page.goto("/preview/components-menu.html?theme=light", { waitUntil: "domcontentloaded" });
+    const menuBackground = await resolvedCssColor(page, "--menu-bg");
+    await expect.poll(async () => page.locator(".menu-pop").first().evaluate((element) => getComputedStyle(element).backgroundColor)).toBe(menuBackground);
+
+    await page.goto("/preview/components-command-palette.html?theme=light", { waitUntil: "domcontentloaded" });
+    const palette = page.locator(".palette").first();
+    await expect.poll(async () => palette.evaluate((element) => getComputedStyle(element).width)).toBe("560px");
+    await expect.poll(async () => palette.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe(await resolvedCssColor(page, "--palette-bg"));
+    await expect(page.locator("#palette-results > [role=group]")).toHaveCount(3);
+    await expect(page.locator("#palette-results > :not([role=group])")).toHaveCount(0);
+
+    await page.goto("/preview/components-sheet.html?theme=light", { waitUntil: "domcontentloaded" });
+    const sheet = page.locator(".sheet");
+    await expect.poll(async () => sheet.evaluate((element) => getComputedStyle(element).width)).toBe("380px");
+    await expect.poll(async () => sheet.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe(await resolvedCssColor(page, "--sheet-bg"));
+  });
+
   test("web shell keeps search centered and filenames ellipsized @desktop", async ({ page }) => {
     await page.goto("/preview/web-shell.html", { waitUntil: "domcontentloaded" });
     const appbar = await page.locator(".appbar").boundingBox();
