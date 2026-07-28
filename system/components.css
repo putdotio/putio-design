@@ -100,8 +100,11 @@ button i { font-size: var(--button-icon-size); line-height: 1; display: inline-f
 }
 .btn-quiet:hover:not(:disabled), .btn-quiet.btn-default:hover:not(:disabled) { background: var(--button-ghost-bg-hover); border-color: transparent; color: var(--button-ghost-fg-hover); }
 .btn-quiet.btn-info { color: var(--text); }
-.btn-quiet.btn-primary, .btn-quiet.btn-warning { color: var(--yellow-solid); }
-.btn-quiet.btn-primary:hover:not(:disabled), .btn-quiet.btn-warning:hover:not(:disabled) { background: var(--yellow-component-bg-hover); border-color: transparent; color: var(--yellow-solid); }
+/* --yellow-text-secondary, not --yellow-solid: solid is a fill step, and in
+   light mode the brand yellow as a glyph colour on a light surface is
+   unreadable. The text step carries a legible value in both modes. */
+.btn-quiet.btn-primary, .btn-quiet.btn-warning { color: var(--yellow-text-secondary); }
+.btn-quiet.btn-primary:hover:not(:disabled), .btn-quiet.btn-warning:hover:not(:disabled) { background: var(--yellow-component-bg-hover); border-color: transparent; color: var(--yellow-text-secondary); }
 .btn-quiet.btn-success { color: var(--green-solid); }
 .btn-quiet.btn-success:hover:not(:disabled) { background: var(--green-component-bg-hover); border-color: transparent; color: var(--green-solid); }
 .btn-quiet.btn-danger { color: var(--red-solid); }
@@ -166,6 +169,14 @@ button.is-loading::after {
 .btn-info.is-loading::after,
 .btn-invert.is-loading::after { color: var(--destructive-foreground); }
 .btn-default.is-loading::after, .btn-ghost.is-loading::after { color: var(--text); }
+/* The spinner borrows currentColor, and .is-loading makes the label colour
+   transparent — so a quiet button needs its own spinner colour or the control
+   shows nothing at all while it works. */
+.btn-quiet.is-loading::after { color: var(--button-ghost-fg-hover); }
+.btn-quiet.btn-primary.is-loading::after,
+.btn-quiet.btn-warning.is-loading::after { color: var(--yellow-text-secondary); }
+.btn-quiet.btn-success.is-loading::after { color: var(--green-solid); }
+.btn-quiet.btn-danger.is-loading::after { color: var(--red-solid); }
 /* Shared spinner keyframe — consumed by .is-loading and by form/shell
    cards. Defined once here; do not redeclare it per card. */
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -220,10 +231,13 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 .card-md { padding: 24px; }
 .card-lg { padding: 32px 32px 28px; }
 
+/* Reads the --panel-* aliases, not the generic surface scale. That is the
+   documented contract for panel chrome, and it is the difference between a
+   consumer being able to retheme panels and having to override this rule. */
 .panel {
-  background: var(--bg-secondary);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--panel-radius);
   overflow: hidden;
 }
 .panel-pad     { padding: 14px 16px; }
@@ -255,7 +269,9 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   height: 36px;
   padding: 0 12px;
   box-sizing: border-box;
-  border-radius: var(--radius);
+  /* --field-radius, not the generic --radius. Same 6px today, but a consumer
+     retheming field chrome must not have to override this rule to move it. */
+  border-radius: var(--field-radius);
   border: 1px solid var(--field-border);
   background: var(--field-bg);
   color: var(--field-text);
@@ -343,12 +359,15 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 
 /* Floating-menu surface — one recipe for dropdowns, context menus,
    submenus, and on-player popovers. Cards keep their item styles local. */
+/* Reads the --menu-* aliases for surface, border, radius and shadow. The
+   generic scale is close but not identical, and using it here would silently
+   break --menu-* retheming for every consumer of this recipe. */
 .menu-pop {
   min-width: 216px;
-  background: var(--component-bg);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-md);
+  background: var(--menu-bg);
+  border: 1px solid var(--menu-border);
+  border-radius: var(--menu-radius);
+  box-shadow: var(--menu-shadow);
   padding: 4px;
   z-index: var(--z-dropdown);
   display: flex; flex-direction: column; gap: 1px;
@@ -364,9 +383,16 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
    Selection controls — ONE checkbox and ONE switch for the
    whole system.
 
-   .checkbox  — div or <span>, add .checked when on
+   State comes from `data-state="checked"`, the same attribute a
+   headless primitive already sets, so the DOM contract holds
+   whatever drives it. The legacy `.checked` / `.on` class flags
+   are still matched for the specimens that predate this, but
+   `.on` is exactly the invented flag the state contract tells
+   you not to add — prefer the attribute in new markup.
+
+   .checkbox  — div or <span>, data-state="checked" when on
    input[type="checkbox"] — native inputs get the brand accent
-   .switch    — div, add .on when on
+   .switch    — div, data-state="checked" when on
    =========================================================== */
 .checkbox {
   width: 14px; height: 14px; flex-shrink: 0;
@@ -375,12 +401,14 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   background: transparent;
   transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
-.checkbox.checked {
+.checkbox.checked,
+.checkbox[data-state="checked"] {
   background: var(--yellow-solid);
   border-color: var(--yellow-solid);
   position: relative;
 }
-.checkbox.checked::after {
+.checkbox.checked::after,
+.checkbox[data-state="checked"]::after {
   content: ''; position: absolute; left: 3px; top: 0;
   width: 5px; height: 9px;
   border: solid var(--primary-foreground); border-width: 0 2px 2px 0;
@@ -401,5 +429,9 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--yellow-solid);
   background: var(--text);
   transition: left var(--dur-fast) var(--ease-out);
 }
-.switch.on { background: var(--green-solid); }
-.switch.on::after { left: 22px; background: #fff; }
+.switch.on,
+.switch[data-state="checked"] { background: var(--green-solid); }
+/* The thumb rides the green selected track, so it takes the token for "what
+   colour sits on green" rather than a raw white that no theme can reach. */
+.switch.on::after,
+.switch[data-state="checked"]::after { left: 22px; background: var(--button-success-fg); }

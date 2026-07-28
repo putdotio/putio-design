@@ -47,6 +47,23 @@ const REQUIRED_SELECTORS = [
    fallback. */
 const CONSUMER_HOOKS = new Set(["--tw-fs"]);
 
+/*
+  Chrome that has its own alias family must read that family, not the generic
+  surface scale. Existence checks alone cannot see this: `.panel` reading
+  `--bg-secondary` resolves perfectly and still breaks every consumer trying to
+  retheme panels through `--panel-*`. All three of these regressed exactly that
+  way before the layer became public API.
+*/
+const ALIAS_CONTRACTS = [
+  { selector: ".field", family: "--field-" },
+  { selector: ".panel", family: "--panel-" },
+  { selector: ".menu-pop", family: "--menu-" },
+];
+
+/* Reaching for one of these inside an aliased block is the tell that the family
+   was bypassed. Scale tokens that no family supersedes are fine. */
+const GENERIC_SURFACE = ["--component-bg", "--bg-secondary", "--line"];
+
 const [componentCss, tokensCss] = await Promise.all([
   readFile(COMPONENT_CSS, "utf8"),
   readFile(TOKENS_CSS, "utf8"),
@@ -57,22 +74,29 @@ const [componentCss, tokensCss] = await Promise.all([
 const opens = componentCss.match(/\/\*/g)?.length ?? 0;
 const closes = componentCss.match(/\*\//g)?.length ?? 0;
 
-/* Strip comments the way the parser would, then read the selectors that survive.
-   Anything the parser dropped simply will not be here. */
-const stripped = componentCss.replace(/\/\*[\s\S]*?\*\//g, "");
+/* Blank out comments the way the parser would, but keep the file's length and
+   line breaks so reported line numbers still point at the real source. Prose
+   inside a comment is not a runtime reference: a comment that documents
+   `var(--tv-z-overlay)` must not be mistaken for a live one. */
+const code = componentCss.replace(/\/\*[\s\S]*?\*\//g, (block) => block.replace(/[^\n]/g, " "));
+
+/* The selectors that survive parsing. Anything the parser dropped is absent.
+   Whitespace is collapsed but never split away: `button i` must not be able to
+   satisfy a requirement for the bare `button` reset, which is the exact rule
+   that went missing and started this check. */
 const declaredSelectors = new Set(
-  [...stripped.matchAll(/(?:^|[}])\s*([^{}@]+?)\s*\{/g)]
+  [...code.matchAll(/(?:^|[}])\s*([^{}@]+?)\s*\{/g)]
     .flatMap((match) => match[1].split(","))
-    .map((selector) => selector.trim().split(/[\s:>]/)[0])
+    .map((selector) => selector.trim().replace(/\s+/g, " "))
     .filter(Boolean),
 );
 const missingSelectors = REQUIRED_SELECTORS.filter((selector) => !declaredSelectors.has(selector));
 
 const referenced = new Map<string, number>();
-for (const match of componentCss.matchAll(/var\(\s*(--[a-z0-9-]+)/g)) {
+for (const match of code.matchAll(/var\(\s*(--[a-z0-9-]+)/g)) {
   const name = match[1];
   if (!referenced.has(name)) {
-    referenced.set(name, componentCss.slice(0, match.index).split("\n").length);
+    referenced.set(name, code.slice(0, match.index).split("\n").length);
   }
 }
 
@@ -80,16 +104,41 @@ const defined = new Set([...tokensCss.matchAll(/^\s*(--[a-z0-9-]+)\s*:/gm)].map(
 
 const missing = [...referenced].filter(([name]) => !defined.has(name) && !CONSUMER_HOOKS.has(name));
 
+/* Read each aliased selector's own declaration block out of the comment-blanked
+   source, so a family bypass is caught where it happens. */
+const aliasFailures: string[] = [];
+for (const { selector, family } of ALIAS_CONTRACTS) {
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const block = code.match(new RegExp(`(?:^|[}])\\s*${escaped}\\s*\\{([^}]*)\\}`))?.[1];
+
+  if (block === undefined) {
+    aliasFailures.push(`\`${selector}\` has no rule block, so its ${family}* contract cannot be checked`);
+    continue;
+  }
+  if (!block.includes(`var(${family}`)) {
+    aliasFailures.push(`\`${selector}\` reads no ${family}* token — its alias family exists and must be used`);
+  }
+  for (const generic of GENERIC_SURFACE) {
+    if (new RegExp(`var\\(\\s*${generic}\\s*[,)]`).test(block)) {
+      aliasFailures.push(`\`${selector}\` reads the generic \`${generic}\` instead of its ${family}* equivalent`);
+    }
+  }
+}
+
 /* A hook that loses its fallback is the same bug in reverse: the value would
    resolve to nothing whenever the consumer does not set it. */
 const hooksWithoutFallback = [...CONSUMER_HOOKS].filter((hook) => {
   const withFallback = new RegExp(`var\\(\\s*${hook}\\s*,`, "g");
   const anyUse = new RegExp(`var\\(\\s*${hook}\\s*[,)]`, "g");
-  return (componentCss.match(anyUse)?.length ?? 0) !== (componentCss.match(withFallback)?.length ?? 0);
+  return (code.match(anyUse)?.length ?? 0) !== (code.match(withFallback)?.length ?? 0);
 });
 
 const failed =
-  missing.length > 0 || hooksWithoutFallback.length > 0 || missingSelectors.length > 0 || opens !== closes;
+  missing.length > 0 ||
+  hooksWithoutFallback.length > 0 ||
+  missingSelectors.length > 0 ||
+  aliasFailures.length > 0 ||
+  opens !== closes;
 
 if (failed) {
   if (opens !== closes) {
@@ -100,6 +149,9 @@ if (failed) {
   }
   for (const selector of missingSelectors) {
     console.error(`- required selector \`${selector}\` is not declared — the parser never saw its rule`);
+  }
+  for (const failure of aliasFailures) {
+    console.error(`- ${failure}`);
   }
   for (const [name, line] of missing) {
     console.error(`- ${name} (${COMPONENT_CSS}:${line}) is not emitted by ${TOKENS_CSS}`);
@@ -113,6 +165,7 @@ if (failed) {
   console.log(
     `Component CSS resolves: ${referenced.size} custom properties, ` +
       `${REQUIRED_SELECTORS.length} required selectors, ` +
+      `${ALIAS_CONTRACTS.length} alias contracts, ` +
       `${CONSUMER_HOOKS.size} consumer hook(s) with fallbacks`,
   );
 }
