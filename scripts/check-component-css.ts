@@ -96,7 +96,7 @@ const ALIAS_CONTRACTS = [
 /* A selector continues the base when what follows it starts a state, attribute,
    class or descendant — never another identifier character, so `.fieldset` is not
    a continuation of `.field`. */
-const CONTINUATION = /^[\s:.[>+~]/;
+const CONTINUATION = /^[\s:.[#>+~]/;
 
 const [componentCss, tokensCss] = await Promise.all([
   readFile(COMPONENT_CSS, "utf8"),
