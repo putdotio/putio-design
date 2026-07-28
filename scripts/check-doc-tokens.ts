@@ -35,11 +35,16 @@ const emitted = new Set([...tokensCss.matchAll(/^\s*(--[a-z0-9-]+)\s*:/gm)].map(
 const graphPaths = new Set(Object.keys(flat));
 const namespaces = new Set([...graphPaths].map((path) => path.split(".")[0]));
 
-const lineOf = (index: number) => doc.slice(0, index).split("\n").length;
+/* Fenced blocks are illustrations, not contracts — an example may legitimately
+   show a name this repo does not emit. Blank them to same-length whitespace so
+   they stop matching while reported line numbers still point at real source. */
+const prose = doc.replace(/^```[\s\S]*?^```/gm, (block) => block.replace(/[^\n]/g, " "));
 
-/* Only inline-code spans count as citations. Prose that merely mentions a name,
-   and fenced examples, are not contracts. */
-const codeSpans = [...doc.matchAll(/`([^`\n]+)`/g)].map((m) => ({ text: m[1], line: lineOf(m.index) }));
+const lineOf = (index: number) => prose.slice(0, index).split("\n").length;
+
+/* Only inline-code spans in prose count as citations. A name in running text
+   without backticks is a mention, not a promise. */
+const codeSpans = [...prose.matchAll(/`([^`\n]+)`/g)].map((m) => ({ text: m[1], line: lineOf(m.index) }));
 
 const failures: string[] = [];
 
