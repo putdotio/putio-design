@@ -1,24 +1,39 @@
 /* ============================================================
-   put.io \u00b7 preview/_components.css
-   Shared UI primitives consumed across preview specimens.
+   put.io — components.css
+   The component layer of the design system: plain CSS classes over
+   the tokens, no framework. Import it after tokens.css.
 
-   Single source of truth for:
-     - Button system (matches Button)
-     - .head specimen marker (yellow Berkeley-Mono index)
-     - .field input reset
+   Consumers: `@putdotio/design/components`, imported after
+   `@putdotio/design/css`. Every value here resolves from a token in the
+   DTCG graph under `tokens/` — the classes are one binding of that graph,
+   not a second source of truth. Icon glyphs assume Phosphor.
 
-   Linked AFTER tokens.css in each preview. Don't duplicate these
-   rules locally; if you need a per-page tweak, add a more-specific
-   selector inline in the file's <style> block.
+   Port notes: class names are the web contract. SwiftUI / Compose /
+   Roku read the same values from the DTCG artifacts and own their
+   adapters; appearance (filled / ghost) is a variant axis on one
+   Button, never a second component.
    ============================================================ */
-
 /* ===========================================================
-   Button base \u2014 production parity with the web app's primary button
+   NAMING HAZARD — do not define layout classes in the `ph`/`ph-*`
+   namespace. Phosphor's icon font owns it: a rule named `.ph` matches
+   every regular-weight <i class="ph ph-x"> on the page and turns the
+   glyph into a padded flex box. Page headers are `.pgh`, never `.ph`.
+   =========================================================== */
+/* ===========================================================
+   Button base — production parity with the web app's primary button
    - lg (default): h36 / 1.0px letter-spacing
    - md:           h32 / 0.8px
    - sm:           h28 / 0.6px
    - xs:           h24 / 0.3px / fs-xs
-   --tw-fs scales the whole thing for breakpoints (unset = 1).
+   --tw-fs scales the whole thing for breakpoints (unset = 1). It is a
+   consumer hook, deliberately not a token: a breakpoint multiplier
+   belongs to the page, not the system.
+   Geometry is token-driven — --button-height(-md/-sm/-xs),
+   --button-padding-x(-xs), --button-label-size(-xs),
+   --button-tracking(-md/-sm/-xs), --button-icon-size, --button-gap —
+   so native emitters read the same box. ONE BOX PER SIZE: tiers and
+   variants change colour only, never geometry, so two buttons of the
+   same size always compare safely side by side.
    =========================================================== */
 /* NOTE: uppercase + tracking + sizing live on `.btn` — NOT on bare <button>.
    Plain <button> elements (tabs, menu items, segmented controls) inherit
@@ -26,14 +41,14 @@
 button {
   font-family: var(--font-sans);
   font-weight: var(--fw-medium);
-  font-size: calc(var(--fs-sm) * var(--tw-fs, 1));  /* production button = fontSize 0 (0.875rem) */
+  font-size: calc(var(--button-label-size) * var(--tw-fs, 1));  /* production button = fontSize 0 (0.875rem) */
   /* Real starting bg so transition has something to interpolate
      from — otherwise UA `buttonface` paints silver until hover. */
   background-color: transparent;
   border: 1px solid transparent;
   color: var(--text);
   cursor: pointer;
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--button-gap);
   white-space: nowrap;
   appearance: none; -webkit-appearance: none;
   transition: background-color var(--dur-fast) var(--ease-out),
@@ -41,34 +56,62 @@ button {
               color           var(--dur-fast) var(--ease-out);
   user-select: none;
 }
-button i { font-size: 14px; line-height: 1; display: inline-flex; }
+button i { font-size: var(--button-icon-size); line-height: 1; display: inline-flex; }
 
 /* Brand button — uppercase + tracking + default sizing live HERE, not on
    bare <button>. Anything that shouts "do a thing" (primary / secondary /
    destructive) is a `.btn-*` variant and inherits these. */
 .btn,
-.btn-primary, .btn-success, .btn-danger, .btn-info, .btn-invert, .btn-default {
-  height: calc(36px * var(--tw-fs, 1));
-  padding: 0 calc(12px * var(--tw-fs, 1));
+.btn-primary, .btn-success, .btn-danger, .btn-info, .btn-invert, .btn-default, .btn-ghost {
+  height: calc(var(--button-height) * var(--tw-fs, 1));
+  padding: 0 calc(var(--button-padding-x) * var(--tw-fs, 1));
   border-radius: var(--button-radius);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: var(--button-tracking);
 }
 
-/* Sizes \u2014 letter-spacing tracks size */
-.btn-md { height: calc(32px * var(--tw-fs, 1)) !important; padding: 0 calc(12px * var(--tw-fs, 1)) !important; letter-spacing: 0.8px; }
-.btn-sm { height: calc(28px * var(--tw-fs, 1)) !important; padding: 0 calc(12px * var(--tw-fs, 1)) !important; letter-spacing: 0.6px; }
-.btn-xs { height: calc(24px * var(--tw-fs, 1)) !important; padding: 0 calc(8px  * var(--tw-fs, 1)) !important; font-size: calc(var(--fs-xs) * var(--tw-fs, 1)) !important; letter-spacing: 0.3px; }
+/* Sizes — letter-spacing tracks size */
+.btn-md { height: calc(var(--button-height-md) * var(--tw-fs, 1)) !important; padding: 0 calc(var(--button-padding-x) * var(--tw-fs, 1)) !important; letter-spacing: var(--button-tracking-md); }
+.btn-sm { height: calc(var(--button-height-sm) * var(--tw-fs, 1)) !important; padding: 0 calc(var(--button-padding-x) * var(--tw-fs, 1)) !important; letter-spacing: var(--button-tracking-sm); }
+.btn-xs { height: calc(var(--button-height-xs) * var(--tw-fs, 1)) !important; padding: 0 calc(var(--button-padding-x-xs) * var(--tw-fs, 1)) !important; font-size: calc(var(--button-label-size-xs) * var(--tw-fs, 1)) !important; letter-spacing: var(--button-tracking-xs); }
 
-/* Icon-only modifier \u2014 square, no text padding, no text transform */
-.btn-icon { width: calc(36px * var(--tw-fs, 1)) !important; padding: 0 !important; text-transform: none; letter-spacing: normal; }
-.btn-icon.btn-md { width: calc(32px * var(--tw-fs, 1)) !important; }
-.btn-icon.btn-sm { width: calc(28px * var(--tw-fs, 1)) !important; }
+/* Icon-only modifier — square, no text padding, no text transform */
+.btn-icon { width: calc(var(--button-height) * var(--tw-fs, 1)) !important; padding: 0 !important; text-transform: none; letter-spacing: normal; }
+.btn-icon.btn-md { width: calc(var(--button-height-md) * var(--tw-fs, 1)) !important; }
+.btn-icon.btn-sm { width: calc(var(--button-height-sm) * var(--tw-fs, 1)) !important; }
 
-/* Layout-only modifier \u2014 full-width CTA */
+/* Layout-only modifier — full-width CTA */
 .btn-block { width: 100%; }
 
-/* Variants \u2014 token-driven. Foregrounds read from --*-foreground
+/* ===========================================================
+   Quiet icon button — the app's IconButton appearance="hover" (its DEFAULT).
+   This is the GHOST appearance applied to icon-only controls: transparent
+   at rest, the variant's colour in the glyph, the variant's
+   component-bg-hover behind it on hover. The neutral case reads the
+   --button-ghost-* tokens — same tier, same values as .btn-ghost.
+   This is the treatment for icon controls that live inside a row or a
+   toolbar — list actions, close, retry, delete. Use the filled
+   `.btn-default.btn-icon` only when the button stands alone as a target
+   (appearance="filled"). Sizes come from .btn-sm / .btn-md as usual.
+   =========================================================== */
+.btn-quiet, .btn-quiet.btn-primary, .btn-quiet.btn-warning, .btn-quiet.btn-success,
+.btn-quiet.btn-danger, .btn-quiet.btn-info, .btn-quiet.btn-default {
+  background: transparent; border-color: transparent; color: var(--button-ghost-fg);
+}
+.btn-quiet:hover:not(:disabled), .btn-quiet.btn-default:hover:not(:disabled) { background: var(--button-ghost-bg-hover); border-color: transparent; color: var(--button-ghost-fg-hover); }
+.btn-quiet.btn-info { color: var(--text); }
+/* --yellow-text-secondary, not --yellow-solid: solid is a fill step, and in
+   light mode the brand yellow as a glyph colour on a light surface is
+   unreadable. The text step carries a legible value in both modes. */
+.btn-quiet.btn-primary, .btn-quiet.btn-warning { color: var(--yellow-text-secondary); }
+.btn-quiet.btn-primary:hover:not(:disabled), .btn-quiet.btn-warning:hover:not(:disabled) { background: var(--yellow-component-bg-hover); border-color: transparent; color: var(--yellow-text-secondary); }
+.btn-quiet.btn-success { color: var(--green-solid); }
+.btn-quiet.btn-success:hover:not(:disabled) { background: var(--green-component-bg-hover); border-color: transparent; color: var(--green-solid); }
+.btn-quiet.btn-danger { color: var(--red-solid); }
+.btn-quiet.btn-danger:hover:not(:disabled) { background: var(--red-component-bg-hover); border-color: transparent; color: var(--red-solid); }
+.btn-quiet:disabled { opacity: 1; color: var(--solid); background: transparent; }
+
+/* Variants — token-driven. Foregrounds read from --*-foreground
    tokens in tokens.css so "what color on top" lives in one place.
 
    CONTRAST CONTRACT: solid success/danger/info fills are tuned for
@@ -90,6 +133,19 @@ button i { font-size: 14px; line-height: 1; display: inline-flex; }
 .btn-default  { background: var(--button-default-bg); border-color: var(--border);        color: var(--button-default-fg); }
 .btn-default:hover:not(:disabled)  { background: var(--button-default-bg-hover); border-color: var(--border-hover); }
 
+/* Ghost — the third tier: text-only. No fill, no border at rest;
+   hover paints the shared quiet fill and lifts the label a step
+   (--button-ghost-fg → --button-ghost-fg-hover — the fill is never the
+   only cue). For actions quieter than a filled secondary: a header
+   "Log in", toolbar text actions, "Cancel" beside a filled confirm.
+   NEVER substitute an outline: a border-only box beside a solid fill
+   reads as a different size — see the pairing rule in DESIGN.md.
+   Disabled matches the quiet treatment: the colour drops to --solid,
+   the box does not fade. */
+.btn-ghost    { background: var(--button-ghost-bg); border-color: transparent; color: var(--button-ghost-fg); }
+.btn-ghost:hover:not(:disabled)    { background: var(--button-ghost-bg-hover); border-color: transparent; color: var(--button-ghost-fg-hover); }
+.btn-ghost:disabled { opacity: 1; color: var(--solid); background: transparent; }
+
 /* States */
 /* Disabled buttons freeze their resting fill at reduced opacity and ignore
    hover entirely — hover styles above are gated on :not(:disabled), so there
@@ -98,7 +154,7 @@ button i { font-size: 14px; line-height: 1; display: inline-flex; }
 button:disabled { opacity: 0.3; cursor: not-allowed; }
 button:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
 
-/* Loading state \u2014 hides label, paints a CSS spinner over the button */
+/* Loading state — hides label, paints a CSS spinner over the button */
 button.is-loading { color: transparent !important; position: relative; pointer-events: none; opacity: 0.75; }
 button.is-loading::after {
   content: ''; position: absolute; inset: 0; margin: auto;
@@ -112,7 +168,15 @@ button.is-loading::after {
 .btn-danger.is-loading::after,
 .btn-info.is-loading::after,
 .btn-invert.is-loading::after { color: var(--destructive-foreground); }
-.btn-default.is-loading::after { color: var(--text); }
+.btn-default.is-loading::after, .btn-ghost.is-loading::after { color: var(--text); }
+/* The spinner borrows currentColor, and .is-loading makes the label colour
+   transparent — so a quiet button needs its own spinner colour or the control
+   shows nothing at all while it works. */
+.btn-quiet.is-loading::after { color: var(--button-ghost-fg-hover); }
+.btn-quiet.btn-primary.is-loading::after,
+.btn-quiet.btn-warning.is-loading::after { color: var(--yellow-text-secondary); }
+.btn-quiet.btn-success.is-loading::after { color: var(--green-solid); }
+.btn-quiet.btn-danger.is-loading::after { color: var(--red-solid); }
 /* Shared spinner keyframe — consumed by .is-loading and by form/shell
    cards. Defined once here; do not redeclare it per card. */
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -123,7 +187,7 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 
 
 /* ===========================================================
-   Specimen header \u2014 the yellow-mono index marker that anchors
+   Specimen header — the yellow-mono index marker that anchors
    each preview card. 11 files used to duplicate this verbatim.
    =========================================================== */
 .head {
@@ -167,10 +231,13 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 .card-md { padding: 24px; }
 .card-lg { padding: 32px 32px 28px; }
 
+/* Reads the --panel-* aliases, not the generic surface scale. That is the
+   documented contract for panel chrome, and it is the difference between a
+   consumer being able to retheme panels and having to override this rule. */
 .panel {
-  background: var(--bg-secondary);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--panel-radius);
   overflow: hidden;
 }
 .panel-pad     { padding: 14px 16px; }
@@ -202,7 +269,9 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   height: 36px;
   padding: 0 12px;
   box-sizing: border-box;
-  border-radius: var(--radius);
+  /* --field-radius, not the generic --radius. Same 6px today, but a consumer
+     retheming field chrome must not have to override this rule to move it. */
+  border-radius: var(--field-radius);
   border: 1px solid var(--field-border);
   background: var(--field-bg);
   color: var(--field-text);
@@ -289,9 +358,10 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 .form-group .label-row a:hover { color: var(--text); }
 
 /* Floating-menu surface — one recipe for dropdowns, context menus,
-   submenus, and on-player popovers. Cards keep their item styles local.
-   Consumed by components-menu.html and components-player-web.html —
-   it looks unused from this file alone, so do not delete it. */
+   submenus, and on-player popovers. Cards keep their item styles local. */
+/* Reads the --menu-* aliases for surface, border, radius and shadow. The
+   generic scale is close but not identical, and using it here would silently
+   break --menu-* retheming for every consumer of this recipe. */
 .menu-pop {
   min-width: 216px;
   background: var(--menu-bg);
@@ -306,5 +376,65 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   padding: 6px 10px 4px;
   font-family: var(--font-mono); font-size: 10.5px;
   letter-spacing: 0.06em; text-transform: uppercase;
+  /* --menu-label, not the generic --text-secondary. Same value in both modes
+     today, so this is a retheming fix rather than a visual one: the family owns
+     menu chrome, and a consumer moving --menu-label must reach this. */
   color: var(--menu-label);
 }
+
+/* ===========================================================
+   Selection controls — ONE checkbox and ONE switch for the
+   whole system.
+
+   State comes from `data-state="checked"`, the same attribute a
+   headless primitive already sets, so the DOM contract holds
+   whatever drives it. The legacy `.checked` / `.on` class flags
+   are still matched for the specimens that predate this, but
+   `.on` is exactly the invented flag the state contract tells
+   you not to add — prefer the attribute in new markup.
+
+   .checkbox  — div or <span>, data-state="checked" when on
+   input[type="checkbox"] — native inputs get the brand accent
+   .switch    — div, data-state="checked" when on
+   =========================================================== */
+.checkbox {
+  width: 14px; height: 14px; flex-shrink: 0;
+  border: 1.5px solid var(--border-hover);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.checkbox.checked,
+.checkbox[data-state="checked"] {
+  background: var(--yellow-solid);
+  border-color: var(--yellow-solid);
+  position: relative;
+}
+.checkbox.checked::after,
+.checkbox[data-state="checked"]::after {
+  content: ''; position: absolute; left: 3px; top: 0;
+  width: 5px; height: 9px;
+  border: solid var(--primary-foreground); border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+input[type="checkbox"], input[type="radio"] { accent-color: var(--yellow-solid); cursor: pointer; }
+
+.switch {
+  width: 44px; height: 24px; flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  background: var(--component-bg-active);
+  position: relative; cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.switch::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--text);
+  transition: left var(--dur-fast) var(--ease-out);
+}
+.switch.on,
+.switch[data-state="checked"] { background: var(--green-solid); }
+/* The thumb rides the green selected track, so it takes the token for "what
+   colour sits on green" rather than a raw white that no theme can reach. */
+.switch.on::after,
+.switch[data-state="checked"]::after { left: 22px; background: var(--button-success-fg); }

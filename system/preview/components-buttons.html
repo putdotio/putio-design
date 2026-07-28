@@ -32,7 +32,7 @@
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 <link rel="stylesheet" href="../tokens.css">
-<link rel="stylesheet" href="./_components.css">
+<link rel="stylesheet" href="../components.css">
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <style>
   html, body { background: var(--app-bg); color: var(--text); }
@@ -45,6 +45,54 @@
   .note b { color: var(--text); font-weight: 500; }
   .tip b { color: var(--text); font-weight: 500; }
   .tip code { font-family: var(--font-mono); color: var(--yellow-text-secondary); font-size: 11.5px; }
+
+  /* ===== Pairing-rule demo — a fixed dark bar (a .dark-scoped region: the
+     sanctioned way to build a dark header on any page — tokens re-resolve
+     inside it; never hand-pick dark literals) ===== */
+  .pair-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 920px; }
+  .pair { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  /* The bar is the real nav token, so the demo cannot drift from the spec. */
+  .mini-hdr {
+    position: relative; display: flex; align-items: center; gap: 10px;
+    /* border-box so the bar measures exactly --nav-height including its hairline,
+       rather than nav-height + 2px. */
+    box-sizing: border-box;
+    height: var(--nav-height); padding: 0 16px;
+    border-radius: var(--radius-md); background: var(--bg); border: 1px solid var(--line);
+  }
+  /* Redline guides — one shared box, driven from the same token the buttons
+     read, so "the boxes are equal" stays proven rather than asserted. The -1px
+     absorbs the two dashed border rows. */
+  .mini-hdr .rl {
+    position: absolute; left: 12px; right: 12px;
+    /* Centred without arithmetic, so it tracks the bar whatever the box model. */
+    top: 50%; transform: translateY(-50%);
+    height: var(--button-height-md);
+    border-top: 1px dashed var(--yellow-border); border-bottom: 1px dashed var(--yellow-border);
+    opacity: 0.6; pointer-events: none;
+  }
+  /* The guide carries no text label. The bar is deliberately sized like a real
+     header, so at narrower widths the flex spacer collapses to nothing and any
+     in-bar annotation would sit on top of a button. The size is named in the
+     section label and the figcaptions instead. */
+  /* 16px of ink x 7/6: the wordmark carries optical top padding, so a
+     height-set box is 7/6 of the ink height. No translateY nudge. */
+  .mini-hdr .wordmark { height: 18.67px; display: block; }
+  .mini-hdr .spacer { flex: 1; }
+  .pair figcaption { font-size: 12px; color: var(--text-secondary); line-height: 1.55; }
+  .pair figcaption code { font-family: var(--font-mono); color: var(--yellow-text-secondary); font-size: 11px; }
+  .pair figcaption b { color: var(--text); font-weight: 500; }
+  .pair.dont figcaption i { color: var(--red-text-secondary); }
+  .pair.do figcaption i { color: var(--green-text-secondary); }
+  /* The "never" outline — intentionally raw border value, see markup comment.
+     Geometry still comes from the token so all three boxes match exactly. */
+  .outline-dont {
+    height: calc(var(--button-height-md) * var(--tw-fs, 1));
+    padding: 0 var(--button-padding-x);
+    border-radius: var(--button-radius);
+    background: transparent; border: 1px solid rgb(255 255 255 / 0.15);
+    color: var(--text); text-transform: uppercase; letter-spacing: var(--button-tracking-md);
+  }
 
   /* ===== Tweaks panel ===== */
   #tweaks {
@@ -112,7 +160,7 @@
 <body>
 <div class="preview-shell">
 
-  <div class="label">Variants <small>· primary / success / danger / info / invert / default</small></div>
+  <div class="label">Variants <small>· primary / success / danger / info / invert / default / ghost</small></div>
   <div class="btn-row">
     <button class="btn-primary">Go to app
       <i class="ph-bold ph-arrow-right"></i>
@@ -122,6 +170,40 @@
     <button class="btn-info">Show more</button>
     <button class="btn-invert">Invite a friend</button>
     <button class="btn-default">Cancel</button>
+    <button class="btn-ghost">Log in</button>
+  </div>
+
+  <div class="tip">
+    <b>Three tiers, one axis — emphasis.</b> <code>btn-primary</code> is the <b>brand fill</b> — at most one per action group; yellow is reserved for it. <code>btn-default</code> is the <b>secondary</b> tier: a quiet fill plus a <code>--border</code> step, so it reads to a hard edge exactly like a solid (<code>--button-secondary-*</code> aliases the same pair for shadcn imports). <code>btn-ghost</code> is the <b>third tier</b>: text only — no fill, no border. <code>--button-ghost-fg</code> resting; hover paints <code>--button-ghost-bg-hover</code> and lifts the label to <code>--button-ghost-fg-hover</code>, so the faint fill is never the only cue. Use it for the header <b>Log in</b>, toolbar text actions, <b>Cancel</b> beside a filled confirm. <b>Outline is not a tier</b> — the system ships no transparent-fill bordered button.
+  </div>
+
+  <div class="label">Pairing rule <small>· never a border-only box beside a solid fill · both bars are --nav-height, both buttons the md box</small></div>
+  <div class="pair-grid">
+    <figure class="pair dont">
+      <div class="mini-hdr dark">
+        <span class="rl" aria-hidden="true"></span>
+        <img class="wordmark" src="../assets/logo-retro-dark.svg" alt="put.io">
+        <span class="spacer"></span>
+        <!-- The anti-pattern, verbatim from the apps/www incident: a hand-rolled
+             outline with a 15%-white hairline. Deliberately raw values — this is
+             the "never" example, not system vocabulary. Its box is driven from
+             the same token as the real buttons so the three shapes cannot drift
+             apart and quietly stop proving the point. -->
+        <button class="outline-dont">Log in</button>
+        <button class="btn-primary btn-md">Try it for $0.99</button>
+      </div>
+      <figcaption><i class="ph-bold ph-x" aria-hidden="true"></i> <b>Never.</b> The dashes mark one shared box — the boxes are equal; the <b>read</b> is not. A sub-20% hairline's soft edge resolves shorter beside the fill's hard edge, and a second bordered box competes with the CTA.</figcaption>
+    </figure>
+    <figure class="pair do">
+      <div class="mini-hdr dark">
+        <span class="rl" aria-hidden="true"></span>
+        <img class="wordmark" src="../assets/logo-retro-dark.svg" alt="put.io">
+        <span class="spacer"></span>
+        <button class="btn-ghost btn-md">Log in</button>
+        <button class="btn-primary btn-md">Try it for $0.99</button>
+      </div>
+      <figcaption><i class="ph-bold ph-check" aria-hidden="true"></i> <b>Instead.</b> Ghost beside the fill: at rest there is <b>no second box to mis-read</b> — one hard edge, hierarchy intact. Hover's quiet fill is transient and snaps to the same guides. If both must be boxed, both must <b>fill</b> (<code>btn-default</code>) with a border at <code>--border</code> — never a hairline on transparent.</figcaption>
+    </figure>
   </div>
 
   <div class="label">Sizes <small>· lg 36 · md 32 · sm 28 · xs 24 — letter-spacing tracks size</small></div>
@@ -139,6 +221,20 @@
     <button class="btn-default btn-icon btn-sm" aria-label="Filter">
       <i class="ph ph-funnel"></i>
     </button>
+  </div>
+
+  <div class="label">Quiet icon buttons <small>· the ghost appearance on icon-only controls — the default inside rows &amp; toolbars</small></div>
+  <div class="btn-row">
+    <button class="btn-quiet btn-icon btn-sm" aria-label="Pause"><i class="ph-fill ph-pause"></i></button>
+    <button class="btn-quiet btn-icon btn-sm" aria-label="Settings"><i class="ph-fill ph-gear"></i></button>
+    <button class="btn-quiet btn-danger btn-icon btn-sm" aria-label="Delete"><i class="ph ph-trash"></i></button>
+    <button class="btn-quiet btn-success btn-icon btn-sm" aria-label="Retry"><i class="ph ph-arrow-clockwise"></i></button>
+    <button class="btn-quiet btn-primary btn-icon btn-sm" aria-label="Star"><i class="ph-fill ph-star"></i></button>
+    <button class="btn-quiet btn-icon btn-sm" aria-label="Remove" disabled><i class="ph ph-x"></i></button>
+  </div>
+
+  <div class="tip">
+    <b>Two appearances, one variant set.</b> An icon button is <b>quiet by default</b> — transparent at rest, the variant colour in the glyph, the variant's <code>component-bg-hover</code> behind it on hover. That is what list rows, toolbars and dialog closes use. The <b>filled</b> appearance (<code>btn-default btn-icon</code> and friends) is for an icon button standing on its own as a target. <b>A destructive icon action is never a filled red disc</b> — <code>btn-quiet btn-danger</code> paints a <code>--red-solid</code> glyph, and only a labelled <code>btn-danger</code> button fills. Disabled quiet buttons drop to <code>--solid</code> rather than fading the whole control.
   </div>
 
   <div class="label">With icon <small>· secondary pattern</small></div>
