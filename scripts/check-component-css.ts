@@ -60,9 +60,18 @@ const ALIAS_CONTRACTS = [
   { selector: ".menu-pop", family: "--menu-" },
 ];
 
-/* Reaching for one of these inside an aliased block is the tell that the family
-   was bypassed. Scale tokens that no family supersedes are fine. */
-const GENERIC_SURFACE = ["--component-bg", "--bg-secondary", "--line"];
+/*
+  Reaching for one of these anywhere under an aliased selector is the tell that
+  the family was bypassed. Descendants count: `.menu-pop` reading `--menu-bg`
+  while `.menu-pop .menu-label` read `--text-secondary` was a half-migration that
+  looked correct from the parent rule alone.
+
+  This cannot prove a family is fully consumed — `--menu-item-*` is used by the
+  specimen cards rather than here, so requiring every family token to appear
+  would fail on correct code. It catches the reverse and more common mistake:
+  a generic standing in for a family token that exists.
+*/
+const GENERIC_SURFACE = ["--component-bg", "--bg-secondary", "--line", "--text-secondary"];
 
 const [componentCss, tokensCss] = await Promise.all([
   readFile(COMPONENT_CSS, "utf8"),
@@ -107,20 +116,64 @@ const missing = [...referenced].filter(([name]) => !defined.has(name) && !CONSUM
 /* Read each aliased selector's own declaration block out of the comment-blanked
    source, so a family bypass is caught where it happens. */
 const aliasFailures: string[] = [];
-for (const { selector, family } of ALIAS_CONTRACTS) {
-  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const block = code.match(new RegExp(`(?:^|[}])\\s*${escaped}\\s*\\{([^}]*)\\}`))?.[1];
 
-  if (block === undefined) {
+/* Every top-level rule, as selector plus body, so a contract can be applied to a
+   selector and everything scoped under it.
+
+   Walked with a brace counter rather than one global regex: `@keyframes` nests a
+   block inside a block, and a sequential regex scan silently loses the rules that
+   follow it. */
+function topLevelRules(css: string) {
+  const found: Array<{ selector: string; body: string }> = [];
+  let depth = 0;
+  let start = 0;
+  let selectorStart = 0;
+
+  for (let i = 0; i < css.length; i += 1) {
+    const char = css[i];
+    if (char === "{") {
+      if (depth === 0) {
+        start = i;
+        selectorStart = css.lastIndexOf("}", i - 1) + 1;
+      }
+      depth += 1;
+    } else if (char === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        const prelude = css.slice(selectorStart, start).trim();
+        const body = css.slice(start + 1, i);
+        if (!prelude.startsWith("@")) {
+          for (const selector of prelude.split(",")) {
+            const normalised = selector.trim().replace(/\s+/g, " ");
+            if (normalised) found.push({ selector: normalised, body });
+          }
+        }
+      }
+    }
+  }
+  return found;
+}
+
+const rules = topLevelRules(code);
+
+for (const { selector, family } of ALIAS_CONTRACTS) {
+  const own = rules.find((rule) => rule.selector === selector);
+  if (own === undefined) {
     aliasFailures.push(`\`${selector}\` has no rule block, so its ${family}* contract cannot be checked`);
     continue;
   }
-  if (!block.includes(`var(${family}`)) {
+  if (!own.body.includes(`var(${family}`)) {
     aliasFailures.push(`\`${selector}\` reads no ${family}* token — its alias family exists and must be used`);
   }
-  for (const generic of GENERIC_SURFACE) {
-    if (new RegExp(`var\\(\\s*${generic}\\s*[,)]`).test(block)) {
-      aliasFailures.push(`\`${selector}\` reads the generic \`${generic}\` instead of its ${family}* equivalent`);
+
+  /* The selector itself plus anything scoped under it, so a half-migrated
+     descendant cannot hide behind a correct parent. */
+  const scoped = rules.filter((rule) => rule.selector === selector || rule.selector.startsWith(`${selector} `));
+  for (const rule of scoped) {
+    for (const generic of GENERIC_SURFACE) {
+      if (new RegExp(`var\\(\\s*${generic}\\s*[,)]`).test(rule.body)) {
+        aliasFailures.push(`\`${rule.selector}\` reads the generic \`${generic}\` instead of its ${family}* equivalent`);
+      }
     }
   }
 }
