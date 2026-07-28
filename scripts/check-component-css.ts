@@ -54,24 +54,49 @@ const CONSUMER_HOOKS = new Set(["--tw-fs"]);
   retheme panels through `--panel-*`. All three of these regressed exactly that
   way before the layer became public API.
 */
+/*
+  `instead` maps a generic token to the family token that supersedes it. The
+  mapping has to be per family, not one global ban list: `--text-secondary` is
+  wrong for a menu label because `--menu-label` owns it, but right for
+  `.field:disabled`, because the field family has `--field-bg-disabled` and no
+  text counterpart. A blanket ban would fail correct code.
+
+  Scope covers the selector and every continuation of it — descendants, states,
+  attribute and class compounds — because `.menu-pop` reading `--menu-bg` while
+  `.menu-pop .menu-label` read `--text-secondary` looked correct from the parent
+  rule alone, and `.field` alone has fourteen compound selectors.
+
+  This cannot prove a family is fully consumed: `--menu-item-*` is used by the
+  specimen cards rather than here, so requiring every family token to appear would
+  fail on correct code. It catches the commoner mistake in the other direction.
+*/
 const ALIAS_CONTRACTS = [
-  { selector: ".field", family: "--field-" },
-  { selector: ".panel", family: "--panel-" },
-  { selector: ".menu-pop", family: "--menu-" },
+  {
+    selector: ".field",
+    family: "--field-",
+    instead: { "--component-bg": "--field-bg", "--bg-secondary": "--field-bg", "--line": "--field-border" },
+  },
+  {
+    selector: ".panel",
+    family: "--panel-",
+    instead: { "--component-bg": "--panel-bg", "--bg-secondary": "--panel-bg", "--line": "--panel-border" },
+  },
+  {
+    selector: ".menu-pop",
+    family: "--menu-",
+    instead: {
+      "--component-bg": "--menu-bg",
+      "--bg-secondary": "--menu-bg",
+      "--line": "--menu-border",
+      "--text-secondary": "--menu-label",
+    },
+  },
 ];
 
-/*
-  Reaching for one of these anywhere under an aliased selector is the tell that
-  the family was bypassed. Descendants count: `.menu-pop` reading `--menu-bg`
-  while `.menu-pop .menu-label` read `--text-secondary` was a half-migration that
-  looked correct from the parent rule alone.
-
-  This cannot prove a family is fully consumed — `--menu-item-*` is used by the
-  specimen cards rather than here, so requiring every family token to appear
-  would fail on correct code. It catches the reverse and more common mistake:
-  a generic standing in for a family token that exists.
-*/
-const GENERIC_SURFACE = ["--component-bg", "--bg-secondary", "--line", "--text-secondary"];
+/* A selector continues the base when what follows it starts a state, attribute,
+   class or descendant — never another identifier character, so `.fieldset` is not
+   a continuation of `.field`. */
+const CONTINUATION = /^[\s:.[>+~]/;
 
 const [componentCss, tokensCss] = await Promise.all([
   readFile(COMPONENT_CSS, "utf8"),
@@ -156,7 +181,7 @@ function topLevelRules(css: string) {
 
 const rules = topLevelRules(code);
 
-for (const { selector, family } of ALIAS_CONTRACTS) {
+for (const { selector, family, instead } of ALIAS_CONTRACTS) {
   const own = rules.find((rule) => rule.selector === selector);
   if (own === undefined) {
     aliasFailures.push(`\`${selector}\` has no rule block, so its ${family}* contract cannot be checked`);
@@ -166,13 +191,21 @@ for (const { selector, family } of ALIAS_CONTRACTS) {
     aliasFailures.push(`\`${selector}\` reads no ${family}* token — its alias family exists and must be used`);
   }
 
-  /* The selector itself plus anything scoped under it, so a half-migrated
-     descendant cannot hide behind a correct parent. */
-  const scoped = rules.filter((rule) => rule.selector === selector || rule.selector.startsWith(`${selector} `));
+  /* Keeps the map honest: a substitution pointing at a token the build no longer
+     emits would silently stop protecting anything. */
+  for (const replacement of Object.values(instead)) {
+    if (!defined.has(replacement)) {
+      aliasFailures.push(`the ${family}* contract names \`${replacement}\`, which ${TOKENS_CSS} does not emit`);
+    }
+  }
+
+  const scoped = rules.filter(
+    (rule) => rule.selector === selector || (rule.selector.startsWith(selector) && CONTINUATION.test(rule.selector.slice(selector.length))),
+  );
   for (const rule of scoped) {
-    for (const generic of GENERIC_SURFACE) {
+    for (const [generic, replacement] of Object.entries(instead)) {
       if (new RegExp(`var\\(\\s*${generic}\\s*[,)]`).test(rule.body)) {
-        aliasFailures.push(`\`${rule.selector}\` reads the generic \`${generic}\` instead of its ${family}* equivalent`);
+        aliasFailures.push(`\`${rule.selector}\` reads \`${generic}\` where \`${replacement}\` owns it`);
       }
     }
   }
