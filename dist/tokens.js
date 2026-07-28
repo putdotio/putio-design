@@ -68,6 +68,22 @@ export const tokens = {
     "value": "hsl(0, 0%, 93.0%)",
     "originalValue": "{color.neutral.dark.text}"
   },
+  "component.button.secondary.backgroundHover": {
+    "cssName": "--button-secondary-bg-hover",
+    "type": "color",
+    "mode": "light",
+    "value": "hsl(0, 0%, 93.0%)",
+    "originalValue": "{color.neutral.light.componentBgHover}",
+    "description": "Secondary quiet-fill hover in light mode."
+  },
+  "component.button.secondary.backgroundHoverDark": {
+    "cssName": "--button-secondary-bg-hover",
+    "type": "color",
+    "mode": "dark",
+    "value": "hsl(0, 0%, 15.8%)",
+    "originalValue": "{color.neutral.dark.componentBgHover}",
+    "description": "Secondary quiet-fill hover in dark mode."
+  },
   "component.button.success.background": {
     "cssName": "--button-success-bg",
     "type": "color",
@@ -243,6 +259,198 @@ export const tokens = {
     "value": "hsl(0, 0%, 93.0%)",
     "originalValue": "{color.neutral.dark.text}",
     "description": "Default button label in dark mode."
+  },
+  "component.button.ghost.background": {
+    "cssName": "--button-ghost-bg",
+    "type": "color",
+    "mode": "global",
+    "value": "hsla(0, 0%, 0%, 0)",
+    "originalValue": "hsla(0, 0%, 0%, 0)",
+    "description": "Ghost tier rests with no fill and no border."
+  },
+  "component.button.ghost.foreground": {
+    "cssName": "--button-ghost-fg",
+    "type": "color",
+    "mode": "light",
+    "value": "hsl(0, 0%, 43.5%)",
+    "originalValue": "{color.neutral.light.textSecondary}",
+    "description": "Ghost label at rest in light mode."
+  },
+  "component.button.ghost.foregroundDark": {
+    "cssName": "--button-ghost-fg",
+    "type": "color",
+    "mode": "dark",
+    "value": "hsl(0, 0%, 62.8%)",
+    "originalValue": "{color.neutral.dark.textSecondary}",
+    "description": "Ghost label at rest in dark mode."
+  },
+  "component.button.ghost.foregroundHover": {
+    "cssName": "--button-ghost-fg-hover",
+    "type": "color",
+    "mode": "light",
+    "value": "hsl(0, 0%, 9.0%)",
+    "originalValue": "{color.neutral.light.text}",
+    "description": "Ghost label on hover in light mode. The lift is mandatory."
+  },
+  "component.button.ghost.foregroundHoverDark": {
+    "cssName": "--button-ghost-fg-hover",
+    "type": "color",
+    "mode": "dark",
+    "value": "hsl(0, 0%, 93.0%)",
+    "originalValue": "{color.neutral.dark.text}",
+    "description": "Ghost label on hover in dark mode. The lift is mandatory."
+  },
+  "component.button.ghost.backgroundHover": {
+    "cssName": "--button-ghost-bg-hover",
+    "type": "color",
+    "mode": "light",
+    "value": "hsl(0, 0%, 93.0%)",
+    "originalValue": "{color.neutral.light.componentBgHover}",
+    "description": "Shared quiet-fill hover step in light mode."
+  },
+  "component.button.ghost.backgroundHoverDark": {
+    "cssName": "--button-ghost-bg-hover",
+    "type": "color",
+    "mode": "dark",
+    "value": "hsl(0, 0%, 15.8%)",
+    "originalValue": "{color.neutral.dark.componentBgHover}",
+    "description": "Shared quiet-fill hover step in dark mode."
+  },
+  "component.button.height": {
+    "cssName": "--button-height",
+    "type": "dimension",
+    "mode": "global",
+    "value": "36px",
+    "originalValue": "36px",
+    "description": "Default (lg) button box."
+  },
+  "component.button.heightMd": {
+    "cssName": "--button-height-md",
+    "type": "dimension",
+    "mode": "global",
+    "value": "32px",
+    "originalValue": "32px",
+    "description": "Medium button box. The site top-bar CTA size."
+  },
+  "component.button.heightSm": {
+    "cssName": "--button-height-sm",
+    "type": "dimension",
+    "mode": "global",
+    "value": "28px",
+    "originalValue": "28px",
+    "description": "Small button box."
+  },
+  "component.button.heightXs": {
+    "cssName": "--button-height-xs",
+    "type": "dimension",
+    "mode": "global",
+    "value": "24px",
+    "originalValue": "24px",
+    "description": "Extra-small button box."
+  },
+  "component.button.paddingX": {
+    "cssName": "--button-padding-x",
+    "type": "dimension",
+    "mode": "global",
+    "value": "12px",
+    "originalValue": "12px",
+    "description": "Horizontal padding for lg, md and sm."
+  },
+  "component.button.paddingXXs": {
+    "cssName": "--button-padding-x-xs",
+    "type": "dimension",
+    "mode": "global",
+    "value": "8px",
+    "originalValue": "8px",
+    "description": "Horizontal padding at xs."
+  },
+  "component.button.labelSize": {
+    "cssName": "--button-label-size",
+    "type": "dimension",
+    "mode": "global",
+    "value": "0.875rem",
+    "originalValue": "{typography.fontSize.sm}",
+    "description": "Uppercase label size."
+  },
+  "component.button.labelSizeXs": {
+    "cssName": "--button-label-size-xs",
+    "type": "dimension",
+    "mode": "global",
+    "value": "0.75rem",
+    "originalValue": "{typography.fontSize.xs}",
+    "description": "Uppercase label size at xs."
+  },
+  "component.button.tracking": {
+    "cssName": "--button-tracking",
+    "type": "dimension",
+    "mode": "global",
+    "value": "1px",
+    "originalValue": "1px",
+    "description": "Letter-spacing at lg."
+  },
+  "component.button.trackingMd": {
+    "cssName": "--button-tracking-md",
+    "type": "dimension",
+    "mode": "global",
+    "value": "0.8px",
+    "originalValue": "0.8px",
+    "description": "Letter-spacing at md."
+  },
+  "component.button.trackingSm": {
+    "cssName": "--button-tracking-sm",
+    "type": "dimension",
+    "mode": "global",
+    "value": "0.6px",
+    "originalValue": "0.6px",
+    "description": "Letter-spacing at sm."
+  },
+  "component.button.trackingXs": {
+    "cssName": "--button-tracking-xs",
+    "type": "dimension",
+    "mode": "global",
+    "value": "0.3px",
+    "originalValue": "0.3px",
+    "description": "Letter-spacing at xs."
+  },
+  "component.button.iconSize": {
+    "cssName": "--button-icon-size",
+    "type": "dimension",
+    "mode": "global",
+    "value": "14px",
+    "originalValue": "14px",
+    "description": "Glyph size inside a button."
+  },
+  "component.button.gap": {
+    "cssName": "--button-gap",
+    "type": "dimension",
+    "mode": "global",
+    "value": "8px",
+    "originalValue": "8px",
+    "description": "Gap between glyph and label."
+  },
+  "component.nav.height": {
+    "cssName": "--nav-height",
+    "type": "dimension",
+    "mode": "global",
+    "value": "56px",
+    "originalValue": "56px",
+    "description": "Sticky top bar height."
+  },
+  "component.nav.heightCompact": {
+    "cssName": "--nav-height-compact",
+    "type": "dimension",
+    "mode": "global",
+    "value": "52px",
+    "originalValue": "52px",
+    "description": "Sticky top bar height on narrow viewports."
+  },
+  "component.nav.ctaHeight": {
+    "cssName": "--nav-cta-height",
+    "type": "dimension",
+    "mode": "global",
+    "value": "32px",
+    "originalValue": "{component.button.heightMd}",
+    "description": "The top-bar CTA box. Always the md button."
   },
   "component.input.background": {
     "cssName": "--input-bg",
