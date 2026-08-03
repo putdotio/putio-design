@@ -21,7 +21,7 @@ Use `pnpm tokens:build` after editing `tokens/**/*.tokens.json`.
 ## Worktrees
 
 `.worktreeinclude` carries optional `.env` files into Codex and Claude
-worktrees. Run `pnpm install` and `pnpm verify`; no Infisical setup is required.
+worktrees. Run `pnpm install` and `pnpm verify`.
 
 ## Repo Rules
 
