@@ -7,23 +7,21 @@ const baseUrl = `http://127.0.0.1:${port}`;
 const paths = ["/", "/design-system.html", "/design-system.html?theme=light", "/design-system-light.html", "/tokens.css", "/preview/web-shell.html"];
 const brandYellowCss = "--yellow-solid: hsl(44.7, 97.9%, 63.1%)";
 
-function wait(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function signalAndWait(child: ChildProcess, signal: NodeJS.Signals) {
   if (child.exitCode !== null || child.signalCode !== null) return true;
+  let timer!: NodeJS.Timeout;
+  const exit = once(child, "exit").then(() => true as const);
+  const timedOut = new Promise<false>((resolve) => { timer = setTimeout(() => resolve(false), 2_000).unref(); });
   child.kill(signal);
-  return Promise.race([
-    once(child, "exit").then(() => true),
-    new Promise<false>((resolve) => setTimeout(() => resolve(false), 2_000).unref()),
-  ]);
+  const result = await Promise.race([exit, timedOut]);
+  clearTimeout(timer);
+  return result;
 }
 async function stopServer(child: ChildProcess) {
   if (await signalAndWait(child, "SIGTERM")) return;
-  if (!(await signalAndWait(child, "SIGKILL"))) {
-    throw new Error("Static server process " + (child.pid ?? "unknown") + " did not terminate");
-  }
+  if (!(await signalAndWait(child, "SIGKILL"))) throw new Error("Static server process " + (child.pid ?? "unknown") + " did not terminate");
 }
 
 async function waitForServer(timeoutMs: number, didExit: () => boolean, logs: string[]) {
@@ -50,10 +48,8 @@ async function smokePath(pathname: string) {
 
   const text = await response.text();
   const cleanPathname = pathname.split("?", 1)[0] ?? pathname;
-  if (cleanPathname.endsWith(".html") || cleanPathname === "/") {
-    if (!text.includes("put.io")) {
-      throw new Error(`${pathname} did not include the expected put.io marker`);
-    }
+  if ((cleanPathname.endsWith(".html") || cleanPathname === "/") && !text.includes("put.io")) {
+    throw new Error(`${pathname} did not include the expected put.io marker`);
   }
 
   if (pathname.endsWith(".css") && !text.includes(brandYellowCss)) {
@@ -65,20 +61,17 @@ async function main() {
   const logs: string[] = [];
   let exited = false;
   let interruptedBy: NodeJS.Signals | undefined;
-  let resolveInterruption: () => void = () => undefined;
-  const interruption = new Promise<void>((resolve) => {
-    resolveInterruption = resolve;
-  });
-  const interruptHandlers = new Map<NodeJS.Signals, () => void>();
-  for (const signal of ["SIGINT", "SIGTERM"] as const) {
-    const handler = () => {
-      if (interruptedBy !== undefined) return;
-      interruptedBy = signal;
-      resolveInterruption();
-    };
-    interruptHandlers.set(signal, handler);
-    process.on(signal, handler);
-  }
+  let resolveInterruption!: () => void;
+  const interruption = new Promise<void>((resolve) => { resolveInterruption = resolve; });
+  const interrupt = (signal: NodeJS.Signals) => {
+    if (interruptedBy !== undefined) return;
+    interruptedBy = signal;
+    resolveInterruption();
+  };
+  const onSigint = () => interrupt("SIGINT");
+  const onSigterm = () => interrupt("SIGTERM");
+  process.on("SIGINT", onSigint);
+  process.on("SIGTERM", onSigterm);
   const child = spawn(process.execPath, ["scripts/serve-system.ts"], {
     env: { ...process.env, PORT: String(port) },
     stdio: ["ignore", "pipe", "pipe"],
@@ -87,9 +80,7 @@ async function main() {
 
   child.stdout.on("data", (chunk) => logs.push(String(chunk)));
   child.stderr.on("data", (chunk) => logs.push(String(chunk)));
-  child.on("exit", () => {
-    exited = true;
-  });
+  child.on("exit", () => { exited = true; });
 
   let primaryError: unknown;
   try {
@@ -107,13 +98,13 @@ async function main() {
   } finally {
     try {
       await stopServer(child);
+      if (child.exitCode !== null && child.exitCode !== 0) console.error(logs.join(""));
     } catch (error) {
       if (interruptedBy === undefined) throw error;
       console.error(`Static server cleanup failed: ${String(error)}`);
     } finally {
-      for (const [signal, handler] of interruptHandlers) {
-        process.off(signal, handler);
-      }
+      process.off("SIGINT", onSigint);
+      process.off("SIGTERM", onSigterm);
     }
   }
 
