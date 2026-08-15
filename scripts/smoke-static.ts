@@ -1,4 +1,5 @@
 import { spawn, type ChildProcess } from "node:child_process";
+import { once } from "node:events";
 import process from "node:process";
 
 const port = Number(process.env.PORT ?? String(4200 + Math.floor(Math.random() * 1000)));
@@ -10,80 +11,18 @@ function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function hasExited(child: ChildProcess) {
-  return child.exitCode !== null || child.signalCode !== null;
+async function signalAndWait(child: ChildProcess, signal: NodeJS.Signals) {
+  if (child.exitCode !== null || child.signalCode !== null) return true;
+  child.kill(signal);
+  return Promise.race([
+    once(child, "exit").then(() => true),
+    new Promise<false>((resolve) => setTimeout(() => resolve(false), 2_000).unref()),
+  ]);
 }
-
-function waitForExit(child: ChildProcess, timeoutMs: number): Promise<boolean> {
-  if (hasExited(child)) return Promise.resolve(true);
-
-  return new Promise((resolve) => {
-    const finish = (exited: boolean) => {
-      clearTimeout(timeout);
-      child.off("exit", onExit);
-      resolve(exited);
-    };
-    const onExit = () => finish(true);
-    const timeout = setTimeout(() => finish(false), timeoutMs);
-    child.once("exit", onExit);
-  });
-}
-
-function ownedProcessExists(child: ChildProcess) {
-  if (child.pid === undefined) return false;
-  if (process.platform === "win32") return !hasExited(child);
-
-  try {
-    process.kill(-child.pid, 0);
-    return true;
-  } catch (error) {
-    const code = (error as NodeJS.ErrnoException).code;
-    if (code === "ESRCH") return false;
-    if (code === "EPERM") return true;
-    throw error;
-  }
-}
-
-async function waitForOwnedProcessExit(child: ChildProcess, timeoutMs: number) {
-  const deadline = Date.now() + timeoutMs;
-  while (ownedProcessExists(child)) {
-    const remainingMs = deadline - Date.now();
-    if (remainingMs <= 0) return false;
-    await wait(Math.min(25, remainingMs));
-  }
-
-  if (hasExited(child)) return true;
-  return waitForExit(child, Math.max(0, deadline - Date.now()));
-}
-
-function signalOwnedProcess(child: ChildProcess, signal: NodeJS.Signals) {
-  if (child.pid === undefined) return;
-
-  try {
-    if (process.platform === "win32") {
-      if (!hasExited(child)) child.kill(signal);
-    } else {
-      process.kill(-child.pid, signal);
-    }
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== "ESRCH") throw error;
-  }
-}
-
-async function terminateOwnedProcess(child: ChildProcess) {
-  if (!ownedProcessExists(child)) {
-    if (!hasExited(child) && !(await waitForExit(child, 2_000))) {
-      throw new Error(`Static server process ${child.pid ?? "unknown"} did not terminate`);
-    }
-    return;
-  }
-
-  signalOwnedProcess(child, "SIGTERM");
-  if (await waitForOwnedProcessExit(child, 2_000)) return;
-
-  signalOwnedProcess(child, "SIGKILL");
-  if (!(await waitForOwnedProcessExit(child, 2_000))) {
-    throw new Error(`Static server process ${child.pid ?? "unknown"} did not terminate`);
+async function stopServer(child: ChildProcess) {
+  if (await signalAndWait(child, "SIGTERM")) return;
+  if (!(await signalAndWait(child, "SIGKILL"))) {
+    throw new Error("Static server process " + (child.pid ?? "unknown") + " did not terminate");
   }
 }
 
@@ -126,37 +65,33 @@ async function main() {
   const logs: string[] = [];
   let exited = false;
   let interruptedBy: NodeJS.Signals | undefined;
-  let rejectInterruption: (error: Error) => void = () => undefined;
-  const interruption = new Promise<never>((_resolve, reject) => {
-    rejectInterruption = reject;
+  let resolveInterruption: () => void = () => undefined;
+  const interruption = new Promise<void>((resolve) => {
+    resolveInterruption = resolve;
   });
   const interruptHandlers = new Map<NodeJS.Signals, () => void>();
-
   for (const signal of ["SIGINT", "SIGTERM"] as const) {
     const handler = () => {
       if (interruptedBy !== undefined) return;
       interruptedBy = signal;
-      rejectInterruption(new Error(`Static smoke interrupted by ${signal}`));
+      resolveInterruption();
     };
     interruptHandlers.set(signal, handler);
     process.on(signal, handler);
   }
-
   const child = spawn(process.execPath, ["scripts/serve-system.ts"], {
-    detached: process.platform !== "win32",
     env: { ...process.env, PORT: String(port) },
     stdio: ["ignore", "pipe", "pipe"],
   });
+  const childError = once(child, "error").then(([error]) => Promise.reject(error));
 
   child.stdout.on("data", (chunk) => logs.push(String(chunk)));
   child.stderr.on("data", (chunk) => logs.push(String(chunk)));
-  child.on("error", (error) => logs.push(`${error.stack ?? error.message}\n`));
   child.on("exit", () => {
     exited = true;
   });
 
   let primaryError: unknown;
-  let cleanupError: unknown;
   try {
     await Promise.race([
       (async () => {
@@ -165,14 +100,16 @@ async function main() {
         console.log(`Static smoke passed for ${paths.length} paths at ${baseUrl}`);
       })(),
       interruption,
+      childError,
     ]);
   } catch (error) {
     primaryError = error;
   } finally {
     try {
-      await terminateOwnedProcess(child);
+      await stopServer(child);
     } catch (error) {
-      cleanupError = error;
+      if (interruptedBy === undefined) throw error;
+      console.error(`Static server cleanup failed: ${String(error)}`);
     } finally {
       for (const [signal, handler] of interruptHandlers) {
         process.off(signal, handler);
@@ -181,21 +118,8 @@ async function main() {
   }
 
   if (interruptedBy !== undefined) {
-    if (cleanupError !== undefined) {
-      console.error(`Static server cleanup failed: ${String(cleanupError)}`);
-    }
     process.exitCode = interruptedBy === "SIGINT" ? 130 : 143;
-    return;
-  }
-
-  if (primaryError !== undefined) {
-    if (cleanupError !== undefined) {
-      console.error(`Static server cleanup failed: ${String(cleanupError)}`);
-    }
-    throw primaryError;
-  }
-
-  if (cleanupError !== undefined) throw cleanupError;
+  } else if (primaryError !== undefined) throw primaryError;
 }
 
 await main();
