@@ -18,6 +18,20 @@ pnpm dev
 
 Use `pnpm tokens:build` after editing `tokens/**/*.tokens.json`.
 
+## Skills
+
+`skills/putio-design-handoff/` is the authored skill for importing, verifying,
+and responding to design handoffs; `.agents/skills/` and `.claude/skills` are
+generated discovery links, so edit only under `skills/`. `pnpm skills:lint`
+(part of `pnpm verify`) lints it.
+
+## PR Evidence
+
+The pull request template asks for screenshots or recordings on visual guide
+changes. Capture the affected guide section from `pnpm dev` in both light and
+dark modes, attach the media to the pull request, and reference it under
+Review Notes. Keep proof media out of Git.
+
 ## Worktrees
 
 `.worktreeinclude` carries optional `.env` files into Codex and Claude

@@ -1,6 +1,6 @@
 ---
 name: putio-design-handoff
-description: Import, inspect, implement, verify, and respond to design handoffs for this put.io design-system repo, especially Claude Design project URLs (claude.ai/design/p/…, read via the DesignSync tool) and prototype export bundles. Use when the user provides a design handoff URL, asks to pull or inspect Claude Design output, asks whether design/tokens are ready, asks to port prototype changes into putio-design, or asks to write feedback back to the design tool about discrepancies, failed checks, missing assets, token drift, accessibility issues, or implementation notes.
+description: Import, inspect, implement, verify, and respond to design handoffs for this put.io design-system repo, especially Claude Design project URLs (claude.ai/design/p/…, read via the DesignSync tool) and prototype export bundles. Use when the user provides a design handoff URL, asks to pull or inspect Claude Design output, asks whether design/tokens are ready, asks to port prototype changes into putio-design, or asks to write feedback back to the design tool about discrepancies, failed checks, missing assets, token drift, accessibility issues, or implementation notes. Do not use for token or guide edits that have no design handoff, for put.io application feature work, or for repositories other than putio-design.
 ---
 
 # put.io Design Handoff
