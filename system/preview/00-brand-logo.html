@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV and native surfaces).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · brand · logo</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+.note {max-width: 760px}
+  
+  
+
+  .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .tile {
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 140px;
+    border: 1px solid var(--line);
+  }
+  .tile.dark   { background: hsl(0,0%,8.5%); border-color: hsl(0,0%,18%); }
+  .tile.light  { background: hsl(0,0%,100%); border-color: hsl(0,0%,88%); }
+  .tile.yellow { background: var(--yellow-solid); border-color: var(--yellow-solid); }
+  .tile img { display: block; height: 65.33px; width: auto; } /* ink 56px: padded wordmark, box = ink × 7/6 */
+
+  .cap {
+    font-size: 11px; font-weight: 500;
+    color: var(--text-secondary);
+    margin-top: 8px;
+  }
+  .cap b { color: var(--text); font-weight: 600; }
+  .cap.tag-primary {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--yellow-text-secondary);
+  }
+
+  .unit { display: flex; flex-direction: column; gap: 4px; }
+
+  /* Don'ts */
+  .donts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .dont {
+    position: relative;
+    background: var(--bg-secondary);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 14px;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .dont .preview {
+    width: 100%; height: 70px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .dont .preview img { height: 25.67px; width: auto; display: block; } /* ink 22px */
+  .dont .x {
+    position: absolute; top: 8px; right: 8px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--red-solid); color: var(--destructive-foreground);
+    font-size: 12px; font-weight: 700;
+    display: grid; place-items: center;
+  }
+  .dont .lbl {
+    font-size: 11.5px; color: var(--text-secondary);
+    text-align: center; line-height: 1.5;
+  }
+  .dont .lbl b { color: var(--text); font-weight: 500; }
+
+  /* Kaomoji catalogue */
+  .kmoji-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .kmoji {
+    padding: 22px 14px 18px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    text-align: center;
+  }
+  .kmoji .face {
+    font-family: var(--font-mono); font-size: 22px;
+    color: var(--text); line-height: 1.4;
+    min-height: 32px;
+    white-space: nowrap;
+  }
+  .kmoji .ctx {
+    display: block; margin-top: 10px;
+    font-size: 11px; font-weight: 500;
+    color: var(--text-secondary);
+  }
+</style></head>
+<body>
+<div class="tierbar t0"><span class="tno">Tier 0</span><span class="twhat">Foundations · the <b>@putdotio/design</b> token graph. Binds all four tiers, values only, never a component recipe.</span><span class="ttok">--yellow-solid · --radius-lg · --radius-sm · --red-solid</span></div>
+<div class="preview-shell">
+
+  <div class="head">
+    <span class="ix">01</span>
+    <span class="t">Retro pixel wordmark: primary mark</span>
+    <span class="n">ui/Logo/LogoRetro</span>
+  </div>
+  <div class="note">
+    Two color variants. <b>Dark</b> (white &amp; yellow) for dark surfaces. <b>Light</b> (charcoal &amp; yellow) for light surfaces and yellow brand tiles.<br><br>
+      The yellow pixels stay on both. <b>Never recolor</b>: pick a variant, don't tint.
+  </div>
+  <div class="note">
+    <b>Optically pre-centred (2026-07).</b> The wordmark's ink is top-heavy, only the <code>p</code> descender fills the bottom, so all three files carry built-in top padding that puts the optical centre on the geometric centre.<br><br>
+      <b>Flex-centre them as-is. Never add a translateY nudge.</b> Ink height = 6/7 × box height: for 26px ink set <code>height: 30.33px</code>. This was a breaking aspect change, retro went 376:96 to 376:112.
+  </div>
+
+  <div class="row">
+    <div class="unit">
+      <div class="tile dark"><img src="../assets/logo-retro-dark.svg" alt="put.io retro · dark"></div>
+      <div class="cap tag-primary"><i class="ph-fill ph-star" style="font-size: 9px;"></i> <b>logo-retro-dark</b></div>
+      <div class="cap">on <code style="font-family:var(--font-mono);color:var(--yellow-text-secondary);font-size:11px;">--app-bg</code> · <code style="font-family:var(--font-mono);color:var(--yellow-text-secondary);font-size:11px;">--bg-secondary</code></div>
+    </div>
+    <div class="unit">
+      <div class="tile light"><img src="../assets/logo-retro-light.svg" alt="put.io retro · light"></div>
+      <div class="cap"><b>logo-retro-light</b></div>
+      <div class="cap">on <code style="font-family:var(--font-mono);color:var(--yellow-text-secondary);font-size:11px;">white</code> / light surfaces</div>
+    </div>
+  </div>
+
+  <!-- Don'ts -->
+  <div class="head" style="margin-top: 4px;">
+    <span class="ix">02</span>
+    <span class="t">Don't</span>
+  </div>
+
+  <div class="donts">
+    <div class="dont">
+      <div class="x"><i class="ph ph-x" aria-hidden="true"></i></div>
+      <div class="preview" style="background: hsl(0,0%,100%);">
+        <img src="../assets/logo-retro-dark.svg" alt="">
+      </div>
+      <div class="lbl"><b>Don't use the dark variant on light.</b> The white pixels disappear.</div>
+    </div>
+    <div class="dont">
+      <div class="x"><i class="ph ph-x" aria-hidden="true"></i></div>
+      <div class="preview" style="background: var(--yellow-solid);">
+        <img src="../assets/logo-retro-dark.svg" alt="">
+      </div>
+      <div class="lbl"><b>Don't use the dark variant on yellow.</b> Use the light variant, its charcoal pixels read clearly.</div>
+    </div>
+    <div class="dont">
+      <div class="x"><i class="ph ph-x" aria-hidden="true"></i></div>
+      <div class="preview" style="background: hsl(0,0%,8.5%);">
+        <img src="../assets/logo-retro-light.svg" alt="">
+      </div>
+      <div class="lbl"><b>Don't use the light variant on dark.</b> The charcoal pixels disappear; use the dark variant.</div>
+    </div>
+  </div>
+
+  <!-- Kaomoji catalogue -->
+  <div class="head" style="margin-top: 4px;">
+    <span class="ix">03</span>
+    <span class="t">Kaomoji: brand voice glyphs</span>
+    <span class="n">mono · text-only · never illustration</span>
+  </div>
+  <div class="note">
+    The kaomoji catalogue is the brand's voice in empty states, pairing flows, and footer flair. Always rendered in <code>var(--font-mono)</code>.<br><br>
+      Pick by context, never freestyle a new one outside this list without a reason. Tone ladder: cheeky → instructive → quiet → error.
+  </div>
+
+  <div class="kmoji-grid">
+    <div class="kmoji">
+      <div class="face">ᕦ(ò_óˇ)ᕤ</div>
+      <span class="ctx">footer · "we got this"</span>
+    </div>
+    <div class="kmoji">
+      <div class="face">ヽ(°〇°)ﾉ</div>
+      <span class="ctx">empty files · cheeky</span>
+    </div>
+    <div class="kmoji">
+      <div class="face">( ⌐■_■)</div>
+      <span class="ctx">transfers · idle</span>
+    </div>
+    <div class="kmoji">
+      <div class="face">¯\_(ツ)_/¯</div>
+      <span class="ctx">search · no results</span>
+    </div>
+    <div class="kmoji">
+      <div class="face">__o-o__</div>
+      <span class="ctx">RSS · classic</span>
+    </div>
+    <div class="kmoji">
+      <div class="face">┌( ಠ_ಠ)┘</div>
+      <span class="ctx">device pairing · instructive</span>
+    </div>
+    <div class="kmoji">
+      <div class="face">ᶻ 𝗓 𐰁</div>
+      <span class="ctx">notifications · quiet</span>
+    </div>
+    <div class="kmoji">
+      <div class="face">(x_x)</div>
+      <span class="ctx">error · failed</span>
+    </div>
+  </div>
+
+</div>
+</body></html>

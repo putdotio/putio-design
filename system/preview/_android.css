@@ -1,0 +1,162 @@
+/* ============================================================
+   put.io — _android.css
+   Tier 2 preview chrome for Android and Android TV.
+
+   Everything here is a stock Material 3 element — top app bar,
+   navigation bar with its active indicator, FAB, list item, switch,
+   slider, dialog, snackbar, bottom sheet, and the Leanback / Compose
+   for TV focus behaviour. None of it is a put.io component.
+
+   Geometry is Material's, in dp, drawn 1:1 on a 412x915dp canvas.
+   Those numbers are NOT put.io spacing tokens.
+
+   THE COLOUR MAPPING is the whole point of this tier. put.io does not
+   define an Android palette; it hands M3 a colour scheme built from
+   the token graph and lets Material do the rest:
+
+     M3 role                 put.io token
+     ---------------------   -------------------------
+     primary                 --yellow-solid
+     onPrimary               --primary-foreground
+     surface                 --app-bg
+     onSurface               --text
+     onSurfaceVariant        --text-secondary
+     surfaceContainer        --component-bg
+     surfaceContainerHigh    --component-bg-hover
+     surfaceContainerHighest --component-bg-active
+     outline                 --border
+     outlineVariant          --line
+     error                   --red-solid
+
+   Dark scheme only. State layers are Material's 8% / 12% opacities
+   over onSurface, not put.io hover tokens.
+
+   Load order: tokens.css -> components.css -> _tier.css -> _frame.css
+               -> _android.css
+   ============================================================ */
+
+.dp-canvas { width: 100%; height: 100%; position: relative; overflow: hidden; display: flex; flex-direction: column; background: var(--app-bg); }
+
+/* ── Status bar ─────────────────────────────────────────────── */
+.md-status { flex: 0 0 auto; height: 28px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; font-size: 13px; font-weight: var(--fw-medium); color: var(--text); }
+.md-status .r { display: flex; align-items: center; gap: 5px; font-size: 13px; }
+
+/* ── Top app bar (small, 64dp) ──────────────────────────────── */
+.md-topbar { flex: 0 0 auto; height: 64px; display: flex; align-items: center; gap: 4px; padding: 0 4px; background: var(--app-bg); }
+.md-topbar .icb { width: 48px; height: 48px; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--text); flex: 0 0 auto; }
+.md-topbar .tt { flex: 1; min-width: 0; font-size: 22px; line-height: 28px; color: var(--text); padding-left: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Medium top app bar. Height is content-driven, not a fixed 152dp: the fixed
+   height exists so the bar can collapse on scroll, and in a static specimen it
+   renders as ~90dp of empty surface above the title. The 28sp headline is what
+   the card documents, so the type stays. */
+.md-topbar.large { height: auto; min-height: 96px; align-items: flex-end; padding: 16px 4px 12px; }
+.md-topbar.large .tt { font-size: 26px; line-height: 34px; padding-left: 12px; }
+
+/* Docked search bar — 56dp, fully rounded, surfaceContainerHigh */
+.md-search { margin: 0 16px 12px; height: 56px; border-radius: 28px; background: var(--component-bg-hover); display: flex; align-items: center; gap: 16px; padding: 0 16px; color: var(--text-secondary); font-size: 16px; flex: 0 0 auto; }
+.md-search i { font-size: 22px; }
+
+/* ── Lists ──────────────────────────────────────────────────────
+   One-line 56dp, two-line 72dp, three-line 88dp. Leading icon 24dp
+   inside a 40dp container. */
+.md-list { flex: 1 1 auto; min-height: 0; overflow: hidden; }
+.md-item { display: flex; align-items: center; gap: 16px; min-height: 72px; padding: 8px 16px; box-sizing: border-box; background: var(--app-bg); }
+.md-item .lead { flex: 0 0 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--text-secondary); }
+.md-item .lead.ic-y { color: var(--yellow-solid); }
+.md-item .tx { flex: 1 1 auto; min-width: 0; }
+.md-item .t1 { font-size: 16px; line-height: 24px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.md-item .t2 { font-size: 14px; line-height: 20px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.md-item .tr { margin-left: auto; flex: 0 0 auto; display: flex; align-items: center; gap: 12px; color: var(--text-secondary); font-size: 20px; }
+/* State layer — Material's 12% onSurface over the container. */
+.md-item.pressed { background: color-mix(in srgb, var(--text) 12%, var(--app-bg)); }
+.md-divider { height: 1px; background: var(--line); margin-left: 72px; }
+.md-subhead { font-size: 14px; font-weight: var(--fw-medium); color: var(--yellow-text-secondary); padding: 20px 16px 8px; }
+
+/* ── Navigation bar (80dp) with the pill indicator ──────────── */
+.md-navbar { flex: 0 0 auto; height: 80px; background: var(--component-bg); display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; align-items: center; padding-top: 12px; }
+.md-navbar .n { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: var(--fw-medium); color: var(--text-secondary); }
+.md-navbar .n .pill { width: 64px; height: 32px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.md-navbar .n.on { color: var(--text); }
+.md-navbar .n.on .pill { background: color-mix(in srgb, var(--yellow-solid) 26%, transparent); color: var(--yellow-solid); }
+
+/* A snackbar pushes the FAB up rather than sitting under it. Both sat at 96dp,
+   so the extended FAB overlapped the snackbar's action. */
+.md-fab.above-snackbar { bottom: 160px; }
+.md-fab { position: absolute; right: 16px; bottom: 96px; width: 56px; height: 56px; border-radius: 16px; background: var(--yellow-solid); color: var(--primary-foreground); display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3), 0 1px 18px rgba(0, 0, 0, 0.22); z-index: 12; }
+.md-fab.ext { width: auto; padding: 0 20px; gap: 12px; font-size: 16px; font-weight: var(--fw-medium); }
+
+/* ── Buttons ────────────────────────────────────────────────── */
+.md-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 24px; border-radius: 20px; font-size: 14px; font-weight: var(--fw-medium); letter-spacing: 0.01em; }
+.md-btn.filled { background: var(--yellow-solid); color: var(--primary-foreground); }
+.md-btn.tonal { background: var(--component-bg-active); color: var(--text); }
+.md-btn.outlined { border: 1px solid var(--border); color: var(--yellow-text-secondary); }
+.md-btn.text { color: var(--yellow-text-secondary); padding: 0 12px; }
+
+/* ── Switch (52x32, 24dp selected handle) ───────────────────── */
+.md-switch { flex: 0 0 auto; margin-left: auto; width: 52px; height: 32px; border-radius: 16px; background: var(--component-bg-active); border: 2px solid var(--border); box-sizing: border-box; position: relative; }
+.md-switch::after { content: ""; position: absolute; top: 50%; left: 6px; width: 16px; height: 16px; border-radius: 50%; background: var(--text-secondary); transform: translateY(-50%); }
+.md-switch.on { background: var(--yellow-solid); border-color: var(--yellow-solid); }
+.md-switch.on::after { left: 22px; width: 24px; height: 24px; background: var(--primary-foreground); }
+
+/* ── Slider ─────────────────────────────────────────────────── */
+.md-slider { display: flex; align-items: center; gap: 4px; height: 44px; padding: 0 16px; }
+.md-slider .active { height: 16px; border-radius: 8px; background: var(--yellow-solid); }
+.md-slider .handle { width: 4px; height: 44px; border-radius: 2px; background: var(--yellow-solid); flex: 0 0 auto; }
+.md-slider .inactive { flex: 1; height: 16px; border-radius: 8px; background: var(--component-bg-active); }
+
+/* ── Dialog (28dp corner) and snackbar (4dp) ────────────────── */
+.md-scrim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 20; }
+.md-dialog { width: 100%; border-radius: 28px; background: var(--component-bg); padding: 24px; }
+.md-dialog .dt { font-size: 24px; line-height: 32px; color: var(--text); }
+.md-dialog .db { font-size: 14px; line-height: 20px; color: var(--text-secondary); margin-top: 16px; text-wrap: pretty; }
+.md-dialog .da { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+.md-snack { position: absolute; left: 16px; right: 16px; bottom: 96px; min-height: 48px; border-radius: 4px; background: var(--component-bg-active); display: flex; align-items: center; gap: 8px; padding: 0 16px; font-size: 14px; color: var(--text); z-index: 15; box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35); }
+.md-snack .act { margin-left: auto; color: var(--yellow-text-secondary); font-weight: var(--fw-medium); }
+
+/* ── Bottom sheet (28dp top corners) ────────────────────────── */
+.md-sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--component-bg); border-radius: 28px 28px 0 0; padding: 0 0 24px; z-index: 22; }
+/* Items inherit the sheet surface. .md-item defaults to --app-bg for a
+   full-screen list; inside a sheet that paints a lighter band between the
+   drag handle and the bottom edge. */
+.md-sheet .md-item { background: transparent; }
+.md-sheet .md-divider { margin-left: 16px; }
+.md-drag { width: 32px; height: 4px; border-radius: 2px; background: var(--text-secondary); opacity: 0.4; margin: 16px auto 8px; }
+
+/* ── Linear progress ────────────────────────────────────────── */
+.md-prog { height: 4px; border-radius: 2px; background: var(--component-bg-active); overflow: hidden; }
+.md-prog > i { display: block; height: 100%; border-radius: 2px; background: var(--yellow-solid); }
+
+/* The earlier absolute-inset .atv block was removed: it was dead code, the
+   screenshot-derived chrome below overrode every property it set. */
+.atv-title { font-size: 48px; font-weight: var(--fw-medium); }
+.atv-sp { flex: 1; }
+.atv-row { display: flex; align-items: center; gap: 32px; padding: 24px 32px; border-radius: 12px; background: transparent; }
+.atv-row i.lead { font-size: 42px; color: var(--yellow-solid); flex: 0 0 auto; }
+.atv-row .tx { flex: 1; min-width: 0; }
+.atv-row .t1 { font-size: 36px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.atv-row .t2 { font-size: 28px; color: var(--text-secondary); margin-top: 6px; font-variant-numeric: tabular-nums; }
+.atv-row .tr { margin-left: auto; color: var(--text-secondary); font-size: 32px; }
+.atv-row.focused { background: var(--component-bg-active); transform: scale(1.02); box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5); }
+.atv-btn { display: inline-flex; align-items: center; gap: 14px; height: 72px; padding: 0 36px; border-radius: 12px; font-size: 30px; font-weight: var(--fw-medium); background: var(--component-bg); color: var(--text); }
+.atv-btn.focused { background: var(--component-bg-active); transform: scale(1.04); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.46); }
+
+/* ── Android TV ── rebuilt from the shipped app.
+   Source of truth: putio-frontend docs/references/images/putio-android-tv/,
+   plus apps/tv-native (the same RN codebase ships tv.put.io and Android TV).
+   Focus here is a FILLED ROUNDED ROW, not Compose's scale-plus-elevation. */
+.atv { width: 1920px; height: 1080px; background: var(--app-bg); box-sizing: border-box; padding: 64px 80px 0; position: relative; overflow: hidden; }
+.atv .head { display: flex; align-items: center; gap: 24px; padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,.09); }
+.atv .head .h1 { font-size: 48px; font-weight: var(--fw-medium); color: var(--text); flex: 1; }
+/* Header actions are text pills with a leading glyph, uppercase, not icon-only. */
+.atv .hpill { height: 64px; padding: 0 28px; border-radius: 12px; background: rgba(255,255,255,.07); display: flex; align-items: center; gap: 14px; font-size: 26px; letter-spacing: .06em; text-transform: uppercase; color: var(--text); }
+.atv .hpill i { font-size: 28px; }
+.atv .hpill.focused { background: var(--component-bg-active); }
+/* Rows: no dividers. Focus is the only surface in the list. */
+.atv .rows { padding-top: 24px; }
+.atv .arow { height: 128px; border-radius: 12px; display: flex; align-items: center; gap: 32px; padding: 0 32px; box-sizing: border-box; }
+.atv .arow.focused { background: rgba(255,255,255,.10); }
+.atv .arow .ic { width: 48px; font-size: 44px; color: var(--yellow-solid); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.atv .arow .tx { flex: 1; min-width: 0; }
+.atv .arow .t1 { font-size: 36px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.atv .arow .t2 { font-size: 28px; color: var(--text-secondary); margin-top: 6px; font-variant-numeric: tabular-nums; }
+.atv .arow .chev { font-size: 36px; color: var(--text-secondary); flex: 0 0 auto; }

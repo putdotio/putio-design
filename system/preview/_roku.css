@@ -1,0 +1,156 @@
+/* ============================================================
+   put.io — _roku.css
+   Tier 3 preview chrome for the Roku channel.
+
+   Every value here is lifted from putdotio/putio-roku@main, not
+   invented. The sources are:
+
+     components/shared/UiMetrics/UiMetrics.brs
+       uiScreenWidth 1920 · uiScreenHeight 1080 · uiScaleGrid 3
+       uiPageMargin 102 · uiListRowWidth 1716 · uiListRowHeight 120
+       uiBorderWidth 3 (= the grid) · uiShadowOffset 12
+     components/shared/Typography/Typography.brs
+       h1 45 bold · h2 36 medium · body 36 rg · small 33 rg
+       label 33 medium · caption 27 rg   (GT America, FHD coords)
+     components/shared/ListItem/ListItem.xml
+       inlineContent translation [35,60], itemSpacings 28,
+       icon Poster 50x50, value Label x1260 w412 right-aligned
+     test/live-test/roku-ui-metrics.test.ts
+       asserts rowWidth 1716 and fails any 1px dialog border
+
+   TWO THINGS THAT ARE NOT LIKE THE OTHER TV TIERS:
+
+   1. Roku is authored at FHD 1920x1080 and snapped to a 3px grid.
+      It is NOT authored at 1280x720 and scaled up. The grid is what
+      makes an FHD layout land on whole pixels when the device
+      downscales to HD.
+
+   2. SceneGraph has no border-radius. The rounded focus is a
+      nine-patch bitmap (images/list-item-focus.9.png) drawn by a
+      FocusBackground node behind the row — so Roku is the one TV
+      tier that never uses --radius-tv, and its focus has no scale
+      and no z-axis.
+
+   Colour comes from source/DesignTokens.brs, which is GENERATED from
+   @putdotio/design/tokens by scripts/generate-roku-design.ts. The
+   channel contains no hex literals; the CSS vars below stand in for
+   the generated designTokenColor() lookup.
+
+   Load order: tokens.css -> components.css -> _tier.css -> _frame.css
+               -> _roku.css
+   ============================================================ */
+
+.tvfit { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
+
+.rk { position: absolute; inset: 0; background: var(--app-bg); color: var(--text); font-family: var(--font-sans); display: flex; flex-direction: column; }
+
+/* Overhang — a stock Roku node. put.io only supplies the logo slot
+   (images/overhangLogo.png). */
+.rk-overhang { flex: 0 0 auto; display: flex; height: 126px; align-items: center; gap: 30px; padding: 0 102px; background: var(--bg-secondary); box-shadow: inset 0 -3px 0 var(--line); }
+.rk-overhang img { height: 54px; }
+.rk-overhang .sp { flex: 1; }
+.rk-overhang .clock { font-size: 33px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+
+.rk-body { flex: 1; min-height: 0; padding: 45px 102px 0; display: flex; flex-direction: column; }
+.rk-crumb { font-size: 33px; color: var(--text-secondary); padding: 0 35px 24px; }
+
+/* ListItem — 1716x120. Custom: no stock SceneGraph node does this. */
+/* Row padding is the LayoutGroup's own translation x, 35. No right padding:
+   the value Label is absolutely placed, so the row does not pad for it. */
+.rk-row { width: 1716px; height: 120px; box-sizing: border-box; display: flex; align-items: center; gap: 28px; padding: 0 0 0 35px; position: relative; }
+.rk-row i.lead { font-size: 50px; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; color: var(--yellow-solid); flex: 0 0 auto; }
+/* inlineContent is a HORIZONTAL LayoutGroup at translation=[35,60] with
+   itemSpacings=28: icon, title, description sit side by side on one line,
+   vertically centred on the row. They are not stacked. */
+.rk-row .tx { display: flex; flex-direction: row; align-items: center; gap: 28px; min-width: 0; }
+.rk-row .t1 { font-size: 36px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rk-row .t2 { font-size: 27px; color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; flex: 0 0 auto; }
+/* value is its own Label at translation=[1260,0], width 412, horizAlign right.
+   Not part of the text LayoutGroup, which is why the title has to ellipsize
+   at listItemMainTextWidth() rather than running to the row edge. */
+.rk-row .val { position: absolute; left: 1260px; top: 0; width: 412px; height: 120px; display: flex; align-items: center; justify-content: flex-end; color: var(--text-secondary); font-size: 33px; font-variant-numeric: tabular-nums; }
+/* Focus is ONE tinted nine-patch (list-item-focus.9.png blended with the
+   `focus` token) and nothing else. There is no border on a focused row:
+   uiBorderWidth() (3px) belongs to AppDialog, DeleteFileDialog, TrackMenu
+   and the ScreenHeader divider. Corner is listItemFocusCornerRadius():
+   12 at row height 80 and up, 9 below. */
+.rk-row.focused { background: var(--component-bg-active); border-radius: 12px; }
+
+.rk-hint { flex: 0 0 auto; display: flex; gap: 42px; padding: 30px 102px 39px; font-size: 27px; color: var(--text-secondary); align-items: center; }
+.rk-key { display: inline-flex; align-items: center; justify-content: center; min-width: 48px; height: 48px; padding: 0 15px; background: var(--component-bg); color: var(--text); font-size: 27px; margin-right: 12px; }
+
+/* Dialogs — centred by uiCenterX/uiCenterY, 3px borders, 12px shadow. */
+.rk-dlgwrap { position: absolute; inset: 0; background: var(--overlay-full); display: flex; align-items: center; justify-content: center; }
+.rk-dlg { width: 756px; background: var(--app-bg); border: 3px solid var(--border-hover); box-shadow: 0 12px 0 var(--overlay-inline); overflow: hidden; }
+.rk-dlg .h { padding: 36px 42px 27px; font-size: 45px; font-weight: var(--fw-bold); border-bottom: 3px solid var(--line); }
+/* Raw filenames have no spaces, so they never break at a word boundary and
+   run past the panel. Break anywhere rather than clipping the name. */
+.rk-dlg .body { padding: 30px 42px 12px; font-size: 33px; color: var(--text-secondary); line-height: 1.45; overflow-wrap: anywhere; word-break: break-word; }
+.rk-dlg .it { display: flex; align-items: center; gap: 24px; padding: 24px 42px; font-size: 36px; }
+/* Focus inside a dialog is the fill alone. The dialog already carries a 3px\n   border, so an inset ring on the focused row put two borders within a few px\n   of each other. List rows keep their ring because nothing else frames them. */\n.rk-dlg .it.focused { background: var(--component-bg-active); }
+.rk-dlg .it i { font-size: 42px; color: var(--yellow-solid); width: 42px; flex: 0 0 auto; }
+.rk-dlg .it i.muted { color: var(--text-secondary); }
+.rk-dlg .it i.danger { color: var(--red-solid); }
+
+/* Buttons — surface + border, focus swaps both. No lift. */
+.rk-btn { display: inline-flex; align-items: center; gap: 18px; height: 84px; padding: 0 36px; font-size: 33px; font-weight: var(--fw-medium); background: var(--component-bg); border: 3px solid var(--border); color: var(--text); box-sizing: border-box; }
+.rk-btn.focused { background: var(--component-bg-active); border-color: var(--border-hover); }
+
+/* Shared annotation tables used by the Roku cards. */
+.tokmap { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+.tokmap th { text-align: left; font-weight: var(--fw-medium); color: var(--text-secondary); padding: 7px 12px; border-bottom: 1px solid var(--line); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+.tokmap td { padding: 6px 12px; border-bottom: 1px solid var(--line); color: var(--text); vertical-align: top; }
+.tokmap td.m { font-family: var(--font-mono); font-size: 11px; color: var(--yellow-text-secondary); white-space: nowrap; }
+.tokmap td.d { color: var(--text-secondary); }
+.tokmap tr:last-child td { border-bottom: none; }
+.tokwrap { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; }
+
+/* ── VideoPlayer OSD ── every value from VideoPlayer.xml ───────────────── */
+.rk-player { position: relative; width: 1920px; height: 1080px; background: #0b0b0b; overflow: hidden; }
+.rk-player .frame { position: absolute; inset: 0; background: linear-gradient(160deg,#171310,#0c0c0e 60%,#100d0b); }
+/* bottomShade: translation [0,800], 1920x280 */
+.rk-player .shade { position: absolute; left: 0; top: 800px; width: 1920px; height: 280px; background: linear-gradient(180deg,transparent,rgba(0,0,0,.86)); }
+/* playerTitle [96,900] w1360 · trackSummary [96,923] w1360 */
+.rk-player .ptitle { position: absolute; left: 96px; top: 900px; width: 1360px; font-size: 36px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rk-player .psum { position: absolute; left: 96px; top: 946px; width: 1360px; font-size: 27px; color: rgba(255,255,255,.62); }
+/* progress group [96,960]: track [0,25] 1728x8 */
+.rk-player .prog { position: absolute; left: 96px; top: 960px; width: 1728px; height: 80px; }
+.rk-player .prog .track { position: absolute; left: 0; top: 25px; width: 1728px; height: 8px; background: rgba(255,255,255,.26); }
+.rk-player .prog .fill { position: absolute; left: 0; top: 25px; height: 8px; background: var(--yellow-solid); }
+.rk-player .prog .thumb { position: absolute; top: 20px; width: 18px; height: 18px; border-radius: 9px; background: var(--yellow-solid); }
+/* playerPosition [0,52] w180 · playerDuration [1548,52] w180 right */
+.rk-player .prog .pos { position: absolute; left: 0; top: 52px; width: 180px; font-size: 27px; color: rgba(255,255,255,.78); font-variant-numeric: tabular-nums; }
+.rk-player .prog .dur { position: absolute; left: 1548px; top: 52px; width: 180px; text-align: right; font-size: 27px; color: rgba(255,255,255,.78); font-variant-numeric: tabular-nums; }
+/* controls [0,810]; buttons at x 804 / 916 / 1028 and the right slot at 1736.
+   Focus is player-control-focus.png, a 96x96 Poster at [-4,-4]. Icon 56x56 at [16,16]. */
+.rk-player .ctl { position: absolute; left: 0; top: 810px; width: 1920px; height: 88px; }
+.rk-player .cbtn { position: absolute; top: 0; width: 88px; height: 88px; }
+.rk-player .cbtn .glyph { position: absolute; left: 16px; top: 16px; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; font-size: 56px; color: #fff; }
+.rk-player .cbtn.focused::before { content: ""; position: absolute; left: -4px; top: -4px; width: 96px; height: 96px; border-radius: 12px; background: rgba(255,255,255,.22); }
+/* focus label [-86,-44] w260 h36 centred */
+.rk-player .cbtn .flabel { position: absolute; left: -86px; top: -44px; width: 260px; height: 36px; text-align: center; font-size: 27px; color: #fff; }
+.rk-player .buffer { position: absolute; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; }
+.rk-player .buffer .ind { width: 160px; height: 160px; display: flex; align-items: center; justify-content: center; }
+.rk-player .buffer .ind i { font-size: 58px; color: var(--yellow-solid); }
+
+/* ── TrackMenu ── panel [549,180] 822x720, rows 726x63 ─────────────────── */
+.rk-track { position: relative; width: 1920px; height: 1080px; background: #0b0b0b; overflow: hidden; }
+.rk-track .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.6); }
+.rk-track .panel { position: absolute; left: 549px; top: 180px; width: 822px; height: 720px; box-sizing: border-box; background: var(--component-bg); border: 3px solid var(--border); }
+.rk-track .panel .shadow { position: absolute; left: 12px; top: 12px; right: -12px; bottom: -12px; background: rgba(0,0,0,.55); z-index: -1; }
+.rk-track .ttl { position: absolute; left: 48px; top: 45px; width: 726px; height: 45px; font-size: 36px; color: var(--text); }
+.rk-track .sep { position: absolute; left: 48px; width: 726px; height: 3px; background: var(--border); }
+.rk-track .rows { position: absolute; left: 48px; top: 108px; width: 726px; }
+.rk-track .trow { position: relative; width: 726px; height: 63px; }
+.rk-track .trow .lbl { position: absolute; left: 24px; top: 12px; width: 600px; height: 63px; font-size: 33px; color: var(--text); display: flex; align-items: center; }
+.rk-track .trow .chk { position: absolute; left: 660px; top: 9px; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; font-size: 36px; color: var(--yellow-solid); }
+.rk-track .trow.focused { background: var(--component-bg-active); }
+
+/* ── AppDialog buttons ── 804x78, focus per applyDialogButtonState ─────── */
+.rk-dlgbtn { width: 804px; height: 78px; display: flex; align-items: center; justify-content: center; font-size: 33px; color: var(--text); box-sizing: border-box; }
+.rk-dlgbtn.primary { background: var(--component-bg-active); }
+.rk-dlgbtn.primary.focused { background: var(--yellow-solid); color: var(--primary-foreground); }
+.rk-dlgbtn.plain.focused { background: var(--component-bg-hover); }
+.rk-dlgbtn.danger { color: var(--red-text-secondary); }
+.rk-dlgbtn.danger.focused { background: var(--red-component-bg); color: var(--text); }
+.rk-dlgbtn.disabled { background: var(--component-bg); color: var(--text-disabled); }

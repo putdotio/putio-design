@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint. .dark on <html> = dark. */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · public share</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .note {max-width: 820px}
+  
+  
+  .two { display: grid; grid-template-columns: 1.35fr 1fr; gap: 24px; align-items: start; }
+
+  .guest { border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; background: var(--app-bg); }
+  .gh { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: var(--nav-bg); border-bottom: 1px solid var(--line); }
+  .gh img { height: 25.67px; width: auto; display: block; } /* ink 22px: padded wordmark */
+  .gb { padding: 18px 20px 24px; }
+  .crumbs { display: flex; align-items: center; gap: 6px; font-size: var(--fs-sm); color: var(--text-secondary); margin-bottom: 6px; }
+  .crumbs i { font-size: 10px; opacity: .6; }
+  .gb h1 { margin: 0 0 12px; font-size: var(--fs-lg); font-weight: 700; letter-spacing: -0.01em; }
+  /* Grid aligns to the start so the file glyph sits on the filename's line
+     box. The trailing action re-centres against the whole row. */
+  .fi { display: grid; grid-template-columns: 22px 1fr auto; align-items: start; column-gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--list-item-border); }
+  .fi > i.g { font-size: 19px; line-height: 20px; color: var(--yellow-solid); justify-self: center; }
+  .fi .nm { font-size: var(--fs-base); line-height: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fi .sz { font-size: var(--fs-sm); color: var(--text-secondary); margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .fi .more { flex-shrink: 0; align-self: center; }
+
+  .modal { border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--component-bg); box-shadow: var(--shadow-lg); overflow: hidden; }
+  .mh { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+  .mh .t { font-size: var(--fs-md); font-weight: 500; }
+  .mb { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 14px; }
+  .warn { display: flex; gap: 10px; padding: 12px 14px; border-radius: var(--alert-radius); background: var(--alert-brand-bg); border: 1px solid var(--alert-brand-border); color: var(--alert-brand-text); font-size: 12.5px; line-height: 1.5; }
+  .warn i { font-size: 16px; color: var(--alert-brand-icon); flex-shrink: 0; }
+  .sh { font-size: var(--fs-base); font-weight: 500; padding-bottom: 6px; border-bottom: 1px solid var(--line); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cb { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-secondary); }
+  .copy { display: flex; gap: 8px; }
+  .copy .field { flex: 1; font-family: var(--font-mono); font-size: 12px; }
+  .anat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .anat .c { border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; }
+  .anat .k { font-family: var(--font-mono); font-size: 10px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-secondary); }
+  .anat .v { font-size: 12.5px; margin-top: 3px; }
+</style></head>
+<body>
+<div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat">Tier 1 · <b>Web</b> (www / app / auth). A real app.put.io screen composed from the <b>components.css</b> recipes. Binds web only.</span><span class="ttok">--radius-lg · --nav-bg · --fs-lg · --list-item-border</span></div>
+<div class="preview-shell">
+  <div class="head"><span class="ix">01</span><span class="t">Public share: the only screen a stranger sees</span><span class="n">public-shares/components/layout · file · file-actions-menu</span></div>
+  <div class="note">A guest has no account, no sidebar and no nav. Everything else in the product is hidden, so this page carries the whole brand.</div>
+  <div class="kv">
+    <div class="r"><span class="k">header</span><span class="v">60px fixed, <code>--nav-bg</code>, retro logo and one primary <code>xs</code> button</span></div>
+    <div class="r"><span class="k">column</span><span class="v">960px, centred</span></div>
+    <div class="r"><span class="k">list</span><span class="v">same file list as the app, glyphs <code>--yellow-solid</code>, size as the description</span></div>
+    <div class="r"><span class="k">per row</span><span class="v">one overflow action menu</span></div>
+  </div>
+
+  <div class="two">
+    <div class="guest">
+      <div class="gh">
+        <img src="../assets/logo-retro-dark.svg" alt="put.io">
+        <button class="btn-primary btn-xs">What is put.io?</button>
+      </div>
+      <div class="gb">
+        <div class="crumbs"><span>Shared</span><i class="ph-fill ph-caret-right"></i><span>Films</span><i class="ph-fill ph-caret-right"></i><span>2024</span></div>
+        <h1>2024</h1>
+        <div class="fi">
+          <i class="ph-fill ph-folder g"></i>
+          <div><div class="nm">extras</div><div class="sz">—</div></div>
+          <button class="btn-quiet btn-icon btn-sm more" aria-label="Actions"><i class="ph-bold ph-dots-three-vertical"></i></button>
+        </div>
+        <div class="fi">
+          <i class="ph ph-film-strip g"></i>
+          <div><div class="nm">Dune.Part.Two.2024.1080p.WEB-DL.x264-GROUP.mkv</div><div class="sz">3.42 GB</div></div>
+          <button class="btn-quiet btn-icon btn-sm more" aria-label="Actions"><i class="ph-bold ph-dots-three-vertical"></i></button>
+        </div>
+        <div class="fi">
+          <i class="ph-fill ph-music-note g"></i>
+          <div><div class="nm">ambient-session-03.mp3</div><div class="sz">72.4 MB</div></div>
+          <button class="btn-quiet btn-icon btn-sm more" aria-label="Actions"><i class="ph-bold ph-dots-three-vertical"></i></button>
+        </div>
+        <div class="fi">
+          <i class="ph-fill ph-file-text g"></i>
+          <div><div class="nm">notes.txt</div><div class="sz">2 kB</div></div>
+          <button class="btn-quiet btn-icon btn-sm more" aria-label="Actions"><i class="ph-bold ph-dots-three-vertical"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" data-slot="modal">
+      <div class="mh" data-slot="modal-header">
+        <span class="t">Share this file</span>
+        <button class="btn-quiet btn-icon btn-sm" aria-label="Close"><i class="ph ph-x" aria-hidden="true"></i></button>
+      </div>
+      <div class="mb" data-slot="modal-body">
+        <div class="warn">
+          <i class="ph-fill ph-warning" aria-hidden="true"></i>
+          <div><b>Anyone with this link can watch and download.</b> Sharing copyrighted material publicly can get your account suspended.</div>
+        </div>
+        <div class="sh">Dune.Part.Two.2024.1080p.WEB-DL.x264-GROUP.mkv</div>
+        <label class="cb"><span class="checkbox checked"></span>Watch together (will attempt to synchronise. Experimental)</label>
+        <div class="copy">
+          <input class="field mono" value="https://put.io/s/8f2a41cd?utm_campaign=party" readonly aria-label="Share link">
+          <button class="btn-default btn-md">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="anat">
+    <div class="c"><div class="k">Header</div><div class="v">60px · --nav-bg · logo + one CTA</div></div>
+    <div class="c"><div class="k">Column</div><div class="v">960px max, centred</div></div>
+    <div class="c"><div class="k">Row actions</div><div class="v">⋮ menu · Download · Watch party</div></div>
+    <div class="c"><div class="k">Video only</div><div class="v">watch-together adds ?utm_campaign=party</div></div>
+  </div>
+
+  <div class="note"><b>The overflow menu is capability-filtered, never greyed.</b> A file with no available action shows no menu at all.</div>
+  <div class="kv">
+    <div class="r"><span class="k">Create watch party</span><span class="v">video only. Swaps to <b>Copy watch party link</b> once in one</span></div>
+    <div class="r"><span class="k">Download</span><span class="v">always</span></div>
+    <div class="r"><span class="k">Download MP4</span><span class="v">only when a converted copy exists</span></div>
+  </div>
+</div>
+</body></html>

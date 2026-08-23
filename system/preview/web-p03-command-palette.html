@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint. .dark on <html> = dark. */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · components · command palette</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .note {max-width: 760px}
+  
+  
+  .pad { padding: 20px; background: var(--bg-secondary); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+  kbd { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-secondary); background: var(--component-bg); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 1px 5px; }
+  .scrim { background: var(--palette-scrim); border-radius: var(--radius-lg); padding: 44px 0 64px; display: flex; justify-content: center; }
+  .pal { width: var(--palette-width); background: var(--palette-bg); border: 1px solid var(--palette-border); border-radius: var(--radius-lg); box-shadow: var(--palette-shadow); overflow: hidden; }
+  .pal .q { display: flex; align-items: center; gap: 10px; padding: 0 14px; height: var(--palette-input-height); border-bottom: 1px solid var(--palette-border); }
+  .pal .q i { font-size: 17px; color: var(--text-secondary); }
+  .pal .q input { flex: 1; background: transparent; border: 0; outline: none; color: var(--text); font-family: var(--font-sans); font-size: 15px; }
+  .pal .q input::placeholder { color: var(--text-secondary); }
+  .pal .body { padding: 6px; max-height: 340px; overflow: auto; }
+  .grp { padding: 10px 10px 4px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--palette-group-label); }
+  .it { display: flex; align-items: center; gap: 10px; height: var(--palette-item-height); padding: 0 10px; border-radius: var(--radius-sm); font-size: 13.5px; }
+  .it i { font-size: 16px; color: var(--text-secondary); }
+  .it i.file { color: var(--file-row-icon); }
+  .it .path { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--palette-item-meta); }
+  .it.on { background: var(--palette-item-bg-active); }
+  .it.on .path { color: var(--palette-item-meta); }
+  .foot { display: flex; align-items: center; gap: 14px; padding: 8px 14px; border-top: 1px solid var(--palette-border); font-size: 11.5px; color: var(--text-secondary); }
+  .foot span { display: inline-flex; align-items: center; gap: 4px; }
+  .empty { padding: 34px 10px 38px; text-align: center; color: var(--text-secondary); font-size: 13px; }
+  .empty .km { font-family: var(--font-mono); font-size: 20px; color: var(--text); display: block; margin-bottom: 10px; }
+</style></head>
+<body>
+<div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat">Tier 1 · <b>Web</b> (www / app / auth). The full design system: our component library and the <b>components.css</b> recipe. This is the one tier where the recipe is the contract, native tiers take the tokens and nothing else.</span><span class="ttok">--radius-lg · --palette-border · --radius-sm · --palette-item-meta</span></div>
+<div class="preview-shell">
+  <div class="head"><span class="ix">01</span><span class="t">Command palette: ⌘K</span><span class="n">search · actions · navigation</span></div>
+  <div class="note">One input over three result kinds. Results are grouped and never reordered mid-typing.</div>
+  <div class="kv">
+    <div class="r"><span class="k">files</span><span class="v">raw filenames, path right-aligned</span></div>
+    <div class="r"><span class="k">actions</span><span class="v">what the toolbar can do</span></div>
+    <div class="r"><span class="k">go to</span><span class="v">nav destinations</span></div>
+    <div class="r"><span class="k">selection</span><span class="v">one highlighted row, <code>--palette-item-bg-active</code>. No checkmarks, no multi-select</span></div>
+    <div class="r"><span class="k">keys</span><span class="v">Enter runs, Escape closes. Never traps focus behind a second modal</span></div>
+  </div>
+  <div class="scrim">
+    <div class="pal">
+      <div class="q"><i class="ph ph-magnifying-glass"></i><input value="dune" aria-label="Search files and commands" spellcheck="false"><kbd>ESC</kbd></div>
+      <!-- Results are grouped semantically, not just visually: consumers copy
+           this DOM, so the group role and label wiring is part of the spec. -->
+      <div class="body" id="palette-results">
+        <div role="group" aria-labelledby="pal-grp-files">
+          <div class="grp" id="pal-grp-files">Files</div>
+          <div class="it on"><i class="ph ph-file-video file"></i>Dune.Part.Two.2024.1080p.WEB-DL.x264-GROUP.mkv<span class="path">/Films/2024</span></div>
+          <div class="it"><i class="ph ph-file-video file"></i>Dune.2021.2160p.HDR.x265-GROUP.mkv<span class="path">/Films</span></div>
+          <div class="it"><i class="ph-fill ph-folder file"></i>Dune, extras<span class="path">/Films/2024</span></div>
+        </div>
+        <div role="group" aria-labelledby="pal-grp-actions">
+          <div class="grp" id="pal-grp-actions">Actions</div>
+          <div class="it"><i class="ph ph-plus"></i>New transfer from magnet<span class="path">⌘N</span></div>
+          <div class="it"><i class="ph ph-upload-simple"></i>Upload files<span class="path">⌘U</span></div>
+        </div>
+        <div role="group" aria-labelledby="pal-grp-goto">
+          <div class="grp" id="pal-grp-goto">Go to</div>
+          <div class="it"><i class="ph ph-arrows-down-up"></i>Transfers<span class="path">G T</span></div>
+          <div class="it"><i class="ph ph-gear"></i>Preferences<span class="path">G P</span></div>
+        </div>
+      </div>
+      <div class="foot"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>⌘</kbd><kbd>K</kbd> toggle</span></div>
+    </div>
+  </div>
+  <div class="head"><span class="ix">02</span><span class="t">No results</span><span class="n">kaomoji · one line · no CTA</span></div>
+  <div class="note">Empty search reuses the brand empty-state voice, kaomoji, one plain line. Nothing to retry, so no button.</div>
+  <div class="scrim" style="padding: 30px 0 40px;">
+    <div class="pal">
+      <div class="q"><i class="ph ph-magnifying-glass"></i><input value="zzzz" aria-label="Search files and commands" spellcheck="false"><kbd>ESC</kbd></div>
+      <div class="empty"><span class="km">¯\_(ツ)_/¯</span>Nothing matches “zzzz”.</div>
+    </div>
+  </div>
+</div>
+</body></html>

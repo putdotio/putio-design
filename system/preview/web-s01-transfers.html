@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint. .dark on <html> = dark. */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · transfers</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .note {max-width: 780px}
+  
+  .note + .note { margin-top: 10px; }
+  
+  .list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
+  /* align-items: flex-start so the leading checkbox sits on the filename's
+     line box rather than centring against a two-line row. */
+  .tr { position: relative; display: flex; align-items: flex-start; min-height: 71px; padding: 12px 0; border-bottom: 1px solid var(--line); background: var(--transfer-list-item-passive-bg); }
+  .tr:last-child { border-bottom: 0; }
+  .tr::after { content: ''; position: absolute; inset: 0 auto 0 0; height: 100%; background: transparent; z-index: 1; }
+  .tr.downloading { background: var(--transfer-list-item-finished-bg); }
+  .tr.downloading::after { background: var(--transfer-list-item-downloading-bg); }
+  .tr.seeding::after, .tr.completing::after { background: var(--transfer-list-item-completing-bg); }
+  .tr.completed { background: transparent; }
+  .tr > * { position: relative; z-index: 2; }
+  /* 20px box = the .name line box, so a 16px control centres on the title. */
+  .tr .lead { margin: 0 16px; height: 20px; display: flex; align-items: center; }
+  .tr .rm { width: 16px; height: 16px; padding: 0; border: 0; border-radius: 50%; background: var(--green-solid); display: grid; place-items: center; cursor: pointer; }
+  .tr .rm i { font-size: 12px; color: var(--red-solid); visibility: hidden; }
+  .tr .rm:hover { background: transparent; }
+  .tr .rm:hover i { visibility: visible; }
+  .tr .mid { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-right: 20px; }
+  .tr .name { font-size: var(--fs-base); line-height: 20px; color: var(--text); display: flex; align-items: center; gap: 6px; }
+  .tr .name i { font-size: 13px; color: var(--text-secondary); }
+  .tr .name a { color: var(--text); text-decoration: none; }
+  .tr .name a:hover { text-decoration: underline; }
+  .meta { list-style: none; display: flex; flex-wrap: wrap; margin: 5px 0 0; padding: 0; font-size: var(--fs-xs); color: var(--text-secondary); }
+  .meta li + li::before { content: '  |  '; white-space: pre; }
+  .meta a { color: var(--text-secondary); text-decoration: none; }
+  .meta a:hover { text-decoration: underline; color: var(--text); }
+  .detail { margin-top: 4px; font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .right { text-align: right; flex-shrink: 0; }
+  .eta { font-family: var(--font-mono); font-size: var(--fs-md); color: var(--text); font-variant-numeric: tabular-nums; }
+  .speeds { margin-top: 2px; display: flex; gap: 10px; justify-content: flex-end; font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--text-secondary); }
+  .speeds span { display: inline-flex; align-items: center; gap: 4px; }
+  .toolbar { display: flex; align-items: center; gap: 10px; }
+  .toolbar .count { font-size: 12.5px; color: var(--text-secondary); margin-left: auto; font-family: var(--font-mono); }
+  .anat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .anat .c { border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; }
+  .anat .k { font-family: var(--font-mono); font-size: 10px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-secondary); }
+  .anat .v { font-size: 12.5px; margin-top: 3px; }
+</style></head>
+<body>
+<div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat">Tier 1 · <b>Web</b> (www / app / auth). A real app.put.io screen composed from the <b>components.css</b> recipes. Binds web only.</span><span class="ttok">--radius-lg · --transfer-list-item-passive-bg · --transfer-list-item-finished-bg · --transfer-list-item-downloading-bg</span></div>
+<div class="preview-shell">
+  <div class="head"><span class="ix">01</span><span class="t">Transfers: the list is the page</span><span class="n">row 71px · progress paints the row</span></div>
+  <div class="note">A transfer row has <b>no progress bar</b>. The row itself fills left to right behind the content.</div>
+  <div class="kv">
+    <div class="r"><span class="k">downloading</span><span class="v"><code>--transfer-list-item-downloading-bg</code> over finished</span></div>
+    <div class="r"><span class="k">seeding, completing</span><span class="v">fill over passive</span></div>
+    <div class="r"><span class="k">completed</span><span class="v">transparent</span></div>
+    <div class="r"><span class="k">name</span><span class="v">truncates in the middle, 50 front / 10 back, so the extension stays readable</span></div>
+    <div class="r"><span class="k">metadata</span><span class="v">tracker · retry · source. Hidden below 960px</span></div>
+  </div>
+
+  <div class="note"><b>Known exception, shown as production ships it.</b> Row actions are <code>size="sm"</code> success and danger in <code>TransferListItem.tsx</code>. White on green and white on red only clear their APCA contract at <code>md</code> and up, so this contradicts the Buttons card.<br><br>
+      The specimen stays faithful to the app. The fix belongs in the app.</div>
+
+  <div class="toolbar">
+    <button class="btn-primary btn-md">New transfer</button>
+    <button class="btn-default btn-md">Pause all</button>
+    <button class="btn-default btn-icon btn-md" aria-label="Clear finished"><i class="ph ph-broom" aria-hidden="true"></i></button>
+    <span class="count">6 transfers · 2 active</span>
+  </div>
+
+  <ul class="list">
+    <li class="tr downloading" style="--p:64%">
+      <div class="lead"><span class="checkbox checked"></span></div>
+      <div class="mid">
+        <div>
+          <div class="name"><i class="ph-fill ph-lock" aria-hidden="true"></i>Dune.Part.Two.2024.1080p.WEB…GROUP.mkv</div>
+          <ul class="meta"><li>tracker.opentrackr.org</li><li>81.214.60.12</li></ul>
+          <div class="detail">2.19 GB of 3.42 GB · 64% · 12 seeders</div>
+        </div>
+        <div class="right"><div class="eta">00:04:12</div><div class="speeds"><span>4.8 MB/s<i class="ph-bold ph-arrow-down" aria-hidden="true"></i></span><span>310 kB/s<i class="ph-bold ph-arrow-up" aria-hidden="true"></i></span></div></div>
+      </div>
+    </li>
+    <li class="tr downloading" style="--p:8%">
+      <div class="lead"><span class="checkbox"></span></div>
+      <div class="mid">
+        <div>
+          <div class="name">Glacier.Hike.2024.2160p.HDR.x265-GROUP.mkv</div>
+          <ul class="meta"><li>tracker.torrent.eu.org</li></ul>
+          <div class="detail">980 MB of 12.1 GB · 8% · 3 seeders</div>
+        </div>
+        <div class="right"><div class="eta">∞</div><div class="speeds"><span>0 B/s<i class="ph-bold ph-arrow-down" aria-hidden="true"></i></span></div></div>
+      </div>
+    </li>
+    <li class="tr seeding" style="--p:100%">
+      <div class="lead"><span class="checkbox"></span></div>
+      <div class="mid">
+        <div>
+          <div class="name">field-recordings-batch-07.flac</div>
+          <ul class="meta"><li>tracker.opentrackr.org</li></ul>
+          <div class="detail">Seeding · ratio 1.84 · 840 MB uploaded</div>
+        </div>
+        <div class="right"><div class="speeds"><span>1.1 MB/s<i class="ph-bold ph-arrow-up" aria-hidden="true"></i></span></div></div>
+      </div>
+    </li>
+    <li class="tr completed">
+      <div class="lead"><button class="rm" aria-label="Remove"><i class="ph-bold ph-x" aria-hidden="true"></i></button></div>
+      <div class="mid">
+        <div>
+          <div class="name"><a href="#">The.Wire.S03E04.Hamsterdam.1080p.BluRay.x264-DEMAND.mkv</a></div>
+          <ul class="meta"><li>tracker.opentrackr.org</li></ul>
+          <div class="detail">3.42 GB · completed Mar 14 · 22:18</div>
+        </div>
+        <div class="right"><button class="btn-success btn-sm" style="min-width:100px">Go to file</button></div>
+      </div>
+    </li>
+    <li class="tr">
+      <div class="lead"><span class="checkbox"></span></div>
+      <div class="mid">
+        <div>
+          <div class="name">ubuntu-24.04.2-desktop-amd64.iso</div>
+          <ul class="meta"><li>releases.ubuntu.com</li><li><a href="#">Retry</a></li></ul>
+          <div class="detail" style="color: var(--red-text-secondary)">Error · the tracker refused the connection</div>
+        </div>
+        <div class="right"></div>
+      </div>
+    </li>
+    <li class="tr completing" style="--p:100%">
+      <div class="lead"><span class="checkbox"></span></div>
+      <div class="mid">
+        <div>
+          <div class="name"><i class="ph-fill ph-broadcast" aria-hidden="true"></i>put.io live · Sunday session</div>
+          <ul class="meta"><li>live stream</li></ul>
+          <div class="detail">Recording · 41:12 elapsed</div>
+        </div>
+        <div class="right"><button class="btn-danger btn-sm" style="min-width:110px">Stop recording</button></div>
+      </div>
+    </li>
+  </ul>
+
+  <div class="anat">
+    <div class="c"><div class="k">Row</div><div class="v">71px min · 1px --line</div></div>
+    <div class="c"><div class="k">Progress</div><div class="v">background layer, not a bar</div></div>
+    <div class="c"><div class="k">Selected</div><div class="v">checkbox · unselectable rows get the remove disc</div></div>
+    <div class="c"><div class="k">Numbers</div><div class="v">Berkeley Mono, tabular</div></div>
+  </div>
+  <div class="note"><b>Never</b> parse the transfer name into a title, and never hide the tracker, it is how a user recognises their own transfer.</div>
+</div>
+<script>document.querySelectorAll('.tr[style*="--p"]').forEach(function(el){el.style.setProperty('--p', el.style.getPropertyValue('--p'));});</script>
+<style>.tr::after { width: var(--p, 0); }</style>
+</body></html>

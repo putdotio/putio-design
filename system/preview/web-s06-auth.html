@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV and native surfaces).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · auth screen</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { margin: 0; background: var(--html-bg); color: var(--text); font-family: var(--font-sans); font-size: 14px; }
+  .surface { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .hd .t { font-size: 15px; font-weight: 500; }
+  .hd .d { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 62ch; margin-top: 4px; }
+  .states { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .state { display: flex; flex-direction: column; gap: 10px; }
+  .cap { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-secondary); }
+  .screen { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 36px 28px 30px; display: flex; justify-content: center; }
+  .col { width: 100%; max-width: 340px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .brand-dark { display: none; height: 30.33px; width: auto; } /* ink 26px: padded wordmark */
+  .brand-light { display: block; height: 30.33px; width: auto; }
+  .dark .brand-dark { display: block; }
+  .dark .brand-light { display: none; }
+  .card { width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px; box-shadow: var(--shadow-md); }
+  .card h1 { margin: 0; font-size: 19px; font-weight: 500; letter-spacing: -0.01em; }
+  .card .sub { margin: 0; font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; }
+  .pw { position: relative; }
+  .pw .reveal { position: absolute; top: 0; right: 0; height: 36px; width: 38px; padding: 0; background: transparent; border: 0; color: var(--text-secondary); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+  .pw .reveal:hover { color: var(--text); }
+  .pw .field { padding-right: 42px; }
+  .err { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--red-text-secondary); }
+  .err a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+  /* Prompt and action stack: the link is its own line, not a run-on after
+     the question. Two lines read as a labelled action; one reads as prose. */
+  .foot { margin: 0; font-size: 12.5px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+  .foot a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; font-weight: 500; }
+  
+  
+  .anat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .anat .c { border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; }
+  .anat .k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-secondary); }
+  .anat .v { font-size: 12.5px; margin-top: 3px; }
+</style>
+</head>
+<body>
+<div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat">Tier 1 · <b>Web</b> (www / app / auth). A real app.put.io screen composed from the <b>components.css</b> recipes. Binds web only.</span><span class="ttok">--radius-lg · --shadow-md · --red-text-secondary · --text-secondary</span></div>
+<div class="surface">
+  <div class="hd">
+    <div class="t">Auth screen</div>
+    <div class="d">The auth.put.io sign-in surface: retro logo mark, one elevated card, username + password with a reveal toggle, and a full-width primary CTA. Error copy sits under the password field, never as a banner.</div>
+  </div>
+
+  <div class="states">
+    <div class="state">
+      <div class="cap">default</div>
+      <div class="screen">
+        <div class="col">
+          <img class="brand-dark" src="../assets/logo-retro-dark.svg" alt="put.io">
+          <img class="brand-light" src="../assets/logo-retro-light.svg" alt="put.io">
+          <div class="card card-lg">
+            <div>
+              <h1>Sign in</h1>
+              <p class="sub">Your files are where you left them.</p>
+            </div>
+            <div class="form-stack">
+              <div class="form-group">
+                <label class="label" for="a-id">Username or email</label>
+                <input class="field" id="a-id" type="text" autocomplete="username" spellcheck="false">
+              </div>
+              <div class="form-group">
+                <div class="label-row">
+                  <label class="label" for="a-pw">Password</label>
+                  <a href="#">Forgot your password?</a>
+                </div>
+                <div class="pw">
+                  <input class="field" id="a-pw" type="password" autocomplete="current-password">
+                  <button type="button" class="reveal" aria-label="Show password"><i class="ph ph-eye" style="font-size:16px" aria-hidden="true"></i></button>
+                </div>
+              </div>
+              <button type="button" class="btn-primary btn-block">Sign in</button>
+            </div>
+          </div>
+          <p class="foot"><span>New to put.io?</span><a href="#">Create an account</a></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="state">
+      <div class="cap">error</div>
+      <div class="screen">
+        <div class="col">
+          <img class="brand-dark" src="../assets/logo-retro-dark.svg" alt="put.io">
+          <img class="brand-light" src="../assets/logo-retro-light.svg" alt="put.io">
+          <div class="card card-lg">
+            <div>
+              <h1>Sign in</h1>
+              <p class="sub">Your files are where you left them.</p>
+            </div>
+            <div class="form-stack">
+              <div class="form-group">
+                <label class="label" for="b-id">Username or email</label>
+                <input class="field" id="b-id" type="text" value="grubby" autocomplete="username" spellcheck="false">
+              </div>
+              <div class="form-group">
+                <div class="label-row">
+                  <label class="label" for="b-pw">Password</label>
+                  <a href="#">Forgot your password?</a>
+                </div>
+                <div class="pw">
+                  <input class="field" id="b-pw" type="text" value="hunter2" aria-invalid="true" autocomplete="current-password">
+                  <button type="button" class="reveal" aria-label="Hide password"><i class="ph ph-eye-slash" style="font-size:16px" aria-hidden="true"></i></button>
+                </div>
+                <p class="err">That username or password doesn't look right. <a href="#">Reset your password</a>.</p>
+              </div>
+              <button type="button" class="btn-primary btn-block">Sign in</button>
+            </div>
+          </div>
+          <p class="foot"><span>New to put.io?</span><a href="#">Create an account</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="anat">
+    <div class="c"><div class="k">Card</div><div class="v">card-lg · --shadow-md</div></div>
+    <div class="c"><div class="k">Width</div><div class="v">340px column</div></div>
+    <div class="c"><div class="k">CTA</div><div class="v">btn-primary btn-block</div></div>
+    <div class="c"><div class="k">Error</div><div class="v">--red-text-secondary, inline</div></div>
+  </div>
+</div>
+</body>
+</html>

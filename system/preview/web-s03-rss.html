@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint. .dark on <html> = dark. */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · rss</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .note {max-width: 820px}
+  
+  
+  .pgh { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 8px 8px; }
+  .pgh h1 { margin: 0; font-size: var(--fs-lg); font-weight: 700; letter-spacing: -0.01em; }
+  /* align-items: start so the state glyph sits on the title's line box.
+     The trailing action group re-centres against the whole row. */
+  .li { display: grid; grid-template-columns: 22px 1fr auto; align-items: start; column-gap: 14px; padding: 14px 8px; border-bottom: 1px solid var(--list-item-border); }
+  .li > i.lead { font-size: 18px; line-height: 20px; justify-self: center; }
+  .li .ti { font-size: var(--fs-base); line-height: 20px; }
+  .li .ti a { color: var(--text); text-decoration: none; }
+  .li .ti a:hover { text-decoration: underline; }
+  .li .de { margin-top: 3px; font-size: var(--fs-sm); color: var(--text-secondary); }
+  .li .de.err { color: var(--red-text-secondary); }
+  .acts { display: flex; gap: 6px; align-self: center; }
+  .lead.ok { color: var(--green-solid); }
+  .lead.off { color: var(--solid); }
+  .lead.bad { color: var(--red-solid); }
+  .two { display: flex; flex-direction: column; gap: 32px; }
+  .page { max-width: 820px; }
+  .anat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .anat .c { border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; }
+  .anat .k { font-family: var(--font-mono); font-size: 10px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-secondary); }
+  .anat .v { font-size: 12.5px; margin-top: 3px; }
+</style></head>
+<body>
+<div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat">Tier 1 · <b>Web</b> (www / app / auth). A real app.put.io screen composed from the <b>components.css</b> recipes. Binds web only.</span><span class="ttok">--fs-lg · --list-item-border · --red-text-secondary · --green-solid</span></div>
+<div class="preview-shell">
+  <div class="head"><span class="ix">01</span><span class="t">RSS: the icon carries the state</span><span class="n">RSSFeeds · RSSFeedLogs</span></div>
+  <div class="note">A feed row has <b>no badge and no status pill</b>. The leading glyph carries the state and the description repeats it in words with a time-ago.</div>
+  <div class="kv">
+    <div class="r"><span class="k">healthy</span><span class="v"><code>--green-solid</code> rss glyph</span></div>
+    <div class="r"><span class="k">paused</span><span class="v"><code>--solid</code></span></div>
+    <div class="r"><span class="k">failed</span><span class="v"><code>--red-solid</code></span></div>
+    <div class="r"><span class="k">actions</span><span class="v">three quiet icon buttons, fixed order: pause/resume, edit, delete</span></div>
+    <div class="r"><span class="k">delete</span><span class="v"><code>--red-solid</code> glyph over <code>--red-component-bg-hover</code>. Never a filled red disc</span></div>
+  </div>
+
+  <div class="two">
+    <div class="page">
+      <div class="pgh"><h1>RSS feeds</h1><button class="btn-primary btn-sm">Add new</button></div>
+      <div class="li">
+        <i class="ph-fill ph-rss lead ok" aria-hidden="true"></i>
+        <div><div class="ti"><a href="#">showRSS Personal Feed</a></div><div class="de">Last fetched 12 minutes ago</div></div>
+        <div class="acts">
+          <button class="btn-quiet btn-icon btn-sm" title="Pause"><i class="ph-fill ph-pause"></i></button>
+          <button class="btn-quiet btn-icon btn-sm" title="Edit"><i class="ph-fill ph-gear"></i></button>
+          <button class="btn-quiet btn-danger btn-icon btn-sm" title="Delete"><i class="ph ph-trash"></i></button>
+        </div>
+      </div>
+      <div class="li">
+        <i class="ph-fill ph-rss lead off" aria-hidden="true"></i>
+        <div><div class="ti"><a href="#">Documentaries</a></div><div class="de">Paused 3 days ago</div></div>
+        <div class="acts">
+          <button class="btn-quiet btn-icon btn-sm" title="Resume"><i class="ph-fill ph-play"></i></button>
+          <button class="btn-quiet btn-icon btn-sm" title="Edit"><i class="ph-fill ph-gear"></i></button>
+          <button class="btn-quiet btn-danger btn-icon btn-sm" title="Delete"><i class="ph ph-trash"></i></button>
+        </div>
+      </div>
+      <div class="li">
+        <i class="ph-fill ph-rss lead bad" aria-hidden="true"></i>
+        <div><div class="ti"><a href="#">Linux ISOs</a></div><div class="de err">Last failed 2 hours ago: the feed returned 403.</div></div>
+        <div class="acts">
+          <button class="btn-quiet btn-icon btn-sm" title="Pause"><i class="ph-fill ph-pause"></i></button>
+          <button class="btn-quiet btn-icon btn-sm" title="Edit"><i class="ph-fill ph-gear"></i></button>
+          <button class="btn-quiet btn-danger btn-icon btn-sm" title="Delete"><i class="ph ph-trash"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="page">
+      <div class="pgh"><h1>Logs · showRSS</h1><button class="btn-default btn-sm">Clear logs</button></div>
+      <div class="li">
+        <i class="ph-fill ph-check-circle lead ok" aria-hidden="true"></i>
+        <div><div class="ti"><a href="#">The.Wire.S03E04.1080p.BluRay.x264-DEMAND.mkv</a></div><div class="de">Processed 12 minutes ago</div></div>
+        <div></div>
+      </div>
+      <div class="li">
+        <i class="ph-fill ph-check-circle lead ok" aria-hidden="true"></i>
+        <div><div class="ti"><a href="#">The.Wire.S03E03.1080p.BluRay.x264-DEMAND.mkv</a></div><div class="de">Processed 1 hour ago</div></div>
+        <div></div>
+      </div>
+      <div class="li">
+        <i class="ph-fill ph-minus-circle lead bad" aria-hidden="true"></i>
+        <div><div class="ti">The.Wire.S03E02.1080p.BluRay.x264-DEMAND.mkv</div><div class="de err">Failed 3 hours ago. The magnet had no working tracker.</div></div>
+        <div class="acts"><button class="btn-quiet btn-icon btn-sm" title="Retry"><i class="ph ph-arrow-clockwise"></i></button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="anat">
+    <div class="c"><div class="k">Healthy</div><div class="v">green rss · "Last fetched …"</div></div>
+    <div class="c"><div class="k">Paused</div><div class="v">--solid rss · "Paused …"</div></div>
+    <div class="c"><div class="k">Failed</div><div class="v">red rss · "Last failed …: reason."</div></div>
+  </div>
+
+  <div class="note">In the log, a processed item links to the file it created and carries <b>no action</b>. A failed item is plain text with a single Retry button.<br><br>
+      <b>State colour is the only difference between the two lists.</b> Same row, same rhythm.</div>
+</div>
+</body></html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" class="dark" data-theme-lock="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV and native surfaces).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · TV · navigation</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<link rel="stylesheet" href="../tv.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); margin: 0; font-family: var(--font-sans); }
+  .preview-shell { padding: 24px; display: flex; flex-direction: column; gap: 22px; color: var(--text); }
+  
+  .note  {max-width: 760px}
+  
+  .src  { font-family: var(--font-mono); font-size: 11px; color: var(--yellow-text-secondary); }
+
+  .artboard {
+    position: relative;
+    width: 1920px;
+    max-width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--bg);
+    box-shadow: var(--shadow-lg), 0 0 0 2px var(--line);
+  }
+    /* The artboard is a TRUE 1:1 1920x1080 frame. .tv-fit is scaled down
+     only when the card is narrower than 1920, a value measured here is
+     the value on the TV. */
+  .artboard .tv-fit { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
+.artboard .tv { position: absolute; inset: 0; }
+  .artboard .row { transition: none; }
+  .artboard .scr-title { white-space: nowrap; }
+  .artboard .row .title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .artboard .scr-head img { height: 102px; width: auto; display: block; } /* ink 88px at 1:1: padded wordmark */
+
+  .platforms { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .ptr { display: grid; grid-template-columns: 160px repeat(4, 1fr); }
+  .ptr + .ptr { border-top: 1px solid var(--line); }
+  .ptr > div { padding: 12px 14px; font-size: 12px; color: var(--text-secondary); border-left: 1px solid var(--line); line-height: 1.55; background: var(--bg-secondary); }
+  .ptr > div:first-child { border-left: 0; }
+  .ptr.head > div { background: var(--component-bg); font-size: 11px; color: var(--text); font-weight: 600; }
+  .ptr .what { background: var(--bg-secondary); color: var(--yellow-text-secondary); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; font-weight: 500; }
+
+  .anat {
+    background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px;
+    display: grid; grid-template-columns: repeat(4, 1fr); overflow: hidden;
+  }
+  .anat .c { padding: 14px 16px; border-left: 1px solid var(--line); }
+  .anat .c:first-child { border-left: 0; }
+  .anat .k { font-size: 11px; font-weight: 500; color: var(--yellow-text-secondary); margin-bottom: 6px; }
+  .anat .v { font-family: var(--font-mono); font-size: 13px; color: var(--text); }
+  .anat .d { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+  .chev-ph { font-size: 36px; line-height: 1; color: var(--text-secondary); }
+</style></head>
+<body>
+<div class="tierbar t4"><span class="tno">Tier 4</span><span class="twhat">Tier 4 · <b>Web TV</b> (tv.put.io, Tizen, webOS). The design system as on web, restrained to a generic list-first 10-foot interface. The shipped <b>tv-native</b> app is the reference look; Roku matches it directly and the native TV tiers align with the same family feel inside their own control conventions.</span><span class="ttok">--yellow-solid · --radius-lg · --shadow-lg · --line</span></div>
+<div class="preview-shell">
+
+  <div>
+    <div class="label">Navigation, a Home hub, no persistent chrome</div>
+    <div class="kv">
+        <div class="k">navigator</div><div class="v">stack, header hidden</div>
+        <div class="k">persistent chrome</div><div class="v">none: no tab bar, no top nav</div>
+        <div class="k">first screen</div><div class="v">Home hub</div>
+        <div class="k">destinations</div><div class="v">Your Files, Search, History, Account</div>
+        <div class="k">row activate</div><div class="v">push full screen; Back pops</div>
+        <div class="k">screen anatomy</div><div class="v">header over list of rows</div>
+      </div>
+      <div class="note">Header shows the logo on Home, the screen title elsewhere. Source: <code class="src">features/home/HomeScreen.tsx</code></div>
+  </div>
+
+  <!-- =================================================================
+       ARTBOARD, the real Home hub screen
+       ============================================================ -->
+  <div class="artboard"><div class="tv-fit">
+    <div class="tv">
+      <div class="tv-content">
+        <div class="scr">
+          <div class="scr-head">
+            <img src="../assets/logo-retro-dark.svg" alt="put.io">
+          </div>
+
+          <div class="row focused">
+            <div class="ico"><i class="ph ph-folder" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
+            <div class="body"><div class="title">Your Files</div></div>
+            <div class="trailing"><i class="ph ph-caret-right chev-ph" aria-hidden="true"></i></div>
+          </div>
+          <div class="row">
+            <div class="ico"><i class="ph ph-magnifying-glass" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
+            <div class="body"><div class="title">Search</div></div>
+            <div class="trailing"><i class="ph ph-caret-right chev-ph" aria-hidden="true"></i></div>
+          </div>
+          <div class="row">
+            <div class="ico"><i class="ph ph-clock-counter-clockwise" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
+            <div class="body"><div class="title">History</div></div>
+            <div class="trailing"><i class="ph ph-caret-right chev-ph" aria-hidden="true"></i></div>
+          </div>
+          <div class="row">
+            <div class="ico"><i class="ph ph-user" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
+            <div class="body"><div class="title">Account</div></div>
+            <div class="trailing"><i class="ph ph-caret-right chev-ph" aria-hidden="true"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- =================================================================
+       ANATOMY
+       ============================================================ -->
+  <div>
+    <div class="label">Anatomy</div>
+  </div>
+  <div class="anat">
+    <div class="c"><div class="k">Home header</div><div class="v">retro logo</div><div class="d">title elsewhere · hairline divider under</div></div>
+    <div class="c"><div class="k">Row</div><div class="v">icon · title · chevron</div><div class="d">yellow icon · link accessory</div></div>
+    <div class="c"><div class="k">Focus</div><div class="v">--component-bg-active</div><div class="d">solid fill · 12px radius</div></div>
+    <div class="c"><div class="k">Safe area</div><div class="v">4% / 2%</div><div class="d">overscan L·R / T·B</div></div>
+  </div>
+
+  <!-- =================================================================
+       PLATFORM VARIATION
+       ============================================================ -->
+  <div>
+    <div class="label">Platform variation</div>
+    <div class="note">Same hub-and-stack model everywhere; only the native navigator underneath differs.</div>
+  </div>
+
+  <div class="platforms">
+    <div class="ptr head">
+      <div>What</div>
+      <div>tvOS</div>
+      <div>Android TV</div>
+      <div>Roku</div>
+      <div>Smart-TV web</div>
+    </div>
+    <div class="ptr">
+      <div class="what">Navigator</div>
+      <div>UINavigationController</div>
+      <div>Compose Navigation</div>
+      <div>SceneGraph stack</div>
+      <div>history stack</div>
+    </div>
+    <div class="ptr">
+      <div class="what">Move focus</div>
+      <div>UIFocusGuide</div>
+      <div>Compose focus</div>
+      <div>SceneGraph focus</div>
+      <div>spatial-nav polyfill</div>
+    </div>
+    <div class="ptr">
+      <div class="what">Back</div>
+      <div>Menu / Back</div>
+      <div>Back button</div>
+      <div>Back button</div>
+      <div>Escape / Back</div>
+    </div>
+    <div class="ptr">
+      <div class="what">Row focus</div>
+      <div>--component-bg-active</div>
+      <div>--component-bg-active</div>
+      <div>--component-bg-active</div>
+      <div>--component-bg-active</div>
+    </div>
+  </div>
+
+</div>
+<script>
+(function () {
+  function fit() {
+    document.querySelectorAll('.artboard').forEach(function (a) {
+      var f = a.querySelector('.tv-fit');
+      if (f) f.style.transform = 'scale(' + (a.clientWidth / 1920) + ')';
+    });
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+})();
+</script>
+</body></html>

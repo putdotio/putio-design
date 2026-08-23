@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV and native surfaces).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · components · list item</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--bg); }
+  .preview-shell { padding: 28px 32px 36px; display:flex; flex-direction:column; gap: 22px; }
+  
+  .note {max-width: 720px}
+  
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .panel { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  .panel .ttl { font-size: 11px; font-weight: 500; color: var(--text-secondary); margin-bottom: 10px; }
+
+  /* ── Sidebar nav row ── */
+  .nav-li {
+    display: flex; align-items: center; gap: 12px;
+    height: 32px; padding: 0 10px; border-radius: 6px;
+    color: var(--text); font-size: 14px;
+    transition: background 120ms cubic-bezier(0.22, 1, 0.36, 1);
+    cursor: pointer;
+  }
+  .nav-li:hover { background: var(--list-item-bg-hover); }
+  .nav-li.active { background: var(--list-item-bg-active); color: var(--yellow-text-secondary); }
+  .nav-li i.ico {
+    font-size: 16px; line-height: 1;
+    width: 16px; height: 16px;
+    color: var(--text-secondary); flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .nav-li.active i.ico { color: var(--yellow-solid); }
+  .nav-li .count {
+    margin-left: auto;
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-secondary); font-variant-numeric: tabular-nums;
+  }
+  .nav-li.active .count { color: var(--yellow-text-secondary); }
+  .nav-li .badge {
+    margin-left: auto;
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 18px; min-width: 18px; padding: 0 6px; border-radius: var(--radius-pill);
+    background: var(--yellow-solid); color: var(--primary-foreground);
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  }
+
+  /* ── Setting row ── */
+  .set-tbl { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .set-row { display: grid; grid-template-columns: 1fr auto; gap: 16px; padding: 14px 16px; align-items: center; }
+  .set-row + .set-row { border-top: 1px solid var(--line); }
+  .set-row .k { font-size: 14px; color: var(--text); }
+  .set-row .v { font-size: 13px; color: var(--text-secondary); font-family: var(--font-mono); }
+  .set-row .v.btn-link { color: var(--yellow-text-secondary); cursor: pointer; }
+  .set-row .desc { font-size: 12.5px; color: var(--text-secondary); margin-top: 3px; line-height: 1.45; }
+  .toggle { width: 36px; height: 22px; background: var(--component-bg); border-radius: 999px; position: relative; cursor: pointer; transition: background 120ms; }
+  .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--text-secondary); transition: all 120ms; }
+  .toggle.on { background: var(--yellow-solid); }
+  .toggle.on::after { left: 17px; background: var(--primary-foreground); }
+
+  /* ── Friend row ── */
+  .friend { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 6px; transition: background 120ms; }
+  .friend:hover { background: var(--list-item-bg-hover); }
+  .friend .avi {
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    display:grid; place-items: center;
+    font-family: var(--font-sans); font-size: 12px; font-weight: 700;
+    color: var(--primary-foreground);
+  }
+  .friend .name { font-size: 14px; color: var(--text); }
+  .friend .sub  { font-size: 12.5px; color: var(--text-secondary); }
+  .friend .actions { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+
+  /* ── Activity row ── */
+  .activity { display: grid; grid-template-columns: 32px 1fr auto; gap: 12px; padding: 10px 0; align-items: center; }
+  .activity + .activity { border-top: 1px solid var(--line); }
+  .activity .glyph { width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center; background: var(--component-bg); color: var(--text-secondary); }
+  .activity .glyph.dl { background: var(--yellow-component-bg); color: var(--yellow-text-secondary); }
+  .activity .glyph.ok { background: var(--green-bg-secondary); color: var(--green-text-secondary); }
+  .activity .glyph.pl { background: var(--component-bg); color: var(--text); }
+  .activity .glyph i { font-size: 14px; line-height: 1; }
+  .activity .what { font-size: 13.5px; color: var(--text); }
+  .activity .when { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .activity .what .file { color: var(--text-secondary); font-family: var(--font-mono); font-size: 12px; }
+</style></head>
+<body>
+<div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat">Tier 1 · <b>Web</b> (www / app / auth). The full design system: our component library and the <b>components.css</b> recipe. This is the one tier where the recipe is the contract, native tiers take the tokens and nothing else.</span><span class="ttok">--yellow-solid · --primary-foreground · --list-item-bg-hover · --avatar-fg</span></div>
+<div class="preview-shell">
+
+  <div>
+    <div class="label">List items, one row, four shapes</div>
+    <div class="note">The list-item is the most-touched primitive in the app. Same 32px height (nav) or 48–60px (content), same focus model, same hover.<br><br>
+      The icon's <b>shape</b> tells you the row's job; the text style tells you the row's content.</div>
+  </div>
+
+  <div class="grid">
+
+    <!-- Sidebar nav -->
+    <div class="panel">
+      <div class="ttl">Sidebar nav</div>
+      <div style="display:flex; flex-direction:column; gap: 2px;">
+        <div class="nav-li active">
+          <i class="ph-fill ph-folder ico"></i>
+          <span>Files</span>
+          <span class="count">11.2 TB</span>
+        </div>
+        <div class="nav-li">
+          <i class="ph ph-arrows-down-up ico"></i>
+          <span>Transfers</span>
+          <span class="badge">3</span>
+        </div>
+        <div class="nav-li">
+          <i class="ph ph-rss ico"></i>
+          <span>RSS</span>
+          <span class="count">2</span>
+        </div>
+        <div class="nav-li">
+          <i class="ph ph-users ico"></i>
+          <span>Sharing</span>
+        </div>
+        <div class="nav-li">
+          <i class="ph ph-clock-counter-clockwise ico"></i>
+          <span>History</span>
+        </div>
+        <div class="nav-li">
+          <i class="ph ph-trash ico"></i>
+          <span>Trash</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Setting rows -->
+    <div class="panel">
+      <div class="ttl">Setting rows</div>
+      <div class="set-tbl">
+        <div class="set-row">
+          <div>
+            <div class="k">Autoplay next file</div>
+            <div class="desc">When a video ends, play the next file in the folder.</div>
+          </div>
+          <div class="toggle on" role="switch" aria-checked="true" aria-label="Autoplay next file"></div>
+        </div>
+        <div class="set-row">
+          <div>
+            <div class="k">Default magnet handler</div>
+            <div class="desc">Magnet links open put.io in the browser.</div>
+          </div>
+          <div class="v btn-link">Change…</div>
+        </div>
+        <div class="set-row">
+          <div>
+            <div class="k">Trash · auto-empty</div>
+            <div class="desc">Permanently delete items after 30 days.</div>
+          </div>
+          <div class="v">30 days</div>
+        </div>
+        <div class="set-row">
+          <div>
+            <div class="k">Invisible mode</div>
+            <div class="desc">Don't show me in friend listings.</div>
+          </div>
+          <div class="toggle" role="switch" aria-checked="false" aria-label="Invisible mode"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Friends -->
+    <div class="panel">
+      <div class="ttl">Friends &amp; sharing</div>
+      <div style="display:flex; flex-direction:column;">
+        <div class="friend">
+          <div class="avi" style="background: hsl(47, 100%, 65%)">KA</div>
+          <div>
+            <div class="name">kai</div>
+            <div class="sub">Sharing files with you</div>
+          </div>
+          <div class="actions"><i class="ph-fill ph-star" aria-hidden="true"></i> pinned</div>
+        </div>
+        <div class="friend">
+          <div class="avi" style="background: var(--avatar-green); color: var(--avatar-fg)">IR</div>
+          <div>
+            <div class="name">iris</div>
+            <div class="sub">You're sharing 4 folders</div>
+          </div>
+          <div class="actions">manage</div>
+        </div>
+        <div class="friend">
+          <div class="avi" style="background: var(--avatar-red); color: var(--avatar-fg)">JU</div>
+          <div>
+            <div class="name">juno</div>
+            <div class="sub">No active shares</div>
+          </div>
+          <div class="actions">unfollow</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity -->
+    <div class="panel">
+      <div class="ttl">Activity / History</div>
+      <div style="display:flex; flex-direction:column;">
+        <div class="activity">
+          <div class="glyph pl">
+            <i class="ph-fill ph-play"></i>
+          </div>
+          <div class="what">Watched <span class="file">tears_of_steel.mkv</span></div>
+          <div class="when">2m ago</div>
+        </div>
+        <div class="activity">
+          <div class="glyph dl">
+            <i class="ph ph-upload-simple"></i>
+          </div>
+          <div class="what">Added <span class="file">magnet:?xt=urn:btih:a1b2c3…</span></div>
+          <div class="when">14m ago</div>
+        </div>
+        <div class="activity">
+          <div class="glyph ok">
+            <i class="ph-bold ph-check"></i>
+          </div>
+          <div class="what">Completed <span class="file">Dune.Part.Two.2024.1080p.WEB-DL.mkv</span></div>
+          <div class="when">1h ago</div>
+        </div>
+        <div class="activity">
+          <div class="glyph pl">
+            <i class="ph ph-folder-plus"></i>
+          </div>
+          <div class="what">Created folder <span class="file">/Films/2026</span></div>
+          <div class="when">yesterday</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</body></html>

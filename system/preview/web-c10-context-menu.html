@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint. .dark on <html> = dark. */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · components · context menu</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .note {max-width: 760px}
+  
+  
+  .pad { padding: 20px; background: var(--bg-secondary); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+  kbd { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-secondary); background: var(--component-bg); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 1px 5px; }
+  .stage { position: relative; min-height: 330px; }
+  .rows { display: flex; flex-direction: column; }
+  .r { display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 14px; border-bottom: 1px solid var(--list-item-border); font-size: var(--fs-base); }
+  .r i.k { font-size: 17px; color: var(--file-row-icon); }
+  .r.target { background: var(--list-item-bg-active); }
+  .r .sz { margin-left: auto; font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .mi { display: flex; align-items: center; gap: 10px; height: var(--menu-item-height); padding: 0 10px; border-radius: var(--radius-sm); font-size: 13px; color: var(--menu-item-text); cursor: default; }
+  .mi i { font-size: 15px; color: var(--menu-item-icon); }
+  .mi .sc { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--menu-item-shortcut); }
+  .mi:hover { background: var(--menu-item-bg-hover); }
+  .mi.on { background: var(--menu-item-bg-hover); }
+  .mi.danger { color: var(--menu-item-danger-text); }
+  .mi.danger i { color: var(--menu-item-danger-text); }
+  .mi.danger:hover { background: var(--menu-item-danger-bg-hover); }
+  .mi[aria-disabled="true"] { color: var(--menu-item-icon); opacity: 0.55; }
+  .msep { height: 1px; background: var(--menu-separator); margin: 6px 4px; }
+  .mlabel { padding: 8px 10px 4px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--menu-label); }
+  .anat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .anat .c { border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; }
+  .anat .k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-secondary); }
+  .anat .v { font-size: 12.5px; margin-top: 3px; }
+</style></head>
+<body>
+<div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat">Tier 1 · <b>Web</b> (www / app / auth). The full design system: our component library and the <b>components.css</b> recipe. This is the one tier where the recipe is the contract, native tiers take the tokens and nothing else.</span><span class="ttok">--radius-sm · --menu-item-icon · --menu-item-bg-hover · --menu-item-danger-text</span></div>
+<div class="preview-shell">
+  <div class="head"><span class="ix">01</span><span class="t">Context menu: right-click on a file row</span><span class="n">.menu-pop</span></div>
+  <div class="note"><b>Opens at the cursor</b>, never anchored to the row's edge. The row holds <code>--list-item-bg-active</code> while the menu is open: that is the only thing telling the user which file they are acting on.</div>
+  <div class="kv">
+    <div class="r"><span class="k">position</span><span class="v">at the pointer</span></div>
+    <div class="r"><span class="k">owner row</span><span class="v"><code>--list-item-bg-active</code> for the menu's lifetime</span></div>
+    <div class="r"><span class="k">shared with</span><span class="v">the toolbar's overflow button, same surface</span></div>
+    <div class="r"><span class="k">destructive</span><span class="v">last, after a separator, <code>--red-text-secondary</code>. Never a red fill</span></div>
+  </div>
+  <div class="pad stage">
+    <div class="rows">
+      <div class="r"><i class="ph-fill ph-folder k"></i><span>Films</span><span class="sz">—</span></div>
+      <div class="r target"><i class="ph ph-file-video k"></i><span>Dune.Part.Two.2024.1080p.WEB-DL.x264-GROUP.mkv</span><span class="sz">3.42 GB</span></div>
+      <div class="r"><i class="ph ph-file-audio k"></i><span>ambient-session-03.mp3</span><span class="sz">72.4 MB</span></div>
+      <div class="r"><i class="ph ph-file-zip k"></i><span>backup-photos-2025.zip</span><span class="sz">64.2 GB</span></div>
+    </div>
+    <div class="menu-pop" style="position: absolute; left: 300px; top: 74px; padding: 6px;">
+      <div class="mi on"><i class="ph ph-play"></i>Play<span class="sc">↵</span></div>
+      <div class="mi"><i class="ph ph-download-simple"></i>Download<span class="sc">⌘D</span></div>
+      <div class="mi"><i class="ph ph-link-simple"></i>Copy link</div>
+      <div class="msep"></div>
+      <div class="mlabel">Organize</div>
+      <div class="mi"><i class="ph ph-folder-open"></i>Move to…<span class="sc">⌘M</span></div>
+      <div class="mi"><i class="ph ph-copy"></i>Duplicate</div>
+      <div class="mi"><i class="ph ph-pencil-simple"></i>Rename<span class="sc">F2</span></div>
+      <div class="mi" aria-disabled="true"><i class="ph ph-file-zip"></i>Extract</div>
+      <div class="msep"></div>
+      <div class="mi danger"><i class="ph ph-trash"></i>Delete<span class="sc">⌫</span></div>
+    </div>
+  </div>
+  <div class="anat">
+    <div class="c"><div class="k">Surface</div><div class="v">.menu-pop · --menu-bg</div></div>
+    <div class="c"><div class="k">Item</div><div class="v">--menu-item-height · 13px</div></div>
+    <div class="c"><div class="k">Shortcut</div><div class="v">mono · --text-secondary</div></div>
+    <div class="c"><div class="k">Owner row</div><div class="v">--list-item-bg-active</div></div>
+  </div>
+  <div class="note"><b>One destructive item per menu, and never default-focused.</b> Disabled entries stay visible at 55% so the menu does not reflow between file types.</div>
+</div>
+</body></html>

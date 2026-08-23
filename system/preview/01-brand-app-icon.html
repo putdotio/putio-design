@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV and native surfaces).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · brand · app icon</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+
+  .head { display: flex; flex-direction: column; gap: 6px; max-width: 88ch; }
+  .head h1 { font-size: 22px; font-weight: 700; letter-spacing: -.02em; margin: 0; }
+  .head .sub { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+  .head .sub b { color: var(--text); font-weight: 500; }
+  .head .sub code { font-family: var(--font-mono); color: var(--yellow-text-secondary); font-size: 11.5px; }
+  /* Compact fact rows. A format list and a flavor list are reference data,
+     not prose: a reader scans them, so they get a grid, not a paragraph. */
+  .head .kv { display: grid; gap: 0; width: 100%; margin-top: 10px; border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; background: var(--bg-secondary); }
+  .head .kv .r { display: grid; grid-template-columns: 128px 1fr; gap: 14px; padding: 7px 12px; font-size: 12px; line-height: 1.5; }
+  .head .kv .r + .r { border-top: 1px solid var(--line); }
+  .head .kv .k { font-family: var(--font-mono); font-size: 11px; color: var(--yellow-text-secondary); }
+  .head .kv .v { color: var(--text-secondary); }
+
+  .sec { display: flex; flex-direction: column; gap: 14px; }
+  .sec-hd {
+    display: grid; grid-template-columns: 44px 1fr auto; gap: 18px;
+    align-items: baseline;
+    padding-bottom: 10px; border-bottom: 1px solid var(--line);
+  }
+  .sec-hd .ix {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--yellow-text-secondary); letter-spacing: 0.04em;
+  }
+  .sec-hd .t { font-size: 16px; font-weight: 500; color: var(--text); }
+  .sec-hd .t small {
+    display: block; font-family: var(--font-mono); font-size: 11.5px;
+    color: var(--text-secondary); font-weight: 400; margin-top: 3px;
+  }
+  .sec-hd .n {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .row { display: flex; gap: 32px; flex-wrap: wrap; }
+  .cell { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+  .cap {
+    font-size: 10.5px; font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .cap.prod { color: var(--yellow-text-secondary); }
+  .cap.night { color: #6f6f7a; }
+  .dark .cap.night { color: #c9cbd6; }
+  .name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .hex { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-secondary); }
+
+  /* ============ 01 · Squircle ============ */
+  .ico-squircle {
+    width: 160px; height: 160px;
+    border-radius: 36px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.30), 0 1px 2px rgba(0,0,0,0.4);
+  }
+  /* Prod and dev masters are pure pixel art: nearest-neighbour keeps their edges crisp.
+     The nightly master is not: its stars are 1.4–3.4px anti-aliased dots and the crescent
+     is smooth, so nearest-neighbour at this 6.4× downscale drops most of the sky. */
+  .ico-squircle img { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+  .ico-squircle img[src*="nightly"] { image-rendering: auto; }
+
+  /* ============ Shared TV chrome surfaces ============
+     Prod uses brand charcoal (#333 ≈ matches the launch screen).
+     Dev uses the blueprint blue + grid, same identity as the squircle dev icon —
+     and pushes the wordmark to all-white via brightness(0) invert(1). */
+  .chrome {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.30), 0 1px 2px rgba(0,0,0,0.4);
+    display: flex; align-items: center; justify-content: center;
+    background: hsl(0, 0%, 20%);  /* brand charcoal: sampled from the iOS launch screen */
+  }
+  /* Nightly/staging surface: true black, scattered star field, crescent moon.
+     Unlike dev, the wordmark is NOT pushed to white, nightly keeps the retro
+     logo intact, yellow drop-shadow and all, because the surface already
+     carries the flavor. */
+  /* Channel-art tokens are mode "tv" graph data (not emitted into the web
+     tokens.css), so the card pins the value locally.
+     Graph: context.tv.channelArt.nightly.background. */
+  :root { --tv-channel-art-nightly-bg: hsl(0, 0%, 2%); }
+  .chrome.night, .ico-splash.night {
+    background-color: var(--tv-channel-art-nightly-bg);
+    background-image: url(../assets/nightly-starfield.png);
+    background-repeat: repeat;
+    background-size: 150px 150px;
+    position: relative;
+  }
+  .night .moon, .night .ufo { position: absolute; z-index: 1; display: block; }
+  .ico-banner.night .moon { width: 26px; left: 15px; top: 13px; }
+  .ico-roku-poster.night .moon { width: 28px; left: 17px; top: 15px; }
+  .ico-topshelf.night .moon { width: 23px; left: 15px; top: 12px; }
+  .ico-splash.night .moon { width: 22px; left: 14px; top: 18px; }
+  /* Saucer widths are 0.95× the moon's: the moon disc fills 87.5% of its canvas,
+     the saucer hull 92.2% of its own, so equal CSS widths would render the ship
+     ~5% larger. These land the rendered hull on the rendered disc. */
+  .ico-banner.night .ufo { width: 25px; right: 20px; top: 16px; }
+  .ico-roku-poster.night .ufo { width: 27px; right: 20px; top: 18px; }
+  .ico-topshelf.night .ufo { width: 22px; right: 20px; top: 13px; }
+  .ico-splash.night .ufo { width: 21px; right: 15px; top: 22px; }
+  .chrome.night .wm, .ico-splash.night .wm { position: relative; z-index: 2; }
+
+  .chrome.dev {
+    background: hsl(212, 80%, 50%);
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.18) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.18) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .chrome.dev .wm {
+    /* dev chrome uses a monochrome WHITE wordmark: the mark is never
+       recolored to another hue (no hue-rotate on the brand mark). */
+    filter: brightness(0) invert(1);
+  }
+  .chrome .wm { display: block; }
+
+  /* === 02 · Android TV banner, 320×180 (16:9) === */
+  .ico-banner { width: 320px; height: 180px; }
+  .ico-banner .wm { width: 220px; height: auto; }
+
+  /* === 03 · Roku channel poster, square, centered wordmark === */
+  .ico-roku-poster { width: 230px; height: 230px; border-radius: 12px; }
+  .ico-roku-poster .wm { width: 180px; height: auto; }
+
+  /* === 04 · Apple TV top shelf, 1920×720 (2.66:1), wordmark hero === */
+  .ico-topshelf { width: 340px; height: 128px; border-radius: 10px; }
+  .ico-topshelf .wm { width: 215px; height: auto; }
+
+  /* === 05 · Splash (per the iOS launch screen) ===
+     240pt wide image centered on brand charcoal.
+     Phone aspect: 9:19.5 (iPhone). */
+  .ico-splash {
+    width: 144px; height: 256px;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    display: flex; align-items: center; justify-content: center;
+    background: hsl(0, 0%, 20%);
+  }
+  .ico-splash.dev {
+    background: hsl(212, 80%, 50%);
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.18) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.18) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .ico-splash.dev .wm { filter: brightness(0) invert(1); }
+  .ico-splash .wm { width: 96px; height: auto; display: block; }
+
+  /* Specs */
+  .specs {
+    background: var(--bg-secondary);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+  }
+  .specs .cell-s { padding: 12px 14px; border-left: 1px solid var(--line); }
+  .specs .cell-s:first-child { border-left: 0; }
+  .specs .k { font-size: 11px; font-weight: 500; color: var(--yellow-text-secondary); margin-bottom: 5px; }
+  .specs .v { font-family: var(--font-mono); font-size: 11px; color: var(--text); }
+  .specs .d { font-size: 11px; color: var(--text-secondary); margin-top: 3px; line-height: 1.5; }
+
+  .note {max-width: 68ch}
+  
+  
+</style>
+</head>
+<body>
+<div class="tierbar t0"><span class="tno">Tier 0</span><span class="twhat">Foundations · the <b>@putdotio/design</b> token graph. Binds all four tiers, values only, never a component recipe.</span><span class="ttok">--tv-channel-art-nightly-bg · --radius-lg · --text-secondary · --text</span></div>
+
+<div class="preview-shell">
+
+  <div class="head">
+    <h1>App icon</h1>
+    <div class="sub">
+      One mark, five formats, three flavors. The mark is never hue-shifted.
+    </div>
+    <div class="kv">
+      <div class="r"><span class="k">Squircle</span><span class="v">iOS, macOS, Android, web</span></div>
+      <div class="r"><span class="k">Banner 16:9</span><span class="v">Android TV</span></div>
+      <div class="r"><span class="k">Poster</span><span class="v">Roku channel, square</span></div>
+      <div class="r"><span class="k">Top shelf</span><span class="v">Apple TV, wide hero</span></div>
+      <div class="r"><span class="k">Splash</span><span class="v">centered wordmark on charcoal</span></div>
+    </div>
+    <div class="kv">
+      <div class="r"><span class="k">Production</span><span class="v">charcoal surface, brand mark</span></div>
+      <div class="r"><span class="k">Nightly</span><span class="v">true black, star field, moon, saucer. TestFlight and internal tracks</span></div>
+      <div class="r"><span class="k">Dev</span><span class="v">blueprint blue + grid, wordmark forced pure white</span></div>
+    </div>
+  </div>
+
+  <!-- 01 · Squircle -->
+  <div class="sec">
+    <div class="sec-hd">
+      <span class="ix">01</span>
+      <span class="t">Squircle<small>iOS · macOS · Android · web · 1024×1024 source</small></span>
+      <span class="n">app-icon-source.png</span>
+    </div>
+    <div class="row">
+      <div class="cell">
+        <div class="ico-squircle"><img src="../assets/app-icon-prod-dark.png" alt="Production app icon"></div>
+        <div class="cap prod">production</div>
+        <div class="name">put.io</div>
+        <div class="hex">#1a1a1a · #fff · #FDCE45</div>
+      </div>
+      <div class="cell">
+        <div class="ico-squircle"><img src="../assets/app-icon-nightly-stars.png" alt="Nightly app icon"></div>
+        <div class="cap night">nightly · staging</div>
+        <div class="name">put.io · nightly</div>
+        <div class="hex">#050505 · #fff · #FDCE45</div>
+      </div>
+      <div class="cell">
+        <div class="ico-squircle"><img src="../assets/app-icon-dev-blueprint.png" alt="Dev app icon"></div>
+        <div class="cap">dev · local</div>
+        <div class="name">put.io · dev</div>
+        <div class="hex">blueprint + grid</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 · Android TV banner -->
+  <div class="sec">
+    <div class="sec-hd">
+      <span class="ix">02</span>
+      <span class="t">Android TV banner<small>Launcher banner · 320×180 (16:9) · centered wordmark</small></span>
+      <span class="n">required by Android TV guidelines</span>
+    </div>
+    <div class="row">
+      <div class="cell">
+        <div class="chrome ico-banner">
+          <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io wordmark">
+        </div>
+        <div class="cap prod">production</div>
+        <div class="name">put.io · banner</div>
+        <div class="hex">white + yellow on #333</div>
+      </div>
+      <div class="cell">
+        <div class="chrome ico-banner night">
+          <img class="moon" src="../assets/nightly-fullmoon.png" alt="">
+          <img class="ufo" src="../assets/nightly-saucer.png" alt="">
+          <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io wordmark · nightly">
+        </div>
+        <div class="cap night">nightly · staging</div>
+        <div class="name">put.io · nightly banner</div>
+        <div class="hex">retro logo on night sky</div>
+      </div>
+      <div class="cell">
+        <div class="chrome ico-banner dev">
+          <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io wordmark · dev">
+        </div>
+        <div class="cap">dev</div>
+        <div class="name">put.io · dev banner</div>
+        <div class="hex">white on blueprint</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 · Roku channel poster -->
+  <div class="sec">
+    <div class="sec-hd">
+      <span class="ix">03</span>
+      <span class="t">Roku channel poster<small>Channel grid tile · square · centered wordmark</small></span>
+      <span class="n">channel poster</span>
+    </div>
+    <div class="row">
+      <div class="cell">
+        <div class="chrome ico-roku-poster">
+          <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io wordmark">
+        </div>
+        <div class="cap prod">production</div>
+        <div class="name">put.io · channel</div>
+        <div class="hex">centered wordmark</div>
+      </div>
+      <div class="cell">
+        <div class="chrome ico-roku-poster night">
+          <img class="moon" src="../assets/nightly-fullmoon.png" alt="">
+          <img class="ufo" src="../assets/nightly-saucer.png" alt="">
+          <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io wordmark · nightly">
+        </div>
+        <div class="cap night">nightly · staging</div>
+        <div class="name">put.io · nightly channel</div>
+        <div class="hex">retro logo on night sky</div>
+      </div>
+      <div class="cell">
+        <div class="chrome ico-roku-poster dev">
+          <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io wordmark · dev">
+        </div>
+        <div class="cap">dev</div>
+        <div class="name">put.io · dev channel</div>
+        <div class="hex">white on blueprint</div>
+      </div>
+    </div>
+    <div class="note">
+      <b>Wordmark only</b>, centred on charcoal. No mark+wordmark stack.<br><br>
+      Same composition as Android TV and Apple TV. </div>
+  </div>
+
+  <!-- 04 · Apple TV top shelf -->
+  <div class="sec">
+    <div class="sec-hd">
+      <span class="ix">04</span>
+      <span class="t">Apple TV top shelf<small>Featured slot · 1920×720 (2.66:1) · wordmark hero</small></span>
+      <span class="n">tvOS HIG · top-shelf slot</span>
+    </div>
+    <div class="row">
+      <div class="cell">
+        <div class="chrome ico-topshelf">
+          <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io">
+        </div>
+        <div class="cap prod">production</div>
+        <div class="name">put.io · top shelf</div>
+        <div class="hex">wordmark on #333</div>
+      </div>
+      <div class="cell">
+        <div class="chrome ico-topshelf night">
+          <img class="moon" src="../assets/nightly-fullmoon.png" alt="">
+          <img class="ufo" src="../assets/nightly-saucer.png" alt="">
+          <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io · nightly">
+        </div>
+        <div class="cap night">nightly · staging</div>
+        <div class="name">put.io · nightly top shelf</div>
+        <div class="hex">retro logo on night sky</div>
+      </div>
+      <div class="cell">
+        <div class="chrome ico-topshelf dev">
+          <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io · dev">
+        </div>
+        <div class="cap">dev</div>
+        <div class="name">put.io · dev top shelf</div>
+        <div class="hex">white on blueprint</div>
+      </div>
+    </div>
+    <div class="note">
+      <b>Wordmark only.</b> Read at couch distance, so it matches Android TV and Roku exactly.
+    </div>
+  </div>
+
+  <!-- 05 · Splash (the iOS app) -->
+  <div class="sec">
+    <div class="sec-hd">
+      <span class="ix">05</span>
+      <span class="t">Splash &amp; launch<small>iOS launch screen · 240pt wordmark · centered on charcoal</small></span>
+      <span class="n">the launch screen</span>
+    </div>
+    <div class="row">
+      <div class="cell">
+        <div class="ico-splash">
+          <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io">
+        </div>
+        <div class="cap prod">production</div>
+        <div class="name">put.io · launch</div>
+        <div class="hex">brand charcoal #333</div>
+      </div>
+      <div class="cell">
+        <div class="ico-splash night">
+          <img class="moon" src="../assets/nightly-fullmoon.png" alt="">
+          <img class="ufo" src="../assets/nightly-saucer.png" alt="">
+          <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io · nightly">
+        </div>
+        <div class="cap night">nightly · staging</div>
+        <div class="name">put.io · nightly launch</div>
+        <div class="hex">retro logo on night sky</div>
+      </div>
+      <div class="cell">
+        <div class="ico-splash dev">
+          <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io · dev">
+        </div>
+        <div class="cap">dev</div>
+        <div class="name">put.io · dev launch</div>
+        <div class="hex">white on blueprint</div>
+      </div>
+    </div>
+    <div class="note">
+      240pt <code>logo</code>, centred on charcoal RGB 51/51/51. No P-mark, no stack, no gradient. One image serves every splash slot.
+    </div>
+    <div class="note">
+      Nightly renders <code>logo-retro-dark.svg</code> exactly as production: white glyphs, <code>#FDCE45</code> drop-shadow. The night sky carries the flavor, not the mark.<br><br>
+      <b>Never invert, tint or flatten the wordmark on nightly.</b> Dev inverts to flat white only because a two-colour mark vanishes into blueprint blue. Black has no such problem.
+    </div>
+  </div>
+
+  <!-- Specs -->
+  <div class="specs">
+    <div class="cell-s">
+      <div class="k">Master</div>
+      <div class="v">1024 × 1024</div>
+      <div class="d">app-icon-source.png</div>
+    </div>
+    <div class="cell-s">
+      <div class="k">Wordmark</div>
+      <div class="v">logo-retro-dark.svg</div>
+      <div class="d">white + #FDCE45</div>
+    </div>
+    <div class="cell-s">
+      <div class="k">Build surfaces</div>
+      <div class="v">#050505 + sky · blue + grid</div>
+      <div class="d">nightly · dev</div>
+    </div>
+    <div class="cell-s">
+      <div class="k">TV surface</div>
+      <div class="v">#333 charcoal</div>
+      <div class="d">brand charcoal</div>
+    </div>
+    <div class="cell-s">
+      <div class="k">Flavors</div>
+      <div class="v">Production · Nightly · Dev</div>
+      <div class="d">TestFlight + staging ship nightly</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Production</b>: App&nbsp;Store, Play, Roku and tvOS public channels.<br>
+      <b>Nightly</b>: TestFlight, Play internal and closed tracks, staging TV sideloads, anything on the staging API.<br>
+      <b>Dev</b>: local and CI only, never distributed.<br><br>
+      Bundle IDs differ per flavor, so all three sit on one device. The icon is the only way to tell them apart on a home screen.
+  </div>
+
+  <div class="note">
+    <b>Stars</b>: three sizes, three opacities, weighted faint. Scattered, never gridded. Clear of both objects.<br>
+      <b>Moon</b>: top-left, full disc <code>#FDCE45</code>, craters <code>#EDBB35</code> and <code>#E4B02D</code>.<br>
+      <b>Saucer</b>: top-right, hull no wider than the moon. White hull, pale-gold dome, three yellow underlights. No tractor beam, it competed with the mark.<br><br>
+      Assets: <code>nightly-starfield.png</code> (256×256, tiled at 150px), <code>nightly-fullmoon.png</code>, <code>nightly-saucer.png</code>. Static. No animation, no glow.
+  </div>
+
+</div>
+</body></html>

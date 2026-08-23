@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" class="dark" data-theme-lock="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV and native surfaces).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · tv account</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<link rel="stylesheet" href="../tv.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); margin: 0; font-family: var(--font-sans); }
+  .preview-shell { padding: 24px; display: flex; flex-direction: column; gap: 22px; color: var(--text); }
+  
+  .note {max-width: 780px}
+  
+  .src { font-family: var(--font-mono); font-size: 11px; color: var(--yellow-text-secondary); }
+
+  .artboard {
+    position: relative; width: 1920px;
+    max-width: 100%; aspect-ratio: 16 / 9;
+    border-radius: var(--radius-lg); overflow: hidden; background: var(--bg);
+    box-shadow: var(--shadow-lg), 0 0 0 2px var(--line);
+  }
+    /* The artboard is a TRUE 1:1 1920x1080 frame. .tv-fit is scaled down
+     only when the card is narrower than 1920. A value measured here is
+     the value on the TV. */
+  .artboard .tv-fit { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
+.artboard .tv { position: absolute; inset: 0; }
+  .artboard .row { transition: none; }
+  .artboard .row .title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chev-ph { font-size: 36px; line-height: 1; color: var(--text-secondary); }
+
+  /* Account header: XStack align="bottom": avatar and text block share a baseline */
+  .tv .acct { display: flex; align-items: flex-end; gap: 22px; padding: 0 26px 10px; border: 1px solid transparent; }
+  .tv .acct .avatar { width: 123px; height: 123px; border-radius: var(--radius-tv); background: var(--avatar-blue); color: var(--avatar-fg); display: grid; place-items: center; font-size: 44px; font-weight: 500; flex: 0 0 auto; }
+  .tv .acct .who { flex: 1 1 auto; }
+  .tv .acct .uname { font-size: 48px; font-weight: 400; line-height: 1.2; }
+  .tv .acct .disk-l { margin-top: 8px; font-size: 32px; color: var(--tv-text-2); }
+  .tv .acct .disk { margin-top: 13px; width: 263px; height: 11px; border-radius: var(--radius-pill); background: var(--solid); overflow: hidden; }
+  .tv .acct .disk span { display: block; height: 100%; width: 62%; background: var(--yellow-solid); border-radius: var(--radius-pill); }
+  .tv .acct .btn { align-self: flex-end; }
+  .tv .row .val { font-size: 32px; color: var(--tv-text-2); font-variant-numeric: tabular-nums; }
+  .tv .row.info .ico { color: var(--tv-text-3); }
+
+  .anat { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px; display: grid; grid-template-columns: repeat(4, 1fr); overflow: hidden; }
+  .anat .c { padding: 14px 16px; border-left: 1px solid var(--line); }
+  .anat .c:first-child { border-left: 0; }
+  .anat .k { font-size: 11px; font-weight: 500; color: var(--yellow-text-secondary); margin-bottom: 6px; }
+  .anat .v { font-family: var(--font-mono); font-size: 13px; color: var(--text); }
+  .anat .d { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+</style></head>
+<body>
+<div class="tierbar t4"><span class="tno">Tier 4</span><span class="twhat">Tier 4 · <b>Web TV</b> (tv.put.io, Tizen, webOS). The design system as on web, restrained to a generic list-first 10-foot interface. The shipped <b>tv-native</b> app is the reference look; Roku matches it directly and the native TV tiers align with the same family feel inside their own control conventions.</span><span class="ttok">--yellow-solid · --tv-text-2 · --radius-pill · --radius-lg</span></div>
+<div class="preview-shell">
+
+  <div>
+    <div class="label">Account is the settings screen</div>
+    <div class="note">
+      tv-native has no preferences screen: <b>Account is settings</b>. The header is an <code>XStack align="bottom"</code>: avatar, username and disk usage left, <b>Sign out</b> bottom-aligned right.<br><br>
+      Below it a <code>SectionList</code> of Playback, Storage, and App and device information. Rows carry at most one accessory: a switch, or a chevron opening a centred <code>SelectModal</code>. Source: <code class="src">features/account/screens/account.tsx</code>.
+    </div>
+  </div>
+
+  <div class="artboard"><div class="tv-fit">
+    <div class="tv">
+      <div class="scr">
+        <div class="acct">
+          <div class="avatar">GR</div>
+          <div class="who">
+            <div class="uname">grubby</div>
+            <div class="disk-l">6.8 TB of 11 TB used</div>
+            <div class="disk"><span></span></div>
+          </div>
+          <button class="btn"><i class="ph ph-sign-out" aria-hidden="true"></i>Sign out</button>
+        </div>
+
+        <div class="section-h">Playback settings</div>
+        <div class="row focused">
+          <div class="ico"><i class="ph ph-network" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
+          <div class="body"><div class="title">Download route</div></div>
+          <div class="trailing"><span class="val">Amsterdam</span><i class="ph ph-caret-right chev-ph" aria-hidden="true"></i></div>
+        </div>
+        <div class="row">
+          <div class="ico"><i class="ph ph-bookmark-simple" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
+          <div class="body"><div class="title">Remember where I left off</div></div>
+          <div class="trailing"><span class="toggle on"></span></div>
+        </div>
+        <div class="row">
+          <div class="ico"><i class="ph ph-monitor-play" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
+          <div class="body"><div class="title">Video playback type</div></div>
+          <div class="trailing"><span class="val">HLS</span><i class="ph ph-caret-right chev-ph" aria-hidden="true"></i></div>
+        </div>
+
+        <div class="section-h">Storage settings</div>
+        <div class="row">
+          <div class="ico"><i class="ph ph-recycle" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
+          <div class="body"><div class="title">Move deleted files to trash</div></div>
+          <div class="trailing"><span class="toggle on"></span></div>
+        </div>
+        <div class="row">
+          <div class="ico"><i class="ph ph-trash" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
+          <div class="body"><div class="title">Manage your trash</div><div class="sub">18.4 GB</div></div>
+          <div class="trailing"><i class="ph ph-caret-right chev-ph" aria-hidden="true"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div class="anat">
+    <div class="c"><div class="k">Avatar</div><div class="v">120pt square</div><div class="d">theme.radii.default · gravatar at s=200</div></div>
+    <div class="c"><div class="k">Disk bar</div><div class="v">10pt</div><div class="d">--yellow-solid on --solid, min 250pt wide</div></div>
+    <div class="c"><div class="k">Row accessory</div><div class="v">switch · link</div><div class="d">info rows have none and take no focus</div></div>
+    <div class="c"><div class="k">Sign out</div><div class="v">Button size="sm"</div><div class="d">bottom-aligned with the avatar block</div></div>
+  </div>
+
+  <div class="note">The artboard is a <b>true 1:1 1920×1080 frame</b>: a value measured here is the value on the TV. The <code>tv</code> token group is still the source of truth; add a value there first.</div>
+</div>
+<script>
+(function () {
+  function fit() {
+    document.querySelectorAll('.artboard').forEach(function (a) {
+      var f = a.querySelector('.tv-fit');
+      if (f) f.style.transform = 'scale(' + (a.clientWidth / 1920) + ')';
+    });
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+})();
+</script>
+</body></html>

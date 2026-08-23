@@ -1,0 +1,97 @@
+/* ============================================================
+   put.io — _frame.css
+   Preview chrome for the tier-2/3 platform cards: page scaffold,
+   annotation typography, spec strips, and device hardware.
+
+   NOTHING in here is a put.io component. Bezels, home indicators and
+   remote silhouettes are device hardware, not product surfaces, so
+   their literals are deliberately un-tokenised — a chassis must not
+   shift with the theme. Everything that IS a put.io surface reads a
+   semantic token from tokens.css.
+
+   Load order:  tokens.css → components.css → _tier.css → _frame.css
+                → _apple.css / _android.css
+
+   Device viewports are drawn 1:1 in the platform's own unit, so a
+   metric written in a card is the metric in the HIG / Material spec:
+     .iphone   393 × 852 pt      .ipad   1024 × 768 pt (scaled to fit)
+     .watch    176 × 215 pt      .android  412 × 915 dp
+     .tvbox    1920 × 1080 px (drawn 1:1 — a TV card is a real frame)
+   ============================================================ */
+
+html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+
+.preview-shell { padding: 26px 30px 34px; display: flex; flex-direction: column; gap: 22px; }
+.label { font-size: 13px; font-weight: var(--fw-medium); color: var(--text); }
+.note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; max-width: 860px; text-wrap: pretty; }
+.label + .note { margin-top: 7px; }
+.note + .note { margin-top: 9px; }
+.note b { color: var(--text); font-weight: var(--fw-medium); }
+.note code, .src { font-family: var(--font-mono); font-size: 11.5px; color: var(--yellow-text-secondary); }
+
+.stage { margin-top: 8px; display: grid; grid-template-columns: auto 1fr; gap: 34px; align-items: start; }
+.stage.wide { grid-template-columns: 1fr; }
+/* 48px between devices. At 26px two phones read as one wide object; a device
+   needs enough air that its own bezel is the boundary. */
+.screens > div { display: flex; flex-direction: column; }
+.screens { display: flex; gap: 48px; align-items: flex-start; flex-wrap: wrap; }
+
+.side h3 { margin: 0 0 6px; font-size: 12px; font-weight: var(--fw-medium); color: var(--yellow-text-secondary); letter-spacing: 0.04em; text-transform: uppercase; }
+.side ul { margin: 0 0 20px; padding-left: 17px; }
+.side li { font-size: 12.5px; color: var(--text-secondary); line-height: 1.7; text-wrap: pretty; }
+.side li b { color: var(--text); font-weight: var(--fw-medium); }
+.side li code { font-family: var(--font-mono); font-size: 11px; color: var(--text); }
+.side p { margin: 0 0 18px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.65; }
+
+/* Caption under a device. The box is capped for readability, so it needs an
+   auto inline margin: at 340px inside a 643px iPad column it otherwise sits
+   left of the device it labels. */
+/* ── Fact rows ──────────────────────────────────────────────────
+   The structured alternative to a prose note. Reference material (a
+   format list, a token map, a state table) is scanned, not read, so it
+   goes here rather than into a paragraph the reader has to mine.
+
+   Use .note for a claim or a rule. Use .kv for data. */
+.kv { display: grid; gap: 0; width: 100%; margin-top: 10px; border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; background: var(--bg-secondary); }
+.kv .r { display: grid; grid-template-columns: 148px 1fr; gap: 14px; padding: 8px 14px; font-size: 12px; line-height: 1.5; }
+.kv .r + .r { border-top: 1px solid var(--line); }
+.kv .k { font-family: var(--font-mono); font-size: 11px; color: var(--yellow-text-secondary); }
+.kv .v { color: var(--text-secondary); }
+.kv .v b { color: var(--text); font-weight: var(--fw-medium); }
+
+/* Caption under a device. 24px clears the bezel: at 16px the label crowded
+   the frame's shadow and read as part of the device rather than a label for
+   it. The box is auto-margined so it centres under the frame it names. */
+.cap { margin: 24px auto 0; max-width: 340px; font-size: 11.5px; color: var(--text-secondary); text-align: center; line-height: 1.5; }
+.cap b { color: var(--text); font-weight: var(--fw-medium); display: block; margin-bottom: 4px; }
+
+/* Spec strip */
+.spec { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: var(--radius-md); display: grid; grid-template-columns: repeat(4, 1fr); overflow: hidden; }
+.spec .cell { padding: 13px 15px; border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
+.spec .cell:nth-child(-n+4) { border-top: 0; }
+.spec .cell:nth-child(4n+1) { border-left: 0; }
+.spec .k { font-family: var(--font-mono); font-size: 10px; color: var(--yellow-text-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.spec .v { font-family: var(--font-mono); font-size: 12.5px; color: var(--text); }
+.spec .d { font-size: 11.5px; color: var(--text-secondary); margin-top: 3px; line-height: 1.5; }
+
+/* "Do not" callout — the tier-2 rule that keeps web recipes out */
+.dont { border: 1px solid var(--red-border); background: var(--red-bg-secondary); border-radius: var(--radius-md); padding: 12px 15px; font-size: 12.5px; color: var(--red-text); line-height: 1.6; }
+.dont b { color: var(--red-text-secondary); }
+.dont code { font-family: var(--font-mono); font-size: 11.5px; color: var(--red-text-secondary); }
+
+/* ── Device hardware — literals on purpose ─────────────────── */
+.iphone { width: 401px; height: 860px; background: #000; border-radius: 55px; box-shadow: 0 0 0 9px #1c1c1e, 0 0 0 11px #3a3a3c, 0 26px 60px rgba(0,0,0,0.55); padding: 4px; box-sizing: border-box; flex: 0 0 auto; }
+.ipad { width: 643px; height: 484px; background: #000; border-radius: 26px; box-shadow: 0 0 0 8px #1c1c1e, 0 0 0 10px #3a3a3c, 0 26px 60px rgba(0,0,0,0.55); padding: 4px; box-sizing: border-box; flex: 0 0 auto; }
+.watch { width: 186px; height: 225px; background: #000; border-radius: 46px; box-shadow: 0 0 0 7px #26262a, 0 0 0 9px #45454a, 0 20px 44px rgba(0,0,0,0.55); padding: 5px; box-sizing: border-box; flex: 0 0 auto; }
+.android { width: 420px; height: 923px; background: #000; border-radius: 38px; box-shadow: 0 0 0 8px #101012, 0 0 0 10px #2a2a2e, 0 26px 60px rgba(0,0,0,0.55); padding: 4px; box-sizing: border-box; flex: 0 0 auto; }
+.tvbox { width: 1920px; max-width: 100%; aspect-ratio: 16/9; height: auto; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 24px 64px rgba(0,0,0,0.45), 0 0 0 1px var(--line); flex: 0 0 auto; }
+
+.viewport { position: relative; width: 100%; height: 100%; border-radius: inherit; overflow: hidden; display: flex; flex-direction: column; background: var(--app-bg); }
+.iphone .viewport { border-radius: 51px; }
+.ipad .viewport { border-radius: 22px; }
+.watch .viewport { border-radius: 41px; }
+.android .viewport { border-radius: 34px; }
+
+/* Home indicator (Apple) / gesture pill (Android) — hardware affordance */
+.homebar { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.42); z-index: 40; pointer-events: none; }
+.android .homebar { width: 108px; height: 3px; border-radius: 2px; bottom: 7px; }

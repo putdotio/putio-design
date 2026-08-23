@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: applies html.dark before paint; full comment in components-tabs.html. */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · components · menu</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .note {max-width: 760px}
+  
+  
+
+  /* ── Menu surface ──
+     One recipe for dropdown, context menu, and submenu: raised
+     --component-bg on --line with --shadow-md, stacked at --z-dropdown.
+     data-state="open|closed" comes from the controlling primitive. */
+  /* Surface comes from the published .menu-pop recipe (components.css),
+     which reads the --menu-* aliases; the card only styles its items. */
+  .menu [role="menuitem"] {
+    display: flex; align-items: center; justify-content: flex-start; gap: 10px;
+    height: 32px; padding: 0 10px;
+    border: 0; background: transparent; text-align: left;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans); font-size: var(--fs-sm); font-weight: var(--fw-medium);
+    color: var(--text); cursor: pointer;
+    transition: background var(--dur-fast) var(--ease-out);
+  }
+  .menu [role="menuitem"] i { font-size: 16px; color: var(--text-secondary); flex-shrink: 0; }
+  .menu [role="menuitem"]:hover,
+  .menu [role="menuitem"][data-state="active"] { background: var(--component-bg-hover); }
+  .menu [role="menuitem"]:hover i { color: var(--text); }
+  .menu [role="menuitem"] kbd {
+    margin-left: auto;
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-secondary); letter-spacing: 0.06em;
+    background: none; border: 0; padding: 0;
+  }
+  .menu [role="menuitem"] .sub-caret { margin-left: auto; font-size: 13px; }
+  .menu [role="menuitem"][aria-disabled="true"] {
+    color: var(--text-secondary); cursor: default;
+  }
+  .menu [role="menuitem"][aria-disabled="true"]:hover { background: transparent; }
+  .menu [role="menuitem"][aria-disabled="true"]:hover i { color: var(--text-secondary); }
+
+  /* Destructive item: red text at rest, red surface on hover. */
+  .menu [role="menuitem"].danger { color: var(--red-text-secondary); }
+  .menu [role="menuitem"].danger i { color: var(--red-text-secondary); }
+  .menu [role="menuitem"].danger:hover { background: var(--red-component-bg); }
+  .menu [role="menuitem"].danger:hover i { color: var(--red-text-secondary); }
+
+  .menu hr { border: 0; border-top: 1px solid var(--line); margin: 4px 6px; }
+  /* .menu-label chrome comes from the recipe too (reads --menu-label). */
+
+  /* Demo scaffolding: anchored layouts drawn statically for the spec. */
+  .demo-row { display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap; }
+  .anchor-col { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+
+  /* Context-menu demo: a file row with its menu beside it */
+  .file-row-demo {
+    display: flex; align-items: center; gap: 12px;
+    width: 420px; height: 44px; padding: 0 12px;
+    background: var(--list-item-bg-active);
+    border: 1px solid var(--list-item-border);
+    border-radius: var(--radius);
+  }
+  .file-row-demo i { font-size: 18px; color: var(--yellow-solid); }
+  .file-row-demo .fname {
+    font-family: var(--font-mono); font-size: 12.5px; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .submenu-wrap { display: flex; align-items: flex-start; gap: 6px; }
+</style></head>
+<body>
+<div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat">Tier 1 · <b>Web</b> (www / app / auth). The full design system: our component library and the <b>components.css</b> recipe. This is the one tier where the recipe is the contract, native tiers take the tokens and nothing else.</span><span class="ttok">--red-text-secondary · --shadow-md · --z-dropdown · --radius-sm</span></div>
+<div class="preview-shell">
+
+  <div class="head">
+    <span class="ix">01</span>
+    <span class="t">Dropdown menu</span>
+    <span class="n">Menu</span>
+  </div>
+  <div class="note"><b>One surface recipe for every floating menu.</b> Hover is <code>--component-bg-hover</code>, never yellow.</div>
+  <div class="kv">
+    <div class="r"><span class="k">surface</span><span class="v"><code>--component-bg</code> on <code>--line</code>, <code>--shadow-md</code>, <code>--radius</code></span></div>
+    <div class="r"><span class="k">padding</span><span class="v">4px inner</span></div>
+    <div class="r"><span class="k">stacking</span><span class="v"><code>--z-dropdown</code></span></div>
+    <div class="r"><span class="k">item</span><span class="v">32px, 16px leading icon</span></div>
+    <div class="r"><span class="k">shortcut</span><span class="v">right-aligned, <code>--font-ui-mono</code></span></div>
+    <div class="r"><span class="k">state</span><span class="v"><code>data-state="open|closed"</code> from the controlling primitive</span></div>
+  </div>
+
+  <div class="demo-row">
+    <div class="anchor-col">
+      <button class="btn btn-default btn-md" aria-expanded="true">Options <i class="ph ph-caret-down" aria-hidden="true"></i></button>
+      <div class="menu menu-pop" role="menu" data-state="open" aria-label="File options">
+        <button role="menuitem"><i class="ph ph-download-simple" aria-hidden="true"></i>Download<kbd>D</kbd></button>
+        <button role="menuitem"><i class="ph ph-play" aria-hidden="true"></i>Play<kbd>&#8629;</kbd></button>
+        <button role="menuitem"><i class="ph ph-link" aria-hidden="true"></i>Copy link</button>
+        <hr>
+        <button role="menuitem"><i class="ph ph-pencil-simple" aria-hidden="true"></i>Rename<kbd>R</kbd></button>
+        <button role="menuitem"><i class="ph ph-folder-simple" aria-hidden="true"></i>Move to&hellip;<kbd>M</kbd></button>
+        <button role="menuitem" aria-disabled="true"><i class="ph ph-file-zip" aria-hidden="true"></i>Create zip</button>
+        <hr>
+        <button role="menuitem" class="danger"><i class="ph ph-trash" aria-hidden="true"></i>Move to trash<kbd>&#9003;</kbd></button>
+      </div>
+    </div>
+
+    <div class="anchor-col">
+      <div class="note"><b>Disabled items stay visible</b> (<code>aria-disabled="true"</code>, step-11 text, no hover). Hiding them makes menus feel unstable between files.<br><br>
+      The destructive item is red text at rest and gains <code>--red-component-bg</code> on hover. Never a solid red fill inside a menu.</div>
+    </div>
+  </div>
+
+  <div class="head" style="margin-top: 8px;">
+    <span class="ix">02</span>
+    <span class="t">Context menu: file row</span>
+  </div>
+  <div class="note">Right-click or long-press a file row opens the same menu at the pointer. The originating row holds <code>--list-item-bg-active</code> so the target is not lost.<br><br>
+      <b>Same items, same order as the row's dropdown.</b> The two must not drift.</div>
+
+  <div class="demo-row">
+    <div class="file-row-demo" data-state="active">
+      <i class="ph ph-file-video" aria-hidden="true"></i>
+      <span class="fname">Sunset.Timelapse.4096x2160.ProRes.mov</span>
+    </div>
+    <div class="menu menu-pop" role="menu" data-state="open" aria-label="Context menu">
+      <div class="menu-label">Sunset.Timelapse&hellip;.mov</div>
+      <button role="menuitem"><i class="ph ph-play" aria-hidden="true"></i>Play</button>
+      <button role="menuitem"><i class="ph ph-download-simple" aria-hidden="true"></i>Download</button>
+      <button role="menuitem"><i class="ph ph-share-network" aria-hidden="true"></i>Share</button>
+      <hr>
+      <button role="menuitem" class="danger"><i class="ph ph-trash" aria-hidden="true"></i>Move to trash</button>
+    </div>
+  </div>
+
+  <div class="head" style="margin-top: 8px;">
+    <span class="ix">03</span>
+    <span class="t">Submenu</span>
+  </div>
+  <div class="note"><b>One level deep, maximum.</b> The parent item shows a trailing caret and holds its hover surface (<code>data-state="active"</code>) while open. Submenus inherit the same surface recipe with no extra elevation step.</div>
+
+  <div class="submenu-wrap">
+    <div class="menu menu-pop" role="menu" data-state="open" aria-label="Sort menu">
+      <button role="menuitem"><i class="ph ph-check" aria-hidden="true"></i>Name</button>
+      <button role="menuitem" data-state="active" aria-expanded="true"><i class="ph ph-clock" aria-hidden="true"></i>Date<i class="ph ph-caret-right sub-caret" aria-hidden="true"></i></button>
+      <button role="menuitem"><i class="ph ph-database" aria-hidden="true"></i>Size</button>
+    </div>
+    <div class="menu menu-pop" role="menu" data-state="open" aria-label="Date order" style="min-width: 168px; margin-top: 34px;">
+      <button role="menuitem"><i class="ph ph-check" aria-hidden="true"></i>Newest first</button>
+      <button role="menuitem" style="padding-left: 36px;">Oldest first</button>
+    </div>
+  </div>
+
+</div>
+</body></html>
