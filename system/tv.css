@@ -1,0 +1,562 @@
+/* ============================================================
+   put.io, tv.css
+   TV / 10ft surfaces, FLAT, solid, high-contrast 10-foot system.
+   (The old "Liquid Glass" treatment, backdrop-filter, translucent
+   white fills, ambient refraction blobs, was removed: it read as
+   muddy and low-contrast on a real TV. Everything is now solid token
+   surfaces with clear focus.)
+
+   All component classes are scoped under .tv, safe to load globally
+   (styles.css bundles it) without bleeding into web components.
+
+   Load AFTER tokens.css (styles.css does both):
+     <link rel="stylesheet" href="../tokens.css">
+     <link rel="stylesheet" href="../tv.css">
+
+   NOTE ON SIZES: the px values here are TRUE 1:1 values for a
+   1920x1080 screen. A preview card renders the artboard at its real
+   1920x1080 size, so a number in this file is the number on the TV -
+   read it directly. (Until 2026-08 this file was authored at an 876px
+   artboard scale and scaled up with a transform; that indirection is
+   gone.) The type steps match tv-native's theme.tsx exactly:
+   text.body 36 / caption 32 / label 48, spacing.md 32, radii 12.
+
+   Classes: .tv, .scr, .row, .btn, .icon-btn,
+            .sheet, .key, .brand (TV variant), .kbd (TV variant),
+            .toggle, .bar, .player-chrome, .code-tile.
+
+   NOTE: no mono anywhere. tv-native's theme has exactly two families
+   (GTAmerica-Rg / -Md); numerics use tabular figures in GT America,
+   not Berkeley Mono. Berkeley Mono is a web/mobile rule only.
+
+   Brand and semantic colors come from tokens.css; this file adds the
+   TV text ramp (--text-1..3) and the component styles composed
+   against it.
+
+   THE CANONICAL 10-FOOT SCALE IS THE `tv` TOKEN GROUP, not this file.
+   Those are mode: "tv" tokens and are deliberately absent from the web
+   CSS output, read them from dist/tokens.flat.json. This stylesheet
+   now agrees with the graph 1:1, but the graph is still the source of
+   truth for type steps, spacing, overscan, screen paddings and
+   z-indices, add a value there first, then use it here.
+
+   NO TAB BAR. tv-native is a stack navigator with the header hidden;
+   the top-level surface is a Home hub of destinations. There is no
+   segmented top-nav, no tab bar, and no persistent chrome, earlier
+   revisions of these specimens documented one that does not exist.
+   ============================================================ */
+
+/* TV-only surface aliases: colors/type already live in tokens.css.
+   Scoped to .tv so they never leak into non-TV preview pages. */
+.tv {
+  /* TV text ramp: solid, mapped to the token text roles */
+  --text-1: var(--text);
+  --text-2: var(--text-secondary);
+  --text-3: var(--text-secondary);
+
+  /* Graph-prefixed names for the same ramp, matching the tv token group
+     (tv.text-1..3) so cards can cite the portable names directly. */
+  --tv-text-1: var(--text-1);
+  --tv-text-2: var(--text-2);
+  --tv-text-3: var(--text-3);
+
+  /* On-video plate colors: graph tv.video group (mode "tv" — declared here
+     because mode tv tokens are deliberately absent from the web tokens.css). */
+  --tv-video-bg: hsl(0, 0%, 0%);
+  --tv-hero-scrim-top: hsl(30, 18.2%, 8.6%);
+  --tv-hero-scrim-bottom: hsl(30, 25%, 1.6%);
+  --tv-text-on-video: hsl(0, 0%, 100%);
+
+  /* Alias so existing TV markup keeps working */
+  --putio-yellow: var(--yellow-solid);
+
+  /* TV font stack: adds system fallbacks for capability TVs */
+  --font: "GT America", -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+}
+
+/* TV pages run dark by default and on a dark canvas. */
+html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
+
+/* ---------------------------------------------------------------- */
+/* Artboard host: every TV screen lives in one of these             */
+/* ---------------------------------------------------------------- */
+.tv {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--app-bg);
+  color: var(--text-1);
+  font-family: var(--font);
+  font-size: 36px;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+  overflow: hidden;
+  border-radius: inherit;
+  isolation: isolate;
+}
+
+.tv .tv-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Edge fade on scrollable content: soft fade at top/bottom when
+   content overflows. Apply .with-fade to any scrollable container. */
+.tv .with-fade {
+  -webkit-mask-image: linear-gradient(180deg,
+    transparent 0,
+    #000 53px,
+    #000 calc(100% - 53px),
+    transparent 100%);
+  mask-image: linear-gradient(180deg,
+    transparent 0,
+    #000 53px,
+    #000 calc(100% - 53px),
+    transparent 100%);
+}
+
+/* Overscan safe margins, per theme.tsx:
+     left/right = window.width  * 0.04 = 1920 * 0.04 = 76.8 -> 77
+     top/bottom = window.height * 0.02 = 1080 * 0.02 = 21.6 -> 22
+   Every screen-level inset derives from these two, never from a
+   hand-picked number. */
+.tv { --tv-safe-x: 77px; --tv-safe-y: 22px; }
+
+/* Focused row: solid raised surface, matching tv-native's list-item
+   (a plain background fill; no shadow, no scale, no halo, no border). */
+.tv .row.focused {
+  background: var(--component-bg-active);
+  z-index: 2;
+}
+
+/* ---------------------------------------------------------------- */
+/* SCREEN: header + hairline divider + list of rows                 */
+/* screen.tsx exposes title / actions / header / fullScreen only: */
+/* there is NO subtitle or description slot.                         */
+/* ---------------------------------------------------------------- */
+/* screen.marginTop = spacing.md; marginBottom = spacing.md + safe.bottom.
+   No horizontal padding here: the header and the rows each carry their own
+   safe inset, so the focus fill can sit flush against it. */
+.tv .scr {
+  padding: 32px 0 calc(32px + var(--tv-safe-y));
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* screen.header: paddingTop = md + safe.top, paddingBottom = md,
+   paddingLeft/Right = safe.left/right. */
+.tv .scr-head {
+  padding: calc(32px + var(--tv-safe-y)) var(--tv-safe-x) 32px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  border-bottom: 2px solid var(--line);
+  margin-bottom: 32px;
+}
+.tv .scr-title {
+  font-size: 48px;
+  font-weight: 500;         /* GTAmerica-Md */
+  line-height: 1;
+  margin: 0;
+}
+.tv .scr-spacer { flex: 1; }
+.tv .scr-actions {
+  display: flex;
+  gap: 16px;
+}
+
+/* ---------------------------------------------------------------- */
+/* BUTTONS: solid surface, fill + border-step focus                 */
+/* ---------------------------------------------------------------- */
+.tv .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 32px;
+  border-radius: var(--radius-tv);
+  font-size: 36px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-1);
+  background: var(--component-bg);
+  border: 2px solid var(--border);
+  box-sizing: border-box;
+  transition: background 180ms, border-color 180ms;
+  white-space: nowrap;
+}
+
+/* Focused button: a FILL plus a border step. Never a white-invert pill,
+   never a shadow, never a lift. Per button.tsx:
+     backgroundColor: focused ? component-bg-active : component-bg
+     borderColor:     focused ? border-hover        : border
+   Label and icon stay theme.colors.text in both states. */
+.tv .btn.focused {
+  background: var(--component-bg-active);
+  border-color: var(--border-hover);
+}
+.tv .btn-lg {
+  padding: 32px 64px;
+  font-size: 48px;
+}
+.tv .btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/* ---------------------------------------------------------------- */
+/* LIST ROWS: files, settings, history                              */
+/* ---------------------------------------------------------------- */
+/* Per list-item.tsx getPressableStyle: the overscan inset is a MARGIN, not
+   padding, so the focus fill is a rounded card inset from the screen edge
+   rather than a full-bleed band. padding is spacing.md on ALL four sides;
+   XStack spacing="md" supplies the 32px between icon, text and accessory.
+   Source declares no border, so there is none here. */
+.tv .row {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin: 0 var(--tv-safe-x);
+  padding: 32px;
+  border-radius: var(--radius-tv);
+  background: transparent;
+  transition: background 200ms;
+  position: relative;
+}
+/* No icon column in source: a bare 48px (text.label) glyph, hugged. */
+.tv .row .ico {
+  flex: 0 0 auto;
+  color: var(--yellow-solid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tv .row .body { flex: 1 1 auto; min-width: 0; }
+.tv .row .title {
+  font-size: 36px;
+  font-weight: 400;         /* text.body is GTAmerica-Rg */
+  letter-spacing: -0.005em;
+  line-height: 1.2;
+}
+/* Row subline: GTAmerica-Rg, NOT mono: tv-native's theme has no mono
+   family (text.caption is GTAmerica-Rg). Tabular figures stay on so
+   file sizes still align in a column. */
+.tv .row .sub {
+  margin-top: 4px;
+  font-size: 32px;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+.tv .row .trailing {
+  margin-left: auto;
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ---------------------------------------------------------------- */
+/* SECTION HEADER                                                    */
+/* ---------------------------------------------------------------- */
+.tv .section-h {
+  border: 2px solid transparent;   /* see .scr-head */
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 32px 64px 16px;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- */
+/* TOGGLE                                                            */
+/* ---------------------------------------------------------------- */
+.tv .toggle {
+  width: 112px;
+  height: 64px;
+  border-radius: var(--radius-pill);
+  background: var(--component-bg-active);
+  position: relative;
+  transition: background 200ms;
+  flex: 0 0 auto;
+}
+.tv .toggle::after {
+  content: "";
+  position: absolute;
+  top: 8px; left: 8px;
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: var(--invert-foreground);  /* knob reads white on the green track */
+  transition: transform 200ms;
+  box-shadow: var(--shadow-sm);
+}
+.tv .toggle.on { background: var(--green-solid); }
+.tv .toggle.on::after { transform: translateX(48px); }
+
+/* ---------------------------------------------------------------- */
+/* MISC                                                              */
+/* ---------------------------------------------------------------- */
+.tv .divider {
+  height: 2px;
+  background: var(--line);
+  margin: 26px 0;
+}
+.tv .chev {
+  width: 32px;
+  height: 32px;
+  color: var(--text-3);
+}
+.tv .eye { color: var(--text-2); }
+
+/* progress bar (storage / playback) */
+.tv .bar {
+  width: 100%;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--component-bg-active);
+  overflow: hidden;
+  position: relative;
+}
+.tv .bar > i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--putio-yellow);
+  border-radius: var(--radius-pill);
+}
+
+/* put.io retro logo block: use the real mark from system/assets/
+   (logo-retro-dark.svg on TV). No CSS-drawn wordmark. */
+.tv .brand {
+  display: inline-flex;
+  align-items: center;
+}
+.tv .brand img { height: 64px; width: auto; display: block; } /* ink 26px, padded wordmark, box = ink × 7/6 */
+
+/* Activation code tiles: light physical keycap */
+.tv .code-tile {
+  width: 128px;
+  height: 128px;
+  background: var(--hi-contrast);
+  color: var(--lo-contrast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  font-weight: 600;
+  border-radius: var(--radius-tv);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Fixed on-video values ──────────────────────────────────────────
+   The literals below sit ON VIDEO, not on a theme surface, so they are
+   deliberately NOT tokenised: a theme colour would shift with the mode
+   while the video underneath does not. Same rationale as the --pl-*
+   values in components-player-web. Everything outside this section
+   must read a semantic token. */
+.tv .player-chrome {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 0 128px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  background: linear-gradient(to top,
+    rgba(0,0,0,0.72) 0%,
+    rgba(0,0,0,0) 100%);
+}
+.tv .player-scrub {
+  height: 8px;
+  background: rgba(255,255,255,0.25);
+  border-radius: var(--radius-pill);
+  position: relative;
+}
+.tv .player-scrub > i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--putio-yellow);
+  border-radius: var(--radius-pill);
+}
+.tv .player-scrub > b {
+  position: absolute;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: #fff;
+  top: 50%; transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.18), 0 4px 22px rgba(0,0,0,0.5);
+}
+
+/* Icon button (circular): on-video, so .solid stays literal white */
+.tv .icon-btn {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--component-bg);
+  border: 2px solid var(--line);
+  color: var(--text-1);
+}
+.tv .icon-btn.solid {
+  background: #fff;
+  color: #0a0a0a;
+  border-color: #fff;
+}
+
+/* Modal sheet: proxy picker, subtitles, info */
+.tv .sheet {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+.tv .sheet::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-full);
+}
+.tv .sheet-body {
+  position: relative;
+  background: var(--app-bg);
+  border: 2px solid var(--line);
+  border-radius: var(--radius-tv);
+  width: 25%;
+  min-width: 25%;
+  max-width: 50%;
+  max-height: 78%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 64px;
+}
+.tv .sheet-h {
+  padding: 8px 32px 32px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--line);
+  margin-bottom: 16px;
+}
+.tv .sheet-h .sheet-title {
+  font-size: 48px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-1);
+}
+.tv .sheet-h .sheet-cap {
+  font-size: 32px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.tv .sheet-list {
+  overflow: auto;
+  padding: 8px 16px;
+}
+.tv .sheet-list .row {
+  padding: 16px 32px;
+  gap: 32px;
+  border-radius: var(--radius-tv);
+}
+.tv .sheet-list .row .title { font-size: 36px; }
+
+/* Radio circle */
+.tv .radio {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 3.5px solid var(--border);
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+.tv .radio.on {
+  border-color: var(--putio-yellow);
+  background: color-mix(in srgb, var(--yellow-solid) 14%, transparent);
+}
+.tv .radio.on::after {
+  content: "";
+  width: 16px; height: 16px;
+  background: var(--putio-yellow);
+  border-radius: 50%;
+}
+
+/* Keyboard (search) */
+.tv .kbd {
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  gap: 16px;
+  padding: 32px;
+  border-radius: var(--radius-tv);
+  background: var(--component-bg);
+  border: 2px solid var(--line);
+}
+.tv .key {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  border-radius: var(--radius-tv);
+  background: var(--component-bg-active);
+  color: var(--text-1);
+}
+.tv .key.focused {
+  background: var(--component-bg-active);
+  border: 2px solid var(--border-hover);
+}
+
+/* Visible-only-for-tweak helper. Class doubled purely to raise
+   specificity, this file must stay free of priority overrides. */
+.tv .hide.hide { display: none; }
+
+/* ── tv-native VideoPlayer ── apps/tv-native/src/components/video-player/.
+   The same React Native codebase ships tv.put.io and Android TV, so these
+   values are shared by both tiers by construction. */
+.tvp { position: relative; width: 1920px; height: 1080px; background: #000; overflow: hidden; }
+.tvp .frame { position: absolute; inset: 0; background: linear-gradient(160deg,#181410,#0b0b0d 62%,#110e0c); }
+/* PlayerControlsContainer: bottom 0, full width, rgba(0,0,0,.75),
+   padding-top spacing.sm, sides and bottom from the overscan safe margins. */
+.tvp .ctls { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.75); padding: 16px 64px 48px; box-sizing: border-box; }
+.tvp .toprow { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; }
+/* VideoTitle: numberOfLines 2, maxWidth 80% */
+.tvp .ptitle { flex: 1; max-width: 80%; font-size: 36px; line-height: 1.25; color: var(--text); margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tvp .obtns { display: flex; gap: 16px; flex: 0 0 auto; }
+.tvp .obtn { width: 80px; height: 80px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 36px; color: var(--text); background: rgba(255,255,255,.08); position: relative; }
+.tvp .obtn.focused { background: var(--component-bg-active); }
+.tvp .obtn .lbl { position: absolute; left: 50%; transform: translateX(-50%); top: -46px; font-size: 24px; white-space: nowrap; color: var(--text); }
+.tvp .spacer { height: 32px; }
+/* Seek bar: 12px track. Progress yellow-solid, remainder solid. */
+.tvp .seek { position: relative; width: 100%; }
+.tvp .seek .bar { display: flex; height: 12px; width: 100%; }
+.tvp .seek .fill { height: 12px; background: var(--yellow-solid); border-radius: 12px 0 0 12px; }
+.tvp .seek .rest { height: 12px; background: var(--solid); border-radius: 0 12px 12px 0; }
+/* Thumb: 36x36 (track x3), 4px rgba(255,255,255,.25) border (track/3), yellow
+   fill. Opacity animates 0 to 1 ONLY while the slider itself has focus. */
+.tvp .seek .thumb { position: absolute; top: -12px; width: 36px; height: 36px; box-sizing: border-box; border-radius: 36px; border: 4px solid rgba(255,255,255,.25); background: var(--yellow-solid); opacity: 0; }
+.tvp .seek.focused .thumb { opacity: 1; }
+.tvp .times { display: flex; justify-content: space-between; margin-top: 32px; font-size: 24px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.tvp .times .now { display: flex; align-items: center; gap: 10px; }
+.tvp .buffer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.tvp .buffer i { font-size: 72px; color: var(--yellow-solid); }
+
+/* ── SelectModal ── one overlay serves audio, subtitles and speed ──────── */
+.tvsel { position: relative; width: 1920px; height: 1080px; background: #000; overflow: hidden; }
+.tvsel .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.72); }
+.tvsel .panel { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 720px; background: var(--component-bg); border-radius: 12px; padding: 48px 0 32px; box-sizing: border-box; }
+.tvsel .ttl { font-size: 48px; color: var(--text); padding: 0 48px 32px; }
+.tvsel .opt { height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; font-size: 36px; color: var(--text); }
+.tvsel .opt.focused { background: var(--component-bg-active); }
+.tvsel .opt i { font-size: 36px; color: var(--yellow-solid); }

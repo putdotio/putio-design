@@ -1,4 +1,4 @@
-import { readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 
 import AxeBuilder from "@axe-core/playwright";
@@ -19,25 +19,32 @@ const htmlPages = walkHtml(systemDir)
   .map((file) => `/${path.relative(systemDir, file).replaceAll(path.sep, "/")}`)
   .sort();
 
-// Axe every guide + preview page. TV/mobile mockups are theme-locked (one mode);
-// everything else is checked in both light and dark.
-const themeLockedPage = /\/preview\/(tv-|mobile-shell)/;
+// Axe every guide + preview page. Fixed-mode product mockups (native/TV
+// surfaces) pin one mode via <html data-theme-lock>; everything else is
+// checked in both light and dark. Read the attribute from the file itself
+// so the list can never drift from the cards.
+function isThemeLocked(page: string): boolean {
+  const file = path.join(systemDir, page.replace(/^\//, ""));
+  return /^<html[^>]*data-theme-lock=/m.test(readFileSync(file, "utf8"));
+}
 const axePages = htmlPages
   .filter((page) => page === "/design-system.html" || page.startsWith("/preview/"))
-  .flatMap((page) => (themeLockedPage.test(page) ? [page] : [page, `${page}?theme=light`]));
+  .flatMap((page) => (isThemeLocked(page) ? [page] : [page, `${page}?theme=light`]));
 
 // Radix/APCA palette: secondary text on raised surfaces lands just under WCAG-2.x
 // AA by design, so hold the 3:1 (AA-large) floor; non-contrast violations always block.
 const contrastFloor = 3;
 
 const tvSmokePages = [
-  "/preview/mobile-shell.html",
-  "/preview/tv-action-menus.html",
-  "/preview/tv-focus.html",
-  "/preview/tv-foundations.html",
-  "/preview/tv-navigation.html",
-  "/preview/tv-player.html",
-  "/preview/web-shell.html",
+  "/preview/android-s00-shell.html",
+  "/preview/ios-s00-shell.html",
+  "/preview/roku-s00-files.html",
+  "/preview/tv-f00-foundations.html",
+  "/preview/tv-f01-focus.html",
+  "/preview/tv-p00-navigation.html",
+  "/preview/tv-p01-action-menus.html",
+  "/preview/tv-s01-player.html",
+  "/preview/web-s00-shell.html",
 ];
 
 const buttonHoverAliases = [
@@ -84,7 +91,7 @@ test.describe("design.put.io static guide", () => {
   });
 
   test("button variants consume hover aliases @desktop", async ({ page }) => {
-    await page.goto("/preview/components-buttons.html?theme=light", { waitUntil: "domcontentloaded" });
+    await page.goto("/preview/web-c00-buttons.html?theme=light", { waitUntil: "domcontentloaded" });
 
     for (const [selector, variableName] of buttonHoverAliases) {
       const button = page.locator(selector).first();
@@ -94,25 +101,25 @@ test.describe("design.put.io static guide", () => {
   });
 
   test("overlay primitives consume their semantic token groups @desktop", async ({ page }) => {
-    await page.goto("/preview/components-menu.html?theme=light", { waitUntil: "domcontentloaded" });
+    await page.goto("/preview/web-c09-menu.html?theme=light", { waitUntil: "domcontentloaded" });
     const menuBackground = await resolvedCssColor(page, "--menu-bg");
     await expect.poll(async () => page.locator(".menu-pop").first().evaluate((element) => getComputedStyle(element).backgroundColor)).toBe(menuBackground);
 
-    await page.goto("/preview/components-command-palette.html?theme=light", { waitUntil: "domcontentloaded" });
-    const palette = page.locator(".palette").first();
+    await page.goto("/preview/web-p03-command-palette.html?theme=light", { waitUntil: "domcontentloaded" });
+    const palette = page.locator(".pal").first();
     await expect.poll(async () => palette.evaluate((element) => getComputedStyle(element).width)).toBe("560px");
     await expect.poll(async () => palette.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe(await resolvedCssColor(page, "--palette-bg"));
     await expect(page.locator("#palette-results > [role=group]")).toHaveCount(3);
     await expect(page.locator("#palette-results > :not([role=group])")).toHaveCount(0);
 
-    await page.goto("/preview/components-sheet.html?theme=light", { waitUntil: "domcontentloaded" });
+    await page.goto("/preview/web-c12-sheet.html?theme=light", { waitUntil: "domcontentloaded" });
     const sheet = page.locator(".sheet");
     await expect.poll(async () => sheet.evaluate((element) => getComputedStyle(element).width)).toBe("380px");
     await expect.poll(async () => sheet.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe(await resolvedCssColor(page, "--sheet-bg"));
   });
 
   test("web shell keeps search centered and filenames ellipsized @desktop", async ({ page }) => {
-    await page.goto("/preview/web-shell.html", { waitUntil: "domcontentloaded" });
+    await page.goto("/preview/web-s00-shell.html", { waitUntil: "domcontentloaded" });
     const appbar = await page.locator(".appbar").boundingBox();
     const search = await page.locator(".appbar .search").boundingBox();
     expect(appbar).not.toBeNull();
@@ -135,19 +142,21 @@ test.describe("design.put.io static guide", () => {
   });
 
   test("TV focus uses the canonical fill and border treatments @tv", async ({ page }) => {
-    await page.goto("/preview/tv-focus.html", { waitUntil: "domcontentloaded" });
+    await page.goto("/preview/tv-f01-focus.html", { waitUntil: "domcontentloaded" });
     const active = await resolvedCssColor(page, "--component-bg-active");
     const hoverBorder = await resolvedCssColor(page, "--border-hover");
     const rowStyles = await page.locator(".row.focused").first().evaluate((element) => {
       const styles = getComputedStyle(element);
-      return { background: styles.backgroundColor, border: styles.borderTopColor };
+      // tv.css declares no border on rows at all (a fill, never an edge), so
+      // assert the width — borderTopColor computes to currentColor either way.
+      return { background: styles.backgroundColor, borderWidth: styles.borderTopWidth };
     });
     const buttonStyles = await page.locator(".btn.focused").first().evaluate((element) => {
       const styles = getComputedStyle(element);
       return { background: styles.backgroundColor, border: styles.borderTopColor };
     });
 
-    expect(rowStyles).toEqual({ background: active, border: "rgba(0, 0, 0, 0)" });
+    expect(rowStyles).toEqual({ background: active, borderWidth: "0px" });
     expect(buttonStyles).toEqual({ background: active, border: hoverBorder });
   });
 
@@ -161,6 +170,9 @@ test.describe("design.put.io static guide", () => {
       // Loading buttons hide their label behind a spinner (color: transparent),
       // so the label isn't a real text-contrast surface.
       builder.exclude(".is-loading");
+      // Disabled-state demos dim a whole mockup (e.g. iOS system opacity);
+      // WCAG 1.4.3 exempts text in inactive UI components from contrast.
+      builder.exclude('[aria-disabled="true"]');
       const results = await builder.analyze();
       const serious = results.violations.filter((violation) => violation.impact === "critical" || violation.impact === "serious");
       // Allow near-AA contrast (>= AA-large 3:1) given the Radix/APCA palette;

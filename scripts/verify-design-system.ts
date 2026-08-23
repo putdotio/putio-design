@@ -276,12 +276,12 @@ async function checkHtmlLinks() {
 }
 
 async function checkCss() {
-  const tvShell = await readFile(path.join(root, "system/preview/tv-shell.css"), "utf8");
+  const tvCss = await readFile(path.join(root, "system/tv.css"), "utf8");
   const generatedCss = await readFile(path.join(root, "system/tokens.css"), "utf8");
-  assert(!/\.with-spec\s*\{\s*\/\*[\s\S]*?\.with-fade\s*\{/.test(tvShell), "tv-shell.css still nests .with-fade inside .with-spec");
-  assert(!/!important/.test(tvShell), "tv-shell.css preview support styles must not use !important");
-  assert(!/^:root\s*\{[\s\S]*?--surf-/m.test(tvShell), "TV-specific tokens must be scoped to .tv, not :root");
-  assert(!/^\.tv-content\s*\{/m.test(tvShell), "tv-shell.css component selectors must remain scoped under .tv");
+  assert(!/\.with-spec\s*\{\s*\/\*[\s\S]*?\.with-fade\s*\{/.test(tvCss), "tv.css still nests .with-fade inside .with-spec");
+  assert(!/!important/.test(tvCss), "tv.css 10-foot styles must not use !important");
+  assert(!/^:root\s*\{[\s\S]*?--surf-/m.test(tvCss), "TV-specific tokens must be scoped to .tv, not :root");
+  assert(!/^\.tv-content\s*\{/m.test(tvCss), "tv.css component selectors must remain scoped under .tv");
   assert(!/#fdd868|#fcbe03/i.test(generatedCss), "Generated CSS must not introduce alternate brand yellows");
 }
 

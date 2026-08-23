@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV and native surfaces).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · type · specimen</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<style>
+  html, body { background: var(--bg); margin: 0; }
+  .preview-shell { padding: 28px 32px 36px; display:flex; flex-direction:column; gap: 22px; }
+
+  /* Hero: GT America Black 900, lowercase */
+  .hero {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    color: var(--text);
+    margin: 0 0 4px;
+  }
+  .hero em { font-style: normal; color: var(--yellow-text-secondary); }
+
+  .row { display: grid; grid-template-columns: 160px 1fr; gap: 24px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--line); }
+  .meta { font-family: var(--font-mono); font-size: 10px; color: var(--text-secondary); letter-spacing: .08em; text-transform: uppercase; }
+
+  .sans   { font-family: var(--font-sans); color: var(--text); }
+  .uimono { font-family: var(--font-mono); color: var(--text); }
+  .mono   { font-family: var(--font-mono); color: var(--text); }
+
+  .alph { font-size: 26px; letter-spacing: .01em; line-height: 1.35; }
+  .num  { font-size: 32px; font-weight: 500; font-variant-numeric: tabular-nums; }
+
+  .weights { font-size: 22px; display: flex; flex-wrap: wrap; gap: 4px 28px; }
+  .weights .w { display: inline-flex; flex-direction: column; align-items: flex-start; }
+  .weights .w .lbl { font-family: var(--font-mono); font-size: 9px; color: var(--text-secondary); letter-spacing: .08em; text-transform: uppercase; margin-top: 2px; }
+
+  .code { font-size: 15px; background: var(--bg-secondary); padding: 14px 18px; border: 1px solid var(--line); border-radius: 4px; color: var(--text); white-space: pre; }
+  .c1 { color: var(--yellow-text-secondary); }
+  .c2 { color: var(--green-text-secondary); }
+  .c3 { color: var(--text-secondary); }
+</style><script src="./_resize.js" defer></script>
+</head>
+<body>
+<div class="tierbar t0"><span class="tno">Tier 0</span><span class="twhat">Foundations · the <b>@putdotio/design</b> token graph. Binds all four tiers, values only, never a component recipe.</span><span class="ttok">--green-text-secondary · --text · --font-mono · --text-secondary</span></div>
+<div class="preview-shell">
+  <h1 class="hero">A system for <em>real</em> files.</h1>
+
+  <div class="row">
+    <div class="meta">Sans · weights used</div>
+    <div class="sans weights">
+      <span class="w"><span style="font-weight:400">Regular</span><span class="lbl">400 · body</span></span>
+      <span class="w"><span style="font-weight:500">Medium</span><span class="lbl">500 · labels, H3–H4</span></span>
+      <span class="w"><span style="font-weight:600">Bold</span><span class="lbl">600 · H1–H2</span></span>
+      <span class="w"><span style="font-style:italic;font-weight:400">Italic</span><span class="lbl">400 · emphasis</span></span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="meta">Sans · alphabet</div>
+    <div class="sans alph">ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>abcdefghijklmnopqrstuvwxyz · 0123456789 · &amp;?!#@</div>
+  </div>
+
+  <div class="row">
+    <div class="meta">UI Mono · numerics</div>
+    <div class="uimono num">47.84 GB · 209.89 MB · 99.2% · 02:48:11</div>
+  </div>
+
+  <div class="row">
+    <div class="meta">Berkeley · code</div>
+<div class="mono code"><span class="c3">$</span> putio transfer add <span class="c1">"magnet:?xt=urn:btih:fa9c7e…"</span>
+<span class="c3">→</span> queued <span class="c2">#41872</span>  <span class="c3">ETA 02:48</span>  <span class="c2">47.84 GB</span></div>
+  </div>
+</div>
+</body></html>

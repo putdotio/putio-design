@@ -66,6 +66,18 @@ put.io is a content-agnostic cloud file product. The interface should feel premi
 
 The canonical source for tokens is DTCG-compatible JSON in `tokens/`. Generated artifacts in `dist/` and `system/tokens.css` are outputs. This file explains how to use those tokens.
 
+## Binding Tiers
+
+A web-rendered mock is never a native spec. Every surface binds to the system at one of five tiers, and every specimen card in `system/preview/` declares its tier in a strip above the artboard (`system/preview/_tier.css`; if the wording here changes, change that file in the same PR).
+
+- **Tier 0 — Foundations.** The token graph. Binds every tier, values only, never a component recipe.
+- **Tier 1 — www · app · auth.** The full design system: the component library and `system/components.css` recipes. The recipes are the contract here, and only here.
+- **Tier 2 — iOS · iPadOS · tvOS · watchOS · Android · Android TV.** Tokens only. Every component, composition, and page comes from the platform's human interface guidelines; the cards document how a stock control receives put.io tokens, never how to rebuild one.
+- **Tier 3 — Roku.** Tier-2 token inheritance, plus room for put.io conventions in custom SceneGraph components.
+- **Tier 4 — tv.put.io · Tizen · webOS.** The design system as on web, restrained to a generic, calm, list-first 10-foot interface.
+
+A tier-1/3/4 card is a Component — put.io owns the recipe. A tier-2 card is an Element — the platform owns the control. Per-platform binding contracts live in `platforms/<platform>/DESIGN.md`. One rule holds on every tier: every file-type icon is brand yellow, Phosphor, never a text glyph.
+
 ## Colors
 
 Yellow `#FDCE45` is the resting `--yellow-solid` brand value in both light and dark modes. Use it for the put.io brand mark, primary action fill, folder/file emphasis, progress, and focus affordances. Use `--yellow-solid-hover` for primary button hover feedback; do not invent alternate yellows, gradient yellow into a different accent, or use yellow as foreground text on light surfaces.

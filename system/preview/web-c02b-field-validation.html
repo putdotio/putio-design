@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV and native surfaces).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · components · form fields</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { margin: 0; background: var(--app-bg); color: var(--text); font-family: var(--font-sans); }
+  html, body { font-size: 14px; }
+
+  .surface {
+    /* tokens come from ../tokens.css via :root + html.dark */
+padding: 28px 32px 36px;
+    display: flex; flex-direction: column; gap: 24px;
+  }
+
+  /* Section header */
+/* Grid + group primitives: match inputs.html */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .grid.c-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .group { display: flex; flex-direction: column; gap: 6px; }
+  .group.full { grid-column: 1 / -1; }
+  .label {display: flex; align-items: center; gap: 6px}
+  
+  
+  .hint { font-size: 12px; color: var(--text-secondary); line-height: 1.5; display: flex; align-items: center; gap: 6px; }
+  .hint i { font-size: 12px; }
+
+  /* .field primitive lives in _components.css, token-driven
+     (--field-* tokens, border-hover focus ring). Don't redeclare. */
+  .field-wrap { position: relative; }
+  .field-wrap > i.lead {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; color: var(--text-secondary); pointer-events: none;
+  }
+  .field-wrap .field.has-icon { padding-left: 36px; }
+  .field-wrap > i.trail {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; color: var(--text-secondary); pointer-events: none;
+  }
+
+  /* ─── Number stepper ─────────────────────────────────────── */
+  .stepper {
+    display: inline-flex; align-items: center;
+    width: 100%;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--app-bg);
+    overflow: hidden;
+  }
+  .stepper button {
+    width: 34px; height: 34px;
+    background: var(--component-bg); border: 0;
+    color: var(--text); cursor: pointer;
+    display: grid; place-items: center;
+    font-family: var(--font-mono); font-size: 16px; font-weight: 500;
+    transition: background var(--dur-fast) var(--ease-out);
+  }
+  .stepper button:hover:not(:disabled) { background: var(--component-bg-hover); }
+  .stepper button:disabled { color: var(--text-secondary); cursor: not-allowed; opacity: 0.5; }
+  .stepper .val {
+    flex: 1; text-align: center;
+    font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+    font-size: 14px; color: var(--text);
+    padding: 0 4px;
+  }
+  .stepper .unit {
+    padding-right: 12px; color: var(--text-secondary);
+    font-size: 11px;
+  }
+
+  /* ─── Slider / range ─────────────────────────────────────── */
+  .slider-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 4px 0;
+  }
+  /* Reads the slider tokens: do not hand-roll a second slider treatment.
+     The one sanctioned divergence is the web player scrubber, which sits on
+     video and overrides the track colours with fixed on-video whites; see
+     the Player card. Its geometry still comes from these tokens. */
+  .slider {
+    flex: 1;
+    height: var(--slider-track-height); border-radius: 999px;
+    background: var(--slider-track);
+    position: relative;
+  }
+  .slider .fill {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: var(--slider-fill);
+    border-radius: 999px;
+  }
+  .slider .thumb {
+    position: absolute; top: 50%;
+    width: var(--slider-knob-size); height: var(--slider-knob-size); border-radius: 50%;
+    background: var(--slider-knob);
+    transform: translate(-50%, -50%);
+    box-shadow: var(--shadow-md);
+    cursor: grab;
+  }
+  .slider .thumb.focused {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--slider-knob) 32%, transparent), var(--shadow-md);
+  }
+  .slider-row .num {
+    width: 80px; text-align: right;
+    font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+    font-size: 13px; color: var(--text);
+  }
+  .slider-ticks {
+    display: flex; justify-content: space-between;
+    font-family: var(--font-mono); font-size: 10.5px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  /* ─── Date / date-range ──────────────────────────────────── */
+  .date-range {
+    display: grid; grid-template-columns: 1fr auto 1fr;
+    gap: 8px; align-items: center;
+  }
+  .date-range .arrow { color: var(--text-secondary); font-size: 14px; padding: 0 4px; }
+  .date-pop {
+    border: 1px solid var(--border-hover);
+    border-radius: var(--radius);
+    background: var(--component-bg);
+    box-shadow: var(--shadow-md);
+    padding: 14px; max-width: 320px;
+  }
+  .date-pop .month {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .date-pop .month .m {
+    font-size: 13px; font-weight: 500; color: var(--text);
+  }
+  .date-pop .month button {
+    background: transparent; border: 0; color: var(--text-secondary);
+    width: 22px; height: 22px; border-radius: var(--radius-sm);
+    cursor: pointer; display: grid; place-items: center;
+  }
+  .date-pop .month button:hover { background: var(--component-bg-hover); color: var(--text); }
+  .date-pop .dow {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 0;
+    margin-bottom: 4px;
+  }
+  .date-pop .dow span {
+    text-align: center;
+    font-size: 10px; font-weight: 500;
+    color: var(--text-secondary); text-transform: uppercase;
+  }
+  .date-pop .days {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px;
+  }
+  .date-pop .day {
+    aspect-ratio: 1;
+    display: grid; place-items: center;
+    font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+    font-size: 12px; color: var(--text);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  .date-pop .day:hover { background: var(--component-bg-hover); }
+  .date-pop .day.muted { color: var(--text-secondary); }
+  .date-pop .day.in-range { background: var(--yellow-component-bg); border-radius: 0; }
+  .date-pop .day.start { background: var(--yellow-solid); color: var(--primary-foreground); font-weight: 500; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+  .date-pop .day.end { background: var(--yellow-solid); color: var(--primary-foreground); font-weight: 500; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+  .date-pop .day.today { box-shadow: inset 0 0 0 1px var(--border-hover); }
+
+  /* ─── Tag / chips input ─────────────────────────────────── */
+  .tag-input {
+    min-height: 36px;
+    padding: 4px 8px;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 4px;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--app-bg);
+  }
+  .tag-input:focus-within {
+    border-color: var(--border-hover);
+    box-shadow: 0 0 0 1px var(--border-hover);
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 24px; padding: 0 6px 0 4px;
+    background: var(--component-bg-active);
+    border-radius: var(--radius-sm);
+    font-size: 12.5px; color: var(--text);
+  }
+  .chip .av {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--yellow-solid); color: var(--primary-foreground);
+    display: grid; place-items: center;
+    font-family: var(--font-mono); font-size: 9px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .chip .av.b { background: var(--avatar-blue); color: var(--avatar-fg); }
+  .chip .av.g { background: var(--avatar-green); color: var(--avatar-fg); }
+  .chip .av.r { background: var(--avatar-red); color: var(--avatar-fg); }
+  .chip .av.p { background: var(--avatar-purple); color: var(--avatar-fg); }
+  .chip .x {
+    width: 14px; height: 14px; display: grid; place-items: center;
+    border-radius: 50%; cursor: pointer;
+    color: var(--text-secondary);
+  }
+  .chip .x:hover { background: var(--component-bg-hover); color: var(--text); }
+  .tag-input input {
+    flex: 1; min-width: 80px;
+    height: 26px; border: 0; outline: 0; background: transparent;
+    color: var(--text); font-size: 13px;
+    font-family: var(--font-sans);
+  }
+  .tag-input input::placeholder { color: var(--text-secondary); }
+
+  /* ─── Autocomplete results ──────────────────────────────── */
+  .ac {
+    border: 1px solid var(--border-hover);
+    border-radius: var(--radius);
+    background: var(--component-bg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+  .ac .control {
+    height: 36px; padding: 0 12px 0 36px;
+    display: flex; align-items: center;
+    border-bottom: 1px solid var(--line);
+    font-size: var(--fs-base);
+    position: relative;
+  }
+  .ac .control i.lead {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; color: var(--yellow-solid);
+  }
+  .ac .control .q { color: var(--text); }
+  .ac .control .caret { color: var(--text-secondary); font-family: var(--font-mono); font-size: 11px; margin-left: 2px; animation: blink 1s steps(2, end) infinite; }
+  @keyframes blink { 0%,50% { opacity: 1; } 50.01%,100% { opacity: 0; } }
+  .ac .meta { margin-left: auto; font-size: 11px; color: var(--text-secondary); }
+  .ac .menu { padding: 4px; display: flex; flex-direction: column; gap: 1px; }
+  .ac .opt {
+    padding: 7px 10px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer;
+  }
+  .ac .opt:hover, .ac .opt.sel { background: var(--component-bg-hover); }
+  .ac .opt i.fi { color: var(--yellow-solid); font-size: 14px; }
+  .ac .opt .nm { font-size: 13px; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ac .opt .nm em { font-style: normal; background: color-mix(in srgb, var(--yellow-solid) 22%, transparent); padding: 0 2px; border-radius: 2px; }
+  .ac .opt .sz { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
+  .ac .group-hd {
+    padding: 8px 12px 4px;
+    font-size: 10.5px; font-weight: 500;
+    color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .ac .foot {
+    border-top: 1px solid var(--line);
+    padding: 6px 12px;
+    display: flex; gap: 14px;
+    font-size: 11px; color: var(--text-secondary);
+  }
+  .ac .foot kbd {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--text); background: var(--component-bg-active);
+    padding: 1px 5px; border-radius: 3px;
+    border: 1px solid var(--line);
+    margin-right: 4px;
+  }
+
+  /* ─── File upload (inline) ──────────────────────────────── */
+  .file-row {
+    display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: center;
+    padding: 12px; border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--bg-secondary);
+  }
+  .file-row .av {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--component-bg-active); color: var(--text-secondary);
+    display: grid; place-items: center;
+    font-family: var(--font-sans); font-weight: 700; font-size: 22px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .file-row .av.img {
+    background: linear-gradient(135deg, var(--yellow-solid) 0%, hsl(40, 90%, 50%) 100%);
+    color: var(--primary-foreground);
+  }
+  .file-row .body { min-width: 0; }
+  .file-row .body .ttl { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .file-row .body .sub { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
+  .file-row .act { display: flex; gap: 6px; }
+  .btn-secondary {
+    height: 28px; padding: 0 10px;
+    background: var(--component-bg); border: 1px solid var(--line);
+    border-radius: var(--radius-sm); color: var(--text);
+    font-family: var(--font-sans); font-size: 12px; font-weight: 500;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .btn-secondary:hover { background: var(--component-bg-hover); border-color: var(--border); }
+  .btn-secondary.danger { color: var(--red-text-secondary); }
+  .btn-secondary.danger:hover { background: var(--red-bg-secondary); border-color: var(--red-border); }
+  .btn-secondary i { font-size: 13px; }
+
+  /* ─── Password strength meter ───────────────────────────── */
+  .strength {
+    display: flex; gap: 4px; margin-top: 4px;
+  }
+  .strength span {
+    flex: 1; height: 4px; border-radius: 999px;
+    background: var(--component-bg-active);
+  }
+  .strength span.on-w { background: var(--red-solid); }
+  .strength span.on-m { background: var(--yellow-solid); }
+  .strength span.on-s { background: var(--green-solid); }
+  .strength-meta {
+    display: flex; justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  .strength-meta .lv { color: var(--text); }
+  .strength-meta .lv.weak { color: var(--red-text-secondary); }
+  .strength-meta .lv.med { color: var(--yellow-text-secondary); }
+  .strength-meta .lv.strong { color: var(--green-text-secondary); }
+
+  /* ─── Character counter ─────────────────────────────────── */
+  .count-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .count-row .c { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .count-row .c.warn { color: var(--yellow-text-secondary); }
+  .count-row .c.over { color: var(--red-text-secondary); }
+
+  /* ─── Validation states ─────────────────────────────────── */
+  .group.error .field { border-color: var(--red-border); }
+  .group.error .field:focus { border-color: var(--red-border-hover); box-shadow: 0 0 0 1px var(--red-border-hover); }
+  .group.warn .field { border-color: var(--yellow-border); }
+  .group.success .field { border-color: var(--green-border); }
+  .group.success .field:focus { border-color: var(--green-border-hover); box-shadow: 0 0 0 1px var(--green-border-hover); }
+
+  .msg {
+    font-size: 12px; line-height: 1.5;
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+  .msg i { font-size: 13px; margin-top: 1px; flex-shrink: 0; }
+  .msg.error { color: var(--red-text-secondary); }
+  .msg.warn  { color: var(--yellow-text-secondary); }
+  .msg.success { color: var(--green-text-secondary); }
+  .msg.checking { color: var(--text-secondary); }
+  .msg.checking i { animation: spin 1s linear infinite; }
+
+  /* ─── Validation summary card ───────────────────────────── */
+  .summary {
+    border: 1px solid var(--red-border); border-radius: var(--radius);
+    background: var(--red-bg-secondary);
+    padding: 14px 16px;
+    display: flex; gap: 12px;
+  }
+  .summary > i {
+    color: var(--red-text-secondary); font-size: 20px; flex-shrink: 0; margin-top: 1px;
+  }
+  .summary .body { flex: 1; }
+  .summary .ttl { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .summary ul { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .summary li { font-size: 12.5px; color: var(--red-text-secondary); display: flex; align-items: baseline; gap: 6px; }
+  .summary li::before { content: "·"; font-weight: 700; }
+  .summary li a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
+
+  /* ─── Footer note ─────────────────────────────────────── */
+  .specs-link {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+    line-height: 1.6;
+  }
+  .specs-link b { color: var(--text); font-weight: 500; }
+  .specs-link code {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--yellow-text-secondary);
+  }
+</style></head>
+<body>
+<div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat">Tier 1 · <b>Web</b> (www / app / auth). The full design system: our component library and the <b>components.css</b> recipe. This is the one tier where the recipe is the contract, native tiers take the tokens and nothing else.</span><span class="ttok">--yellow-solid · --red-text-secondary · --component-bg-hover · --border-hover</span></div>
+
+<!-- ============================================================
+     A · EXTENDED FIELD TYPES
+     ============================================================ -->
+<div class="surface">
+
+  <div class="head">
+    <span class="ix">B · 02</span>
+    <span class="t">Validation: error · warning · success · async · counted</span>
+    <span class="n">color + icon + message · never color alone</span>
+  </div>
+
+  <div class="grid c-3">
+    <div class="group error">
+      <span class="label">Folder name <span class="req">*</span></span>
+      <input class="field" value="2024/Q1" aria-label="Folder name" />
+      <span class="msg error"><i class="ph-fill ph-warning-circle"></i>Folder names can't contain <code style="font-family:var(--font-mono);color:var(--red-text-secondary);">/</code>. Try <code style="font-family:var(--font-mono);color:var(--red-text-secondary);">2024-Q1</code>.</span>
+    </div>
+
+    <div class="group warn">
+      <span class="label">Default download folder</span>
+      <input class="field" value="/Movies/Unsorted" aria-label="Default download folder" />
+      <span class="msg warn"><i class="ph-fill ph-warning"></i>About to leave you with <strong style="color:var(--text);">0.4 GB</strong> free. Consider clearing Trash first.</span>
+    </div>
+
+    <div class="group success">
+      <span class="label">Magnet link</span>
+      <input class="field mono" value="magnet:?xt=urn:btih:a1b2c3…" aria-label="Magnet link" />
+      <span class="msg success"><i class="ph-fill ph-check-circle"></i>Parsed, <strong style="color:var(--text);">Dune.Part.Two.2024</strong> · 2.4 GB · 89 files.</span>
+    </div>
+
+    <div class="group">
+      <span class="label">Username <span class="req">*</span></span>
+      <input class="field" value="kai" aria-label="Username" />
+      <span class="msg checking"><i class="ph ph-circle-notch"></i>Checking availability…</span>
+    </div>
+
+    <div class="group">
+      <span class="label">Bio</span>
+      <textarea class="field" style="height: 60px; padding: 8px 12px; font-family: var(--font-sans); font-size: 13px;" maxlength="280" aria-label="Bio">Movies, shows, and the occasional disk-image rip. ᕦ(ò_óˇ)ᕤ</textarea>
+      <div class="count-row">
+        <span class="hint" style="margin: 0;">Visible on your public profile.</span>
+        <span class="c">62 / 280</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="label">Tweet · 240 char limit</span>
+      <textarea class="field" style="height: 60px; padding: 8px 12px; font-family: var(--font-sans); font-size: 13px;" aria-label="Status update">Just finished setting up RSS auto-fetch + auto-convert to MP4 on put.io and I am never going back. 10TB plan finally felt overkill until I started archiving entire seasons in a single night —</textarea>
+      <div class="count-row">
+        <span class="hint" style="margin: 0;">Approaching the limit.</span>
+        <span class="c warn">228 / 240</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Validation summary -->
+  <div class="summary">
+    <i class="ph-fill ph-warning-circle"></i>
+    <div class="body">
+      <div class="ttl">Couldn't save your changes, 3 fields need attention.</div>
+      <ul>
+        <li><a href="#">Folder name</a> contains an invalid character.</li>
+        <li><a href="#">Email</a> isn't a valid address.</li>
+        <li><a href="#">Seeding ratio</a> must be between 0 and 10.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="specs-link">
+    <b>Validation rules.</b>
+    Never color alone, every state pairs <em>color · icon · sentence</em>.
+    <code>--red-solid</code> = blocks the save · <code>--yellow-solid</code> = warns but allows · <code>--green-solid</code> = confirms a parse / async-success ·
+    spinner <code>ph-circle-notch</code> = in-flight (no border-color change).
+    Use a <em>summary card</em> at the top of long forms; inline messages cover focused fields.
+  </div>
+
+</div>
+
+</body></html>

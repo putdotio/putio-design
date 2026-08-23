@@ -1,0 +1,86 @@
+/* ============================================================
+   put.io - _element.css
+   Layout for atomic Element and Component cards.
+
+   One card, one part. Fixed 900px viewport: a control, its states,
+   a spec strip, a don't block. Anything that does not fit is two
+   cards, which enforces the atomic rule and removes the chance of
+   a mis-measured viewport.
+
+   Load after _frame.css and the platform chrome (_apple.css,
+   _android.css, _roku.css).
+   ============================================================ */
+
+.el { padding: 22px 26px 28px; display: flex; flex-direction: column; gap: 16px; color: var(--text); }
+.el-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.el-head .n { font-size: 15px; font-weight: var(--fw-medium); color: var(--text); }
+.el-head .src { font-family: var(--font-mono); font-size: 11px; color: var(--yellow-text-secondary); }
+.el-head .stock { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; padding: 3px 7px; border-radius: 4px; background: var(--component-bg); color: var(--text-secondary); }
+.el-head .stock.own { background: var(--yellow-bg); color: var(--yellow-text); }
+.el-note { font-size: 12.5px; line-height: 1.55; color: var(--text-secondary); max-width: 760px; text-wrap: pretty; }
+.el-note b { color: var(--text); }
+
+/* States grid. The control renders on a real app surface, never on
+   the card background, so contrast reads the way it ships. */
+.el-states { display: flex; flex-wrap: wrap; gap: 10px; }
+.el-state { flex: 1 1 150px; min-width: 130px; background: var(--app-bg); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 16px 14px 12px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.el-state .demo { min-height: 46px; display: flex; align-items: center; justify-content: center; width: 100%; }
+/* Controls authored for a Form row trail via margin-left:auto. An isolated
+   state cell centres the control, so the trailing margin is reset here. */
+.el-state .demo > * { margin-left: 0; margin-right: 0; }
+.el-state .sn { font-size: 11.5px; font-weight: var(--fw-medium); color: var(--text); }
+.el-state .sd { font-size: 11px; line-height: 1.4; color: var(--text-secondary); text-align: center; }
+/* Rows are full-width, so they get their own stacked variant. */
+.el-states.rows { flex-direction: column; }
+/* Row demos fill the cell so every state cell is the same width, and the row
+   itself is capped at the 393pt iPhone canvas and centred inside it. Capping
+   the CELL instead left four narrow cards ragged against a 1120px canvas.
+   Scoped away from .el.tv: a TV artboard is 1920 and must not be clamped. */
+.el-states.rows .el-state { flex: none; align-items: stretch; padding: 0; overflow: hidden; width: 100%; }
+.el:not(.tv) .el-states.rows .el-state .demo > * { width: 393px; max-width: 100%; margin: 0 auto; }
+.el-states.rows .el-state .demo { min-height: 0; }
+.el-states.rows .el-state .cap2 { display: flex; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--line); background: var(--bg-secondary); }
+.el-states.rows .el-state .cap2 .sn { flex: 0 0 auto; }
+.el-states.rows .el-state .cap2 .sd { text-align: left; }
+
+.el-spec { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--bg-secondary); border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; }
+.el-spec .c { padding: 11px 13px; border-left: 1px solid var(--line); }
+.el-spec .c:first-child { border-left: 0; }
+.el-spec .k { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--yellow-text-secondary); margin-bottom: 5px; }
+.el-spec .v { font-family: var(--font-mono); font-size: 12px; color: var(--text); }
+.el-spec .d { font-size: 11px; color: var(--text-secondary); margin-top: 2px; line-height: 1.4; }
+
+.el-dont { font-size: 12px; line-height: 1.55; color: var(--text-secondary); background: var(--red-bg); border: 1px solid var(--red-border); border-radius: var(--radius-md); padding: 11px 14px; }
+.el-dont b { color: var(--red-text); }
+.el-ref { font-size: 11.5px; color: var(--text-secondary); }
+.el-ref a { color: var(--yellow-text-secondary); }
+
+/* TV-width element card. A Roku row is 1716px inside a 1920 screen. Shown in
+   a 1120px card it either renders soft (scaled) or loses its right-hand value
+   column (cropped), so the card itself goes to TV width and the row sits at
+   1:1 inside the real 102px page margin. */
+/* No side padding on the card: a TV artboard IS 1920 and must not be shrunk
+   to a 1716 content track. The text blocks carry the 102px page margin
+   themselves. Negative margins cannot fix this, they move a box without
+   widening one whose width is resolved by a constrained flex parent. */
+.el.tv { width: 1920px; max-width: 1920px; box-sizing: border-box; padding: 48px 0 64px; }
+.el.tv > .el-head, .el.tv > .el-note, .el.tv > .kv, .el.tv > .el-dont, .el.tv > .el-ref { margin-left: 102px; margin-right: 102px; }
+.el.tv .el-head .n { font-size: 34px; }
+.el.tv .el-head .src, .el.tv .el-head .stock { font-size: 19px; }
+.el.tv .el-note { font-size: 22px; line-height: 1.5; max-width: 1400px; }
+.el.tv .el-states { gap: 32px; }
+/* Artboards never shrink. flex-shrink defaults to 1, which silently squeezed
+   a 1920 box into the content track and pushed every absolute translation
+   inside it off-canvas (Roku's right-hand control slot sits at left:1736). */
+.el.tv .el-state .demo { padding: 0; }
+.el.tv .el-state .demo > .tvp, .el.tv .el-state .demo > .tvsel, .el.tv .el-state .demo > .atv,
+.el.tv .el-state .demo > .rk-player, .el.tv .el-state .demo > .rk-track { flex: 0 0 auto; }
+/* .rk-row is 1716 by design (the row inside the page margin), so it centres
+   in the full-width demo rather than hugging the left edge. */
+.el.tv .el-state .demo .rk-row { flex: 0 0 auto; margin-left: auto; margin-right: auto; }
+.el.tv .el-state .cap2 { padding: 14px 102px; }
+.el.tv .el-state .sn { font-size: 20px; }
+.el.tv .el-state .sd { font-size: 19px; }
+.el.tv .kv .r { grid-template-columns: 300px 1fr; padding: 14px 24px; font-size: 20px; }
+.el.tv .kv .k { font-size: 19px; }
+.el.tv .el-dont, .el.tv .el-ref { font-size: 20px; }

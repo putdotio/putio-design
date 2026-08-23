@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV and native surfaces).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · components · avatar</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+.note {max-width: 760px}
+  
+  
+
+  .row { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; }
+  .pad {
+    padding: 18px;
+    background: var(--bg-secondary); border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .pad .lbl {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em;
+  }
+
+  /* ── Avatar, user (circle) ──
+     Source: Avatar
+     user → border-radius: circle. app → squircle (radius default).
+  */
+  .avi {
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    color: var(--text); font-weight: 700;
+    font-family: var(--font-sans); letter-spacing: -0.01em;
+    text-transform: uppercase;
+    background: var(--component-bg);
+    overflow: hidden;
+    user-select: none;
+  }
+  .avi.size-sm { width: 24px; height: 24px; font-size: 10px; }
+  .avi.size-md { width: 32px; height: 32px; font-size: 12px; }
+  .avi.size-lg { width: 48px; height: 48px; font-size: 16px; }
+  .avi.size-xl { width: 72px; height: 72px; font-size: 24px; }
+  .avi.app { border-radius: var(--radius); }
+
+  /* Initial-on-color palette: darkened so white initials clear WCAG AA (≥4.5:1).
+     Self-contained chips, so fixed colors are correct in both themes. */
+  .c-y { background: var(--avatar-yellow); color: var(--avatar-fg-warm); }
+  .c-g { background: var(--avatar-green); color: var(--avatar-fg); }
+  .c-r { background: var(--avatar-red); color: var(--avatar-fg); }
+  .c-b { background: var(--avatar-blue); color: var(--avatar-fg); }
+  .c-p { background: var(--avatar-purple); color: var(--avatar-fg); }
+  .c-t { background: var(--avatar-teal); color: var(--avatar-fg); }
+  .c-o { background: var(--avatar-orange); color: var(--avatar-fg-warm); }
+
+  /* Presence indicator */
+  .avi-host { position: relative; display: inline-block; }
+  .avi-host .present {
+    position: absolute; bottom: 0; right: 0;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--green-solid);
+    border: 2px solid var(--app-bg);
+  }
+  .avi-host .present.away { background: var(--yellow-solid); }
+  .avi-host .present.off  { background: var(--solid); }
+
+  /* User chip */
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 4px 10px 4px 4px;
+    background: var(--component-bg); border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-base); color: var(--text);
+  }
+  .chip .x {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--component-bg-hover); color: var(--text-secondary);
+    display: grid; place-items: center; cursor: pointer; border: 0;
+    font-size: 11px;
+  }
+  .chip .x:hover { background: var(--red-component-bg); color: var(--red-solid); }
+
+  /* Stack: overlapping group */
+  .stack { display: inline-flex; padding-left: 0; }
+  .stack .avi { margin-left: -8px; box-shadow: 0 0 0 2px var(--app-bg); }
+  .stack .avi:first-child { margin-left: 0; }
+  .stack .more {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--component-bg); color: var(--text-secondary);
+    border: 0; box-shadow: 0 0 0 2px var(--app-bg);
+    font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+    margin-left: -8px;
+  }
+
+  /* Row with avatar + meta */
+  .urow {
+    display: grid; grid-template-columns: auto 1fr auto; gap: 12px;
+    padding: 10px; align-items: center; border-radius: var(--radius);
+  }
+  .urow:hover { background: var(--list-item-bg-hover); }
+  .urow .nm { font-size: var(--fs-base); color: var(--text); }
+  .urow .nm small { display: block; margin-top: 2px; font-size: 12px; color: var(--text-secondary); }
+  .urow .actions { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); }
+</style></head>
+<body>
+<div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat">Tier 1 · <b>Web</b> (www / app / auth). The full design system: our component library and the <b>components.css</b> recipe. This is the one tier where the recipe is the contract, native tiers take the tokens and nothing else.</span><span class="ttok">--avatar-fg · --avatar-fg-warm · --radius-lg · --avatar-yellow</span></div>
+<div class="preview-shell">
+
+  <div class="head">
+    <span class="ix">01</span>
+    <span class="t">Avatar: circle (user) / squircle (app)</span>
+    <span class="n">Avatar</span>
+  </div>
+  <div class="note">
+    Avatars come in two shapes: <b>circle</b> for users, <b>squircle</b> for apps (OAuth integrations, ecosystem). Initials are the fallback, derive a stable background from the username hash so the same user always lands on the same color.
+  </div>
+
+  <div class="pad">
+    <div class="lbl">Sizes, sm 24 · md 32 · lg 48 · xl 72</div>
+    <div class="row">
+      <div class="avi size-sm c-y">A</div>
+      <div class="avi size-md c-y">A</div>
+      <div class="avi size-lg c-y">AT</div>
+      <div class="avi size-xl c-y">AT</div>
+    </div>
+
+    <div class="lbl">Palette, derived from user hash, stable per identity</div>
+    <div class="row">
+      <div class="avi size-md c-y">AT</div>
+      <div class="avi size-md c-g">EN</div>
+      <div class="avi size-md c-r">M</div>
+      <div class="avi size-md c-b">CK</div>
+      <div class="avi size-md c-p">SD</div>
+      <div class="avi size-md c-t">JK</div>
+      <div class="avi size-md c-o">PT</div>
+    </div>
+
+    <div class="lbl">App avatars, squircle</div>
+    <div class="row">
+      <div class="avi size-md app c-y">P</div>
+      <div class="avi size-md app c-b">V</div>
+      <div class="avi size-md app c-r">P</div>
+      <div class="avi size-md app c-t">N</div>
+    </div>
+  </div>
+
+  <!-- Presence -->
+  <div class="head" style="margin-top: 8px;">
+    <span class="ix">02</span>
+    <span class="t">Presence: online / away / offline</span>
+  </div>
+  <div class="note">
+    The dot in the bottom-right reads at any size. Reserve <b>green for active session</b>, <b>yellow for idle</b>, <b>gray for offline</b>.<br><br>
+      Never red, that's reserved for destructive / failed states.
+  </div>
+  <div class="row">
+    <div class="avi-host"><div class="avi size-md c-y">AT</div><div class="present"></div></div>
+    <div class="avi-host"><div class="avi size-md c-g">EN</div><div class="present away"></div></div>
+    <div class="avi-host"><div class="avi size-md c-r">M</div><div class="present off"></div></div>
+    <div class="avi-host"><div class="avi size-lg c-b">CK</div><div class="present" style="width: 14px; height: 14px;"></div></div>
+  </div>
+
+  <!-- Stack -->
+  <div class="head" style="margin-top: 8px;">
+    <span class="ix">03</span>
+    <span class="t">Stack: group / shared with</span>
+  </div>
+  <div class="note">
+    Overlapping avatars with a 2px ring to separate them from the background. Past 4 visible faces, collapse the remainder into a <code>+N</code> chip.<br><br>
+      </div>
+  <div class="row">
+    <div class="stack">
+      <div class="avi size-md c-y">AT</div>
+      <div class="avi size-md c-g">EN</div>
+      <div class="avi size-md c-r">M</div>
+      <button class="more">+5</button>
+    </div>
+    <div class="stack">
+      <div class="avi size-md c-b">CK</div>
+      <div class="avi size-md c-p">SD</div>
+    </div>
+  </div>
+
+  <!-- Chip -->
+  <div class="head" style="margin-top: 8px;">
+    <span class="ix">04</span>
+    <span class="t">User chip: share recipients</span>
+  </div>
+  <div class="note">
+    Compact representation of a tagged user, used in share fields and audit logs. Clickable × removes them.<br><br>
+      Always preceded by the avatar. </div>
+  <div class="row">
+    <div class="chip"><div class="avi size-sm c-y">KA</div>kai<button class="x" aria-label="Remove"><i class="ph ph-x"></i></button></div>
+    <div class="chip"><div class="avi size-sm c-g">IR</div>iris<button class="x" aria-label="Remove"><i class="ph ph-x"></i></button></div>
+    <div class="chip"><div class="avi size-sm c-r">JU</div>juno<button class="x" aria-label="Remove"><i class="ph ph-x"></i></button></div>
+  </div>
+
+  <!-- Rows -->
+  <div class="head" style="margin-top: 8px;">
+    <span class="ix">05</span>
+    <span class="t">Friend / member rows</span>
+  </div>
+  <div class="pad">
+    <div class="urow">
+      <div class="avi-host"><div class="avi size-md c-y">KA</div><div class="present"></div></div>
+      <div class="nm">kai<small>Sharing files with you</small></div>
+      <div class="actions"><i class="ph-fill ph-star" aria-hidden="true"></i> pinned</div>
+    </div>
+    <div class="urow">
+      <div class="avi-host"><div class="avi size-md c-g">IR</div><div class="present away"></div></div>
+      <div class="nm">iris<small>You're sharing 4 folders</small></div>
+      <div class="actions">manage</div>
+    </div>
+    <div class="urow">
+      <div class="avi-host"><div class="avi size-md c-r">JU</div><div class="present off"></div></div>
+      <div class="nm">juno<small>No active shares</small></div>
+      <div class="actions">unfollow</div>
+    </div>
+  </div>
+</div>
+</body></html>

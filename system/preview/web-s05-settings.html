@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint. .dark on <html> = dark. */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · settings</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .note {max-width: 780px}
+  
+  
+  .page { max-width: 760px; }
+  .page h1 { font-size: var(--fs-lg); font-weight: 700; letter-spacing: -0.01em; margin: 0 0 4px; }
+  .sec { margin-top: 26px; }
+  .sec > h2 { font-size: var(--fs-md); font-weight: 500; margin: 0 0 2px; padding: 0 8px; }
+  /* Two alignment contracts, driven by whether the row has a subtitle.
+     No subtitle: icon, title and accessory centre on the row.
+     With subtitle (.desc): icon and accessory align to the title's line box,
+     never to the centre of a two-line row. */
+  .li { display: grid; grid-template-columns: 20px 1fr auto; align-items: center; column-gap: 14px; padding: 14px 8px; border-bottom: 1px solid var(--list-item-border); }
+  .li.desc { align-items: start; }
+  .li.desc > .acc { align-self: center; }
+  .li > i.lead { font-size: 17px; color: var(--text-secondary); line-height: 1.35; width: 20px; text-align: center; }
+  .li.desc > i.lead { padding-top: 1px; }
+  .li .body { min-width: 0; }
+  .li .ti { display: flex; align-items: center; gap: 8px; font-size: var(--fs-base); color: var(--text); }
+  .li .de { margin-top: 3px; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.5; }
+  .li .de code { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-secondary); background: var(--component-bg); padding: 1px 5px; border-radius: var(--radius-sm); }
+  .acc { display: flex; align-items: center; justify-content: flex-end; gap: 8px; min-height: 26px; }
+  .acc .lbl { font-size: var(--fs-sm); color: var(--text-secondary); }
+  .acc i.chev { font-size: 13px; color: var(--text-secondary); }
+  .ind { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-family: var(--font-mono); }
+  .ind.saved { color: var(--green-text-secondary); }
+  .ind.busy { color: var(--text-secondary); }
+  .ind .sp { width: 11px; height: 11px; border: 2px solid var(--border); border-top-color: var(--text-secondary); border-radius: 50%; animation: spin .7s linear infinite; }
+  .tg { display: inline-flex; background: var(--segmented-control-bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 2px; gap: 2px; }
+  .tg button { height: 26px; padding: 0 12px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); font-family: var(--font-sans); font-size: 12.5px; cursor: pointer; }
+  .tg button.on { background: var(--segmented-control-bg-active); color: var(--text); }
+  .dd { height: 32px; display: inline-flex; align-items: center; gap: 8px; padding: 0 10px; border: 1px solid var(--field-border); border-radius: var(--radius); background: var(--field-bg); color: var(--text); font-size: 12.5px; cursor: pointer; }
+  .dd i { font-size: 12px; color: var(--text-secondary); }
+</style></head>
+<body>
+<div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat">Tier 1 · <b>Web</b> (www / app / auth). A real app.put.io screen composed from the <b>components.css</b> recipes. Binds web only.</span><span class="ttok">--radius-sm · --fs-lg · --fs-md · --list-item-border</span></div>
+<div class="preview-shell">
+  <div class="head"><span class="ix">01</span><span class="t">Settings: one section list, seven sections</span><span class="n">Appearance · Files · Media playback · Subtitles · Transfers · Storage · Privacy</span></div>
+  <div class="note">
+    Every preference is a <b>list row</b>: icon, title, optional description, and exactly one accessory on the right, <code>switch</code>, <code>toggle-group</code>, <code>dropdown</code>, <code>link</code> (label + chevron) or <code>clickable</code>. Rows never contain two controls.<br><br>
+      Saving is optimistic, so the row shows its own <b>indicator</b> (busy, then saved) rather than a page-level save button, there isn't one.
+  </div>
+
+  <div class="page">
+    <h1>Settings</h1>
+
+    <div class="sec">
+      <h2>Appearance</h2>
+      <div class="li desc">
+        <i class="ph ph-image lead" aria-hidden="true"></i>
+        <div class="body"><div class="ti">Theme</div><div class="de">Choose your interface color scheme.</div></div>
+        <div class="acc"><div class="tg"><button>System</button><button>Light</button><button class="on">Dark</button></div></div>
+      </div>
+      <div class="li desc">
+        <i class="ph ph-layout lead" aria-hidden="true"></i>
+        <div class="body"><div class="ti">Fluid layout</div><div class="de">Fixed uses 1440px; fluid uses 100% of the window.</div></div>
+        <div class="acc"><div class="tg"><button class="on">Fixed</button><button>Fluid</button></div></div>
+      </div>
+      <div class="li desc">
+        <i class="ph ph-layout lead" aria-hidden="true"></i>
+        <div class="body"><div class="ti">Fixed layout width</div><div class="de">Choose fixed layout width on desktop.</div></div>
+        <div class="acc"><button class="dd">1440px<i class="ph-bold ph-caret-down" aria-hidden="true"></i></button></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>Media playback</h2>
+      <div class="li">
+        <i class="ph ph-network lead" aria-hidden="true"></i>
+        <div class="body"><div class="ti">Download route</div></div>
+        <div class="acc"><span class="lbl">Amsterdam</span><i class="ph-fill ph-caret-right chev" aria-hidden="true"></i></div>
+      </div>
+      <div class="li desc">
+        <i class="ph-fill ph-video lead" aria-hidden="true"></i>
+        <div class="body"><div class="ti">Use the alternative player</div><div class="de">Switch players if a video won't start.</div></div>
+        <div class="acc"><span class="switch"></span></div>
+      </div>
+      <div class="li">
+        <i class="ph-fill ph-film-strip lead" aria-hidden="true"></i>
+        <div class="body"><div class="ti">Video playback type</div></div>
+        <div class="acc"><button class="dd">HLS<i class="ph-bold ph-caret-down" aria-hidden="true"></i></button></div>
+      </div>
+      <div class="li">
+        <i class="ph-fill ph-bookmark-simple lead" aria-hidden="true"></i>
+        <div class="body"><div class="ti">Remember where I left off<span class="ind saved"><i class="ph-bold ph-check"></i>saved</span></div></div>
+        <div class="acc"><span class="switch on"></span></div>
+      </div>
+      <div class="li desc">
+        <i class="ph-fill ph-play lead" aria-hidden="true"></i>
+        <div class="body"><div class="ti">Play the next episode<span class="ind busy"><span class="sp"></span>saving</span></div><div class="de">When a video ends, continue with the next file in the folder.</div></div>
+        <div class="acc"><span class="switch on"></span></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>Transfers</h2>
+      <div class="li">
+        <i class="ph-fill ph-folder-open lead" aria-hidden="true"></i>
+        <div class="body"><div class="ti">Default download folder</div></div>
+        <div class="acc"><span class="lbl">/Films/2024</span><i class="ph-fill ph-caret-right chev" aria-hidden="true"></i></div>
+      </div>
+      <div class="li desc">
+        <i class="ph-fill ph-command lead" aria-hidden="true"></i>
+        <div class="body"><div class="ti">Use current folder for drag and drop</div><div class="de">If you turn this on, we will download to the folder you're currently browsing.</div></div>
+        <div class="acc"><span class="switch on"></span></div>
+      </div>
+      <div class="li desc">
+        <i class="ph ph-map-pin lead" aria-hidden="true"></i>
+        <div class="body"><div class="ti">Use my private IP</div><div class="de"><code>10.14.22.9</code></div></div>
+        <div class="acc"><span class="switch on"></span></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>Storage</h2>
+      <div class="li desc">
+        <i class="ph ph-trash lead" aria-hidden="true"></i>
+        <div class="body"><div class="ti">Move deleted files to trash</div><div class="de">Deleted files stay recoverable for 30 days.</div></div>
+        <div class="acc"><span class="switch on"></span></div>
+      </div>
+      <div class="li">
+        <i class="ph ph-recycle lead" aria-hidden="true"></i>
+        <div class="body"><div class="ti">Manage your trash</div></div>
+        <div class="acc"><span class="lbl">18.4 GB</span><i class="ph-fill ph-caret-right chev" aria-hidden="true"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note"><b>Never</b> add a Save button to this page, and never let a row's description carry an action, the accessory is the only control.</div>
+</div>
+</body></html>

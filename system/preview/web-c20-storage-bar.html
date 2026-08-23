@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV and native surfaces).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · components · storage bar</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--bg); font-family: var(--font-sans); }
+  .preview-shell { padding: 28px 32px 36px; display:flex; flex-direction:column; gap: 22px; }
+  
+  .note {max-width: 720px}
+  
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+  /* ── Storage bar ── */
+  .stor {
+    padding: 14px; background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 8px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .stor .hd {
+    display: flex; align-items: baseline; justify-content: space-between;
+  }
+  .stor .used {
+    font-family: var(--font-mono); font-size: 12px; color: var(--text); font-variant-numeric: tabular-nums;
+  }
+  .stor .used b { color: var(--yellow-text-secondary); font-weight: 700; }
+  .stor .pct { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .stor .track {
+    height: 6px; background: var(--component-bg); border-radius: 999px; overflow: hidden;
+    display: flex;
+  }
+  .stor .track i { display: block; height: 100%; }
+  .stor .i-video    { background: var(--yellow-solid); }
+  .stor .i-audio    { background: var(--green-solid); }
+  .stor .i-docs     { background: var(--text-secondary); }
+  .stor .i-archive  { background: var(--solid); }
+  .stor .i-other    { background: var(--component-bg-hover); }
+  .stor .legend { display: flex; flex-wrap: wrap; gap: 14px 18px; }
+  .stor .lg { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); font-family: var(--font-mono); }
+  .stor .lg .sw { width: 8px; height: 8px; border-radius: 2px; }
+  .stor .lg .num { color: var(--text); font-variant-numeric: tabular-nums; }
+
+  /* ── Compact sidebar variant (matches the audit doc) ── */
+  .compact {
+    width: 240px; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px;
+    display:flex; flex-direction:column; gap: 10px;
+  }
+  .compact .hd { display:flex; justify-content:space-between; align-items:baseline; }
+  .compact .hd .title { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
+  .compact .free { font-family: var(--font-mono); font-size: 12px; color: var(--text); }
+  .compact .free b { color: var(--green-text-secondary); }
+  .compact .track-mini { height: 4px; background: var(--component-bg); border-radius: 999px; overflow: hidden; }
+  .compact .track-mini i { display:block; height:100%; background: var(--green-solid); width: 22%; }
+
+  /* ── Approaching limit / over limit ── */
+  .stor.warn .i-video { background: var(--yellow-solid); }
+  .stor.warn .pct { color: var(--yellow-text-secondary); }
+  .stor.over  .i-video { background: var(--red-solid); }
+  .stor.over  .pct { color: var(--red-text-secondary); }
+
+  /* ── Plan upsell card ── */
+  .upsell {
+    padding: 16px 18px;
+    background: var(--yellow-bg-secondary);
+    border: 1px solid var(--yellow-border);
+    border-radius: 10px;
+    display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center;
+  }
+  .upsell .lead { font-size: 13.5px; color: var(--text); line-height: 1.5; }
+  .upsell .lead b { color: var(--yellow-text-secondary); }
+  .upsell .btn {
+    height: 36px; padding: 0 12px; border-radius: var(--radius); border: 1px solid var(--yellow-solid);
+    background: var(--yellow-solid); color: var(--primary-foreground);
+    font-family: var(--font-sans); font-weight: var(--fw-medium); font-size: var(--fs-base);
+    text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+    white-space: nowrap;
+  }
+</style></head>
+<body>
+<div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat">Tier 1 · <b>Web</b> (www / app / auth). The full design system: our component library and the <b>components.css</b> recipe. This is the one tier where the recipe is the contract, native tiers take the tokens and nothing else.</span><span class="ttok">--yellow-solid · --green-solid · --solid · --component-bg-hover</span></div>
+<div class="preview-shell">
+
+  <div>
+    <div class="label">Storage bar, the most-glanced component in the app</div>
+    <div class="note">Three states. <b>Healthy</b> shows a breakdown by file type (Archivist persona wants this). <b>Warn</b> kicks in at 80%.<br><br>
+      <b>Over</b> turns red and surfaces a clean-up CTA. Numbers are <span style="font-family:var(--font-mono); color:var(--yellow-text-secondary);">font-variant-numeric: tabular-nums</span> so the percent doesn't jitter.</div>
+  </div>
+
+  <div class="grid">
+
+    <!-- Healthy with breakdown -->
+    <div class="stor">
+      <div class="hd">
+        <div class="used"><b>32.4 TB</b> of 50 TB</div>
+        <div class="pct">65%</div>
+      </div>
+      <div class="track">
+        <i class="i-video"   style="width: 38%"></i>
+        <i class="i-audio"   style="width: 12%"></i>
+        <i class="i-docs"    style="width:  5%"></i>
+        <i class="i-archive" style="width:  6%"></i>
+        <i class="i-other"   style="width:  4%"></i>
+      </div>
+      <div class="legend">
+        <span class="lg"><span class="sw i-video"></span>Video <span class="num">·  19.0 TB</span></span>
+        <span class="lg"><span class="sw i-audio"></span>Audio <span class="num">·  6.0 TB</span></span>
+        <span class="lg"><span class="sw i-docs"></span>Docs <span class="num">·  2.5 TB</span></span>
+        <span class="lg"><span class="sw i-archive"></span>Archive <span class="num">·  3.0 TB</span></span>
+        <span class="lg"><span class="sw i-other"></span>Other <span class="num">·  1.9 TB</span></span>
+      </div>
+    </div>
+
+    <!-- Compact (current sidebar variant) -->
+    <div style="display:flex; flex-direction:column; gap: 18px; align-items:flex-start;">
+      <div>
+        <div class="label" style="margin-bottom: 8px;">Compact · sidebar</div>
+        <div class="compact">
+          <div class="hd">
+            <span class="title">Storage</span>
+            <span class="free"><b>39.0 TB</b> free</span>
+          </div>
+          <div class="track-mini"><i></i></div>
+          <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary);">11 TB of 50 TB used</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="label" style="margin-bottom: 8px;">Warn at 80% · Over at 95%</div>
+        <div class="stor warn" style="width: 320px;">
+          <div class="hd">
+            <div class="used"><b>82</b> GB of 100 GB</div>
+            <div class="pct">82%</div>
+          </div>
+          <div class="track"><i class="i-video" style="width: 82%"></i></div>
+        </div>
+
+        <div class="stor over" style="width: 320px; margin-top: 10px;">
+          <div class="hd">
+            <div class="used"><b>97</b> GB of 100 GB</div>
+            <div class="pct">97% · cleanup needed</div>
+          </div>
+          <div class="track"><i class="i-video" style="width: 97%"></i></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div>
+    <div class="label">In-app upsell, paired with the warn / over states</div>
+    <div class="note">When a 100 GB user is constantly cleaning up, surface this directly above the storage bar. Never as a banner across the whole app.</div>
+  </div>
+
+  <div class="upsell">
+    <div class="lead">You've cleaned up <b>14 GB</b> this month.<br><br>
+      Based on your usage, <b>1 TB</b> would save you ~3 hours of cleanup per month.</div>
+    <button class="btn">Compare plans</button>
+  </div>
+
+</div>
+</body></html>

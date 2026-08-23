@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: applies html.dark before paint; full comment in components-tabs.html. */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · components · segmented control</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .note {max-width: 760px}
+  
+  
+
+  /* ── Segmented control ──
+     Switches a PARAMETER of the current view (list/grid, sort dir),
+     not the view itself, that's Tabs. Consumes its own surface tokens
+     (--segmented-control-bg / -active) so the putio-web mapping is 1:1.
+     DOM contract: role="radiogroup" + aria-checked, not tablist. */
+  .seg {
+    display: inline-flex;
+    background: var(--segmented-control-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 3px; gap: 2px;
+  }
+  .seg button {
+    all: unset; cursor: pointer; box-sizing: border-box;
+    height: 30px; min-width: 34px; padding: 0 12px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans); font-size: var(--fs-sm); font-weight: var(--fw-medium);
+    color: var(--text-secondary);
+    transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+  }
+  .seg button i { font-size: 15px; }
+  .seg button:hover:not([aria-checked="true"]) { color: var(--text); }
+  .seg button[aria-checked="true"] {
+    background: var(--segmented-control-bg-active);
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+  }
+  .seg button:focus-visible { box-shadow: 0 0 0 2px var(--yellow-solid), 0 0 0 3.5px var(--text); }
+  .seg.sm { padding: 2px; }
+  .seg.sm button { height: 26px; padding: 0 10px; font-size: var(--fs-xs); }
+  .seg.sm button i { font-size: 14px; }
+  .seg button:disabled { color: var(--text-secondary); opacity: 1; cursor: default; }
+
+  .row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+
+  /* Anatomy diagram */
+  .anatomy { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; max-width: 560px; align-items: baseline; }
+  .anatomy code { font-family: var(--font-mono); font-size: 11.5px; color: var(--yellow-text-secondary); }
+  .anatomy span { font-size: 12.5px; color: var(--text-secondary); }
+</style></head>
+<body>
+<div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat">Tier 1 · <b>Web</b> (www / app / auth). The full design system: our component library and the <b>components.css</b> recipe. This is the one tier where the recipe is the contract, native tiers take the tokens and nothing else.</span><span class="ttok">--dur-fast · --ease-out · --segmented-control-bg · --radius-sm</span></div>
+<div class="preview-shell">
+
+  <div class="head">
+    <span class="ix">01</span>
+    <span class="t">Segmented control</span>
+    <span class="n">SegmentedControl</span>
+  </div>
+  <div class="note">Switches a <b>parameter of the current view</b>: list vs grid, sort direction, plan interval. If it swaps the content region, use Tabs.</div>
+  <div class="kv">
+    <div class="r"><span class="k">role</span><span class="v"><code>radiogroup</code> + <code>aria-checked</code>, never <code>tablist</code></span></div>
+    <div class="r"><span class="k">tray</span><span class="v"><code>--segmented-control-bg</code>, one step below its surface</span></div>
+    <div class="r"><span class="k">thumb</span><span class="v"><code>--segmented-control-bg-active</code> + <code>--shadow-sm</code></span></div>
+    <div class="r"><span class="k">outline</span><span class="v"><code>--line</code>, non-interactive chrome</span></div>
+    <div class="r"><span class="k">radius</span><span class="v"><code>--radius</code> tray, <code>--radius-sm</code> thumb</span></div>
+    <div class="r"><span class="k">height</span><span class="v">30px default, 26px sm. Icon-only needs <code>aria-label</code></span></div>
+  </div>
+
+  <div class="row">
+    <div class="seg" role="radiogroup" aria-label="View">
+      <button role="radio" aria-checked="true"><i class="ph ph-list" aria-hidden="true"></i>List</button>
+      <button role="radio" aria-checked="false"><i class="ph ph-squares-four" aria-hidden="true"></i>Grid</button>
+    </div>
+    <div class="seg" role="radiogroup" aria-label="Billing interval">
+      <button role="radio" aria-checked="false">Monthly</button>
+      <button role="radio" aria-checked="true">Yearly</button>
+    </div>
+    <div class="seg sm" role="radiogroup" aria-label="View, small">
+      <button role="radio" aria-checked="true" aria-label="List view"><i class="ph ph-list" aria-hidden="true"></i></button>
+      <button role="radio" aria-checked="false" aria-label="Grid view"><i class="ph ph-squares-four" aria-hidden="true"></i></button>
+      <button role="radio" aria-checked="false" aria-label="Column view" disabled><i class="ph ph-columns" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <div class="head" style="margin-top: 8px;">
+    <span class="ix">02</span>
+    <span class="t">Anatomy</span>
+  </div>
+  <div class="anatomy">
+    <code>--segmented-control-bg</code><span>tray fill, inset one step below the surface it sits on</span>
+    <code>--segmented-control-bg-active</code><span>selected thumb, raises back to the surface, plus <code>--shadow-sm</code></span>
+    <code>--line</code><span>tray outline (non-interactive chrome, step 6)</span>
+    <code>--radius</code> <span>tray corner; thumbs use <code>--radius-sm</code></span>
+    <code>30px / 26px</code><span>segment heights, default and <code>sm</code>; icon-only segments need an <code>aria-label</code></span>
+  </div>
+  <div class="note">
+    <b>Selection is surface plus shadow, never yellow.</b> Yellow marks brand and primary actions, not which option is on. Two to four segments; past that use a Menu or Select.
+  </div>
+
+</div>
+</body></html>

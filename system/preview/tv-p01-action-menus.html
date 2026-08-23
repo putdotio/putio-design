@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" class="dark" data-theme-lock="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV and native surfaces).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · TV · action menus</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<link rel="stylesheet" href="../tv.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); margin: 0; font-family: var(--font-sans); }
+  .preview-shell { padding: 24px; display: flex; flex-direction: column; gap: 22px; color: var(--text); }
+  
+  .note  {max-width: 720px}
+  
+  .src  { font-family: var(--font-mono); font-size: 11px; color: var(--yellow-text-secondary); }
+
+  .artboard {
+    position: relative;
+    width: 1920px;
+    max-width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 31px;
+    overflow: hidden;
+    background: var(--tv-video-bg);
+    box-shadow: 0 53px 140px rgba(0,0,0,0.45), 0 0 0 2px var(--line);
+  }
+    /* The artboard is a TRUE 1:1 1920x1080 frame. .tv-fit is scaled down
+     only when the card is narrower than 1920, a value measured here is
+     the value on the TV. */
+  .artboard .tv-fit { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
+.artboard .tv { position: absolute; inset: 0; }
+  .artboard .row, .artboard .btn { transition: none; }
+  /* .tv is authored 1:1 at 1920x1080, never let the title or row wrap */
+  .artboard .scr-title { white-space: nowrap; }
+  .artboard .row .title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* SelectModal: centred overlay, NOT anchored to the trigger */
+  .m-overlay {
+    position: absolute; inset: 0; z-index: 5;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .m-root {
+    box-sizing: border-box;
+    flex: 0 0 25%;
+    min-width: 25%; max-width: 50%;
+    background: var(--app-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-tv);
+    padding: 15px;
+  }
+  .m-title {
+    color: var(--text-secondary);
+    font-size: 17px; font-weight: 500;
+    padding-bottom: 7px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .m-list { display: flex; flex-direction: column; gap: 4px; }
+  .pop-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px; border-radius: var(--radius-tv);
+    font-size: 15px; color: var(--tv-text-1);
+    background: transparent;
+  }
+  .pop-item.focused { background: var(--component-bg-active); color: var(--text); }
+  .pop-item.destructive { color: var(--red-text-secondary); }
+  .pop-item.destructive.focused { background: var(--red-solid); color: var(--text); }
+  .pop-item .ico-l { font-size: 17px; display: grid; place-items: center; }
+  .pop-item .lbl { flex-grow: 1; max-width: 90%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pop-item .check { margin-left: auto; font-size: 15px; color: var(--text); }
+
+
+  .platforms { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .ptr { display: grid; grid-template-columns: 160px repeat(4, 1fr); }
+  .ptr + .ptr { border-top: 1px solid var(--line); }
+  .ptr > div { padding: 12px 14px; font-size: 12px; color: var(--text-secondary); border-left: 1px solid var(--line); line-height: 1.55; background: var(--bg-secondary); }
+  .ptr > div:first-child { border-left: 0; }
+  .ptr.head > div { background: var(--component-bg); font-size: 11px; color: var(--text); font-weight: 600; }
+  .ptr .what { background: var(--bg-secondary); color: var(--yellow-text-secondary); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; font-weight: 500; }
+  /* Phosphor icon helpers */
+  .ico-ph { font-size: 39px; line-height: 1; display: inline-flex; align-items: center; }
+  .chev-ph { font-size: 39px; line-height: 1; color: var(--text-secondary); }
+  .eye-ph { line-height: 1; }
+
+</style></head>
+<body>
+<div class="tierbar t4"><span class="tno">Tier 4</span><span class="twhat">Tier 4 · <b>Web TV</b> (tv.put.io, Tizen, webOS). The design system as on web, restrained to a generic list-first 10-foot interface. The shipped <b>tv-native</b> app is the reference look; Roku matches it directly and the native TV tiers align with the same family feel inside their own control conventions.</span><span class="ttok">--yellow-solid · --radius-tv · --overlay-full · --tv-video-bg</span></div>
+<div class="preview-shell">
+
+  <div>
+    <div class="label">Sort &amp; action menus, centred select modal</div>
+    <div class="note">
+      Every TV menu is a <b>centred modal</b>, never a popover anchored to its trigger. <code>--overlay-full</code> scrim, panel on <code>--app-bg</code> with a 1px <code>--line</code> border, 32px padding, 25% width (max 50%). Title 36px <code>--text-secondary</code>.<br><br>
+      Rows are transparent until focused, then <code>--component-bg-active</code>. Destructive rows read <code>--red-text-secondary</code> at rest and fill <code>--red-solid</code> on focus, but the <b>label stays <code>--text</code></b>: focus resets text colour regardless. Default focus is the current value, else the first row.
+      Source: <code class="src">select-modal.tsx · modal.tsx</code>.
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Sort list · how <code class="src" style="font-size:10px;">getOptionsForValue</code> builds it</div>
+    <div class="note">
+      Six keys × two directions = twelve options, filtered against the current value. An option survives if it shares the current <b>key</b> or the current <b>direction</b>. The current value is kept and checked; the opposite direction of the current key carries a <b>chevron</b>. Every other key appears once. <code>NAME_ASC</code> yields <b>seven rows</b>.
+      <br><br>
+      <i class="ph ph-warning" aria-hidden="true" style="color: var(--yellow-text-secondary)"></i> <b>Known app quirk:</b> rows 1 and 2 are <b>both labelled “Name”</b>: <code>translate("files_sort_name_label")</code> is reused for both directions, so the only difference is the chevron. Reproduced here faithfully rather than smoothed over; worth raising with the app team.
+    </div>
+  </div>
+
+  <!-- =================================================================
+       ARTBOARD, Files with the centred sort SelectModal
+       ============================================================ -->
+  <div class="artboard"><div class="tv-fit">
+    <div class="tv">
+      <div class="tv-content">
+        <div class="scr">
+          <div class="scr-head">
+            <h1 class="scr-title">Your Files</h1>
+            <div class="scr-spacer"></div>
+            <div class="scr-actions">
+              <div class="btn">
+                <i class="ph ph-arrow-counter-clockwise" style="font-size:32px;" aria-hidden="true"></i>
+                <span>Refresh</span>
+              </div>
+              <div class="btn">
+                <i class="ph ph-sort-descending" style="font-size:32px;" aria-hidden="true"></i>
+                <span>Name</span>
+              </div>
+            </div>
+          </div>
+          <div class="row"><div class="ico"><i class="ph ph-folder" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div><div class="body"><div class="title">__tears_of_steel__</div><div class="sub">544.89 MB</div></div></div>
+          <div class="row"><div class="ico"><i class="ph ph-folder" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div><div class="body"><div class="title">Movies</div><div class="sub">412 GB</div></div></div>
+          <div class="row"><div class="ico"><i class="ph ph-film-strip" style="font-size:48px;" aria-hidden="true"></i></div><div class="body"><div class="title">multi-audio-mp4</div><div class="sub">4.34 GB</div></div></div>
+        </div>
+
+        <!-- Full overlay + centred SelectModal (sort) -->
+        <div class="m-overlay" style="background: var(--overlay-full);">
+          <div class="m-root" style="width: 25%;">
+            <div class="m-title">Sort by</div>
+            <div class="m-list">
+            <div class="pop-item focused"><div class="lbl">Name</div><i class="ph ph-check check" aria-hidden="true"></i></div>
+            <div class="pop-item"><i class="ph ph-caret-down ico-l" aria-hidden="true"></i><div class="lbl">Name</div></div>
+            <div class="pop-item"><div class="lbl">Size</div></div>
+            <div class="pop-item"><div class="lbl">Date added</div></div>
+            <div class="pop-item"><div class="lbl">Date modified</div></div>
+            <div class="pop-item"><div class="lbl">Type</div></div>
+            <div class="pop-item"><div class="lbl">Watch status</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div>
+    <div class="label">Long-press file actions · same modal, different contents</div>
+    <div class="note">
+      <b>Long-OK</b> or <b>right arrow</b> opens the same <code>SelectModal</code>, titled with the raw filename. Items are filtered by capability, so the set is never fixed: <b>Play in VLC</b> needs a stream URL and the VLC scheme; <b>Mark as watched</b> needs a non-shared video with start-from on; <b>Trash</b> or <b>Delete</b> for anything unshared.<br><br>
+      Nothing qualifies, no menu opens. Source: <code class="src">use-long-press-file-actions.tsx</code>.
+    </div>
+  </div>
+
+  <div class="artboard"><div class="tv-fit">
+    <div class="tv">
+      <div class="tv-content">
+        <div class="scr">
+          <div class="scr-head">
+            <h1 class="scr-title">Your Files</h1>
+          </div>
+          <div class="row"><div class="ico"><i class="ph ph-film-strip" style="font-size:48px;" aria-hidden="true"></i></div><div class="body"><div class="title">Glacier.Hike.2024.2160p.HDR.x265-GROUP.mkv</div><div class="sub">12.1 GB</div></div></div>
+          <div class="row"><div class="ico"><i class="ph ph-folder" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div><div class="body"><div class="title">Movies</div><div class="sub">412 GB</div></div></div>
+        </div>
+
+        <div class="m-overlay" style="background: var(--overlay-full);">
+          <div class="m-root" style="width: 25%;">
+            <div class="m-title">Glacier.Hike.2024.2160p.HDR.x265-GROUP.mkv</div>
+            <div class="m-list">
+              <div class="pop-item focused"><i class="ph ph-monitor-play ico-l" aria-hidden="true"></i><div class="lbl">Play in VLC</div></div>
+              <div class="pop-item"><i class="ph ph-eye ico-l" aria-hidden="true"></i><div class="lbl">Mark as watched</div></div>
+              <div class="pop-item destructive"><i class="ph ph-trash ico-l" aria-hidden="true"></i><div class="lbl">Trash</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- =================================================================
+       PLATFORM VARIATION
+       ============================================================ -->
+  <div>
+    <div class="label">Platform variation · implementation, not redesign</div>
+  </div>
+
+  <div class="platforms">
+    <div class="ptr head">
+      <div>What</div>
+      <div>tvOS</div>
+      <div>Android TV</div>
+      <div>Roku</div>
+      <div>Smart-TV web</div>
+    </div>
+    <div class="ptr">
+      <div class="what">Trigger</div>
+      <div>long-OK · right arrow</div>
+      <div>long-OK · right arrow</div>
+      <div>Star (<i class="ph-fill ph-star" style="font-size:32px;color:var(--yellow-solid);vertical-align:middle;" aria-hidden="true"></i>)</div>
+      <div>Yellow / Tools</div>
+    </div>
+    <div class="ptr">
+      <div class="what">Surface</div>
+      <div>--app-bg · 1px --line</div>
+      <div>--app-bg · 1px --line</div>
+      <div>--app-bg · 1px --line</div>
+      <div>--app-bg · 1px --line</div>
+    </div>
+    <div class="ptr">
+      <div class="what">Placement</div>
+      <div>centred</div>
+      <div>centred</div>
+      <div>centred (cert)</div>
+      <div>centred (perf)</div>
+    </div>
+    <div class="ptr">
+      <div class="what">Default focus</div>
+      <div>current value, else row 1</div>
+      <div>current value, else row 1</div>
+      <div>current value, else row 1</div>
+      <div>current value, else row 1</div>
+    </div>
+    <div class="ptr">
+      <div class="what">Destructive item</div>
+      <div>red text · --red-solid on focus</div>
+      <div>red text · --red-solid on focus</div>
+      <div>red text · --red-solid on focus</div>
+      <div>red text · --red-solid on focus</div>
+    </div>
+  </div>
+
+</div>
+<script>
+(function () {
+  function fit() {
+    document.querySelectorAll('.artboard').forEach(function (a) {
+      var f = a.querySelector('.tv-fit');
+      if (f) f.style.transform = 'scale(' + (a.clientWidth / 1920) + ')';
+    });
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+})();
+</script>
+</body></html>

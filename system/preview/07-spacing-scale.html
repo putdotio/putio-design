@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint.
+     One token-driven design system. .dark on <html> = dark; no class = light.
+     Lock: <html data-theme-lock="dark"> pins the file to one mode (used for
+       fixed-mode product mockups: TV and native surfaces).
+     Standalone: 'putio-ds-theme' from localStorage (shared with the guide).
+     URL ?theme=light|dark wins for screenshots / shared links.
+     Embedded: parent broadcasts theme via postMessage (handled in _resize.js,
+       which also respects the lock). */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;                                       // default
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · spacing scale</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<style>
+  html, body { background: var(--bg); }
+  .preview-shell { padding: 28px 32px 36px; display:flex; flex-direction:column; gap: 10px; }
+  /* Fixed tracks: the bar column is a constant width so the value column
+     lands on one x, instead of every number trailing its own bar. */
+  .row { display:grid; grid-template-columns: 110px 560px 48px; align-items:center; gap: 16px; }
+  .token { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
+  .bar {
+    background: var(--yellow-solid); height: 18px; border-radius: 2px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+  }
+  .px { font-family: var(--font-mono); font-size: 11px; color: var(--text); text-align:right; }
+  .note {margin-top: 8px; max-width: 560px}
+</style><script src="./_resize.js" defer></script>
+</head>
+<body>
+<div class="tierbar t0"><span class="tno">Tier 0</span><span class="twhat">Foundations · the <b>@putdotio/design</b> token graph. Binds all four tiers, values only, never a component recipe.</span><span class="ttok">--yellow-solid · --font-mono · --text-secondary · --bg</span></div>
+<div class="preview-shell">
+  <div class="row"><div class="token">--space-1</div><div class="bar" style="width:4px"></div><div class="px">4</div></div>
+  <div class="row"><div class="token">--space-2</div><div class="bar" style="width:8px"></div><div class="px">8</div></div>
+  <div class="row"><div class="token">--space-3</div><div class="bar" style="width:16px"></div><div class="px">16</div></div>
+  <div class="row"><div class="token">--space-4</div><div class="bar" style="width:32px"></div><div class="px">32</div></div>
+  <div class="row"><div class="token">--space-5</div><div class="bar" style="width:64px"></div><div class="px">64</div></div>
+  <div class="row"><div class="token">--space-6</div><div class="bar" style="width:128px"></div><div class="px">128</div></div>
+  <div class="row"><div class="token">--space-7</div><div class="bar" style="width:256px"></div><div class="px">256</div></div>
+  <div class="row"><div class="token">--space-8</div><div class="bar" style="width:512px;max-width:100%"></div><div class="px">512</div></div>
+  <div class="note">4px base, aggressive scale inherited from the current web app. Component-internal padding almost always uses 4/8/16; layout gutters use 32/64.</div>
+</div>
+</body></html>

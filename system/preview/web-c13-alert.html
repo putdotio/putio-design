@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint. .dark on <html> = dark. */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · components · alert</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .note {max-width: 760px}
+  
+  
+  .pad { padding: 20px; background: var(--bg-secondary); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+  kbd { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-secondary); background: var(--component-bg); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 1px 5px; }
+  .alert { display: flex; gap: 12px; padding: 13px 15px; border: 1px solid; border-radius: var(--alert-radius); font-size: 13px; line-height: 1.55; }
+  .alert i.lead { font-size: 17px; line-height: 1.2; flex-shrink: 0; }
+  .alert .t { font-weight: 500; margin-bottom: 2px; }
+  .alert .b { color: var(--text-secondary); }
+  .alert a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+  .alert .x { margin-left: auto; background: transparent; border: 0; color: var(--text-secondary); cursor: pointer; font-size: 14px; padding: 0; height: 18px; }
+  .a-info { background: var(--alert-info-bg); border-color: var(--alert-info-border); color: var(--alert-info-text); }
+  .a-info i.lead { color: var(--alert-info-icon); }
+  .a-info .b { color: var(--alert-info-body); }
+  .a-brand { background: var(--alert-brand-bg); border-color: var(--alert-brand-border); color: var(--alert-brand-text); }
+  .a-brand i.lead { color: var(--alert-brand-icon); }
+  .a-brand .b { color: var(--alert-brand-body); }
+  .a-success { background: var(--alert-success-bg); border-color: var(--alert-success-border); color: var(--alert-success-text); }
+  .a-success i.lead { color: var(--alert-success-icon); }
+  .a-success .b { color: var(--alert-success-body); }
+  .a-danger { background: var(--alert-danger-bg); border-color: var(--alert-danger-border); color: var(--alert-danger-text); }
+  .a-danger i.lead { color: var(--alert-danger-icon); }
+  .a-danger .b { color: var(--alert-danger-body); }
+  .stack { display: flex; flex-direction: column; gap: 12px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+  .bad { border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 16px 18px; }
+  .bad .h { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 500; margin-bottom: 8px; }
+  .bad .h i { color: var(--red-text-secondary); }
+</style></head>
+<body>
+<div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat">Tier 1 · <b>Web</b> (www / app / auth). The full design system: our component library and the <b>components.css</b> recipe. This is the one tier where the recipe is the contract, native tiers take the tokens and nothing else.</span><span class="ttok">--radius-lg · --alert-danger-body · --radius-sm · --alert-radius</span></div>
+<div class="preview-shell">
+  <div class="head"><span class="ix">01</span><span class="t">Alert: inline, in-page messaging</span><span class="n">info · brand · success · destructive</span></div>
+  <div class="note">
+    An alert is <b>attached to the page</b> and persists until the condition clears. A <b>toast</b> (see Notification) floats, is dismissed by time, and reports something that already happened.<br><br>
+      If the user must act on it, it is an alert. Tinted surfaces use the semantic component-bg + border step; text uses that scale's own text steps, never <code>--text</code> on a tint.
+  </div>
+  <div class="pad stack">
+    <div class="alert a-info"><i class="ph ph-info lead" aria-hidden="true"></i><div><div class="t">Transfers are paused while your account is over quota.</div><div class="b">Free up space or upgrade to resume automatically.</div></div><button class="x" aria-label="Dismiss"><i class="ph ph-x"></i></button></div>
+    <div class="alert a-brand"><i class="ph ph-lightning lead" aria-hidden="true"></i><div><div class="t">You're on the last week of your trial.</div><div class="b"><a href="#">Pick a plan</a> to keep your files streaming.</div></div></div>
+    <div class="alert a-success"><i class="ph ph-check-circle lead" aria-hidden="true"></i><div><div class="t">Folder shared with 3 people.</div><div class="b">Anyone with the link can stream, not download.</div></div></div>
+    <div class="alert a-danger"><i class="ph ph-warning-circle lead" aria-hidden="true"></i><div><div class="t">4 transfers failed.</div><div class="b">The tracker refused the connection. <a href="#">Retry all</a>.</div></div></div>
+  </div>
+  <div class="head"><span class="ix">02</span><span class="t">Density &amp; placement</span><span class="n">page-level vs. in-form</span></div>
+  <div class="two">
+    <div class="pad">
+      <div style="font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 10px;">page level</div>
+      <div class="alert a-info" style="margin-bottom: 14px;"><i class="ph ph-info lead" aria-hidden="true"></i><div class="t">Maintenance tonight, 02:00–03:00 UTC.</div></div>
+      <div style="font-size: 12.5px; color: var(--text-secondary);">Full width, above the content, one line, no body copy.</div>
+    </div>
+    <div class="pad">
+      <div style="font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 10px;">in form</div>
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label class="label" for="al-magnet">Magnet link</label>
+        <input class="field" id="al-magnet" value="magnet:?xt=urn:btih:fa9c7e" aria-invalid="true">
+        <p style="margin: 0; font-size: 12.5px; color: var(--alert-danger-body);">That magnet is missing a tracker.</p>
+      </div>
+      <div style="font-size: 12.5px; color: var(--text-secondary);">Field errors stay <b>plain text under the field</b>: never an alert box.</div>
+    </div>
+  </div>
+  <div class="bad">
+    <div class="h"><i class="ph ph-x"></i>Never do this</div>
+    <div class="note" style="max-width: none;">Stacking three alerts at the top of a page · using the destructive alert for anything the user can't fix · a red fill behind body copy · an alert that repeats what the toast already said · dismissible alerts for conditions that are still true after dismissal.</div>
+  </div>
+</div>
+</body></html>

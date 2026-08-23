@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head>
+<script>
+  /* Theme bootstrap: runs synchronously before paint. .dark on <html> = dark. */
+  (function () {
+    var root = document.documentElement;
+    function setDark(b) { root.classList.toggle('dark', !!b); }
+    var lock = root.getAttribute('data-theme-lock');
+    if (lock === 'dark')  { setDark(true);  return; }
+    if (lock === 'light') { setDark(false); return; }
+    var dark = true;
+    try {
+      var saved = localStorage.getItem('putio-ds-theme');
+      if (saved === 'light') dark = false;
+      else if (saved === 'dark') dark = true;
+      var p = new URLSearchParams(location.search);
+      var q = p.get('theme');
+      if (q === 'light') dark = false;
+      if (q === 'dark')  dark = true;
+    } catch (e) {}
+    setDark(dark);
+  })();
+</script>
+<title>put.io · components · pagination</title><meta charset="utf-8">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+  html, body { background: var(--app-bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+  .preview-shell { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  .note {max-width: 760px}
+  
+  
+  .pad { padding: 20px; background: var(--bg-secondary); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+  kbd { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-secondary); background: var(--component-bg); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 1px 5px; }
+  .pg { display: flex; align-items: center; gap: 6px; }
+  .pg button { min-width: var(--pagination-item-size); height: var(--pagination-item-size); padding: 0 8px; background: transparent; border: 1px solid transparent; border-radius: var(--radius-sm); color: var(--pagination-item-text); font-family: var(--font-mono); font-size: 12px; cursor: pointer; }
+  .pg button:hover:not(:disabled):not(.on) { background: var(--pagination-item-bg-hover); color: var(--pagination-item-text-active); }
+  .pg button.on { background: var(--pagination-item-bg-active); border-color: var(--pagination-item-border-active); color: var(--pagination-item-text-active); }
+  .pg button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .pg .gap { color: var(--pagination-item-text); padding: 0 2px; font-family: var(--font-mono); font-size: 12px; }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+  .count { font-size: 12.5px; color: var(--text-secondary); }
+  .count b { color: var(--text); font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 400; }
+  .size { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-secondary); }
+  .size select { height: 30px; background: var(--field-bg); color: var(--text); border: 1px solid var(--field-border); border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 12px; padding: 0 6px; }
+  .rows { display: flex; flex-direction: column; }
+  .r { display: flex; align-items: center; gap: 12px; height: 40px; border-bottom: 1px solid var(--list-item-border); font-size: 13.5px; }
+  .r i { font-size: 16px; color: var(--file-row-icon); }
+  .sentinel { display: flex; align-items: center; justify-content: center; gap: 10px; height: 56px; color: var(--text-secondary); font-size: 12.5px; }
+  .spin { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--text-secondary); border-radius: 50%; animation: spin 0.7s linear infinite; }
+</style></head>
+<body>
+<div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat">Tier 1 · <b>Web</b> (www / app / auth). The full design system: our component library and the <b>components.css</b> recipe. This is the one tier where the recipe is the contract, native tiers take the tokens and nothing else.</span><span class="ttok">--radius-sm · --pagination-item-size · --pagination-item-text · --pagination-item-text-active</span></div>
+<div class="preview-shell">
+  <div class="head"><span class="ix">01</span><span class="t">Pagination: numbered</span><span class="n">settings, billing, history</span></div>
+  <div class="note">
+    Numbered paging is for <b>bounded, addressable lists</b> where a user might want page 7 again: history, invoices, shared links. Never for the file browser.<br><br>
+      Collapse to <code>…</code> beyond 7 pages, keep first and last always reachable, and put the range summary on the opposite side from the controls.
+  </div>
+  <div class="pad bar">
+    <div class="count">Showing <b>41–60</b> of <b>1,284</b></div>
+    <div class="pg">
+      <button aria-label="Previous"><i class="ph ph-caret-left"></i></button>
+      <button>1</button><span class="gap">…</span>
+      <button>2</button><button class="on" aria-current="page">3</button><button>4</button>
+      <span class="gap">…</span><button>65</button>
+      <button aria-label="Next"><i class="ph ph-caret-right"></i></button>
+    </div>
+    <div class="size"><label for="pg-size">Per page</label><select id="pg-size"><option>20</option><option>50</option><option>100</option></select></div>
+  </div>
+  <div class="head"><span class="ix">02</span><span class="t">Load more</span><span class="n">transfers, RSS results</span></div>
+  <div class="note">When order is chronological and the user only ever moves forward, a single button beats page numbers. It states how many remain.</div>
+  <div class="pad">
+    <div class="rows">
+      <div class="r"><i class="ph ph-file-video"></i>Glacier.Hike.2024.2160p.HDR.x265-GROUP.mkv</div>
+      <div class="r"><i class="ph ph-file-audio"></i>field-recordings-batch-07.flac</div>
+      <div class="r"><i class="ph ph-file-zip"></i>backup-photos-2025.zip</div>
+    </div>
+    <div style="display: flex; justify-content: center; padding-top: 16px;"><button class="btn-default btn-sm">Load 20 more</button></div>
+  </div>
+  <div class="head"><span class="ix">03</span><span class="t">Infinite scroll</span><span class="n">the file browser</span></div>
+  <div class="note">The browser itself streams: rows append as the sentinel enters the viewport. The spinner is the <b>only</b> chrome, no page count, no "end of list" banner until the directory truly ends.</div>
+  <div class="pad">
+    <div class="rows">
+      <div class="r"><i class="ph-fill ph-folder"></i>2023 · keep</div>
+      <div class="r"><i class="ph ph-file-video"></i>Dune.Part.Two.2024.1080p.WEB-DL.x264-GROUP.mkv</div>
+    </div>
+    <div class="sentinel"><span class="spin"></span>Loading more…</div>
+  </div>
+</div>
+</body></html>

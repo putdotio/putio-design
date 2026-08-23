@@ -1,0 +1,272 @@
+/* ============================================================
+   put.io — _apple.css
+   Tier 2 preview chrome for the Apple platforms (iOS 26, iPadOS 26,
+   tvOS, watchOS).
+
+   READ THIS BEFORE EDITING.
+
+   Every class in this file draws a *stock Apple element* — TabView,
+   NavigationStack, List, Form, sheet, ContentUnavailableView, the
+   tvOS focus engine, the watchOS list. None of it is a put.io
+   component and none of it may be ported back into components.css,
+   or forward into a SwiftUI view as a hand-built control. It exists
+   so a designer can see put.io's four contributions — tint, surface,
+   type, file icons — sitting on Apple's furniture.
+
+   Geometry is Apple's, in POINTS, drawn 1:1:
+     · iPhone canvas 393x852pt, Apple Watch 176x215pt — real point
+       values, so 17 here is 17pt in the HIG.
+     · iPad is a 1024x768pt canvas scaled to fit the card; the metrics
+       inside it are still points.
+     · tvOS is a 1920x1080px canvas drawn 1:1 — full frame.
+   Those numbers are NOT put.io spacing tokens and must never be
+   promoted into the graph. put.io's ramp (4/8/16/32/64) applies only
+   where the HIG leaves the choice open.
+
+   Colour, type and icons come from tokens.css. The two exceptions,
+   annotated in place, are (a) system glass, which is a *material*
+   Apple composites, not a surface we own, and (b) device hardware in
+   _frame.css.
+
+   Load order: tokens.css -> components.css -> _tier.css -> _frame.css
+               -> _apple.css
+   ============================================================ */
+
+/* ── System materials ───────────────────────────────────────────
+   Liquid Glass. A material, not a token: it is a live composite of
+   whatever is behind it, so it cannot resolve to a colour in the
+   graph. Rendered here with the same recipe iOS 26 uses — a heavy
+   blur, a saturation lift, a thin specular edge. It appears ONLY in
+   the floating layer. Content never sits on glass. */
+.glass {
+  background: color-mix(in srgb, var(--app-bg) 58%, transparent);
+  -webkit-backdrop-filter: blur(34px) saturate(190%);
+  backdrop-filter: blur(34px) saturate(190%);
+  box-shadow: inset 0 0.5px 0 0 rgba(255, 255, 255, 0.24), inset 0 0 0 0.5px rgba(255, 255, 255, 0.1), 0 10px 32px rgba(0, 0, 0, 0.44);
+}
+
+/* ── Canvases ───────────────────────────────────────────────────
+   1:1 point canvases. .pt-scale is the only place a transform is
+   allowed; it keeps the point metrics honest at card width. */
+.pt-canvas { width: 100%; height: 100%; position: relative; overflow: hidden; display: flex; flex-direction: column; background: var(--app-bg); }
+.pt-scale { position: absolute; top: 0; left: 0; transform-origin: top left; }
+
+/* ── Status bar ─────────────────────────────────────────────── */
+.ios-status { flex: 0 0 auto; height: 54px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 26px 6px; font-size: 15px; font-weight: var(--fw-medium); color: var(--text); position: relative; z-index: 30; }
+.ios-status .r { display: flex; align-items: center; gap: 5px; font-size: 14px; }
+.ios-island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 125px; height: 36px; border-radius: 18px; background: #000; z-index: 35; pointer-events: none; }
+
+/* ── NavigationStack ────────────────────────────────────────── */
+.ios-scroll { flex: 1 1 auto; min-height: 0; overflow: hidden; position: relative; }
+.ios-largetitle { font-size: 34px; font-weight: var(--fw-bold); letter-spacing: -0.026em; line-height: 41px; padding: 4px 20px 8px; color: var(--text); }
+.ios-navbar { flex: 0 0 auto; height: 44px; display: flex; align-items: center; gap: 4px; padding: 0 12px; position: relative; z-index: 20; }
+.ios-navbar .back { display: inline-flex; align-items: center; gap: 3px; font-size: 17px; color: var(--yellow-text-secondary); }
+.ios-navbar .back i { font-size: 19px; }
+.ios-navbar .nt { position: absolute; left: 0; right: 0; text-align: center; font-size: 17px; font-weight: var(--fw-medium); color: var(--text); pointer-events: none; }
+.ios-navbar .act { margin-left: auto; display: flex; align-items: center; gap: 16px; font-size: 17px; color: var(--yellow-text-secondary); z-index: 1; }
+.ios-navbar .act i { font-size: 20px; }
+
+/* Search field — system, .searchable() */
+.ios-searchfield { margin: 0 16px 8px; height: 36px; border-radius: 10px; background: var(--component-bg); display: flex; align-items: center; gap: 6px; padding: 0 8px; color: var(--text-secondary); font-size: 17px; }
+.ios-searchfield i { font-size: 17px; }
+
+/* ── List ───────────────────────────────────────────────────────
+   .plain  = .listStyle(.plain)         — full-width, hairline rows
+   .inset  = .listStyle(.insetGrouped)  — 20pt margin, 10pt corners */
+.ios-list { display: flex; flex-direction: column; }
+.ios-row { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 20px; box-sizing: border-box; position: relative; background: var(--app-bg); }
+.ios-list.plain .ios-row::after { content: ""; position: absolute; left: 20px; right: 0; bottom: 0; height: 0.5px; background: var(--line); }
+.ios-list.plain .ios-row.lead-inset::after { left: 52px; }
+.ios-list.plain .ios-row:last-child::after { display: none; }
+.ios-row.pressed { background: var(--component-bg); }
+/* Leading glyph sits on the title's line box. A filename wraps to two or three
+   lines, and a centred glyph then floats against the middle of a block instead
+   of reading as the row's marker. */
+.ios-row > i { flex: 0 0 auto; font-size: 24px; line-height: 22px; align-self: flex-start; color: var(--text-secondary); }
+/* Single-line rows have no second line to align to, so they centre. */
+.ios-inset .ios-row > i { align-self: center; }
+/* File icons: Phosphor, brand yellow, EVERY file type. The iOS 15 app
+   tinted folders only; the system rule is the web rule. */
+.ios-row > i.ic-y { color: var(--yellow-solid); }
+.ios-row .tx { flex: 1 1 auto; min-width: 0; }
+/* Filenames wrap to two lines rather than ellipsizing. The raw name is the
+   content of this product; truncating "Dune.Part.Two.2024.2160p.WEB-DL.DD…"
+   removes the codec and release string, which is the part the user is reading
+   the row for. iOS List rows wrap by default; the nowrap here was a web habit. */
+.ios-row .t1 { font-size: 17px; line-height: 22px; color: var(--text); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+/* The metadata line stays one line: it is short, ordered, and a wrap there
+   would push the row height around per item. */
+.ios-row .t2 { font-size: 15px; line-height: 20px; color: var(--text-secondary); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Berkeley Mono, tabular — sizes, counts, timestamps. Not on TV. */
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.ios-row .chev { margin-left: auto; align-self: center; flex: 0 0 auto; font-size: 15px; color: var(--solid); }
+.ios-row .val { margin-left: auto; align-self: center; flex: 0 0 auto; font-size: 17px; color: var(--text-secondary); white-space: nowrap; }
+.ios-row .val + .chev { margin-left: 6px; }
+.ios-list.pad .ios-row { padding-left: 24px; padding-right: 24px; }
+
+/* Inset grouped — Settings, Forms */
+.ios-inset { padding: 0 20px; display: flex; flex-direction: column; }
+.ios-group { background: var(--bg-secondary); border-radius: 10px; overflow: hidden; }
+.ios-inset .ios-row { background: transparent; padding-left: 16px; padding-right: 16px; min-height: 44px; }
+.ios-inset .ios-row + .ios-row::before { content: ""; position: absolute; left: 16px; right: 0; top: 0; height: 0.5px; background: var(--line); }
+.ios-inset .ios-row.lead-inset + .ios-row.lead-inset::before { left: 52px; }
+.ghdr { font-size: 13px; color: var(--text-secondary); padding: 26px 16px 7px; text-transform: uppercase; letter-spacing: 0.03em; }
+.gfoot { font-size: 13px; line-height: 18px; color: var(--text-secondary); padding: 7px 16px 0; text-wrap: pretty; }
+
+/* ── Stock controls ─────────────────────────────────────────────
+   Toggle 51x31, Stepper, Slider, Picker (menu style), Segmented.
+   These are Apple's dimensions. Do not restyle, do not re-corner. */
+.ios-switch { flex: 0 0 auto; margin-left: auto; width: 51px; height: 31px; border-radius: 15.5px; background: var(--component-bg-active); position: relative; }
+.ios-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.16); }
+.ios-switch.on { background: var(--yellow-solid); }
+.ios-switch.on::after { left: 22px; }
+.ios-stepper { flex: 0 0 auto; margin-left: auto; display: flex; height: 32px; border-radius: 8px; overflow: hidden; background: var(--component-bg-active); }
+.ios-stepper span { width: 45px; display: flex; align-items: center; justify-content: center; color: var(--text); font-size: 19px; }
+.ios-stepper span + span { box-shadow: inset 0.5px 0 0 var(--line); }
+/* Segmented Picker sits inside the content inset, matching the list's 20pt
+   margin rather than floating at its own. */
+.ios-segmented { display: flex; height: 32px; padding: 2px; border-radius: 9px; background: var(--component-bg-active); margin: 0 20px; box-sizing: border-box; }
+.ios-segmented span { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: var(--fw-medium); color: var(--text); border-radius: 7px; }
+.ios-segmented span.on { background: var(--solid); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.24); }
+.ios-slider { display: flex; align-items: center; gap: 12px; padding: 10px 16px; }
+.ios-slider .track { flex: 1; height: 4px; border-radius: 2px; background: var(--component-bg-active); position: relative; }
+.ios-slider .track > i { position: absolute; inset: 0 auto 0 0; border-radius: 2px; background: var(--yellow-solid); }
+.ios-slider .track > b { position: absolute; top: 50%; width: 28px; height: 28px; border-radius: 50%; background: #fff; transform: translate(-50%, -50%); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16); }
+.ios-slider i.ph, .ios-slider i.ph-fill { font-size: 16px; color: var(--text-secondary); }
+
+/* Glass buttons — .buttonStyle(.glass) / .glassProminent).
+   Floating layer only. Prominent picks up the app tint for free. */
+.gbtn { width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text); flex: 0 0 auto; background: color-mix(in srgb, var(--app-bg) 58%, transparent); -webkit-backdrop-filter: blur(34px) saturate(190%); backdrop-filter: blur(34px) saturate(190%); box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.14); }
+.gbtn.prominent { background: var(--yellow-solid); color: var(--primary-foreground); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.34); }
+.gcap { height: 44px; padding: 0 20px; border-radius: 22px; display: inline-flex; align-items: center; gap: 8px; font-size: 17px; font-weight: var(--fw-medium); color: var(--text); background: color-mix(in srgb, var(--app-bg) 58%, transparent); -webkit-backdrop-filter: blur(34px) saturate(190%); backdrop-filter: blur(34px) saturate(190%); box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.14); }
+.gcap.prominent { background: var(--yellow-solid); color: var(--primary-foreground); box-shadow: none; }
+
+/* ── TabView — iOS 26 floating tab bar ──────────────────────── */
+.ios-tabfloat { position: absolute; left: 0; right: 0; bottom: 22px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 16px; z-index: 25; }
+.ios-tabbar { flex: 1 1 auto; height: 56px; border-radius: 28px; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; align-items: center; }
+.ios-tabbar .tab { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; font-weight: var(--fw-medium); color: var(--text-secondary); }
+.ios-tabbar .tab i { font-size: 24px; }
+.ios-tabbar .tab.on { color: var(--yellow-solid); }
+.ios-searchcap { width: 56px; height: 56px; border-radius: 28px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--text); flex: 0 0 auto; }
+
+/* ── NavigationSplitView (iPad) ─────────────────────────────── */
+.ipad-split { flex: 1; display: grid; grid-template-columns: 320px 1fr; min-height: 0; }
+.ipad-side { background: var(--bg-secondary); padding: 14px 12px; overflow: hidden; box-shadow: inset -0.5px 0 0 var(--line); }
+.ipad-sidetitle { font-size: 28px; font-weight: var(--fw-bold); letter-spacing: -0.02em; padding: 6px 10px 14px; color: var(--text); }
+.ipad-side .sec { font-size: 13px; font-weight: var(--fw-medium); color: var(--text-secondary); padding: 16px 10px 6px; text-transform: uppercase; letter-spacing: 0.03em; }
+.ipad-side .srow { display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 10px; border-radius: 10px; font-size: 17px; color: var(--text); }
+.ipad-side .srow i { font-size: 20px; color: var(--text-secondary); width: 22px; }
+/* Selection is a quiet fill, not a tint fill. A full-yellow capsule makes a
+   navigation row the loudest thing on screen and competes with the primary
+   action. app.put.io's sidebar is the reference: subtle raised fill, plain
+   label, plain glyph. Yellow stays on file icons and the quota bar. */
+.ipad-side .srow.on { background: var(--component-bg-active); color: var(--text); }
+.ipad-side .srow.on i { color: var(--text); }
+.ipad-side .srow .cnt { margin-left: auto; font-size: 15px; color: var(--text-secondary); }
+.ipad-quota { padding: 14px 10px 0; }
+.ipad-quota .q { height: 4px; border-radius: 2px; background: var(--component-bg-active); overflow: hidden; }
+.ipad-quota .q > i { display: block; height: 100%; background: var(--yellow-solid); }
+.ipad-quota .qt { margin-top: 7px; font-size: 13px; color: var(--text-secondary); }
+.ipad-detail { position: relative; min-width: 0; display: flex; flex-direction: column; background: var(--app-bg); }
+.ipad-toolbar { position: absolute; top: 10px; left: 14px; right: 14px; height: 50px; border-radius: 25px; display: flex; align-items: center; gap: 8px; padding: 0 8px 0 18px; z-index: 10; }
+.ipad-toolbar .tt { font-size: 17px; font-weight: var(--fw-medium); color: var(--text); }
+.ipad-toolbar .sp { flex: 1; }
+.ipad-toolbar .gbtn { width: 36px; height: 36px; border-radius: 18px; box-shadow: none; background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.ipad-toolbar .gbtn.prominent { background: var(--yellow-solid); }
+.ipad-detail .ios-list { padding-top: 72px; }
+
+/* ── Sheet ──────────────────────────────────────────────────────
+   System presentation. Corner radius, grabber and detents are the
+   system's; put.io only paints inside. */
+.ios-sheetwrap { position: absolute; inset: 0; z-index: 28; display: flex; flex-direction: column; justify-content: flex-end; }
+.ios-dim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.4); }
+.ios-sheet { position: relative; background: var(--bg-secondary); border-radius: 38px 38px 0 0; padding: 8px 0 34px; box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.5); }
+.ios-grabber { width: 36px; height: 5px; border-radius: 2.5px; background: var(--solid); margin: 0 auto 10px; }
+.ios-sheet-title { font-size: 17px; font-weight: var(--fw-medium); text-align: center; color: var(--text); padding-bottom: 12px; }
+
+/* ── ContentUnavailableView ─────────────────────────────────── */
+.cuv { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 32px 40px 96px; text-align: center; }
+.cuv > i { font-size: 52px; color: var(--solid); margin-bottom: 8px; }
+.cuv .cuv-t { font-size: 20px; font-weight: var(--fw-bold); color: var(--text); letter-spacing: -0.01em; }
+.cuv .cuv-d { font-size: 15px; line-height: 20px; color: var(--text-secondary); text-wrap: pretty; }
+.cuv .cuv-a { margin-top: 10px; font-size: 17px; font-weight: var(--fw-medium); color: var(--yellow-text-secondary); }
+
+/* ── Swipe actions / context menu — system presentations ────── */
+.ios-swipe { display: flex; align-items: stretch; overflow: hidden; }
+.ios-swipe .ios-row { flex: 1 1 auto; }
+.ios-swipe .sa { flex: 0 0 74px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 12px; color: #fff; }
+.ios-swipe .sa i { font-size: 21px; }
+.ios-swipe .sa.del { background: var(--red-solid); }
+.ios-swipe .sa.more { background: var(--solid); }
+.ios-ctx { width: 250px; border-radius: 14px; overflow: hidden; background: color-mix(in srgb, var(--bg-secondary) 76%, transparent); -webkit-backdrop-filter: blur(34px) saturate(180%); backdrop-filter: blur(34px) saturate(180%); box-shadow: 0 14px 44px rgba(0, 0, 0, 0.5); }
+.ios-ctx .ci { display: flex; align-items: center; height: 44px; padding: 0 16px; font-size: 17px; color: var(--text); position: relative; }
+.ios-ctx .ci i { margin-left: auto; font-size: 19px; }
+.ios-ctx .ci + .ci::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 0.5px; background: var(--line); }
+.ios-ctx .ci.destructive { color: var(--red-text-secondary); }
+
+/* ── watchOS ────────────────────────────────────────────────────
+   176x215pt, 1:1. Full-bleed rounded rows, no chevrons, a system
+   time in the top-right, and the Digital Crown as the scroll.
+   The display's corner radius is large relative to the screen, so the
+   time has to clear the curve — it sits 16pt in and 6pt down, which is
+   where watchOS actually puts it. */
+.wos { flex: 1; display: flex; flex-direction: column; padding: 0 8px; overflow: hidden; }
+.wos-time { flex: 0 0 auto; height: 30px; display: flex; align-items: flex-start; justify-content: flex-end; padding: 6px 16px 0 0; font-size: 14px; line-height: 1; font-weight: var(--fw-medium); color: var(--yellow-solid); }
+.wos-title { font-size: 15px; font-weight: var(--fw-medium); color: var(--text); padding: 0 4px 3px; }
+.wos-row { display: flex; align-items: center; gap: 8px; min-height: 44px; box-sizing: border-box; padding: 6px 10px; border-radius: 12px; background: var(--component-bg); margin-bottom: 4px; }
+.wos-row > i { font-size: 18px; line-height: 1; color: var(--yellow-solid); flex: 0 0 auto; }
+.wos-row .t2 { font-size: 12px; line-height: 14px; color: var(--text-secondary); margin-top: 1px; }
+.wos-row i { font-size: 18px; color: var(--yellow-solid); flex: 0 0 auto; }
+.wos-row .t1 { font-size: 15px; line-height: 18px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wos-btn { height: 46px; border-radius: 23px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 15px; font-weight: var(--fw-medium); background: var(--yellow-solid); color: var(--primary-foreground); }
+
+/* tvOS tab bar — the platform's real top-level navigation.
+   A tvOS app does NOT get a header with a Search button: it gets a
+   TabView whose bar floats at the top of the screen, is hidden while
+   you scroll content, and takes focus when you swipe up on the remote.
+
+   NOTE ON FOCUS COLOUR: the focused tab is a LIGHT pill with dark
+   text. That contradicts the tv-native rule ("never a white-invert
+   pill") on purpose — tv-native is a React Native binding on tier 4,
+   where put.io owns the focus treatment; tvOS is tier 2, where the
+   platform owns it, and this is what a stock tvOS tab bar does. The
+   selected-but-unfocused tab is plain bright text, no fill. */
+/* tvOS tab bar. Real tvOS tabs are a quiet row of labels: no chip, no border,
+   generous tracking, and the bar is centred. Focus is a light pill; the
+   selected-but-unfocused tab is plain bright text. */
+.tvos-tabbar { display: flex; align-items: center; justify-content: center; gap: 16px; padding-bottom: 52px; }
+.tvos-tabbar .tvt { height: 56px; padding: 0 26px; border-radius: 28px; display: inline-flex; align-items: center; gap: 12px; font-size: 28px; font-weight: var(--fw-medium); color: var(--text-secondary); white-space: nowrap; letter-spacing: 0.01em; }
+.tvos-tabbar .tvt i { font-size: 28px; }
+.tvos-tabbar .tvt.selected { color: var(--text); }
+.tvos-tabbar .tvt.focused { background: #fff; color: #000; }
+.tvos-tabbar .tvt.search { margin-left: 0; }
+
+/* watchOS empty state. The shared .cuv metrics are iPhone-scaled; on a
+   176x215pt screen the glyph and copy need their own size and the block
+   sits slightly above centre so it reads under the time. */
+.wos .cuv { padding: 4px 6px 20px; gap: 5px; justify-content: center; }
+.wos .cuv > i { font-size: 30px; margin-bottom: 2px; }
+.wos .cuv .cuv-t { font-size: 15px; line-height: 18px; letter-spacing: 0; }
+.wos .cuv .cuv-d { font-size: 12px; line-height: 15px; }
+.wos .cuv .cuv-a { margin-top: 6px; font-size: 13px; }
+
+/* ── tvOS ───────────────────────────────────────────────────────
+   1920x1080px canvas. The focus engine owns focus: a focused element
+   lifts, scales and takes a parallax-ready shadow — that behaviour is
+   Apple's and is never replaced by a put.io ring. */
+.tvos { position: absolute; inset: 0; background: var(--app-bg); color: var(--text); font-family: var(--font-sans); padding: 46px 90px 60px; display: flex; flex-direction: column; }
+.tvos-head { display: flex; align-items: center; gap: 28px; padding-bottom: 34px; }
+.tvos-head img { height: 56px; }
+.tvos-title { font-size: 56px; font-weight: var(--fw-medium); letter-spacing: -0.01em; }
+.tvos-sp { flex: 1; }
+.tvos-row { display: flex; align-items: center; gap: 32px; padding: 26px 34px; border-radius: 12px; background: transparent; }
+.tvos-row i.lead { font-size: 44px; color: var(--yellow-solid); flex: 0 0 auto; }
+.tvos-row .t1 { font-size: 36px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tvos-row .t2 { font-size: 28px; color: var(--text-secondary); margin-top: 6px; font-variant-numeric: tabular-nums; }
+.tvos-row .tx { flex: 1; min-width: 0; }
+.tvos-row .tr { margin-left: auto; color: var(--text-secondary); font-size: 32px; }
+/* Focus: UIFocusSystem's lift. Scale + elevation + a light-source
+   shadow, exactly as a stock tvOS cell does it. No custom ring. */
+.tvos-row.focused { background: var(--component-bg-active); transform: scale(1.03); box-shadow: 0 26px 60px rgba(0, 0, 0, 0.55); }
+.tvos-btn { display: inline-flex; align-items: center; gap: 14px; height: 76px; padding: 0 40px; border-radius: 12px; font-size: 32px; font-weight: var(--fw-medium); background: var(--component-bg); color: var(--text); }
+.tvos-btn.focused { background: var(--component-bg-active); transform: scale(1.05); box-shadow: 0 22px 48px rgba(0, 0, 0, 0.5); }
