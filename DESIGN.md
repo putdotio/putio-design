@@ -105,11 +105,16 @@ TV is the exception: every 10-foot surface — list rows, buttons, sheets, cards
 ## Components
 
 The component recipes below and in `system/components.css` are the **web
-binding** of the token graph. Native platforms (SwiftUI, Compose, Roku) consume
-the token *values* and bind them through their platform's own controls and
-conventions: a native app themes stock platform elements with these tokens
-rather than re-drawing the web recipes. The first native adopter is the Apple
-kit — see `DESIGN.md` in [putio-ios](https://github.com/putdotio/putio-ios).
+binding** of the token graph, and they bind the web surfaces in full. The other
+tiers inherit differently: native apps (SwiftUI, Compose) consume the token
+*values* and build every component from their platform's human interface
+guidelines — stock controls themed with these tokens, never re-drawn web
+recipes (first adopter: `DESIGN.md` in
+[putio-ios](https://github.com/putdotio/putio-ios)); Roku inherits the tokens
+with more room for put.io conventions in custom SceneGraph components; the
+web-based TV app applies this system restrained to the product's generic
+list-first 10-foot interface, which every TV surface — including the native
+ones, within their platform conventions — treats as the shared family look.
 
 Buttons have three tiers on one axis: emphasis. **Primary** is the brand fill — `--button-primary-bg` at rest, `--button-primary-bg-hover` on hover so the CTA never feels inert, label `--button-primary-fg`. Yellow is reserved for primary commands, and an action group carries at most one. **Secondary** is a quiet fill: `--button-default-bg` (aliased as `--button-secondary-bg`) plus a border at `--border`, with hover stepping both (`--button-default-bg-hover`, `--border-hover`). Because it fills, it reads to a hard edge exactly like the primary, so the two compare safely side by side. **Ghost** is text only — no fill, no border. `--button-ghost-fg` at rest; hover paints `--button-ghost-bg-hover` behind the label and lifts it to `--button-ghost-fg-hover`. The label lift is mandatory: the faint fill is never the only hover cue. Disabled drops the colour to `--solid` at full opacity rather than fading the box. Use ghost for anything quieter than a filled secondary — a header `Log in`, toolbar text actions, `Cancel` beside a filled confirm. An icon-only ghost is the quiet icon button, on the same tokens.
 
