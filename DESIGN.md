@@ -104,6 +104,13 @@ TV is the exception: every 10-foot surface — list rows, buttons, sheets, cards
 
 ## Components
 
+The component recipes below and in `system/components.css` are the **web
+binding** of the token graph. Native platforms (SwiftUI, Compose, Roku) consume
+the token *values* and bind them through their platform's own controls and
+conventions: a native app themes stock platform elements with these tokens
+rather than re-drawing the web recipes. The first native adopter is the Apple
+kit — see `DESIGN.md` in [putio-ios](https://github.com/putdotio/putio-ios).
+
 Buttons have three tiers on one axis: emphasis. **Primary** is the brand fill — `--button-primary-bg` at rest, `--button-primary-bg-hover` on hover so the CTA never feels inert, label `--button-primary-fg`. Yellow is reserved for primary commands, and an action group carries at most one. **Secondary** is a quiet fill: `--button-default-bg` (aliased as `--button-secondary-bg`) plus a border at `--border`, with hover stepping both (`--button-default-bg-hover`, `--border-hover`). Because it fills, it reads to a hard edge exactly like the primary, so the two compare safely side by side. **Ghost** is text only — no fill, no border. `--button-ghost-fg` at rest; hover paints `--button-ghost-bg-hover` behind the label and lifts it to `--button-ghost-fg-hover`. The label lift is mandatory: the faint fill is never the only hover cue. Disabled drops the colour to `--solid` at full opacity rather than fading the box. Use ghost for anything quieter than a filled secondary — a header `Log in`, toolbar text actions, `Cancel` beside a filled confirm. An icon-only ghost is the quiet icon button, on the same tokens.
 
 Outline is not a tier. The system ships no transparent-background bordered button, and consumers must not hand-roll one. The pairing rule behind that: never place a border-only button in the same action group as a solid fill. At identical box heights the outlined shape reads smaller, because a solid resolves to a hard edge while a low-contrast hairline resolves to a soft one, and the eye compares the two extents differently. It is worst on dark surfaces, where a 15%-white hairline is barely visible at all. If a bordered treatment must sit near a fill, it must itself fill — the secondary tier — and carry its border at `--border`-step contrast, never a sub-20% hairline on transparent.
@@ -118,7 +125,7 @@ Form fields use the shared `--field-*` aliases: `--field-bg` for the fill, `--fi
 
 TV components are list-first and focus-first. A TV app is still a file browser, not a poster wall. Roku, native Apple, Android, and web TV repos should consume the generic tokens and generate their own platform bindings.
 
-TV surfaces are solid token colors — no translucent materials and no blur. Focus is expressed as a fill, never a lift: rows go transparent to `--component-bg-active`, and buttons step both their fill and their border. Navigation is a Home hub that pushes full screens onto a stack; there is no tab bar. Menus are centred modals, not popovers anchored to a trigger.
+TV surfaces are solid token colors — no translucent materials and no blur. Focus is expressed as a fill, never a lift: rows go transparent to `--component-bg-active`, and buttons step both their fill and their border. Navigation is a Home hub that pushes full screens onto a stack; there is no tab bar. Menus are centred modals, not popovers anchored to a trigger. These focus and material rules bind the web TV and Roku surfaces; a native TV binding follows its platform's own control conventions where the platform owns focus — Apple tvOS buttons use the system focus treatment (adopted 2026-08) while non-control TV surfaces stay solid everywhere.
 
 The 10-foot scale lives in the `tv` token group — type steps, spacing ramp, overscan ratios, radius, and z-indices — carried as data for platform adapters rather than emitted into web CSS. Overscan ratios declare their viewport axis: multiply `tv.overscan.x` by viewport width and `tv.overscan.y` by viewport height, then compose screen padding locally with the spacing tokens. Two rules do not cross over: TV has no mono face, and TV stacks `tv.z.overlay` above `tv.z.toast`, the reverse of the web `--z-*` order. Emit the two scales separately. Cite the `tv` group by its graph path, never as `--tv-*`: those names are read from the DTCG artifacts by platform adapters and are deliberately absent from `dist/css/tokens.css`, so CSS-variable syntax would promise a `var()` that resolves to nothing.
 
