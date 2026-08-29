@@ -170,6 +170,8 @@ Successful verification uses `data-state="success"`, retains the six digits in
 a read-only input, announces automatic continuation with a `role="status"`
 callout, and does not leave another action on screen. The consumer owns the
 backend transition and navigation timing.
+The reference omits recovery-code entry until its consumer owns a working
+route. Do not expose a specimen-only recovery action.
 Groups, not slots, own the responsive width, so the complete control contracts
 to narrow Auth cards without horizontal scrolling.
 
@@ -179,6 +181,9 @@ Password feedback uses `.password-strength` with `data-strength` set to
 range/value. Its `aria-valuetext` must match both `data-strength` and the
 visible categorical label. Four `.password-strength-segment` elements and a
 `.password-strength-label` render the visual state and its text equivalent.
+These categories define presentation, not a password-scoring algorithm. The
+consumer owns scoring and synchronizes the selected category; the Auth reset
+specimen starts at `empty` because its password input starts empty.
 
 TV components are list-first and focus-first. A TV app is still a file browser, not a poster wall. Roku, native Apple, Android, and web TV repos should consume the generic tokens and generate their own platform bindings.
 

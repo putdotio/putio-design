@@ -208,6 +208,9 @@ async function componentCssSelectors(page: Page): Promise<string[]> {
 
 async function injectAuthRecipeProbes(page: Page): Promise<void> {
   await page.evaluate(() => {
+    // These probes exercise each closed presentation state in the exported
+    // recipe. Auth screens separately prove their real initial state; the
+    // consumer owns password scoring and selects the synchronized category.
     const host = document.createElement("div");
     host.id = "auth-recipe-probes";
     const otp = (name: string, attributes = "") => `
