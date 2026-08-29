@@ -33,10 +33,12 @@ npm install @putdotio/design
 
 ## Use
 
-Import the generated CSS when a web surface needs put.io custom properties:
+Import the generated tokens first. Tier-1 web surfaces also import the
+component recipes:
 
 ```css
 @import "@putdotio/design/css";
+@import "@putdotio/design/components";
 ```
 
 Component recipes should consume semantic aliases such as `--field-*`,
@@ -46,6 +48,7 @@ into palette tokens directly.
 Package entrypoints:
 
 - CSS custom properties: [`dist/css/tokens.css`](dist/css/tokens.css)
+- Tier-1 component recipes: [`system/components.css`](system/components.css)
 - DTCG token tree: [`dist/tokens.dtcg.json`](dist/tokens.dtcg.json)
 - Flat token metadata: [`dist/tokens.flat.json`](dist/tokens.flat.json)
 - Figma-safe subset: [`dist/figma/putio.tokens.json`](dist/figma/putio.tokens.json)

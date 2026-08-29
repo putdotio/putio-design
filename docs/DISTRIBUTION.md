@@ -22,16 +22,18 @@ artifacts, package-safe brand assets, and the design contract:
 
 - `@putdotio/design/assets/*`
 - `@putdotio/design/css`
+- `@putdotio/design/components`
 - `@putdotio/design/tokens`
 - `@putdotio/design/tokens/meta`
 - `@putdotio/design/tokens/dtcg`
 - `@putdotio/design/tokens/figma`
 - `@putdotio/design/design.md`
 
-The CSS export is the web custom-property contract. It includes palette tokens,
-component aliases such as `--field-*` and `--panel-*`, plus action aliases such
-as `--primary`, `--success`, `--destructive`, and their `--*-foreground`
-companions.
+The token CSS export is the web custom-property contract. It includes palette
+tokens, component aliases such as `--field-*` and `--panel-*`, plus action
+aliases such as `--primary`, `--success`, `--destructive`, and their
+`--*-foreground` companions. The component export is the Tier-1 web recipe
+contract.
 
 Do not publish platform-native outputs from this repo. Web, iOS, Android,
 Roku, and TV repos consume the generic token artifacts and brand assets and
