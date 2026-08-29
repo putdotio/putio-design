@@ -73,8 +73,12 @@ const authPreviews = [
     logoSelector: ".auth-logo",
     pagePath: "/preview/web-p00c-auth-signin.html",
     requiredActions: [
-      { name: "Sign in", role: "button" },
-      { name: "Sign up", role: "link" },
+      { count: 2, name: "Forgot your password?", role: "link" },
+      { count: 1, name: "Show password", role: "button" },
+      { count: 2, name: "Sign in", role: "button" },
+      { count: 2, name: "Sign up", role: "link" },
+      { count: 1, name: "Resend sign-in link", role: "button" },
+      { count: 1, name: "Go back", role: "link" },
     ],
   },
   {
@@ -87,8 +91,16 @@ const authPreviews = [
     logoSelector: ".auth-logo",
     pagePath: "/preview/web-p00d-auth-signup.html",
     requiredActions: [
-      { name: "Sign up", role: "button" },
-      { name: "Sign in", role: "link" },
+      { count: 1, name: "Sign up", role: "button" },
+      { count: 1, name: "Terms", role: "link" },
+      { count: 1, name: "Privacy Policy", role: "link" },
+      { count: 1, name: "Sign in", role: "link" },
+      { count: 1, name: "Send reset link", role: "button" },
+      { count: 1, name: "Back to sign in", role: "link" },
+      { count: 1, name: "Show password", role: "button" },
+      { count: 1, name: "Save and continue", role: "button" },
+      { count: 1, name: "Verifying…", role: "button" },
+      { count: 1, name: "Sign out", role: "link" },
     ],
   },
   {
@@ -101,8 +113,8 @@ const authPreviews = [
     logoSelector: ".auth-logo",
     pagePath: "/preview/web-p00e-auth-2fa.html",
     requiredActions: [
-      { name: "Verify", role: "button" },
-      { name: "Sign out", role: "link" },
+      { count: 2, name: "Verify", role: "button" },
+      { count: 2, name: "Sign out", role: "link" },
     ],
   },
   {
@@ -115,15 +127,21 @@ const authPreviews = [
     logoSelector: ".col > :is(.brand-light, .brand-dark)",
     pagePath: "/preview/web-s06-auth.html",
     requiredActions: [
-      { name: "Sign in", role: "button" },
-      { name: "Sign up", role: "link" },
+      { count: 2, name: "Forgot your password?", role: "link" },
+      { count: 2, name: "Show password", role: "button" },
+      { count: 2, name: "Sign in", role: "button" },
+      { count: 2, name: "Sign up", role: "link" },
     ],
   },
 ] as const;
 
 const authThemes = ["light", "dark"] as const;
 const authThemePreviews = authPreviews.flatMap((preview) => authThemes.map((theme) => ({ preview, theme })));
-const credentialErrorCopy = "That username or password doesn't look right.";
+const authCopyThemePreviews = [
+  ...authPreviews.map(({ pagePath }) => pagePath),
+  "/preview/web-c00-buttons.html",
+].flatMap((pagePath) => authThemes.map((theme) => ({ pagePath, theme })));
+const credentialErrorCopy = "That username or password doesn't look right";
 const forbiddenAuthCopy = /\b(?:login|log\s+in|register|create\s+(?:an\s+|your\s+)?account)\b/i;
 const narrowAuthViewportWidths = [320, 375] as const;
 const otpPreviewPaths = ["/preview/web-p00d-auth-signup.html", "/preview/web-p00e-auth-2fa.html"] as const;
@@ -270,9 +288,9 @@ async function expectAuthFitsViewport(
 }
 
 test.describe("design.put.io static guide", () => {
-  for (const { preview, theme } of authThemePreviews) {
-    test(`${preview.pagePath} uses approved Auth actions and copy in ${theme} mode @desktop`, async ({ page }) => {
-      await page.goto(`${preview.pagePath}?theme=${theme}`, { waitUntil: "domcontentloaded" });
+  for (const { pagePath, theme } of authCopyThemePreviews) {
+    test(`${pagePath} uses approved Auth copy in ${theme} mode @desktop`, async ({ page }) => {
+      await page.goto(`${pagePath}?theme=${theme}`, { waitUntil: "domcontentloaded" });
       const body = page.locator("body");
       const [visibleCopy, ariaSnapshot, attributeCopy] = await Promise.all([
         body.evaluate((element) => (element instanceof HTMLElement ? element.innerText : "")),
@@ -292,9 +310,19 @@ test.describe("design.put.io static guide", () => {
           ),
       ]);
       const authCopy = [visibleCopy, ariaSnapshot, ...attributeCopy].join("\n");
-      expect(authCopy, `${preview.pagePath} contains forbidden auth wording in ${theme} mode`).not.toMatch(forbiddenAuthCopy);
+      expect(authCopy, `${pagePath} contains forbidden auth wording in ${theme} mode`).not.toMatch(forbiddenAuthCopy);
+    });
+  }
+
+  for (const { preview, theme } of authThemePreviews) {
+    test(`${preview.pagePath} exposes every authored Auth action in ${theme} mode @desktop`, async ({ page }) => {
+      await page.goto(`${preview.pagePath}?theme=${theme}`, { waitUntil: "domcontentloaded" });
       for (const action of preview.requiredActions) {
-        await expect(page.getByRole(action.role, { name: action.name, exact: true }).first()).toBeVisible();
+        const matches = page.getByRole(action.role, { name: action.name, exact: true });
+        await expect(matches).toHaveCount(action.count);
+        for (let index = 0; index < action.count; index += 1) {
+          await expect(matches.nth(index)).toBeVisible();
+        }
       }
       if (preview.credentialErrorSelector) {
         await expect(page.locator(preview.credentialErrorSelector)).toHaveText(credentialErrorCopy);

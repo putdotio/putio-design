@@ -144,8 +144,9 @@ Browser Auth composition is fluid up to a `340px` column. It uses the standard
 `36px` field recipe, a `30.33px` wordmark box (the `26px` ink height multiplied
 by its `7/6` view-box ratio), and left-aligned headings at `19px` / weight
 `500`. The prompt and its action form a centered two-line footer. User-facing
-actions say “Sign in” and “Sign up”, and an invalid credential response says
-exactly “That username or password doesn't look right.” The shipped
+actions say “Sign in” and “Sign up”, and an invalid credential response uses
+“That username or password doesn't look right” with no terminal punctuation.
+The shipped
 `web-s06-auth` screen plus `web-p00c-auth-signin`, `web-p00d-auth-signup`, and
 `web-p00e-auth-2fa` are the Tier-1 composition references for this contract.
 
