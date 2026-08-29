@@ -27,6 +27,14 @@ from the token graph. Android TV uses the separate
 the same semantic contract through the roles exposed by that Compose library.
 Material then owns pressed, disabled, selected and focused component states.
 
+The two libraries use separate `MaterialTheme` composition locals. A TV root
+provides the TV scheme for `androidx.tv.material3` controls. When a control is
+available only from `androidx.compose.material3`, provide the phone/tablet M3
+scheme at that boundary or pass the mapped colours explicitly; the TV scheme
+does not theme regular M3 controls. Prefer the TV component when both libraries
+provide one. At the current library versions, `Switch` is a TV component;
+`LinearProgressIndicator` is the regular-M3 mixed-local case.
+
 There is no put.io Android component library and there will not be one.
 
 Tier definitions live in [ADR 0009](https://github.com/putdotio/putio-frontend/blob/main/docs/decisions/0009-design-binding-tiers.md).
