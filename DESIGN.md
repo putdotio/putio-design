@@ -153,7 +153,8 @@ Form feedback uses the exported `.form-callout` recipe. Its block form reads
 the `--alert-*` families and selects `info`, `success`, or `error` with
 `data-state`; `.inline` removes the surface and border while keeping the same
 semantic text colour. Callouts remain messages, not containers for unrelated
-form layout.
+form layout. Their parent uses `.form-group`, whose `6px` gap owns the spacing
+between a control and its inline feedback.
 
 One-time passwords use one semantic `.otp-input`, never six independent
 inputs. Place it with two three-slot `.otp-group` elements, one
@@ -162,13 +163,18 @@ inputs. Place it with two three-slot `.otp-group` elements, one
 `aria-invalid`; script synchronizes slot text plus `filled` / `active` state.
 The root uses `data-state="verifying"` while submission is in flight and keeps
 the entered digits visible; the backing input is disabled for the same period.
+Successful verification uses `data-state="success"`, retains the six digits in
+a read-only input, announces automatic continuation with a `role="status"`
+callout, and does not leave another action on screen. The consumer owns the
+backend transition and navigation timing.
 Groups, not slots, own the responsive width, so the complete control contracts
 to narrow Auth cards without horizontal scrolling.
 
 Password feedback uses `.password-strength` with `data-strength` set to
 `empty`, `weak`, `fair`, `good`, or `strong`. Its
 `.password-strength-meter` is the semantic `role="meter"` and owns the ARIA
-range/value; four `.password-strength-segment` elements and a
+range/value. Its `aria-valuetext` must match both `data-strength` and the
+visible categorical label. Four `.password-strength-segment` elements and a
 `.password-strength-label` render the visual state and its text equivalent.
 
 TV components are list-first and focus-first. A TV app is still a file browser, not a poster wall. Roku, native Apple, Android, and web TV repos should consume the generic tokens and generate their own platform bindings.

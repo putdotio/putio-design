@@ -140,12 +140,12 @@
   .auth .a-body { display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px; }
   .auth .a-body .label-row {
     display: flex; justify-content: space-between; align-items: baseline;
-    margin-bottom: 6px;
+    margin-bottom: 0;
   }
   .auth .a-body .label-row .label { margin-bottom: 0; }
   .auth .a-body .label-row a {text-decoration: none; white-space: nowrap}
   .auth .a-body .hint-inline {
-    font-size: 12px; color: var(--text-secondary); margin-top: 6px; line-height: 1.5;
+    font-size: 12px; color: var(--text-secondary); margin-top: 0; line-height: 1.5;
   }
   .auth .a-link {
     margin-top: 0;
@@ -209,12 +209,12 @@
     <div class="demo-body auth-stage">
       <img class="auth-logo brand-light" src="../assets/logo-retro-light.svg" alt="put.io" />
       <img class="auth-logo brand-dark"  src="../assets/logo-retro-dark.svg"  alt="put.io" />
-      <div class="card card-lg auth" data-slot="auth">
+      <div class="card card-lg auth" data-slot="auth" data-demo-otp-verification>
         <div class="a-hd" data-slot="auth-header">
           <h3>Two-factor authentication</h3>
         </div>
         <div class="a-body" data-slot="auth-body">
-          <div class="group">
+          <div class="group form-group">
             <label class="label" for="otp-code">Authentication code</label>
             <div class="otp">
               <input class="otp-input" id="otp-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" value="39247" aria-describedby="otp-hint">
@@ -233,7 +233,7 @@
             <div class="hint-inline" id="otp-hint">Open your authenticator app and enter the 6-digit code.</div>
           </div>
         </div>
-        <button class="btn-primary btn-block" type="button">Verify</button>
+        <button class="btn-primary btn-block" type="button" data-otp-submit disabled>Verify</button>
       </div>
       <div class="auth-foot"><span>Wrong account?</span><a href="#">Sign out</a></div>
     </div>
@@ -256,7 +256,7 @@
           <h3>Two-factor authentication</h3>
         </div>
         <div class="a-body" data-slot="auth-body">
-          <div class="group">
+          <div class="group form-group">
             <label class="label" for="otp-code-error">Authentication code</label>
             <div class="otp">
               <input class="otp-input" id="otp-code-error" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" value="810506" aria-invalid="true" aria-describedby="otp-error">
@@ -283,10 +283,53 @@
     </div>
   </div>
 
+  <!-- =============================================================
+       L · 12, Two-factor · success state
+       ============================================================= -->
+  <div class="panel">
+    <div class="demo-hd">
+      <span class="ix">L · 12</span>
+      <span class="t">Two-factor · success</span>
+      <span class="when">Verified code · automatic continuation</span>
+    </div>
+    <div class="demo-body auth-stage">
+      <img class="auth-logo brand-light" src="../assets/logo-retro-light.svg" alt="put.io" />
+      <img class="auth-logo brand-dark"  src="../assets/logo-retro-dark.svg"  alt="put.io" />
+      <div class="card card-lg auth" data-slot="auth">
+        <div class="a-hd" data-slot="auth-header">
+          <h3>Two-factor authentication</h3>
+        </div>
+        <div class="a-body" data-slot="auth-body">
+          <div class="group form-group">
+            <label class="label" for="otp-code-success">Authentication code</label>
+            <div class="otp" data-state="success">
+              <input class="otp-input" id="otp-code-success" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" value="392471" readonly tabindex="-1" aria-describedby="otp-success">
+              <div class="otp-group">
+                <div class="otp-slot" data-state="filled" aria-hidden="true">3</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">9</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">2</div>
+              </div>
+              <span class="otp-separator" aria-hidden="true">–</span>
+              <div class="otp-group">
+                <div class="otp-slot" data-state="filled" aria-hidden="true">4</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">7</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">1</div>
+              </div>
+            </div>
+            <div class="form-callout inline" data-state="success" id="otp-success" role="status">
+              <span>Code verified. Continuing…</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <div class="specs-link">
   <b>Layout rules.</b><br>
   <code>L · 09</code> 2FA uses 6 digit slots with a separator between groups of three<br>
   <code>L · 11</code> a failed code flips every slot red, border and text only, plus an inline callout<br>
+  <code>L · 12</code> success keeps the verified code visible, announces continuation, and has no dead-end action<br>
 </div>
 
 </div>
@@ -295,6 +338,8 @@
   document.querySelectorAll('.otp').forEach(function (otp) {
     var input = otp.querySelector('.otp-input');
     var slots = Array.from(otp.querySelectorAll('.otp-slot'));
+    var demoCard = otp.closest('[data-demo-otp-verification]');
+    var submit = demoCard && demoCard.querySelector('[data-otp-submit]');
     if (!input) return;
 
     function syncSlots(showFocus) {
@@ -309,6 +354,8 @@
         else if (index < digits.length) slot.dataset.state = 'filled';
         else slot.removeAttribute('data-state');
       });
+
+      if (submit && !input.disabled) submit.disabled = digits.length !== slots.length;
     }
 
     input.addEventListener('input', function () { syncSlots(true); });
@@ -316,6 +363,25 @@
     input.addEventListener('click', function () { syncSlots(true); });
     input.addEventListener('keyup', function () { syncSlots(true); });
     input.addEventListener('blur', function () { syncSlots(false); });
+
+    if (submit) {
+      submit.addEventListener('click', function () {
+        if (input.value.length !== slots.length) {
+          input.focus();
+          syncSlots(true);
+          return;
+        }
+        otp.dataset.state = 'verifying';
+        otp.setAttribute('aria-busy', 'true');
+        otp.setAttribute('aria-disabled', 'true');
+        input.disabled = true;
+        submit.disabled = true;
+        submit.textContent = 'Verifying…';
+        syncSlots(false);
+      });
+    }
+
+    syncSlots(false);
   });
 </script>
 </body></html>

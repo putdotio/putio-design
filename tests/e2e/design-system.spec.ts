@@ -113,6 +113,7 @@ const narrowAuthViewportWidths = [320, 375] as const;
 const otpPreviewPaths = ["/preview/web-p00d-auth-signup.html", "/preview/web-p00e-auth-2fa.html"] as const;
 
 const exportedAuthRecipeSelectors = [
+  ".form-group",
   ".form-callout",
   '.form-callout[data-state="info"]',
   '.form-callout[data-state="success"]',
@@ -225,16 +226,19 @@ async function injectAuthRecipeProbes(page: Page): Promise<void> {
           <div class="otp-slot">6</div>
         </div>
       </div>`;
-    const strength = (state: string, value: number) => `
+    const strength = (state: string, value: number) => {
+      const valueText = state[0].toUpperCase() + state.slice(1);
+      return `
       <div class="password-strength" data-probe-strength="${state}" data-strength="${state}">
-        <div class="password-strength-meter" role="meter" aria-label="Password strength" aria-valuemin="0" aria-valuemax="4" aria-valuenow="${value}">
+        <div class="password-strength-meter" role="meter" aria-label="Password strength" aria-valuemin="0" aria-valuemax="4" aria-valuenow="${value}" aria-valuetext="${valueText}">
           <span class="password-strength-segment"></span>
           <span class="password-strength-segment"></span>
           <span class="password-strength-segment"></span>
           <span class="password-strength-segment"></span>
         </div>
-        <div class="password-strength-label"><span>Password strength</span><b>${state}</b></div>
+        <div class="password-strength-label"><span>Password strength</span><b>${valueText}</b></div>
       </div>`;
+    };
 
     host.innerHTML = `
       <div class="form-callout" data-probe-callout="info" data-state="info">Info</div>
@@ -255,6 +259,31 @@ async function injectAuthRecipeProbes(page: Page): Promise<void> {
     `;
     document.body.append(host);
   });
+}
+
+async function expectAuthFitsViewport(
+  page: Page,
+  preview: (typeof authPreviews)[number],
+  context: string,
+): Promise<void> {
+  const documentWidth = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(documentWidth.scrollWidth, `${preview.pagePath} document width in ${context}`).toBeLessThanOrEqual(documentWidth.clientWidth);
+
+  const selectors = preview.cardSelector === preview.columnSelector ? preview.cardSelector : `${preview.columnSelector}, ${preview.cardSelector}`;
+  const bounds = await page.locator(selectors).evaluateAll((elements) =>
+    elements.map((element) => {
+      const box = element.getBoundingClientRect();
+      return { left: box.left, right: box.right };
+    }),
+  );
+  expect(bounds.length, `${preview.pagePath} should render Auth content in ${context}`).toBeGreaterThan(0);
+  for (const bound of bounds) {
+    expect(bound.left, `${preview.pagePath} left edge in ${context}`).toBeGreaterThanOrEqual(-0.5);
+    expect(bound.right, `${preview.pagePath} right edge in ${context}`).toBeLessThanOrEqual(documentWidth.clientWidth + 0.5);
+  }
 }
 
 test.describe("design.put.io static guide", () => {
@@ -354,36 +383,50 @@ test.describe("design.put.io static guide", () => {
         expect(footer.promptCenterDelta, `${preview.pagePath} centered footer prompt`).toBeLessThanOrEqual(1);
         expect(footer.actionCenterDelta, `${preview.pagePath} centered footer action`).toBeLessThanOrEqual(1);
       }
+
+      await expectAuthFitsViewport(page, preview, `${theme} desktop mode`);
     });
   }
 
   for (const preview of authPreviews) {
     for (const viewportWidth of narrowAuthViewportWidths) {
-      test(`${preview.pagePath} has no horizontal overflow at ${viewportWidth}px @desktop`, async ({ page }) => {
+      test(`${preview.pagePath} has no horizontal overflow at ${viewportWidth}px in either mode @desktop`, async ({ page }) => {
         await page.setViewportSize({ width: viewportWidth, height: 900 });
-        await page.goto(`${preview.pagePath}?theme=light`, { waitUntil: "domcontentloaded" });
-        const documentWidth = await page.evaluate(() => ({
-          clientWidth: document.documentElement.clientWidth,
-          scrollWidth: document.documentElement.scrollWidth,
-        }));
-        expect(documentWidth.scrollWidth, `${preview.pagePath} document width at ${viewportWidth}px`).toBeLessThanOrEqual(documentWidth.clientWidth);
-
-        const selectors = preview.cardSelector === preview.columnSelector ? preview.cardSelector : `${preview.columnSelector}, ${preview.cardSelector}`;
-        const bounds = await page.locator(selectors).evaluateAll((elements) =>
-          elements.map((element) => {
-            const box = element.getBoundingClientRect();
-            return { left: box.left, right: box.right };
-          }),
-        );
-        expect(bounds.length, `${preview.pagePath} should render narrow Auth content`).toBeGreaterThan(0);
-        for (const bound of bounds) {
-          expect(bound.left, `${preview.pagePath} left edge at ${viewportWidth}px`).toBeGreaterThanOrEqual(-0.5);
-          expect(bound.right, `${preview.pagePath} right edge at ${viewportWidth}px`).toBeLessThanOrEqual(documentWidth.clientWidth + 0.5);
+        for (const theme of authThemes) {
+          await test.step(`${theme} mode`, async () => {
+            await page.goto(`${preview.pagePath}?theme=${theme}`, { waitUntil: "domcontentloaded" });
+            await expectAuthFitsViewport(page, preview, `${theme} mode at ${viewportWidth}px`);
+          });
         }
       });
     }
   }
 
+  test("Auth feedback uses the shared form-group rhythm @desktop", async ({ page }) => {
+    const feedbackCases = [
+      ["/preview/web-p00c-auth-signin.html", "#signin-err"],
+      ["/preview/web-p00d-auth-signup.html", ".password-strength"],
+      ["/preview/web-p00e-auth-2fa.html", "#otp-error"],
+      ["/preview/web-p00e-auth-2fa.html", "#otp-success"],
+    ] as const;
+
+    for (const [pagePath, feedbackSelector] of feedbackCases) {
+      await page.goto(`${pagePath}?theme=light`, { waitUntil: "domcontentloaded" });
+      const spacing = await page.locator(feedbackSelector).evaluate((element) => {
+        const previous = element.previousElementSibling;
+        const parent = element.parentElement;
+        if (!previous || !parent) throw new Error("Auth feedback requires a preceding control and parent");
+        return {
+          gap: element.getBoundingClientRect().top - previous.getBoundingClientRect().bottom,
+          parentUsesFormGroup: parent.classList.contains("form-group"),
+          rowGap: getComputedStyle(parent).rowGap,
+        };
+      });
+      expect(spacing.parentUsesFormGroup, `${pagePath} ${feedbackSelector} parent recipe`).toBe(true);
+      expect(spacing.rowGap, `${pagePath} ${feedbackSelector} parent gap`).toBe("6px");
+      expect(Math.abs(spacing.gap - 6), `${pagePath} ${feedbackSelector} rendered separation`).toBeLessThanOrEqual(0.1);
+    }
+  });
   for (const pagePath of tvFramePages) {
     test(`${pagePath} keeps its TV artboard visible @tv`, async ({ page }) => {
       await page.goto(pagePath, { waitUntil: "domcontentloaded" });
@@ -631,11 +674,15 @@ test.describe("design.put.io static guide", () => {
       };
 
       for (const [state, expected] of Object.entries(expectedSegments)) {
-        const colors = await page.locator(`[data-probe-strength="${state}"] .password-strength-segment`).evaluateAll((elements) =>
+        const strength = page.locator(`[data-probe-strength="${state}"]`);
+        const colors = await strength.locator(".password-strength-segment").evaluateAll((elements) =>
           elements.map((element) => getComputedStyle(element).backgroundColor),
         );
         expect(colors, `${theme} ${state} password-strength segments`).toEqual(expected);
-        await expect(page.locator(`[data-probe-strength="${state}"] .password-strength-label`)).toHaveCSS("color", label);
+        const valueText = state[0].toUpperCase() + state.slice(1);
+        await expect(strength.locator(".password-strength-meter")).toHaveAttribute("aria-valuetext", valueText);
+        await expect(strength.locator(".password-strength-label")).toHaveCSS("color", label);
+        await expect(strength.locator(".password-strength-label b")).toHaveText(valueText);
       }
     });
   }
@@ -794,6 +841,50 @@ test.describe("design.put.io static guide", () => {
     await expect(slots).toHaveText(["1", "2", "3", "4", "5", "6"]);
   });
 
+  test("OTP submission enters the locked verifying state @desktop", async ({ page }) => {
+    await page.goto("/preview/web-p00e-auth-2fa.html?theme=light", { waitUntil: "domcontentloaded" });
+    const card = page.locator("[data-demo-otp-verification]");
+    const otp = card.locator(".otp");
+    const input = otp.locator(".otp-input");
+    const submit = card.locator("[data-otp-submit]");
+
+    await expect(submit).toBeDisabled();
+    await input.fill("392471");
+    await expect(submit).toBeEnabled();
+    await submit.click();
+
+    await expect(input).toHaveValue("392471");
+    await expect(input).toBeDisabled();
+    await expect(otp).toHaveAttribute("data-state", "verifying");
+    await expect(otp).toHaveAttribute("aria-busy", "true");
+    await expect(otp).toHaveAttribute("aria-disabled", "true");
+    await expect(otp.locator(".otp-slot")).toHaveText(["3", "9", "2", "4", "7", "1"]);
+    await expect(submit).toBeDisabled();
+    await expect(submit).toHaveText("Verifying…");
+  });
+
+  test("successful OTP preserves its code and announces continuation @desktop", async ({ page }) => {
+    await page.goto("/preview/web-p00e-auth-2fa.html?theme=light", { waitUntil: "domcontentloaded" });
+    const otp = page.locator('.otp[data-state="success"]');
+    await expect(otp).toHaveCount(1);
+    const input = otp.locator(".otp-input");
+    const code = await input.inputValue();
+    expect(code).toMatch(/^\d{6}$/);
+    await expect(input).toHaveJSProperty("readOnly", true);
+    await expect(input).toHaveAttribute("tabindex", "-1");
+    await expect(otp.locator(".otp-slot")).toHaveText(code.split(""));
+
+    const statusId = await input.getAttribute("aria-describedby");
+    expect(statusId, "successful OTP should describe automatic continuation").toBeTruthy();
+    const status = page.locator(`#${statusId}`);
+    await expect(status).toHaveAttribute("role", "status");
+    await expect(status).toHaveText("Code verified. Continuing…");
+    await expect(status).toBeVisible();
+
+    const card = page.locator(".auth").filter({ has: otp });
+    await expect(card.locator("button.btn-primary")).toHaveCount(0);
+  });
+
   test("verifying OTP preserves its code and locks submission @desktop", async ({ page }) => {
     await page.goto("/preview/web-p00d-auth-signup.html?theme=light", { waitUntil: "domcontentloaded" });
     const otp = page.locator('.otp[data-state="verifying"]');
@@ -820,6 +911,8 @@ test.describe("design.put.io static guide", () => {
           segmentCount: meter?.querySelectorAll(":scope > .password-strength-segment").length ?? 0,
           state: root.getAttribute("data-strength"),
           value: meter?.getAttribute("aria-valuenow"),
+          valueText: meter?.getAttribute("aria-valuetext"),
+          visibleValue: root.querySelector(".password-strength-label b")?.textContent?.trim(),
         };
       }),
     );
@@ -832,6 +925,8 @@ test.describe("design.put.io static guide", () => {
       expect(Number(contract.value)).toBeLessThanOrEqual(4);
       expect(contract.segmentCount).toBe(4);
       expect(contract.labelCount).toBe(1);
+      expect(contract.valueText?.toLowerCase(), "meter value text should match data-strength").toBe(contract.state);
+      expect(contract.visibleValue, "visible strength should match the meter value text").toBe(contract.valueText);
     }
   });
 
