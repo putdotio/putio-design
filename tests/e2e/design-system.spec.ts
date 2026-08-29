@@ -853,6 +853,17 @@ test.describe("design.put.io static guide", () => {
     const submit = errorCard.locator("[data-otp-submit]");
     const feedback = errorCard.locator("#otp-error");
     await expect(submit).toBeEnabled();
+    await submit.click();
+    await expect(input).not.toHaveAttribute("aria-invalid");
+    await expect(input).not.toHaveAttribute("aria-describedby");
+    await expect(feedback).toBeHidden();
+    await expect(invalidOtp).toHaveAttribute("data-state", "verifying");
+    await expect(invalidOtp).toHaveAttribute("aria-busy", "true");
+    await expect(input).toBeDisabled();
+    await expect(submit).toBeDisabled();
+    await expect(submit).toHaveText("Verifying…");
+
+    await page.reload({ waitUntil: "domcontentloaded" });
     await input.fill("81050");
     await expect(input).not.toHaveAttribute("aria-invalid");
     await expect(input).not.toHaveAttribute("aria-describedby");
@@ -861,12 +872,6 @@ test.describe("design.put.io static guide", () => {
 
     await input.fill("810507");
     await expect(submit).toBeEnabled();
-    await submit.click();
-    await expect(invalidOtp).toHaveAttribute("data-state", "verifying");
-    await expect(invalidOtp).toHaveAttribute("aria-busy", "true");
-    await expect(input).toBeDisabled();
-    await expect(submit).toBeDisabled();
-    await expect(submit).toHaveText("Verifying…");
   });
 
   test("OTP edits sanitize digits and synchronize slots with the caret @desktop", async ({ page }) => {
@@ -955,7 +960,9 @@ test.describe("design.put.io static guide", () => {
     const contracts = await page.locator(".password-strength").evaluateAll((roots) =>
       roots.map((root) => {
         const meter = root.querySelector('.password-strength-meter[role="meter"]');
+        const password = root.closest(".form-group")?.querySelector<HTMLInputElement>('input[type="password"]');
         return {
+          inputValue: password?.value,
           labelCount: root.querySelectorAll(".password-strength-label").length,
           maximum: meter?.getAttribute("aria-valuemax"),
           minimum: meter?.getAttribute("aria-valuemin"),
@@ -976,6 +983,8 @@ test.describe("design.put.io static guide", () => {
       expect(Number(contract.value)).toBeLessThanOrEqual(4);
       expect(contract.segmentCount).toBe(4);
       expect(contract.labelCount).toBe(1);
+      expect(contract.inputValue, "password input should match the rendered strength state").toBe("");
+      expect([contract.state, contract.value, contract.valueText, contract.visibleValue]).toEqual(["empty", "0", "Empty", "Empty"]);
       expect(contract.valueText?.toLowerCase(), "meter value text should match data-strength").toBe(contract.state);
       expect(contract.visibleValue, "visible strength should match the meter value text").toBe(contract.valueText);
     }
