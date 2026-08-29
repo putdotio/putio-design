@@ -233,7 +233,7 @@
             <div class="hint-inline" id="otp-hint">Open your authenticator app and enter the 6-digit code.</div>
           </div>
         </div>
-        <button class="btn-primary btn-block" type="button" data-otp-submit disabled>Verify</button>
+        <button class="btn-primary btn-block" type="button" data-otp-submit aria-live="polite" aria-atomic="true" disabled>Verify</button>
       </div>
       <div class="auth-foot"><span>Wrong account?</span><a href="#">Sign out</a></div>
     </div>
@@ -277,7 +277,7 @@
             </div>
           </div>
         </div>
-        <button class="btn-primary btn-block" type="button" data-otp-submit>Verify</button>
+        <button class="btn-primary btn-block" type="button" data-otp-submit aria-live="polite" aria-atomic="true">Verify</button>
       </div>
       <div class="auth-foot"><span>Wrong account?</span><a href="#">Sign out</a></div>
     </div>
@@ -383,6 +383,26 @@
     input.addEventListener('click', function () { syncSlots(true); });
     input.addEventListener('keyup', function () { syncSlots(true); });
     input.addEventListener('blur', function () { syncSlots(false); });
+
+    otp.addEventListener('pointerdown', function (event) {
+      if (input.disabled || input.readOnly || event.button !== 0) return;
+      event.preventDefault();
+
+      var nearestIndex = 0;
+      var nearestDistance = Infinity;
+      slots.forEach(function (slot, index) {
+        var box = slot.getBoundingClientRect();
+        var distance = Math.abs(event.clientX - (box.left + box.width / 2));
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestIndex = index;
+        }
+      });
+
+      input.focus();
+      input.setSelectionRange(nearestIndex, nearestIndex);
+      syncSlots(true);
+    });
 
     if (submit) {
       submit.addEventListener('click', function () {

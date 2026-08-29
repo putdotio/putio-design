@@ -209,8 +209,7 @@ async function componentCssSelectors(page: Page): Promise<string[]> {
 async function injectAuthRecipeProbes(page: Page): Promise<void> {
   await page.evaluate(() => {
     // These probes exercise each closed presentation state in the exported
-    // recipe. Auth screens separately prove their real initial state; the
-    // consumer owns password scoring and selects the synchronized category.
+    // recipe that has no authored preview specimen.
     const host = document.createElement("div");
     host.id = "auth-recipe-probes";
     const otp = (name: string, attributes = "") => `
@@ -230,20 +229,6 @@ async function injectAuthRecipeProbes(page: Page): Promise<void> {
           <div class="otp-slot">6</div>
         </div>
       </div>`;
-    const strength = (state: string, value: number) => {
-      const valueText = state[0].toUpperCase() + state.slice(1);
-      return `
-      <div class="password-strength" data-probe-strength="${state}" data-strength="${state}">
-        <div class="password-strength-meter" role="meter" aria-label="Password strength" aria-valuemin="0" aria-valuemax="4" aria-valuenow="${value}" aria-valuetext="${valueText}">
-          <span class="password-strength-segment"></span>
-          <span class="password-strength-segment"></span>
-          <span class="password-strength-segment"></span>
-          <span class="password-strength-segment"></span>
-        </div>
-        <div class="password-strength-label"><span>Password strength</span><b>${valueText}</b></div>
-      </div>`;
-    };
-
     host.innerHTML = `
       <div class="form-callout" data-probe-callout="info" data-state="info">Info</div>
       <div class="form-callout" data-probe-callout="success" data-state="success">Success</div>
@@ -255,11 +240,6 @@ async function injectAuthRecipeProbes(page: Page): Promise<void> {
       ${otp("invalid")}
       ${otp("verifying", 'data-state="verifying"')}
       ${otp("success", 'data-state="success"')}
-      ${strength("empty", 0)}
-      ${strength("weak", 1)}
-      ${strength("fair", 2)}
-      ${strength("good", 3)}
-      ${strength("strong", 4)}
     `;
     document.body.append(host);
   });
@@ -316,8 +296,26 @@ test.describe("design.put.io static guide", () => {
   for (const { preview, theme } of authThemePreviews) {
     test(`${preview.pagePath} uses sign-in and sign-up copy in ${theme} mode @desktop`, async ({ page }) => {
       await page.goto(`${preview.pagePath}?theme=${theme}`, { waitUntil: "domcontentloaded" });
-      const visibleCopy = await page.locator("body").evaluate((element) => (element instanceof HTMLElement ? element.innerText : ""));
-      expect(visibleCopy, `${preview.pagePath} contains forbidden auth wording in ${theme} mode`).not.toMatch(forbiddenAuthCopy);
+      const body = page.locator("body");
+      const [visibleCopy, ariaSnapshot, attributeCopy] = await Promise.all([
+        body.evaluate((element) => (element instanceof HTMLElement ? element.innerText : "")),
+        body.ariaSnapshot(),
+        page
+          .locator('[aria-label], [aria-description], [title], [placeholder], [alt], input:is([type="button"], [type="submit"], [type="reset"])[value]')
+          .evaluateAll((elements) =>
+            elements.flatMap((element) => {
+              const values = ["aria-label", "aria-description", "title", "placeholder", "alt"]
+                .map((attribute) => element.getAttribute(attribute))
+                .filter((value): value is string => value !== null);
+              if (element instanceof HTMLInputElement && ["button", "submit", "reset"].includes(element.type)) {
+                values.push(element.value);
+              }
+              return values;
+            }),
+          ),
+      ]);
+      const authCopy = [visibleCopy, ariaSnapshot, ...attributeCopy].join("\n");
+      expect(authCopy, `${preview.pagePath} contains forbidden auth wording in ${theme} mode`).not.toMatch(forbiddenAuthCopy);
       if (preview.credentialErrorSelector) {
         await expect(page.locator(preview.credentialErrorSelector)).toHaveText(credentialErrorCopy);
       }
@@ -691,30 +689,33 @@ test.describe("design.put.io static guide", () => {
 
   for (const theme of authThemes) {
     test(`password strength states consume their meter tokens in ${theme} mode @desktop`, async ({ page }) => {
-      await page.goto(`/preview/web-c00-buttons.html?theme=${theme}`, { waitUntil: "load" });
-      await injectAuthRecipeProbes(page);
+      await page.goto(`/preview/web-p00d-auth-signup.html?theme=${theme}`, { waitUntil: "load" });
 
       const [inactive, weak, fair, strong, label] = await Promise.all(
         ["--component-bg-active", "--red-solid", "--yellow-solid", "--green-solid", "--text-secondary"].map((token) =>
           resolvedCssColor(page, token),
         ),
       );
-      const expectedSegments = {
-        empty: [inactive, inactive, inactive, inactive],
-        fair: [fair, fair, inactive, inactive],
-        good: [fair, fair, fair, inactive],
-        strong: [strong, strong, strong, strong],
-        weak: [weak, inactive, inactive, inactive],
-      };
+      const expectedStates = [
+        ["empty", "0", "Empty", [inactive, inactive, inactive, inactive]],
+        ["weak", "1", "Weak", [weak, inactive, inactive, inactive]],
+        ["fair", "2", "Fair", [fair, fair, inactive, inactive]],
+        ["good", "3", "Good", [fair, fair, fair, inactive]],
+        ["strong", "4", "Strong", [strong, strong, strong, strong]],
+      ] as const;
 
-      for (const [state, expected] of Object.entries(expectedSegments)) {
-        const strength = page.locator(`[data-probe-strength="${state}"]`);
+      for (const [state, value, valueText, expectedSegments] of expectedStates) {
+        const strength = page.locator(`[data-password-strength-sample="${state}"]`);
+        await expect(strength).toHaveAttribute("data-strength", state);
         const colors = await strength.locator(".password-strength-segment").evaluateAll((elements) =>
           elements.map((element) => getComputedStyle(element).backgroundColor),
         );
-        expect(colors, `${theme} ${state} password-strength segments`).toEqual(expected);
-        const valueText = state[0].toUpperCase() + state.slice(1);
-        await expect(strength.locator(".password-strength-meter")).toHaveAttribute("aria-valuetext", valueText);
+        expect(colors, `${theme} ${state} password-strength segments`).toEqual(expectedSegments);
+        const meter = strength.locator(".password-strength-meter");
+        await expect(meter).toHaveAttribute("aria-valuemin", "0");
+        await expect(meter).toHaveAttribute("aria-valuemax", "4");
+        await expect(meter).toHaveAttribute("aria-valuenow", value);
+        await expect(meter).toHaveAttribute("aria-valuetext", valueText);
         await expect(strength.locator(".password-strength-label")).toHaveCSS("color", label);
         await expect(strength.locator(".password-strength-label b")).toHaveText(valueText);
       }
@@ -900,6 +901,23 @@ test.describe("design.put.io static guide", () => {
     await expect(slots).toHaveText(["1", "2", "3", "4", "5", "6"]);
   });
 
+  test("OTP pointer interaction moves the backing caret to the clicked slot @desktop", async ({ page }) => {
+    await page.goto("/preview/web-p00e-auth-2fa.html?theme=light", { waitUntil: "domcontentloaded" });
+    const otp = page.locator('[data-demo-otp-verification="default"] .otp');
+    const input = otp.locator(".otp-input");
+    const slots = otp.locator(".otp-slot");
+    await input.fill("123456");
+
+    for (const index of [0, 2, 3, 5]) {
+      const box = await slots.nth(index).boundingBox();
+      expect(box, `OTP slot ${index + 1} should have pointer geometry`).not.toBeNull();
+      await page.mouse.click((box?.x ?? 0) + (box?.width ?? 0) / 2, (box?.y ?? 0) + (box?.height ?? 0) / 2);
+      await expect.poll(() => input.evaluate((element) => (element instanceof HTMLInputElement ? element.selectionStart : null))).toBe(index);
+      await expect(slots.nth(index)).toHaveAttribute("data-state", "active");
+      await expect(otp.locator('.otp-slot[data-state="active"]')).toHaveCount(1);
+    }
+  });
+
   test("OTP submission enters the locked verifying state @desktop", async ({ page }) => {
     await page.goto("/preview/web-p00e-auth-2fa.html?theme=light", { waitUntil: "domcontentloaded" });
     const card = page.locator('[data-demo-otp-verification="default"]');
@@ -920,6 +938,8 @@ test.describe("design.put.io static guide", () => {
     await expect(otp.locator(".otp-slot")).toHaveText(["3", "9", "2", "4", "7", "1"]);
     await expect(submit).toBeDisabled();
     await expect(submit).toHaveText("Verifying…");
+    await expect(submit).toHaveAttribute("aria-live", "polite");
+    await expect(submit).toHaveAttribute("aria-atomic", "true");
   });
 
   test("successful OTP preserves its code and announces continuation @desktop", async ({ page }) => {
@@ -960,7 +980,7 @@ test.describe("design.put.io static guide", () => {
 
   test("sign-up password feedback uses the exported strength recipe @desktop", async ({ page }) => {
     await page.goto("/preview/web-p00d-auth-signup.html?theme=light", { waitUntil: "domcontentloaded" });
-    const contracts = await page.locator(".password-strength").evaluateAll((roots) =>
+    const contracts = await page.locator("[data-password-strength-initial]").evaluateAll((roots) =>
       roots.map((root) => {
         const meter = root.querySelector('.password-strength-meter[role="meter"]');
         const password = root.closest(".form-group")?.querySelector<HTMLInputElement>('input[type="password"]');

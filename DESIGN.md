@@ -161,11 +161,14 @@ inputs. Place it with two three-slot `.otp-group` elements, one
 `.otp-separator`, and six visual `.otp-slot` elements. The input carries
 `inputmode="numeric"`, `autocomplete="one-time-code"`, `maxlength="6"`, and
 `aria-invalid`; script synchronizes slot text plus `filled` / `active` state.
+Pointer interaction maps the clicked visual slot to the backing input's
+selection; do not rely on the transparent input's native glyph hit testing.
 Editing an invalid code clears its stale error and disables retry until all six
 digits are present. Retrying enters the same locked verifying state as the
 default form.
 The root uses `data-state="verifying"` while submission is in flight and keeps
-the entered digits visible; the backing input is disabled for the same period.
+the entered digits visible; the backing input is disabled for the same period,
+and the action label announces the transition through a polite live region.
 Successful verification uses `data-state="success"`, retains the six digits in
 a read-only input, announces automatic continuation with a `role="status"`
 callout, and does not leave another action on screen. The consumer owns the
