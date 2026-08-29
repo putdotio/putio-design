@@ -1055,7 +1055,7 @@ test.describe("design.put.io static guide", () => {
 
   for (const pagePath of axePages) {
     test(`${pagePath} has no serious automated accessibility violations @desktop`, async ({ page }) => {
-      if (pagePath.startsWith("/design-system")) test.slow();
+      test.slow();
       await page.goto(pagePath, { waitUntil: "domcontentloaded" });
       const builder = new AxeBuilder({ page });
       if (pagePath.startsWith("/design-system")) {
