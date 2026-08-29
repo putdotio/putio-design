@@ -209,7 +209,7 @@
     <div class="demo-body auth-stage">
       <img class="auth-logo brand-light" src="../assets/logo-retro-light.svg" alt="put.io" />
       <img class="auth-logo brand-dark"  src="../assets/logo-retro-dark.svg"  alt="put.io" />
-      <div class="card card-lg auth" data-slot="auth" data-demo-otp-verification>
+      <div class="card card-lg auth" data-slot="auth" data-demo-otp-verification="default">
         <div class="a-hd" data-slot="auth-header">
           <h3>Two-factor authentication</h3>
         </div>
@@ -251,7 +251,7 @@
     <div class="demo-body auth-stage">
       <img class="auth-logo brand-light" src="../assets/logo-retro-light.svg" alt="put.io" />
       <img class="auth-logo brand-dark"  src="../assets/logo-retro-dark.svg"  alt="put.io" />
-      <div class="card card-lg auth" data-slot="auth">
+      <div class="card card-lg auth" data-slot="auth" data-demo-otp-verification="error">
         <div class="a-hd" data-slot="auth-header">
           <h3>Two-factor authentication</h3>
         </div>
@@ -277,7 +277,7 @@
             </div>
           </div>
         </div>
-        <button class="btn-primary btn-block" type="button">Verify</button>
+        <button class="btn-primary btn-block" type="button" data-otp-submit>Verify</button>
       </div>
       <div class="auth-foot"><span>Wrong account?</span><a href="#">Sign out</a></div>
     </div>
@@ -342,6 +342,22 @@
     var submit = demoCard && demoCard.querySelector('[data-otp-submit]');
     if (!input) return;
 
+    var describedBy = (input.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean);
+    var errorFeedback = describedBy
+      .map(function (id) { return document.getElementById(id); })
+      .find(function (element) { return element && element.getAttribute('role') === 'alert'; });
+
+    function clearError() {
+      if (input.getAttribute('aria-invalid') !== 'true') return;
+      input.removeAttribute('aria-invalid');
+      if (!errorFeedback) return;
+
+      errorFeedback.hidden = true;
+      var remainingDescriptions = describedBy.filter(function (id) { return id !== errorFeedback.id; });
+      if (remainingDescriptions.length) input.setAttribute('aria-describedby', remainingDescriptions.join(' '));
+      else input.removeAttribute('aria-describedby');
+    }
+
     function syncSlots(showFocus) {
       var digits = input.value.replace(/\D/g, '').slice(0, slots.length);
       if (input.value !== digits) input.value = digits;
@@ -358,7 +374,10 @@
       if (submit && !input.disabled) submit.disabled = digits.length !== slots.length;
     }
 
-    input.addEventListener('input', function () { syncSlots(true); });
+    input.addEventListener('input', function () {
+      clearError();
+      syncSlots(true);
+    });
     input.addEventListener('focus', function () { syncSlots(true); });
     input.addEventListener('click', function () { syncSlots(true); });
     input.addEventListener('keyup', function () { syncSlots(true); });
@@ -371,6 +390,7 @@
           syncSlots(true);
           return;
         }
+        clearError();
         otp.dataset.state = 'verifying';
         otp.setAttribute('aria-busy', 'true');
         otp.setAttribute('aria-disabled', 'true');

@@ -118,6 +118,7 @@ const exportedAuthRecipeSelectors = [
   '.form-callout[data-state="info"]',
   '.form-callout[data-state="success"]',
   '.form-callout[data-state="error"]',
+  ".form-callout[hidden]",
   ".form-callout.inline",
   ".otp",
   ".otp-input",
@@ -284,6 +285,28 @@ async function expectAuthFitsViewport(
     expect(bound.left, `${preview.pagePath} left edge in ${context}`).toBeGreaterThanOrEqual(-0.5);
     expect(bound.right, `${preview.pagePath} right edge in ${context}`).toBeLessThanOrEqual(documentWidth.clientWidth + 0.5);
   }
+
+  const otpBounds = await page.locator(`${preview.cardSelector} .otp`).evaluateAll((elements) =>
+    elements.map((element) => {
+      const parent = element.parentElement;
+      if (!parent) throw new Error("OTP control requires a containing form group");
+      const box = element.getBoundingClientRect();
+      const parentBox = parent.getBoundingClientRect();
+      return {
+        clientWidth: element.clientWidth,
+        left: box.left,
+        parentLeft: parentBox.left,
+        parentRight: parentBox.right,
+        right: box.right,
+        scrollWidth: element.scrollWidth,
+      };
+    }),
+  );
+  for (const otp of otpBounds) {
+    expect(otp.scrollWidth, `${preview.pagePath} OTP content width in ${context}`).toBeLessThanOrEqual(otp.clientWidth);
+    expect(otp.left, `${preview.pagePath} OTP left edge in ${context}`).toBeGreaterThanOrEqual(otp.parentLeft - 0.5);
+    expect(otp.right, `${preview.pagePath} OTP right edge in ${context}`).toBeLessThanOrEqual(otp.parentRight + 0.5);
+  }
 }
 
 test.describe("design.put.io static guide", () => {
@@ -402,29 +425,37 @@ test.describe("design.put.io static guide", () => {
     }
   }
 
-  test("Auth feedback uses the shared form-group rhythm @desktop", async ({ page }) => {
-    const feedbackCases = [
-      ["/preview/web-p00c-auth-signin.html", "#signin-err"],
-      ["/preview/web-p00d-auth-signup.html", ".password-strength"],
-      ["/preview/web-p00e-auth-2fa.html", "#otp-error"],
-      ["/preview/web-p00e-auth-2fa.html", "#otp-success"],
+  test("Auth fields and feedback use the shared form-group rhythm @desktop", async ({ page }) => {
+    const fieldCases = [
+      ["/preview/web-p00c-auth-signin.html", "#signin-error-password"],
+      ["/preview/web-p00d-auth-signup.html", "#signup-username"],
+      ["/preview/web-p00d-auth-signup.html", "#new-password"],
+      ["/preview/web-p00e-auth-2fa.html", "#otp-code"],
+      ["/preview/web-p00e-auth-2fa.html", "#otp-code-error"],
+      ["/preview/web-p00e-auth-2fa.html", "#otp-code-success"],
     ] as const;
 
-    for (const [pagePath, feedbackSelector] of feedbackCases) {
+    for (const [pagePath, fieldSelector] of fieldCases) {
       await page.goto(`${pagePath}?theme=light`, { waitUntil: "domcontentloaded" });
-      const spacing = await page.locator(feedbackSelector).evaluate((element) => {
-        const previous = element.previousElementSibling;
-        const parent = element.parentElement;
-        if (!previous || !parent) throw new Error("Auth feedback requires a preceding control and parent");
+      const spacing = await page.locator(fieldSelector).evaluate((element) => {
+        const parent = element.closest(".form-group");
+        if (!parent) throw new Error("Auth field requires a form-group parent");
+        const children = Array.from(parent.children).filter((child) => getComputedStyle(child).display !== "none");
         return {
-          gap: element.getBoundingClientRect().top - previous.getBoundingClientRect().bottom,
           parentUsesFormGroup: parent.classList.contains("form-group"),
           rowGap: getComputedStyle(parent).rowGap,
+          renderedGaps: children.slice(1).map((child, index) => {
+            const previousBox = children[index].getBoundingClientRect();
+            return child.getBoundingClientRect().top - previousBox.bottom;
+          }),
         };
       });
-      expect(spacing.parentUsesFormGroup, `${pagePath} ${feedbackSelector} parent recipe`).toBe(true);
-      expect(spacing.rowGap, `${pagePath} ${feedbackSelector} parent gap`).toBe("6px");
-      expect(Math.abs(spacing.gap - 6), `${pagePath} ${feedbackSelector} rendered separation`).toBeLessThanOrEqual(0.1);
+      expect(spacing.parentUsesFormGroup, `${pagePath} ${fieldSelector} parent recipe`).toBe(true);
+      expect(spacing.rowGap, `${pagePath} ${fieldSelector} parent gap`).toBe("6px");
+      expect(spacing.renderedGaps.length, `${pagePath} ${fieldSelector} grouped relationships`).toBeGreaterThan(0);
+      for (const gap of spacing.renderedGaps) {
+        expect(Math.abs(gap - 6), `${pagePath} ${fieldSelector} rendered separation`).toBeLessThanOrEqual(0.1);
+      }
     }
   });
   for (const pagePath of tvFramePages) {
@@ -782,10 +813,12 @@ test.describe("design.put.io static guide", () => {
 
   test("invalid OTP derives its state from the input and keeps visible focus @desktop", async ({ page }) => {
     await page.goto("/preview/web-p00e-auth-2fa.html?theme=light", { waitUntil: "domcontentloaded" });
-    const invalidOtp = page.locator('.otp:has(.otp-input[aria-invalid="true"])').first();
-    const input = invalidOtp.locator('.otp-input[aria-invalid="true"]');
+    const errorCard = page.locator('[data-demo-otp-verification="error"]');
+    const invalidOtp = errorCard.locator(".otp");
+    const input = invalidOtp.locator(".otp-input");
     await expect(invalidOtp).toBeVisible();
     await expect(invalidOtp).not.toHaveAttribute("data-state", "error");
+    await expect(input).toHaveAttribute("aria-invalid", "true");
     await expect(input).toHaveAttribute("aria-describedby", /\S+/);
     expect(
       await input.evaluate((element) => {
@@ -816,6 +849,24 @@ test.describe("design.put.io static guide", () => {
     });
     expect(activeStyles.color, "focused invalid OTP text").toBe(textColor);
     expect(activeStyles.boxShadow, "focused invalid OTP ring").not.toBe("none");
+
+    const submit = errorCard.locator("[data-otp-submit]");
+    const feedback = errorCard.locator("#otp-error");
+    await expect(submit).toBeEnabled();
+    await input.fill("81050");
+    await expect(input).not.toHaveAttribute("aria-invalid");
+    await expect(input).not.toHaveAttribute("aria-describedby");
+    await expect(feedback).toBeHidden();
+    await expect(submit).toBeDisabled();
+
+    await input.fill("810507");
+    await expect(submit).toBeEnabled();
+    await submit.click();
+    await expect(invalidOtp).toHaveAttribute("data-state", "verifying");
+    await expect(invalidOtp).toHaveAttribute("aria-busy", "true");
+    await expect(input).toBeDisabled();
+    await expect(submit).toBeDisabled();
+    await expect(submit).toHaveText("Verifying…");
   });
 
   test("OTP edits sanitize digits and synchronize slots with the caret @desktop", async ({ page }) => {
@@ -843,7 +894,7 @@ test.describe("design.put.io static guide", () => {
 
   test("OTP submission enters the locked verifying state @desktop", async ({ page }) => {
     await page.goto("/preview/web-p00e-auth-2fa.html?theme=light", { waitUntil: "domcontentloaded" });
-    const card = page.locator("[data-demo-otp-verification]");
+    const card = page.locator('[data-demo-otp-verification="default"]');
     const otp = card.locator(".otp");
     const input = otp.locator(".otp-input");
     const submit = card.locator("[data-otp-submit]");
