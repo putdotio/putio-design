@@ -62,6 +62,74 @@ const buttonHoverAliases = [
   [".btn-info", "--button-info-bg-hover"],
 ] as const;
 
+const authPreviews = [
+  {
+    cardSelector: ".auth",
+    columnSelector: ".auth",
+    fieldSelector: ".auth .field",
+    footerSelector: ".auth-foot",
+    headingSelector: ".auth .a-hd h3",
+    logoSelector: ".auth-logo",
+    pagePath: "/preview/web-p00c-auth-signin.html",
+  },
+  {
+    cardSelector: ".auth",
+    columnSelector: ".auth",
+    fieldSelector: ".auth .field",
+    footerSelector: ".auth-foot",
+    headingSelector: ".auth .a-hd h3",
+    logoSelector: ".auth-logo",
+    pagePath: "/preview/web-p00d-auth-signup.html",
+  },
+  {
+    cardSelector: ".auth",
+    columnSelector: ".auth",
+    fieldSelector: null,
+    footerSelector: ".auth-foot",
+    headingSelector: ".auth .a-hd h3",
+    logoSelector: ".auth-logo",
+    pagePath: "/preview/web-p00e-auth-2fa.html",
+  },
+  {
+    cardSelector: ".col > .card",
+    columnSelector: ".col",
+    fieldSelector: ".col .field",
+    footerSelector: ".foot",
+    headingSelector: ".card h1",
+    logoSelector: ".col > :is(.brand-light, .brand-dark)",
+    pagePath: "/preview/web-s06-auth.html",
+  },
+] as const;
+
+const forbiddenAuthCopy = /\b(?:login|log\s+in|register|create\s+(?:an\s+|your\s+)?account)\b/i;
+const narrowAuthViewportWidths = [320, 375] as const;
+const otpPreviewPaths = ["/preview/web-p00d-auth-signup.html", "/preview/web-p00e-auth-2fa.html"] as const;
+
+const exportedAuthRecipeSelectors = [
+  ".form-callout",
+  '.form-callout[data-state="info"]',
+  '.form-callout[data-state="success"]',
+  '.form-callout[data-state="error"]',
+  ".form-callout.inline",
+  ".otp",
+  ".otp-input",
+  ".otp-group",
+  ".otp-slot",
+  '.otp:focus-within .otp-slot[data-state="active"]',
+  ".otp-separator",
+  '.otp:has(.otp-input[aria-invalid="true"]) .otp-slot',
+  '.otp[data-state="verifying"] .otp-slot',
+  '.otp[data-state="success"] .otp-slot',
+  ".password-strength",
+  ".password-strength-meter",
+  ".password-strength-segment",
+  '.password-strength[data-strength="weak"] .password-strength-segment:nth-child(-n+1)',
+  '.password-strength[data-strength="fair"] .password-strength-segment:nth-child(-n+2)',
+  '.password-strength[data-strength="good"] .password-strength-segment:nth-child(-n+3)',
+  '.password-strength[data-strength="strong"] .password-strength-segment',
+  ".password-strength-label",
+] as const;
+
 async function resolvedCssColor(page: Page, variableName: string): Promise<string> {
   return page.evaluate((name) => {
     const styles = getComputedStyle(document.documentElement);
@@ -74,7 +142,236 @@ async function resolvedCssColor(page: Page, variableName: string): Promise<strin
   }, variableName);
 }
 
+async function componentCssSelectors(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const sheet = Array.from(document.styleSheets).find((candidate) => candidate.href?.endsWith("/components.css"));
+    if (!sheet) throw new Error("components.css is not loaded");
+
+    const selectors: string[] = [];
+    const splitSelectorList = (selectorText: string): string[] => {
+      const parts: string[] = [];
+      let current = "";
+      let depth = 0;
+      let quote = "";
+
+      for (let index = 0; index < selectorText.length; index += 1) {
+        const character = selectorText[index];
+        if (quote) {
+          current += character;
+          if (character === "\\") {
+            current += selectorText[index + 1] ?? "";
+            index += 1;
+          } else if (character === quote) {
+            quote = "";
+          }
+          continue;
+        }
+        if (character === '"' || character === "'") {
+          quote = character;
+          current += character;
+          continue;
+        }
+        if (character === "(" || character === "[") depth += 1;
+        if (character === ")" || character === "]") depth -= 1;
+        if (character === "," && depth === 0) {
+          parts.push(current.trim());
+          current = "";
+          continue;
+        }
+        current += character;
+      }
+      if (current.trim()) parts.push(current.trim());
+      return parts;
+    };
+    const visit = (rules: CSSRuleList): void => {
+      for (const rule of Array.from(rules)) {
+        if (rule instanceof CSSStyleRule) {
+          selectors.push(...splitSelectorList(rule.selectorText));
+          continue;
+        }
+      }
+    };
+
+    visit(sheet.cssRules);
+    return [...new Set(selectors)];
+  });
+}
+
+async function injectAuthRecipeProbes(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const host = document.createElement("div");
+    host.id = "auth-recipe-probes";
+    const otp = (name: string, attributes = "") => `
+      <div class="otp" data-probe-otp="${name}" ${attributes}>
+        <input class="otp-input" aria-label="Probe code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" value="123456" ${
+          name === "invalid" ? 'aria-invalid="true"' : ""
+        } ${name === "verifying" ? "disabled" : ""}>
+        <div class="otp-group">
+          <div class="otp-slot" data-state="active">1</div>
+          <div class="otp-slot">2</div>
+          <div class="otp-slot">3</div>
+        </div>
+        <span class="otp-separator" aria-hidden="true">&ndash;</span>
+        <div class="otp-group">
+          <div class="otp-slot">4</div>
+          <div class="otp-slot">5</div>
+          <div class="otp-slot">6</div>
+        </div>
+      </div>`;
+    const strength = (state: string, value: number) => `
+      <div class="password-strength" data-probe-strength="${state}" data-strength="${state}">
+        <div class="password-strength-meter" role="meter" aria-label="Password strength" aria-valuemin="0" aria-valuemax="4" aria-valuenow="${value}">
+          <span class="password-strength-segment"></span>
+          <span class="password-strength-segment"></span>
+          <span class="password-strength-segment"></span>
+          <span class="password-strength-segment"></span>
+        </div>
+        <div class="password-strength-label"><span>Password strength</span><b>${state}</b></div>
+      </div>`;
+
+    host.innerHTML = `
+      <div class="form-callout" data-probe-callout="info" data-state="info">Info</div>
+      <div class="form-callout" data-probe-callout="success" data-state="success">Success</div>
+      <div class="form-callout" data-probe-callout="error" data-state="error">Error</div>
+      <div class="form-callout inline" data-probe-callout-inline="info" data-state="info">Info</div>
+      <div class="form-callout inline" data-probe-callout-inline="success" data-state="success">Success</div>
+      <div class="form-callout inline" data-probe-callout-inline="error" data-state="error">Error</div>
+      ${otp("default")}
+      ${otp("invalid")}
+      ${otp("verifying", 'data-state="verifying"')}
+      ${otp("success", 'data-state="success"')}
+      ${strength("empty", 0)}
+      ${strength("weak", 1)}
+      ${strength("fair", 2)}
+      ${strength("good", 3)}
+      ${strength("strong", 4)}
+    `;
+    document.body.append(host);
+  });
+}
+
 test.describe("design.put.io static guide", () => {
+  for (const preview of authPreviews) {
+    test(`${preview.pagePath} uses sign-in and sign-up copy @desktop`, async ({ page }) => {
+      await page.goto(`${preview.pagePath}?theme=light`, { waitUntil: "domcontentloaded" });
+      const visibleCopy = await page.locator("body").evaluate((element) => (element instanceof HTMLElement ? element.innerText : ""));
+      expect(visibleCopy, `${preview.pagePath} contains forbidden auth wording`).not.toMatch(forbiddenAuthCopy);
+    });
+
+    test(`${preview.pagePath} follows the Auth geometry contract @desktop`, async ({ page }) => {
+      await page.goto(`${preview.pagePath}?theme=light`, { waitUntil: "domcontentloaded" });
+
+      for (const [name, selector] of [
+        ["column", preview.columnSelector],
+        ["card", preview.cardSelector],
+      ] as const) {
+        const widths = await page.locator(selector).evaluateAll((elements) =>
+          elements
+            .filter((element) => getComputedStyle(element).display !== "none")
+            .map((element) => element.getBoundingClientRect().width),
+        );
+        expect(widths.length, `${preview.pagePath} should render at least one Auth ${name}`).toBeGreaterThan(0);
+        for (const width of widths) {
+          expect(Math.abs(width - 340), `${preview.pagePath} ${name} width`).toBeLessThanOrEqual(0.1);
+        }
+      }
+
+      if (preview.fieldSelector) {
+        const fieldHeights = await page.locator(preview.fieldSelector).evaluateAll((elements) =>
+          elements.map((element) => getComputedStyle(element).height),
+        );
+        expect(fieldHeights.length, `${preview.pagePath} should render Auth fields`).toBeGreaterThan(0);
+        for (const height of fieldHeights) expect(height, `${preview.pagePath} field height`).toBe("36px");
+      }
+
+      const logoHeights = await page.locator(preview.logoSelector).evaluateAll((elements) =>
+        elements
+          .filter((element) => getComputedStyle(element).display !== "none")
+          .map((element) => element.getBoundingClientRect().height),
+      );
+      expect(logoHeights.length, `${preview.pagePath} should render a visible wordmark`).toBeGreaterThan(0);
+      for (const height of logoHeights) {
+        expect(Math.abs(height - 30.33), `${preview.pagePath} visible wordmark height`).toBeLessThanOrEqual(0.05);
+      }
+
+      const headings = await page.locator(preview.headingSelector).evaluateAll((elements) =>
+        elements.map((element) => {
+          const styles = getComputedStyle(element);
+          return { fontSize: styles.fontSize, fontWeight: styles.fontWeight, textAlign: styles.textAlign };
+        }),
+      );
+      expect(headings.length, `${preview.pagePath} should render Auth headings`).toBeGreaterThan(0);
+      for (const heading of headings) {
+        expect(heading, `${preview.pagePath} heading typography`).toEqual({ fontSize: "19px", fontWeight: "500", textAlign: "left" });
+      }
+
+      const footers = await page.locator(preview.footerSelector).evaluateAll((elements) =>
+        elements.map((element) => {
+          const styles = getComputedStyle(element);
+          const footer = element.getBoundingClientRect();
+          const items = Array.from(element.childNodes).filter((node) => node.textContent?.trim());
+          const rect = (node: ChildNode | undefined): DOMRect | null => {
+            if (!node) return null;
+            const range = document.createRange();
+            range.selectNodeContents(node);
+            return range.getBoundingClientRect();
+          };
+          const prompt = rect(items[0]);
+          const action = rect(items[1]);
+          return {
+            actionIsLink: items[1] instanceof HTMLAnchorElement,
+            actionTop: action?.top ?? 0,
+            actionCenterDelta: action ? Math.abs(action.left + action.width / 2 - (footer.left + footer.width / 2)) : Number.POSITIVE_INFINITY,
+            alignItems: styles.alignItems,
+            display: styles.display,
+            flexDirection: styles.flexDirection,
+            itemCount: items.length,
+            promptBottom: prompt?.bottom ?? Number.POSITIVE_INFINITY,
+            promptCenterDelta: prompt ? Math.abs(prompt.left + prompt.width / 2 - (footer.left + footer.width / 2)) : Number.POSITIVE_INFINITY,
+            textAlign: styles.textAlign,
+          };
+        }),
+      );
+      expect(footers.length, `${preview.pagePath} should render Auth footers`).toBeGreaterThan(0);
+      for (const footer of footers) {
+        expect(footer.display, `${preview.pagePath} footer display`).toBe("flex");
+        expect(footer.flexDirection, `${preview.pagePath} footer direction`).toBe("column");
+        expect(footer.alignItems, `${preview.pagePath} footer alignment`).toBe("center");
+        expect(footer.textAlign, `${preview.pagePath} footer text alignment`).toBe("center");
+        expect(footer.itemCount, `${preview.pagePath} footer prompt/action items`).toBe(2);
+        expect(footer.actionIsLink, `${preview.pagePath} footer action`).toBe(true);
+        expect(footer.promptBottom, `${preview.pagePath} footer prompt line`).toBeLessThanOrEqual(footer.actionTop + 0.5);
+        expect(footer.promptCenterDelta, `${preview.pagePath} centered footer prompt`).toBeLessThanOrEqual(1);
+        expect(footer.actionCenterDelta, `${preview.pagePath} centered footer action`).toBeLessThanOrEqual(1);
+      }
+    });
+
+    for (const viewportWidth of narrowAuthViewportWidths) {
+      test(`${preview.pagePath} has no horizontal overflow at ${viewportWidth}px @desktop`, async ({ page }) => {
+        await page.setViewportSize({ width: viewportWidth, height: 900 });
+        await page.goto(`${preview.pagePath}?theme=light`, { waitUntil: "domcontentloaded" });
+        const documentWidth = await page.evaluate(() => ({
+          clientWidth: document.documentElement.clientWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+        }));
+        expect(documentWidth.scrollWidth, `${preview.pagePath} document width at ${viewportWidth}px`).toBeLessThanOrEqual(documentWidth.clientWidth);
+
+        const selectors = preview.cardSelector === preview.columnSelector ? preview.cardSelector : `${preview.columnSelector}, ${preview.cardSelector}`;
+        const bounds = await page.locator(selectors).evaluateAll((elements) =>
+          elements.map((element) => {
+            const box = element.getBoundingClientRect();
+            return { left: box.left, right: box.right };
+          }),
+        );
+        expect(bounds.length, `${preview.pagePath} should render narrow Auth content`).toBeGreaterThan(0);
+        for (const bound of bounds) {
+          expect(bound.left, `${preview.pagePath} left edge at ${viewportWidth}px`).toBeGreaterThanOrEqual(-0.5);
+          expect(bound.right, `${preview.pagePath} right edge at ${viewportWidth}px`).toBeLessThanOrEqual(documentWidth.clientWidth + 0.5);
+        }
+      });
+    }
+  }
+
   for (const pagePath of tvFramePages) {
     test(`${pagePath} keeps its TV artboard visible @tv`, async ({ page }) => {
       await page.goto(pagePath, { waitUntil: "domcontentloaded" });
@@ -157,6 +454,172 @@ test.describe("design.put.io static guide", () => {
     }).toBe("hsl(44.7, 97.9%, 63.1%)");
   });
 
+  test("Auth recipes are exported from components.css @desktop", async ({ page }) => {
+    await page.goto("/preview/web-c00-buttons.html?theme=light", { waitUntil: "load" });
+    const selectors = await componentCssSelectors(page);
+    for (const selector of exportedAuthRecipeSelectors) {
+      expect(selectors, `components.css should export ${selector}`).toContain(selector);
+    }
+  });
+
+  test("form callout states consume their semantic token groups @desktop", async ({ page }) => {
+    await page.goto("/preview/web-c00-buttons.html?theme=light", { waitUntil: "load" });
+    await injectAuthRecipeProbes(page);
+
+    const states = [
+      ["info", "--alert-info-bg", "--alert-info-border", "--alert-info-body"],
+      ["success", "--alert-success-bg", "--alert-success-border", "--alert-success-body"],
+      ["error", "--alert-danger-bg", "--alert-danger-border", "--alert-danger-body"],
+    ] as const;
+    for (const [state, backgroundToken, borderToken, bodyToken] of states) {
+      const [background, border, color] = await Promise.all([
+        resolvedCssColor(page, backgroundToken),
+        resolvedCssColor(page, borderToken),
+        resolvedCssColor(page, bodyToken),
+      ]);
+      const blockStyles = await page.locator(`[data-probe-callout="${state}"]`).evaluate((element) => {
+        const styles = getComputedStyle(element);
+        return { background: styles.backgroundColor, border: styles.borderTopColor, color: styles.color };
+      });
+      expect(blockStyles, `${state} callout token colors`).toEqual({ background, border, color });
+
+      const inlineStyles = await page.locator(`[data-probe-callout-inline="${state}"]`).evaluate((element) => {
+        const styles = getComputedStyle(element);
+        return {
+          background: styles.backgroundColor,
+          borderWidth: styles.borderTopWidth,
+          color: styles.color,
+        };
+      });
+      expect(inlineStyles, `${state} inline callout treatment`).toEqual({
+        background: "rgba(0, 0, 0, 0)",
+        borderWidth: "0px",
+        color,
+      });
+    }
+  });
+
+  test("OTP states consume field and semantic status tokens @desktop", async ({ page }) => {
+    await page.goto("/preview/web-c00-buttons.html?theme=light", { waitUntil: "load" });
+    await injectAuthRecipeProbes(page);
+
+    const [
+      fieldBackground,
+      fieldDisabledBackground,
+      fieldBorder,
+      fieldFocusBorder,
+      fieldText,
+      redBorder,
+      redFocusBorder,
+      redText,
+      greenBorder,
+      greenFocusBorder,
+      greenText,
+      secondaryText,
+    ] = await Promise.all(
+      [
+        "--field-bg",
+        "--field-bg-disabled",
+        "--field-border",
+        "--field-border-focus",
+        "--field-text",
+        "--red-border",
+        "--red-border-hover",
+        "--red-text-secondary",
+        "--green-border",
+        "--green-border-hover",
+        "--green-text-secondary",
+        "--text-secondary",
+      ].map((token) => resolvedCssColor(page, token)),
+    );
+    const slotStyles = (selector: string) =>
+      page.locator(selector).first().evaluate((element) => {
+        const styles = getComputedStyle(element);
+        return {
+          background: styles.backgroundColor,
+          border: styles.borderTopColor,
+          boxShadow: styles.boxShadow,
+          color: styles.color,
+        };
+      });
+
+    const defaultOtp = page.locator('[data-probe-otp="default"]');
+    await defaultOtp.locator(".otp-input").focus();
+    expect(await slotStyles('[data-probe-otp="default"] .otp-slot:nth-child(2)'), "default OTP slot colors").toEqual({
+      background: fieldBackground,
+      border: fieldBorder,
+      boxShadow: "none",
+      color: fieldText,
+    });
+    const defaultActiveSelector = '[data-probe-otp="default"] .otp-slot[data-state="active"]';
+    await expect.poll(async () => (await slotStyles(defaultActiveSelector)).border).toBe(fieldFocusBorder);
+    const defaultActive = await slotStyles(defaultActiveSelector);
+    expect(defaultActive.background, "focused OTP background").toBe(fieldBackground);
+    expect(defaultActive.color, "focused OTP text").toBe(fieldText);
+    expect(defaultActive.boxShadow, "focused OTP ring").not.toBe("none");
+
+    const invalidOtp = page.locator('[data-probe-otp="invalid"]');
+    await invalidOtp.locator(".otp-input").focus();
+    expect(await slotStyles('[data-probe-otp="invalid"] .otp-slot:nth-child(2)'), "invalid OTP slot colors").toEqual({
+      background: fieldBackground,
+      border: redBorder,
+      boxShadow: "none",
+      color: redText,
+    });
+    const invalidActiveSelector = '[data-probe-otp="invalid"] .otp-slot[data-state="active"]';
+    await expect.poll(async () => (await slotStyles(invalidActiveSelector)).border).toBe(redFocusBorder);
+    const invalidActive = await slotStyles(invalidActiveSelector);
+    expect(invalidActive.color, "focused invalid OTP text").toBe(redText);
+    expect(invalidActive.boxShadow, "focused invalid OTP ring").not.toBe("none");
+
+    const successOtp = page.locator('[data-probe-otp="success"]');
+    await successOtp.locator(".otp-input").focus();
+    expect(await slotStyles('[data-probe-otp="success"] .otp-slot:nth-child(2)'), "successful OTP slot colors").toEqual({
+      background: fieldBackground,
+      border: greenBorder,
+      boxShadow: "none",
+      color: greenText,
+    });
+    const successActiveSelector = '[data-probe-otp="success"] .otp-slot[data-state="active"]';
+    await expect.poll(async () => (await slotStyles(successActiveSelector)).border).toBe(greenFocusBorder);
+    const successActive = await slotStyles(successActiveSelector);
+    expect(successActive.color, "focused successful OTP text").toBe(greenText);
+    expect(successActive.boxShadow, "focused successful OTP ring").not.toBe("none");
+
+    expect(await slotStyles('[data-probe-otp="verifying"] .otp-slot'), "verifying OTP slot colors").toEqual({
+      background: fieldDisabledBackground,
+      border: fieldBorder,
+      boxShadow: "none",
+      color: secondaryText,
+    });
+  });
+
+  test("password strength states consume their meter tokens @desktop", async ({ page }) => {
+    await page.goto("/preview/web-c00-buttons.html?theme=light", { waitUntil: "load" });
+    await injectAuthRecipeProbes(page);
+
+    const [inactive, weak, fair, strong, label] = await Promise.all(
+      ["--component-bg-active", "--red-solid", "--yellow-solid", "--green-solid", "--text-secondary"].map((token) =>
+        resolvedCssColor(page, token),
+      ),
+    );
+    const expectedSegments = {
+      empty: [inactive, inactive, inactive, inactive],
+      fair: [fair, fair, inactive, inactive],
+      good: [fair, fair, fair, inactive],
+      strong: [strong, strong, strong, strong],
+      weak: [weak, inactive, inactive, inactive],
+    };
+
+    for (const [state, expected] of Object.entries(expectedSegments)) {
+      const colors = await page.locator(`[data-probe-strength="${state}"] .password-strength-segment`).evaluateAll((elements) =>
+        elements.map((element) => getComputedStyle(element).backgroundColor),
+      );
+      expect(colors, `${state} password-strength segments`).toEqual(expected);
+      await expect(page.locator(`[data-probe-strength="${state}"] .password-strength-label`)).toHaveCSS("color", label);
+    }
+  });
+
   test("button variants consume hover aliases @desktop", async ({ page }) => {
     await page.goto("/preview/web-c00-buttons.html?theme=light", { waitUntil: "domcontentloaded" });
 
@@ -208,26 +671,148 @@ test.describe("design.put.io static guide", () => {
     });
   });
 
-  test("error OTP keeps a visible keyboard focus indicator @desktop", async ({ page }) => {
-    await page.goto("/preview/web-p00e-auth-2fa.html", { waitUntil: "domcontentloaded" });
-    await page.locator("#otp-code-error").focus();
-    const focusedSlot = page.locator('.otp[data-state="error"] .slot[data-state="focused"]');
-    await expect(focusedSlot).toHaveCount(1);
-    await expect.poll(async () => focusedSlot.evaluate((element) => getComputedStyle(element).boxShadow)).not.toBe("none");
+  for (const pagePath of otpPreviewPaths) {
+    test(`${pagePath} uses one semantic OTP input @desktop`, async ({ page }) => {
+      await page.goto(`${pagePath}?theme=light`, { waitUntil: "domcontentloaded" });
+      const contracts = await page.locator(".otp").evaluateAll((roots) =>
+        roots.map((root) => {
+          const inputs = root.querySelectorAll<HTMLInputElement>("input.otp-input");
+          const input = inputs[0];
+          const groups = Array.from(root.querySelectorAll(":scope > .otp-group"));
+          const slots = Array.from(root.querySelectorAll(".otp-slot"));
+          return {
+            allInputCount: root.querySelectorAll("input").length,
+            autocomplete: input?.autocomplete ?? "",
+            groupSlotCounts: groups.map((group) => group.querySelectorAll(":scope > .otp-slot").length),
+            hasAssociatedLabel: (input?.labels?.length ?? 0) > 0,
+            inputCount: inputs.length,
+            inputMode: input?.inputMode ?? "",
+            maxLength: input?.maxLength ?? -1,
+            separatorCount: root.querySelectorAll(":scope > .otp-separator").length,
+            slotCount: slots.length,
+            slotsAreHidden: slots.every((slot) => slot.getAttribute("aria-hidden") === "true"),
+          };
+        }),
+      );
+
+      expect(contracts.length, `${pagePath} should render an OTP specimen`).toBeGreaterThan(0);
+      for (const contract of contracts) {
+        expect(contract, `${pagePath} OTP semantic contract`).toEqual({
+          allInputCount: 1,
+          autocomplete: "one-time-code",
+          groupSlotCounts: [3, 3],
+          hasAssociatedLabel: true,
+          inputCount: 1,
+          inputMode: "numeric",
+          maxLength: 6,
+          separatorCount: 1,
+          slotCount: 6,
+          slotsAreHidden: true,
+        });
+      }
+    });
+  }
+
+  test("invalid OTP derives its state from the input and keeps visible focus @desktop", async ({ page }) => {
+    await page.goto("/preview/web-p00e-auth-2fa.html?theme=light", { waitUntil: "domcontentloaded" });
+    const invalidOtp = page.locator('.otp:has(.otp-input[aria-invalid="true"])').first();
+    const input = invalidOtp.locator('.otp-input[aria-invalid="true"]');
+    await expect(invalidOtp).toBeVisible();
+    await expect(invalidOtp).not.toHaveAttribute("data-state", "error");
+    await expect(input).toHaveAttribute("aria-describedby", /\S+/);
+    expect(
+      await input.evaluate((element) => {
+        const ids = (element.getAttribute("aria-describedby") ?? "").split(/\s+/).filter(Boolean);
+        return (
+          ids.length > 0 &&
+          ids.every((id) => {
+            const description = document.getElementById(id);
+            if (!description?.textContent?.trim()) return false;
+            return getComputedStyle(description).display !== "none";
+          })
+        );
+      }),
+      "aria-describedby should resolve to visible error copy",
+    ).toBe(true);
+
+    await input.focus();
+    const activeSlot = invalidOtp.locator('.otp-slot[data-state="active"]');
+    await expect(activeSlot).toHaveCount(1);
+    const [focusBorder, textColor] = await Promise.all([
+      resolvedCssColor(page, "--red-border-hover"),
+      resolvedCssColor(page, "--red-text-secondary"),
+    ]);
+    await expect.poll(async () => activeSlot.evaluate((element) => getComputedStyle(element).borderTopColor)).toBe(focusBorder);
+    const activeStyles = await activeSlot.evaluate((element) => {
+      const styles = getComputedStyle(element);
+      return { boxShadow: styles.boxShadow, color: styles.color };
+    });
+    expect(activeStyles.color, "focused invalid OTP text").toBe(textColor);
+    expect(activeStyles.boxShadow, "focused invalid OTP ring").not.toBe("none");
   });
 
-  test("OTP edits stay synchronized with their visible slots @desktop", async ({ page }) => {
-    await page.goto("/preview/web-p00e-auth-2fa.html", { waitUntil: "domcontentloaded" });
-    const input = page.locator("#otp-code");
+  test("OTP edits sanitize digits and synchronize slots with the caret @desktop", async ({ page }) => {
+    await page.goto("/preview/web-p00e-auth-2fa.html?theme=light", { waitUntil: "domcontentloaded" });
+    const otp = page.locator(".otp").first();
+    const input = otp.locator(".otp-input");
+    const slots = otp.locator(".otp-slot");
     await input.fill("12a34");
 
     await expect(input).toHaveValue("1234");
-    await expect(page.locator(".otp").first().locator(".slot")).toHaveText(["1", "2", "3", "4", "", ""]);
-    await expect(page.locator(".otp").first().locator('.slot[data-state="focused"]')).toHaveCount(1);
+    await expect(slots).toHaveText(["1", "2", "3", "4", "", ""]);
+    await expect(otp.locator('.otp-slot[data-state="active"]')).toHaveCount(1);
 
-    await input.evaluate((element: HTMLInputElement) => element.setSelectionRange(2, 2));
+    await input.evaluate((element) => {
+      if (!(element instanceof HTMLInputElement)) throw new Error("OTP control is not an input");
+      element.setSelectionRange(2, 2);
+    });
     await input.press("ArrowRight");
-    await expect(page.locator(".otp").first().locator(".slot").nth(3)).toHaveAttribute("data-state", "focused");
+    await expect(slots.nth(3)).toHaveAttribute("data-state", "active");
+
+    await input.fill("1234567");
+    await expect(input).toHaveValue("123456");
+    await expect(slots).toHaveText(["1", "2", "3", "4", "5", "6"]);
+  });
+
+  test("verifying OTP preserves its code and locks submission @desktop", async ({ page }) => {
+    await page.goto("/preview/web-p00d-auth-signup.html?theme=light", { waitUntil: "domcontentloaded" });
+    const otp = page.locator('.otp[data-state="verifying"]');
+    await expect(otp).toHaveCount(1);
+    const input = otp.locator(".otp-input");
+    const code = await input.inputValue();
+    expect(code).toMatch(/^\d{6}$/);
+    await expect(input).toBeDisabled();
+    await expect(otp.locator(".otp-slot")).toHaveText(code.split(""));
+
+    const card = page.locator(".auth").filter({ has: otp });
+    await expect(card.locator("button.btn-primary")).toBeDisabled();
+  });
+
+  test("sign-up password feedback uses the exported strength recipe @desktop", async ({ page }) => {
+    await page.goto("/preview/web-p00d-auth-signup.html?theme=light", { waitUntil: "domcontentloaded" });
+    const contracts = await page.locator(".password-strength").evaluateAll((roots) =>
+      roots.map((root) => {
+        const meter = root.querySelector('.password-strength-meter[role="meter"]');
+        return {
+          labelCount: root.querySelectorAll(".password-strength-label").length,
+          maximum: meter?.getAttribute("aria-valuemax"),
+          minimum: meter?.getAttribute("aria-valuemin"),
+          segmentCount: meter?.querySelectorAll(":scope > .password-strength-segment").length ?? 0,
+          state: root.getAttribute("data-strength"),
+          value: meter?.getAttribute("aria-valuenow"),
+        };
+      }),
+    );
+    expect(contracts.length, "sign-up preview should render password strength").toBeGreaterThan(0);
+    for (const contract of contracts) {
+      expect(["empty", "weak", "fair", "good", "strong"]).toContain(contract.state);
+      expect(contract.minimum).toBe("0");
+      expect(contract.maximum).toBe("4");
+      expect(Number(contract.value)).toBeGreaterThanOrEqual(0);
+      expect(Number(contract.value)).toBeLessThanOrEqual(4);
+      expect(contract.segmentCount).toBe(4);
+      expect(contract.labelCount).toBe(1);
+    }
   });
 
   test("TV focus uses the canonical fill and border treatments @tv", async ({ page }) => {
@@ -251,6 +836,7 @@ test.describe("design.put.io static guide", () => {
 
   for (const pagePath of axePages) {
     test(`${pagePath} has no serious automated accessibility violations @desktop`, async ({ page }) => {
+      if (pagePath.startsWith("/design-system")) test.slow();
       await page.goto(pagePath, { waitUntil: "domcontentloaded" });
       const builder = new AxeBuilder({ page });
       if (pagePath.startsWith("/design-system")) {

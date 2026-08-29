@@ -67,10 +67,8 @@
 
 
   .hint { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-top: 6px; }
-  /* .field primitive lives in _components.css, reads from --field-*
-     tokens (--app-bg fill, --border, border-hover focus ring, no
-     brand-yellow glow). Auth screens override geometry only
-     (see `.auth .a-body .field { height: 40px }` below). */
+  /* .field primitive lives in ../components.css and reads from --field-*.
+     Auth uses the exported 36px field without a local size override. */
   .group { display: flex; flex-direction: column; }
   /* Vertical stacking: parents own the rhythm via `gap`. Don't use an
      adjacent-sibling margin here, it leaks into grid cells and breaks
@@ -98,30 +96,6 @@
   .field-wrap > .trailing-icon[data-state="error"]   { color: var(--red-solid); }
   .field-wrap > .trailing-icon[data-state="success"] { color: var(--green-solid); }
   .field-wrap > .trailing-icon[data-state="loading"] { color: var(--text-secondary); animation: spin 0.9s linear infinite; }
-  .form-callout i { font-size: 14px; line-height: 1.4; flex-shrink: 0; }
-  .form-callout[data-state="error"] {
-    color: var(--red-text-secondary);
-    background: var(--red-bg-secondary);
-    border-color: var(--red-component-bg-active);
-  }
-  .form-callout[data-state="success"] {
-    color: var(--green-text-secondary);
-    background: var(--green-bg-secondary);
-    border-color: var(--green-component-bg-active);
-  }
-  .form-callout[data-state="info"] {
-    color: var(--text-secondary);
-    background: var(--bg-secondary);
-    border-color: var(--line);
-  }
-  /* Inline (field-level) variant: no chrome, just red text below the
-     input. Matches ChatGPT / Manus / Profound pattern. */
-  .form-callout.inline {
-    padding: 0; border: 0; background: transparent;
-    margin-top: 6px; gap: 6px;
-    font-size: 12px; line-height: 1.5;   /* match .hint: helper/error read at the same size */
-  }
-
   /* Sizes: letter-spacing tracks size, per production */
 
   /* Variants: match the web app's button variant colors.
@@ -134,33 +108,34 @@
      Auth uses the standard ·card· UI primitive (defined above), plus a
      few auth-specific size/spacing rules. Same shape as Resend / Linear /
      Craft, the chrome itself isn't auth-specific. */
-  .auth-stage {
-    padding: 56px 24px;
+  .panel .demo-body.auth-stage {
+    padding: 56px clamp(8px, 4vw, 24px);
     background: var(--bg);
   }
   /* ·card· UI primitive now lives in preview/_components.css.
      Auth-card-specific tweaks below. */
 
-  /* Auth specifics: fixed width, centered. */
+  /* Auth specifics: fluid up to the 340px production column. */
   .auth {
-    width: 380px;
+    width: 100%;
+    max-width: 340px;
     margin: 0 auto;
     box-sizing: border-box;
   }
-  .auth .a-hd { text-align: center; margin-bottom: 24px; }
+  .auth .a-hd { text-align: left; margin-bottom: 16px; }
   /* Logo sits OUTSIDE/ABOVE the card on the backdrop: Linear, Vercel,
      Resend pattern. Gives the card more focus and lets the logo breathe
      against the page bg instead of being absorbed by the card chrome. */
   .auth-logo {
     display: block;
-    height: 32.67px; width: auto; /* ink 28px: padded wordmark, box = ink × 7/6 */
-    margin: 0 auto 22px;
+    height: 30.33px; width: auto; /* ink 26px: padded wordmark, box = ink × 7/6 */
+    margin: 0 auto 16px;
   }
   .auth-logo.brand-dark  { display: none; }
   html.dark .auth-logo.brand-light { display: none; }
   html.dark .auth-logo.brand-dark  { display: block; }
   .auth .a-hd h3 {
-    margin: 0; font-size: 20px; font-weight: 600;
+    margin: 0; font-size: 19px; font-weight: 500;
     color: var(--text); letter-spacing: -0.01em;
     line-height: 1.25;
   }
@@ -168,14 +143,13 @@
     margin: 8px 0 0; font-size: 13px;
     color: var(--text-secondary); line-height: 1.5;
   }
-  .auth .a-body { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+  .auth .a-body { display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px; }
   .auth .a-body .label-row {
     display: flex; justify-content: space-between; align-items: baseline;
     margin-bottom: 6px;
   }
   .auth .a-body .label-row .label { margin-bottom: 0; }
   .auth .a-body .label-row a {text-decoration: none; white-space: nowrap}
-  .auth .a-body .field { height: 40px; }
   .auth .a-body .hint-inline {
     font-size: 12px; color: var(--text-secondary); margin-top: 6px; line-height: 1.5;
   }
@@ -192,7 +166,8 @@
 
   /* Footer link sits OUTSIDE the card (Resend / Linear pattern). */
   .auth-foot {
-    width: 380px; margin: 20px auto 0;
+    width: 100%; max-width: 340px; margin: 16px auto 0;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
     text-align: center;
     font-size: 13px; color: var(--text-secondary);
   }
@@ -208,7 +183,7 @@
     background: var(--yellow-component-bg);
     color: var(--yellow-text-secondary);
     display: grid; place-items: center;
-    margin: 0 auto 16px;
+    margin: 0 0 16px;
     font-size: 22px;
   }
   html.dark .auth .success-mark { color: var(--yellow-text-secondary); }
@@ -221,6 +196,14 @@
     line-height: 1.5;
   }
   .auth .a-sub b { color: var(--text); font-weight: 500; }
+
+  @media (max-width: 640px) {
+    .surface { padding: 16px 8px 24px; }
+    .panel .demo-hd { align-items: flex-start; flex-wrap: wrap; }
+    .panel .demo-hd .when { width: 100%; margin-left: 0; }
+    .panel .demo-body.auth-stage { padding: 32px 8px; }
+    .card.card-lg.auth { padding: 24px 20px 22px; }
+  }
 
   /* ─── Footer note ─────────────────────────────────────── */
   .specs-link {
@@ -249,36 +232,35 @@
 
       <span class="ix">L · 08</span>
       <span class="t">Sign-in</span>
-      <span class="when">Centered card · 380 px · subtle elevation</span>
+      <span class="when">Centered card · max 340 px · subtle elevation</span>
     </div>
     <div class="demo-body auth-stage">
       <img class="auth-logo brand-light" src="../assets/logo-retro-light.svg" alt="put.io" />
       <img class="auth-logo brand-dark"  src="../assets/logo-retro-dark.svg"  alt="put.io" />
       <div class="card card-lg auth">
         <div class="a-hd">
-                    <h3>Login</h3>
+          <h3>Sign in</h3>
+          <p>Your files are where you left them.</p>
         </div>
         <div class="a-body">
           <div class="group">
-            <span class="label">Username or email address</span>
-            <input aria-label="Username or email address" class="field" value="" />
+            <label class="label" for="signin-identity">Username or email</label>
+            <input id="signin-identity" class="field" autocomplete="username" spellcheck="false" />
           </div>
           <div class="group">
             <div class="label-row">
-              <span class="label">Password</span>
+              <label class="label" for="signin-password">Password</label>
               <a href="#">Forgot your password?</a>
             </div>
             <div class="field-wrap">
-              <input aria-label="Password" class="field" type="password" value="••••••••" />
+              <input id="signin-password" class="field" type="password" autocomplete="current-password" />
               <button class="password-toggle" type="button" aria-label="Show password"><i class="ph ph-eye" aria-hidden="true"></i></button>
             </div>
           </div>
         </div>
-        <button class="btn-primary btn-block">Log in</button>
+        <button class="btn-primary btn-block" type="button">Sign in</button>
       </div>
-      <div class="auth-foot">
-        Don't have an account? <a href="#">Sign up</a>
-      </div>
+      <div class="auth-foot"><span>New to put.io?</span><a href="#">Sign up</a></div>
     </div>
   </div>
 
@@ -296,32 +278,31 @@
       <img class="auth-logo brand-dark"  src="../assets/logo-retro-dark.svg"  alt="put.io" />
       <div class="card card-lg auth" data-slot="auth">
         <div class="a-hd" data-slot="auth-header">
-                    <h3>Welcome back</h3>
+          <h3>Sign in</h3>
+          <p>Your files are where you left them.</p>
         </div>
         <div class="a-body" data-slot="auth-body">
           <div class="group">
-            <span class="label">Username or email address</span>
-            <input aria-label="Username or email address" class="field" value="kai@example.com" />
+            <label class="label" for="signin-error-identity">Username or email</label>
+            <input id="signin-error-identity" class="field" autocomplete="username" spellcheck="false" />
           </div>
           <div class="group">
             <div class="label-row">
-              <span class="label">Password</span>
+              <label class="label" for="signin-error-password">Password</label>
               <a href="#">Forgot your password?</a>
             </div>
             <div class="field-wrap">
-              <input aria-label="Password" class="field" type="password" value="••••••••••" aria-invalid="true" aria-describedby="login-err" />
+              <input id="signin-error-password" class="field" type="password" aria-invalid="true" aria-describedby="signin-err" autocomplete="current-password" />
               <i class="ph-fill ph-warning-circle trailing-icon" data-state="error" aria-hidden="true"></i>
             </div>
-            <div class="form-callout inline" data-state="error" id="login-err" role="alert">
-              <span>That username and password didn't match. Try again, or <a href="#" style="color: inherit; text-decoration: underline;">reset your password</a>.</span>
+            <div class="form-callout inline" data-state="error" id="signin-err" role="alert">
+              <span>That username or password doesn't look right. <a href="#" style="color: inherit; text-decoration: underline;">Reset your password</a>.</span>
             </div>
           </div>
         </div>
-        <button class="btn-primary btn-block">Log in</button>
+        <button class="btn-primary btn-block" type="button">Sign in</button>
       </div>
-      <div class="auth-foot">
-        Don't have an account? <a href="#">Sign up</a>
-      </div>
+      <div class="auth-foot"><span>New to put.io?</span><a href="#">Sign up</a></div>
     </div>
   </div>
 
@@ -343,16 +324,13 @@
             <i class="ph-fill ph-envelope-simple"></i>
           </div>
           <h3>Check your inbox</h3>
-          <p class="a-sub">We sent a sign-in link to <b>kai@example.com</b>. Open it on this device to continue, the link is good for 15 minutes.</p>
+          <p class="a-sub">We sent a sign-in link to the email address on your account. Open it on this device to continue. The link is good for 15 minutes.</p>
         </div>
         <div class="a-foot-stack">
-          <button class="btn-primary btn-block"><i class="ph-bold ph-envelope-simple-open"></i>Open Gmail</button>
-          <button class="btn-default btn-block">Resend link</button>
+          <button class="btn-default btn-block" type="button">Resend sign-in link</button>
         </div>
       </div>
-      <div class="auth-foot">
-        Wrong address? <a href="#">Go back</a>
-      </div>
+      <div class="auth-foot"><span>Wrong address?</span><a href="#">Go back</a></div>
     </div>
   </div>
 
