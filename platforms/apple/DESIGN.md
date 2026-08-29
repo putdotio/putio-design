@@ -1,13 +1,13 @@
 ---
-version: "0.1.0"
+version: "0.2.0"
 name: "put.io on Apple platforms"
 description: "Binding contract for iOS, iPadOS, watchOS and tvOS. Tier 2: tokens only, every component from the HIG."
 tier: 2
 platforms: ["iOS 26", "iPadOS 26", "watchOS", "tvOS"]
 source: "Apple HIG + @putdotio/design token graph"
 reviewed:
-  date: "2026-08-25"
-  against: "Apple HIG (iOS 26 / iPadOS 26 / watchOS / tvOS) + the token graph."
+  date: "2026-08-29"
+  against: "Apple HIG (iOS 26 / iPadOS 26 / watchOS / tvOS) + the token graph + stock SwiftUI controls."
   cards: ["ios-s00-shell", "ios-s01-files", "ios-s02-transfers", "ios-s04-settings", "ios-s03-players", "watchos-s00-shell", "tvos-s00-shell", "tvos-s01-search", "tvos-s02-account", "tvos-s03-continue-watching"]
 canvas:
   iphone: "393x852pt"
@@ -27,7 +27,9 @@ human interface guidelines. put.io supplies four things and nothing else:
 
 1. **Tint**. `--yellow-solid` `#FDCE45`, set once as the SwiftUI `.tint()`.
 2. **Surfaces**. `--app-bg`, `--text`, `--text-secondary`. Dark only.
-3. **Type**. GT America replaces SF Pro. `--fw-medium` on control labels.
+3. **Type**. GT America replaces SF Pro in app-drawn content. App-drawn control
+   labels use `--fw-medium`. System-rendered chrome keeps SF, including tab
+   labels and navigation titles.
 4. **File icons**. Phosphor, yellow, every file type.
 
 Tier definitions live in [ADR 0009](https://github.com/putdotio/putio-frontend/blob/main/docs/decisions/0009-design-binding-tiers.md).
@@ -52,6 +54,11 @@ floating buttons. Lists, rows, forms and full-screen content are opaque
 
 Prominent glass takes the brand tint. Plain glass stays neutral.
 
+Buttons on opaque content use the stock `.borderedProminent` and `.bordered`
+styles. Glass buttons have no content-layer carve-out.
+
+At most one prominent glass capsule appears on a screen.
+
 ## Elements
 
 Stock. Documented on cards so a designer can see tokens land on them. Never a
@@ -59,36 +66,49 @@ build instruction.
 
 | Element | Comes from | put.io supplies |
 | --- | --- | --- |
-| `TabView` | iOS 26 floating tab bar, its glass, shrink-on-scroll, separate Search capsule | tint on the selected tab |
-| `NavigationStack` | large title, collapse, back chevron | nothing |
+| `TabView` | iOS 26 floating tab bar, its glass, shrink-on-scroll, separate Search capsule, SF labels and Search glyph | tint on the selected tab; 24pt Phosphor glyph box |
+| `NavigationStack` | SF large title, collapse, back chevron and previous title | tint |
 | `NavigationSplitView` | sidebar, selection pill, column widths | tint on the pill |
-| `List` | row height, separator insets, swipe actions, scroll-edge effects | row content |
+| `List` | row height, separator insets, swipe actions, scroll-edge effects | row content; `NavigationLink` owns folder disclosure |
 | `Form` `.insetGrouped` | 20pt margins, 10pt corners, 44pt rows, header and footer type | surface tokens |
 | `Toggle` | 51x31pt, knob, animation | tint when on |
 | `Stepper`, `Slider`, `Picker`, segmented `Picker` | geometry and behaviour | tint |
 | Sheet | detents, grabber, 38pt corner, parent scale-back | content |
 | `.contextMenu` | blur, lifted preview, menu material | menu items |
 | `.swipeActions` | widths, roles, rubber-banding | labels |
-| `ContentUnavailableView` | the entire empty state | glyph, title, body |
-| `ProgressView` | 4pt linear bar | tint |
-| `Gauge` `.accessoryCircularCapacity` | ring geometry | tint, track `--line` |
+| `ContentUnavailableView` | the entire empty state | glyph, title, body, tint |
+| `ProgressView` | 4pt linear bar and system-owned track | tint on the fill |
+| `Gauge` `.accessoryCircularCapacity` | 47pt ring, about 7pt stroke, system-derived track | tint |
+| `Button` | bordered styles on content; glass styles on floating layers | tint and app-drawn label |
 | `AVPlayerViewController` | the whole video surface | tint only |
 
 ### Download state button
 
 The one composed control. iOS has no determinate circular progress button, so
-the app assembles one from a `Gauge`, an SF Symbol and a 44pt tap target.
+the app assembles one from a `Gauge`, an SF Symbol and a 44pt minimum tap
+target.
 
 | State | Glyph | Ring |
 | --- | --- | --- |
 | Idle | `arrow-down` 20pt, `--solid` | none |
 | Queued | `clock` 20pt | none. A queue is not progress |
-| Downloading | `stop` 14pt | Gauge, tint fill, `--line` track |
+| Downloading | `stop` 14pt | Gauge, tint fill and system-derived track |
 | Downloaded | `check-circle` 22pt, `--yellow-solid` | hidden |
 | Failed | idle glyph | none. Reason goes in the subtitle |
 
-If `Gauge(.accessoryCircularCapacity)` cannot carry this in practice, spec the
-alternative here rather than letting each app draw its own.
+The 44pt value is the minimum target for states without a ring. While
+downloading, the stock gauge expands the button's label and hit region to its
+47pt intrinsic ring, with an approximately 7pt stroke. The gauge derives its
+unfilled track from the tint.
+
+The app cannot set the gauge track separately. The stock ring wins over a
+custom path.
+
+System-owned accent glyphs and labels use the one app tint. Do not split the
+back control, sheet checkmark, or empty-state action across yellow roles.
+
+App-authored text that can bind its foreground independently may still use
+`--yellow-text-secondary`.
 
 ## watchOS
 
@@ -106,7 +126,8 @@ No text entry. Adding a transfer starts on the phone or from a shared link.
 
 One action per screen.
 
-The system time is tinted by the app, so it renders `--yellow-solid`.
+The system time keeps SF and is tinted by the app, so it renders
+`--yellow-solid`.
 
 ## tvOS
 
@@ -121,6 +142,9 @@ does not replace it.
 Top-level navigation is a `TabView`, not a header with a Search button. The bar
 floats at the top, hides while content scrolls, and takes focus on swipe up.
 Search is a tab.
+
+System-rendered `TabView` labels keep SF. App-authored TV content uses GT
+America.
 
 The focused tab is a light pill with dark text. This contradicts the tv-native
 "never a white-invert pill" rule deliberately: tv-native is tier 4 where put.io

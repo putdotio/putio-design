@@ -52,18 +52,18 @@
 .pt-scale { position: absolute; top: 0; left: 0; transform-origin: top left; }
 
 /* ── Status bar ─────────────────────────────────────────────── */
-.ios-status { flex: 0 0 auto; height: 54px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 26px 6px; font-size: 15px; font-weight: var(--fw-medium); color: var(--text); position: relative; z-index: 30; }
+.ios-status { flex: 0 0 auto; height: 54px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 26px 6px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 15px; font-weight: 500; color: var(--text); position: relative; z-index: 30; }
 .ios-status .r { display: flex; align-items: center; gap: 5px; font-size: 14px; }
 .ios-island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 125px; height: 36px; border-radius: 18px; background: #000; z-index: 35; pointer-events: none; }
 
 /* ── NavigationStack ────────────────────────────────────────── */
 .ios-scroll { flex: 1 1 auto; min-height: 0; overflow: hidden; position: relative; }
-.ios-largetitle { font-size: 34px; font-weight: var(--fw-bold); letter-spacing: -0.026em; line-height: 41px; padding: 4px 20px 8px; color: var(--text); }
+.ios-largetitle { font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 34px; font-weight: 700; letter-spacing: -0.026em; line-height: 41px; padding: 4px 20px 8px; color: var(--text); }
 .ios-navbar { flex: 0 0 auto; height: 44px; display: flex; align-items: center; gap: 4px; padding: 0 12px; position: relative; z-index: 20; }
-.ios-navbar .back { display: inline-flex; align-items: center; gap: 3px; font-size: 17px; color: var(--yellow-text-secondary); }
+.ios-navbar .back { display: inline-flex; align-items: center; gap: 3px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 17px; color: var(--yellow-solid); }
 .ios-navbar .back i { font-size: 19px; }
-.ios-navbar .nt { position: absolute; left: 0; right: 0; text-align: center; font-size: 17px; font-weight: var(--fw-medium); color: var(--text); pointer-events: none; }
-.ios-navbar .act { margin-left: auto; display: flex; align-items: center; gap: 16px; font-size: 17px; color: var(--yellow-text-secondary); z-index: 1; }
+.ios-navbar .nt { position: absolute; left: 0; right: 0; text-align: center; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 17px; font-weight: 600; color: var(--text); pointer-events: none; }
+.ios-navbar .act { margin-left: auto; display: flex; align-items: center; gap: 16px; font-size: 17px; color: var(--yellow-solid); z-index: 1; }
 .ios-navbar .act i { font-size: 20px; }
 
 /* Search field — system, .searchable() */
@@ -100,6 +100,7 @@
 /* Berkeley Mono, tabular — sizes, counts, timestamps. Not on TV. */
 .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 .ios-row .chev { margin-left: auto; align-self: center; flex: 0 0 auto; font-size: 15px; color: var(--solid); }
+.ios-row .chev.system-chevron { font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 22px; font-weight: 600; line-height: 1; }
 .ios-row .val { margin-left: auto; align-self: center; flex: 0 0 auto; font-size: 17px; color: var(--text-secondary); white-space: nowrap; }
 .ios-row .val + .chev { margin-left: 6px; }
 .ios-list.pad .ios-row { padding-left: 24px; padding-right: 24px; }
@@ -134,6 +135,16 @@
 .ios-slider .track > b { position: absolute; top: 50%; width: 28px; height: 28px; border-radius: 50%; background: #fff; transform: translate(-50%, -50%); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16); }
 .ios-slider i.ph, .ios-slider i.ph-fill { font-size: 16px; color: var(--text-secondary); }
 
+/* Browser-only stand-ins for stock ProgressView and Gauge tracks. SwiftUI
+   owns both tracks and exposes no track-colour hook. Linear progress uses a
+   neutral system approximation, derived from the preview foreground only so
+   it follows the locked theme. The gauge mix derives from tint. Neither
+   opacity is a token or native recipe. */
+.ios-progress-preview { height: 4px; border-radius: 2px; color: var(--yellow-solid); background: color-mix(in srgb, var(--text) 18%, transparent); overflow: hidden; }
+.ios-progress-preview > i { display: block; height: 100%; border-radius: 2px; background: currentColor; }
+.ios-gauge-preview { position: relative; width: 47px; height: 47px; border-radius: 50%; color: var(--yellow-solid); display: flex; align-items: center; justify-content: center; }
+.ios-gauge-preview::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(currentColor var(--ios-preview-progress), color-mix(in srgb, currentColor 22%, transparent) 0); -webkit-mask: radial-gradient(circle, transparent 16.5px, #000 17px); mask: radial-gradient(circle, transparent 16.5px, #000 17px); }
+
 /* Glass buttons — .buttonStyle(.glass) / .glassProminent).
    Floating layer only. Prominent picks up the app tint for free. */
 .gbtn { width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text); flex: 0 0 auto; background: color-mix(in srgb, var(--app-bg) 58%, transparent); -webkit-backdrop-filter: blur(34px) saturate(190%); backdrop-filter: blur(34px) saturate(190%); box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.14); }
@@ -143,8 +154,8 @@
 
 /* ── TabView — iOS 26 floating tab bar ──────────────────────── */
 .ios-tabfloat { position: absolute; left: 0; right: 0; bottom: 22px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 16px; z-index: 25; }
-.ios-tabbar { flex: 1 1 auto; height: 56px; border-radius: 28px; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; align-items: center; }
-.ios-tabbar .tab { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; font-weight: var(--fw-medium); color: var(--text-secondary); }
+.ios-tabbar { flex: 1 1 auto; height: 56px; border-radius: 28px; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; align-items: center; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+.ios-tabbar .tab { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; font-weight: 500; color: var(--text-secondary); }
 .ios-tabbar .tab i { font-size: 24px; }
 .ios-tabbar .tab.on { color: var(--yellow-solid); }
 .ios-searchcap { width: 56px; height: 56px; border-radius: 28px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--text); flex: 0 0 auto; }
@@ -152,7 +163,7 @@
 /* ── NavigationSplitView (iPad) ─────────────────────────────── */
 .ipad-split { flex: 1; display: grid; grid-template-columns: 320px 1fr; min-height: 0; }
 .ipad-side { background: var(--bg-secondary); padding: 14px 12px; overflow: hidden; box-shadow: inset -0.5px 0 0 var(--line); }
-.ipad-sidetitle { font-size: 28px; font-weight: var(--fw-bold); letter-spacing: -0.02em; padding: 6px 10px 14px; color: var(--text); }
+.ipad-sidetitle { font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 28px; font-weight: 700; letter-spacing: -0.02em; padding: 6px 10px 14px; color: var(--text); }
 .ipad-side .sec { font-size: 13px; font-weight: var(--fw-medium); color: var(--text-secondary); padding: 16px 10px 6px; text-transform: uppercase; letter-spacing: 0.03em; }
 .ipad-side .srow { display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 10px; border-radius: 10px; font-size: 17px; color: var(--text); }
 .ipad-side .srow i { font-size: 20px; color: var(--text-secondary); width: 22px; }
@@ -189,7 +200,8 @@
 .cuv > i { font-size: 52px; color: var(--solid); margin-bottom: 8px; }
 .cuv .cuv-t { font-size: 20px; font-weight: var(--fw-bold); color: var(--text); letter-spacing: -0.01em; }
 .cuv .cuv-d { font-size: 15px; line-height: 20px; color: var(--text-secondary); text-wrap: pretty; }
-.cuv .cuv-a { margin-top: 10px; font-size: 17px; font-weight: var(--fw-medium); color: var(--yellow-text-secondary); }
+.cuv .cuv-a { margin-top: 10px; font-size: 17px; font-weight: var(--fw-medium); color: var(--yellow-solid); }
+.cuv .cuv-a.ios-bordered-action { min-height: 34px; padding: 6px 14px; border-radius: 999px; background: color-mix(in srgb, currentColor 18%, transparent); display: inline-flex; align-items: center; justify-content: center; }
 
 /* ── Swipe actions / context menu — system presentations ────── */
 .ios-swipe { display: flex; align-items: stretch; overflow: hidden; }
@@ -211,8 +223,8 @@
    time has to clear the curve — it sits 16pt in and 6pt down, which is
    where watchOS actually puts it. */
 .wos { flex: 1; display: flex; flex-direction: column; padding: 0 8px; overflow: hidden; }
-.wos-time { flex: 0 0 auto; height: 30px; display: flex; align-items: flex-start; justify-content: flex-end; padding: 6px 16px 0 0; font-size: 14px; line-height: 1; font-weight: var(--fw-medium); color: var(--yellow-solid); }
-.wos-title { font-size: 15px; font-weight: var(--fw-medium); color: var(--text); padding: 0 4px 3px; }
+.wos-time { flex: 0 0 auto; height: 30px; display: flex; align-items: flex-start; justify-content: flex-end; padding: 6px 16px 0 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; line-height: 1; font-weight: 500; color: var(--yellow-solid); }
+.wos-title { font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 15px; font-weight: 500; color: var(--text); padding: 0 4px 3px; }
 .wos-row { display: flex; align-items: center; gap: 8px; min-height: 44px; box-sizing: border-box; padding: 6px 10px; border-radius: 12px; background: var(--component-bg); margin-bottom: 4px; }
 .wos-row > i { font-size: 18px; line-height: 1; color: var(--yellow-solid); flex: 0 0 auto; }
 .wos-row .t2 { font-size: 12px; line-height: 14px; color: var(--text-secondary); margin-top: 1px; }
@@ -234,8 +246,8 @@
 /* tvOS tab bar. Real tvOS tabs are a quiet row of labels: no chip, no border,
    generous tracking, and the bar is centred. Focus is a light pill; the
    selected-but-unfocused tab is plain bright text. */
-.tvos-tabbar { display: flex; align-items: center; justify-content: center; gap: 16px; padding-bottom: 52px; }
-.tvos-tabbar .tvt { height: 56px; padding: 0 26px; border-radius: 28px; display: inline-flex; align-items: center; gap: 12px; font-size: 28px; font-weight: var(--fw-medium); color: var(--text-secondary); white-space: nowrap; letter-spacing: 0.01em; }
+.tvos-tabbar { display: flex; align-items: center; justify-content: center; gap: 16px; padding-bottom: 52px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+.tvos-tabbar .tvt { height: 56px; padding: 0 26px; border-radius: 28px; display: inline-flex; align-items: center; gap: 12px; font-size: 28px; font-weight: 500; color: var(--text-secondary); white-space: nowrap; letter-spacing: 0.01em; }
 .tvos-tabbar .tvt i { font-size: 28px; }
 .tvos-tabbar .tvt.selected { color: var(--text); }
 .tvos-tabbar .tvt.focused { background: #fff; color: #000; }

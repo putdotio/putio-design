@@ -114,6 +114,21 @@ function extractFrontmatter(markdown: string): string {
   return markdown.slice(4, end);
 }
 
+function cssRule(css: string, selector: string): string {
+  const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = css.match(new RegExp(`${escapedSelector}\\s*\\{([^}]*)\\}`));
+  assert(match, `Missing ${selector} CSS rule`);
+  return match[1];
+}
+
+function assertIncludes(source: string, value: string, label: string) {
+  assert(source.includes(value), `${label} must include ${value}`);
+}
+
+function assertExcludes(source: string, value: string, label: string) {
+  assert(!source.includes(value), `${label} must not include ${value}`);
+}
+
 async function checkTokens() {
   const flat = JSON.parse(await readFile(path.join(root, "dist/tokens.flat.json"), "utf8")) as Record<string, TokenRecord>;
   const yellow = flat["color.brand.yellow"];
@@ -230,6 +245,135 @@ async function checkDesignMd() {
   assert(data.components?.["file-row"]?.icon === "{colors.brand}", "DESIGN.md file-row.icon must alias colors.brand");
 }
 
+async function checkAppleContract() {
+  const files = {
+    contract: "platforms/apple/DESIGN.md",
+    css: "system/preview/_apple.css",
+    folders: "system/preview/ios-e00-list-row.html",
+    glass: "system/preview/ios-e05-glass-button.html",
+    progress: "system/preview/ios-e09-progress.html",
+    tabs: "system/preview/ios-e10-tabbar.html",
+    navbar: "system/preview/ios-e11-navbar.html",
+    sheet: "system/preview/ios-e12-sheet.html",
+    empty: "system/preview/ios-e15-emptystate.html",
+    gauge: "system/preview/ios-e16-gauge.html",
+    shell: "system/preview/ios-s00-shell.html",
+    fileScreen: "system/preview/ios-s01-files.html",
+    transfers: "system/preview/ios-s02-transfers.html",
+  } as const;
+  const contents = Object.fromEntries(
+    await Promise.all(Object.entries(files).map(async ([name, file]) => [name, await readFile(path.join(root, file), "utf8")])),
+  ) as Record<keyof typeof files, string>;
+  const metadata = parse(extractFrontmatter(contents.contract)) as {
+    version?: string;
+    reviewed?: { date?: string };
+  };
+
+  assert(metadata.version === "0.2.0", "Apple contract version must be 0.2.0");
+  assert(metadata.reviewed?.date === "2026-08-29", "Apple contract review date must be 2026-08-29");
+
+  const stateFragments = contents.gauge.split('<div class="el-state" data-download-state="').slice(1);
+  const states = stateFragments.map((fragment) => fragment.slice(0, fragment.indexOf('"')));
+  assert(
+    states.join(",") === "idle,queued,downloading,downloaded,failed",
+    "Gauge card must bind the five download states in order",
+  );
+  const idleState = stateFragments[0];
+  const failedState = stateFragments[4];
+  const idleGlyph = idleState.match(/<i class="([^"]+)"/);
+  const failedGlyph = failedState.match(/<i class="([^"]+)"/);
+  assert(idleGlyph && failedGlyph, "Idle and Failed states must include glyphs");
+  assert(failedGlyph[1] === idleGlyph[1], "Failed must reuse the Idle glyph");
+  assertIncludes(failedState, 'data-reason-owner="row-subtitle"', "Failed-state reason ownership");
+  assertIncludes(contents.gauge, "ios-gauge-preview", "Gauge card");
+  assertIncludes(cssRule(contents.css, ".ios-gauge-preview"), "width: 47px", "Gauge preview");
+  assertIncludes(cssRule(contents.css, ".ios-gauge-preview"), "height: 47px", "Gauge preview");
+  const gaugeTrackRule = cssRule(contents.css, ".ios-gauge-preview::before");
+  assertIncludes(gaugeTrackRule, "currentColor", "Gauge track preview");
+  assertIncludes(gaugeTrackRule, "transparent 16.5px, #000 17px", "Gauge approximately 7pt stroke");
+  assertExcludes(gaugeTrackRule, "var(--line)", "Gauge track preview");
+
+  assertIncludes(contents.progress, "ios-progress-preview", "ProgressView card");
+  assertExcludes(contents.progress, "--component-bg-active", "ProgressView card");
+  assertExcludes(contents.gauge, "--line", "Gauge card");
+  const transferProgress = [...contents.transfers.matchAll(/class="lprog ([^"]+)"/g)].map(([, classes]) => classes);
+  assert(transferProgress.length === 4, "Transfers card must show four row progress examples");
+  assert(
+    transferProgress.every((classes) => classes.split(/\s+/).includes("ios-progress-preview")),
+    "Transfers row progress must use the system-track preview helper",
+  );
+
+  for (const selector of [".ios-navbar .back", ".ios-navbar .act", ".cuv .cuv-a"]) {
+    assertIncludes(cssRule(contents.css, selector), "var(--yellow-solid)", `${selector} tint`);
+  }
+  for (const [name, source] of Object.entries({
+    navbar: contents.navbar,
+    sheet: contents.sheet,
+    empty: contents.empty,
+  })) {
+    assertExcludes(source, "--yellow-text-secondary", `${name} system accent contract`);
+  }
+  assertIncludes(contents.contract, "App-authored text", "App-authored accent exception");
+  assertIncludes(contents.contract, "--yellow-text-secondary", "App-authored accent exception");
+
+  assertIncludes(contents.glass, "<code>.borderedProminent</code>", "Glass boundary card");
+  assertIncludes(contents.glass, "<code>.bordered</code>", "Glass boundary card");
+  assertIncludes(contents.contract, "At most one prominent glass capsule appears on a screen.", "Glass prominence limit");
+  assertIncludes(contents.empty, "ios-bordered-action", "Empty-state content action");
+  assertIncludes(contents.fileScreen, "ios-bordered-action", "File-screen content action");
+  assertExcludes(contents.empty, "class=\"gbtn", "Empty-state content action");
+  const previewDirectory = path.join(root, "system/preview");
+  const screenFiles = (await readdir(previewDirectory)).filter((file) => /^ios-s\d+.*\.html$/.test(file));
+  for (const file of screenFiles) {
+    const source = await readFile(path.join(previewDirectory, file), "utf8");
+    const screens = [...source.matchAll(/<div class="(?:iphone|ipad)">/g)];
+    for (const [index, screen] of screens.entries()) {
+      const start = screen.index ?? 0;
+      const end = screens[index + 1]?.index ?? source.length;
+      const prominentCount = (source.slice(start, end).match(/class="(?:gbtn|gcap) prominent"/g) ?? []).length;
+      assert(prominentCount <= 1, `${file} screen ${index + 1} must have at most one prominent glass capsule`);
+    }
+  }
+
+  const systemChromeSelectors = [
+    ".ios-status",
+    ".ios-largetitle",
+    ".ios-navbar .back",
+    ".ios-navbar .nt",
+    ".ios-tabbar",
+    ".ipad-sidetitle",
+    ".wos-time",
+    ".wos-title",
+    ".tvos-tabbar",
+  ];
+  for (const selector of systemChromeSelectors) {
+    assertIncludes(cssRule(contents.css, selector), "-apple-system", `${selector} system typography`);
+  }
+  const authoredControlSelectors = [
+    ".ios-navbar .act",
+    ".ios-searchfield",
+    ".ios-segmented",
+    ".ipad-toolbar .tt",
+    ".ios-swipe .sa",
+    ".ios-ctx .ci",
+  ];
+  for (const selector of authoredControlSelectors) {
+    assertExcludes(cssRule(contents.css, selector), "-apple-system", `${selector} app-authored typography`);
+  }
+
+  assertIncludes(cssRule(contents.css, ".ios-tabbar .tab i"), "font-size: 24px", "Tab glyph box");
+  assertIncludes(contents.tabs, "24pt intrinsic Phosphor box", "Tab glyph contract card");
+  for (const [name, source] of Object.entries({
+    folders: contents.folders,
+    shell: contents.shell,
+    fileScreen: contents.fileScreen,
+  })) {
+    assertIncludes(source, "system-chevron", `${name} folder disclosure`);
+    assertExcludes(source, "ph-caret-right", `${name} folder disclosure`);
+  }
+  assertIncludes(contents.folders, "List + NavigationLink", "Folder row source");
+}
+
 async function checkHtmlLinks() {
   const htmlFiles = (await walk(path.join(root, "system"))).filter((file) => file.endsWith(".html"));
   const attrPattern = /\b(?:href|src)=["']([^"']+)["']/g;
@@ -282,6 +426,7 @@ async function main() {
 
   await checkTokens();
   await checkDesignMd();
+  await checkAppleContract();
   await checkHtmlLinks();
   await checkCss();
   console.log("Design system checks passed");
