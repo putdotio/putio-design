@@ -66,6 +66,7 @@ const authPreviews = [
   {
     cardSelector: ".auth",
     columnSelector: ".auth",
+    credentialErrorSelector: "#signin-err",
     fieldSelector: ".auth .field",
     footerSelector: ".auth-foot",
     headingSelector: ".auth .a-hd h3",
@@ -75,6 +76,7 @@ const authPreviews = [
   {
     cardSelector: ".auth",
     columnSelector: ".auth",
+    credentialErrorSelector: null,
     fieldSelector: ".auth .field",
     footerSelector: ".auth-foot",
     headingSelector: ".auth .a-hd h3",
@@ -84,6 +86,7 @@ const authPreviews = [
   {
     cardSelector: ".auth",
     columnSelector: ".auth",
+    credentialErrorSelector: null,
     fieldSelector: null,
     footerSelector: ".auth-foot",
     headingSelector: ".auth .a-hd h3",
@@ -93,6 +96,7 @@ const authPreviews = [
   {
     cardSelector: ".col > .card",
     columnSelector: ".col",
+    credentialErrorSelector: ".err",
     fieldSelector: ".col .field",
     footerSelector: ".foot",
     headingSelector: ".card h1",
@@ -101,6 +105,9 @@ const authPreviews = [
   },
 ] as const;
 
+const authThemes = ["light", "dark"] as const;
+const authThemePreviews = authPreviews.flatMap((preview) => authThemes.map((theme) => ({ preview, theme })));
+const credentialErrorCopy = "That username or password doesn't look right.";
 const forbiddenAuthCopy = /\b(?:login|log\s+in|register|create\s+(?:an\s+|your\s+)?account)\b/i;
 const narrowAuthViewportWidths = [320, 375] as const;
 const otpPreviewPaths = ["/preview/web-p00d-auth-signup.html", "/preview/web-p00e-auth-2fa.html"] as const;
@@ -251,15 +258,18 @@ async function injectAuthRecipeProbes(page: Page): Promise<void> {
 }
 
 test.describe("design.put.io static guide", () => {
-  for (const preview of authPreviews) {
-    test(`${preview.pagePath} uses sign-in and sign-up copy @desktop`, async ({ page }) => {
-      await page.goto(`${preview.pagePath}?theme=light`, { waitUntil: "domcontentloaded" });
+  for (const { preview, theme } of authThemePreviews) {
+    test(`${preview.pagePath} uses sign-in and sign-up copy in ${theme} mode @desktop`, async ({ page }) => {
+      await page.goto(`${preview.pagePath}?theme=${theme}`, { waitUntil: "domcontentloaded" });
       const visibleCopy = await page.locator("body").evaluate((element) => (element instanceof HTMLElement ? element.innerText : ""));
-      expect(visibleCopy, `${preview.pagePath} contains forbidden auth wording`).not.toMatch(forbiddenAuthCopy);
+      expect(visibleCopy, `${preview.pagePath} contains forbidden auth wording in ${theme} mode`).not.toMatch(forbiddenAuthCopy);
+      if (preview.credentialErrorSelector) {
+        await expect(page.locator(preview.credentialErrorSelector)).toHaveText(credentialErrorCopy);
+      }
     });
 
-    test(`${preview.pagePath} follows the Auth geometry contract @desktop`, async ({ page }) => {
-      await page.goto(`${preview.pagePath}?theme=light`, { waitUntil: "domcontentloaded" });
+    test(`${preview.pagePath} follows the Auth geometry contract in ${theme} mode @desktop`, async ({ page }) => {
+      await page.goto(`${preview.pagePath}?theme=${theme}`, { waitUntil: "domcontentloaded" });
 
       for (const [name, selector] of [
         ["column", preview.columnSelector],
@@ -345,7 +355,9 @@ test.describe("design.put.io static guide", () => {
         expect(footer.actionCenterDelta, `${preview.pagePath} centered footer action`).toBeLessThanOrEqual(1);
       }
     });
+  }
 
+  for (const preview of authPreviews) {
     for (const viewportWidth of narrowAuthViewportWidths) {
       test(`${preview.pagePath} has no horizontal overflow at ${viewportWidth}px @desktop`, async ({ page }) => {
         await page.setViewportSize({ width: viewportWidth, height: 900 });
@@ -462,163 +474,171 @@ test.describe("design.put.io static guide", () => {
     }
   });
 
-  test("form callout states consume their semantic token groups @desktop", async ({ page }) => {
-    await page.goto("/preview/web-c00-buttons.html?theme=light", { waitUntil: "load" });
-    await injectAuthRecipeProbes(page);
+  test("form callout states consume their semantic token groups in both modes @desktop", async ({ page }) => {
+    for (const theme of authThemes) {
+      await test.step(`${theme} mode`, async () => {
+        await page.goto(`/preview/web-c00-buttons.html?theme=${theme}`, { waitUntil: "load" });
+        await injectAuthRecipeProbes(page);
 
-    const states = [
-      ["info", "--alert-info-bg", "--alert-info-border", "--alert-info-body"],
-      ["success", "--alert-success-bg", "--alert-success-border", "--alert-success-body"],
-      ["error", "--alert-danger-bg", "--alert-danger-border", "--alert-danger-body"],
-    ] as const;
-    for (const [state, backgroundToken, borderToken, bodyToken] of states) {
-      const [background, border, color] = await Promise.all([
-        resolvedCssColor(page, backgroundToken),
-        resolvedCssColor(page, borderToken),
-        resolvedCssColor(page, bodyToken),
-      ]);
-      const blockStyles = await page.locator(`[data-probe-callout="${state}"]`).evaluate((element) => {
-        const styles = getComputedStyle(element);
-        return { background: styles.backgroundColor, border: styles.borderTopColor, color: styles.color };
-      });
-      expect(blockStyles, `${state} callout token colors`).toEqual({ background, border, color });
+        const states = [
+          ["info", "--alert-info-bg", "--alert-info-border", "--alert-info-body"],
+          ["success", "--alert-success-bg", "--alert-success-border", "--alert-success-body"],
+          ["error", "--alert-danger-bg", "--alert-danger-border", "--alert-danger-body"],
+        ] as const;
+        for (const [state, backgroundToken, borderToken, bodyToken] of states) {
+          const [background, border, color] = await Promise.all([
+            resolvedCssColor(page, backgroundToken),
+            resolvedCssColor(page, borderToken),
+            resolvedCssColor(page, bodyToken),
+          ]);
+          const blockStyles = await page.locator(`[data-probe-callout="${state}"]`).evaluate((element) => {
+            const styles = getComputedStyle(element);
+            return { background: styles.backgroundColor, border: styles.borderTopColor, color: styles.color };
+          });
+          expect(blockStyles, `${theme} ${state} callout token colors`).toEqual({ background, border, color });
 
-      const inlineStyles = await page.locator(`[data-probe-callout-inline="${state}"]`).evaluate((element) => {
-        const styles = getComputedStyle(element);
-        return {
-          background: styles.backgroundColor,
-          borderWidth: styles.borderTopWidth,
-          color: styles.color,
-        };
-      });
-      expect(inlineStyles, `${state} inline callout treatment`).toEqual({
-        background: "rgba(0, 0, 0, 0)",
-        borderWidth: "0px",
-        color,
+          const inlineStyles = await page.locator(`[data-probe-callout-inline="${state}"]`).evaluate((element) => {
+            const styles = getComputedStyle(element);
+            return {
+              background: styles.backgroundColor,
+              borderWidth: styles.borderTopWidth,
+              color: styles.color,
+            };
+          });
+          expect(inlineStyles, `${theme} ${state} inline callout treatment`).toEqual({
+            background: "rgba(0, 0, 0, 0)",
+            borderWidth: "0px",
+            color,
+          });
+        }
       });
     }
   });
 
-  test("OTP states consume field and semantic status tokens @desktop", async ({ page }) => {
-    await page.goto("/preview/web-c00-buttons.html?theme=light", { waitUntil: "load" });
-    await injectAuthRecipeProbes(page);
+  for (const theme of authThemes) {
+    test(`OTP states consume field and semantic status tokens in ${theme} mode @desktop`, async ({ page }) => {
+      await page.goto(`/preview/web-c00-buttons.html?theme=${theme}`, { waitUntil: "load" });
+      await injectAuthRecipeProbes(page);
 
-    const [
-      fieldBackground,
-      fieldDisabledBackground,
-      fieldBorder,
-      fieldFocusBorder,
-      fieldText,
-      redBorder,
-      redFocusBorder,
-      redText,
-      greenBorder,
-      greenFocusBorder,
-      greenText,
-      secondaryText,
-    ] = await Promise.all(
-      [
-        "--field-bg",
-        "--field-bg-disabled",
-        "--field-border",
-        "--field-border-focus",
-        "--field-text",
-        "--red-border",
-        "--red-border-hover",
-        "--red-text-secondary",
-        "--green-border",
-        "--green-border-hover",
-        "--green-text-secondary",
-        "--text-secondary",
-      ].map((token) => resolvedCssColor(page, token)),
-    );
-    const slotStyles = (selector: string) =>
-      page.locator(selector).first().evaluate((element) => {
-        const styles = getComputedStyle(element);
-        return {
-          background: styles.backgroundColor,
-          border: styles.borderTopColor,
-          boxShadow: styles.boxShadow,
-          color: styles.color,
-        };
-      });
-
-    const defaultOtp = page.locator('[data-probe-otp="default"]');
-    await defaultOtp.locator(".otp-input").focus();
-    expect(await slotStyles('[data-probe-otp="default"] .otp-slot:nth-child(2)'), "default OTP slot colors").toEqual({
-      background: fieldBackground,
-      border: fieldBorder,
-      boxShadow: "none",
-      color: fieldText,
-    });
-    const defaultActiveSelector = '[data-probe-otp="default"] .otp-slot[data-state="active"]';
-    await expect.poll(async () => (await slotStyles(defaultActiveSelector)).border).toBe(fieldFocusBorder);
-    const defaultActive = await slotStyles(defaultActiveSelector);
-    expect(defaultActive.background, "focused OTP background").toBe(fieldBackground);
-    expect(defaultActive.color, "focused OTP text").toBe(fieldText);
-    expect(defaultActive.boxShadow, "focused OTP ring").not.toBe("none");
-
-    const invalidOtp = page.locator('[data-probe-otp="invalid"]');
-    await invalidOtp.locator(".otp-input").focus();
-    expect(await slotStyles('[data-probe-otp="invalid"] .otp-slot:nth-child(2)'), "invalid OTP slot colors").toEqual({
-      background: fieldBackground,
-      border: redBorder,
-      boxShadow: "none",
-      color: redText,
-    });
-    const invalidActiveSelector = '[data-probe-otp="invalid"] .otp-slot[data-state="active"]';
-    await expect.poll(async () => (await slotStyles(invalidActiveSelector)).border).toBe(redFocusBorder);
-    const invalidActive = await slotStyles(invalidActiveSelector);
-    expect(invalidActive.color, "focused invalid OTP text").toBe(redText);
-    expect(invalidActive.boxShadow, "focused invalid OTP ring").not.toBe("none");
-
-    const successOtp = page.locator('[data-probe-otp="success"]');
-    await successOtp.locator(".otp-input").focus();
-    expect(await slotStyles('[data-probe-otp="success"] .otp-slot:nth-child(2)'), "successful OTP slot colors").toEqual({
-      background: fieldBackground,
-      border: greenBorder,
-      boxShadow: "none",
-      color: greenText,
-    });
-    const successActiveSelector = '[data-probe-otp="success"] .otp-slot[data-state="active"]';
-    await expect.poll(async () => (await slotStyles(successActiveSelector)).border).toBe(greenFocusBorder);
-    const successActive = await slotStyles(successActiveSelector);
-    expect(successActive.color, "focused successful OTP text").toBe(greenText);
-    expect(successActive.boxShadow, "focused successful OTP ring").not.toBe("none");
-
-    expect(await slotStyles('[data-probe-otp="verifying"] .otp-slot'), "verifying OTP slot colors").toEqual({
-      background: fieldDisabledBackground,
-      border: fieldBorder,
-      boxShadow: "none",
-      color: secondaryText,
-    });
-  });
-
-  test("password strength states consume their meter tokens @desktop", async ({ page }) => {
-    await page.goto("/preview/web-c00-buttons.html?theme=light", { waitUntil: "load" });
-    await injectAuthRecipeProbes(page);
-
-    const [inactive, weak, fair, strong, label] = await Promise.all(
-      ["--component-bg-active", "--red-solid", "--yellow-solid", "--green-solid", "--text-secondary"].map((token) =>
-        resolvedCssColor(page, token),
-      ),
-    );
-    const expectedSegments = {
-      empty: [inactive, inactive, inactive, inactive],
-      fair: [fair, fair, inactive, inactive],
-      good: [fair, fair, fair, inactive],
-      strong: [strong, strong, strong, strong],
-      weak: [weak, inactive, inactive, inactive],
-    };
-
-    for (const [state, expected] of Object.entries(expectedSegments)) {
-      const colors = await page.locator(`[data-probe-strength="${state}"] .password-strength-segment`).evaluateAll((elements) =>
-        elements.map((element) => getComputedStyle(element).backgroundColor),
+      const [
+        fieldBackground,
+        fieldDisabledBackground,
+        fieldBorder,
+        fieldFocusBorder,
+        fieldText,
+        redBorder,
+        redFocusBorder,
+        redText,
+        greenBorder,
+        greenFocusBorder,
+        greenText,
+        secondaryText,
+      ] = await Promise.all(
+        [
+          "--field-bg",
+          "--field-bg-disabled",
+          "--field-border",
+          "--field-border-focus",
+          "--field-text",
+          "--red-border",
+          "--red-border-hover",
+          "--red-text-secondary",
+          "--green-border",
+          "--green-border-hover",
+          "--green-text-secondary",
+          "--text-secondary",
+        ].map((token) => resolvedCssColor(page, token)),
       );
-      expect(colors, `${state} password-strength segments`).toEqual(expected);
-      await expect(page.locator(`[data-probe-strength="${state}"] .password-strength-label`)).toHaveCSS("color", label);
-    }
-  });
+      const slotStyles = (selector: string) =>
+        page.locator(selector).first().evaluate((element) => {
+          const styles = getComputedStyle(element);
+          return {
+            background: styles.backgroundColor,
+            border: styles.borderTopColor,
+            boxShadow: styles.boxShadow,
+            color: styles.color,
+          };
+        });
+
+      const defaultOtp = page.locator('[data-probe-otp="default"]');
+      await defaultOtp.locator(".otp-input").focus();
+      expect(await slotStyles('[data-probe-otp="default"] .otp-slot:nth-child(2)'), `${theme} default OTP slot colors`).toEqual({
+        background: fieldBackground,
+        border: fieldBorder,
+        boxShadow: "none",
+        color: fieldText,
+      });
+      const defaultActiveSelector = '[data-probe-otp="default"] .otp-slot[data-state="active"]';
+      await expect.poll(async () => (await slotStyles(defaultActiveSelector)).border).toBe(fieldFocusBorder);
+      const defaultActive = await slotStyles(defaultActiveSelector);
+      expect(defaultActive.background, `${theme} focused OTP background`).toBe(fieldBackground);
+      expect(defaultActive.color, `${theme} focused OTP text`).toBe(fieldText);
+      expect(defaultActive.boxShadow, `${theme} focused OTP ring`).not.toBe("none");
+
+      const invalidOtp = page.locator('[data-probe-otp="invalid"]');
+      await invalidOtp.locator(".otp-input").focus();
+      expect(await slotStyles('[data-probe-otp="invalid"] .otp-slot:nth-child(2)'), `${theme} invalid OTP slot colors`).toEqual({
+        background: fieldBackground,
+        border: redBorder,
+        boxShadow: "none",
+        color: redText,
+      });
+      const invalidActiveSelector = '[data-probe-otp="invalid"] .otp-slot[data-state="active"]';
+      await expect.poll(async () => (await slotStyles(invalidActiveSelector)).border).toBe(redFocusBorder);
+      const invalidActive = await slotStyles(invalidActiveSelector);
+      expect(invalidActive.color, `${theme} focused invalid OTP text`).toBe(redText);
+      expect(invalidActive.boxShadow, `${theme} focused invalid OTP ring`).not.toBe("none");
+
+      const successOtp = page.locator('[data-probe-otp="success"]');
+      await successOtp.locator(".otp-input").focus();
+      expect(await slotStyles('[data-probe-otp="success"] .otp-slot:nth-child(2)'), `${theme} successful OTP slot colors`).toEqual({
+        background: fieldBackground,
+        border: greenBorder,
+        boxShadow: "none",
+        color: greenText,
+      });
+      const successActiveSelector = '[data-probe-otp="success"] .otp-slot[data-state="active"]';
+      await expect.poll(async () => (await slotStyles(successActiveSelector)).border).toBe(greenFocusBorder);
+      const successActive = await slotStyles(successActiveSelector);
+      expect(successActive.color, `${theme} focused successful OTP text`).toBe(greenText);
+      expect(successActive.boxShadow, `${theme} focused successful OTP ring`).not.toBe("none");
+
+      expect(await slotStyles('[data-probe-otp="verifying"] .otp-slot'), `${theme} verifying OTP slot colors`).toEqual({
+        background: fieldDisabledBackground,
+        border: fieldBorder,
+        boxShadow: "none",
+        color: secondaryText,
+      });
+    });
+  }
+
+  for (const theme of authThemes) {
+    test(`password strength states consume their meter tokens in ${theme} mode @desktop`, async ({ page }) => {
+      await page.goto(`/preview/web-c00-buttons.html?theme=${theme}`, { waitUntil: "load" });
+      await injectAuthRecipeProbes(page);
+
+      const [inactive, weak, fair, strong, label] = await Promise.all(
+        ["--component-bg-active", "--red-solid", "--yellow-solid", "--green-solid", "--text-secondary"].map((token) =>
+          resolvedCssColor(page, token),
+        ),
+      );
+      const expectedSegments = {
+        empty: [inactive, inactive, inactive, inactive],
+        fair: [fair, fair, inactive, inactive],
+        good: [fair, fair, fair, inactive],
+        strong: [strong, strong, strong, strong],
+        weak: [weak, inactive, inactive, inactive],
+      };
+
+      for (const [state, expected] of Object.entries(expectedSegments)) {
+        const colors = await page.locator(`[data-probe-strength="${state}"] .password-strength-segment`).evaluateAll((elements) =>
+          elements.map((element) => getComputedStyle(element).backgroundColor),
+        );
+        expect(colors, `${theme} ${state} password-strength segments`).toEqual(expected);
+        await expect(page.locator(`[data-probe-strength="${state}"] .password-strength-label`)).toHaveCSS("color", label);
+      }
+    });
+  }
 
   test("button variants consume hover aliases @desktop", async ({ page }) => {
     await page.goto("/preview/web-c00-buttons.html?theme=light", { waitUntil: "domcontentloaded" });
