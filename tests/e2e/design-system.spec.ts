@@ -206,45 +206,6 @@ async function componentCssSelectors(page: Page): Promise<string[]> {
   });
 }
 
-async function injectAuthRecipeProbes(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    // These probes exercise each closed presentation state in the exported
-    // recipe that has no authored preview specimen.
-    const host = document.createElement("div");
-    host.id = "auth-recipe-probes";
-    const otp = (name: string, attributes = "") => `
-      <div class="otp" data-probe-otp="${name}" ${attributes}>
-        <input class="otp-input" aria-label="Probe code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" value="123456" ${
-          name === "invalid" ? 'aria-invalid="true"' : ""
-        } ${name === "verifying" ? "disabled" : ""}>
-        <div class="otp-group">
-          <div class="otp-slot" data-state="active">1</div>
-          <div class="otp-slot">2</div>
-          <div class="otp-slot">3</div>
-        </div>
-        <span class="otp-separator" aria-hidden="true">&ndash;</span>
-        <div class="otp-group">
-          <div class="otp-slot">4</div>
-          <div class="otp-slot">5</div>
-          <div class="otp-slot">6</div>
-        </div>
-      </div>`;
-    host.innerHTML = `
-      <div class="form-callout" data-probe-callout="info" data-state="info">Info</div>
-      <div class="form-callout" data-probe-callout="success" data-state="success">Success</div>
-      <div class="form-callout" data-probe-callout="error" data-state="error">Error</div>
-      <div class="form-callout inline" data-probe-callout-inline="info" data-state="info">Info</div>
-      <div class="form-callout inline" data-probe-callout-inline="success" data-state="success">Success</div>
-      <div class="form-callout inline" data-probe-callout-inline="error" data-state="error">Error</div>
-      ${otp("default")}
-      ${otp("invalid")}
-      ${otp("verifying", 'data-state="verifying"')}
-      ${otp("success", 'data-state="success"')}
-    `;
-    document.body.append(host);
-  });
-}
-
 async function expectAuthFitsViewport(
   page: Page,
   preview: (typeof authPreviews)[number],
@@ -552,8 +513,8 @@ test.describe("design.put.io static guide", () => {
   test("form callout states consume their semantic token groups in both modes @desktop", async ({ page }) => {
     for (const theme of authThemes) {
       await test.step(`${theme} mode`, async () => {
-        await page.goto(`/preview/web-c00-buttons.html?theme=${theme}`, { waitUntil: "load" });
-        await injectAuthRecipeProbes(page);
+        await page.goto(`/preview/web-p00-form-layouts.html?theme=${theme}`, { waitUntil: "load" });
+        await expect(page.locator("[data-demo-callout-states] [data-demo-callout]")).toHaveCount(6);
 
         const states = [
           ["info", "--alert-info-bg", "--alert-info-border", "--alert-info-body"],
@@ -566,13 +527,13 @@ test.describe("design.put.io static guide", () => {
             resolvedCssColor(page, borderToken),
             resolvedCssColor(page, bodyToken),
           ]);
-          const blockStyles = await page.locator(`[data-probe-callout="${state}"]`).evaluate((element) => {
+          const blockStyles = await page.locator(`[data-demo-callout="block"][data-state="${state}"]`).evaluate((element) => {
             const styles = getComputedStyle(element);
             return { background: styles.backgroundColor, border: styles.borderTopColor, color: styles.color };
           });
           expect(blockStyles, `${theme} ${state} callout token colors`).toEqual({ background, border, color });
 
-          const inlineStyles = await page.locator(`[data-probe-callout-inline="${state}"]`).evaluate((element) => {
+          const inlineStyles = await page.locator(`[data-demo-callout="inline"][data-state="${state}"]`).evaluate((element) => {
             const styles = getComputedStyle(element);
             return {
               background: styles.backgroundColor,
@@ -592,20 +553,19 @@ test.describe("design.put.io static guide", () => {
 
   for (const theme of authThemes) {
     test(`OTP states consume field and semantic status tokens in ${theme} mode @desktop`, async ({ page }) => {
-      await page.goto(`/preview/web-c00-buttons.html?theme=${theme}`, { waitUntil: "load" });
-      await injectAuthRecipeProbes(page);
+      await page.goto(`/preview/web-p00e-auth-2fa.html?theme=${theme}`, { waitUntil: "load" });
 
       const [
         fieldBackground,
         fieldDisabledBackground,
         fieldBorder,
+        fieldFilledBorder,
         fieldFocusBorder,
         fieldText,
         redBorder,
         redFocusBorder,
         redText,
         greenBorder,
-        greenFocusBorder,
         greenText,
         secondaryText,
       ] = await Promise.all(
@@ -613,13 +573,13 @@ test.describe("design.put.io static guide", () => {
           "--field-bg",
           "--field-bg-disabled",
           "--field-border",
+          "--field-border-hover",
           "--field-border-focus",
           "--field-text",
           "--red-border",
           "--red-border-hover",
           "--red-text-secondary",
           "--green-border",
-          "--green-border-hover",
           "--green-text-secondary",
           "--text-secondary",
         ].map((token) => resolvedCssColor(page, token)),
@@ -635,50 +595,47 @@ test.describe("design.put.io static guide", () => {
           };
         });
 
-      const defaultOtp = page.locator('[data-probe-otp="default"]');
+      const defaultOtp = page.locator(".otp:has(#otp-code)");
       await defaultOtp.locator(".otp-input").focus();
-      expect(await slotStyles('[data-probe-otp="default"] .otp-slot:nth-child(2)'), `${theme} default OTP slot colors`).toEqual({
+      expect(await slotStyles(".otp:has(#otp-code) .otp-slot:nth-child(2)"), `${theme} default OTP slot colors`).toEqual({
         background: fieldBackground,
-        border: fieldBorder,
+        border: fieldFilledBorder,
         boxShadow: "none",
         color: fieldText,
       });
-      const defaultActiveSelector = '[data-probe-otp="default"] .otp-slot[data-state="active"]';
+      const defaultActiveSelector = '.otp:has(#otp-code) .otp-slot[data-state="active"]';
       await expect.poll(async () => (await slotStyles(defaultActiveSelector)).border).toBe(fieldFocusBorder);
       const defaultActive = await slotStyles(defaultActiveSelector);
       expect(defaultActive.background, `${theme} focused OTP background`).toBe(fieldBackground);
       expect(defaultActive.color, `${theme} focused OTP text`).toBe(fieldText);
       expect(defaultActive.boxShadow, `${theme} focused OTP ring`).not.toBe("none");
 
-      const invalidOtp = page.locator('[data-probe-otp="invalid"]');
+      const invalidOtp = page.locator(".otp:has(#otp-code-error)");
       await invalidOtp.locator(".otp-input").focus();
-      expect(await slotStyles('[data-probe-otp="invalid"] .otp-slot:nth-child(2)'), `${theme} invalid OTP slot colors`).toEqual({
+      expect(await slotStyles(".otp:has(#otp-code-error) .otp-slot:nth-child(2)"), `${theme} invalid OTP slot colors`).toEqual({
         background: fieldBackground,
         border: redBorder,
         boxShadow: "none",
         color: redText,
       });
-      const invalidActiveSelector = '[data-probe-otp="invalid"] .otp-slot[data-state="active"]';
+      const invalidActiveSelector = '.otp:has(#otp-code-error) .otp-slot[data-state="active"]';
       await expect.poll(async () => (await slotStyles(invalidActiveSelector)).border).toBe(redFocusBorder);
       const invalidActive = await slotStyles(invalidActiveSelector);
       expect(invalidActive.color, `${theme} focused invalid OTP text`).toBe(redText);
       expect(invalidActive.boxShadow, `${theme} focused invalid OTP ring`).not.toBe("none");
 
-      const successOtp = page.locator('[data-probe-otp="success"]');
-      await successOtp.locator(".otp-input").focus();
-      expect(await slotStyles('[data-probe-otp="success"] .otp-slot:nth-child(2)'), `${theme} successful OTP slot colors`).toEqual({
+      const successOtp = page.locator(".otp:has(#otp-code-success)");
+      await expect(successOtp.locator(".otp-input")).toHaveJSProperty("readOnly", true);
+      expect(await slotStyles(".otp:has(#otp-code-success) .otp-slot:nth-child(2)"), `${theme} successful OTP slot colors`).toEqual({
         background: fieldBackground,
         border: greenBorder,
         boxShadow: "none",
         color: greenText,
       });
-      const successActiveSelector = '[data-probe-otp="success"] .otp-slot[data-state="active"]';
-      await expect.poll(async () => (await slotStyles(successActiveSelector)).border).toBe(greenFocusBorder);
-      const successActive = await slotStyles(successActiveSelector);
-      expect(successActive.color, `${theme} focused successful OTP text`).toBe(greenText);
-      expect(successActive.boxShadow, `${theme} focused successful OTP ring`).not.toBe("none");
+      await expect(successOtp.locator('.otp-slot[data-state="active"]')).toHaveCount(0);
 
-      expect(await slotStyles('[data-probe-otp="verifying"] .otp-slot'), `${theme} verifying OTP slot colors`).toEqual({
+      await page.goto(`/preview/web-p00d-auth-signup.html?theme=${theme}`, { waitUntil: "load" });
+      expect(await slotStyles(".otp:has(#otp-code-verifying) .otp-slot"), `${theme} verifying OTP slot colors`).toEqual({
         background: fieldDisabledBackground,
         border: fieldBorder,
         boxShadow: "none",
