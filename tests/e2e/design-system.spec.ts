@@ -355,14 +355,23 @@ test.describe("design.put.io static guide", () => {
         for (const height of fieldHeights) expect(height, `${preview.pagePath} field height`).toBe("36px");
       }
 
-      const logoHeights = await page.locator(preview.logoSelector).evaluateAll((elements) =>
-        elements
-          .filter((element) => getComputedStyle(element).display !== "none")
-          .map((element) => element.getBoundingClientRect().height),
+      const logoHeightsByCard = await page.locator(preview.cardSelector).evaluateAll(
+        (elements, logoSelector) =>
+          elements
+            .filter((element) => getComputedStyle(element).display !== "none")
+            .map((element) => {
+              const scope = element.closest(".auth-stage, .col");
+              if (!scope) return [];
+              return Array.from(scope.querySelectorAll(logoSelector))
+                .filter((logo) => getComputedStyle(logo).display !== "none")
+                .map((logo) => logo.getBoundingClientRect().height);
+            }),
+        preview.logoSelector,
       );
-      expect(logoHeights.length, `${preview.pagePath} should render a visible wordmark`).toBeGreaterThan(0);
-      for (const height of logoHeights) {
-        expect(Math.abs(height - 30.33), `${preview.pagePath} visible wordmark height`).toBeLessThanOrEqual(0.05);
+      expect(logoHeightsByCard.length, `${preview.pagePath} should render Auth cards`).toBeGreaterThan(0);
+      for (const logoHeights of logoHeightsByCard) {
+        expect(logoHeights, `${preview.pagePath} Auth card visible wordmark count`).toHaveLength(1);
+        expect(Math.abs((logoHeights[0] ?? 0) - 30.33), `${preview.pagePath} visible wordmark height`).toBeLessThanOrEqual(0.05);
       }
 
       const headings = await page.locator(preview.headingSelector).evaluateAll((elements) =>
@@ -903,6 +912,23 @@ test.describe("design.put.io static guide", () => {
     await input.fill("1234567");
     await expect(input).toHaveValue("123456");
     await expect(slots).toHaveText(["1", "2", "3", "4", "5", "6"]);
+  });
+
+  test("OTP paste preserves all six digits from a formatted code @desktop", async ({ page }) => {
+    await page.goto("/preview/web-p00e-auth-2fa.html?theme=light", { waitUntil: "domcontentloaded" });
+    const otp = page.locator(".otp").first();
+    const input = otp.locator(".otp-input");
+    const submit = page.locator('[data-demo-otp-verification="default"] [data-otp-submit]');
+
+    await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
+    await page.evaluate(() => navigator.clipboard.writeText("123-456"));
+    await input.fill("");
+    await input.focus();
+    await input.press(process.platform === "darwin" ? "Meta+V" : "Control+V");
+
+    await expect(input).toHaveValue("123456");
+    await expect(otp.locator(".otp-slot")).toHaveText(["1", "2", "3", "4", "5", "6"]);
+    await expect(submit).toBeEnabled();
   });
 
   test("OTP pointer interaction moves the backing caret to the clicked slot @desktop", async ({ page }) => {

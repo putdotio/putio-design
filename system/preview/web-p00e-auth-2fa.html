@@ -379,6 +379,29 @@
       clearError();
       syncSlots(true);
     });
+    input.addEventListener('paste', function (event) {
+      if (!event.clipboardData) return;
+      var pastedDigits = event.clipboardData.getData('text').replace(/\D/g, '');
+      if (!pastedDigits) return;
+      event.preventDefault();
+
+      var selectionStart = input.selectionStart === null ? input.value.length : input.selectionStart;
+      var selectionEnd = input.selectionEnd === null ? selectionStart : input.selectionEnd;
+      var digits;
+      var caret;
+      if (pastedDigits.length >= slots.length) {
+        digits = pastedDigits.slice(0, slots.length);
+        caret = digits.length;
+      } else {
+        digits = (input.value.slice(0, selectionStart) + pastedDigits + input.value.slice(selectionEnd)).slice(0, slots.length);
+        caret = Math.min(selectionStart + pastedDigits.length, digits.length);
+      }
+
+      input.value = digits;
+      input.setSelectionRange(caret, caret);
+      clearError();
+      syncSlots(true);
+    });
     input.addEventListener('focus', function () { syncSlots(true); });
     input.addEventListener('click', function () { syncSlots(true); });
     input.addEventListener('keyup', function () { syncSlots(true); });
