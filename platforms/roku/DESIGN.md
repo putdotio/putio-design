@@ -5,9 +5,9 @@ description: "Binding contract for the put.io Roku channel. Tier 3: token inheri
 tier: 3
 source: "putdotio/putio-roku@main"
 reviewed:
-  date: "2026-08-23"
-  against: "UiMetrics.brs, Typography.brs, ListItem.xml, ListItemData.xml, generate-roku-design.ts, roku-ui-metrics.test.ts, config/phosphor-icons.json, docs/ICONS.md"
-  cards: ["roku-f00-metrics", "roku-f01-type", "roku-s00-files", "roku-p00-options", "roku-p01-destructive"]
+  date: "2026-08-25"
+  against: "Roku SceneGraph components, the generated token adapter, and platform metric and icon checks."
+  cards: ["roku-f00-metrics", "roku-s00-files", "roku-p00-options", "roku-p01-destructive", "roku-s02-search", "roku-s03-settings", "roku-s04-history", "roku-s05-auth", "roku-p03-continue-watching", "roku-p04-conversion"]
 resolution:
   authored: "1920x1080"
   grid: 3
@@ -156,14 +156,25 @@ order on every consumer, because DialogStyle reads the grid helpers at load.
 
 ### ListItem
 
-`Group` holding a `FocusBackground`, a horizontal `LayoutGroup` at
-`translation="[35,60]"` with `itemSpacings="28"` and `vertAlignment="center"`,
-and a separate right-aligned value `Label` at x1260 w412.
+Three row components share the 120px anatomy and the `FocusBackground`:
 
-Icon is a `Poster` at 50x50. Title is body 36, subline caption 27, value small 33.
+| Component | Text layout | Value slot |
+| --- | --- | --- |
+| `ListItem` (home, settings) | title h2 36 and description small 33, **horizontal** siblings | computed by `ListItem.brs`: width 520, x = rowWidth − 568. The XML's static `[1260,0]` w412 is a dead default |
+| `FileListItem` | title h2 36 **over** caption 27, vert LayoutGroup, spacing 10 | none; watched eye Poster 40 after the text |
+| `HistoryListItem` | title h2 36 **over** caption 27, vert LayoutGroup, spacing 10 | none |
 
-The value Label sits outside the text group, so a long filename ellipsizes at
-the text column edge rather than under the size.
+All three: inline content at `translation="[35,60]"`, `itemSpacings="28"`,
+`vertAlignment="center"`, icon `Poster` at 50x50.
+
+Value-free `FileListItem` and `HistoryListItem` rows use
+`listItemMainTextWidth(rowWidth)` = rowWidth − 226, floored at 400: 1490 on a
+1716 row and 734 on search's 960 rows. A value-bearing `ListItem` instead caps
+its title before the value slot at rowWidth − 568, so the two regions do not
+overlap.
+
+Settings rows set `valueAlign="right"`, which moves the description string
+into the value slot. State is that value string; OK cycles it. No switches.
 
 ### Focus
 
@@ -200,6 +211,8 @@ This file follows the house style in [system/README.md](../../system/README.md#h
 - Build a custom modal. `Dialog` owns the remote, back button and focus containment.
 - Hand-build text entry. Use `Keyboard`.
 - Use a Phosphor name where the manifest expects an asset name.
+- Restyle `MiniKeyboard` or blend its focus. Search only blends its lists.
+- Show more than `transfer_completed` and `file_shared` on the History screen.
 
 ## Open
 

@@ -197,7 +197,7 @@ they describe the role exactly. shadcn-imported code prefers the short names.
 Base UI / headless primitives set
 `data-state="open|closed|checked|unchecked|active|completed|pending|loading"`
 on the DOM. Our components target those same attribute values in CSS — see the
-wizard step bar in `web-p00-form-layouts.html`
+wizard step bar in `web-p00b-form-flows.html`
 (`.step[data-state="completed"]`) and the menu/table cards. Prefer `data-state`
 over inventing class flags (`.is-active`, `.on`, `.current`) so the same DOM
 contract works whether the controlling code is React, Vue, vanilla JS, or
@@ -208,8 +208,8 @@ hand-written HTML, and so devtools can read the component's state at a glance.
 shadcn marks parts of compound components with `data-slot="card-header"`,
 `data-slot="card-title"`, etc. We do the same on the folder picker
 (`data-slot="modal" / "modal-header" / "modal-body" / "modal-footer"`) and the
-auth card in `web-p00-form-layouts.html` (`data-slot="auth" / "auth-header"
-/ "auth-body"`). This lets external CSS tweak one part without inventing
+auth cards in `web-p00c-auth-signin.html` and `web-p00d-auth-signup.html`
+(`data-slot="auth" / "auth-header" / "auth-body"`). This lets external CSS tweak one part without inventing
 nested class chains.
 
 ## Design variants

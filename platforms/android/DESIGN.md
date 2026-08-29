@@ -6,9 +6,9 @@ tier: 2
 platforms: ["Android", "Android TV"]
 source: "Material 3 + @putdotio/design token graph"
 reviewed:
-  date: "2026-08-23"
-  against: "Material 3 spec + the token graph. No Android source repo is tracked."
-  cards: ["android-s00-shell", "android-s01-settings", "androidtv-s00-shell"]
+  date: "2026-08-25"
+  against: "Material 3 + Google's TV design (Compose for TV) + the token graph."
+  cards: ["android-s00-shell", "android-s01-settings", "androidtv-s00-shell", "androidtv-s01-search", "androidtv-s02-account", "androidtv-s03-continue-watching"]
 canvas:
   phone: "412x915dp"
   tv: "1920x1080px"
@@ -108,10 +108,26 @@ a cross-tier decision and Phosphor is it.
 
 ## Android TV
 
-Focus is Compose for TV's: the focused `Surface` scales and elevates. Smaller
-than tvOS's lift and with no parallax tilt, because most Android TV remotes are
-five-way pads with no touch surface. Keep the platform's numbers, do not port
-Apple's.
+The TV cards document the tier-2 binding. They apply the token graph to
+Google's TV design rather than copying a generic-TV component recipe.
+
+Focus is Compose for TV's: the focused `Surface` scales and elevates. Full-width
+rows scale 1.02 to stay inside the safe area; compact surfaces (drawer items,
+buttons, chips) take the stock 1.1. Smaller than tvOS's lift and with no
+parallax tilt, because most Android TV remotes are five-way pads with no touch
+surface. Keep the platform's numbers, do not port Apple's.
+
+Top-level navigation is the M3 navigation drawer: an 80dp icon rail on the
+left, expanding with labels while focus is inside it. Destinations are Files,
+Search, History and Account.
+
+Text entry is the system IME. No app-drawn keyboard, no mic affordance.
+
+The switch is M3's (52x32dp), reading `primary` when on. Never the RN
+iOS-green switch.
+
+Dialogs are M3: 28dp corner, stacked full-width pill buttons on TV, focused
+buttons fill `primary` and use the compact-surface 1.1 scale.
 
 Uses the `tv` token group: body 36, caption 32, label 48, heading 64; spacing
 4/8/16/32/64/128; radius 12. Overscan 4% x 2%.
@@ -152,7 +168,6 @@ This file follows the house style in [system/README.md](../../system/README.md#h
 
 ## Gaps
 
-No Android source repo is tracked in this project. These cards are specs written
-from Material 3 and the token graph, not reads of shipped code. Point the design
-system at a repo and the next revision can be grounded the way the Roku cards
-are.
+No Android app repo is tracked in this project. Phone and TV cards are specs
+from Material 3, Google's TV design and the token graph. Platform apps own
+their implementation and adoption.

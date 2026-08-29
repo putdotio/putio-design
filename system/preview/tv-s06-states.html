@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" class="dark" data-theme-lock="dark"><head>
+<meta charset="utf-8"><title>put.io · TV · states</title>
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<link rel="stylesheet" href="./_frame.css">
+<link rel="stylesheet" href="../tv.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+.tvfit{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left}
+.tvfit .tv{position:absolute;inset:0}
+.tv .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:0 256px;text-align:center}
+.tv .center i.st{font-size:64px;line-height:1;color:var(--text-secondary)}
+.tv .center .spin i.st{color:var(--text)}
+.tv .center .hd{font-size:64px;font-weight:500;line-height:1.2}
+.tv .center .msg{font-size:36px;color:var(--text-secondary)}
+.tv .appinfo{position:absolute;left:0;right:0;bottom:22px;text-align:center;font-size:24px;color:var(--text-secondary)}
+@keyframes tvspin{to{transform:rotate(360deg)}}
+.tv .spin{display:inline-flex;animation:tvspin 1.4s linear infinite}
+</style></head>
+<body>
+<div class="tierbar t4"><span class="tno">Tier 4</span><span class="twhat">Tier 4 · <b>TV (Generic)</b>: tv.put.io, Tizen, webOS. The restrained, list-first web binding is the reference presentation. Android TV shares the product behaviour but applies Google's native TV components and focus model.</span><span class="ttok">--text · --text-secondary · --red-solid · --yellow-solid · --component-bg-active</span></div>
+<div class="preview-shell">
+<div>
+  <div class="label">One centred column for every non-content screen</div>
+  <div class="note">Empty, error and loading share one skeleton: a centred <code>YStack</code> of glyph, 64px heading and 36px <code>--text-secondary</code> body, spaced 32. They differ only in glyph colour and in what follows the body. Sources: <code class="src">components/empty-state.tsx</code>, <code class="src">error-state.tsx</code>, <code class="src">loading-screen.tsx</code>.</div>
+</div>
+
+<div class="tvbox"><div class="tvfit">
+  <div class="tv">
+    <div class="scr">
+      <div class="scr-head"><h1 class="scr-title">Your Files</h1></div>
+      <div class="center" style="position:relative;inset:auto;flex:1;">
+        <i class="ph ph-folder-open st" aria-hidden="true"></i>
+        <div class="hd">No files whatsoever!</div>
+        <div class="msg">It looks like this folder is empty.</div>
+        <div style="height:64px"></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="cap"><b>EmptyState</b>Glyph stays <code>--text-secondary</code>. Each screen supplies its own glyph and strings: files <code>folder-open</code>, history <code>history</code>, trash <code>delete</code>.</div>
+
+<div class="tvbox"><div class="tvfit">
+  <div class="tv">
+    <div class="center">
+      <i class="ph ph-x-circle st" style="color:var(--red-solid)" aria-hidden="true"></i>
+      <div class="hd">Unsupported file type</div>
+      <div class="msg">We currently only support video files in this app (for now).</div>
+      <div style="height:32px"></div>
+      <button class="btn focused">Go back</button>
+      <div style="height:64px"></div>
+    </div>
+    <div class="appinfo">2.3.1 (482)</div>
+  </div>
+</div></div>
+<div class="cap"><b>ErrorState</b>The glyph is the only red. Recovery is either an instruction sentence or a single standard Button; the button never turns red. The release string sits at the bottom for support calls.</div>
+
+<div class="tvbox"><div class="tvfit">
+  <div class="tv">
+    <div class="center">
+      <div class="hd">Loading</div>
+      <span class="spin"><i class="ph ph-circle-notch st" style="font-size:72px" aria-hidden="true"></i></span>
+      <div style="height:32px"></div>
+    </div>
+  </div>
+</div></div>
+<div class="cap"><b>LoadingScreen</b>Heading above the spinner. The spinner is the platform ActivityIndicator: brand yellow on Android TV, <code>--text</code> elsewhere.</div>
+
+<div class="kv">
+  <div class="r"><span class="k">skeleton</span><span class="v">centred YStack, spacing 32, horizontal inset 256 (<code>paddingX="xxl"</code>). A trailing 64 spacer nudges the block optically above centre</span></div>
+  <div class="r"><span class="k">glyph</span><span class="v">64 (heading step). <code>--text-secondary</code> on empty, <code>--red-solid</code> <code>x-circle</code> on error, none on loading</span></div>
+  <div class="r"><span class="k">heading / body</span><span class="v">64 medium <code>--text</code> / 36 <code>--text-secondary</code></span></div>
+  <div class="r"><span class="k">recovery</span><span class="v">instruction errors add a sentence; action errors add one md Button with preferred focus (<b>Go back</b>, <b>Retry</b>)</span></div>
+  <div class="r"><span class="k">app info</span><span class="v">release string, 24px <code>--text-secondary</code>, absolute bottom centre. Error screens only</span></div>
+  <div class="r"><span class="k">strings</span><span class="v">files <b>No files whatsoever!</b> · history <b>This is your history. It's currently empty.</b> · trash <b>Your trash is empty</b> · search <b>No results found.</b> (bare body text, no skeleton)</span></div>
+</div>
+
+<div class="note" style="margin-top:4px">Contract: <a href="https://github.com/putdotio/putio-design/blob/main/platforms/tv-generic/DESIGN.md"><code>platforms/tv-generic/DESIGN.md</code></a> · source: <code class="src">components/empty-state.tsx</code>, <code class="src">error-state.tsx</code>, <code class="src">loading-screen.tsx</code>, <code class="src">app-info.tsx</code></div>
+<div class="dont"><b>Do not</b> decorate these screens. No illustration, no red fill behind the error, no second button. Error copy is a sentence, not a code: <code>ERR_NO_PEERS</code> never reaches a TV.</div>
+</div>
+<script>(function(){function f(){document.querySelectorAll('.tvbox').forEach(function(b){var e=b.querySelector('.tvfit');if(e)e.style.transform='scale('+(b.clientWidth/1920)+')';});}f();addEventListener('resize',f);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f);})();</script>
+</body></html>

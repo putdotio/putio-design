@@ -6,9 +6,9 @@ tier: 2
 platforms: ["iOS 26", "iPadOS 26", "watchOS", "tvOS"]
 source: "Apple HIG + @putdotio/design token graph"
 reviewed:
-  date: "2026-08-23"
-  against: "Apple HIG (iOS 26 / iPadOS 26 / watchOS / tvOS); product content from putio-ios Putio/Features"
-  cards: ["ios-s00-shell", "ios-s01-files", "ios-s02-transfers", "ios-s04-settings", "ios-s03-players", "watchos-s00-shell", "tvos-s00-shell"]
+  date: "2026-08-25"
+  against: "Apple HIG (iOS 26 / iPadOS 26 / watchOS / tvOS) + the token graph."
+  cards: ["ios-s00-shell", "ios-s01-files", "ios-s02-transfers", "ios-s04-settings", "ios-s03-players", "watchos-s00-shell", "tvos-s00-shell", "tvos-s01-search", "tvos-s02-account", "tvos-s03-continue-watching"]
 canvas:
   iphone: "393x852pt"
   ipad: "1024x768pt"
@@ -31,8 +31,7 @@ human interface guidelines. put.io supplies four things and nothing else:
 4. **File icons**. Phosphor, yellow, every file type.
 
 Tier definitions live in [ADR 0009](https://github.com/putdotio/putio-frontend/blob/main/docs/decisions/0009-design-binding-tiers.md).
-Never port `components.css`. [putio-ios#171](https://github.com/putdotio/putio-ios/pull/171)
-is the cost of doing so.
+Never port `components.css`; native controls bind token values directly.
 
 ## Metrics
 
@@ -134,6 +133,21 @@ Uses the `tv` token group: body 36, caption 32, label 48, heading 64; spacing
 4/8/16/32/64/128; radius 12. Overscan 4% x 2%.
 
 No mono. TV numerics are GT America tabular figures.
+
+Search types on the system linear keyboard via `UISearchController`. Recent
+keywords surface as app-provided suggestions.
+
+Settings rows are label-left value-right; select cycles booleans or opens a
+full-screen chooser. No 51x31 toggle on tvOS.
+
+Continue watching uses a custom pre-play overlay before
+`AVPlayerViewController`: title, raw filename, progress preview and two stacked
+choices. It is not a stock system alert; its buttons use the system focus
+treatment.
+
+The tvOS cards document how search, account and pre-play continuation bind the
+token graph to platform navigation and focus. Platform apps own the native
+implementation.
 
 ## Content
 

@@ -158,6 +158,14 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
   border-bottom: 2px solid var(--line);
   margin-bottom: 32px;
 }
+/* components/ui/logo.tsx sizes the small logo to text.label (48px).
+   The SVG carries 16px of optical top padding, so a 56px box produces
+   48px of visible ink without a translate nudge. */
+.tv .scr-head img {
+  height: 56px;
+  width: calc(56px * 376 / 112);
+  object-fit: contain;
+}
 .tv .scr-title {
   font-size: 48px;
   font-weight: 500;         /* GTAmerica-Md */
@@ -306,7 +314,7 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
 .tv .divider {
   height: 2px;
   background: var(--line);
-  margin: 26px 0;
+  margin: 32px 0;
 }
 .tv .chev {
   width: 32px;
@@ -522,41 +530,39 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
    specificity, this file must stay free of priority overrides. */
 .tv .hide.hide { display: none; }
 
-/* ── tv-native VideoPlayer ── apps/tv-native/src/components/video-player/.
-   The same React Native codebase ships tv.put.io and Android TV, so these
-   values are shared by both tiers by construction. */
-.tvp { position: relative; width: 1920px; height: 1080px; background: #000; overflow: hidden; }
-.tvp .frame { position: absolute; inset: 0; background: linear-gradient(160deg,#181410,#0b0b0d 62%,#110e0c); }
+/* ── Generic TV VideoPlayer ── shared player controls for tier-4 surfaces. */
+.tv .tvp { position: relative; width: 1920px; height: 1080px; background: #000; overflow: hidden; }
+.tv .tvp .frame { position: absolute; inset: 0; background: linear-gradient(160deg,#181410,#0b0b0d 62%,#110e0c); }
 /* PlayerControlsContainer: bottom 0, full width, rgba(0,0,0,.75),
    padding-top spacing.sm, sides and bottom from the overscan safe margins. */
-.tvp .ctls { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.75); padding: 16px 64px 48px; box-sizing: border-box; }
-.tvp .toprow { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; }
+.tv .tvp .ctls { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.75); padding: 16px 64px 48px; box-sizing: border-box; }
+.tv .tvp .toprow { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; }
 /* VideoTitle: numberOfLines 2, maxWidth 80% */
-.tvp .ptitle { flex: 1; max-width: 80%; font-size: 36px; line-height: 1.25; color: var(--text); margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.tvp .obtns { display: flex; gap: 16px; flex: 0 0 auto; }
-.tvp .obtn { width: 80px; height: 80px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 36px; color: var(--text); background: rgba(255,255,255,.08); position: relative; }
-.tvp .obtn.focused { background: var(--component-bg-active); }
-.tvp .obtn .lbl { position: absolute; left: 50%; transform: translateX(-50%); top: -46px; font-size: 24px; white-space: nowrap; color: var(--text); }
-.tvp .spacer { height: 32px; }
+.tv .tvp .ptitle { flex: 1; max-width: 80%; font-size: 36px; line-height: 1.25; color: var(--text); margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tv .tvp .obtns { display: flex; gap: 16px; flex: 0 0 auto; }
+.tv .tvp .obtn { width: 80px; height: 80px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 36px; color: var(--text); background: rgba(255,255,255,.08); position: relative; }
+.tv .tvp .obtn.focused { background: var(--component-bg-active); }
+.tv .tvp .obtn .lbl { position: absolute; left: 50%; transform: translateX(-50%); top: -46px; font-size: 27px; white-space: nowrap; color: var(--text); }
+.tv .tvp .spacer { height: 32px; }
 /* Seek bar: 12px track. Progress yellow-solid, remainder solid. */
-.tvp .seek { position: relative; width: 100%; }
-.tvp .seek .bar { display: flex; height: 12px; width: 100%; }
-.tvp .seek .fill { height: 12px; background: var(--yellow-solid); border-radius: 12px 0 0 12px; }
-.tvp .seek .rest { height: 12px; background: var(--solid); border-radius: 0 12px 12px 0; }
+.tv .tvp .seek { position: relative; width: 100%; }
+.tv .tvp .seek .bar { display: flex; height: 12px; width: 100%; }
+.tv .tvp .seek .fill { height: 12px; background: var(--yellow-solid); border-radius: 12px 0 0 12px; }
+.tv .tvp .seek .rest { height: 12px; background: var(--solid); border-radius: 0 12px 12px 0; }
 /* Thumb: 36x36 (track x3), 4px rgba(255,255,255,.25) border (track/3), yellow
    fill. Opacity animates 0 to 1 ONLY while the slider itself has focus. */
-.tvp .seek .thumb { position: absolute; top: -12px; width: 36px; height: 36px; box-sizing: border-box; border-radius: 36px; border: 4px solid rgba(255,255,255,.25); background: var(--yellow-solid); opacity: 0; }
-.tvp .seek.focused .thumb { opacity: 1; }
-.tvp .times { display: flex; justify-content: space-between; margin-top: 32px; font-size: 24px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
-.tvp .times .now { display: flex; align-items: center; gap: 10px; }
-.tvp .buffer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-.tvp .buffer i { font-size: 72px; color: var(--yellow-solid); }
+.tv .tvp .seek .thumb { position: absolute; top: -12px; width: 36px; height: 36px; box-sizing: border-box; border-radius: 36px; border: 4px solid rgba(255,255,255,.25); background: var(--yellow-solid); opacity: 0; }
+.tv .tvp .seek.focused .thumb { opacity: 1; }
+.tv .tvp .times { display: flex; justify-content: space-between; margin-top: 32px; font-size: 27px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.tv .tvp .times .now { display: flex; align-items: center; gap: 8px; }
+.tv .tvp .buffer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.tv .tvp .buffer i { font-size: 72px; color: var(--yellow-solid); }
 
 /* ── SelectModal ── one overlay serves audio, subtitles and speed ──────── */
-.tvsel { position: relative; width: 1920px; height: 1080px; background: #000; overflow: hidden; }
-.tvsel .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.72); }
-.tvsel .panel { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 720px; background: var(--component-bg); border-radius: 12px; padding: 48px 0 32px; box-sizing: border-box; }
-.tvsel .ttl { font-size: 48px; color: var(--text); padding: 0 48px 32px; }
-.tvsel .opt { height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; font-size: 36px; color: var(--text); }
-.tvsel .opt.focused { background: var(--component-bg-active); }
-.tvsel .opt i { font-size: 36px; color: var(--yellow-solid); }
+.tv .tvsel { position: relative; width: 1920px; height: 1080px; background: #000; overflow: hidden; }
+.tv .tvsel .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.72); }
+.tv .tvsel .panel { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 720px; background: var(--component-bg); border-radius: 12px; padding: 48px 0 32px; box-sizing: border-box; }
+.tv .tvsel .ttl { font-size: 48px; color: var(--text); padding: 0 48px 32px; }
+.tv .tvsel .opt { height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; font-size: 36px; color: var(--text); }
+.tv .tvsel .opt.focused { background: var(--component-bg-active); }
+.tv .tvsel .opt i { font-size: 36px; color: var(--yellow-solid); }

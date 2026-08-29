@@ -4,11 +4,11 @@ name: "put.io on web TV"
 description: "Binding contract for tv.put.io, Samsung Tizen and LG webOS. Tier 4: the design system as on web, restrained to a 10-foot interface."
 tier: 4
 platforms: ["tv.put.io", "Tizen", "webOS"]
-source: "apps/tv-native (the reference look) + system/tv.css"
+source: "generic TV reference implementation + system/tv.css"
 reviewed:
-  date: "2026-08-23"
-  against: "putio-web apps/tv-native: lib/theme.tsx, components/screen.tsx, components/list-item.tsx, components/ui/button.tsx, components/modal/select-modal.tsx"
-  cards: ["tv-f00-foundations", "tv-p00-navigation", "tv-s00-account", "tv-s01-player", "tv-p01-action-menus", "tv-f01-focus"]
+  date: "2026-08-25"
+  against: "The generic TV reference implementation, its screen inventory, and system/tv.css."
+  cards: ["tv-f00-foundations", "tv-p00-navigation", "tv-s00-account", "tv-s01-player", "tv-p01-action-menus", "tv-f01-focus", "tv-s03-search", "tv-s04-history", "tv-s05-trash", "tv-s06-states", "tv-s07-auth", "tv-p04-resume", "tv-p05-conversion"]
 canvas: "1920x1080"
 radius: "12px, one value"
 mode: "dark only"
@@ -21,9 +21,9 @@ mode: "dark only"
 Tier 4. The put.io design system applies as on web, restrained to a generic,
 calm, list-first 10-foot interface.
 
-The shipped `tv-native` app is the reference look for **every** TV surface. Web
-TV and Roku match it directly. tvOS and Android TV align to the same family feel
-without giving up their platform's focus behaviour.
+The generic TV implementation is the reference look for **every** TV surface.
+Web TV and Roku match it directly. tvOS and Android TV align to the same family
+feel without giving up their platform's focus behaviour.
 
 Tier definitions live in [ADR 0009](https://github.com/putdotio/putio-frontend/blob/main/docs/decisions/0009-design-binding-tiers.md).
 
@@ -98,6 +98,13 @@ A TV app is a file browser, not a poster wall.
 
 Raw filenames. No parsing, no posters, no thumbnails, no ratings, no synopsis.
 
+No continue-watching row, shelf or hub tile. The resume decision is a prompt at
+play time; the browse-time trace of a started video is the watched eye on its
+row.
+
+No transfers screen. History is the TV activity surface: finished outcomes
+only, nothing mid-flight.
+
 Watched videos show the watched eye in `--text-secondary`.
 
 The icon set is the app's three glyphs. Do not expand it without a reason.
@@ -128,3 +135,5 @@ This file follows the house style in [system/README.md](../../system/README.md#h
 - Use mono.
 - Invent a focus treatment.
 - Use more than one radius.
+- Draw an on-screen keyboard. Search delegates typing to the platform IME.
+- Build a continue-watching row or a transfers screen.

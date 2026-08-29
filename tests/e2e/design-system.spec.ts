@@ -47,6 +47,18 @@ const tvSmokePages = [
   "/preview/web-s00-shell.html",
 ];
 
+const tvFramePages = htmlPages.filter((page) => {
+  const file = path.join(systemDir, page.replace(/^\//, ""));
+  return page.startsWith("/preview/") && readFileSync(file, "utf8").includes('class="tvbox"');
+});
+
+const tvPatternFrames = [
+  ["/preview/roku-p03-continue-watching.html", ".rk-cw"],
+  ["/preview/roku-p04-conversion.html", ".rk-cv"],
+  ["/preview/tv-p04-resume.html", ".rsm"],
+  ["/preview/tv-p05-conversion.html", ".cvs"],
+] as const;
+
 const buttonHoverAliases = [
   [".btn-primary", "--button-primary-bg-hover"],
   [".btn-success", "--button-success-bg-hover"],
@@ -82,6 +94,81 @@ test.describe("design.put.io static guide", () => {
       await expect(page.locator("body")).toContainText(/\S{3,}/);
     });
   }
+
+  for (const pagePath of tvFramePages) {
+    test(`${pagePath} keeps its TV artboard visible @tv`, async ({ page }) => {
+      await page.goto(pagePath, { waitUntil: "domcontentloaded" });
+      const frames = await page.locator(".tvbox > .tvfit").evaluateAll((elements) =>
+        elements.map((element) => {
+          const frame = element.getBoundingClientRect();
+          const container = element.parentElement?.getBoundingClientRect();
+          if (!container) return { frameWidth: 0, frameHeight: 0, containerWidth: 0, containerHeight: 0, aspectRatio: 0, visibleRatio: 0 };
+          const visibleWidth = Math.max(0, Math.min(frame.right, container.right) - Math.max(frame.left, container.left));
+          const visibleHeight = Math.max(0, Math.min(frame.bottom, container.bottom) - Math.max(frame.top, container.top));
+          const frameArea = frame.width * frame.height;
+          return {
+            frameWidth: frame.width,
+            frameHeight: frame.height,
+            containerWidth: container.width,
+            containerHeight: container.height,
+            aspectRatio: container.height > 0 ? container.width / container.height : 0,
+            visibleRatio: frameArea > 0 ? (visibleWidth * visibleHeight) / frameArea : 0,
+          };
+        }),
+      );
+      expect(frames.length, `${pagePath} should contain a positioned TV frame`).toBeGreaterThan(0);
+      for (const frame of frames) {
+        expect(frame.frameWidth, `${pagePath} TV frame width`).toBeGreaterThan(0);
+        expect(frame.frameHeight, `${pagePath} TV frame height`).toBeGreaterThan(0);
+        expect(frame.containerWidth, `${pagePath} TV container width`).toBeGreaterThan(0);
+        expect(frame.containerHeight, `${pagePath} TV container height`).toBeGreaterThan(0);
+        expect(Math.abs(frame.aspectRatio - 16 / 9), `${pagePath} TV container aspect ratio`).toBeLessThan(0.01);
+        expect(Math.abs(frame.frameWidth - frame.containerWidth), `${pagePath} TV frame width scale`).toBeLessThanOrEqual(1);
+        expect(Math.abs(frame.frameHeight - frame.containerHeight), `${pagePath} TV frame height scale`).toBeLessThanOrEqual(1);
+        expect(frame.visibleRatio, `${pagePath} visible TV frame ratio`).toBeGreaterThan(0.99);
+      }
+    });
+  }
+
+  for (const [pagePath, selector] of tvPatternFrames) {
+    test(`${pagePath} keeps its 1920x1080 pattern visible @tv`, async ({ page }) => {
+      await page.goto(pagePath, { waitUntil: "domcontentloaded" });
+      const geometry = await page.locator(selector).evaluate((element) => {
+        const frame = element.getBoundingClientRect();
+        const container = element.parentElement?.getBoundingClientRect();
+        if (!container) return { width: 0, height: 0, visibleRatio: 0 };
+        const visibleWidth = Math.max(0, Math.min(frame.right, container.right) - Math.max(frame.left, container.left));
+        const visibleHeight = Math.max(0, Math.min(frame.bottom, container.bottom) - Math.max(frame.top, container.top));
+        const frameArea = frame.width * frame.height;
+        return {
+          width: frame.width,
+          height: frame.height,
+          visibleRatio: frameArea > 0 ? (visibleWidth * visibleHeight) / frameArea : 0,
+        };
+      });
+
+      expect(geometry.width, `${pagePath} pattern width`).toBe(1920);
+      expect(geometry.height, `${pagePath} pattern height`).toBe(1080);
+      expect(geometry.visibleRatio, `${pagePath} visible pattern ratio`).toBeGreaterThan(0.99);
+    });
+  }
+
+  test("Roku value-bearing rows reserve the computed value slot @tv", async ({ page }) => {
+    await page.goto("/preview/roku-c00-listitem.html", { waitUntil: "domcontentloaded" });
+    const rows = await page.locator(".rk-row:has(.val)").evaluateAll((elements) =>
+      elements.map((element) => {
+        const text = element.querySelector(".tx")?.getBoundingClientRect();
+        const value = element.querySelector(".val")?.getBoundingClientRect();
+        return { textRight: text?.right ?? 0, valueLeft: value?.left ?? 0 };
+      }),
+    );
+
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) {
+      expect(row.textRight, "Roku text group right edge").toBeGreaterThan(0);
+      expect(row.textRight, "Roku text group must end before its value slot").toBeLessThanOrEqual(row.valueLeft + 0.5);
+    }
+  });
 
   test("generated tokens are available to the browser @desktop", async ({ page }) => {
     await page.goto("/design-system.html");
@@ -139,6 +226,28 @@ test.describe("design.put.io static guide", () => {
       textOverflow: "ellipsis",
       whiteSpace: "nowrap",
     });
+  });
+
+  test("error OTP keeps a visible keyboard focus indicator @desktop", async ({ page }) => {
+    await page.goto("/preview/web-p00e-auth-2fa.html", { waitUntil: "domcontentloaded" });
+    await page.locator("#otp-code-error").focus();
+    const focusedSlot = page.locator('.otp[data-state="error"] .slot[data-state="focused"]');
+    await expect(focusedSlot).toHaveCount(1);
+    await expect.poll(async () => focusedSlot.evaluate((element) => getComputedStyle(element).boxShadow)).not.toBe("none");
+  });
+
+  test("OTP edits stay synchronized with their visible slots @desktop", async ({ page }) => {
+    await page.goto("/preview/web-p00e-auth-2fa.html", { waitUntil: "domcontentloaded" });
+    const input = page.locator("#otp-code");
+    await input.fill("12a34");
+
+    await expect(input).toHaveValue("1234");
+    await expect(page.locator(".otp").first().locator(".slot")).toHaveText(["1", "2", "3", "4", "", ""]);
+    await expect(page.locator(".otp").first().locator('.slot[data-state="focused"]')).toHaveCount(1);
+
+    await input.evaluate((element: HTMLInputElement) => element.setSelectionRange(2, 2));
+    await input.press("ArrowRight");
+    await expect(page.locator(".otp").first().locator(".slot").nth(3)).toHaveAttribute("data-state", "focused");
   });
 
   test("TV focus uses the canonical fill and border treatments @tv", async ({ page }) => {

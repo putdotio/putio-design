@@ -12,9 +12,9 @@
      components/shared/Typography/Typography.brs
        h1 45 bold · h2 36 medium · body 36 rg · small 33 rg
        label 33 medium · caption 27 rg   (GT America, FHD coords)
-     components/shared/ListItem/ListItem.xml
+     components/shared/ListItem/ListItem.xml + ListItem.brs
        inlineContent translation [35,60], itemSpacings 28,
-       icon Poster 50x50, value Label x1260 w412 right-aligned
+       icon Poster 50x50, value Label w520 at rowWidth - 568
      test/live-test/roku-ui-metrics.test.ts
        asserts rowWidth 1716 and fails any 1px dialog border
 
@@ -59,16 +59,17 @@
    the value Label is absolutely placed, so the row does not pad for it. */
 .rk-row { width: 1716px; height: 120px; box-sizing: border-box; display: flex; align-items: center; gap: 28px; padding: 0 0 0 35px; position: relative; }
 .rk-row i.lead { font-size: 50px; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; color: var(--yellow-solid); flex: 0 0 auto; }
-/* inlineContent is a HORIZONTAL LayoutGroup at translation=[35,60] with
-   itemSpacings=28: icon, title, description sit side by side on one line,
-   vertically centred on the row. They are not stacked. */
+/* Shared ListItem uses a horizontal LayoutGroup. FileListItem and
+   HistoryListItem opt into .vert for their stacked title/caption anatomy. */
 .rk-row .tx { display: flex; flex-direction: row; align-items: center; gap: 28px; min-width: 0; }
+.rk-row:has(.val) .tx { max-width: 1035px; }
+.rk-row .tx.vert { flex-direction: column; align-items: flex-start; gap: 10px; }
+.rk-row .tx.vert .t1 { max-width: 1490px; }
 .rk-row .t1 { font-size: 36px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rk-row .t2 { font-size: 27px; color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; flex: 0 0 auto; }
-/* value is its own Label at translation=[1260,0], width 412, horizAlign right.
-   Not part of the text LayoutGroup, which is why the title has to ellipsize
-   at listItemMainTextWidth() rather than running to the row edge. */
-.rk-row .val { position: absolute; left: 1260px; top: 0; width: 412px; height: 120px; display: flex; align-items: center; justify-content: flex-end; color: var(--text-secondary); font-size: 33px; font-variant-numeric: tabular-nums; }
+/* ListItem.brs configureLayout overrides the XML default: value width 520,
+   x = rowWidth - 568 (1148 on a 1716 row), horizAlign right. */
+.rk-row .val { position: absolute; left: 1148px; top: 0; width: 520px; height: 120px; display: flex; align-items: center; justify-content: flex-end; color: var(--text-secondary); font-size: 33px; font-variant-numeric: tabular-nums; }
 /* Focus is ONE tinted nine-patch (list-item-focus.9.png blended with the
    `focus` token) and nothing else. There is no border on a focused row:
    uiBorderWidth() (3px) belongs to AppDialog, DeleteFileDialog, TrackMenu

@@ -28,7 +28,7 @@
     setDark(dark);
   })();
 </script>
-<title>put.io · patterns · form layouts</title><meta charset="utf-8">
+<title>put.io · patterns · auth, sign-up and recovery</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 <link rel="stylesheet" href="../tokens.css">
@@ -65,8 +65,8 @@
 
   /* ─── Base form primitives ─────────────────────────────── */
   .label {margin-bottom: 6px; display: flex; align-items: center; gap: 6px}
-  
-  
+
+
   .hint { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-top: 6px; }
   /* .field primitive lives in _components.css, reads from --field-*
      tokens (--app-bg fill, --border, border-hover focus ring, no
@@ -78,6 +78,12 @@
      two-column rows (Last name dropping below First name, etc). */
   .group.full { grid-column: 1 / -1; }
   .field-wrap { position: relative; }
+  .password-toggle {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    width: 28px; height: 28px; padding: 0; border: 0; border-radius: var(--radius-sm);
+    display: grid; place-items: center; background: transparent;
+    color: var(--text-secondary); font-size: 14px; cursor: pointer;
+  }
   .field-wrap > i.lead {
     position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
     font-size: 14px; color: var(--text-secondary);
@@ -396,7 +402,14 @@
   .otp {
     display: flex; align-items: center; gap: 8px;
     justify-content: flex-start;
+    position: relative;
   }
+  .otp-input {
+    position: absolute; inset: 0; z-index: 1;
+    width: 100%; height: 100%; margin: 0; padding: 0; border: 0;
+    opacity: 0; cursor: text;
+  }
+  .otp[data-state="loading"] .otp-input { pointer-events: none; }
   .otp .slot {
     width: 44px; height: 52px;
     border: 1px solid var(--field-border);
@@ -503,202 +516,167 @@
 
 <div class="surface">
   <!-- =============================================================
-       L · 01, Settings row (label-left, value-right)
+       L · 13, Sign-up
        ============================================================= -->
   <div class="panel">
     <div class="demo-hd">
-      <span class="ix">L · 01</span>
-      <span class="t">Settings row · label-left</span>
-      <span class="when">Settings pages · profile · account preferences</span>
+
+
+      <span class="ix">L · 13</span>
+      <span class="t">Sign-up</span>
+      <span class="when">New account · email + username + terms</span>
     </div>
-    <div class="demo-body" style="padding-top: 0;">
-      <div class="settings-row">
-        <div class="lhs">
-          <div class="ttl">Default download folder</div>
-          <div class="sub">Where new transfers land before you sort them.</div>
+    <div class="demo-body auth-stage">
+      <img class="auth-logo brand-light" src="../assets/logo-retro-light.svg" alt="put.io" />
+      <img class="auth-logo brand-dark"  src="../assets/logo-retro-dark.svg"  alt="put.io" />
+      <div class="card card-lg auth" data-slot="auth">
+        <div class="a-hd" data-slot="auth-header">
+          <h3>Create your account</h3>
+          <p>Free 7-day trial. No card required.</p>
         </div>
-        <div class="rhs">
-          <div class="field-wrap">
-            <i class="ph ph-folder lead"></i>
-            <input aria-label="Default download folder" class="field has-icon" value="/Movies/Unsorted" />
+        <div class="a-body" data-slot="auth-body">
+          <div class="group">
+            <span class="label">Email</span>
+            <input aria-label="Email" class="field" value="kai@example.com" />
+          </div>
+          <div class="group">
+            <span class="label">Username</span>
+            <input aria-label="Username" class="field mono" value="kai" />
+            <span class="hint-inline">Lowercase letters, numbers, and dashes. 3–20 characters.</span>
           </div>
         </div>
-      </div>
-      <div class="settings-row">
-        <div class="lhs">
-          <div class="ttl" id="auto-convert-label">Auto-convert to MP4</div>
-          <div class="sub">Converts on completion. Costs 1 credit per file; transcoded files stay on put.io.</div>
-        </div>
-        <div class="rhs">
-          <div role="group" aria-labelledby="auto-convert-label" style="display: inline-flex; background: var(--component-bg); border-radius: var(--radius); padding: 2px;">
-            <button type="button" aria-pressed="true" style="height: 28px; padding: 0 14px; border: 0; background: var(--bg); color: var(--text); font-size: 12.5px; font-weight: 500; border-radius: var(--radius-sm); cursor: pointer; box-shadow: var(--shadow-sm);">On</button>
-            <button type="button" aria-pressed="false" style="height: 28px; padding: 0 14px; border: 0; background: transparent; color: var(--text-secondary); font-size: 12.5px; font-weight: 500; cursor: pointer;">Off</button>
-          </div>
+        <button class="btn-primary btn-block">Create account</button>
+        <div style="margin-top: 18px; font-size: 11.5px; color: var(--text-secondary); text-align: center; line-height: 1.5;">
+          By signing up you agree to our <a href="#" style="color: var(--text); border-bottom: 1px solid var(--border);">Terms</a> and <a href="#" style="color: var(--text); border-bottom: 1px solid var(--border);">Privacy Policy</a>.
         </div>
       </div>
-      <div class="settings-row">
-        <div class="lhs">
-          <div class="ttl">Seeding ratio target</div>
-          <div class="sub">Stop seeding once this share ratio is reached. <strong style="color:var(--text);">∞</strong> means seed forever.</div>
-        </div>
-        <div class="rhs">
-          <div style="display: flex; align-items: center; gap: 14px;">
-            <div style="flex: 1; height: 4px; border-radius: 999px; background: var(--component-bg-active); position: relative;">
-              <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 38%; background: var(--yellow-solid); border-radius: 999px;"></div>
-              <div style="position: absolute; left: 38%; top: 50%; transform: translate(-50%, -50%); width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 2px solid var(--yellow-solid); box-shadow: 0 1px 3px rgba(0,0,0,0.5);"></div>
-            </div>
-            <span style="font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--text); width: 50px; text-align: right;">1.50×</span>
-          </div>
-        </div>
-      </div>
-      <div class="settings-row">
-        <div class="lhs">
-          <div class="ttl">Pushover key</div>
-          <div class="sub">Get a push notification when a transfer completes. Find your key at <a style="color: var(--yellow-text-secondary); text-decoration: underline; text-underline-offset: 2px;" href="#">pushover.net</a>.</div>
-        </div>
-        <div class="rhs">
-          <input aria-label="Pushover key" class="field mono" value="ud7nzwhf3k82q…" />
-          <div class="hint" style="margin-top: 4px;">Leave blank to disable.</div>
-        </div>
+      <div class="auth-foot">
+        Already have an account? <a href="#">Log in</a>
       </div>
     </div>
   </div>
 
   <!-- =============================================================
-       L · 02, Modal · stacked, two-column body
-       ============================================================= -->
-    <div class="panel">
-      <div class="demo-hd">
-        <span class="ix">L · 02</span>
-        <span class="t">Modal · stacked form</span>
-        <span class="when">Quick action, narrow column</span>
-      </div>
-      <div class="demo-body" style="padding: 20px; background: var(--bg);">
-        <div class="modal" style="max-width: 100%;">
-          <div class="m-hd">
-            <div class="ttl">New transfer</div>
-            <button class="close" type="button" aria-label="Close"><i class="ph ph-x" style="font-size:14px;"></i></button>
-          </div>
-          <div class="m-body">
-            <div class="group">
-              <span class="label">Source <span class="req">*</span></span>
-              <input aria-label="Source" class="field mono" placeholder="magnet:?xt=urn:btih:…" />
-              <span class="hint">Magnet, .torrent URL, or any supported download link.</span>
-            </div>
-            <div class="group">
-              <span class="label">Save to</span>
-              <div class="field-wrap">
-                <i class="ph ph-folder lead"></i>
-                <input aria-label="Save to" class="field has-icon" value="/Movies/Unsorted" />
-              </div>
-            </div>
-            <div class="group">
-              <span class="label">After completion</span>
-              <div style="display: flex; flex-direction: column; gap: 2px;">
-                <div style="display: flex; align-items: flex-start; gap: 10px; padding: 6px 8px; border-radius: var(--radius-sm);">
-                  <div style="position: relative; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--yellow-solid); background: var(--app-bg); flex-shrink: 0; margin-top: 1px;">
-                    <div style="position: absolute; inset: 3px; border-radius: 50%; background: var(--yellow-solid);"></div>
-                  </div>
-                  <div style="font-size: 13.5px; color: var(--text);">Keep on put.io <div style="font-size: 11.5px; color: var(--text-secondary); margin-top: 1px;">Stream or download later</div></div>
-                </div>
-                <div style="display: flex; align-items: flex-start; gap: 10px; padding: 6px 8px; border-radius: var(--radius-sm);">
-                  <div style="width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--border-hover); background: var(--app-bg); flex-shrink: 0; margin-top: 1px;"></div>
-                  <div style="font-size: 13.5px; color: var(--text);">Push to my device <div style="font-size: 11.5px; color: var(--text-secondary); margin-top: 1px;">Sync via the desktop app</div></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="m-foot">
-            <button class="btn-default">Cancel</button>
-            <button class="btn-primary"><i class="ph-bold ph-arrow-circle-down"></i>Add transfer</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- =============================================================
-         L · 03, Two-column grid (account info)
-         ============================================================= -->
-    <div class="panel">
-      <div class="demo-hd">
-        <span class="ix">L · 03</span>
-        <span class="t">Two-column grid</span>
-        <span class="when">Account / billing, dense info</span>
-      </div>
-      <div class="demo-body">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px;">
-          <div class="group">
-            <span class="label">First name</span>
-            <input aria-label="First name" class="field" value="Kai" />
-          </div>
-          <div class="group">
-            <span class="label">Last name</span>
-            <input aria-label="Last name" class="field" value="Özmen" />
-          </div>
-          <div class="group" style="grid-column: 1 / -1;">
-            <span class="label">Email <span class="req">*</span></span>
-            <input aria-label="Email" class="field mono" value="kai@example.com" />
-          </div>
-          <div class="group">
-            <span class="label">Country</span>
-            <div style="position: relative;">
-              <select aria-label="Country" class="field" style="padding-right: 36px; appearance: none;">
-                <option>Türkiye</option>
-                <option>United States</option>
-                <option>Germany</option>
-              </select>
-              <i class="ph-bold ph-caret-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-secondary); font-size: 12px;"></i>
-            </div>
-          </div>
-          <div class="group">
-            <span class="label">Time zone</span>
-            <div style="position: relative;">
-              <select aria-label="Time zone" class="field" style="padding-right: 36px; appearance: none;">
-                <option>Istanbul (UTC+3)</option>
-                <option>London (UTC+0)</option>
-              </select>
-              <i class="ph-bold ph-caret-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-secondary); font-size: 12px;"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  <!-- =============================================================
-       L · 04, Inline composer (action bar)
+       L · 14, Reset password (request)
        ============================================================= -->
   <div class="panel">
     <div class="demo-hd">
-      <span class="ix">L · 04</span>
-      <span class="t">Inline composer · one-row action</span>
-      <span class="when">Top of a list view · quick-add</span>
+      <span class="ix">L · 14</span>
+      <span class="t">Forgot password</span>
+      <span class="when">Single-field request · sends a reset email</span>
     </div>
-    <div class="demo-body">
-      <div class="composer">
-        <div class="field-wrap">
-          <i class="ph ph-link lead"></i>
-          <input aria-label="Paste a magnet link, .torrent URL, or any download URL" class="field has-icon mono" placeholder="Paste a magnet link, .torrent URL, or any download URL" />
+    <div class="demo-body auth-stage">
+      <img class="auth-logo brand-light" src="../assets/logo-retro-light.svg" alt="put.io" />
+      <img class="auth-logo brand-dark"  src="../assets/logo-retro-dark.svg"  alt="put.io" />
+      <div class="card card-lg auth" data-slot="auth">
+        <div class="a-hd" data-slot="auth-header">
+          <h3>Reset your password</h3>
+          <p>Enter the email on your account, we'll send you a link to set a new password.</p>
         </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <i class="ph ph-folder" style="color: var(--text-secondary); font-size: 14px;"></i>
-          <span style="font-family: var(--font-mono); font-size: 11.5px; color: var(--text-secondary);">/Movies/Unsorted</span>
+        <div class="a-body" data-slot="auth-body">
+          <div class="group">
+            <span class="label">Email</span>
+            <input aria-label="Email" class="field" value="kai@example.com" />
+          </div>
         </div>
-        <button class="btn-primary"><i class="ph-bold ph-plus"></i>Add</button>
+        <button class="btn-primary btn-block">Send reset link</button>
       </div>
-      <div class="composer-hint">
-        <span><i class="ph ph-keyboard"></i>Press <b>N</b> to focus from anywhere</span>
-        <span><i class="ph ph-clipboard-text"></i>Paste shortcut: <b>⌘ + V</b></span>
-        <span><i class="ph ph-info"></i>Up to 8 sources at once, comma-separated</span>
+      <div class="auth-foot">
+        Remembered it? <a href="#">Back to login</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================================
+       L · 15, Set new password
+       ============================================================= -->
+  <div class="panel">
+    <div class="demo-hd">
+      <span class="ix">L · 15</span>
+      <span class="t">Set new password</span>
+      <span class="when">After reset link · strength meter inline</span>
+    </div>
+    <div class="demo-body auth-stage">
+      <img class="auth-logo brand-light" src="../assets/logo-retro-light.svg" alt="put.io" />
+      <img class="auth-logo brand-dark"  src="../assets/logo-retro-dark.svg"  alt="put.io" />
+      <div class="card card-lg auth" data-slot="auth">
+        <div class="a-hd" data-slot="auth-header">
+          <h3>Set a new password</h3>
+          <p>For <b style="color: var(--text); font-weight: 500;">kai@example.com</b>. You'll be signed in after.</p>
+        </div>
+        <div class="a-body" data-slot="auth-body">
+          <div class="group">
+            <span class="label">New password</span>
+            <div class="field-wrap">
+              <input aria-label="New password" class="field" type="password" value="•••••••••••" />
+              <button class="password-toggle" type="button" aria-label="Show password"><i class="ph ph-eye" aria-hidden="true"></i></button>
+            </div>
+            <div class="pw-meter" data-strength="good" role="meter" aria-label="Password strength" aria-valuemin="0" aria-valuemax="4" aria-valuenow="3">
+              <div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div>
+            </div>
+            <div class="pw-label">
+              <span>Strength: <b>Good</b></span>
+              <span>11 chars</span>
+            </div>
+          </div>
+          <div class="group">
+            <span class="label">Confirm new password</span>
+            <input aria-label="Confirm new password" class="field" type="password" value="•••••••••••" />
+          </div>
+        </div>
+        <button class="btn-primary btn-block">Save and continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================================
+       L · 16, In-flight / verifying
+       ============================================================= -->
+  <div class="panel">
+    <div class="demo-hd">
+      <span class="ix">L · 16</span>
+      <span class="t">In-flight · verifying</span>
+      <span class="when">Spinner + label change · code and CTA locked</span>
+    </div>
+    <div class="demo-body auth-stage">
+      <img class="auth-logo brand-light" src="../assets/logo-retro-light.svg" alt="put.io" />
+      <img class="auth-logo brand-dark"  src="../assets/logo-retro-dark.svg"  alt="put.io" />
+      <div class="card card-lg auth" data-slot="auth">
+        <div class="a-hd" data-slot="auth-header">
+          <h3>Two-factor authentication</h3>
+        </div>
+        <div class="a-body" data-slot="auth-body">
+          <div class="group">
+            <label class="label" for="otp-code-verifying">Authentication code</label>
+            <div class="otp" data-state="loading">
+              <input class="otp-input" id="otp-code-verifying" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" value="392471" readonly aria-readonly="true" tabindex="-1">
+              <div class="slot" data-state="filled" aria-hidden="true">3</div>
+              <div class="slot" data-state="filled" aria-hidden="true">9</div>
+              <div class="slot" data-state="filled" aria-hidden="true">2</div>
+              <span class="sep" aria-hidden="true">–</span>
+              <div class="slot" data-state="filled" aria-hidden="true">4</div>
+              <div class="slot" data-state="filled" aria-hidden="true">7</div>
+              <div class="slot" data-state="filled" aria-hidden="true">1</div>
+            </div>
+          </div>
+        </div>
+        <button class="btn-primary btn-block" disabled>
+          <span class="spinner-ring" aria-hidden="true"></span>
+          Verifying…
+        </button>
+      </div>
+      <div class="auth-foot">
+        Wrong account? <a href="#">Sign out</a>
       </div>
     </div>
   </div>
 
 <div class="specs-link">
   <b>Layout rules.</b><br>
-  <code>L · 01</code> settings = explanation on the left, controls on the right<br>
-  <code>L · 02</code> modals stack tightly, labels above fields, primary CTA bottom-right<br>
-  <code>L · 03</code> two-column grids for personal info, collapsing to one column under 640px<br>
-  <code>L · 04</code> the composer is a one-row exception, paste-and-go, no labels<br>
+  <code>L · 13</code> sign-up adds username and terms. The CTA stays the single primary<br>
+  <code>L · 14</code> recovery is one field and one action, nothing else on the card<br>
+  <code>L · 15</code> the strength meter sits inline under the field, never in a tooltip<br>
+  <code>L · 16</code> in-flight keeps the verified code visible and locks both the code and CTA<br>
 </div>
 
 </div>

@@ -28,7 +28,7 @@
     setDark(dark);
   })();
 </script>
-<title>put.io · patterns · form layouts</title><meta charset="utf-8">
+<title>put.io · patterns · multi-step forms</title><meta charset="utf-8">
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 <link rel="stylesheet" href="../tokens.css">
@@ -65,8 +65,8 @@
 
   /* ─── Base form primitives ─────────────────────────────── */
   .label {margin-bottom: 6px; display: flex; align-items: center; gap: 6px}
-  
-  
+
+
   .hint { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-top: 6px; }
   /* .field primitive lives in _components.css, reads from --field-*
      tokens (--app-bg fill, --border, border-hover focus ring, no
@@ -290,6 +290,7 @@
   .inline-row .actions { display: flex; gap: 6px; }
   .inline-row .pencil {
     color: var(--text-secondary); cursor: pointer; font-size: 14px; padding: 4px;
+    border: 0; background: transparent;
   }
   .inline-row .pencil:hover { color: var(--yellow-text-secondary); }
 
@@ -503,202 +504,181 @@
 
 <div class="surface">
   <!-- =============================================================
-       L · 01, Settings row (label-left, value-right)
+       L · 05, Wizard / multi-step
        ============================================================= -->
   <div class="panel">
     <div class="demo-hd">
-      <span class="ix">L · 01</span>
-      <span class="t">Settings row · label-left</span>
-      <span class="when">Settings pages · profile · account preferences</span>
+
+
+      <span class="ix">L · 05</span>
+      <span class="t">Wizard · multi-step</span>
+      <span class="when">Signup · onboarding · long flows</span>
     </div>
-    <div class="demo-body" style="padding-top: 0;">
-      <div class="settings-row">
-        <div class="lhs">
-          <div class="ttl">Default download folder</div>
-          <div class="sub">Where new transfers land before you sort them.</div>
-        </div>
-        <div class="rhs">
-          <div class="field-wrap">
-            <i class="ph ph-folder lead"></i>
-            <input aria-label="Default download folder" class="field has-icon" value="/Movies/Unsorted" />
+    <div class="demo-body" style="padding: 18px;">
+      <div class="wizard" data-slot="wizard">
+        <div class="steps" data-slot="steps">
+          <div class="step" data-state="completed">
+            <div class="num"><i class="ph-bold ph-check"></i></div>
+            <span class="nm">Account</span>
+          </div>
+          <div class="step" data-state="completed">
+            <div class="num"><i class="ph-bold ph-check"></i></div>
+            <span class="nm">Plan</span>
+          </div>
+          <div class="step" data-state="active" aria-current="step">
+            <div class="num">3</div>
+            <span class="nm">Payment</span>
+          </div>
+          <div class="step" data-state="pending">
+            <div class="num">4</div>
+            <span class="nm">Confirm</span>
           </div>
         </div>
-      </div>
-      <div class="settings-row">
-        <div class="lhs">
-          <div class="ttl" id="auto-convert-label">Auto-convert to MP4</div>
-          <div class="sub">Converts on completion. Costs 1 credit per file; transcoded files stay on put.io.</div>
-        </div>
-        <div class="rhs">
-          <div role="group" aria-labelledby="auto-convert-label" style="display: inline-flex; background: var(--component-bg); border-radius: var(--radius); padding: 2px;">
-            <button type="button" aria-pressed="true" style="height: 28px; padding: 0 14px; border: 0; background: var(--bg); color: var(--text); font-size: 12.5px; font-weight: 500; border-radius: var(--radius-sm); cursor: pointer; box-shadow: var(--shadow-sm);">On</button>
-            <button type="button" aria-pressed="false" style="height: 28px; padding: 0 14px; border: 0; background: transparent; color: var(--text-secondary); font-size: 12.5px; font-weight: 500; cursor: pointer;">Off</button>
-          </div>
-        </div>
-      </div>
-      <div class="settings-row">
-        <div class="lhs">
-          <div class="ttl">Seeding ratio target</div>
-          <div class="sub">Stop seeding once this share ratio is reached. <strong style="color:var(--text);">∞</strong> means seed forever.</div>
-        </div>
-        <div class="rhs">
-          <div style="display: flex; align-items: center; gap: 14px;">
-            <div style="flex: 1; height: 4px; border-radius: 999px; background: var(--component-bg-active); position: relative;">
-              <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 38%; background: var(--yellow-solid); border-radius: 999px;"></div>
-              <div style="position: absolute; left: 38%; top: 50%; transform: translate(-50%, -50%); width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 2px solid var(--yellow-solid); box-shadow: 0 1px 3px rgba(0,0,0,0.5);"></div>
+        <div class="w-body">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px;">
+            <div class="group" style="grid-column: 1 / -1;">
+              <span class="label">Card number <span class="req">*</span></span>
+              <div class="field-wrap">
+                <i class="ph ph-credit-card lead"></i>
+                <input aria-label="Card number" class="field has-icon mono" value="4242 4242 4242 4242" />
+                <i class="ph-fill ph-shield-check" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--green-text-secondary); font-size: 14px;"></i>
+              </div>
             </div>
-            <span style="font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--text); width: 50px; text-align: right;">1.50×</span>
+            <div class="group">
+              <span class="label">Expiration</span>
+              <input aria-label="Expiration" class="field mono" value="12 / 28" />
+            </div>
+            <div class="group">
+              <span class="label">CVC</span>
+              <input aria-label="CVC" class="field mono" value="•••" />
+            </div>
+            <div class="group" style="grid-column: 1 / -1;">
+              <span class="label">Postal code</span>
+              <input aria-label="Postal code" class="field mono" value="34000" />
+            </div>
           </div>
         </div>
-      </div>
-      <div class="settings-row">
-        <div class="lhs">
-          <div class="ttl">Pushover key</div>
-          <div class="sub">Get a push notification when a transfer completes. Find your key at <a style="color: var(--yellow-text-secondary); text-decoration: underline; text-underline-offset: 2px;" href="#">pushover.net</a>.</div>
-        </div>
-        <div class="rhs">
-          <input aria-label="Pushover key" class="field mono" value="ud7nzwhf3k82q…" />
-          <div class="hint" style="margin-top: 4px;">Leave blank to disable.</div>
+        <div class="w-foot">
+          <span class="left">Step 3 of 4, payment</span>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-default"><i class="ph-bold ph-arrow-left"></i>Back</button>
+            <button class="btn-primary">Continue<i class="ph-bold ph-arrow-right"></i></button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- =============================================================
-       L · 02, Modal · stacked, two-column body
-       ============================================================= -->
-    <div class="panel">
-      <div class="demo-hd">
-        <span class="ix">L · 02</span>
-        <span class="t">Modal · stacked form</span>
-        <span class="when">Quick action, narrow column</span>
-      </div>
-      <div class="demo-body" style="padding: 20px; background: var(--bg);">
-        <div class="modal" style="max-width: 100%;">
-          <div class="m-hd">
-            <div class="ttl">New transfer</div>
-            <button class="close" type="button" aria-label="Close"><i class="ph ph-x" style="font-size:14px;"></i></button>
-          </div>
-          <div class="m-body">
-            <div class="group">
-              <span class="label">Source <span class="req">*</span></span>
-              <input aria-label="Source" class="field mono" placeholder="magnet:?xt=urn:btih:…" />
-              <span class="hint">Magnet, .torrent URL, or any supported download link.</span>
-            </div>
-            <div class="group">
-              <span class="label">Save to</span>
-              <div class="field-wrap">
-                <i class="ph ph-folder lead"></i>
-                <input aria-label="Save to" class="field has-icon" value="/Movies/Unsorted" />
-              </div>
-            </div>
-            <div class="group">
-              <span class="label">After completion</span>
-              <div style="display: flex; flex-direction: column; gap: 2px;">
-                <div style="display: flex; align-items: flex-start; gap: 10px; padding: 6px 8px; border-radius: var(--radius-sm);">
-                  <div style="position: relative; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--yellow-solid); background: var(--app-bg); flex-shrink: 0; margin-top: 1px;">
-                    <div style="position: absolute; inset: 3px; border-radius: 50%; background: var(--yellow-solid);"></div>
-                  </div>
-                  <div style="font-size: 13.5px; color: var(--text);">Keep on put.io <div style="font-size: 11.5px; color: var(--text-secondary); margin-top: 1px;">Stream or download later</div></div>
-                </div>
-                <div style="display: flex; align-items: flex-start; gap: 10px; padding: 6px 8px; border-radius: var(--radius-sm);">
-                  <div style="width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--border-hover); background: var(--app-bg); flex-shrink: 0; margin-top: 1px;"></div>
-                  <div style="font-size: 13.5px; color: var(--text);">Push to my device <div style="font-size: 11.5px; color: var(--text-secondary); margin-top: 1px;">Sync via the desktop app</div></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="m-foot">
-            <button class="btn-default">Cancel</button>
-            <button class="btn-primary"><i class="ph-bold ph-arrow-circle-down"></i>Add transfer</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- =============================================================
-         L · 03, Two-column grid (account info)
-         ============================================================= -->
-    <div class="panel">
-      <div class="demo-hd">
-        <span class="ix">L · 03</span>
-        <span class="t">Two-column grid</span>
-        <span class="when">Account / billing, dense info</span>
-      </div>
-      <div class="demo-body">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px;">
-          <div class="group">
-            <span class="label">First name</span>
-            <input aria-label="First name" class="field" value="Kai" />
-          </div>
-          <div class="group">
-            <span class="label">Last name</span>
-            <input aria-label="Last name" class="field" value="Özmen" />
-          </div>
-          <div class="group" style="grid-column: 1 / -1;">
-            <span class="label">Email <span class="req">*</span></span>
-            <input aria-label="Email" class="field mono" value="kai@example.com" />
-          </div>
-          <div class="group">
-            <span class="label">Country</span>
-            <div style="position: relative;">
-              <select aria-label="Country" class="field" style="padding-right: 36px; appearance: none;">
-                <option>Türkiye</option>
-                <option>United States</option>
-                <option>Germany</option>
-              </select>
-              <i class="ph-bold ph-caret-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-secondary); font-size: 12px;"></i>
-            </div>
-          </div>
-          <div class="group">
-            <span class="label">Time zone</span>
-            <div style="position: relative;">
-              <select aria-label="Time zone" class="field" style="padding-right: 36px; appearance: none;">
-                <option>Istanbul (UTC+3)</option>
-                <option>London (UTC+0)</option>
-              </select>
-              <i class="ph-bold ph-caret-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-secondary); font-size: 12px;"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  <!-- =============================================================
-       L · 04, Inline composer (action bar)
+       L · 06, Sticky save bar · dirty state
        ============================================================= -->
   <div class="panel">
     <div class="demo-hd">
-      <span class="ix">L · 04</span>
-      <span class="t">Inline composer · one-row action</span>
-      <span class="when">Top of a list view · quick-add</span>
+      <span class="ix">L · 06</span>
+      <span class="t">Sticky save bar · dirty state</span>
+      <span class="when">Long settings pages, bar appears when fields change</span>
     </div>
-    <div class="demo-body">
-      <div class="composer">
-        <div class="field-wrap">
-          <i class="ph ph-link lead"></i>
-          <input aria-label="Paste a magnet link, .torrent URL, or any download URL" class="field has-icon mono" placeholder="Paste a magnet link, .torrent URL, or any download URL" />
+    <div class="demo-body" style="padding: 18px;">
+      <div class="page-form">
+        <div class="p-body">
+          <div class="settings-row" style="padding-top: 0;">
+            <div class="lhs">
+              <div class="ttl">Display name</div>
+              <div class="sub">Shown to friends and on shared links.</div>
+            </div>
+            <div class="rhs"><input aria-label="Display name" class="field" value="kai" /></div>
+          </div>
+          <div class="settings-row">
+            <div class="lhs">
+              <div class="ttl">Bio</div>
+              <div class="sub">Up to 280 characters.</div>
+            </div>
+            <div class="rhs">
+              <textarea class="field" aria-label="Bio" style="height: 60px; padding: 8px 12px; font-family: var(--font-sans); font-size: 13px;">Movies, shows, and the occasional disk-image rip.</textarea>
+            </div>
+          </div>
+          <div class="settings-row" style="padding-bottom: 0;">
+            <div class="lhs">
+              <div class="ttl" id="public-profile-label">Public profile</div>
+              <div class="sub">Lets put.io users find you via username.</div>
+            </div>
+            <div class="rhs">
+              <div role="group" aria-labelledby="public-profile-label" style="display: inline-flex; background: var(--component-bg); border-radius: var(--radius); padding: 2px;">
+                <button type="button" aria-pressed="true" style="height: 28px; padding: 0 14px; border: 0; background: var(--bg); color: var(--text); font-size: 12.5px; font-weight: 500; border-radius: var(--radius-sm); cursor: pointer; box-shadow: var(--shadow-sm);">On</button>
+                <button type="button" aria-pressed="false" style="height: 28px; padding: 0 14px; border: 0; background: transparent; color: var(--text-secondary); font-size: 12.5px; font-weight: 500; cursor: pointer;">Off</button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <i class="ph ph-folder" style="color: var(--text-secondary); font-size: 14px;"></i>
-          <span style="font-family: var(--font-mono); font-size: 11.5px; color: var(--text-secondary);">/Movies/Unsorted</span>
+        <div class="p-foot">
+          <span class="dirty">
+            <span class="dot"></span>
+            <span>Unsaved changes</span>
+            <span class="ct">· 2 fields</span>
+          </span>
+          <span class="spacer"></span>
+          <button class="btn-default">Discard</button>
+          <button class="btn-primary"><i class="ph-bold ph-floppy-disk"></i>Save changes</button>
         </div>
-        <button class="btn-primary"><i class="ph-bold ph-plus"></i>Add</button>
       </div>
-      <div class="composer-hint">
-        <span><i class="ph ph-keyboard"></i>Press <b>N</b> to focus from anywhere</span>
-        <span><i class="ph ph-clipboard-text"></i>Paste shortcut: <b>⌘ + V</b></span>
-        <span><i class="ph ph-info"></i>Up to 8 sources at once, comma-separated</span>
+    </div>
+  </div>
+
+  <!-- =============================================================
+       L · 07, Inline edit
+       ============================================================= -->
+  <div class="panel">
+    <div class="demo-hd">
+      <span class="ix">L · 07</span>
+      <span class="t">Inline edit · click-to-edit row</span>
+      <span class="when">Profile fields · single-value rows · low-stakes updates</span>
+    </div>
+    <div class="demo-body" style="padding: 16px;">
+      <div class="inline-row">
+        <div class="l">
+          <div class="lbl">Username</div>
+          <div class="val">kai</div>
+        </div>
+        <div class="actions">
+          <button class="pencil" type="button" aria-label="Edit username"><i class="ph ph-pencil-simple" aria-hidden="true"></i></button>
+        </div>
+      </div>
+      <div class="inline-row editing">
+        <div class="l" style="display: flex; flex-direction: column; gap: 4px;">
+          <div class="lbl">Display name</div>
+          <input aria-label="Display name" class="field" value="Kai A." />
+        </div>
+        <div class="ed">
+          <button class="btn-default btn-sm">Cancel</button>
+          <button class="btn-primary btn-sm"><i class="ph-bold ph-check"></i>Save</button>
+        </div>
+      </div>
+      <div class="inline-row">
+        <div class="l">
+          <div class="lbl">Email</div>
+          <div class="val">kai@example.com</div>
+        </div>
+        <div class="actions">
+          <button class="pencil" type="button" aria-label="Edit email"><i class="ph ph-pencil-simple" aria-hidden="true"></i></button>
+        </div>
+      </div>
+      <div class="inline-row">
+        <div class="l">
+          <div class="lbl">Member since</div>
+          <div class="val" style="color: var(--text-secondary);">Aug 14, 2014 · 12 years</div>
+        </div>
+        <div class="actions">
+          <span class="pencil" style="opacity: 0.3; cursor: not-allowed;"><i class="ph ph-lock"></i></span>
+        </div>
       </div>
     </div>
   </div>
 
 <div class="specs-link">
   <b>Layout rules.</b><br>
-  <code>L · 01</code> settings = explanation on the left, controls on the right<br>
-  <code>L · 02</code> modals stack tightly, labels above fields, primary CTA bottom-right<br>
-  <code>L · 03</code> two-column grids for personal info, collapsing to one column under 640px<br>
-  <code>L · 04</code> the composer is a one-row exception, paste-and-go, no labels<br>
+  <code>L · 05</code> wizards split long flows into 3 to 5 steps. The current step gets the yellow marker<br>
+  <code>L · 06</code> the sticky bar appears only once the form is dirty, and never covers the last field<br>
+  <code>L · 07</code> inline edit keeps display rows quiet. The pencil reveals on hover<br>
 </div>
 
 </div>

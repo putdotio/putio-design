@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" class="dark" data-theme-lock="dark"><head>
+<meta charset="utf-8"><title>put.io · Roku · auth</title>
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<link rel="stylesheet" href="./_frame.css">
+<link rel="stylesheet" href="./_roku.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+.au{position:absolute;left:0;top:168px;right:0;display:flex;flex-direction:column;align-items:center;gap:64px;text-align:center}
+.au .welcome{height:120px;display:flex;align-items:center;font-size:72px;font-weight:var(--fw-bold);letter-spacing:-.01em}
+.au .welcome em{font-style:normal;color:var(--yellow-solid)}
+.au .desc{font-size:33px;color:var(--text)}
+.au .inner{display:flex;flex-direction:column;align-items:center;gap:44px}
+.au .g1{display:flex;flex-direction:column;align-items:center;gap:44px}
+.au .code{display:flex;gap:16px}
+.au .code .ct{width:96px;height:96px;background:var(--yellow-solid);color:var(--lo-contrast);display:grid;place-items:center;font-size:45px;font-weight:var(--fw-bold)}
+.au .steps{display:flex;flex-direction:column;align-items:center;gap:16px}
+.au .steps .s1{font-size:33px;color:var(--text-secondary)}
+.au .steps .s2{font-size:45px;font-weight:var(--fw-bold);color:var(--yellow-solid)}
+.au .refresh{width:400px;height:72px;display:flex;align-items:center;background:var(--component-bg);border:3px solid var(--border-hover)}
+.au .refresh i{margin-left:66px;font-size:32px;color:var(--text)}
+.au .refresh .rl{margin-left:18px;font-size:36px;font-weight:500;color:var(--text)}
+</style></head>
+<body>
+<div class="tierbar t3"><span class="tno">Tier 3</span><span class="twhat">Tier 3 · <b>Roku</b>. The auth screen is a centred LayoutGroup of image-backed pieces: welcome art, code tiles, a link line and a bitmap-backed refresh button. Everything colours through <code>DesignTokens.brs</code>; the tiles are the channel's one inverse surface.</span><span class="ttok">DesignTokens.brs · primary · text · textMuted · textInverse</span></div>
+<div class="preview-shell">
+<div>
+  <div class="label">A code, a link, one button</div>
+  <div class="note">Device-code auth against <code>/oauth2/oob/code</code>; the channel polls the code every <b>2 seconds</b> until put.io/link redeems it. Source: <code class="src">Auth.xml</code>, <code class="src">Auth.brs</code>.</div>
+  <div class="note">Before the code arrives the tile row is hidden and a plain <b>Loading...</b> h1 sits in its place; on a fetch error the message slot expands with restart instructions. OK re-requests a code at any time; Back opens the exit-app dialog.</div>
+</div>
+
+<div class="tvbox"><div class="tvfit">
+  <div class="rk">
+    <div class="au">
+      <div class="welcome">put<em>.io</em></div>
+      <div class="desc">use this activation code to log in</div>
+      <div class="inner">
+        <div class="code"><span class="ct">H</span><span class="ct">7</span><span class="ct">K</span><span class="ct">2</span><span class="ct">F</span><span class="ct">9</span></div>
+        <div class="steps">
+          <div class="s1">follow the steps at the website below</div>
+          <div class="s2">put.io/link</div>
+        </div>
+        <div class="refresh"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i><span class="rl">Get new code</span></div>
+      </div>
+    </div>
+    <div class="rk-hint"><span><span class="rk-key">OK</span>New code</span><span><span class="rk-key"><i class="ph ph-arrow-left" aria-hidden="true"></i></span>Exit</span></div>
+  </div>
+</div></div>
+<div class="cap"><b>Auth · code shown</b>The welcome art (<code>AuthWelcome.png</code>, 640x120) stands in for a heading; the refresh button is always visually focused, it is the screen's only control.</div>
+
+<div class="kv">
+  <div class="r"><span class="k">layout</span><span class="v">vert LayoutGroup centred at <code>[960,168]</code>, spacing 64; inner groups 44 / 16</span></div>
+  <div class="r"><span class="k">code tiles</span><span class="v">96x96 <code>auth-code-tile.png</code> (primary yellow), one h1 45 <code>textInverse</code> character each, 16 apart</span></div>
+  <div class="r"><span class="k">copy</span><span class="v"><b>use this activation code to log in</b> small 33 <code>text</code> · steps line small 33 <code>textMuted</code> · <b>put.io/link</b> h1 45 <code>primary</code></span></div>
+  <div class="r"><span class="k">refresh</span><span class="v">400x72 bitmap button, spinner icon at x66, <b>Get new code</b> h2 36. Loading swaps the label to <b>Getting code...</b> and the background bitmap</span></div>
+  <div class="r"><span class="k">polling</span><span class="v"><code>GET /oauth2/oob/code/:code</code> every 2s; a token routes into the app</span></div>
+  <div class="r"><span class="k">error</span><span class="v">code slot shows <b>Error!</b>; message slot expands: <b>An error occurred while getting the authentication code, please restart the app and try again.</b></span></div>
+  <div class="r"><span class="k">keys</span><span class="v">OK new code · Back opens the exit-app dialog · Options swallowed</span></div>
+</div>
+
+<div class="note" style="margin-top:4px">Per-control detail, the token map and the full don't list live in <a href="https://github.com/putdotio/putio-design/blob/main/platforms/roku/DESIGN.md"><code>platforms/roku/DESIGN.md</code></a>.</div>
+<div class="dont"><b>Do not</b> add a keyboard sign-in or shorten the code display. Six tiles, one link, one button: a lost remote-holder must be able to read the whole screen from the couch in one glance.</div>
+</div>
+<script>(function(){function f(){document.querySelectorAll('.tvbox').forEach(function(b){var e=b.querySelector('.tvfit');if(e)e.style.transform='scale('+(b.clientWidth/1920)+')';});}f();addEventListener('resize',f);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f);})();</script>
+</body></html>

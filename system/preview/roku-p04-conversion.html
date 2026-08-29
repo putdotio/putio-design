@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" class="dark tv" data-theme-lock="dark"><head>
+<meta charset="utf-8"><title>put.io · Roku · conversion status</title>
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<link rel="stylesheet" href="./_tier.css">
+<link rel="stylesheet" href="./_frame.css">
+<link rel="stylesheet" href="./_roku.css">
+<link rel="stylesheet" href="./_element.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="./_resize.js" defer></script>
+<style>
+.rk-cv{position:relative;width:1920px;height:1080px;background:var(--app-bg);overflow:hidden;font-family:var(--font-sans);color:var(--text)}
+.rk-cv .scrim{position:absolute;inset:0;background:var(--overlay-full)}
+.rk-cv .shadow{position:absolute;left:570px;top:342px;width:804px;height:420px;background:var(--overlay-inline)}
+.rk-cv .panel{position:absolute;left:558px;top:330px;width:804px;height:420px;box-sizing:border-box;background:var(--component-bg)}
+.rk-cv .ttl{position:absolute;left:66px;top:54px;width:672px;font-size:45px;font-weight:var(--fw-bold)}
+.rk-cv .fname{position:absolute;left:66px;top:111px;width:672px;height:64px;font-size:33px;color:var(--text-secondary);overflow-wrap:anywhere}
+.rk-cv .track{position:absolute;left:66px;top:201px;width:672px;height:9px;background:var(--border)}
+.rk-cv .track i{position:absolute;left:0;top:0;bottom:0;background:var(--yellow-solid)}
+.rk-cv .status{position:absolute;left:66px;top:243px;width:672px;text-align:center;font-size:36px;color:var(--text-secondary)}
+.rk-cv .rk-dlgbtn{position:absolute;left:240px;top:324px;width:324px;height:63px;font-size:36px;font-weight:500}
+</style></head>
+<body>
+<div class="tierbar t3"><span class="tno">Tier 3</span><span class="twhat">Tier 3 · <b>Roku</b>. Conversion is a dialog panel from the same family as continue watching: <code>DialogStyle.brs</code> scrim, fill and shadow, one secondary action button. The 5s status poll and the progress bar live in <code>VideoConversionStatus.brs</code>.</span><span class="ttok">DesignTokens.brs · scrim · surface · primary · border · textMuted</span></div>
+<div class="el tv">
+  <div class="el-head"><span class="n">Conversion status</span><span class="src">shared/VideoConversionStatus</span><span class="stock own">custom, from tokens</span></div>
+  <div class="el-note"><b>Shown when <code>need_convert</code> is set, before the player.</b> The channel POSTs <code>/files/:id/mp4</code>, then polls every 5 seconds. A spinner holds the middle slot until the API reports <code>percent_done</code>; then the 672x9 progress bar takes over. On completion the converted file is refetched and playback continues.</div>
+  <div class="el-states rows">
+    <div class="el-state"><div class="demo"><div class="rk-cv">
+      <div class="scrim"></div>
+      <div class="shadow"></div>
+      <div class="panel">
+        <div class="ttl">Preparing video</div>
+        <div class="fname">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</div>
+        <div class="track"><i style="width:417px"></i></div>
+        <div class="status">Converting your video...</div>
+        <div class="rk-dlgbtn plain focused">Cancel</div>
+      </div>
+    </div></div><div class="cap2"><span class="sn">Converting · 62%</span><span class="sd">Progress at <code>[66,201]</code>: <code>border</code> track, <code>primary</code> fill at <code>672 × percent/100</code>. Status recentres per state</span></div></div>
+  </div>
+  <div class="kv">
+    <div class="r"><span class="k">panel</span><span class="v"><code>[558,330]</code> 804x420 on <code>surface</code>, shadow offset 12, <b>no border</b> (the border rectangles ship hidden)</span></div>
+    <div class="r"><span class="k">title / file</span><span class="v"><b>Preparing video</b> h1 45 at <code>[66,54]</code> · raw filename small 33 <code>textMuted</code>, 2-line budget</span></div>
+    <div class="r"><span class="k">middle slot</span><span class="v">spinner 88x88 centred until <code>percent_done</code> exists, then the 672x9 bar. Never both</span></div>
+    <div class="r"><span class="k">status line</span><span class="v">body 36 <code>textMuted</code>, centred: <b>Starting conversion...</b> · <b>Waiting to convert...</b> · <b>Converting your video...</b> · <b>Conversion complete.</b> · failures as sentences</span></div>
+    <div class="r"><span class="k">button</span><span class="v">324x63 secondary, always focused: <b>Cancel</b> normally, <b>Retry</b> after an error. OK cancels or retries; Back dismisses</span></div>
+    <div class="r"><span class="k">poll</span><span class="v">5s timer on <code>GET /files/:id/mp4</code>; COMPLETED refetches the file and raises <code>completed</code></span></div>
+    <div class="r"><span class="k">tier-4 twin</span><span class="v"><code>tv-p05-conversion</code>: same decision, PreVideoPrompt skeleton, percentage as text, no cancel</span></div>
+  </div>
+  <div class="el-dont"><b>Do not</b> repurpose the continue-watching panel metrics here: this panel is 804x420 with 66px insets and one button, that one is 822x504 with 48px insets and two. They are siblings, not the same component.</div>
+  <div class="el-ref">Contract: <a href="https://github.com/putdotio/putio-design/blob/main/platforms/roku/DESIGN.md"><code>platforms/roku/DESIGN.md</code></a> · source: <code class="src">VideoConversionStatus.xml</code>, <code class="src">VideoConversionStatus.brs</code>, <code class="src">DialogStyle.brs</code></div>
+</div>
+</body></html>
