@@ -129,6 +129,72 @@ function assertExcludes(source: string, value: string, label: string) {
   assert(!source.includes(value), `${label} must not include ${value}`);
 }
 
+function isSemVer(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  return /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/.test(
+    value,
+  );
+}
+
+function isIsoCalendarDate(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return false;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  return month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth[month - 1];
+}
+
+function htmlElementsMatchingOpeningTag(source: string, matchesOpeningTag: (openingTag: string) => boolean): string[] {
+  const renderedSource = source.replace(/<!--[\s\S]*?-->/g, "");
+  const elements: string[] = [];
+  const openingTags = /<([a-z][\w:-]*)\b[^>]*>/gi;
+  for (const opening of renderedSource.matchAll(openingTags)) {
+    const openingTag = opening[0];
+    if (!matchesOpeningTag(openingTag) || /\/\s*>$/.test(openingTag)) continue;
+
+    const tagName = opening[1];
+    const escapedTag = tagName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const matchingTags = new RegExp(`<\\/?${escapedTag}\\b[^>]*>`, "gi");
+    matchingTags.lastIndex = (opening.index ?? 0) + openingTag.length;
+    let depth = 1;
+    let closingIndex: number | undefined;
+    let match: RegExpExecArray | null;
+    while ((match = matchingTags.exec(renderedSource)) !== null) {
+      if (match[0].startsWith("</")) {
+        depth -= 1;
+      } else if (!/\/\s*>$/.test(match[0])) {
+        depth += 1;
+      }
+      if (depth === 0) {
+        closingIndex = matchingTags.lastIndex;
+        break;
+      }
+    }
+
+    assert(closingIndex !== undefined, `Missing closing tag for ${openingTag}`);
+    elements.push(renderedSource.slice(opening.index, closingIndex));
+  }
+  return elements;
+}
+
+function htmlElementsWithClass(source: string, className: string): string[] {
+  return htmlElementsMatchingOpeningTag(source, (openingTag) => {
+    const classes = /\bclass\s*=\s*(["'])(.*?)\1/i.exec(openingTag)?.[2].split(/\s+/) ?? [];
+    return classes.includes(className);
+  });
+}
+
+function htmlElementsWithAttribute(source: string, attributeName: string): string[] {
+  const escapedAttribute = attributeName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const attribute = new RegExp(`\\s${escapedAttribute}(?:\\s*=|\\s|/?>)`, "i");
+  return htmlElementsMatchingOpeningTag(source, (openingTag) => attribute.test(openingTag));
+}
+
 async function checkTokens() {
   const flat = JSON.parse(await readFile(path.join(root, "dist/tokens.flat.json"), "utf8")) as Record<string, TokenRecord>;
   const yellow = flat["color.brand.yellow"];
@@ -250,6 +316,7 @@ async function checkAppleContract() {
     contract: "platforms/apple/DESIGN.md",
     css: "system/preview/_apple.css",
     folders: "system/preview/ios-e00-list-row.html",
+    searchfield: "system/preview/ios-e08-searchfield.html",
     glass: "system/preview/ios-e05-glass-button.html",
     progress: "system/preview/ios-e09-progress.html",
     tabs: "system/preview/ios-e10-tabbar.html",
@@ -260,6 +327,7 @@ async function checkAppleContract() {
     shell: "system/preview/ios-s00-shell.html",
     fileScreen: "system/preview/ios-s01-files.html",
     transfers: "system/preview/ios-s02-transfers.html",
+    settings: "system/preview/ios-s04-settings.html",
   } as const;
   const contents = Object.fromEntries(
     await Promise.all(Object.entries(files).map(async ([name, file]) => [name, await readFile(path.join(root, file), "utf8")])),
@@ -269,8 +337,20 @@ async function checkAppleContract() {
     reviewed?: { date?: string };
   };
 
-  assert(metadata.version === "0.2.0", "Apple contract version must be 0.2.0");
-  assert(metadata.reviewed?.date === "2026-08-29", "Apple contract review date must be 2026-08-29");
+  const semVerCases = {
+    valid: ["0.0.0", "1.2.3", "1.0.0-alpha", "1.0.0-alpha.1", "1.0.0+build.01", "1.0.0-beta.2+build.5"],
+    invalid: ["01.0.0", "1.01.0", "1.0.01", "1.0.0-01", "1.0", "v1.0.0", "1.0.0+"],
+  };
+  for (const value of semVerCases.valid) assert(isSemVer(value), `SemVer validator must accept ${value}`);
+  for (const value of semVerCases.invalid) assert(!isSemVer(value), `SemVer validator must reject ${value}`);
+  const calendarDateCases = {
+    valid: ["2000-02-29", "2024-02-29", "2026-04-30"],
+    invalid: ["1900-02-29", "2026-02-29", "2026-04-31", "2026-13-01", "2026-00-01", "2026-01-00"],
+  };
+  for (const value of calendarDateCases.valid) assert(isIsoCalendarDate(value), `Date validator must accept ${value}`);
+  for (const value of calendarDateCases.invalid) assert(!isIsoCalendarDate(value), `Date validator must reject ${value}`);
+  assert(isSemVer(metadata.version), "Apple contract version must use SemVer");
+  assert(isIsoCalendarDate(metadata.reviewed?.date), "Apple contract review date must be a valid ISO calendar date");
 
   const stateFragments = contents.gauge.split('<div class="el-state" data-download-state="').slice(1);
   const states = stateFragments.map((fragment) => fragment.slice(0, fragment.indexOf('"')));
@@ -363,6 +443,49 @@ async function checkAppleContract() {
 
   assertIncludes(cssRule(contents.css, ".ios-tabbar .tab i"), "font-size: 24px", "Tab glyph box");
   assertIncludes(contents.tabs, "24pt intrinsic Phosphor box", "Tab glyph contract card");
+  const systemCheckRule = cssRule(contents.css, ".ios-row .chev.system-check");
+  assertIncludes(systemCheckRule, "font-size: 20px", "System-owned selection checkmark");
+  assertIncludes(systemCheckRule, "color: var(--yellow-solid)", "System-owned selection checkmark");
+  const systemSearchControls = [
+    ["Tab card Search capsule", contents.tabs, "ios-searchcap"],
+    ["Search field card", contents.searchfield, "ios-searchfield"],
+    ["Shell Search capsule", contents.shell, "ios-searchcap"],
+    ["Files Search field", contents.fileScreen, "ios-searchfield"],
+    ["Files Search capsule", contents.fileScreen, "ios-searchcap"],
+    ["Transfers Search capsule", contents.transfers, "ios-searchcap"],
+  ] as const;
+  for (const [label, source, className] of systemSearchControls) {
+    const controls = htmlElementsWithClass(source, className);
+    assert(controls.length > 0, `${label} must exist`);
+    for (const control of controls) {
+      assertIncludes(control, "system-search", `${label} system-owned Search glyph`);
+      assertExcludes(control, "ph-", `${label} system-owned Search glyph`);
+    }
+  }
+  const clearOwners = htmlElementsWithAttribute(contents.searchfield, "data-system-clear-owner");
+  assert(clearOwners.length === 1, "Search field card must have one clear-button owner");
+  assertIncludes(clearOwners[0], "system-clear", "Search field card system-owned clear glyph");
+  assertExcludes(clearOwners[0], "ph-", "Search field card system-owned clear glyph");
+  for (const [name, source] of Object.entries({
+    navbar: contents.navbar,
+    fileScreen: contents.fileScreen,
+    transfers: contents.transfers,
+  })) {
+    const backControls = htmlElementsWithClass(source, "back");
+    assert(backControls.length > 0, `${name} system-owned back control must exist`);
+    for (const backControl of backControls) {
+      assertIncludes(backControl, "system-back", `${name} system-owned back glyph`);
+      assertExcludes(backControl, "ph-", `${name} system-owned back glyph`);
+    }
+  }
+  for (const [name, source] of Object.entries({ sheet: contents.sheet, settings: contents.settings })) {
+    const selectionOwners = htmlElementsWithAttribute(source, "data-system-selection-owner");
+    assert(selectionOwners.length > 0, `${name} system-owned selection control must exist`);
+    for (const selectionOwner of selectionOwners) {
+      assertIncludes(selectionOwner, "system-check", `${name} system-owned checkmark`);
+      assertExcludes(selectionOwner, "ph-", `${name} system-owned checkmark`);
+    }
+  }
   for (const [name, source] of Object.entries({
     folders: contents.folders,
     shell: contents.shell,
