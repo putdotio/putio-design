@@ -72,6 +72,10 @@ const authPreviews = [
     headingSelector: ".auth .a-hd h3",
     logoSelector: ".auth-logo",
     pagePath: "/preview/web-p00c-auth-signin.html",
+    requiredActions: [
+      { name: "Sign in", role: "button" },
+      { name: "Sign up", role: "link" },
+    ],
   },
   {
     cardSelector: ".auth",
@@ -82,6 +86,10 @@ const authPreviews = [
     headingSelector: ".auth .a-hd h3",
     logoSelector: ".auth-logo",
     pagePath: "/preview/web-p00d-auth-signup.html",
+    requiredActions: [
+      { name: "Sign up", role: "button" },
+      { name: "Sign in", role: "link" },
+    ],
   },
   {
     cardSelector: ".auth",
@@ -92,6 +100,10 @@ const authPreviews = [
     headingSelector: ".auth .a-hd h3",
     logoSelector: ".auth-logo",
     pagePath: "/preview/web-p00e-auth-2fa.html",
+    requiredActions: [
+      { name: "Verify", role: "button" },
+      { name: "Sign out", role: "link" },
+    ],
   },
   {
     cardSelector: ".col > .card",
@@ -102,6 +114,10 @@ const authPreviews = [
     headingSelector: ".card h1",
     logoSelector: ".col > :is(.brand-light, .brand-dark)",
     pagePath: "/preview/web-s06-auth.html",
+    requiredActions: [
+      { name: "Sign in", role: "button" },
+      { name: "Sign up", role: "link" },
+    ],
   },
 ] as const;
 
@@ -255,7 +271,7 @@ async function expectAuthFitsViewport(
 
 test.describe("design.put.io static guide", () => {
   for (const { preview, theme } of authThemePreviews) {
-    test(`${preview.pagePath} uses sign-in and sign-up copy in ${theme} mode @desktop`, async ({ page }) => {
+    test(`${preview.pagePath} uses approved Auth actions and copy in ${theme} mode @desktop`, async ({ page }) => {
       await page.goto(`${preview.pagePath}?theme=${theme}`, { waitUntil: "domcontentloaded" });
       const body = page.locator("body");
       const [visibleCopy, ariaSnapshot, attributeCopy] = await Promise.all([
@@ -277,6 +293,9 @@ test.describe("design.put.io static guide", () => {
       ]);
       const authCopy = [visibleCopy, ariaSnapshot, ...attributeCopy].join("\n");
       expect(authCopy, `${preview.pagePath} contains forbidden auth wording in ${theme} mode`).not.toMatch(forbiddenAuthCopy);
+      for (const action of preview.requiredActions) {
+        await expect(page.getByRole(action.role, { name: action.name, exact: true }).first()).toBeVisible();
+      }
       if (preview.credentialErrorSelector) {
         await expect(page.locator(preview.credentialErrorSelector)).toHaveText(credentialErrorCopy);
       }
@@ -869,10 +888,27 @@ test.describe("design.put.io static guide", () => {
       const box = await slots.nth(index).boundingBox();
       expect(box, `OTP slot ${index + 1} should have pointer geometry`).not.toBeNull();
       await page.mouse.click((box?.x ?? 0) + (box?.width ?? 0) / 2, (box?.y ?? 0) + (box?.height ?? 0) / 2);
-      await expect.poll(() => input.evaluate((element) => (element instanceof HTMLInputElement ? element.selectionStart : null))).toBe(index);
+      await expect
+        .poll(() =>
+          input.evaluate((element) =>
+            element instanceof HTMLInputElement ? { end: element.selectionEnd, start: element.selectionStart } : null,
+          ),
+        )
+        .toEqual({ end: index + 1, start: index });
       await expect(slots.nth(index)).toHaveAttribute("data-state", "active");
       await expect(otp.locator('.otp-slot[data-state="active"]')).toHaveCount(1);
     }
+
+    const replacementIndex = 2;
+    const replacementBox = await slots.nth(replacementIndex).boundingBox();
+    expect(replacementBox, "filled OTP slot should have pointer geometry").not.toBeNull();
+    await page.mouse.click(
+      (replacementBox?.x ?? 0) + (replacementBox?.width ?? 0) / 2,
+      (replacementBox?.y ?? 0) + (replacementBox?.height ?? 0) / 2,
+    );
+    await input.press("9");
+    await expect(input).toHaveValue("129456");
+    await expect(slots).toHaveText(["1", "2", "9", "4", "5", "6"]);
   });
 
   test("OTP submission enters the locked verifying state @desktop", async ({ page }) => {
