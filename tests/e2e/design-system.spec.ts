@@ -69,6 +69,7 @@ const authPreviews = [
     credentialErrorSelector: "#signin-err",
     fieldSelector: ".auth .field",
     footerSelector: ".auth-foot",
+    headerSelector: ".auth .a-hd",
     headingSelector: ".auth .a-hd h3",
     logoSelector: ".auth-logo",
     pagePath: "/preview/web-p00c-auth-signin.html",
@@ -87,6 +88,7 @@ const authPreviews = [
     credentialErrorSelector: null,
     fieldSelector: ".auth .field",
     footerSelector: ".auth-foot",
+    headerSelector: ".auth .a-hd",
     headingSelector: ".auth .a-hd h3",
     logoSelector: ".auth-logo",
     pagePath: "/preview/web-p00d-auth-signup.html",
@@ -109,6 +111,7 @@ const authPreviews = [
     credentialErrorSelector: null,
     fieldSelector: null,
     footerSelector: ".auth-foot",
+    headerSelector: ".auth .a-hd",
     headingSelector: ".auth .a-hd h3",
     logoSelector: ".auth-logo",
     pagePath: "/preview/web-p00e-auth-2fa.html",
@@ -123,6 +126,7 @@ const authPreviews = [
     credentialErrorSelector: "#b-pw-error",
     fieldSelector: ".col .field",
     footerSelector: ".foot",
+    headerSelector: ".card .auth-header",
     headingSelector: ".card h1",
     logoSelector: ".col > :is(.brand-light, .brand-dark)",
     pagePath: "/preview/web-s06-auth.html",
@@ -395,7 +399,15 @@ test.describe("design.put.io static guide", () => {
       );
       expect(headings.length, `${preview.pagePath} should render Auth headings`).toBeGreaterThan(0);
       for (const heading of headings) {
-        expect(heading, `${preview.pagePath} heading typography`).toEqual({ fontSize: "19px", fontWeight: "500", textAlign: "left" });
+        expect(heading, `${preview.pagePath} heading typography`).toEqual({ fontSize: "19px", fontWeight: "500", textAlign: "center" });
+      }
+
+      const headerAlignments = await page.locator(preview.headerSelector).evaluateAll((elements) =>
+        elements.map((element) => getComputedStyle(element).textAlign),
+      );
+      expect(headerAlignments.length, `${preview.pagePath} should render Auth headers`).toBeGreaterThan(0);
+      for (const textAlign of headerAlignments) {
+        expect(textAlign, `${preview.pagePath} header alignment`).toBe("center");
       }
 
       const footers = await page.locator(preview.footerSelector).evaluateAll((elements) =>
