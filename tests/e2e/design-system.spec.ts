@@ -65,10 +65,12 @@ const buttonHoverAliases = [
 const authPreviews = [
   {
     cardSelector: ".auth",
+    centeredMarkSelector: ".auth .success-mark",
     columnSelector: ".auth",
     credentialErrorSelector: "#signin-err",
     fieldSelector: ".auth .field",
     footerSelector: ".auth-foot",
+    headerSelector: ".auth .a-hd",
     headingSelector: ".auth .a-hd h3",
     logoSelector: ".auth-logo",
     pagePath: "/preview/web-p00c-auth-signin.html",
@@ -83,10 +85,12 @@ const authPreviews = [
   },
   {
     cardSelector: ".auth",
+    centeredMarkSelector: null,
     columnSelector: ".auth",
     credentialErrorSelector: null,
     fieldSelector: ".auth .field",
     footerSelector: ".auth-foot",
+    headerSelector: ".auth .a-hd",
     headingSelector: ".auth .a-hd h3",
     logoSelector: ".auth-logo",
     pagePath: "/preview/web-p00d-auth-signup.html",
@@ -105,10 +109,12 @@ const authPreviews = [
   },
   {
     cardSelector: ".auth",
+    centeredMarkSelector: null,
     columnSelector: ".auth",
     credentialErrorSelector: null,
     fieldSelector: null,
     footerSelector: ".auth-foot",
+    headerSelector: ".auth .a-hd",
     headingSelector: ".auth .a-hd h3",
     logoSelector: ".auth-logo",
     pagePath: "/preview/web-p00e-auth-2fa.html",
@@ -119,10 +125,12 @@ const authPreviews = [
   },
   {
     cardSelector: ".col > .card",
+    centeredMarkSelector: null,
     columnSelector: ".col",
     credentialErrorSelector: "#b-pw-error",
     fieldSelector: ".col .field",
     footerSelector: ".foot",
+    headerSelector: ".card .auth-header",
     headingSelector: ".card h1",
     logoSelector: ".col > :is(.brand-light, .brand-dark)",
     pagePath: "/preview/web-s06-auth.html",
@@ -395,7 +403,27 @@ test.describe("design.put.io static guide", () => {
       );
       expect(headings.length, `${preview.pagePath} should render Auth headings`).toBeGreaterThan(0);
       for (const heading of headings) {
-        expect(heading, `${preview.pagePath} heading typography`).toEqual({ fontSize: "19px", fontWeight: "500", textAlign: "left" });
+        expect(heading, `${preview.pagePath} heading typography`).toEqual({ fontSize: "19px", fontWeight: "500", textAlign: "center" });
+      }
+
+      const headerAlignments = await page.locator(preview.headerSelector).evaluateAll((elements) =>
+        elements.map((element) => getComputedStyle(element).textAlign),
+      );
+      expect(headerAlignments.length, `${preview.pagePath} should render Auth headers`).toBeGreaterThan(0);
+      for (const textAlign of headerAlignments) {
+        expect(textAlign, `${preview.pagePath} header alignment`).toBe("center");
+      }
+
+      if (preview.centeredMarkSelector) {
+        const centerDeltas = await page.locator(preview.centeredMarkSelector).evaluateAll((elements) =>
+          elements.map((element) => {
+            const mark = element.getBoundingClientRect();
+            const parent = element.parentElement?.getBoundingClientRect();
+            return parent ? Math.abs(mark.left + mark.width / 2 - (parent.left + parent.width / 2)) : Number.POSITIVE_INFINITY;
+          }),
+        );
+        expect(centerDeltas.length, `${preview.pagePath} should render confirmation marks`).toBeGreaterThan(0);
+        for (const delta of centerDeltas) expect(delta, `${preview.pagePath} confirmation mark center`).toBeLessThanOrEqual(0.1);
       }
 
       const footers = await page.locator(preview.footerSelector).evaluateAll((elements) =>
