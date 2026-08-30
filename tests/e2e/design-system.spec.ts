@@ -847,6 +847,18 @@ test.describe("design.put.io static guide", () => {
 
     const submit = errorCard.locator("[data-otp-submit]");
     const feedback = errorCard.locator("#otp-error");
+    await input.evaluate((element) => {
+      if (!(element instanceof HTMLInputElement)) throw new Error("OTP control is not an input");
+      element.setSelectionRange(element.value.length, element.value.length);
+      const clipboardData = new DataTransfer();
+      clipboardData.setData("text/plain", "7");
+      element.dispatchEvent(new ClipboardEvent("paste", { bubbles: true, cancelable: true, clipboardData }));
+    });
+    await expect(input).toHaveValue("810506");
+    await expect(input).toHaveAttribute("aria-invalid", "true");
+    await expect(input).toHaveAttribute("aria-describedby", "otp-error");
+    await expect(feedback).toBeVisible();
+
     await expect(submit).toBeEnabled();
     await submit.click();
     await expect(input).not.toHaveAttribute("aria-invalid");
@@ -923,6 +935,16 @@ test.describe("design.put.io static guide", () => {
         await expect(toggle).toHaveAttribute("aria-label", "Hide password");
         await expect(toggle).toHaveAttribute("aria-pressed", "true");
         await expect(icon).toHaveClass(/(?:^|\s)ph-eye-slash(?:\s|$)/);
+        await input.fill("correct-horse-battery-staple-correct-horse-battery-staple");
+        const reservedSpace = await input.evaluate((element) => {
+          const control = element.parentElement?.querySelector("[data-password-toggle]");
+          if (!(control instanceof HTMLElement)) throw new Error("Password toggle is missing");
+          return {
+            paddingRight: Number.parseFloat(getComputedStyle(element).paddingRight),
+            required: control.offsetWidth + Number.parseFloat(getComputedStyle(control).right),
+          };
+        });
+        expect(reservedSpace.paddingRight).toBeGreaterThanOrEqual(reservedSpace.required);
         await toggle.click();
         await expect(input).toHaveAttribute("type", "password");
         await expect(toggle).toHaveAttribute("aria-label", "Show password");
