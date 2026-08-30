@@ -80,14 +80,15 @@ large guide updates.
 
 ## Fonts And Assets
 
-Tokens may reference the GT America and Berkeley Mono family names. Do not
-publish proprietary font files from this package unless licensing is explicitly
-cleared. Platform font bundling should no longer register GT America Mono — the
-`--font-ui-mono` token was removed, not aliased. Package-safe brand assets under `system/assets/` are
-published through `@putdotio/design/assets/*`. The design guide loads production
-font CSS from `static.put.io`. `app-icon-beta.png` remains published as a
-deprecated compatibility asset; new integrations should use the standard app
-icon.
+- Tokens reference the GT America and Berkeley Mono family names only. Do not
+  publish proprietary font files unless licensing is explicitly cleared.
+- Platform font bundling must not register GT America Mono; the
+  `--font-ui-mono` token was removed, not aliased.
+- The design guide loads production font CSS from `static.put.io`.
+- Package-safe brand assets under `system/assets/` publish through
+  `@putdotio/design/assets/*`.
+- `app-icon-beta.png` stays published as a deprecated compatibility asset; new
+  integrations use the standard app icon.
 
 ## Public Safety
 
