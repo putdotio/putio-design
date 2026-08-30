@@ -938,12 +938,12 @@ test.describe("design.put.io static guide", () => {
         const icon = toggle.locator("i");
         await expect(toggle).toHaveAccessibleName("Show password");
         await expect(input).toHaveAttribute("type", "password");
-        await expect(toggle).toHaveAttribute("aria-pressed", "false");
+        await expect(toggle).not.toHaveAttribute("aria-pressed");
         await expect(icon).toHaveClass(/(?:^|\s)ph-eye(?:\s|$)/);
         await toggle.click();
         await expect(input).toHaveAttribute("type", "text");
         await expect(toggle).toHaveAttribute("aria-label", "Hide password");
-        await expect(toggle).toHaveAttribute("aria-pressed", "true");
+        await expect(toggle).not.toHaveAttribute("aria-pressed");
         await expect(icon).toHaveClass(/(?:^|\s)ph-eye-slash(?:\s|$)/);
         await input.fill("correct-horse-battery-staple-correct-horse-battery-staple");
         const reservedSpace = await input.evaluate((element) => {
@@ -958,7 +958,7 @@ test.describe("design.put.io static guide", () => {
         await toggle.click();
         await expect(input).toHaveAttribute("type", "password");
         await expect(toggle).toHaveAttribute("aria-label", "Show password");
-        await expect(toggle).toHaveAttribute("aria-pressed", "false");
+        await expect(toggle).not.toHaveAttribute("aria-pressed");
         await expect(icon).toHaveClass(/(?:^|\s)ph-eye(?:\s|$)/);
       }
     });
