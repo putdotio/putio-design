@@ -120,7 +120,7 @@ const authPreviews = [
   {
     cardSelector: ".col > .card",
     columnSelector: ".col",
-    credentialErrorSelector: ".err",
+    credentialErrorSelector: "#b-pw-error",
     fieldSelector: ".col .field",
     footerSelector: ".foot",
     headingSelector: ".card h1",
@@ -324,7 +324,16 @@ test.describe("design.put.io static guide", () => {
         }
       }
       if (preview.credentialErrorSelector) {
-        await expect(page.locator(preview.credentialErrorSelector)).toHaveText(credentialErrorCopy);
+        const error = page.locator(preview.credentialErrorSelector);
+        await expect(error).toHaveText(credentialErrorCopy);
+        await expect(error).toHaveAttribute("role", "alert");
+        const errorId = await error.getAttribute("id");
+        expect(errorId, `${preview.pagePath} credential error should have an ID`).not.toBeNull();
+        if (errorId === null) throw new Error(`${preview.pagePath} credential error has no ID`);
+        const invalidField = page.locator(`${preview.fieldSelector}[aria-invalid="true"]`);
+        await expect(invalidField).toHaveCount(1);
+        const describedBy = await invalidField.getAttribute("aria-describedby");
+        expect(describedBy?.split(/\s+/), `${preview.pagePath} invalid field should describe its credential error`).toContain(errorId);
       }
     });
 
@@ -988,7 +997,10 @@ test.describe("design.put.io static guide", () => {
     await expect(otp.locator(".otp-slot")).toHaveText(code.split(""));
 
     const card = page.locator(".auth").filter({ has: otp });
-    await expect(card.locator("button.btn-primary")).toBeDisabled();
+    const submit = card.locator("button.btn-primary");
+    await expect(submit).toBeDisabled();
+    await expect(submit).toHaveAttribute("aria-live", "polite");
+    await expect(submit).toHaveAttribute("aria-atomic", "true");
   });
 
   test("TV focus uses the canonical fill and border treatments @tv", async ({ page }) => {
