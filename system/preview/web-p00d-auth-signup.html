@@ -36,6 +36,7 @@
 <link rel="stylesheet" href="./_tier.css">
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="./_resize.js" defer></script>
+<script src="./_password-toggle.js" defer></script>
 <style>
   html, body { margin: 0; background: var(--app-bg); color: var(--text); font-family: var(--font-sans); font-size: 14px; }
 
@@ -68,10 +69,8 @@
 
 
   .hint { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-top: 6px; }
-  /* .field primitive lives in _components.css, reads from --field-*
-     tokens (--app-bg fill, --border, border-hover focus ring, no
-     brand-yellow glow). Auth screens override geometry only
-     (see `.auth .a-body .field { height: 40px }` below). */
+  /* .field primitive lives in ../components.css and reads from --field-*.
+     Auth uses the exported 36px field without a local size override. */
   .group { display: flex; flex-direction: column; }
   /* Vertical stacking: parents own the rhythm via `gap`. Don't use an
      adjacent-sibling margin here, it leaks into grid cells and breaks
@@ -84,6 +83,7 @@
     display: grid; place-items: center; background: transparent;
     color: var(--text-secondary); font-size: 14px; cursor: pointer;
   }
+  .field-wrap.has-password-toggle .field { padding-right: 42px; }
   .field-wrap > i.lead {
     position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
     font-size: 14px; color: var(--text-secondary);
@@ -99,30 +99,6 @@
   .field-wrap > .trailing-icon[data-state="error"]   { color: var(--red-solid); }
   .field-wrap > .trailing-icon[data-state="success"] { color: var(--green-solid); }
   .field-wrap > .trailing-icon[data-state="loading"] { color: var(--text-secondary); animation: spin 0.9s linear infinite; }
-  .form-callout i { font-size: 14px; line-height: 1.4; flex-shrink: 0; }
-  .form-callout[data-state="error"] {
-    color: var(--red-text-secondary);
-    background: var(--red-bg-secondary);
-    border-color: var(--red-component-bg-active);
-  }
-  .form-callout[data-state="success"] {
-    color: var(--green-text-secondary);
-    background: var(--green-bg-secondary);
-    border-color: var(--green-component-bg-active);
-  }
-  .form-callout[data-state="info"] {
-    color: var(--text-secondary);
-    background: var(--bg-secondary);
-    border-color: var(--line);
-  }
-  /* Inline (field-level) variant: no chrome, just red text below the
-     input. Matches ChatGPT / Manus / Profound pattern. */
-  .form-callout.inline {
-    padding: 0; border: 0; background: transparent;
-    margin-top: 6px; gap: 6px;
-    font-size: 12px; line-height: 1.5;   /* match .hint: helper/error read at the same size */
-  }
-
   /* Sizes: letter-spacing tracks size, per production */
 
   /* Variants: match the web app's button variant colors.
@@ -303,33 +279,34 @@
      Auth uses the standard ·card· UI primitive (defined above), plus a
      few auth-specific size/spacing rules. Same shape as Resend / Linear /
      Craft, the chrome itself isn't auth-specific. */
-  .auth-stage {
-    padding: 56px 24px;
+  .panel .demo-body.auth-stage {
+    padding: 56px clamp(8px, 4vw, 24px);
     background: var(--bg);
   }
   /* ·card· UI primitive now lives in preview/_components.css.
      Auth-card-specific tweaks below. */
 
-  /* Auth specifics: fixed width, centered. */
+  /* Auth specifics: fluid up to the 340px production column. */
   .auth {
-    width: 380px;
+    width: 100%;
+    max-width: 340px;
     margin: 0 auto;
     box-sizing: border-box;
   }
-  .auth .a-hd { text-align: center; margin-bottom: 24px; }
+  .auth .a-hd { text-align: left; margin-bottom: 16px; }
   /* Logo sits OUTSIDE/ABOVE the card on the backdrop: Linear, Vercel,
      Resend pattern. Gives the card more focus and lets the logo breathe
      against the page bg instead of being absorbed by the card chrome. */
   .auth-logo {
     display: block;
-    height: 32.67px; width: auto; /* ink 28px: padded wordmark, box = ink × 7/6 */
-    margin: 0 auto 22px;
+    height: 30.33px; width: auto; /* ink 26px: padded wordmark, box = ink × 7/6 */
+    margin: 0 auto 16px;
   }
   .auth-logo.brand-dark  { display: none; }
   html.dark .auth-logo.brand-light { display: none; }
   html.dark .auth-logo.brand-dark  { display: block; }
   .auth .a-hd h3 {
-    margin: 0; font-size: 20px; font-weight: 600;
+    margin: 0; font-size: 19px; font-weight: 500;
     color: var(--text); letter-spacing: -0.01em;
     line-height: 1.25;
   }
@@ -337,16 +314,15 @@
     margin: 8px 0 0; font-size: 13px;
     color: var(--text-secondary); line-height: 1.5;
   }
-  .auth .a-body { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+  .auth .a-body { display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px; }
   .auth .a-body .label-row {
     display: flex; justify-content: space-between; align-items: baseline;
-    margin-bottom: 6px;
+    margin-bottom: 0;
   }
   .auth .a-body .label-row .label { margin-bottom: 0; }
   .auth .a-body .label-row a {text-decoration: none; white-space: nowrap}
-  .auth .a-body .field { height: 40px; }
   .auth .a-body .hint-inline {
-    font-size: 12px; color: var(--text-secondary); margin-top: 6px; line-height: 1.5;
+    font-size: 12px; color: var(--text-secondary); margin-top: 0; line-height: 1.5;
   }
   .auth .a-link {
     margin-top: 0;
@@ -361,7 +337,8 @@
 
   /* Footer link sits OUTSIDE the card (Resend / Linear pattern). */
   .auth-foot {
-    width: 380px; margin: 20px auto 0;
+    width: 100%; max-width: 340px; margin: 16px auto 0;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
     text-align: center;
     font-size: 13px; color: var(--text-secondary);
   }
@@ -371,130 +348,19 @@
   }
   .auth-foot a:hover { color: var(--yellow-text-secondary); border-color: var(--yellow-text-secondary); }
 
-  /* Success / confirmation pattern. */
-  .auth .success-mark {
-    width: 48px; height: 48px; border-radius: 50%;
-    background: var(--yellow-component-bg);
-    color: var(--yellow-text-secondary);
-    display: grid; place-items: center;
-    margin: 0 auto 16px;
-    font-size: 22px;
-  }
-  html.dark .auth .success-mark { color: var(--yellow-text-secondary); }
-  .auth .a-sub {
-    margin: 8px 0 0; font-size: 13px; color: var(--text-secondary);
-    line-height: 1.5;
-  }
-  .auth .a-sub b { color: var(--text); font-weight: 500; }
-  .auth .a-foot-stack {
-    display: flex; flex-direction: column; gap: 8px;
-    margin-bottom: 12px;
-  }
-  .auth .a-sub {
-    margin: 10px 0 0; font-size: 14px; color: var(--text-secondary);
-    line-height: 1.5;
-  }
-  .auth .a-sub b { color: var(--text); font-weight: 500; }
-
-  /* ─── LAYOUT 09 · 2FA verification code ─────────── */
-  /* OTP slot: same surface/focus language as .field. Geometry is
-     the only thing unique to the slot (44×52 cell, mono numerics). */
-  .otp {
-    display: flex; align-items: center; gap: 8px;
-    justify-content: flex-start;
-    position: relative;
-  }
-  .otp-input {
-    position: absolute; inset: 0; z-index: 1;
-    width: 100%; height: 100%; margin: 0; padding: 0; border: 0;
-    opacity: 0; cursor: text;
-  }
-  .otp[data-state="loading"] .otp-input { pointer-events: none; }
-  .otp .slot {
-    width: 44px; height: 52px;
-    border: 1px solid var(--field-border);
-    border-radius: var(--radius);
-    background: var(--field-bg);
-    display: grid; place-items: center;
-    font-family: var(--font-mono); font-variant-numeric: tabular-nums;
-    font-size: 22px; color: var(--field-text);
-    transition:
-      border-color var(--dur-fast) var(--ease-out),
-      box-shadow   var(--dur-fast) var(--ease-out),
-      background   var(--dur-fast) var(--ease-out);
-  }
-  .otp .slot[data-state="filled"] { border-color: var(--field-border-hover); }
-  .otp .slot[data-state="focused"] {
-    border-color: var(--field-border-focus);
-    box-shadow: var(--field-ring);
-  }
-  /* Error / Success: ALL slots flip color together. Border + text only —
-     no surface fill, per the canonical field invalid pattern. The
-     step convention: rest = step 7 (--red-border / --green-border),
-     focused slot = step 8 (--red-border-hover / --green-border-hover). */
-  .otp[data-state="error"] .slot {
-    border-color: var(--red-border);
-    color: var(--red-text-secondary);
-  }
-  .otp[data-state="error"] .slot:focus,
-  .otp[data-state="error"] .slot[data-state="focused"] {
-    border-color: var(--red-border-hover);
-    box-shadow: 0 0 0 1px var(--red-border-hover);
-  }
-  .otp[data-state="success"] .slot {
-    border-color: var(--green-border);
-    color: var(--green-text-secondary);
-  }
-  .otp[data-state="success"] .slot:focus,
-  .otp[data-state="success"] .slot[data-state="focused"] {
-    border-color: var(--green-border-hover);
-    box-shadow: 0 0 0 1px var(--green-border-hover);
-  }
-  /* Loading / disabled: suppress focus ring. Spinner / disabled state
-     is the dominant signal; we don't strobe a focused slot underneath. */
-  .otp[data-state="loading"] .slot,
-  .otp[data-state="loading"] .slot[data-state="focused"],
-  .otp[aria-disabled="true"] .slot {
-    box-shadow: none;
-    background: var(--field-bg-disabled);
-    color: var(--text-secondary);
-    cursor: not-allowed;
-  }
-  /* Backwards compatibility for old class flag (used in earlier specimen) */
-  .otp .slot.filled  { border-color: var(--field-border-hover); }
-  .otp .slot.focused {
-    border-color: var(--field-border-focus);
-    box-shadow: var(--field-ring);
-  }
-  .otp .sep { color: var(--text-secondary); font-size: 18px; padding: 0 4px; }
-  .auth-resend {
-    margin-top: 22px;
-    font-size: 13px; color: var(--text-secondary);
-  }
-  .auth-resend a { color: var(--text); text-decoration: none; font-weight: 500; border-bottom: 1px solid var(--border); }
-  .auth-resend a:hover { color: var(--yellow-text-secondary); border-color: var(--yellow-text-secondary); }
-
-  /* Password-strength meter (for set-new-password flows) */
-  .pw-meter { display: flex; gap: 4px; margin-top: 8px; }
-  .pw-meter .seg {
-    flex: 1; height: 4px; border-radius: var(--radius-pill);
-    background: var(--component-bg-active);
-    transition: background var(--dur-fast) var(--ease-out);
-  }
-  .pw-meter[data-strength="weak"]   .seg:nth-child(-n+1) { background: var(--red-solid); }
-  .pw-meter[data-strength="fair"]   .seg:nth-child(-n+2) { background: var(--yellow-solid); }
-  .pw-meter[data-strength="good"]   .seg:nth-child(-n+3) { background: var(--yellow-solid); }
-  .pw-meter[data-strength="strong"] .seg                 { background: var(--green-solid); }
-  .pw-meter + .pw-label {
-    margin-top: 6px; font-size: 11.5px; color: var(--text-secondary);
-    display: flex; justify-content: space-between;
-  }
-  .pw-label b { color: var(--text); font-weight: 500; }
   .spinner-ring {
     width: 14px; height: 14px; border-radius: 50%;
     border: 1.5px solid currentColor; border-right-color: transparent;
     animation: spin 0.8s linear infinite;
     display: inline-block;
+  }
+
+  @media (max-width: 640px) {
+    .surface { padding: 16px 8px 24px; }
+    .panel .demo-hd { align-items: flex-start; flex-wrap: wrap; }
+    .panel .demo-hd .when { width: 100%; margin-left: 0; }
+    .panel .demo-body.auth-stage { padding: 32px 8px; }
+    .card.card-lg.auth { padding: 24px 20px 22px; }
   }
 
   /* ─── Footer note ─────────────────────────────────────── */
@@ -531,28 +397,26 @@
       <img class="auth-logo brand-dark"  src="../assets/logo-retro-dark.svg"  alt="put.io" />
       <div class="card card-lg auth" data-slot="auth">
         <div class="a-hd" data-slot="auth-header">
-          <h3>Create your account</h3>
+          <h3>Sign up</h3>
           <p>Free 7-day trial. No card required.</p>
         </div>
         <div class="a-body" data-slot="auth-body">
-          <div class="group">
-            <span class="label">Email</span>
-            <input aria-label="Email" class="field" value="kai@example.com" />
+          <div class="group form-group">
+            <label class="label" for="signup-email">Email</label>
+            <input id="signup-email" class="field" type="email" autocomplete="email" />
           </div>
-          <div class="group">
-            <span class="label">Username</span>
-            <input aria-label="Username" class="field mono" value="kai" />
+          <div class="group form-group">
+            <label class="label" for="signup-username">Username</label>
+            <input id="signup-username" class="field mono" autocomplete="username" spellcheck="false" />
             <span class="hint-inline">Lowercase letters, numbers, and dashes. 3–20 characters.</span>
           </div>
         </div>
-        <button class="btn-primary btn-block">Create account</button>
+        <button class="btn-primary btn-block" type="button">Sign up</button>
         <div style="margin-top: 18px; font-size: 11.5px; color: var(--text-secondary); text-align: center; line-height: 1.5;">
           By signing up you agree to our <a href="#" style="color: var(--text); border-bottom: 1px solid var(--border);">Terms</a> and <a href="#" style="color: var(--text); border-bottom: 1px solid var(--border);">Privacy Policy</a>.
         </div>
       </div>
-      <div class="auth-foot">
-        Already have an account? <a href="#">Log in</a>
-      </div>
+      <div class="auth-foot"><span>Already have an account?</span><a href="#">Sign in</a></div>
     </div>
   </div>
 
@@ -574,16 +438,14 @@
           <p>Enter the email on your account, we'll send you a link to set a new password.</p>
         </div>
         <div class="a-body" data-slot="auth-body">
-          <div class="group">
-            <span class="label">Email</span>
-            <input aria-label="Email" class="field" value="kai@example.com" />
+          <div class="group form-group">
+            <label class="label" for="reset-email">Email</label>
+            <input id="reset-email" class="field" type="email" autocomplete="email" />
           </div>
         </div>
-        <button class="btn-primary btn-block">Send reset link</button>
+        <button class="btn-primary btn-block" type="button">Send reset link</button>
       </div>
-      <div class="auth-foot">
-        Remembered it? <a href="#">Back to login</a>
-      </div>
+      <div class="auth-foot"><span>Remembered it?</span><a href="#">Back to sign in</a></div>
     </div>
   </div>
 
@@ -594,7 +456,7 @@
     <div class="demo-hd">
       <span class="ix">L · 15</span>
       <span class="t">Set new password</span>
-      <span class="when">After reset link · strength meter inline</span>
+      <span class="when">After reset link · confirmation required</span>
     </div>
     <div class="demo-body auth-stage">
       <img class="auth-logo brand-light" src="../assets/logo-retro-light.svg" alt="put.io" />
@@ -602,29 +464,22 @@
       <div class="card card-lg auth" data-slot="auth">
         <div class="a-hd" data-slot="auth-header">
           <h3>Set a new password</h3>
-          <p>For <b style="color: var(--text); font-weight: 500;">kai@example.com</b>. You'll be signed in after.</p>
+          <p>Choose a new password. You'll be signed in after.</p>
         </div>
         <div class="a-body" data-slot="auth-body">
-          <div class="group">
-            <span class="label">New password</span>
-            <div class="field-wrap">
-              <input aria-label="New password" class="field" type="password" value="•••••••••••" />
-              <button class="password-toggle" type="button" aria-label="Show password"><i class="ph ph-eye" aria-hidden="true"></i></button>
-            </div>
-            <div class="pw-meter" data-strength="good" role="meter" aria-label="Password strength" aria-valuemin="0" aria-valuemax="4" aria-valuenow="3">
-              <div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div>
-            </div>
-            <div class="pw-label">
-              <span>Strength: <b>Good</b></span>
-              <span>11 chars</span>
+          <div class="group form-group">
+            <label class="label" for="new-password">New password</label>
+            <div class="field-wrap has-password-toggle">
+              <input id="new-password" class="field" type="password" autocomplete="new-password" />
+              <button class="password-toggle" type="button" data-password-toggle aria-label="Show password"><i class="ph ph-eye" aria-hidden="true"></i></button>
             </div>
           </div>
-          <div class="group">
-            <span class="label">Confirm new password</span>
-            <input aria-label="Confirm new password" class="field" type="password" value="•••••••••••" />
+          <div class="group form-group">
+            <label class="label" for="confirm-new-password">Confirm new password</label>
+            <input id="confirm-new-password" class="field" type="password" autocomplete="new-password" />
           </div>
         </div>
-        <button class="btn-primary btn-block">Save and continue</button>
+        <button class="btn-primary btn-block" type="button">Save and continue</button>
       </div>
     </div>
   </div>
@@ -646,28 +501,30 @@
           <h3>Two-factor authentication</h3>
         </div>
         <div class="a-body" data-slot="auth-body">
-          <div class="group">
+          <div class="group form-group">
             <label class="label" for="otp-code-verifying">Authentication code</label>
-            <div class="otp" data-state="loading">
-              <input class="otp-input" id="otp-code-verifying" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" value="392471" readonly aria-readonly="true" tabindex="-1">
-              <div class="slot" data-state="filled" aria-hidden="true">3</div>
-              <div class="slot" data-state="filled" aria-hidden="true">9</div>
-              <div class="slot" data-state="filled" aria-hidden="true">2</div>
-              <span class="sep" aria-hidden="true">–</span>
-              <div class="slot" data-state="filled" aria-hidden="true">4</div>
-              <div class="slot" data-state="filled" aria-hidden="true">7</div>
-              <div class="slot" data-state="filled" aria-hidden="true">1</div>
+            <div class="otp" data-state="verifying" aria-busy="true" aria-disabled="true">
+              <input class="otp-input" id="otp-code-verifying" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" value="392471" disabled>
+              <div class="otp-group">
+                <div class="otp-slot" data-state="filled" aria-hidden="true">3</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">9</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">2</div>
+              </div>
+              <span class="otp-separator" aria-hidden="true">–</span>
+              <div class="otp-group">
+                <div class="otp-slot" data-state="filled" aria-hidden="true">4</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">7</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">1</div>
+              </div>
             </div>
           </div>
         </div>
-        <button class="btn-primary btn-block" disabled>
+        <button class="btn-primary btn-block" type="button" aria-live="polite" aria-atomic="true" disabled>
           <span class="spinner-ring" aria-hidden="true"></span>
           Verifying…
         </button>
       </div>
-      <div class="auth-foot">
-        Wrong account? <a href="#">Sign out</a>
-      </div>
+      <div class="auth-foot"><span>Wrong account?</span><a href="#">Sign out</a></div>
     </div>
   </div>
 
@@ -675,7 +532,7 @@
   <b>Layout rules.</b><br>
   <code>L · 13</code> sign-up adds username and terms. The CTA stays the single primary<br>
   <code>L · 14</code> recovery is one field and one action, nothing else on the card<br>
-  <code>L · 15</code> the strength meter sits inline under the field, never in a tooltip<br>
+  <code>L · 15</code> reset requires matching password and confirmation fields<br>
   <code>L · 16</code> in-flight keeps the verified code visible and locks both the code and CTA<br>
 </div>
 

@@ -67,10 +67,8 @@
 
 
   .hint { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-top: 6px; }
-  /* .field primitive lives in _components.css, reads from --field-*
-     tokens (--app-bg fill, --border, border-hover focus ring, no
-     brand-yellow glow). Auth screens override geometry only
-     (see `.auth .a-body .field { height: 40px }` below). */
+  /* .field and OTP primitives live in ../components.css. Auth consumes
+     their exported geometry and state contract without local overrides. */
   .group { display: flex; flex-direction: column; }
   /* Vertical stacking: parents own the rhythm via `gap`. Don't use an
      adjacent-sibling margin here, it leaks into grid cells and breaks
@@ -92,30 +90,6 @@
   .field-wrap > .trailing-icon[data-state="error"]   { color: var(--red-solid); }
   .field-wrap > .trailing-icon[data-state="success"] { color: var(--green-solid); }
   .field-wrap > .trailing-icon[data-state="loading"] { color: var(--text-secondary); animation: spin 0.9s linear infinite; }
-  .form-callout i { font-size: 14px; line-height: 1.4; flex-shrink: 0; }
-  .form-callout[data-state="error"] {
-    color: var(--red-text-secondary);
-    background: var(--red-bg-secondary);
-    border-color: var(--red-component-bg-active);
-  }
-  .form-callout[data-state="success"] {
-    color: var(--green-text-secondary);
-    background: var(--green-bg-secondary);
-    border-color: var(--green-component-bg-active);
-  }
-  .form-callout[data-state="info"] {
-    color: var(--text-secondary);
-    background: var(--bg-secondary);
-    border-color: var(--line);
-  }
-  /* Inline (field-level) variant: no chrome, just red text below the
-     input. Matches ChatGPT / Manus / Profound pattern. */
-  .form-callout.inline {
-    padding: 0; border: 0; background: transparent;
-    margin-top: 6px; gap: 6px;
-    font-size: 12px; line-height: 1.5;   /* match .hint: helper/error read at the same size */
-  }
-
   /* Sizes: letter-spacing tracks size, per production */
 
   /* Variants: match the web app's button variant colors.
@@ -128,33 +102,34 @@
      Auth uses the standard ·card· UI primitive (defined above), plus a
      few auth-specific size/spacing rules. Same shape as Resend / Linear /
      Craft, the chrome itself isn't auth-specific. */
-  .auth-stage {
-    padding: 56px 24px;
+  .panel .demo-body.auth-stage {
+    padding: 56px clamp(8px, 4vw, 24px);
     background: var(--bg);
   }
   /* ·card· UI primitive now lives in preview/_components.css.
      Auth-card-specific tweaks below. */
 
-  /* Auth specifics: fixed width, centered. */
+  /* Auth specifics: fluid up to the 340px production column. */
   .auth {
-    width: 380px;
+    width: 100%;
+    max-width: 340px;
     margin: 0 auto;
     box-sizing: border-box;
   }
-  .auth .a-hd { text-align: center; margin-bottom: 24px; }
+  .auth .a-hd { text-align: left; margin-bottom: 16px; }
   /* Logo sits OUTSIDE/ABOVE the card on the backdrop: Linear, Vercel,
      Resend pattern. Gives the card more focus and lets the logo breathe
      against the page bg instead of being absorbed by the card chrome. */
   .auth-logo {
     display: block;
-    height: 32.67px; width: auto; /* ink 28px: padded wordmark, box = ink × 7/6 */
-    margin: 0 auto 22px;
+    height: 30.33px; width: auto; /* ink 26px: padded wordmark, box = ink × 7/6 */
+    margin: 0 auto 16px;
   }
   .auth-logo.brand-dark  { display: none; }
   html.dark .auth-logo.brand-light { display: none; }
   html.dark .auth-logo.brand-dark  { display: block; }
   .auth .a-hd h3 {
-    margin: 0; font-size: 20px; font-weight: 600;
+    margin: 0; font-size: 19px; font-weight: 500;
     color: var(--text); letter-spacing: -0.01em;
     line-height: 1.25;
   }
@@ -162,16 +137,15 @@
     margin: 8px 0 0; font-size: 13px;
     color: var(--text-secondary); line-height: 1.5;
   }
-  .auth .a-body { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+  .auth .a-body { display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px; }
   .auth .a-body .label-row {
     display: flex; justify-content: space-between; align-items: baseline;
-    margin-bottom: 6px;
+    margin-bottom: 0;
   }
   .auth .a-body .label-row .label { margin-bottom: 0; }
   .auth .a-body .label-row a {text-decoration: none; white-space: nowrap}
-  .auth .a-body .field { height: 40px; }
   .auth .a-body .hint-inline {
-    font-size: 12px; color: var(--text-secondary); margin-top: 6px; line-height: 1.5;
+    font-size: 12px; color: var(--text-secondary); margin-top: 0; line-height: 1.5;
   }
   .auth .a-link {
     margin-top: 0;
@@ -186,7 +160,8 @@
 
   /* Footer link sits OUTSIDE the card (Resend / Linear pattern). */
   .auth-foot {
-    width: 380px; margin: 20px auto 0;
+    width: 100%; max-width: 340px; margin: 16px auto 0;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
     text-align: center;
     font-size: 13px; color: var(--text-secondary);
   }
@@ -196,96 +171,13 @@
   }
   .auth-foot a:hover { color: var(--yellow-text-secondary); border-color: var(--yellow-text-secondary); }
 
-  /* Success / confirmation pattern. */
-  .auth .success-mark {
-    width: 48px; height: 48px; border-radius: 50%;
-    background: var(--yellow-component-bg);
-    color: var(--yellow-text-secondary);
-    display: grid; place-items: center;
-    margin: 0 auto 16px;
-    font-size: 22px;
+  @media (max-width: 640px) {
+    .surface { padding: 16px 8px 24px; }
+    .panel .demo-hd { align-items: flex-start; flex-wrap: wrap; }
+    .panel .demo-hd .when { width: 100%; margin-left: 0; }
+    .panel .demo-body.auth-stage { padding: 32px 8px; }
+    .card.card-lg.auth { padding: 24px 20px 22px; }
   }
-  html.dark .auth .success-mark { color: var(--yellow-text-secondary); }
-  .auth .a-foot-stack {
-    display: flex; flex-direction: column; gap: 8px;
-    margin-bottom: 12px;
-  }
-  .auth .a-sub {
-    margin: 10px 0 0; font-size: 14px; color: var(--text-secondary);
-    line-height: 1.5;
-  }
-  .auth .a-sub b { color: var(--text); font-weight: 500; }
-
-  /* ─── LAYOUT 09 · 2FA verification code ─────────── */
-  /* OTP slot: same surface/focus language as .field. Geometry is
-     the only thing unique to the slot (44×52 cell, mono numerics). */
-  .otp {
-    display: flex; align-items: center; gap: 8px;
-    justify-content: flex-start;
-    position: relative;
-  }
-  .otp-input {
-    position: absolute; inset: 0; z-index: 1;
-    width: 100%; height: 100%; margin: 0; padding: 0; border: 0;
-    opacity: 0; cursor: text;
-  }
-  .otp .slot {
-    width: 44px; height: 52px;
-    border: 1px solid var(--field-border);
-    border-radius: var(--radius);
-    background: var(--field-bg);
-    display: grid; place-items: center;
-    font-family: var(--font-mono); font-variant-numeric: tabular-nums;
-    font-size: 22px; color: var(--field-text);
-    transition:
-      border-color var(--dur-fast) var(--ease-out),
-      box-shadow   var(--dur-fast) var(--ease-out),
-      background   var(--dur-fast) var(--ease-out);
-  }
-  .otp .slot[data-state="filled"] { border-color: var(--field-border-hover); }
-  .otp .slot[data-state="focused"] {
-    border-color: var(--field-border-focus);
-    box-shadow: var(--field-ring);
-  }
-  /* Error / Success: ALL slots flip color together. Border + text only —
-     no surface fill, per the canonical field invalid pattern. The
-     step convention: rest = step 7 (--red-border / --green-border),
-     focused slot = step 8 (--red-border-hover / --green-border-hover). */
-  .otp[data-state="error"] .slot {
-    border-color: var(--red-border);
-    color: var(--red-text-secondary);
-  }
-  .otp[data-state="error"] .slot:focus,
-  .otp[data-state="error"] .slot[data-state="focused"] {
-    border-color: var(--red-border-hover);
-    box-shadow: 0 0 0 1px var(--red-border-hover);
-  }
-  .otp[data-state="success"] .slot {
-    border-color: var(--green-border);
-    color: var(--green-text-secondary);
-  }
-  .otp[data-state="success"] .slot:focus,
-  .otp[data-state="success"] .slot[data-state="focused"] {
-    border-color: var(--green-border-hover);
-    box-shadow: 0 0 0 1px var(--green-border-hover);
-  }
-  /* Loading / disabled: suppress focus ring. Spinner / disabled state
-     is the dominant signal; we don't strobe a focused slot underneath. */
-  .otp[data-state="loading"] .slot,
-  .otp[data-state="loading"] .slot[data-state="focused"],
-  .otp[aria-disabled="true"] .slot {
-    box-shadow: none;
-    background: var(--field-bg-disabled);
-    color: var(--text-secondary);
-    cursor: not-allowed;
-  }
-  /* Backwards compatibility for old class flag (used in earlier specimen) */
-  .otp .slot.filled  { border-color: var(--field-border-hover); }
-  .otp .slot.focused {
-    border-color: var(--field-border-focus);
-    box-shadow: var(--field-ring);
-  }
-  .otp .sep { color: var(--text-secondary); font-size: 18px; padding: 0 4px; }
 
   /* ─── Footer note ─────────────────────────────────────── */
   .specs-link {
@@ -317,31 +209,33 @@
     <div class="demo-body auth-stage">
       <img class="auth-logo brand-light" src="../assets/logo-retro-light.svg" alt="put.io" />
       <img class="auth-logo brand-dark"  src="../assets/logo-retro-dark.svg"  alt="put.io" />
-      <div class="card card-lg auth">
-        <div class="a-hd">
-                    <h3>Two-factor authentication</h3>
+      <div class="card card-lg auth" data-slot="auth" data-demo-otp-verification="default">
+        <div class="a-hd" data-slot="auth-header">
+          <h3>Two-factor authentication</h3>
         </div>
-        <div class="a-body">
-          <div class="group">
+        <div class="a-body" data-slot="auth-body">
+          <div class="group form-group">
             <label class="label" for="otp-code">Authentication code</label>
             <div class="otp">
               <input class="otp-input" id="otp-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" value="39247" aria-describedby="otp-hint">
-              <div class="slot" data-state="filled" aria-hidden="true">3</div>
-              <div class="slot" data-state="filled" aria-hidden="true">9</div>
-              <div class="slot" data-state="filled" aria-hidden="true">2</div>
-              <span class="sep" aria-hidden="true">–</span>
-              <div class="slot" data-state="filled" aria-hidden="true">4</div>
-              <div class="slot" data-state="filled" aria-hidden="true">7</div>
-              <div class="slot" data-state="focused" aria-hidden="true"></div>
+              <div class="otp-group">
+                <div class="otp-slot" data-state="filled" aria-hidden="true">3</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">9</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">2</div>
+              </div>
+              <span class="otp-separator" aria-hidden="true">–</span>
+              <div class="otp-group">
+                <div class="otp-slot" data-state="filled" aria-hidden="true">4</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">7</div>
+                <div class="otp-slot" data-state="active" aria-hidden="true"></div>
+              </div>
             </div>
             <div class="hint-inline" id="otp-hint">Open your authenticator app and enter the 6-digit code.</div>
           </div>
         </div>
-        <button class="btn-primary btn-block">Verify</button>
+        <button class="btn-primary btn-block" type="button" data-otp-submit aria-live="polite" aria-atomic="true" disabled>Verify</button>
       </div>
-      <div class="auth-foot">
-        Lost access to your app? <a href="#">Use a recovery code</a>
-      </div>
+      <div class="auth-foot"><span>Wrong account?</span><a href="#">Sign out</a></div>
     </div>
   </div>
 
@@ -357,32 +251,76 @@
     <div class="demo-body auth-stage">
       <img class="auth-logo brand-light" src="../assets/logo-retro-light.svg" alt="put.io" />
       <img class="auth-logo brand-dark"  src="../assets/logo-retro-dark.svg"  alt="put.io" />
-      <div class="card card-lg auth" data-slot="auth">
+      <div class="card card-lg auth" data-slot="auth" data-demo-otp-verification="error">
         <div class="a-hd" data-slot="auth-header">
-                    <h3>Two-factor authentication</h3>
+          <h3>Two-factor authentication</h3>
         </div>
         <div class="a-body" data-slot="auth-body">
-          <div class="group">
+          <div class="group form-group">
             <label class="label" for="otp-code-error">Authentication code</label>
-            <div class="otp" data-state="error">
+            <div class="otp">
               <input class="otp-input" id="otp-code-error" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" value="810506" aria-invalid="true" aria-describedby="otp-error">
-              <div class="slot" data-state="filled" aria-hidden="true">8</div>
-              <div class="slot" data-state="filled" aria-hidden="true">1</div>
-              <div class="slot" data-state="filled" aria-hidden="true">0</div>
-              <span class="sep" aria-hidden="true">–</span>
-              <div class="slot" data-state="filled" aria-hidden="true">5</div>
-              <div class="slot" data-state="filled" aria-hidden="true">0</div>
-              <div class="slot" data-state="filled" aria-hidden="true">6</div>
+              <div class="otp-group">
+                <div class="otp-slot" data-state="filled" aria-hidden="true">8</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">1</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">0</div>
+              </div>
+              <span class="otp-separator" aria-hidden="true">–</span>
+              <div class="otp-group">
+                <div class="otp-slot" data-state="filled" aria-hidden="true">5</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">0</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">6</div>
+              </div>
             </div>
             <div class="form-callout inline" data-state="error" id="otp-error" role="alert">
-              <span>That code didn't match. Codes expire after 30s, generate a new one in your authenticator.</span>
+              <span>That code doesn't look right. Enter the current 6-digit code from your authenticator app.</span>
             </div>
           </div>
         </div>
-        <button class="btn-primary btn-block">Verify</button>
+        <button class="btn-primary btn-block" type="button" data-otp-submit aria-live="polite" aria-atomic="true">Verify</button>
       </div>
-      <div class="auth-foot">
-        Lost access to your app? <a href="#">Use a recovery code</a>
+      <div class="auth-foot"><span>Wrong account?</span><a href="#">Sign out</a></div>
+    </div>
+  </div>
+
+  <!-- =============================================================
+       L · 12, Two-factor · success state
+       ============================================================= -->
+  <div class="panel">
+    <div class="demo-hd">
+      <span class="ix">L · 12</span>
+      <span class="t">Two-factor · success</span>
+      <span class="when">Verified code · automatic continuation</span>
+    </div>
+    <div class="demo-body auth-stage">
+      <img class="auth-logo brand-light" src="../assets/logo-retro-light.svg" alt="put.io" />
+      <img class="auth-logo brand-dark"  src="../assets/logo-retro-dark.svg"  alt="put.io" />
+      <div class="card card-lg auth" data-slot="auth">
+        <div class="a-hd" data-slot="auth-header">
+          <h3>Two-factor authentication</h3>
+        </div>
+        <div class="a-body" data-slot="auth-body">
+          <div class="group form-group">
+            <label class="label" for="otp-code-success">Authentication code</label>
+            <div class="otp" data-state="success">
+              <input class="otp-input" id="otp-code-success" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" value="392471" readonly tabindex="-1" aria-describedby="otp-success">
+              <div class="otp-group">
+                <div class="otp-slot" data-state="filled" aria-hidden="true">3</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">9</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">2</div>
+              </div>
+              <span class="otp-separator" aria-hidden="true">–</span>
+              <div class="otp-group">
+                <div class="otp-slot" data-state="filled" aria-hidden="true">4</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">7</div>
+                <div class="otp-slot" data-state="filled" aria-hidden="true">1</div>
+              </div>
+            </div>
+            <div class="form-callout inline" data-state="success" id="otp-success" role="status">
+              <span>Code verified. Continuing…</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -391,6 +329,8 @@
   <b>Layout rules.</b><br>
   <code>L · 09</code> 2FA uses 6 digit slots with a separator between groups of three<br>
   <code>L · 11</code> a failed code flips every slot red, border and text only, plus an inline callout<br>
+  <code>L · 12</code> success keeps the verified code visible, announces continuation, and has no dead-end action<br>
+  <code>Recovery</code> stays absent until the consumer owns a working recovery-code route<br>
 </div>
 
 </div>
@@ -398,28 +338,136 @@
 <script>
   document.querySelectorAll('.otp').forEach(function (otp) {
     var input = otp.querySelector('.otp-input');
-    var slots = Array.from(otp.querySelectorAll('.slot'));
+    var slots = Array.from(otp.querySelectorAll('.otp-slot'));
+    var demoCard = otp.closest('[data-demo-otp-verification]');
+    var submit = demoCard && demoCard.querySelector('[data-otp-submit]');
     if (!input) return;
 
+    var describedBy = (input.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean);
+    var errorFeedback = describedBy
+      .map(function (id) { return document.getElementById(id); })
+      .find(function (element) { return element && element.getAttribute('role') === 'alert'; });
+
+    function clearError() {
+      if (input.getAttribute('aria-invalid') !== 'true') return;
+      input.removeAttribute('aria-invalid');
+      if (!errorFeedback) return;
+
+      errorFeedback.hidden = true;
+      var remainingDescriptions = describedBy.filter(function (id) { return id !== errorFeedback.id; });
+      if (remainingDescriptions.length) input.setAttribute('aria-describedby', remainingDescriptions.join(' '));
+      else input.removeAttribute('aria-describedby');
+    }
+
+    var lastDigits = input.value.replace(/\D/g, '').slice(0, slots.length);
+
     function syncSlots(showFocus) {
-      var digits = input.value.replace(/\D/g, '').slice(0, slots.length);
-      if (input.value !== digits) input.value = digits;
+      var rawValue = input.value;
+      var rawCaret = input.selectionStart === null ? rawValue.length : input.selectionStart;
+      var digits = rawValue.replace(/\D/g, '').slice(0, slots.length);
+      var sanitizedCaret = Math.min(rawValue.slice(0, rawCaret).replace(/\D/g, '').length, digits.length);
+      if (rawValue !== digits) {
+        input.value = digits;
+        input.setSelectionRange(sanitizedCaret, sanitizedCaret);
+      }
       var caret = input.selectionStart === null ? digits.length : input.selectionStart;
       var focusIndex = Math.min(caret, slots.length - 1);
 
       slots.forEach(function (slot, index) {
         slot.textContent = digits[index] || '';
-        if (showFocus && index === focusIndex) slot.dataset.state = 'focused';
+        if (showFocus && index === focusIndex) slot.dataset.state = 'active';
         else if (index < digits.length) slot.dataset.state = 'filled';
         else slot.removeAttribute('data-state');
       });
+
+      if (submit && !input.disabled) submit.disabled = digits.length !== slots.length;
+      lastDigits = digits;
+      return digits;
     }
 
-    input.addEventListener('input', function () { syncSlots(true); });
-    input.addEventListener('focus', function () { syncSlots(true); });
-    input.addEventListener('click', function () { syncSlots(true); });
-    input.addEventListener('keyup', function () { syncSlots(true); });
+    input.addEventListener('input', function () {
+      var previousDigits = lastDigits;
+      var digits = syncSlots(true);
+      if (digits !== previousDigits) clearError();
+    });
+    input.addEventListener('paste', function (event) {
+      if (!event.clipboardData) return;
+      var pastedDigits = event.clipboardData.getData('text').replace(/\D/g, '');
+      if (!pastedDigits) return;
+      event.preventDefault();
+
+      var selectionStart = input.selectionStart === null ? input.value.length : input.selectionStart;
+      var selectionEnd = input.selectionEnd === null ? selectionStart : input.selectionEnd;
+      var digits;
+      var caret;
+      if (pastedDigits.length >= slots.length) {
+        digits = pastedDigits.slice(0, slots.length);
+        caret = digits.length;
+      } else {
+        digits = (input.value.slice(0, selectionStart) + pastedDigits + input.value.slice(selectionEnd)).slice(0, slots.length);
+        caret = Math.min(selectionStart + pastedDigits.length, digits.length);
+      }
+
+      var previousDigits = lastDigits;
+      input.value = digits;
+      input.setSelectionRange(caret, caret);
+      syncSlots(true);
+      if (digits !== previousDigits) clearError();
+    });
+    function syncInteractiveFocus() {
+      syncSlots(!input.disabled && !input.readOnly);
+    }
+    input.addEventListener('focus', syncInteractiveFocus);
+    input.addEventListener('click', syncInteractiveFocus);
+    input.addEventListener('keyup', syncInteractiveFocus);
     input.addEventListener('blur', function () { syncSlots(false); });
+    Array.from(input.labels || []).forEach(function (label) {
+      label.addEventListener('click', function (event) {
+        if (input.disabled || input.readOnly) event.preventDefault();
+      });
+    });
+
+    otp.addEventListener('pointerdown', function (event) {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      if (input.disabled || input.readOnly) return;
+
+      var nearestIndex = 0;
+      var nearestDistance = Infinity;
+      slots.forEach(function (slot, index) {
+        var box = slot.getBoundingClientRect();
+        var distance = Math.abs(event.clientX - (box.left + box.width / 2));
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestIndex = index;
+        }
+      });
+
+      input.focus();
+      var selectionEnd = nearestIndex < input.value.length ? nearestIndex + 1 : nearestIndex;
+      input.setSelectionRange(nearestIndex, selectionEnd);
+      syncSlots(true);
+    });
+
+    if (submit) {
+      submit.addEventListener('click', function () {
+        if (input.value.length !== slots.length) {
+          input.focus();
+          syncSlots(true);
+          return;
+        }
+        clearError();
+        otp.dataset.state = 'verifying';
+        otp.setAttribute('aria-busy', 'true');
+        otp.setAttribute('aria-disabled', 'true');
+        input.disabled = true;
+        submit.disabled = true;
+        submit.textContent = 'Verifying…';
+        syncSlots(false);
+      });
+    }
+
+    syncSlots(false);
   });
 </script>
 </body></html>

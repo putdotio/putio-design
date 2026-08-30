@@ -137,7 +137,7 @@ button i { font-size: var(--button-icon-size); line-height: 1; display: inline-f
    hover paints the shared quiet fill and lifts the label a step
    (--button-ghost-fg → --button-ghost-fg-hover — the fill is never the
    only cue). For actions quieter than a filled secondary: a header
-   "Log in", toolbar text actions, "Cancel" beside a filled confirm.
+   "Sign in", toolbar text actions, "Cancel" beside a filled confirm.
    NEVER substitute an outline: a border-only box beside a solid fill
    reads as a different size — see the pairing rule in DESIGN.md.
    Disabled matches the quiet treatment: the colour drops to --solid,
@@ -356,6 +356,161 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   white-space: nowrap;
 }
 .form-group .label-row a:hover { color: var(--text); }
+
+/* ===========================================================
+   Form feedback — one public recipe for block and inline status.
+
+   `data-state` is the tone: info (the default), success, or error.
+   Block callouts consume the dedicated --alert-* families. `.inline`
+   removes their chrome but deliberately keeps the same semantic text
+   colour, so a field error does not invent another red.
+   =========================================================== */
+.form-callout,
+.form-callout[data-state="info"] {
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  align-items: start;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--alert-info-border);
+  border-radius: var(--alert-radius);
+  background: var(--alert-info-bg);
+  color: var(--alert-info-body);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-normal);
+}
+.form-callout[hidden] { display: none; }
+.form-callout > :is(i, svg) {
+  flex-shrink: 0;
+  color: var(--alert-info-icon);
+  font-size: 14px;
+  line-height: var(--lh-normal);
+}
+.form-callout[data-state="success"] {
+  border-color: var(--alert-success-border);
+  background: var(--alert-success-bg);
+  color: var(--alert-success-body);
+}
+.form-callout[data-state="success"] > :is(i, svg) { color: var(--alert-success-icon); }
+.form-callout[data-state="error"] {
+  border-color: var(--alert-danger-border);
+  background: var(--alert-danger-bg);
+  color: var(--alert-danger-body);
+}
+.form-callout[data-state="error"] > :is(i, svg) { color: var(--alert-danger-icon); }
+.form-callout.inline {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: var(--fs-sm);
+}
+
+/* ===========================================================
+   One-time password — one real input, six visual slots.
+
+   The transparent input spans the whole recipe so pointer, keyboard,
+   paste, password-manager and one-time-code interactions all reach the
+   same semantic control. Script only mirrors digits and the active slot;
+   invalid styling derives from aria-invalid on the input itself.
+
+   Each three-slot group is a fluid grid. Slots never publish a fixed
+   width, which keeps two groups plus their separator inside narrow cards.
+   =========================================================== */
+.otp {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: clamp(4px, 2vw, 8px);
+  width: 100%;
+  min-width: 0;
+}
+.otp-input {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: text;
+}
+.otp-group {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(4px, 2vw, 8px);
+  flex: 1 1 0;
+  min-width: 0;
+}
+.otp-slot {
+  box-sizing: border-box;
+  min-width: 0;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--field-border);
+  border-radius: var(--field-radius);
+  background: var(--field-bg);
+  color: var(--field-text);
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  pointer-events: none;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+.otp-slot[data-state="filled"] { border-color: var(--field-border-hover); }
+.otp:focus-within .otp-slot[data-state="active"] {
+  border-color: var(--field-border-focus);
+  box-shadow: var(--field-ring);
+}
+.otp-separator {
+  flex: 0 0 auto;
+  padding: 0;
+  color: var(--text-secondary);
+  font-size: 18px;
+  line-height: 1;
+  pointer-events: none;
+}
+.otp:has(.otp-input[aria-invalid="true"]) .otp-slot {
+  border-color: var(--red-border);
+  color: var(--red-text-secondary);
+}
+.otp:has(.otp-input[aria-invalid="true"]):focus-within .otp-slot[data-state="active"] {
+  border-color: var(--red-border-hover);
+  box-shadow: 0 0 0 1px var(--red-border-hover);
+}
+.otp[data-state="success"] .otp-slot {
+  border-color: var(--green-border);
+  color: var(--green-text-secondary);
+}
+.otp[data-state="success"]:focus-within .otp-slot[data-state="active"] {
+  border-color: var(--green-border-hover);
+  box-shadow: 0 0 0 1px var(--green-border-hover);
+}
+.otp[data-state="verifying"] .otp-input,
+.otp[aria-disabled="true"] .otp-input,
+.otp-input:disabled { pointer-events: none; }
+.otp[data-state="verifying"] .otp-slot,
+.otp[data-state="verifying"] .otp-slot[data-state="active"],
+.otp[aria-disabled="true"] .otp-slot,
+.otp[aria-disabled="true"] .otp-slot[data-state="active"],
+.otp:has(.otp-input:disabled) .otp-slot,
+.otp:has(.otp-input:disabled) .otp-slot[data-state="active"] {
+  border-color: var(--field-border);
+  background: var(--field-bg-disabled);
+  color: var(--text-secondary);
+  box-shadow: none;
+  cursor: not-allowed;
+}
 
 /* Floating-menu surface — one recipe for dropdowns, context menus,
    submenus, and on-player popovers. Cards keep their item styles local.

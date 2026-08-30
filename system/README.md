@@ -68,10 +68,12 @@ font-size is responsive; the canonical values live in
 rule: CSS media queries can't read custom properties, so write the literal px
 in `@media` and keep it in sync with the `--bp-*` token.
 
-Web package consumers import the package CSS export:
+Web package consumers import the generated tokens first. Tier-1 consumers also
+import the component recipes:
 
 ```css
 @import "@putdotio/design/css";
+@import "@putdotio/design/components";
 ```
 
 For **TV preview cards**, also load `tv.css` — it adds the `.tv`, `.scr`,

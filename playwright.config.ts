@@ -1,11 +1,18 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const portValue = process.env.PUTIO_DESIGN_PLAYWRIGHT_PORT ?? "4173";
+const port = Number(portValue);
+if (!/^\d+$/.test(portValue) || !Number.isSafeInteger(port) || port < 1 || port > 65_535) {
+  throw new Error("PUTIO_DESIGN_PLAYWRIGHT_PORT must be an integer between 1 and 65535");
+}
+const baseURL = `http://127.0.0.1:${port}`;
+
 export default defineConfig({
   testDir: "./tests/e2e",
   outputDir: "test-results/playwright",
   fullyParallel: true,
-  // The CI runner has 2 vCPUs; Playwright's cpus/2 default would use 1 worker.
-  workers: process.env.CI ? 2 : undefined,
+  // Keep the full-guide axe scans from competing with the icon catalog scans.
+  workers: 2,
   retries: process.env.CI ? 1 : 0,
   timeout: 30_000,
   expect: {
@@ -13,14 +20,15 @@ export default defineConfig({
   },
   reporter: [["list"], ["html", { outputFolder: "test-results/playwright-report", open: "never" }]],
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
   },
   webServer: {
     command: "pnpm dev",
-    url: "http://127.0.0.1:4173/tokens.css",
+    env: { PORT: String(port) },
+    url: `${baseURL}/tokens.css`,
     reuseExistingServer: !process.env.CI,
     timeout: 15_000,
   },

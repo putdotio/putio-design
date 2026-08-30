@@ -128,7 +128,7 @@ web-based TV app applies this system restrained to the product's generic
 list-first 10-foot interface, which every TV surface — including the native
 ones, within their platform conventions — treats as the shared family look.
 
-Buttons have three tiers on one axis: emphasis. **Primary** is the brand fill — `--button-primary-bg` at rest, `--button-primary-bg-hover` on hover so the CTA never feels inert, label `--button-primary-fg`. Yellow is reserved for primary commands, and an action group carries at most one. **Secondary** is a quiet fill: `--button-default-bg` (aliased as `--button-secondary-bg`) plus a border at `--border`, with hover stepping both (`--button-default-bg-hover`, `--border-hover`). Because it fills, it reads to a hard edge exactly like the primary, so the two compare safely side by side. **Ghost** is text only — no fill, no border. `--button-ghost-fg` at rest; hover paints `--button-ghost-bg-hover` behind the label and lifts it to `--button-ghost-fg-hover`. The label lift is mandatory: the faint fill is never the only hover cue. Disabled drops the colour to `--solid` at full opacity rather than fading the box. Use ghost for anything quieter than a filled secondary — a header `Log in`, toolbar text actions, `Cancel` beside a filled confirm. An icon-only ghost is the quiet icon button, on the same tokens.
+Buttons have three tiers on one axis: emphasis. **Primary** is the brand fill — `--button-primary-bg` at rest, `--button-primary-bg-hover` on hover so the CTA never feels inert, label `--button-primary-fg`. Yellow is reserved for primary commands, and an action group carries at most one. **Secondary** is a quiet fill: `--button-default-bg` (aliased as `--button-secondary-bg`) plus a border at `--border`, with hover stepping both (`--button-default-bg-hover`, `--border-hover`). Because it fills, it reads to a hard edge exactly like the primary, so the two compare safely side by side. **Ghost** is text only — no fill, no border. `--button-ghost-fg` at rest; hover paints `--button-ghost-bg-hover` behind the label and lifts it to `--button-ghost-fg-hover`. The label lift is mandatory: the faint fill is never the only hover cue. Disabled drops the colour to `--solid` at full opacity rather than fading the box. Use ghost for anything quieter than a filled secondary — a header `Sign in`, toolbar text actions, `Cancel` beside a filled confirm. An icon-only ghost is the quiet icon button, on the same tokens.
 
 Outline is not a tier. The system ships no transparent-background bordered button, and consumers must not hand-roll one. The pairing rule behind that: never place a border-only button in the same action group as a solid fill. At identical box heights the outlined shape reads smaller, because a solid resolves to a hard edge while a low-contrast hairline resolves to a soft one, and the eye compares the two extents differently. It is worst on dark surfaces, where a 15%-white hairline is barely visible at all. If a bordered treatment must sit near a fill, it must itself fill — the secondary tier — and carry its border at `--border`-step contrast, never a sub-20% hairline on transparent.
 
@@ -139,6 +139,45 @@ TV needs no carve-out here: TV buttons keep the `tv` scale box and `--radius-tv`
 File rows are the core component: preserve raw names, keep metadata compact, and make hover/focus states obvious without inflating row height.
 
 Form fields use the shared `--field-*` aliases: `--field-bg` for the fill, `--field-border` for the resting border, and `--field-ring` for focus. Invalid fields opt in with `aria-invalid="true"` and use red border/text only; do not add red fill. Raised panels use the shared `--panel-*` aliases instead of auth- or screen-specific panel variables.
+
+Browser Auth composition is fluid up to a `340px` column. It uses the standard
+`36px` field recipe, a `30.33px` wordmark box (the `26px` ink height multiplied
+by its `7/6` view-box ratio), and left-aligned headings at `19px` / weight
+`500`. The prompt and its action form a centered two-line footer. User-facing
+actions say “Sign in” and “Sign up”, and an invalid credential response uses
+“That username or password doesn't look right” with no terminal punctuation.
+The shipped
+`web-s06-auth` screen plus `web-p00c-auth-signin`, `web-p00d-auth-signup`, and
+`web-p00e-auth-2fa` are the Tier-1 composition references for this contract.
+
+Form feedback uses the exported `.form-callout` recipe. Its block form reads
+the `--alert-*` families and selects `info`, `success`, or `error` with
+`data-state`; `.inline` removes the surface and border while keeping the same
+semantic text colour. Callouts remain messages, not containers for unrelated
+form layout. Their parent uses `.form-group`, whose `6px` gap owns the spacing
+between a control and its inline feedback.
+
+One-time passwords use one semantic `.otp-input`, never six independent
+inputs. Place it with two three-slot `.otp-group` elements, one
+`.otp-separator`, and six visual `.otp-slot` elements. The input carries
+`inputmode="numeric"`, `autocomplete="one-time-code"`, `maxlength="6"`, and
+`aria-invalid`; script synchronizes slot text plus `filled` / `active` state.
+Pointer interaction maps the clicked visual slot to the backing input's
+selection; do not rely on the transparent input's native glyph hit testing.
+Editing an invalid code clears its stale error and disables retry until all six
+digits are present. Retrying enters the same locked verifying state as the
+default form.
+The root uses `data-state="verifying"` while submission is in flight and keeps
+the entered digits visible; the backing input is disabled for the same period,
+and the action label announces the transition through a polite live region.
+Successful verification uses `data-state="success"`, retains the six digits in
+a read-only input, announces automatic continuation with a `role="status"`
+callout, and does not leave another action on screen. The consumer owns the
+backend transition and navigation timing.
+The reference omits recovery-code entry until its consumer owns a working
+route. Do not expose a specimen-only recovery action.
+Groups, not slots, own the responsive width, so the complete control contracts
+to narrow Auth cards without horizontal scrolling.
 
 TV components are list-first and focus-first. A TV app is still a file browser, not a poster wall. Roku, native Apple, Android, and web TV repos should consume the generic tokens and generate their own platform bindings.
 
