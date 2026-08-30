@@ -65,6 +65,7 @@ const buttonHoverAliases = [
 const authPreviews = [
   {
     cardSelector: ".auth",
+    centeredMarkSelector: ".auth .success-mark",
     columnSelector: ".auth",
     credentialErrorSelector: "#signin-err",
     fieldSelector: ".auth .field",
@@ -84,6 +85,7 @@ const authPreviews = [
   },
   {
     cardSelector: ".auth",
+    centeredMarkSelector: null,
     columnSelector: ".auth",
     credentialErrorSelector: null,
     fieldSelector: ".auth .field",
@@ -107,6 +109,7 @@ const authPreviews = [
   },
   {
     cardSelector: ".auth",
+    centeredMarkSelector: null,
     columnSelector: ".auth",
     credentialErrorSelector: null,
     fieldSelector: null,
@@ -122,6 +125,7 @@ const authPreviews = [
   },
   {
     cardSelector: ".col > .card",
+    centeredMarkSelector: null,
     columnSelector: ".col",
     credentialErrorSelector: "#b-pw-error",
     fieldSelector: ".col .field",
@@ -408,6 +412,18 @@ test.describe("design.put.io static guide", () => {
       expect(headerAlignments.length, `${preview.pagePath} should render Auth headers`).toBeGreaterThan(0);
       for (const textAlign of headerAlignments) {
         expect(textAlign, `${preview.pagePath} header alignment`).toBe("center");
+      }
+
+      if (preview.centeredMarkSelector) {
+        const centerDeltas = await page.locator(preview.centeredMarkSelector).evaluateAll((elements) =>
+          elements.map((element) => {
+            const mark = element.getBoundingClientRect();
+            const parent = element.parentElement?.getBoundingClientRect();
+            return parent ? Math.abs(mark.left + mark.width / 2 - (parent.left + parent.width / 2)) : Number.POSITIVE_INFINITY;
+          }),
+        );
+        expect(centerDeltas.length, `${preview.pagePath} should render confirmation marks`).toBeGreaterThan(0);
+        for (const delta of centerDeltas) expect(delta, `${preview.pagePath} confirmation mark center`).toBeLessThanOrEqual(0.1);
       }
 
       const footers = await page.locator(preview.footerSelector).evaluateAll((elements) =>
