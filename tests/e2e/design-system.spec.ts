@@ -137,6 +137,11 @@ const authPreviews = [
 
 const authThemes = ["light", "dark"] as const;
 const authThemePreviews = authPreviews.flatMap((preview) => authThemes.map((theme) => ({ preview, theme })));
+const passwordTogglePreviewPaths = [
+  "/preview/web-p00c-auth-signin.html",
+  "/preview/web-p00d-auth-signup.html",
+  "/preview/web-s06-auth.html",
+] as const;
 const authCopyPreviewPaths = [
   ...authPreviews.map(({ pagePath }) => pagePath),
   ...htmlPages.filter((pagePath) => pagePath.startsWith("/preview/") && path.posix.basename(pagePath).includes("auth")),
@@ -879,6 +884,17 @@ test.describe("design.put.io static guide", () => {
       if (!(element instanceof HTMLInputElement)) throw new Error("OTP control is not an input");
       element.setSelectionRange(2, 2);
     });
+    await input.press("a");
+    await expect(input).toHaveValue("1234");
+    await expect(slots.nth(2)).toHaveAttribute("data-state", "active");
+    await input.press("9");
+    await expect(input).toHaveValue("12934");
+    await expect(slots.nth(3)).toHaveAttribute("data-state", "active");
+
+    await input.evaluate((element) => {
+      if (!(element instanceof HTMLInputElement)) throw new Error("OTP control is not an input");
+      element.setSelectionRange(2, 2);
+    });
     await input.press("ArrowRight");
     await expect(slots.nth(3)).toHaveAttribute("data-state", "active");
 
@@ -886,6 +902,31 @@ test.describe("design.put.io static guide", () => {
     await expect(input).toHaveValue("123456");
     await expect(slots).toHaveText(["1", "2", "3", "4", "5", "6"]);
   });
+
+  for (const pagePath of passwordTogglePreviewPaths) {
+    test(`${pagePath} password reveal controls toggle both ways @desktop`, async ({ page }) => {
+      await page.goto(`${pagePath}?theme=light`, { waitUntil: "domcontentloaded" });
+      const toggles = page.locator("[data-password-toggle]");
+      const count = await toggles.count();
+      expect(count, `${pagePath} should expose a password reveal control`).toBeGreaterThan(0);
+
+      for (let index = 0; index < count; index += 1) {
+        const toggle = toggles.nth(index);
+        const input = toggle.locator("xpath=..//input");
+        await expect(toggle).toHaveAccessibleName("Show password");
+        await expect(input).toHaveAttribute("type", "password");
+        await expect(toggle).toHaveAttribute("aria-pressed", "false");
+        await toggle.click();
+        await expect(input).toHaveAttribute("type", "text");
+        await expect(toggle).toHaveAttribute("aria-label", "Hide password");
+        await expect(toggle).toHaveAttribute("aria-pressed", "true");
+        await toggle.click();
+        await expect(input).toHaveAttribute("type", "password");
+        await expect(toggle).toHaveAttribute("aria-label", "Show password");
+        await expect(toggle).toHaveAttribute("aria-pressed", "false");
+      }
+    });
+  }
 
   test("OTP paste preserves all six digits from a formatted code @desktop", async ({ page }) => {
     await page.goto("/preview/web-p00e-auth-2fa.html?theme=light", { waitUntil: "domcontentloaded" });

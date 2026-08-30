@@ -360,8 +360,14 @@
     }
 
     function syncSlots(showFocus) {
-      var digits = input.value.replace(/\D/g, '').slice(0, slots.length);
-      if (input.value !== digits) input.value = digits;
+      var rawValue = input.value;
+      var rawCaret = input.selectionStart === null ? rawValue.length : input.selectionStart;
+      var digits = rawValue.replace(/\D/g, '').slice(0, slots.length);
+      var sanitizedCaret = Math.min(rawValue.slice(0, rawCaret).replace(/\D/g, '').length, digits.length);
+      if (rawValue !== digits) {
+        input.value = digits;
+        input.setSelectionRange(sanitizedCaret, sanitizedCaret);
+      }
       var caret = input.selectionStart === null ? digits.length : input.selectionStart;
       var focusIndex = Math.min(caret, slots.length - 1);
 
