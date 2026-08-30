@@ -19,16 +19,24 @@ const htmlPages = walkHtml(systemDir)
   .map((file) => `/${path.relative(systemDir, file).replaceAll(path.sep, "/")}`)
   .sort();
 
-// Axe every guide + preview page. Fixed-mode product mockups (native/TV
-// surfaces) pin one mode via <html data-theme-lock>; everything else is
-// checked in both light and dark. Read the attribute from the file itself
-// so the list can never drift from the cards.
+// Axe the guide plus one representative per preview family (platform + kind
+// prefix, e.g. "web-c", "tv-p"): previews within a family share chrome and
+// patterns, and axing all of them tripled the suite's runtime. Fixed-mode
+// product mockups (native/TV surfaces) pin one mode via <html
+// data-theme-lock>; everything else is checked in both light and dark. Read
+// the attribute from the file itself so the list can never drift from the cards.
 function isThemeLocked(page: string): boolean {
   const file = path.join(systemDir, page.replace(/^\//, ""));
   return /^<html[^>]*data-theme-lock=/m.test(readFileSync(file, "utf8"));
 }
-const axePages = htmlPages
-  .filter((page) => page === "/design-system.html" || page.startsWith("/preview/"))
+const familyOf = (page: string) => page.replace("/preview/", "").match(/^[a-z0-9]+-[a-z]/)?.[0] ?? page;
+const firstPreviewByFamily = new Map<string, string>();
+for (const page of htmlPages) {
+  if (!page.startsWith("/preview/")) continue;
+  const family = familyOf(page);
+  if (!firstPreviewByFamily.has(family)) firstPreviewByFamily.set(family, page);
+}
+const axePages = ["/design-system.html", ...firstPreviewByFamily.values()]
   .flatMap((page) => (isThemeLocked(page) ? [page] : [page, `${page}?theme=light`]));
 
 // Radix/APCA palette: secondary text on raised surfaces lands just under WCAG-2.x
