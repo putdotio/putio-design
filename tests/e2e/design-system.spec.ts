@@ -913,17 +913,21 @@ test.describe("design.put.io static guide", () => {
       for (let index = 0; index < count; index += 1) {
         const toggle = toggles.nth(index);
         const input = toggle.locator("xpath=..//input");
+        const icon = toggle.locator("i");
         await expect(toggle).toHaveAccessibleName("Show password");
         await expect(input).toHaveAttribute("type", "password");
         await expect(toggle).toHaveAttribute("aria-pressed", "false");
+        await expect(icon).toHaveClass(/(?:^|\s)ph-eye(?:\s|$)/);
         await toggle.click();
         await expect(input).toHaveAttribute("type", "text");
         await expect(toggle).toHaveAttribute("aria-label", "Hide password");
         await expect(toggle).toHaveAttribute("aria-pressed", "true");
+        await expect(icon).toHaveClass(/(?:^|\s)ph-eye-slash(?:\s|$)/);
         await toggle.click();
         await expect(input).toHaveAttribute("type", "password");
         await expect(toggle).toHaveAttribute("aria-label", "Show password");
         await expect(toggle).toHaveAttribute("aria-pressed", "false");
+        await expect(icon).toHaveClass(/(?:^|\s)ph-eye(?:\s|$)/);
       }
     });
   }
@@ -1023,6 +1027,10 @@ test.describe("design.put.io static guide", () => {
 
     const card = page.locator(".auth").filter({ has: otp });
     await expect(card.locator("button.btn-primary")).toHaveCount(0);
+
+    await otp.click({ position: { x: 12, y: 12 } });
+    await expect(input).not.toBeFocused();
+    await expect(otp.locator('.otp-slot[data-state="active"]')).toHaveCount(0);
   });
 
   test("verifying OTP preserves its code and locks submission @desktop", async ({ page }) => {

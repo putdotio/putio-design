@@ -408,14 +408,18 @@
       clearError();
       syncSlots(true);
     });
-    input.addEventListener('focus', function () { syncSlots(true); });
-    input.addEventListener('click', function () { syncSlots(true); });
-    input.addEventListener('keyup', function () { syncSlots(true); });
+    function syncInteractiveFocus() {
+      syncSlots(!input.disabled && !input.readOnly);
+    }
+    input.addEventListener('focus', syncInteractiveFocus);
+    input.addEventListener('click', syncInteractiveFocus);
+    input.addEventListener('keyup', syncInteractiveFocus);
     input.addEventListener('blur', function () { syncSlots(false); });
 
     otp.addEventListener('pointerdown', function (event) {
-      if (input.disabled || input.readOnly || event.button !== 0) return;
+      if (event.button !== 0) return;
       event.preventDefault();
+      if (input.disabled || input.readOnly) return;
 
       var nearestIndex = 0;
       var nearestDistance = Infinity;
