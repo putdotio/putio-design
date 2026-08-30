@@ -859,6 +859,16 @@ test.describe("design.put.io static guide", () => {
     await expect(input).toHaveAttribute("aria-describedby", "otp-error");
     await expect(feedback).toBeVisible();
 
+    await input.evaluate((element) => {
+      if (!(element instanceof HTMLInputElement)) throw new Error("OTP control is not an input");
+      element.setRangeText("6", 5, 6, "end");
+      element.dispatchEvent(new InputEvent("input", { bubbles: true, data: "6", inputType: "insertText" }));
+    });
+    await expect(input).toHaveValue("810506");
+    await expect(input).toHaveAttribute("aria-invalid", "true");
+    await expect(input).toHaveAttribute("aria-describedby", "otp-error");
+    await expect(feedback).toBeVisible();
+
     await expect(submit).toBeEnabled();
     await submit.click();
     await expect(input).not.toHaveAttribute("aria-invalid");
