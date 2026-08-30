@@ -3,7 +3,6 @@ import { stat } from "node:fs/promises";
 import { createServer, type ServerResponse } from "node:http";
 import path from "node:path";
 import process from "node:process";
-import { fileURLToPath } from "node:url";
 
 const root = process.cwd();
 const systemDir = path.join(root, "system");
@@ -69,5 +68,3 @@ server.listen(port, host, () => {
 
 process.on("SIGTERM", () => server.close());
 process.on("SIGINT", () => server.close());
-
-export const __filename = fileURLToPath(import.meta.url);

@@ -58,8 +58,9 @@ so package consumers and the static site do not need a build step:
 - `dist/figma/putio.tokens.json`
 - `system/tokens.css`
 
-Run `pnpm tokens:build` after token edits. `pnpm tokens:check` verifies that
-generated files match the token sources.
+Run `pnpm tokens:build` after token edits. `pnpm tokens:check` rebuilds the
+generated files and runs the design-system contract checks; CI fails if the
+rebuilt `dist/` and `system/tokens.css` differ from what is committed.
 
 Color tokens are emitted as `hsl()` / `hsla()` CSS values. Brand yellow remains
 canonical `#FDCE45` in prose and identity guidance, with the generated CSS value
@@ -68,13 +69,13 @@ canonical `#FDCE45` in prose and identity guidance, with the generated CSS value
 
 ## Readiness Checks
 
-`pnpm verify` is the fast local gate. It typechecks scripts, validates generated
-token artifacts, checks HTML, smokes important pages through a local static
-server, and checks `sst version`.
+`pnpm verify` is the fast local gate: skill lint, script typecheck, token build
+plus contract checks, and HTML validation.
 
-`pnpm verify:full` is the PR CI gate. It adds Playwright browser coverage, an
-axe accessibility pass, and `npm pack --dry-run`. Use it before release-like
-changes or large guide updates.
+`pnpm verify:full` is the PR CI gate. It adds the design-mirror unit test,
+Playwright browser coverage (computed-style contracts, TV geometry, axe
+accessibility), and `npm pack --dry-run`. Use it before release-like changes or
+large guide updates.
 
 ## Fonts And Assets
 

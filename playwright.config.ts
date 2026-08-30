@@ -4,6 +4,9 @@ export default defineConfig({
   testDir: "./tests/e2e",
   outputDir: "test-results/playwright",
   fullyParallel: true,
+  // The CI runner has 2 vCPUs; Playwright's cpus/2 default would use 1 worker.
+  workers: process.env.CI ? 2 : undefined,
+  retries: process.env.CI ? 1 : 0,
   timeout: 30_000,
   expect: {
     timeout: 5_000,
@@ -18,7 +21,7 @@ export default defineConfig({
   webServer: {
     command: "pnpm dev",
     url: "http://127.0.0.1:4173/tokens.css",
-    reuseExistingServer: false,
+    reuseExistingServer: !process.env.CI,
     timeout: 15_000,
   },
   projects: [

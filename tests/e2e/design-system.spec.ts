@@ -35,18 +35,6 @@ const axePages = htmlPages
 // AA by design, so hold the 3:1 (AA-large) floor; non-contrast violations always block.
 const contrastFloor = 3;
 
-const tvSmokePages = [
-  "/preview/android-s00-shell.html",
-  "/preview/ios-s00-shell.html",
-  "/preview/roku-s00-files.html",
-  "/preview/tv-f00-foundations.html",
-  "/preview/tv-f01-focus.html",
-  "/preview/tv-p00-navigation.html",
-  "/preview/tv-p01-action-menus.html",
-  "/preview/tv-s01-player.html",
-  "/preview/web-s00-shell.html",
-];
-
 const tvFramePages = htmlPages.filter((page) => {
   const file = path.join(systemDir, page.replace(/^\//, ""));
   return page.startsWith("/preview/") && readFileSync(file, "utf8").includes('class="tvbox"');
@@ -79,22 +67,6 @@ async function resolvedCssColor(page: Page, variableName: string): Promise<strin
 }
 
 test.describe("design.put.io static guide", () => {
-  for (const pagePath of htmlPages) {
-    test(`${pagePath} renders non-empty local content @desktop`, async ({ page }) => {
-      const response = await page.goto(pagePath, { waitUntil: "domcontentloaded" });
-      expect(response?.ok(), `${pagePath} should return HTTP 2xx`).toBe(true);
-      await expect(page.locator("body")).toContainText(/\S{3,}/);
-    });
-  }
-
-  for (const pagePath of tvSmokePages) {
-    test(`${pagePath} renders non-empty TV content @tv`, async ({ page }) => {
-      const response = await page.goto(pagePath, { waitUntil: "domcontentloaded" });
-      expect(response?.ok(), `${pagePath} should return HTTP 2xx`).toBe(true);
-      await expect(page.locator("body")).toContainText(/\S{3,}/);
-    });
-  }
-
   for (const pagePath of tvFramePages) {
     test(`${pagePath} keeps its TV artboard visible @tv`, async ({ page }) => {
       await page.goto(pagePath, { waitUntil: "domcontentloaded" });

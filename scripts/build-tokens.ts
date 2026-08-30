@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, unlink, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 
@@ -40,7 +40,6 @@ type FlatToken = {
 const root = process.cwd();
 const allowedTokenTypes = new Set(["color", "cubicBezier", "dimension", "fontFamily", "fontWeight", "number", "duration", "string"]);
 const allowedModes = new Set(["light", "dark", "global", "tv"]);
-const retiredOutputs = ["dist/tokens.ts"];
 const generatedHeader = `/* ============================================================
    put.io design tokens
    Do not edit directly. Generated from DTCG token JSON in tokens/.
@@ -64,22 +63,6 @@ async function walk(dir: string): Promise<string[]> {
     }),
   );
   return files.flat();
-}
-
-function hasErrorCode(error: unknown, code: string): boolean {
-  return typeof error === "object" && error !== null && "code" in error && error.code === code;
-}
-
-async function removeRetiredOutputs() {
-  for (const file of retiredOutputs) {
-    try {
-      await unlink(path.join(root, file));
-    } catch (error) {
-      if (!hasErrorCode(error, "ENOENT")) {
-        throw error;
-      }
-    }
-  }
 }
 
 function mergeJson(target: JsonObject, source: JsonObject, file: string): JsonObject {
@@ -283,7 +266,6 @@ async function main() {
   await mkdir(path.join(root, "dist/css"), { recursive: true });
   await mkdir(path.join(root, "dist/figma"), { recursive: true });
   await mkdir(path.join(root, "system"), { recursive: true });
-  await removeRetiredOutputs();
 
   await writeFile(path.join(root, "dist/css/tokens.css"), css);
   await writeFile(path.join(root, "system/tokens.css"), css);

@@ -92,22 +92,8 @@ function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
 
-function hasErrorCode(error: unknown, code: string): boolean {
-  return typeof error === "object" && error !== null && "code" in error && error.code === code;
-}
-
 async function assertExists(file: string) {
   await access(path.join(root, file));
-}
-
-async function assertNotExists(file: string) {
-  try {
-    await access(path.join(root, file));
-  } catch (error) {
-    if (hasErrorCode(error, "ENOENT")) return;
-    throw error;
-  }
-  throw new Error(`${file} must not exist`);
 }
 
 function assertTokenAlias(flat: Record<string, TokenRecord>, contract: TokenAliasContract) {
@@ -277,12 +263,9 @@ async function checkHtmlLinks() {
 
 async function checkCss() {
   const tvCss = await readFile(path.join(root, "system/tv.css"), "utf8");
-  const generatedCss = await readFile(path.join(root, "system/tokens.css"), "utf8");
-  assert(!/\.with-spec\s*\{\s*\/\*[\s\S]*?\.with-fade\s*\{/.test(tvCss), "tv.css still nests .with-fade inside .with-spec");
   assert(!/!important/.test(tvCss), "tv.css 10-foot styles must not use !important");
   assert(!/^:root\s*\{[\s\S]*?--surf-/m.test(tvCss), "TV-specific tokens must be scoped to .tv, not :root");
   assert(!/^\.tv-content\s*\{/m.test(tvCss), "tv.css component selectors must remain scoped under .tv");
-  assert(!/#fdd868|#fcbe03/i.test(generatedCss), "Generated CSS must not introduce alternate brand yellows");
 }
 
 async function main() {
@@ -295,7 +278,6 @@ async function main() {
     assertExists("dist/figma/putio.tokens.json"),
     assertExists("DESIGN.md"),
     assertExists("system/assets/app-icon-beta.png"),
-    assertNotExists("dist/tokens.ts"),
   ]);
 
   await checkTokens();

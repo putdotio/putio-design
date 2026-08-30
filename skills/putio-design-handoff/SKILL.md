@@ -78,7 +78,7 @@ done
 pnpm verify:full
 ```
 
-   - This should cover type checks, token generation drift, design-system contract checks, HTML validation, static smoke, Playwright accessibility/render checks, and `npm pack --dry-run`.
+   - This should cover type checks, token generation, design-system contract checks, HTML validation, Playwright browser/accessibility checks, and `npm pack --dry-run`.
    - If a check fails, fix the root cause or report the exact blocker. Do not call the work done while relevant verification is red.
 
 7. Refresh the project's token mirror.
