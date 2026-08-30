@@ -1,6 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const port = Number(process.env.PUTIO_DESIGN_PLAYWRIGHT_PORT ?? "4173");
+const portValue = process.env.PUTIO_DESIGN_PLAYWRIGHT_PORT ?? "4173";
+const port = Number(portValue);
+if (!/^\d+$/.test(portValue) || !Number.isSafeInteger(port) || port < 1 || port > 65_535) {
+  throw new Error("PUTIO_DESIGN_PLAYWRIGHT_PORT must be an integer between 1 and 65535");
+}
 const baseURL = `http://127.0.0.1:${port}`;
 
 export default defineConfig({

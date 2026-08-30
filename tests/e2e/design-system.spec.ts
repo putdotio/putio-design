@@ -983,6 +983,8 @@ test.describe("design.put.io static guide", () => {
     const code = await input.inputValue();
     expect(code).toMatch(/^\d{6}$/);
     await expect(input).toBeDisabled();
+    await expect(otp).toHaveAttribute("aria-busy", "true");
+    await expect(otp).toHaveAttribute("aria-disabled", "true");
     await expect(otp.locator(".otp-slot")).toHaveText(code.split(""));
 
     const card = page.locator(".auth").filter({ has: otp });
