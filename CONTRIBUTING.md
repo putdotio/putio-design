@@ -27,7 +27,7 @@ Use `pnpm verify:full` before large guide, token, package, or deploy changes.
 ## Development Notes
 
 - Edit token sources in `tokens/**/*.tokens.json`.
-- Run `pnpm tokens:build` after token changes; run `pnpm tokens:check` when reviewing generated drift.
+- Run `pnpm tokens:build` after token changes; `pnpm tokens:check` rebuilds and runs the contract checks. Commit the regenerated `dist/` and `system/tokens.css` — CI fails on drift.
 - Keep examples public-safe and content-agnostic.
 - Use raw filename examples from [Agent guide](AGENTS.md).
 - Put deploy and package details in [Distribution](docs/DISTRIBUTION.md).

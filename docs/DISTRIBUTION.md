@@ -12,7 +12,8 @@ SST deploys the checked-in `system/` directory to AWS S3, CloudFront, and Route
 pnpm deploy:production
 ```
 
-The deploy workflow must run `pnpm verify` before publishing the site.
+CI runs `pnpm verify:full` on every `main` push; the deploy workflow publishes
+without re-running verification.
 
 ## Package Artifacts
 
