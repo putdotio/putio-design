@@ -1031,6 +1031,10 @@ test.describe("design.put.io static guide", () => {
     await otp.click({ position: { x: 12, y: 12 } });
     await expect(input).not.toBeFocused();
     await expect(otp.locator('.otp-slot[data-state="active"]')).toHaveCount(0);
+
+    await page.locator('label[for="otp-code-success"]').click();
+    await expect(input).not.toBeFocused();
+    await expect(otp.locator('.otp-slot[data-state="active"]')).toHaveCount(0);
   });
 
   test("verifying OTP preserves its code and locks submission @desktop", async ({ page }) => {
