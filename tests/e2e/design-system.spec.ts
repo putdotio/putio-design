@@ -137,10 +137,16 @@ const authPreviews = [
 
 const authThemes = ["light", "dark"] as const;
 const authThemePreviews = authPreviews.flatMap((preview) => authThemes.map((theme) => ({ preview, theme })));
-const authCopyThemePreviews = [
+const authCopyPreviewPaths = [
   ...authPreviews.map(({ pagePath }) => pagePath),
-  "/preview/web-c00-buttons.html",
-].flatMap((pagePath) => authThemes.map((theme) => ({ pagePath, theme })));
+  ...htmlPages.filter((pagePath) => pagePath.startsWith("/preview/") && path.posix.basename(pagePath).includes("auth")),
+];
+const authCopyThemePreviews = [...new Set(authCopyPreviewPaths)].flatMap<{
+  pagePath: string;
+  theme: "dark" | "light" | "locked";
+}>((pagePath) =>
+  isThemeLocked(pagePath) ? [{ pagePath, theme: "locked" }] : authThemes.map((theme) => ({ pagePath, theme })),
+);
 const credentialErrorCopy = "That username or password doesn't look right";
 const forbiddenAuthCopy = /\b(?:login|log\s+in|register|create\s+(?:an\s+|your\s+)?account)\b/i;
 const narrowAuthViewportWidths = [320, 375] as const;
@@ -163,14 +169,6 @@ const exportedAuthRecipeSelectors = [
   '.otp:has(.otp-input[aria-invalid="true"]) .otp-slot',
   '.otp[data-state="verifying"] .otp-slot',
   '.otp[data-state="success"] .otp-slot',
-  ".password-strength",
-  ".password-strength-meter",
-  ".password-strength-segment",
-  '.password-strength[data-strength="weak"] .password-strength-segment:nth-child(-n+1)',
-  '.password-strength[data-strength="fair"] .password-strength-segment:nth-child(-n+2)',
-  '.password-strength[data-strength="good"] .password-strength-segment:nth-child(-n+3)',
-  '.password-strength[data-strength="strong"] .password-strength-segment',
-  ".password-strength-label",
 ] as const;
 
 async function resolvedCssColor(page: Page, variableName: string): Promise<string> {
@@ -290,7 +288,8 @@ async function expectAuthFitsViewport(
 test.describe("design.put.io static guide", () => {
   for (const { pagePath, theme } of authCopyThemePreviews) {
     test(`${pagePath} uses approved Auth copy in ${theme} mode @desktop`, async ({ page }) => {
-      await page.goto(`${pagePath}?theme=${theme}`, { waitUntil: "domcontentloaded" });
+      const url = theme === "locked" ? pagePath : `${pagePath}?theme=${theme}`;
+      await page.goto(url, { waitUntil: "domcontentloaded" });
       const body = page.locator("body");
       const [visibleCopy, ariaSnapshot, attributeCopy] = await Promise.all([
         body.evaluate((element) => (element instanceof HTMLElement ? element.innerText : "")),
@@ -700,41 +699,6 @@ test.describe("design.put.io static guide", () => {
     });
   }
 
-  for (const theme of authThemes) {
-    test(`password strength states consume their meter tokens in ${theme} mode @desktop`, async ({ page }) => {
-      await page.goto(`/preview/web-p00d-auth-signup.html?theme=${theme}`, { waitUntil: "load" });
-
-      const [inactive, weak, fair, strong, label] = await Promise.all(
-        ["--component-bg-active", "--red-solid", "--yellow-solid", "--green-solid", "--text-secondary"].map((token) =>
-          resolvedCssColor(page, token),
-        ),
-      );
-      const expectedStates = [
-        ["empty", "0", "Empty", [inactive, inactive, inactive, inactive]],
-        ["weak", "1", "Weak", [weak, inactive, inactive, inactive]],
-        ["fair", "2", "Fair", [fair, fair, inactive, inactive]],
-        ["good", "3", "Good", [fair, fair, fair, inactive]],
-        ["strong", "4", "Strong", [strong, strong, strong, strong]],
-      ] as const;
-
-      for (const [state, value, valueText, expectedSegments] of expectedStates) {
-        const strength = page.locator(`[data-password-strength-sample="${state}"]`);
-        await expect(strength).toHaveAttribute("data-strength", state);
-        const colors = await strength.locator(".password-strength-segment").evaluateAll((elements) =>
-          elements.map((element) => getComputedStyle(element).backgroundColor),
-        );
-        expect(colors, `${theme} ${state} password-strength segments`).toEqual(expectedSegments);
-        const meter = strength.locator(".password-strength-meter");
-        await expect(meter).toHaveAttribute("aria-valuemin", "0");
-        await expect(meter).toHaveAttribute("aria-valuemax", "4");
-        await expect(meter).toHaveAttribute("aria-valuenow", value);
-        await expect(meter).toHaveAttribute("aria-valuetext", valueText);
-        await expect(strength.locator(".password-strength-label")).toHaveCSS("color", label);
-        await expect(strength.locator(".password-strength-label b")).toHaveText(valueText);
-      }
-    });
-  }
-
   test("button variants consume hover aliases @desktop", async ({ page }) => {
     await page.goto("/preview/web-c00-buttons.html?theme=light", { waitUntil: "domcontentloaded" });
 
@@ -1023,41 +987,6 @@ test.describe("design.put.io static guide", () => {
 
     const card = page.locator(".auth").filter({ has: otp });
     await expect(card.locator("button.btn-primary")).toBeDisabled();
-  });
-
-  test("sign-up password feedback uses the exported strength recipe @desktop", async ({ page }) => {
-    await page.goto("/preview/web-p00d-auth-signup.html?theme=light", { waitUntil: "domcontentloaded" });
-    const contracts = await page.locator("[data-password-strength-initial]").evaluateAll((roots) =>
-      roots.map((root) => {
-        const meter = root.querySelector('.password-strength-meter[role="meter"]');
-        const password = root.closest(".form-group")?.querySelector<HTMLInputElement>('input[type="password"]');
-        return {
-          inputValue: password?.value,
-          labelCount: root.querySelectorAll(".password-strength-label").length,
-          maximum: meter?.getAttribute("aria-valuemax"),
-          minimum: meter?.getAttribute("aria-valuemin"),
-          segmentCount: meter?.querySelectorAll(":scope > .password-strength-segment").length ?? 0,
-          state: root.getAttribute("data-strength"),
-          value: meter?.getAttribute("aria-valuenow"),
-          valueText: meter?.getAttribute("aria-valuetext"),
-          visibleValue: root.querySelector(".password-strength-label b")?.textContent?.trim(),
-        };
-      }),
-    );
-    expect(contracts.length, "sign-up preview should render password strength").toBeGreaterThan(0);
-    for (const contract of contracts) {
-      expect(["empty", "weak", "fair", "good", "strong"]).toContain(contract.state);
-      expect(contract.minimum).toBe("0");
-      expect(contract.maximum).toBe("4");
-      expect(Number(contract.value)).toBeGreaterThanOrEqual(0);
-      expect(Number(contract.value)).toBeLessThanOrEqual(4);
-      expect(contract.segmentCount).toBe(4);
-      expect(contract.labelCount).toBe(1);
-      expect(contract.inputValue, "password input should match the rendered strength state").toBe("");
-      expect([contract.state, contract.value, contract.valueText, contract.visibleValue]).toEqual(["empty", "0", "Empty", "Empty"]);
-      expect(contract.valueText?.toLowerCase(), "meter value text should match data-strength").toBe(contract.state);
-      expect(contract.visibleValue, "visible strength should match the meter value text").toBe(contract.valueText);
-    }
   });
 
   test("TV focus uses the canonical fill and border treatments @tv", async ({ page }) => {

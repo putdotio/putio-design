@@ -179,16 +179,6 @@ route. Do not expose a specimen-only recovery action.
 Groups, not slots, own the responsive width, so the complete control contracts
 to narrow Auth cards without horizontal scrolling.
 
-Password feedback uses `.password-strength` with `data-strength` set to
-`empty`, `weak`, `fair`, `good`, or `strong`. Its
-`.password-strength-meter` is the semantic `role="meter"` and owns the ARIA
-range/value. Its `aria-valuetext` must match both `data-strength` and the
-visible categorical label. Four `.password-strength-segment` elements and a
-`.password-strength-label` render the visual state and its text equivalent.
-These categories define presentation, not a password-scoring algorithm. The
-consumer owns scoring and synchronizes the selected category; the Auth reset
-specimen starts at `empty` because its password input starts empty.
-
 TV components are list-first and focus-first. A TV app is still a file browser, not a poster wall. Roku, native Apple, Android, and web TV repos should consume the generic tokens and generate their own platform bindings.
 
 TV surfaces are solid token colors — no translucent materials and no blur. Focus is expressed as a fill, never a lift: rows go transparent to `--component-bg-active`, and buttons step both their fill and their border. Navigation is a Home hub that pushes full screens onto a stack; there is no tab bar. Menus are centred modals, not popovers anchored to a trigger. These focus and material rules bind the web TV and Roku surfaces; a native TV binding follows its platform's own control conventions where the platform owns focus — Apple tvOS buttons use the system focus treatment (adopted 2026-08) while non-control TV surfaces stay solid everywhere.
