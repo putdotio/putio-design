@@ -401,7 +401,14 @@ async function checkAppleContract() {
   assertIncludes(contents.contract, "At most one prominent glass capsule appears on a screen.", "Glass prominence limit");
   assertIncludes(contents.empty, "ios-bordered-action", "Empty-state content action");
   assertIncludes(contents.fileScreen, "ios-bordered-action", "File-screen content action");
-  assertExcludes(contents.empty, "class=\"gbtn", "Empty-state content action");
+  for (const [name, source] of Object.entries({ empty: contents.empty, fileScreen: contents.fileScreen })) {
+    for (const action of htmlElementsWithClass(source, "cuv-a")) {
+      assert(htmlElementsWithClass(action, "ios-bordered-action").length === 1, `${name} content action must be bordered`);
+      for (const glassClass of ["gbtn", "gcap"]) {
+        assert(htmlElementsWithClass(action, glassClass).length === 0, `${name} content action must not use ${glassClass}`);
+      }
+    }
+  }
   const previewDirectory = path.join(root, "system/preview");
   const screenFiles = (await readdir(previewDirectory)).filter((file) => /^ios-s\d+.*\.html$/.test(file));
   const prominentCapsules = (source: string) => [
@@ -512,7 +519,13 @@ async function checkAppleContract() {
     shell: contents.shell,
     fileScreen: contents.fileScreen,
   })) {
-    assertIncludes(source, "system-chevron", `${name} folder disclosure`);
+    const folderRows = htmlElementsWithClass(source, "ios-row").filter(
+      (row) => htmlElementsWithClass(row, "ph-folder").length > 0,
+    );
+    assert(folderRows.length > 0, `${name} must show a folder row`);
+    for (const [index, row] of folderRows.entries()) {
+      assert(htmlElementsWithClass(row, "system-chevron").length === 1, `${name} folder row ${index + 1} must have one system disclosure`);
+    }
     assertExcludes(source, "ph-caret-right", `${name} folder disclosure`);
   }
   assertIncludes(contents.folders, "List + NavigationLink", "Folder row source");
