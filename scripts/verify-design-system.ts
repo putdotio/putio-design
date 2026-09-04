@@ -182,10 +182,10 @@ function htmlElementsMatchingOpeningTag(source: string, matchesOpeningTag: (open
   return elements;
 }
 
-function htmlElementsWithClass(source: string, className: string): string[] {
+function htmlElementsWithClass(source: string, className: string, ...additionalClasses: string[]): string[] {
   return htmlElementsMatchingOpeningTag(source, (openingTag) => {
     const classes = /\bclass\s*=\s*(["'])(.*?)\1/i.exec(openingTag)?.[2].split(/\s+/) ?? [];
-    return classes.includes(className);
+    return [className, ...additionalClasses].every((value) => classes.includes(value));
   });
 }
 
@@ -404,14 +404,35 @@ async function checkAppleContract() {
   assertExcludes(contents.empty, "class=\"gbtn", "Empty-state content action");
   const previewDirectory = path.join(root, "system/preview");
   const screenFiles = (await readdir(previewDirectory)).filter((file) => /^ios-s\d+.*\.html$/.test(file));
+  const prominentCapsules = (source: string) => [
+    ...htmlElementsWithClass(source, "gbtn", "prominent"),
+    ...htmlElementsWithClass(source, "gcap", "prominent"),
+  ];
+  const screenElements = (source: string) => [
+    ...htmlElementsWithClass(source, "iphone"),
+    ...htmlElementsWithClass(source, "ipad"),
+  ];
+  const screenFixture = `<div class="preview iphone"><div class="glass gbtn prominent"></div>
+    <div class='prominent gcap glass'></div></div><div class="ipad preview"><div class="gbtn"></div></div>
+    <!-- <div class="iphone"><div class="gbtn prominent"></div></div> -->`;
+  const fixtureScreens = screenElements(screenFixture);
+  assert(fixtureScreens.length === 2, "Screen parsing must accept additional classes and ignore comments");
+  assert(prominentCapsules(fixtureScreens[0]).length === 2, "Capsule counting must accept reordered and additional classes");
+  assert(prominentCapsules(fixtureScreens[1]).length === 0, "Capsule counting must stay within each screen");
   for (const file of screenFiles) {
     const source = await readFile(path.join(previewDirectory, file), "utf8");
-    const screens = [...source.matchAll(/<div class="(?:iphone|ipad)">/g)];
-    for (const [index, screen] of screens.entries()) {
-      const start = screen.index ?? 0;
-      const end = screens[index + 1]?.index ?? source.length;
-      const prominentCount = (source.slice(start, end).match(/class="(?:gbtn|gcap) prominent"/g) ?? []).length;
-      assert(prominentCount <= 1, `${file} screen ${index + 1} must have at most one prominent glass capsule`);
+    for (const [index, screen] of screenElements(source).entries()) {
+      assert(prominentCapsules(screen).length <= 1, `${file} screen ${index + 1} must have at most one prominent glass capsule`);
+    }
+  }
+  for (const [name, source] of Object.entries(contents)) {
+    for (const className of ["system-search", "system-back", "system-clear", "system-check", "system-chevron"]) {
+      for (const glyph of htmlElementsWithClass(source, className)) {
+        assert(/^<svg\s/i.test(glyph), `${name} ${className} must use an inline SVG`);
+        assertIncludes(glyph, 'viewBox="0 0 24 24"', `${name} ${className} view box`);
+        assert(/<(?:path|circle)\s/i.test(glyph), `${name} ${className} must have vector geometry`);
+        assert(glyph.replace(/<[^>]*>/g, "").trim() === "", `${name} ${className} must not depend on font glyphs`);
+      }
     }
   }
 
