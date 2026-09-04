@@ -607,7 +607,8 @@ test.describe("design.put.io static guide", () => {
         active: card.querySelector(":scope > iframe") !== null,
         nearViewport: bounds.bottom >= -600 && bounds.top <= innerHeight + 600,
         placeholderHeight: getComputedStyle(card, "::after").height,
-        expectedHeight: card.classList.contains("featured") ? "660px"
+        expectedHeight: card.querySelector('a[href="./preview/web-s00-shell.html"], a[href="./preview/web-p06-player.html"]') ? "600px"
+          : card.classList.contains("featured") ? "660px"
           : card.classList.contains("tall") ? "520px"
             : card.classList.contains("compact") ? "220px" : "360px",
       };
