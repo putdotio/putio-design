@@ -182,9 +182,14 @@ function htmlElementsMatchingOpeningTag(source: string, matchesOpeningTag: (open
   return elements;
 }
 
+function htmlOpeningClasses(source: string): string[] {
+  const openingTag = source.slice(0, source.indexOf(">") + 1);
+  return /\sclass\s*=\s*(["'])(.*?)\1/i.exec(openingTag)?.[2].split(/\s+/) ?? [];
+}
+
 function htmlElementsWithClass(source: string, className: string, ...additionalClasses: string[]): string[] {
   return htmlElementsMatchingOpeningTag(source, (openingTag) => {
-    const classes = /\bclass\s*=\s*(["'])(.*?)\1/i.exec(openingTag)?.[2].split(/\s+/) ?? [];
+    const classes = htmlOpeningClasses(openingTag);
     return [className, ...additionalClasses].every((value) => classes.includes(value));
   });
 }
@@ -403,7 +408,7 @@ async function checkAppleContract() {
   assertIncludes(contents.fileScreen, "ios-bordered-action", "File-screen content action");
   for (const [name, source] of Object.entries({ empty: contents.empty, fileScreen: contents.fileScreen })) {
     for (const action of htmlElementsWithClass(source, "cuv-a")) {
-      assert(htmlElementsWithClass(action, "ios-bordered-action").length === 1, `${name} content action must be bordered`);
+      assert(htmlOpeningClasses(action).includes("ios-bordered-action"), `${name} content action must be bordered`);
       for (const glassClass of ["gbtn", "gcap"]) {
         assert(htmlElementsWithClass(action, glassClass).length === 0, `${name} content action must not use ${glassClass}`);
       }
@@ -419,11 +424,11 @@ async function checkAppleContract() {
     ...htmlElementsWithClass(source, "iphone"),
     ...htmlElementsWithClass(source, "ipad"),
   ];
-  const screenFixture = `<div class="preview iphone"><div class="glass gbtn prominent"></div>
+  const screenFixture = `<div data-class="metadata" class="preview iphone"><div class="glass gbtn prominent"></div>
     <div class='prominent gcap glass'></div></div><div class="ipad preview"><div class="gbtn"></div></div>
     <!-- <div class="iphone"><div class="gbtn prominent"></div></div> -->`;
   const fixtureScreens = screenElements(screenFixture);
-  assert(fixtureScreens.length === 2, "Screen parsing must accept additional classes and ignore comments");
+  assert(fixtureScreens.length === 2, "Screen parsing must use the real class attribute, accept additional classes and ignore comments");
   assert(prominentCapsules(fixtureScreens[0]).length === 2, "Capsule counting must accept reordered and additional classes");
   assert(prominentCapsules(fixtureScreens[1]).length === 0, "Capsule counting must stay within each screen");
   for (const file of screenFiles) {
@@ -486,13 +491,13 @@ async function checkAppleContract() {
     const controls = htmlElementsWithClass(source, className);
     assert(controls.length > 0, `${label} must exist`);
     for (const control of controls) {
-      assertIncludes(control, "system-search", `${label} system-owned Search glyph`);
+      assert(htmlElementsWithClass(control, "system-search").length === 1, `${label} must have one system-owned Search glyph`);
       assertExcludes(control, "ph-", `${label} system-owned Search glyph`);
     }
   }
   const clearOwners = htmlElementsWithAttribute(contents.searchfield, "data-system-clear-owner");
   assert(clearOwners.length === 1, "Search field card must have one clear-button owner");
-  assertIncludes(clearOwners[0], "system-clear", "Search field card system-owned clear glyph");
+  assert(htmlElementsWithClass(clearOwners[0], "system-clear").length === 1, "Search field card must have one system-owned clear glyph");
   assertExcludes(clearOwners[0], "ph-", "Search field card system-owned clear glyph");
   for (const [name, source] of Object.entries({
     navbar: contents.navbar,
@@ -502,7 +507,7 @@ async function checkAppleContract() {
     const backControls = htmlElementsWithClass(source, "back");
     assert(backControls.length > 0, `${name} system-owned back control must exist`);
     for (const backControl of backControls) {
-      assertIncludes(backControl, "system-back", `${name} system-owned back glyph`);
+      assert(htmlElementsWithClass(backControl, "system-back").length === 1, `${name} must have one system-owned back glyph`);
       assertExcludes(backControl, "ph-", `${name} system-owned back glyph`);
     }
   }
@@ -510,7 +515,7 @@ async function checkAppleContract() {
     const selectionOwners = htmlElementsWithAttribute(source, "data-system-selection-owner");
     assert(selectionOwners.length > 0, `${name} system-owned selection control must exist`);
     for (const selectionOwner of selectionOwners) {
-      assertIncludes(selectionOwner, "system-check", `${name} system-owned checkmark`);
+      assert(htmlElementsWithClass(selectionOwner, "system-check").length === 1, `${name} must have one system-owned checkmark`);
       assertExcludes(selectionOwner, "ph-", `${name} system-owned checkmark`);
     }
   }
