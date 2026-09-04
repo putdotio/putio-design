@@ -592,11 +592,33 @@ test.describe("design.put.io static guide", () => {
     }
   });
 
-  test("generated tokens are available to the browser @desktop", async ({ page }) => {
-    await page.goto("/design-system.html");
-    await expect.poll(async () => {
-      return page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--yellow-solid").trim());
-    }).toBe("hsl(44.7, 97.9%, 63.1%)");
+  test("gallery previews load once on scroll, follow theme and resize @desktop", async ({ page }) => {
+    await page.goto("/design-system.html?theme=light", { waitUntil: "domcontentloaded" });
+    const card = page.locator('.embed:has(a.open[href="./preview/web-c00-buttons.html"])');
+    await expect(card.locator("iframe")).toHaveCount(0);
+    await card.scrollIntoViewIfNeeded();
+    const iframe = card.locator("iframe");
+    await expect(iframe).toHaveCount(1);
+    const preview = iframe.contentFrame();
+    await expect(preview.locator(".btn-primary").first()).toBeVisible();
+    await expect(preview.locator("html")).not.toHaveClass(/dark/);
+    await preview.locator("body").evaluate(async () => { await document.fonts.ready; });
+    await page.locator("#theme-toggle").click();
+    await expect(preview.locator("html")).toHaveClass(/dark/);
+    await card.scrollIntoViewIfNeeded();
+    await page.setViewportSize({ width: 1000, height: 900 });
+    await expect.poll(() => iframe.evaluate((element) => {
+      if (!(element instanceof HTMLIFrameElement) || !element.contentDocument?.body) return Infinity;
+      const body = element.contentDocument.body;
+      return Math.abs(element.clientHeight - Math.max(120, body.scrollHeight, body.offsetHeight));
+    })).toBeLessThan(2);
+    await expect(iframe).toHaveCount(1);
+
+    const nativeCard = page.locator('.embed:has(a.open[href="./preview/ios-e10-tabbar.html"])');
+    await expect(nativeCard.locator("iframe")).toHaveCount(0);
+    await page.locator("#theme-toggle").click();
+    await nativeCard.scrollIntoViewIfNeeded();
+    await expect(nativeCard.locator("iframe").contentFrame().locator("html")).toHaveClass(/dark/);
   });
 
   test("Auth recipes are exported from components.css @desktop", async ({ page }) => {
@@ -1141,6 +1163,9 @@ test.describe("design.put.io static guide", () => {
       await page.goto(pagePath, { waitUntil: "domcontentloaded" });
       const builder = new AxeBuilder({ page });
       if (pagePath.startsWith("/design-system")) {
+        await expect.poll(() => page.evaluate(() =>
+          getComputedStyle(document.documentElement).getPropertyValue("--yellow-solid").trim(),
+        )).toBe("hsl(44.7, 97.9%, 63.1%)");
         builder.exclude("iframe");
       }
       // Loading buttons hide their label behind a spinner (color: transparent),
