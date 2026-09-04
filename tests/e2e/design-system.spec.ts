@@ -593,7 +593,16 @@ test.describe("design.put.io static guide", () => {
   });
 
   test("gallery previews load once on scroll, follow theme and resize @desktop", async ({ page }) => {
-    await page.goto("/design-system.html?theme=light", { waitUntil: "domcontentloaded" });
+    await page.addInitScript(() => {
+      Storage.prototype.setItem = () => { throw new DOMException("Storage writes denied", "SecurityError"); };
+    });
+    await page.goto("/design-system.html", { waitUntil: "domcontentloaded" });
+    const cards = page.locator(".embed");
+    expect(await cards.count()).toBeGreaterThan(0);
+    await expect(page.locator(".embed > iframe")).toHaveCount(0);
+    await expect(page.locator(".embed > template")).toHaveCount(await cards.count());
+    await page.locator("#theme-toggle").click();
+    await expect(page.locator("html")).not.toHaveClass(/dark/);
     const card = page.locator('.embed:has(a.open[href="./preview/web-c00-buttons.html"])');
     await expect(card.locator("iframe")).toHaveCount(0);
     await card.scrollIntoViewIfNeeded();
