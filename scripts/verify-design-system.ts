@@ -442,6 +442,7 @@ async function checkAppleContract() {
     ".ios-navbar .back",
     ".ios-navbar .nt",
     ".ios-tabbar",
+    ".ios-searchfield",
     ".ipad-sidetitle",
     ".wos-time",
     ".wos-title",
@@ -452,7 +453,6 @@ async function checkAppleContract() {
   }
   const authoredControlSelectors = [
     ".ios-navbar .act",
-    ".ios-searchfield",
     ".ios-segmented",
     ".ipad-toolbar .tt",
     ".ios-swipe .sa",

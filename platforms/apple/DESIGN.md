@@ -29,7 +29,7 @@ human interface guidelines. put.io supplies four things and nothing else:
 2. **Surfaces**. `--app-bg`, `--text`, `--text-secondary`. Dark only.
 3. **Type**. GT America replaces SF Pro in app-drawn content. App-drawn control
    labels use `--fw-medium`. System-rendered chrome keeps SF, including tab
-   labels and navigation titles.
+   labels, navigation titles and search fields.
 4. **File icons**. Phosphor, yellow, every file type.
 
 Tier definitions live in [ADR 0009](https://github.com/putdotio/putio-frontend/blob/main/docs/decisions/0009-design-binding-tiers.md).
