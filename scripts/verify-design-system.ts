@@ -357,8 +357,10 @@ async function checkAppleContract() {
   assert(isSemVer(metadata.version), "Apple contract version must use SemVer");
   assert(isIsoCalendarDate(metadata.reviewed?.date), "Apple contract review date must be a valid ISO calendar date");
 
-  const stateFragments = contents.gauge.split('<div class="el-state" data-download-state="').slice(1);
-  const states = stateFragments.map((fragment) => fragment.slice(0, fragment.indexOf('"')));
+  const stateFragments = htmlElementsWithClass(contents.gauge, "el-state");
+  const states = stateFragments.map((fragment) =>
+    /\sdata-download-state\s*=\s*(["'])(.*?)\1/i.exec(fragment.slice(0, fragment.indexOf(">") + 1))?.[2],
+  );
   assert(
     states.join(",") === "idle,queued,downloading,downloaded,failed",
     "Gauge card must bind the five download states in order",
@@ -380,6 +382,12 @@ async function checkAppleContract() {
 
   assertIncludes(contents.progress, "ios-progress-preview", "ProgressView card");
   assertExcludes(contents.progress, "--component-bg-active", "ProgressView card");
+  const progressTrackRule = cssRule(contents.css, ".ios-progress-preview");
+  const progressTrack = /(?:^|;)\s*background\s*:\s*([^;]+)/.exec(progressTrackRule)?.[1];
+  assert(progressTrack && progressTrack.startsWith("color-mix("), "ProgressView track must use the system-opacity preview");
+  for (const token of ["--component-bg", "--line"]) {
+    assertExcludes(progressTrack, token, "ProgressView track preview");
+  }
   assertExcludes(contents.gauge, "--line", "Gauge card");
   const transferProgress = [...contents.transfers.matchAll(/class="lprog ([^"]+)"/g)].map(([, classes]) => classes);
   assert(transferProgress.length === 4, "Transfers card must show four row progress examples");
@@ -442,7 +450,13 @@ async function checkAppleContract() {
       for (const glyph of htmlElementsWithClass(source, className)) {
         assert(/^<svg\s/i.test(glyph), `${name} ${className} must use an inline SVG`);
         assertIncludes(glyph, 'viewBox="0 0 24 24"', `${name} ${className} view box`);
-        assert(/<(?:path|circle)\s/i.test(glyph), `${name} ${className} must have vector geometry`);
+        const paths = [...glyph.matchAll(/<path\b[^>]*\sd\s*=\s*(["'])(.*?)\1/gi)];
+        const circles = [...glyph.matchAll(/<circle\b[^>]*\sr\s*=\s*(["'])(.*?)\1/gi)];
+        assert(
+          paths.some(([, , data]) => data.trim().length > 0)
+            || circles.some(([, , radius]) => Number.isFinite(Number(radius)) && Number(radius) > 0),
+          `${name} ${className} must have nonempty vector geometry`,
+        );
         assert(glyph.replace(/<[^>]*>/g, "").trim() === "", `${name} ${className} must not depend on font glyphs`);
       }
     }
