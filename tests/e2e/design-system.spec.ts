@@ -599,8 +599,24 @@ test.describe("design.put.io static guide", () => {
     await page.goto("/design-system.html", { waitUntil: "domcontentloaded" });
     const cards = page.locator(".embed");
     expect(await cards.count()).toBeGreaterThan(0);
-    await expect(page.locator(".embed > iframe")).toHaveCount(0);
-    await expect(page.locator(".embed > template")).toHaveCount(await cards.count());
+    expect(await page.locator(".embed > template").count()).toBeGreaterThan(0);
+    const initialPreviews = await cards.evaluateAll(elements => elements.map(card => {
+      const bounds = card.getBoundingClientRect();
+      return {
+        children: card.querySelectorAll(":scope > template, :scope > iframe").length,
+        active: card.querySelector(":scope > iframe") !== null,
+        nearViewport: bounds.bottom >= -600 && bounds.top <= innerHeight + 600,
+        placeholderHeight: getComputedStyle(card, "::after").height,
+        expectedHeight: card.classList.contains("featured") ? "660px"
+          : card.classList.contains("tall") ? "520px"
+            : card.classList.contains("compact") ? "220px" : "360px",
+      };
+    }));
+    for (const preview of initialPreviews) {
+      expect(preview.children).toBe(1);
+      if (preview.active) expect(preview.nearViewport).toBe(true);
+      else expect(preview.placeholderHeight).toBe(preview.expectedHeight);
+    }
     await page.locator("#theme-toggle").click();
     await expect(page.locator("html")).not.toHaveClass(/dark/);
     const card = page.locator('.embed:has(a.open[href="./preview/web-c00-buttons.html"])');
