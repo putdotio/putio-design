@@ -517,6 +517,39 @@ test.describe("design.put.io static guide", () => {
       }
     }
   });
+  test("Apple transfer tracks preserve their stock preview styles @desktop", async ({ page }) => {
+    await page.goto("/preview/ios-s02-transfers.html", { waitUntil: "domcontentloaded" });
+    const cases = [
+      { selector: ".lprog", helper: "ios-progress-preview", pseudo: "", properties: ["background-color", "background-image", "height", "border-radius"] },
+      { selector: ".ring.ios-gauge-preview", helper: "ios-gauge-preview", pseudo: "", properties: ["width", "height"] },
+      { selector: ".ring.ios-gauge-preview", helper: "ios-gauge-preview", pseudo: "::before", properties: ["background-image", "mask-image", "width", "height", "inset"] },
+    ];
+    for (const control of cases) {
+      const comparisons = await page.locator(control.selector).evaluateAll((elements, { helper, pseudo, properties }) =>
+        elements.map((element) => {
+          const reference = document.createElement("div");
+          reference.className = helper;
+          reference.style.visibility = "hidden";
+          reference.style.position = "absolute";
+          reference.style.setProperty("--ios-preview-progress", getComputedStyle(element).getPropertyValue("--ios-preview-progress"));
+          document.body.append(reference);
+          try {
+            const actual = getComputedStyle(element, pseudo);
+            const expected = getComputedStyle(reference, pseudo);
+            return properties.map((property) => ({ property, actual: actual.getPropertyValue(property), expected: expected.getPropertyValue(property) }));
+          } finally {
+            reference.remove();
+          }
+        }), control);
+      expect(comparisons.length, control.selector).toBeGreaterThan(0);
+      for (const properties of comparisons) {
+        for (const { property, actual, expected } of properties) {
+          expect(actual, `${control.selector}${control.pseudo} ${property}`).toBe(expected);
+        }
+      }
+    }
+  });
+
   for (const pagePath of tvFramePages) {
     test(`${pagePath} keeps its TV artboard visible @tv`, async ({ page }) => {
       await page.goto(pagePath, { waitUntil: "domcontentloaded" });

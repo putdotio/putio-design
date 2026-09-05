@@ -114,6 +114,100 @@ function extractFrontmatter(markdown: string): string {
   return markdown.slice(4, end);
 }
 
+function cssRule(css: string, selector: string): string {
+  const declarations = new Map<string, string>();
+  const source = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  for (const [, selectors, body] of source.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (!selectors.split(",").some((value) => value.trim() === selector)) continue;
+    for (const declaration of body.split(";")) {
+      const separator = declaration.indexOf(":");
+      if (separator < 0) continue;
+      declarations.set(declaration.slice(0, separator).trim(), declaration.slice(separator + 1).trim());
+    }
+  }
+  assert(declarations.size > 0, `Missing ${selector} CSS rule`);
+  return [...declarations].map(([property, value]) => `${property}: ${value};`).join("\n");
+}
+
+function assertIncludes(source: string, value: string, label: string) {
+  assert(source.includes(value), `${label} must include ${value}`);
+}
+
+function assertExcludes(source: string, value: string, label: string) {
+  assert(!source.includes(value), `${label} must not include ${value}`);
+}
+
+function isSemVer(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  return /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/.test(
+    value,
+  );
+}
+
+function isIsoCalendarDate(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return false;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  return month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth[month - 1];
+}
+
+function htmlElementsMatchingOpeningTag(source: string, matchesOpeningTag: (openingTag: string) => boolean): string[] {
+  const renderedSource = source.replace(/<!--[\s\S]*?-->/g, "");
+  const elements: string[] = [];
+  const openingTags = /<([a-z][\w:-]*)\b[^>]*>/gi;
+  for (const opening of renderedSource.matchAll(openingTags)) {
+    const openingTag = opening[0];
+    if (!matchesOpeningTag(openingTag) || /\/\s*>$/.test(openingTag)) continue;
+
+    const tagName = opening[1];
+    const escapedTag = tagName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const matchingTags = new RegExp(`<\\/?${escapedTag}\\b[^>]*>`, "gi");
+    matchingTags.lastIndex = (opening.index ?? 0) + openingTag.length;
+    let depth = 1;
+    let closingIndex: number | undefined;
+    let match: RegExpExecArray | null;
+    while ((match = matchingTags.exec(renderedSource)) !== null) {
+      if (match[0].startsWith("</")) {
+        depth -= 1;
+      } else if (!/\/\s*>$/.test(match[0])) {
+        depth += 1;
+      }
+      if (depth === 0) {
+        closingIndex = matchingTags.lastIndex;
+        break;
+      }
+    }
+
+    assert(closingIndex !== undefined, `Missing closing tag for ${openingTag}`);
+    elements.push(renderedSource.slice(opening.index, closingIndex));
+  }
+  return elements;
+}
+
+function htmlOpeningClasses(source: string): string[] {
+  const openingTag = source.slice(0, source.indexOf(">") + 1);
+  return /\sclass\s*=\s*(["'])(.*?)\1/i.exec(openingTag)?.[2].split(/\s+/) ?? [];
+}
+
+function htmlElementsWithClass(source: string, className: string, ...additionalClasses: string[]): string[] {
+  return htmlElementsMatchingOpeningTag(source, (openingTag) => {
+    const classes = htmlOpeningClasses(openingTag);
+    return [className, ...additionalClasses].every((value) => classes.includes(value));
+  });
+}
+
+function htmlElementsWithAttribute(source: string, attributeName: string): string[] {
+  const escapedAttribute = attributeName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const attribute = new RegExp(`\\s${escapedAttribute}(?:\\s*=|\\s|/?>)`, "i");
+  return htmlElementsMatchingOpeningTag(source, (openingTag) => attribute.test(openingTag));
+}
+
 async function checkTokens() {
   const flat = JSON.parse(await readFile(path.join(root, "dist/tokens.flat.json"), "utf8")) as Record<string, TokenRecord>;
   const yellow = flat["color.brand.yellow"];
@@ -230,6 +324,255 @@ async function checkDesignMd() {
   assert(data.components?.["file-row"]?.icon === "{colors.brand}", "DESIGN.md file-row.icon must alias colors.brand");
 }
 
+async function checkAppleContract() {
+  const files = {
+    contract: "platforms/apple/DESIGN.md",
+    css: "system/preview/_apple.css",
+    folders: "system/preview/ios-e00-list-row.html",
+    searchfield: "system/preview/ios-e08-searchfield.html",
+    glass: "system/preview/ios-e05-glass-button.html",
+    progress: "system/preview/ios-e09-progress.html",
+    tabs: "system/preview/ios-e10-tabbar.html",
+    navbar: "system/preview/ios-e11-navbar.html",
+    sheet: "system/preview/ios-e12-sheet.html",
+    empty: "system/preview/ios-e15-emptystate.html",
+    gauge: "system/preview/ios-e16-gauge.html",
+    shell: "system/preview/ios-s00-shell.html",
+    fileScreen: "system/preview/ios-s01-files.html",
+    transfers: "system/preview/ios-s02-transfers.html",
+    settings: "system/preview/ios-s04-settings.html",
+  } as const;
+  const contents = Object.fromEntries(
+    await Promise.all(Object.entries(files).map(async ([name, file]) => [name, await readFile(path.join(root, file), "utf8")])),
+  ) as Record<keyof typeof files, string>;
+  const metadata = parse(extractFrontmatter(contents.contract)) as {
+    version?: string;
+    reviewed?: { date?: string };
+  };
+
+  const semVerCases = {
+    valid: ["0.0.0", "1.2.3", "1.0.0-alpha", "1.0.0-alpha.1", "1.0.0+build.01", "1.0.0-beta.2+build.5"],
+    invalid: ["01.0.0", "1.01.0", "1.0.01", "1.0.0-01", "1.0", "v1.0.0", "1.0.0+"],
+  };
+  for (const value of semVerCases.valid) assert(isSemVer(value), `SemVer validator must accept ${value}`);
+  for (const value of semVerCases.invalid) assert(!isSemVer(value), `SemVer validator must reject ${value}`);
+  const calendarDateCases = {
+    valid: ["2000-02-29", "2024-02-29", "2026-04-30"],
+    invalid: ["1900-02-29", "2026-02-29", "2026-04-31", "2026-13-01", "2026-00-01", "2026-01-00"],
+  };
+  for (const value of calendarDateCases.valid) assert(isIsoCalendarDate(value), `Date validator must accept ${value}`);
+  for (const value of calendarDateCases.invalid) assert(!isIsoCalendarDate(value), `Date validator must reject ${value}`);
+  assert(isSemVer(metadata.version), "Apple contract version must use SemVer");
+  assert(isIsoCalendarDate(metadata.reviewed?.date), "Apple contract review date must be a valid ISO calendar date");
+
+  const stateFragments = htmlElementsWithClass(contents.gauge, "el-state");
+  const states = stateFragments.map((fragment) =>
+    /\sdata-download-state\s*=\s*(["'])(.*?)\1/i.exec(fragment.slice(0, fragment.indexOf(">") + 1))?.[2],
+  );
+  assert(
+    states.join(",") === "idle,queued,downloading,downloaded,failed",
+    "Gauge card must bind the five download states in order",
+  );
+  const stateGlyphs = [
+    ["ph", "ph-arrow-down"], ["ph", "ph-clock"], ["ph-fill", "ph-stop"],
+    ["ph-fill", "ph-check-circle"], ["ph", "ph-arrow-down"],
+  ];
+  for (const [index, fragment] of stateFragments.entries()) {
+    const glyphs = [...htmlElementsWithClass(fragment, "ph"), ...htmlElementsWithClass(fragment, "ph-fill")];
+    assert(glyphs.length === 1, `${states[index]} must have one glyph`);
+    const classes = htmlOpeningClasses(glyphs[0]);
+    assert(stateGlyphs[index].every((value) => classes.includes(value)), `${states[index]} must use its contracted glyph`);
+    const ringCount = htmlElementsWithClass(fragment, "ios-gauge-preview").length;
+    assert(ringCount === (states[index] === "downloading" ? 1 : 0), `${states[index]} Gauge ring ownership`);
+  }
+  const failedReasonOwners = htmlElementsWithAttribute(stateFragments[4], "data-reason-owner");
+  assert(failedReasonOwners.length === 1, "Failed must have one reason owner");
+  assert(htmlOpeningClasses(failedReasonOwners[0]).includes("sd"), "Failed reason must belong to its subtitle");
+  assert(failedReasonOwners[0].replace(/<[^>]*>/g, "").trim().length > 0, "Failed subtitle must describe reason ownership");
+  assert(
+    /\sdata-reason-owner\s*=\s*(["'])row-subtitle\1/.test(failedReasonOwners[0].split(">", 1)[0]),
+    "Failed reason owner must identify the row subtitle",
+  );
+  assertIncludes(cssRule(contents.css, ".ios-gauge-preview"), "width: 47px", "Gauge preview");
+  assertIncludes(cssRule(contents.css, ".ios-gauge-preview"), "height: 47px", "Gauge preview");
+  const gaugeTrackRule = cssRule(contents.css, ".ios-gauge-preview::before");
+  const gaugeTrack = /background: conic-gradient\(currentColor var\(--ios-preview-progress\), color-mix\(in srgb, currentColor (\d+(?:\.\d+)?)%, transparent\) 0\);/.exec(gaugeTrackRule);
+  assert(gaugeTrack, "Gauge unfilled track must derive from tint at system opacity");
+  const gaugeOpacity = Number(gaugeTrack[1]);
+  assert(gaugeOpacity > 0 && gaugeOpacity < 100, "Gauge unfilled track must remain visible and distinct from its fill");
+  assertIncludes(gaugeTrackRule, "transparent 16.5px, #000 17px", "Gauge approximately 7pt stroke");
+  assertExcludes(gaugeTrackRule, "var(--line)", "Gauge track preview");
+
+  assertIncludes(contents.progress, "ios-progress-preview", "ProgressView card");
+  assertExcludes(contents.progress, "--component-bg-active", "ProgressView card");
+  const progressTrackRule = cssRule(contents.css, ".ios-progress-preview");
+  const progressTrack = /(?:^|;)\s*background\s*:\s*([^;]+)/.exec(progressTrackRule)?.[1];
+  assert(
+    progressTrack && /^color-mix\(in srgb, var\(--text\) \d+(?:\.\d+)?%, transparent\)$/.test(progressTrack),
+    "ProgressView track must use the neutral system-opacity preview",
+  );
+  assertExcludes(contents.gauge, "--line", "Gauge card");
+  const transferProgress = htmlElementsWithClass(contents.transfers, "lprog");
+  assert(transferProgress.length === 4, "Transfers card must show four row progress examples");
+  assert(
+    transferProgress.every((element) => htmlOpeningClasses(element).includes("ios-progress-preview")),
+    "Transfers row progress must use the system-track preview helper",
+  );
+
+  for (const selector of [".ios-navbar .back", ".ios-navbar .act", ".cuv .cuv-a"]) {
+    assertIncludes(cssRule(contents.css, selector), "var(--yellow-solid)", `${selector} tint`);
+  }
+  for (const [name, source] of Object.entries({
+    navbar: contents.navbar,
+    sheet: contents.sheet,
+    empty: contents.empty,
+  })) {
+    assertExcludes(source, "--yellow-text-secondary", `${name} system accent contract`);
+  }
+  assertIncludes(contents.contract, "App-authored text", "App-authored accent exception");
+  assertIncludes(contents.contract, "--yellow-text-secondary", "App-authored accent exception");
+
+  assertIncludes(contents.glass, "<code>.borderedProminent</code>", "Glass boundary card");
+  assertIncludes(contents.glass, "<code>.bordered</code>", "Glass boundary card");
+  assertIncludes(contents.contract, "At most one prominent glass capsule appears on a screen.", "Glass prominence limit");
+  assertIncludes(contents.empty, "ios-bordered-action", "Empty-state content action");
+  assertIncludes(contents.fileScreen, "ios-bordered-action", "File-screen content action");
+  for (const [name, source] of Object.entries({ empty: contents.empty, fileScreen: contents.fileScreen })) {
+    for (const action of htmlElementsWithClass(source, "cuv-a")) {
+      assert(htmlOpeningClasses(action).includes("ios-bordered-action"), `${name} content action must be bordered`);
+      for (const glassClass of ["gbtn", "gcap"]) {
+        assert(htmlElementsWithClass(action, glassClass).length === 0, `${name} content action must not use ${glassClass}`);
+      }
+    }
+  }
+  const previewDirectory = path.join(root, "system/preview");
+  const screenFiles = (await readdir(previewDirectory)).filter((file) => /^ios-s\d+.*\.html$/.test(file));
+  const prominentCapsules = (source: string) => [
+    ...htmlElementsWithClass(source, "gbtn", "prominent"),
+    ...htmlElementsWithClass(source, "gcap", "prominent"),
+  ];
+  const screenElements = (source: string) => [
+    ...htmlElementsWithClass(source, "iphone"),
+    ...htmlElementsWithClass(source, "ipad"),
+  ];
+  const screenFixture = `<div data-class="metadata" class="preview iphone"><div class="glass gbtn prominent"></div>
+    <div class='prominent gcap glass'></div></div><div class="ipad preview"><div class="gbtn"></div></div>
+    <!-- <div class="iphone"><div class="gbtn prominent"></div></div> -->`;
+  const fixtureScreens = screenElements(screenFixture);
+  assert(fixtureScreens.length === 2, "Screen parsing must use the real class attribute, accept additional classes and ignore comments");
+  assert(prominentCapsules(fixtureScreens[0]).length === 2, "Capsule counting must accept reordered and additional classes");
+  assert(prominentCapsules(fixtureScreens[1]).length === 0, "Capsule counting must stay within each screen");
+  for (const file of screenFiles) {
+    const source = await readFile(path.join(previewDirectory, file), "utf8");
+    for (const [index, screen] of screenElements(source).entries()) {
+      assert(prominentCapsules(screen).length <= 1, `${file} screen ${index + 1} must have at most one prominent glass capsule`);
+    }
+  }
+  for (const [name, source] of Object.entries(contents)) {
+    for (const className of ["system-search", "system-back", "system-clear", "system-check", "system-chevron"]) {
+      for (const glyph of htmlElementsWithClass(source, className)) {
+        assert(/^<svg\s/i.test(glyph), `${name} ${className} must use an inline SVG`);
+        assertIncludes(glyph, 'viewBox="0 0 24 24"', `${name} ${className} view box`);
+        const paths = [...glyph.matchAll(/<path\b[^>]*\sd\s*=\s*(["'])(.*?)\1/gi)];
+        const circles = [...glyph.matchAll(/<circle\b[^>]*\sr\s*=\s*(["'])(.*?)\1/gi)];
+        assert(
+          paths.some(([, , data]) => data.trim().length > 0)
+            || circles.some(([, , radius]) => Number.isFinite(Number(radius)) && Number(radius) > 0),
+          `${name} ${className} must have nonempty vector geometry`,
+        );
+        assert(glyph.replace(/<[^>]*>/g, "").trim() === "", `${name} ${className} must not depend on font glyphs`);
+      }
+    }
+  }
+
+  const systemChromeSelectors = [
+    ".ios-status",
+    ".ios-largetitle",
+    ".ios-navbar .back",
+    ".ios-navbar .nt",
+    ".ios-tabbar",
+    ".ios-searchfield",
+    ".ipad-sidetitle",
+    ".wos-time",
+    ".wos-title",
+    ".tvos-tabbar",
+  ];
+  for (const selector of systemChromeSelectors) {
+    assertIncludes(cssRule(contents.css, selector), "-apple-system", `${selector} system typography`);
+  }
+  const authoredControlSelectors = [
+    ".ios-navbar .act",
+    ".ios-segmented",
+    ".ipad-toolbar .tt",
+    ".ios-swipe .sa",
+    ".ios-ctx .ci",
+  ];
+  for (const selector of authoredControlSelectors) {
+    assertExcludes(cssRule(contents.css, selector), "-apple-system", `${selector} app-authored typography`);
+  }
+
+  assertIncludes(cssRule(contents.css, ".ios-tabbar .tab i"), "font-size: 24px", "Tab glyph box");
+  assertIncludes(contents.tabs, "24pt intrinsic Phosphor box", "Tab glyph contract card");
+  const systemCheckRule = cssRule(contents.css, ".ios-row .chev.system-check");
+  assertIncludes(systemCheckRule, "font-size: 20px", "System-owned selection checkmark");
+  assertIncludes(systemCheckRule, "color: var(--yellow-solid)", "System-owned selection checkmark");
+  const systemSearchControls = [
+    ["Tab card Search capsule", contents.tabs, "ios-searchcap"],
+    ["Search field card", contents.searchfield, "ios-searchfield"],
+    ["Shell Search capsule", contents.shell, "ios-searchcap"],
+    ["Files Search field", contents.fileScreen, "ios-searchfield"],
+    ["Files Search capsule", contents.fileScreen, "ios-searchcap"],
+    ["Transfers Search capsule", contents.transfers, "ios-searchcap"],
+  ] as const;
+  for (const [label, source, className] of systemSearchControls) {
+    const controls = htmlElementsWithClass(source, className);
+    assert(controls.length > 0, `${label} must exist`);
+    for (const control of controls) {
+      assert(htmlElementsWithClass(control, "system-search").length === 1, `${label} must have one system-owned Search glyph`);
+      assertExcludes(control, "ph-", `${label} system-owned Search glyph`);
+    }
+  }
+  const clearOwners = htmlElementsWithAttribute(contents.searchfield, "data-system-clear-owner");
+  assert(clearOwners.length === 1, "Search field card must have one clear-button owner");
+  assert(htmlElementsWithClass(clearOwners[0], "system-clear").length === 1, "Search field card must have one system-owned clear glyph");
+  assertExcludes(clearOwners[0], "ph-", "Search field card system-owned clear glyph");
+  for (const [name, source] of Object.entries({
+    navbar: contents.navbar,
+    fileScreen: contents.fileScreen,
+    transfers: contents.transfers,
+  })) {
+    const backControls = htmlElementsWithClass(source, "back");
+    assert(backControls.length > 0, `${name} system-owned back control must exist`);
+    for (const backControl of backControls) {
+      assert(htmlElementsWithClass(backControl, "system-back").length === 1, `${name} must have one system-owned back glyph`);
+      assertExcludes(backControl, "ph-", `${name} system-owned back glyph`);
+    }
+  }
+  for (const [name, source] of Object.entries({ sheet: contents.sheet, settings: contents.settings })) {
+    const selectionOwners = htmlElementsWithAttribute(source, "data-system-selection-owner");
+    assert(selectionOwners.length > 0, `${name} system-owned selection control must exist`);
+    for (const selectionOwner of selectionOwners) {
+      assert(htmlElementsWithClass(selectionOwner, "system-check").length === 1, `${name} must have one system-owned checkmark`);
+      assertExcludes(selectionOwner, "ph-", `${name} system-owned checkmark`);
+    }
+  }
+  for (const [name, source] of Object.entries({
+    folders: contents.folders,
+    shell: contents.shell,
+    fileScreen: contents.fileScreen,
+  })) {
+    const folderRows = htmlElementsWithClass(source, "ios-row").filter(
+      (row) => htmlElementsWithClass(row, "ph-folder").length > 0,
+    );
+    assert(folderRows.length > 0, `${name} must show a folder row`);
+    for (const [index, row] of folderRows.entries()) {
+      assert(htmlElementsWithClass(row, "system-chevron").length === 1, `${name} folder row ${index + 1} must have one system disclosure`);
+    }
+    assertExcludes(source, "ph-caret-right", `${name} folder disclosure`);
+  }
+  assertIncludes(contents.folders, "List + NavigationLink", "Folder row source");
+}
+
 async function checkHtmlLinks() {
   const htmlFiles = (await walk(path.join(root, "system"))).filter((file) => file.endsWith(".html"));
   const attrPattern = /\b(?:href|src)=["']([^"']+)["']/g;
@@ -282,6 +625,7 @@ async function main() {
 
   await checkTokens();
   await checkDesignMd();
+  await checkAppleContract();
   await checkHtmlLinks();
   await checkCss();
   console.log("Design system checks passed");
