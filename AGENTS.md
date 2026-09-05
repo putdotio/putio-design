@@ -71,3 +71,7 @@ unless licensing is explicitly cleared.
 ## Deploy
 
 Only the `production` SST stage is supported. Do not create preview, spike, or staging stages for this repo.
+
+## Finishing Work
+
+Finish token, guide, and preview edits plus `pnpm verify` without pausing; ask before deploys, writes to the external design project, and anything outside the task. Done means `pnpm verify` (or `pnpm verify:full` for guide or token changes) passed and the affected guide section was checked in both modes.

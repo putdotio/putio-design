@@ -16,7 +16,7 @@ description: Import, inspect, implement, verify, and respond to design handoffs 
 
    **Option A — Claude Design project URL** (`https://claude.ai/design/p/<project-uuid>`): use the `DesignSync` tool (load it via ToolSearch; it needs one-time auth via `/design-login` — ask the user to run that if calls return an authorization error).
    - `get_project` with the UUID from the URL to confirm the name/type, then `list_files` for the full inventory.
-   - Fetch every relevant text file with `get_file` and write it verbatim to `tmp/design-handoff/project/<same path>`. Fan the fetches out across parallel subagents (they can load DesignSync via ToolSearch too) so file contents stay out of the main context; have each agent report per-file byte counts and `truncated` flags.
+   - Fetch every relevant text file with `get_file` and write it verbatim to `tmp/design-handoff/project/<same path>`. Keep the fetched contents out of the working context (delegate the fetches when the harness supports it) and record per-file byte counts and `truncated` flags.
    - Skip binaries you don't need: `scraps/`, `.thumbnail`, PNG assets. Skip `uploads/` screenshots, but fetch its markdown notes (prior feedback and the governance decision note) when you need round history. Fetch `components/` and `templates/` only as reference material — they are never imported.
 
    **Option B — export/bundle URL**: download and extract:
@@ -90,12 +90,8 @@ pnpm design:mirror
 
    - It reads the fetched project graph as a structural template (`tmp/design-handoff/project/system/tokens.json`) and `dist/tokens.flat.json` for values, and writes `tmp/design-mirror/{tokens.json,tokens.css,tokens.base.css}` in the project's annotated flavor (hex comments, `@kind` hints). Refs that no longer resolve to repo values are replaced with repo literals and warned — carry those warnings into the feedback note.
    - Push the three files to the project's `system/` with DesignSync (`finalize_plan` → `write_files` with `localPath`). `CLAUDE.md` is write-protected; token mirror files are not.
+   - This is the one external write in the workflow; the `finalize_plan` permission prompt is its approval gate, so keep the plan to exactly those three files and do not push anything else.
 
 8. Write Claude Design feedback.
    - Save it to `tmp/design-handoff/feedback-to-design-tool.md` unless the user asks for another path, written as a copyable note for Claude Design, not a repo changelog.
    - Follow `references/feedback-template.md` for the sections, tone, and worked example.
-
-## Provenance
-
-- Dated handoff notes became the canonical per-round change log in mid-2026.
-- The repo-authoring/design-mirror token governance rule was decided in 2026-07.
