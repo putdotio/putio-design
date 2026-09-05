@@ -115,10 +115,18 @@ function extractFrontmatter(markdown: string): string {
 }
 
 function cssRule(css: string, selector: string): string {
-  const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = css.match(new RegExp(`${escapedSelector}\\s*\\{([^}]*)\\}`));
-  assert(match, `Missing ${selector} CSS rule`);
-  return match[1];
+  const declarations = new Map<string, string>();
+  const source = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  for (const [, selectors, body] of source.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (!selectors.split(",").some((value) => value.trim() === selector)) continue;
+    for (const declaration of body.split(";")) {
+      const separator = declaration.indexOf(":");
+      if (separator < 0) continue;
+      declarations.set(declaration.slice(0, separator).trim(), declaration.slice(separator + 1).trim());
+    }
+  }
+  assert(declarations.size > 0, `Missing ${selector} CSS rule`);
+  return [...declarations].map(([property, value]) => `${property}: ${value};`).join("\n");
 }
 
 function assertIncludes(source: string, value: string, label: string) {
@@ -372,11 +380,17 @@ async function checkAppleContract() {
   assert(idleGlyph && failedGlyph, "Idle and Failed states must include glyphs");
   assert(failedGlyph[1] === idleGlyph[1], "Failed must reuse the Idle glyph");
   assertIncludes(failedState, 'data-reason-owner="row-subtitle"', "Failed-state reason ownership");
-  assertIncludes(contents.gauge, "ios-gauge-preview", "Gauge card");
+  for (const [index, fragment] of stateFragments.entries()) {
+    const ringCount = htmlElementsWithClass(fragment, "ios-gauge-preview").length;
+    assert(ringCount === (states[index] === "downloading" ? 1 : 0), `${states[index]} Gauge ring ownership`);
+  }
   assertIncludes(cssRule(contents.css, ".ios-gauge-preview"), "width: 47px", "Gauge preview");
   assertIncludes(cssRule(contents.css, ".ios-gauge-preview"), "height: 47px", "Gauge preview");
   const gaugeTrackRule = cssRule(contents.css, ".ios-gauge-preview::before");
-  assertIncludes(gaugeTrackRule, "currentColor", "Gauge track preview");
+  assert(
+    /background: conic-gradient\(currentColor var\(--ios-preview-progress\), color-mix\(in srgb, currentColor \d+(?:\.\d+)?%, transparent\) 0\);/.test(gaugeTrackRule),
+    "Gauge unfilled track must derive from tint at system opacity",
+  );
   assertIncludes(gaugeTrackRule, "transparent 16.5px, #000 17px", "Gauge approximately 7pt stroke");
   assertExcludes(gaugeTrackRule, "var(--line)", "Gauge track preview");
 
@@ -389,10 +403,10 @@ async function checkAppleContract() {
     assertExcludes(progressTrack, token, "ProgressView track preview");
   }
   assertExcludes(contents.gauge, "--line", "Gauge card");
-  const transferProgress = [...contents.transfers.matchAll(/class="lprog ([^"]+)"/g)].map(([, classes]) => classes);
+  const transferProgress = htmlElementsWithClass(contents.transfers, "lprog");
   assert(transferProgress.length === 4, "Transfers card must show four row progress examples");
   assert(
-    transferProgress.every((classes) => classes.split(/\s+/).includes("ios-progress-preview")),
+    transferProgress.every((element) => htmlOpeningClasses(element).includes("ios-progress-preview")),
     "Transfers row progress must use the system-track preview helper",
   );
 
