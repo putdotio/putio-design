@@ -373,17 +373,25 @@ async function checkAppleContract() {
     states.join(",") === "idle,queued,downloading,downloaded,failed",
     "Gauge card must bind the five download states in order",
   );
-  const idleState = stateFragments[0];
-  const failedState = stateFragments[4];
-  const idleGlyph = idleState.match(/<i class="([^"]+)"/);
-  const failedGlyph = failedState.match(/<i class="([^"]+)"/);
-  assert(idleGlyph && failedGlyph, "Idle and Failed states must include glyphs");
-  assert(failedGlyph[1] === idleGlyph[1], "Failed must reuse the Idle glyph");
-  assertIncludes(failedState, 'data-reason-owner="row-subtitle"', "Failed-state reason ownership");
+  const stateGlyphs = [
+    ["ph", "ph-arrow-down"], ["ph", "ph-clock"], ["ph-fill", "ph-stop"],
+    ["ph-fill", "ph-check-circle"], ["ph", "ph-arrow-down"],
+  ];
   for (const [index, fragment] of stateFragments.entries()) {
+    const glyphs = [...htmlElementsWithClass(fragment, "ph"), ...htmlElementsWithClass(fragment, "ph-fill")];
+    assert(glyphs.length === 1, `${states[index]} must have one glyph`);
+    const classes = htmlOpeningClasses(glyphs[0]);
+    assert(stateGlyphs[index].every((value) => classes.includes(value)), `${states[index]} must use its contracted glyph`);
     const ringCount = htmlElementsWithClass(fragment, "ios-gauge-preview").length;
     assert(ringCount === (states[index] === "downloading" ? 1 : 0), `${states[index]} Gauge ring ownership`);
   }
+  const failedReasonOwners = htmlElementsWithAttribute(stateFragments[4], "data-reason-owner");
+  assert(failedReasonOwners.length === 1, "Failed must have one reason owner");
+  assert(htmlOpeningClasses(failedReasonOwners[0]).includes("sd"), "Failed reason must belong to its subtitle");
+  assert(
+    /\sdata-reason-owner\s*=\s*(["'])row-subtitle\1/.test(failedReasonOwners[0].split(">", 1)[0]),
+    "Failed reason owner must identify the row subtitle",
+  );
   assertIncludes(cssRule(contents.css, ".ios-gauge-preview"), "width: 47px", "Gauge preview");
   assertIncludes(cssRule(contents.css, ".ios-gauge-preview"), "height: 47px", "Gauge preview");
   const gaugeTrackRule = cssRule(contents.css, ".ios-gauge-preview::before");
