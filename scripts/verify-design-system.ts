@@ -388,6 +388,7 @@ async function checkAppleContract() {
   const failedReasonOwners = htmlElementsWithAttribute(stateFragments[4], "data-reason-owner");
   assert(failedReasonOwners.length === 1, "Failed must have one reason owner");
   assert(htmlOpeningClasses(failedReasonOwners[0]).includes("sd"), "Failed reason must belong to its subtitle");
+  assert(failedReasonOwners[0].replace(/<[^>]*>/g, "").trim().length > 0, "Failed subtitle must describe reason ownership");
   assert(
     /\sdata-reason-owner\s*=\s*(["'])row-subtitle\1/.test(failedReasonOwners[0].split(">", 1)[0]),
     "Failed reason owner must identify the row subtitle",
@@ -395,10 +396,10 @@ async function checkAppleContract() {
   assertIncludes(cssRule(contents.css, ".ios-gauge-preview"), "width: 47px", "Gauge preview");
   assertIncludes(cssRule(contents.css, ".ios-gauge-preview"), "height: 47px", "Gauge preview");
   const gaugeTrackRule = cssRule(contents.css, ".ios-gauge-preview::before");
-  assert(
-    /background: conic-gradient\(currentColor var\(--ios-preview-progress\), color-mix\(in srgb, currentColor \d+(?:\.\d+)?%, transparent\) 0\);/.test(gaugeTrackRule),
-    "Gauge unfilled track must derive from tint at system opacity",
-  );
+  const gaugeTrack = /background: conic-gradient\(currentColor var\(--ios-preview-progress\), color-mix\(in srgb, currentColor (\d+(?:\.\d+)?)%, transparent\) 0\);/.exec(gaugeTrackRule);
+  assert(gaugeTrack, "Gauge unfilled track must derive from tint at system opacity");
+  const gaugeOpacity = Number(gaugeTrack[1]);
+  assert(gaugeOpacity > 0 && gaugeOpacity < 100, "Gauge unfilled track must remain visible and distinct from its fill");
   assertIncludes(gaugeTrackRule, "transparent 16.5px, #000 17px", "Gauge approximately 7pt stroke");
   assertExcludes(gaugeTrackRule, "var(--line)", "Gauge track preview");
 
@@ -406,10 +407,10 @@ async function checkAppleContract() {
   assertExcludes(contents.progress, "--component-bg-active", "ProgressView card");
   const progressTrackRule = cssRule(contents.css, ".ios-progress-preview");
   const progressTrack = /(?:^|;)\s*background\s*:\s*([^;]+)/.exec(progressTrackRule)?.[1];
-  assert(progressTrack && progressTrack.startsWith("color-mix("), "ProgressView track must use the system-opacity preview");
-  for (const token of ["--component-bg", "--line"]) {
-    assertExcludes(progressTrack, token, "ProgressView track preview");
-  }
+  assert(
+    progressTrack && /^color-mix\(in srgb, var\(--text\) \d+(?:\.\d+)?%, transparent\)$/.test(progressTrack),
+    "ProgressView track must use the neutral system-opacity preview",
+  );
   assertExcludes(contents.gauge, "--line", "Gauge card");
   const transferProgress = htmlElementsWithClass(contents.transfers, "lprog");
   assert(transferProgress.length === 4, "Transfers card must show four row progress examples");

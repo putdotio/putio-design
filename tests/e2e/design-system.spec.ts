@@ -520,9 +520,9 @@ test.describe("design.put.io static guide", () => {
   test("Apple transfer tracks preserve their stock preview styles @desktop", async ({ page }) => {
     await page.goto("/preview/ios-s02-transfers.html", { waitUntil: "domcontentloaded" });
     const cases = [
-      { selector: ".lprog", helper: "ios-progress-preview", pseudo: "", properties: ["background-color", "height", "border-radius"] },
+      { selector: ".lprog", helper: "ios-progress-preview", pseudo: "", properties: ["background-color", "background-image", "height", "border-radius"] },
       { selector: ".ring.ios-gauge-preview", helper: "ios-gauge-preview", pseudo: "", properties: ["width", "height"] },
-      { selector: ".ring.ios-gauge-preview", helper: "ios-gauge-preview", pseudo: "::before", properties: ["background-image", "mask-image"] },
+      { selector: ".ring.ios-gauge-preview", helper: "ios-gauge-preview", pseudo: "::before", properties: ["background-image", "mask-image", "width", "height", "inset"] },
     ];
     for (const control of cases) {
       const comparisons = await page.locator(control.selector).evaluateAll((elements, { helper, pseudo, properties }) =>
