@@ -116,11 +116,11 @@ TV is the exception: every 10-foot surface — list rows, buttons, sheets, cards
 
 ## Components
 
-The component recipes below and in `system/components.css` are the **web
-binding** of the token graph, and they bind the web surfaces in full. The other
-tiers inherit differently: native apps (SwiftUI, Compose) consume the token
+The component recipes below and in `system/components.css` are the
+**web binding** of the token graph, and they bind the web surfaces in full. The
+other tiers inherit differently: native apps (SwiftUI, Compose) consume the token
 *values* and build every component from their platform's human interface
-guidelines — stock controls themed with these tokens, never re-drawn web
+guidelines — stock controls themed with these tokens, never redrawn web
 recipes (first adopter: `DESIGN.md` in
 [putio-ios](https://github.com/putdotio/putio-ios)); Roku inherits the tokens
 with more room for put.io conventions in custom SceneGraph components; the
