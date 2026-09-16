@@ -29,7 +29,8 @@ generated discovery links, so edit only under `skills/`. `pnpm skills:lint`
 
 The pull request template asks for screenshots or recordings on visual guide
 changes. Capture the affected guide section from `pnpm dev` in both light and
-dark modes, attach the media to the pull request, and reference it under
+dark modes, upload the media with `gh pr create --attach ./file.png` or
+`gh pr comment <n> --attach ./file.mp4` (gh 2.99+), and reference it under
 Review Notes. Keep proof media out of Git.
 
 ## Worktrees
