@@ -12,13 +12,6 @@
 Setup, local run, validation, and the token rebuild rule:
 [Contributing](CONTRIBUTING.md). Scripts are defined in `package.json` under `scripts` and nowhere else.
 
-## Skills
-
-`skills/putio-design-handoff/` is the authored skill for importing, verifying,
-and responding to design handoffs; `.agents/skills/` and `.claude/skills` are
-generated discovery links, so edit only under `skills/`. `pnpm skills:lint`
-(part of `pnpm verify`) lints it.
-
 ## PR Evidence
 
 The pull request template asks for screenshots or recordings on visual guide
