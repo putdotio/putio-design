@@ -2,10 +2,10 @@
 
 ## Start Here
 
-1. [DESIGN.md](DESIGN.md) — public design contract
-2. [Design guide](system/README.md) — deployed site shape
-3. [Distribution](docs/DISTRIBUTION.md) — deploy, package, and artifact policy
-4. [Contributing](CONTRIBUTING.md) — local workflow
+1. [DESIGN.md](DESIGN.md): public design contract
+2. [Design guide](system/README.md): deployed site shape
+3. [Distribution](docs/DISTRIBUTION.md): deploy, package, and artifact policy
+4. [Contributing](CONTRIBUTING.md): local workflow
 
 ## Commands
 
