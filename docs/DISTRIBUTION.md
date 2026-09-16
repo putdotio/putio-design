@@ -18,16 +18,8 @@ without re-running verification.
 ## Package Artifacts
 
 `@putdotio/design` is a public scoped npm package. It exposes generic token
-artifacts, package-safe brand assets, and the design contract:
-
-- `@putdotio/design/assets/*`
-- `@putdotio/design/css`
-- `@putdotio/design/components`
-- `@putdotio/design/tokens`
-- `@putdotio/design/tokens/meta`
-- `@putdotio/design/tokens/dtcg`
-- `@putdotio/design/tokens/figma`
-- `@putdotio/design/design.md`
+artifacts, package-safe brand assets, and the design contract; the subpaths are
+`package.json` `exports`, mapped to files in the [README](../README.md#use).
 
 The token CSS export is the web custom-property contract. It includes palette
 tokens, component aliases such as `--field-*` and `--panel-*`, plus action
@@ -72,13 +64,10 @@ canonical `#FDCE45` in prose and identity guidance, with the generated CSS value
 
 ## Readiness Checks
 
-`pnpm verify` is the fast local gate: skill lint, script typecheck, token build
-plus contract checks, and HTML validation.
-
-`pnpm verify:full` is the PR CI gate. It adds the design-mirror unit test,
-Playwright browser coverage (computed-style contracts, TV geometry, axe
-accessibility), and `npm pack --dry-run`. Use it before release-like changes or
-large guide updates.
+`pnpm verify` is the fast local gate. `pnpm verify:full` is the PR CI gate; it
+adds Playwright browser coverage (computed-style contracts, TV geometry, axe
+accessibility) and a pack dry run. Use it before release-like changes or large
+guide updates. Their composition is the `scripts` block in `package.json` and nowhere else.
 
 ## Fonts And Assets
 

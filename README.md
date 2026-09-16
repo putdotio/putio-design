@@ -55,17 +55,6 @@ Package entrypoints:
 - Brand assets: [`system/assets`](system/assets) via `@putdotio/design/assets/<file>`
 - Design contract: [`DESIGN.md`](DESIGN.md)
 
-## Commands
-
-```bash
-pnpm install
-pnpm dev
-pnpm verify
-pnpm verify:full
-```
-
-Use `pnpm tokens:build` after token edits.
-
 ## Docs
 
 - [Design contract](DESIGN.md)

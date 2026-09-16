@@ -6,8 +6,6 @@ If you believe you have found a security or privacy issue in this project, pleas
 
 - email: devs@put.io
 
-Private reports are preferred for security and privacy issues.
-
 Do not open a public issue for vulnerabilities. If you are unsure whether something is sensitive, email first.
 
 ## Scope

@@ -68,13 +68,7 @@ font-size is responsive; the canonical values live in
 rule: CSS media queries can't read custom properties, so write the literal px
 in `@media` and keep it in sync with the `--bp-*` token.
 
-Web package consumers import the generated tokens first. Tier-1 consumers also
-import the component recipes:
-
-```css
-@import "@putdotio/design/css";
-@import "@putdotio/design/components";
-```
+Package consumers import as in the [README](../README.md#use).
 
 For **TV preview cards**, also load `tv.css` — it adds the `.tv`, `.scr`,
 `.row`, solid surface tiers, and player chrome on top of the tokens, authored
@@ -88,19 +82,10 @@ native UI stacks:
 <link rel="stylesheet" href="./tv.css">
 ```
 
-TV surfaces are **solid token colors** — no `backdrop-filter`, no translucent
-white fills. Focus is a fill: rows go transparent → `--component-bg-active`,
-buttons go `--component-bg` → `--component-bg-active` with the border stepping
-to `--border-hover`. There is no scale, shadow, halo, or white invert.
-
-The 10-foot scale itself is graph data, not CSS. The `tv` token group
-(`--tv-text-*`, `--tv-space-*`, `--tv-overscan-*`,
-`--tv-radius`, `--tv-z-*`) carries the 1:1 values for native emitters and is
-`mode: "tv"`, so it is deliberately **not** emitted into `tokens.css` — read it
-from `dist/tokens.flat.json`. Only `--radius-tv` (12px, the single radius for
-every TV surface) is global and reachable in CSS. Two things must not be folded
-into the web scales: TV has no mono face, and TV orders `--tv-z-overlay` (300)
-*above* `--tv-z-toast` (200), the opposite of the web `--z-*` stack.
+TV material, focus, and the `tv` token group rules live in
+[`../DESIGN.md`](../DESIGN.md) (Components). Guide specifics: the `tv` group is
+`mode: "tv"` and read from `dist/tokens.flat.json`; only `--radius-tv` is
+global and reachable in CSS.
 
 ## Core rules
 
@@ -115,22 +100,9 @@ into the web scales: TV has no mono face, and TV orders `--tv-z-overlay` (300)
 
 ## Binding tiers
 
-ADR 0009 (putio-frontend `docs/decisions/0009-design-binding-tiers.md`): **a
-web-rendered mock is never a native spec**. Every specimen card declares its
-tier in a strip above the artboard (`preview/_tier.css` — the only place the
-tier text lives besides `../DESIGN.md`; change both in the same PR).
-
-| Tier | Surfaces | What binds |
-| --- | --- | --- |
-| 0 | Foundations | The token graph. Binds all tiers, values only |
-| 1 | www · app · auth | The full system — `components.css` recipes are the contract, here and only here |
-| 2 | iOS · iPadOS · tvOS · watchOS · Android · Android TV | Tokens only; every control from the platform HIG / Material 3 |
-| 3 | Roku | Tier-2 token inheritance + put.io conventions in custom SceneGraph components |
-| 4 | tv.put.io · Tizen · webOS | The web system, restrained to a list-first 10-foot interface |
-
-A tier-1/3/4 card is a **Component** (put.io owns the recipe); a tier-2 card is
-an **Element** (the platform owns the control; the card documents how it is
-tokenized). Never read an Element card as a build-a-custom-control instruction.
+Tier definitions, the Component/Element distinction, and the `preview/_tier.css`
+pairing rule live in [`../DESIGN.md`](../DESIGN.md) (Binding Tiers). Never read
+an Element card as a build-a-custom-control instruction.
 
 Native cards are drawn 1:1 in their own unit — iPhone 393×852pt, iPad
 1024×768pt, Apple Watch 176×215pt, Android 412×915dp, TV 1920×1080px — so a

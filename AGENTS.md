@@ -9,14 +9,8 @@
 
 ## Commands
 
-```bash
-pnpm install
-pnpm verify
-pnpm verify:full
-pnpm dev
-```
-
-Use `pnpm tokens:build` after editing `tokens/**/*.tokens.json`.
+Setup, local run, validation, and the token rebuild rule:
+[Contributing](CONTRIBUTING.md). Scripts are defined in `package.json` under `scripts` and nowhere else.
 
 ## Skills
 
@@ -46,8 +40,7 @@ worktrees. Run `pnpm install` and `pnpm verify`.
 - Shared form and panel chrome lives in `--field-*` and `--panel-*` aliases.
 - Icons use Phosphor-style inline SVG. No emoji as UI icons.
 - TV surfaces are file browsers: list-first, focus-first, not poster grids.
-- Keep public docs generic. Private research, local paths, account data, team photos, and unreleased plans stay out.
-- Do not publish platform-native outputs from this repo. Platform repos consume generic CSS/JSON/DTCG artifacts and own adapters.
+- Public-safety list and the no-platform-native-outputs policy: [Distribution](docs/DISTRIBUTION.md#public-safety), [Package Artifacts](docs/DISTRIBUTION.md#package-artifacts).
 
 ## Content
 
@@ -65,13 +58,12 @@ Do not invent titles, posters, thumbnails, descriptions, codecs, or metadata the
 
 ## Typography
 
-The guide references GT America and Berkeley Mono by family name. Berkeley Mono is the
-only mono face; TV surfaces have no mono at all. Do not commit proprietary font files
-unless licensing is explicitly cleared.
+Berkeley Mono is the only mono face; TV surfaces have no mono at all. Font
+licensing and loading: [Distribution](docs/DISTRIBUTION.md#fonts-and-assets).
 
 ## Deploy
 
-Only the `production` SST stage is supported. Do not create preview, spike, or staging stages for this repo.
+Only the `production` SST stage is supported. Do not create preview, spike, or staging stages for this repo. Mechanics: [Distribution](docs/DISTRIBUTION.md#static-site).
 
 ## Finishing Work
 

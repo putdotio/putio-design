@@ -15,12 +15,7 @@ each platform repo owns the copy that ships in it.
 | [roku](roku/DESIGN.md) | 3 | Roku channel |
 | [tv-generic](tv-generic/DESIGN.md) | 4 | tv.put.io, Tizen, webOS |
 
-## Tiers
-
-1. **Web.** The full design system. The `components.css` recipes are the contract here and only here.
-2. **Native apps.** Tokens only. Every component comes from the platform's human interface guidelines.
-3. **Roku.** Tier-2 token inheritance plus room for put.io conventions in custom SceneGraph components.
-4. **Web TV.** The design system as on web, restrained to a list-first 10-foot interface.
+Tier definitions: [DESIGN.md Binding Tiers](../DESIGN.md#binding-tiers).
 
 ## Staying current
 

@@ -125,7 +125,7 @@ differ only where the platform's own focus behaviour differs.
 
 ## Style
 
-This file follows the house style in [system/README.md](../../system/README.md#house-style): one fact per line, tables over paragraphs, no em dashes.
+House style: one fact per line, tables over paragraphs, no em dashes.
 
 ## Don't
 
