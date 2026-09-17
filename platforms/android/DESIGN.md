@@ -37,7 +37,7 @@ provide one. At the current library versions, `Switch` is a TV component;
 
 There is no put.io Android component library and there will not be one.
 
-Tier definitions live in [ADR 0009](https://github.com/putdotio/putio-frontend/blob/main/docs/decisions/0009-design-binding-tiers.md).
+Tier definitions live in [Binding Tiers](../../DESIGN.md#binding-tiers).
 
 ## Phone and tablet colour scheme
 

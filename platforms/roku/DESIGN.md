@@ -35,7 +35,7 @@ That permission is narrow. Custom components use graph values and the shared TV
 row anatomy. A Roku screen a user could not recognise from their Apple TV has
 used it wrongly.
 
-Tier definitions live in [ADR 0009](https://github.com/putdotio/putio-frontend/blob/main/docs/decisions/0009-design-binding-tiers.md).
+Tier definitions live in [Binding Tiers](../../DESIGN.md#binding-tiers).
 
 ## Geometry
 
