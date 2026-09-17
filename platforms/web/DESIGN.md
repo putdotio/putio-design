@@ -22,7 +22,7 @@ Tier 1. The full design system applies: the component library, the
 **This is the one tier where the web recipes are the contract.** Every other
 tier inherits the token values and builds components from its own platform.
 
-Tier definitions live in [ADR 0009](https://github.com/putdotio/putio-frontend/blob/main/docs/decisions/0009-design-binding-tiers.md).
+Tier definitions live in [Binding Tiers](../../DESIGN.md#binding-tiers).
 
 ## Surfaces
 

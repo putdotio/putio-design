@@ -4,8 +4,8 @@ Per-platform binding contracts. One `DESIGN.md` each, in the shape of
 [putio-design DESIGN.md](https://github.com/putdotio/putio-design/blob/main/DESIGN.md):
 YAML frontmatter carrying the machine-readable contract, prose below it.
 
-These are the authoring drafts. Per [ADR 0009](https://github.com/putdotio/putio-frontend/blob/main/docs/decisions/0009-design-binding-tiers.md)
-each platform repo owns the copy that ships in it.
+These are the authoring drafts; each platform repo owns the copy that ships
+in it.
 
 | File | Tier | Binds |
 | --- | --- | --- |

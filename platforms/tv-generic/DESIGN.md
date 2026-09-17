@@ -25,7 +25,7 @@ The generic TV implementation is the reference look for **every** TV surface.
 Web TV and Roku match it directly. tvOS and Android TV align to the same family
 feel without giving up their platform's focus behaviour.
 
-Tier definitions live in [ADR 0009](https://github.com/putdotio/putio-frontend/blob/main/docs/decisions/0009-design-binding-tiers.md).
+Tier definitions live in [Binding Tiers](../../DESIGN.md#binding-tiers).
 
 ## Scale
 
