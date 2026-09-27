@@ -2,15 +2,16 @@
 
 ## Start Here
 
-1. [DESIGN.md](DESIGN.md): public design contract
-2. [Design guide](system/README.md): deployed site shape
-3. [Distribution](docs/DISTRIBUTION.md): deploy, package, and artifact policy
-4. [Contributing](CONTRIBUTING.md): local workflow
+- [DESIGN.md](DESIGN.md): public design contract
+- [Design guide](system/README.md): deployed site shape
+- [Distribution](docs/DISTRIBUTION.md): deploy, package, and artifact policy
+- [Contributing](CONTRIBUTING.md): local workflow
 
 ## Commands
 
 Setup, local run, validation, and the token rebuild rule:
-[Contributing](CONTRIBUTING.md). Scripts are defined in `package.json` under `scripts` and nowhere else.
+[Contributing](CONTRIBUTING.md). Command definitions: the `scripts` block in
+[package.json](package.json).
 
 ## PR Evidence
 

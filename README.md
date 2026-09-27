@@ -24,12 +24,13 @@ static guidance.
 
 ## Install
 
-Token sources live in [`tokens`](tokens). Generated package artifacts live in
-[`dist`](dist). Package-safe brand assets live in [`system/assets`](system/assets).
-
 ```bash
 npm install @putdotio/design
 ```
+
+Token sources live in [`tokens`](tokens), generated artifacts in
+[`dist`](dist), and package-safe brand assets in
+[`system/assets`](system/assets).
 
 ## Use
 
@@ -41,19 +42,21 @@ component recipes:
 @import "@putdotio/design/components";
 ```
 
-Component recipes should consume semantic aliases such as `--field-*`,
-`--panel-*`, `--primary`, `--success`, and `--destructive` instead of reaching
-into palette tokens directly.
+Component recipes consume semantic aliases such as `--field-*`, `--panel-*`,
+`--primary`, `--success`, and `--destructive`, not palette tokens.
 
-Package entrypoints:
+Package entrypoints, from `exports` in [package.json](package.json):
 
-- CSS custom properties: [`dist/css/tokens.css`](dist/css/tokens.css)
-- Tier-1 component recipes: [`system/components.css`](system/components.css)
-- DTCG token tree: [`dist/tokens.dtcg.json`](dist/tokens.dtcg.json)
-- Flat token metadata: [`dist/tokens.flat.json`](dist/tokens.flat.json)
-- Figma-safe subset: [`dist/figma/putio.tokens.json`](dist/figma/putio.tokens.json)
-- Brand assets: [`system/assets`](system/assets) via `@putdotio/design/assets/<file>`
-- Design contract: [`DESIGN.md`](DESIGN.md)
+| Subpath | File |
+| --- | --- |
+| `@putdotio/design/css` | [`dist/css/tokens.css`](dist/css/tokens.css) |
+| `@putdotio/design/components` | [`system/components.css`](system/components.css) |
+| `@putdotio/design/tokens` | [`dist/tokens.flat.json`](dist/tokens.flat.json) |
+| `@putdotio/design/tokens/meta` | [`dist/tokens.js`](dist/tokens.js), typed by [`dist/tokens.d.ts`](dist/tokens.d.ts) |
+| `@putdotio/design/tokens/dtcg` | [`dist/tokens.dtcg.json`](dist/tokens.dtcg.json) |
+| `@putdotio/design/tokens/figma` | [`dist/figma/putio.tokens.json`](dist/figma/putio.tokens.json) |
+| `@putdotio/design/assets/<file>` | [`system/assets`](system/assets) |
+| `@putdotio/design/design.md` | [`DESIGN.md`](DESIGN.md) |
 
 ## Docs
 
@@ -63,11 +66,6 @@ Package entrypoints:
 - [Contributing](CONTRIBUTING.md)
 - [Security](SECURITY.md)
 - [Agent guide](AGENTS.md)
-
-## Contributing
-
-See [Contributing](CONTRIBUTING.md) for local setup, validation, and pull
-request expectations.
 
 ## License
 
