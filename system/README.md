@@ -4,20 +4,16 @@ This folder holds the generated site tokens, preview cards, and design-system in
 
 ## Layout
 
-```
-project root/
-├── platforms/               ← per-platform binding contracts (DESIGN.md each)
-└── system/
-    ├── index.html           ← redirects to the design-system guide
-    ├── design-system.html   ← guide and preview-card index
-    ├── design-system-light.html ← legacy redirect to design-system.html?theme=light
-    ├── tokens.css           ← generated from ../tokens/**/*.tokens.json
-    ├── components.css       ← the tier-1 component layer (the web contract)
-    ├── tv.css               ← TV / 10ft component CSS, scoped to .tv artboards
-    ├── assets/              ← logos, favicons, retro marks, app icons
-    └── preview/             ← specimen cards for foundations + every platform tier
-        └── _*.css, _resize.js ← card chrome only (frame, tier strip, HIG/M3/Roku shells)
-```
+- `index.html` redirects to `design-system.html`, the guide and preview-card
+  index. `design-system-light.html` is a legacy redirect to
+  `design-system.html?theme=light`.
+- `tokens.css` is generated from `../tokens/**/*.tokens.json`; do not edit it.
+- `components.css` is the Tier-1 component layer (the web contract).
+- `tv.css` is the TV / 10-foot component CSS, scoped to `.tv` artboards.
+- `assets/` holds logos, favicons, retro marks, and app icons.
+- `preview/` holds specimen cards for the foundations and every platform tier.
+  Its `_`-prefixed files are card chrome only (frame, tier strip, HIG, M3, and
+  Roku shells, resize and password-toggle helpers).
 
 Cards are named `<platform>-<section><n>-<subject>.html` with section letter `f`
 foundations, `c` components, `e` elements, `p` patterns, or `s` screens
@@ -27,19 +23,18 @@ states, a spec strip, a don't block.
 
 ## Fonts
 
-Preview pages load the public put.io font CSS from `static.put.io` (the same
-source as the product), so the design system always matches production. Do not
-commit font files here. Two families, so each HTML file links two stylesheets in
-`<head>`:
+Preview pages load the public put.io font CSS from `static.put.io`, the same
+source as the product. Do not commit font files here. Each HTML file links both
+families in `<head>`:
 
 ```html
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 ```
 
-GT America Mono is retired. `--font-ui-mono` no longer exists and everything mono
-reads `--font-mono` (Berkeley Mono), whose tabular figures carry the numerics the
-UI mono used to. Do not re-add the `gt-america/mono/font.css` load.
+GT America Mono is retired: all mono text reads `--font-mono` (Berkeley Mono),
+whose tabular figures carry the numerics. Do not re-add the
+`gt-america/mono/font.css` load.
 
 Canonical weight mapping (matches the brand font host):
 `100 ultra-light · 200 thin · 300 light · 400 regular · 500 medium · 700 bold · 900 black`
@@ -127,17 +122,14 @@ screen, a native app mockup, and on-video player chrome are fixed-mode
 surfaces, so the `ios-*`, `android-*`, `androidtv-*`, `tvos-*`, `watchos-*`,
 `roku-*`, and `tv-*` cards plus `web-p06-player.html` are locked. Locked
 previews ignore both `localStorage` and parent broadcasts.
-If you write a new component preview, you almost certainly don't want the
-lock; let the tokens do the work and your specimen will render correctly in
-both modes.
+New component previews should not use the lock; the tokens render them
+correctly in both modes.
 
 ## shadcn / Base UI interop
 
-The token layer ships a name-alias bridge so external component libraries that
-read canonical shadcn token names theme correctly without renaming. Drop in a
-shadcn/ui block, install a Base UI component, paste a Tailwind preset: they
-resolve against our values via the aliases. Always alias, never duplicate, so
-the two name systems can't drift.
+The token layer aliases the canonical shadcn token names, so shadcn/ui blocks,
+Base UI components, and Tailwind presets resolve against put.io values without
+renaming. Always alias, never duplicate, so the two name systems cannot drift.
 
 | shadcn name | put.io target |
 | --- | --- |
@@ -162,9 +154,9 @@ The foreground tokens (`--primary-foreground`, `--destructive-foreground`,
 `--success-foreground`) encode the mode-safe inverse pair; always read these
 instead of writing literal `#000` / `#fff` on a solid surface.
 
-Use whichever name reads cleaner in context. Our own components prefer the long
-descriptive names (`--component-bg-hover`, `--yellow-text-secondary`) because
-they describe the role exactly. shadcn-imported code prefers the short names.
+put.io components prefer the long descriptive names (`--component-bg-hover`,
+`--yellow-text-secondary`) because they name the role exactly; shadcn-imported
+code keeps the short names.
 
 ### State via `data-state`, not class flags
 
@@ -174,8 +166,7 @@ on the DOM. Our components target those same attribute values in CSS; see the
 wizard step bar in `web-p00b-form-flows.html`
 (`.step[data-state="completed"]`) and the menu/table cards. Prefer `data-state`
 over inventing class flags (`.is-active`, `.on`, `.current`) so the same DOM
-contract works whether the controlling code is React, Vue, vanilla JS, or
-hand-written HTML, and so devtools can read the component's state at a glance.
+contract works with any controlling code and devtools show the state directly.
 
 ### Compound parts via `data-slot`
 
@@ -199,4 +190,5 @@ Four documented type stacks; pick one per surface:
 
 ## Preview cards
 
-Open `system/design-system.html` for the full index. Each card renders a single concept against the actual tokens; read it like a spec.
+`design-system.html` is the full index. Each card renders one concept against
+the real tokens; read it as a spec.

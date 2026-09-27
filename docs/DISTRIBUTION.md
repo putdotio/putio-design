@@ -12,8 +12,10 @@ SST deploys the checked-in `system/` directory to AWS S3, CloudFront, and Route
 pnpm deploy:production
 ```
 
-CI runs `pnpm verify:full` on every `main` push; the deploy workflow publishes
-without re-running verification.
+[`deploy.yml`](../.github/workflows/deploy.yml) deploys on `main` pushes that
+touch a path in its `on.push.paths` filter, which includes `DESIGN.md`,
+`docs/**`, `system/**`, `tokens/**`, and `dist/**`, and on manual dispatch. It
+does not re-run verification; CI runs `pnpm verify:full` on the same push.
 
 ## Package Artifacts
 
@@ -32,30 +34,18 @@ Roku, and TV repos consume the generic token artifacts and brand assets and
 own their platform adapters; revisit only if a consuming platform repo
 explicitly asks for a generated adapter.
 
-Merges to `main` are considered publishable. The CI workflow runs:
-
-1. `pnpm verify:full` on pull requests and `main` pushes.
-2. semantic-release on `main` after verification passes.
-
-semantic-release analyzes Conventional Commits, publishes to npm, creates
-GitHub Releases, and publishes the package with npm provenance.
+Merges to `main` are publishable. [ci.yml](../.github/workflows/ci.yml) runs
+`pnpm verify:full` on pull requests and `main` pushes, then semantic-release on
+`main`. The `release` config in `package.json` decides whether a commit
+publishes; releases go to npm with provenance and to GitHub Releases.
 
 ## Generated Files
 
-Token sources live in `tokens/**/*.tokens.json`. Generated files are checked in
-so package consumers and the static site do not need a build step:
-
-- `dist/css/tokens.css`
-- `dist/tokens.dtcg.json`
-- `dist/tokens.flat.json`
-- `dist/tokens.js`
-- `dist/tokens.d.ts`
-- `dist/figma/putio.tokens.json`
-- `system/tokens.css`
-
-Run `pnpm tokens:build` after token edits. `pnpm tokens:check` rebuilds the
-generated files and runs the design-system contract checks; CI fails if the
-rebuilt `dist/` and `system/tokens.css` differ from what is committed.
+Token sources live in `tokens/**/*.tokens.json`. The generated `dist/` files
+and `system/tokens.css` are checked in so package consumers and the static
+site need no build step. Run `pnpm tokens:build` after token edits;
+`pnpm tokens:check` rebuilds and runs the design-system contract checks, and
+CI fails if the rebuilt files differ from what is committed.
 
 Color tokens are emitted as `hsl()` / `hsla()` CSS values. Brand yellow remains
 canonical `#FDCE45` in prose and identity guidance, with the generated CSS value
