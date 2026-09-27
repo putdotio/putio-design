@@ -1,7 +1,5 @@
 # Contributing
 
-Thanks for contributing to put.io design.
-
 ## Setup
 
 ```bash
@@ -14,7 +12,8 @@ pnpm install
 pnpm dev
 ```
 
-Open the printed local URL. The guide loads production font CSS from `static.put.io`, so internet access helps visual review.
+Open the printed local URL. The guide loads production font CSS from
+`static.put.io`, so internet access helps visual review.
 
 ## Validation
 
@@ -33,6 +32,5 @@ Use `pnpm verify:full` before large guide, token, package, or deploy changes.
 
 ## Pull Requests
 
-- Keep changes focused.
 - Update docs when public behavior, commands, tokens, or delivery changes.
 - Use the pull request template and include the relevant verification command.
