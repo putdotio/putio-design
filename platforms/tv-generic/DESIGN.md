@@ -68,8 +68,10 @@ step both fill and border.
 | Control border | `tv.focus.control.border` | `tv.focus.control.borderFocused` |
 | Control edge width | `tv.focus.borderWidth` (3px) | same |
 
-Rows carry no border. The edge width never changes with focus, so focus never
-shifts layout. Label and icon stay `context.tv.text.primary`.
+Web TV rows carry no border; Roku adds a `tv.focus.control.borderFocused` edge
+at `tv.focus.borderWidth` to the focused row. The edge width never changes with
+focus, so focus never shifts layout. Label and icon stay
+`context.tv.text.primary`.
 
 Not a white-invert pill. Not `scale(1.06)`. Not a yellow halo. Both of those
 were invented in an earlier revision of these specimens and removed.

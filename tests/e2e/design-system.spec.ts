@@ -1219,6 +1219,25 @@ test.describe("design.put.io static guide", () => {
     expect(restingButtonWidth).toBe("3px");
   });
 
+  test("TV search field shares the button focus recipe @tv", async ({ page }) => {
+    await page.goto("/preview/tv-s03-search.html", { waitUntil: "domcontentloaded" });
+    await page.addStyleTag({ content: "* { transition: none !important; }" });
+    const recipe = (selector: string) =>
+      page.locator(selector).first().evaluate((element) => {
+        const styles = getComputedStyle(element);
+        return { background: styles.backgroundColor, border: styles.borderTopColor, borderWidth: styles.borderTopWidth };
+      });
+    const resting = { field: await recipe(".sfield"), button: await recipe(".btn") };
+    for (const selector of [".sfield", ".btn"]) {
+      await page.locator(selector).first().evaluate((element) => element.classList.add("focused"));
+    }
+    const focused = { field: await recipe(".sfield"), button: await recipe(".btn") };
+
+    expect(resting.field).toEqual(resting.button);
+    expect(focused.field).toEqual(focused.button);
+    expect(focused.field.borderWidth).toBe("3px");
+  });
+
   for (const pagePath of axePages) {
     test(`${pagePath} has no serious automated accessibility violations @desktop`, async ({ page }) => {
       test.slow();

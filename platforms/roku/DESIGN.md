@@ -183,8 +183,9 @@ A `FocusBackground` node behind the row, toggled by `itemHasFocus`. Fill is
 lists have no z-axis.
 
 The shared values are the `tv.focus` group, the same one web TV reads:
-`tv.focus.row.*` for row fills, `tv.focus.control.*` for button fill and edge,
-and `tv.focus.borderWidth` for the 3px edge.
+`tv.focus.row.*` for row fills, `tv.focus.control.borderFocused` for the
+focused row edge, `tv.focus.control.*` for button fill and edge, and
+`tv.focus.borderWidth` for every 3px edge.
 
 Closest of the four TV tiers to tv.put.io. Furthest from tvOS, which lifts.
 
