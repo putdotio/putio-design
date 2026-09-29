@@ -68,8 +68,7 @@ step both fill and border.
 | Control border | `tv.focus.control.border` | `tv.focus.control.borderFocused` |
 | Control edge width | `tv.focus.borderWidth` (3px) | same |
 
-Web TV rows carry no border; Roku adds a `tv.focus.control.borderFocused` edge
-at `tv.focus.borderWidth` to the focused row. The edge width never changes with
+Rows carry no border, on web TV or Roku. The edge width never changes with
 focus, so focus never shifts layout. Label and icon stay
 `context.tv.text.primary`.
 
@@ -128,7 +127,7 @@ All four TV surfaces read as one product:
 | Surface | Tier | Focus |
 | --- | --- | --- |
 | tv.put.io, Tizen, webOS | 4 | `--component-bg-active` fill |
-| Roku | 3 | nine-patch footprint, fill plus a 3px edge |
+| Roku | 3 | nine-patch footprint, fill only |
 | tvOS | 2 | system lift: scale, shadow, parallax tilt |
 | Android TV | 2 | Compose scale plus elevation, no tilt |
 
