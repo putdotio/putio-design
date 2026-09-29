@@ -179,8 +179,14 @@ into the value slot. State is that value string; OK cycles it. No switches.
 ### Focus
 
 A `FocusBackground` node behind the row, toggled by `itemHasFocus`. Fill is
-`focus` with a `borderHover` edge at 3px. No scale, no elevation: SceneGraph
-lists have no z-axis.
+`focus`, tinting a flat nine-patch; the row has no edge. `uiBorderWidth()` is
+for dialogs, TrackMenu and the header divider. No scale, no elevation:
+SceneGraph lists have no z-axis.
+
+The row fills are `tv.focus.row.*`, the same pair web TV reads. Dialog
+buttons carry no border and keep `applyDialogButtonState`: primary steps to
+`primary` with `textInverse`, secondary to `buttonFocus`, danger to
+`dangerFocused`. They do not read `tv.focus.control.*`.
 
 Closest of the four TV tiers to tv.put.io. Furthest from tvOS, which lifts.
 

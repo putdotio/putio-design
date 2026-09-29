@@ -68,6 +68,12 @@ const tokenAliasContracts: TokenAliasContract[] = [
   { name: "component.input.placeholderDark", source: "component.field.placeholderDark", cssName: "--input-placeholder", mode: "dark" },
   { name: "component.input.radius", source: "component.field.radius", cssName: "--input-radius", mode: "global" },
   { name: "context.tv.text.tertiary", source: "context.tv.text.secondary", cssName: "--text-3", mode: "tv" },
+  { name: "tv.focus.row.background", source: "surface.dark.listItemBg", cssName: "--tv-focus-row-bg", mode: "tv" },
+  { name: "tv.focus.row.backgroundFocused", source: "color.neutral.dark.componentBgActive", cssName: "--tv-focus-row-bg-focused", mode: "tv" },
+  { name: "tv.focus.control.background", source: "color.neutral.dark.componentBg", cssName: "--tv-focus-control-bg", mode: "tv" },
+  { name: "tv.focus.control.backgroundFocused", source: "color.neutral.dark.componentBgActive", cssName: "--tv-focus-control-bg-focused", mode: "tv" },
+  { name: "tv.focus.control.border", source: "color.neutral.dark.border", cssName: "--tv-focus-control-border", mode: "tv" },
+  { name: "tv.focus.control.borderFocused", source: "color.neutral.dark.borderHover", cssName: "--tv-focus-control-border-focused", mode: "tv" },
 ];
 const tokenValueContracts: TokenValueContract[] = [
   { name: "component.alias.primaryForeground", cssName: "--primary-foreground", value: "hsl(38, 65%, 10%)", mode: "global" },
@@ -246,6 +252,15 @@ async function checkTokens() {
   assert(flat["tv.overscan.y"]?.type === "number", "tv.overscan.y must be a portable number ratio");
   assert(flat["tv.overscan.y"]?.value === 0.02, "tv.overscan.y must equal 0.02");
   assert(flat["tv.overscan.y"]?.basis === "viewport-height", "tv.overscan.y must declare viewport-height basis");
+  assert(flat["tv.focus.borderWidth"]?.mode === "tv", "tv.focus.borderWidth must be tv mode");
+  assert(flat["tv.focus.borderWidth"]?.value === "3px", "tv.focus.borderWidth must equal 3px, a multiple of Roku's 3px FHD grid");
+  for (const [row, control] of [
+    ["tv.focus.row.background", "tv.focus.row.backgroundFocused"],
+    ["tv.focus.control.background", "tv.focus.control.backgroundFocused"],
+    ["tv.focus.control.border", "tv.focus.control.borderFocused"],
+  ]) {
+    assert(flat[row]?.value !== flat[control]?.value, `${control} must step away from ${row}`);
+  }
 
   for (const [name, token] of Object.entries(flat)) {
     assert(token.cssName.startsWith("--"), `${name} cssName must be a CSS custom property`);
@@ -609,6 +624,30 @@ async function checkCss() {
   assert(!/!important/.test(tvCss), "tv.css 10-foot styles must not use !important");
   assert(!/^:root\s*\{[\s\S]*?--surf-/m.test(tvCss), "TV-specific tokens must be scoped to .tv, not :root");
   assert(!/^\.tv-content\s*\{/m.test(tvCss), "tv.css component selectors must remain scoped under .tv");
+
+  // tv.css mirrors the tv.focus group under .tv because mode "tv" tokens are absent from tokens.css.
+  const flat = JSON.parse(await readFile(path.join(root, "dist/tokens.flat.json"), "utf8")) as Record<string, TokenRecord>;
+  const tvRule = cssRule(tvCss, ".tv");
+  const tvDeclarations = new Map(
+    tvRule.split("\n").map((line) => {
+      const separator = line.indexOf(":");
+      return [line.slice(0, separator), line.slice(separator + 1).trim().replace(/;$/, "")] as const;
+    }),
+  );
+  const darkByCssName = new Map(
+    Object.values(flat)
+      .filter((token) => token.mode === "dark" || token.mode === "global")
+      .map((token) => [token.cssName, token.value]),
+  );
+  const focusTokens = Object.entries(flat).filter(([name]) => name.startsWith("tv.focus."));
+  assert(focusTokens.length > 0, "tv.focus tokens must exist");
+  for (const [name, token] of focusTokens) {
+    const declared = tvDeclarations.get(token.cssName);
+    assert(declared, `tv.css .tv must declare ${token.cssName} for ${name}`);
+    const alias = /^var\((--[a-z0-9-]+)\)$/.exec(declared);
+    const resolved = alias ? darkByCssName.get(alias[1]) : declared;
+    assert(resolved === token.value, `tv.css ${token.cssName} must resolve to ${name} (${token.value}), got ${declared}`);
+  }
 }
 
 async function main() {

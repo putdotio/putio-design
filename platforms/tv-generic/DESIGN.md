@@ -61,6 +61,17 @@ order.
 A fill, never a lift. Rows go transparent to `--component-bg-active`. Buttons
 step both fill and border.
 
+| Role | Rest | Focused |
+| --- | --- | --- |
+| Row fill | `tv.focus.row.background` | `tv.focus.row.backgroundFocused` |
+| Control fill | `tv.focus.control.background` | `tv.focus.control.backgroundFocused` |
+| Control border | `tv.focus.control.border` | `tv.focus.control.borderFocused` |
+| Control edge width | `tv.focus.borderWidth` (3px) | same |
+
+Rows carry no border, on web TV or Roku. The edge width never changes with
+focus, so focus never shifts layout. Label and icon stay
+`context.tv.text.primary`.
+
 Not a white-invert pill. Not `scale(1.06)`. Not a yellow halo. Both of those
 were invented in an earlier revision of these specimens and removed.
 
@@ -116,7 +127,7 @@ All four TV surfaces read as one product:
 | Surface | Tier | Focus |
 | --- | --- | --- |
 | tv.put.io, Tizen, webOS | 4 | `--component-bg-active` fill |
-| Roku | 3 | nine-patch footprint, fill plus a 3px edge |
+| Roku | 3 | nine-patch footprint, fill only |
 | tvOS | 2 | system lift: scale, shadow, parallax tilt |
 | Android TV | 2 | Compose scale plus elevation, no tilt |
 
