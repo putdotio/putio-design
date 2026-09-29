@@ -182,6 +182,10 @@ A `FocusBackground` node behind the row, toggled by `itemHasFocus`. Fill is
 `focus` with a `borderHover` edge at 3px. No scale, no elevation: SceneGraph
 lists have no z-axis.
 
+The shared values are the `tv.focus` group, the same one web TV reads:
+`tv.focus.row.*` for row fills, `tv.focus.control.*` for button fill and edge,
+and `tv.focus.borderWidth` for the 3px edge.
+
 Closest of the four TV tiers to tv.put.io. Furthest from tvOS, which lifts.
 
 ## Content

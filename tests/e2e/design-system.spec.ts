@@ -1209,11 +1209,14 @@ test.describe("design.put.io static guide", () => {
     });
     const buttonStyles = await page.locator(".btn.focused").first().evaluate((element) => {
       const styles = getComputedStyle(element);
-      return { background: styles.backgroundColor, border: styles.borderTopColor };
+      return { background: styles.backgroundColor, border: styles.borderTopColor, borderWidth: styles.borderTopWidth };
     });
+    const restingButtonWidth = await page.locator(".btn:not(.focused)").first().evaluate((element) => getComputedStyle(element).borderTopWidth);
 
     expect(rowStyles).toEqual({ background: active, borderWidth: "0px" });
-    expect(buttonStyles).toEqual({ background: active, border: hoverBorder });
+    // tv.focus.borderWidth: the edge is identical at rest and in focus.
+    expect(buttonStyles).toEqual({ background: active, border: hoverBorder, borderWidth: "3px" });
+    expect(restingButtonWidth).toBe("3px");
   });
 
   for (const pagePath of axePages) {
