@@ -185,7 +185,7 @@ The signed-out screen is shared with Android and drawn in
 | Lede | Body 17/1.4, `--text-secondary`, 16 below the heading |
 | Position | content starts 128 below the header |
 | Action | one full-width `.borderedProminent` large capsule (50pt, 20pt side margin) **Sign in**; it opens put.io OAuth in the browser |
-| States | session expired and sign-in failed: a notice 32 below the heading, its icon aligned to the first text line; browser open: **Almost there**, the lede, a 24 spinner 16 below it and a secondary **Cancel** |
+| States | session expired, sign-in failed and secure storage unavailable: a notice 32 below the heading, its icon aligned to the first text line, with **Sign in**, **Try again** or **Reset and sign in**; browser open: **Almost there**, the lede, a 24 spinner 32 below it and a secondary **Cancel** |
 
 The kaomoji is the one native exception to the tier-1 voice rule. There is no
 sign-up link, password field or illustration.
