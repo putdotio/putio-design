@@ -1,14 +1,14 @@
 ---
-version: "0.1.0"
+version: "0.2.0"
 name: "put.io on Android"
 description: "Binding contract for Android and Android TV. Tier 2: tokens only, every component from Material 3."
 tier: 2
 platforms: ["Android", "Android TV"]
 source: "Material 3 + @putdotio/design token graph"
 reviewed:
-  date: "2026-08-29"
+  date: "2026-10-03"
   against: "Material 3 + Google's TV design (Compose for TV) + the native Android binding + the token graph."
-  cards: ["android-s00-shell", "android-s01-settings", "androidtv-s00-shell", "androidtv-s01-search", "androidtv-s02-account", "androidtv-s03-continue-watching"]
+  cards: ["android-s00-shell", "android-s01-settings", "androidtv-s00-shell", "androidtv-s01-search", "androidtv-s02-account", "androidtv-s03-continue-watching", "mobile-s00-welcome"]
 canvas:
   phone: "412x915dp"
   tv: "1920x1080px"
@@ -212,11 +212,11 @@ The signed-out screen is shared with iOS and drawn in
 | Part | Value |
 | --- | --- |
 | Header | `logo-retro-dark.svg`, 88 wide, centred in the 64dp top app bar slot |
-| Heading | `┌( ಠ‿ಠ)┘` on its own line, 32 above **Welcome!**; both headlineLarge 32; kaomoji semibold (its glyphs draw as hairlines), title medium |
+| Heading | `┌( ಠ‿ಠ)┘` on its own line, 32 above **Welcome!**; both headlineLarge 32/40; kaomoji semibold (its glyphs draw as hairlines), title medium |
 | Lede | bodyLarge 16/1.5, `--text-secondary`, 16 below the heading |
 | Position | content starts 128 below the header |
 | Action | one full-width M3 `Button` at the 56dp medium size, not the 40dp default, as the screen's only action (16dp side margin) **Sign in**; it opens put.io OAuth in the browser |
-| States | session expired, sign-in failed and secure storage unavailable: a notice 32 below the heading, its icon aligned to the first text line, with **Sign in**, **Try again** or **Reset and sign in**; browser open: **Almost there**, the lede, a 24 spinner 32 below it and a secondary **Cancel** |
+| States | session expired (heading **Welcome back!**), sign-in failed and secure storage unavailable: a notice on `--component-bg` 32 below the heading, its icon aligned to the first text line, with **Sign in**, **Try again** or **Reset and sign in**; browser open: **Almost there**, the lede, a 24 spinner 32 below it and an outlined **Cancel** |
 
 The kaomoji is the one native exception to the tier-1 voice rule. There is no
 sign-up link, password field or illustration.
