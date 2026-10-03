@@ -212,11 +212,11 @@ The signed-out screen is shared with iOS and drawn in
 | Part | Value |
 | --- | --- |
 | Header | `logo-retro-dark.svg`, 88 wide, centred in the 64dp top app bar slot |
-| Heading | `┌( ಠ‿ಠ)┘` on its own line, 32 above **Welcome!**; both headlineLarge 32, medium |
+| Heading | `┌( ಠ‿ಠ)┘` on its own line, 32 above **Welcome!**; both headlineLarge 32; kaomoji semibold (its glyphs draw as hairlines), title medium |
 | Lede | bodyLarge 16/1.5, `--text-secondary`, 16 below the heading |
 | Position | content starts 128 below the header |
-| Action | one full-width M3 `Button` (56dp, 16dp side margin) **Sign in**; it opens put.io OAuth in the browser |
-| States | session expired, browser open, sign-in failed: a notice 32 below the heading, its icon aligned to the first text line |
+| Action | one full-width M3 `Button` at the 56dp medium size, not the 40dp default, as the screen's only action (16dp side margin) **Sign in**; it opens put.io OAuth in the browser |
+| States | session expired and sign-in failed: a notice 32 below the heading, its icon aligned to the first text line; browser open: **Almost there**, the lede, a 24 spinner 16 below it and a secondary **Cancel** |
 
 The kaomoji is the one native exception to the tier-1 voice rule. There is no
 sign-up link, password field or illustration.
