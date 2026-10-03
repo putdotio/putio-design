@@ -1,14 +1,14 @@
 ---
-version: "0.2.0"
+version: "0.3.0"
 name: "put.io on Apple platforms"
 description: "Binding contract for iOS, iPadOS, watchOS and tvOS. Tier 2: tokens only, every component from the HIG."
 tier: 2
 platforms: ["iOS 26", "iPadOS 26", "watchOS", "tvOS"]
 source: "Apple HIG + @putdotio/design token graph"
 reviewed:
-  date: "2026-08-29"
+  date: "2026-10-03"
   against: "Apple HIG (iOS 26 / iPadOS 26 / watchOS / tvOS) + the token graph + stock SwiftUI controls."
-  cards: ["ios-s00-shell", "ios-s01-files", "ios-s02-transfers", "ios-s04-settings", "ios-s03-players", "watchos-s00-shell", "tvos-s00-shell", "tvos-s01-search", "tvos-s02-account", "tvos-s03-continue-watching"]
+  cards: ["ios-s00-shell", "ios-s01-files", "ios-s02-transfers", "ios-s04-settings", "ios-s03-players", "watchos-s00-shell", "tvos-s00-shell", "tvos-s01-search", "tvos-s02-account", "tvos-s03-continue-watching", "mobile-s00-welcome"]
 canvas:
   iphone: "393x852pt"
   ipad: "1024x768pt"
@@ -172,6 +172,23 @@ treatment.
 The tvOS cards document how search, account and pre-play continuation bind the
 token graph to platform navigation and focus. Platform apps own the native
 implementation.
+
+## Welcome
+
+The signed-out screen is shared with Android and drawn in
+[`mobile-s00-welcome`](../../system/preview/mobile-s00-welcome.html).
+
+| Part | Value |
+| --- | --- |
+| Header | `logo-retro-dark.svg`, 88 wide, centred in the 44pt nav bar slot |
+| Heading | `┌( ಠ‿ಠ)┘` on its own line, 32 above **Welcome!**; both Large Title 34/41; kaomoji semibold (its glyphs draw as hairlines), title medium |
+| Lede | Body 17/1.4, `--text-secondary`, 16 below the heading |
+| Position | content starts 128 below the header |
+| Action | one full-width `.borderedProminent` large capsule (50pt, 20pt side margin) **Sign in**; it opens put.io OAuth in the browser |
+| States | session expired (heading **Welcome back!**), sign-in failed and secure storage unavailable: a notice on `--component-bg` 32 below the heading, its icon aligned to the first text line, with **Sign in**, **Try again** or **Reset and sign in**. No browser-open state: `ASWebAuthenticationSession` is modal and reports cancellation through its callback |
+
+The kaomoji is the one native exception to the tier-1 voice rule. There is no
+sign-up link, password field or illustration.
 
 ## Content
 
