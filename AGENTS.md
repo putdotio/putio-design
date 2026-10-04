@@ -67,7 +67,7 @@ licensing and loading: [Distribution](docs/DISTRIBUTION.md#fonts-and-assets).
   from `pnpm dev` in light and dark.
 - Scripts, infra, or package config: `pnpm verify:full`.
 - `DESIGN.md`: `pnpm verify`, which checks its frontmatter against the tokens.
-- Other Markdown: no runtime proof.
+- Other Markdown: `pnpm markdown:check`; no runtime proof.
 
 ## Delivery
 

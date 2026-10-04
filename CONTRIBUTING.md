@@ -23,6 +23,9 @@ pnpm verify
 
 Use `pnpm verify:full` before large guide, token, package, or deploy changes.
 
+`pnpm verify` includes the Markdown formatting check; `pnpm exec oxfmt "**/*.md"`
+fixes it.
+
 ## Development Notes
 
 - Edit token sources in `tokens/**/*.tokens.json`.
