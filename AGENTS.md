@@ -1,5 +1,9 @@
 # Agent Guide
 
+put.io's design system. Token sources build the public `@putdotio/design` npm
+package, which the web, Apple, Android, Roku, and TV apps consume, and the
+public guide at `design.put.io`. Everything here ships publicly.
+
 ## Start Here
 
 - [DESIGN.md](DESIGN.md): public design contract
@@ -55,10 +59,21 @@ Do not invent titles, posters, thumbnails, descriptions, codecs, or metadata the
 Berkeley Mono is the only mono face; TV surfaces have no mono at all. Font
 licensing and loading: [Distribution](docs/DISTRIBUTION.md#fonts-and-assets).
 
-## Deploy
+## Proof
 
-Only the `production` SST stage is supported. Do not create preview, spike, or staging stages for this repo. Mechanics: [Distribution](docs/DISTRIBUTION.md#static-site).
+- Token sources: `pnpm tokens:build`, commit `dist/` and `system/tokens.css`,
+  then `pnpm verify:full`.
+- Guide (`system/**`): `pnpm verify:full`, then check the affected section
+  from `pnpm dev` in light and dark.
+- Scripts, infra, or package config: `pnpm verify:full`.
+- `DESIGN.md`: `pnpm verify`, which checks its frontmatter against the tokens.
+- Other Markdown: no runtime proof.
 
-## Finishing Work
+## Delivery
 
-Finish token, guide, and preview edits plus `pnpm verify` without pausing; ask before deploys, writes to the external design project, and anything outside the task. Done means `pnpm verify` (or `pnpm verify:full` for guide or token changes) passed and the affected guide section was checked in both modes.
+Pull requests squash-merge into `main`. A merge runs [CI](.github/workflows/ci.yml),
+whose semantic-release step publishes `@putdotio/design` to npm when a commit
+warrants a release, and [Deploy](.github/workflows/deploy.yml) redeploys
+`design.put.io` when the merge touches its paths, `docs/**` included. Only the
+`production` SST stage exists; do not create preview, spike, or staging
+stages. Mechanics: [Distribution](docs/DISTRIBUTION.md#static-site).
