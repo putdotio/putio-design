@@ -28,8 +28,8 @@ source as the product. Do not commit font files here. Each HTML file links both
 families in `<head>`:
 
 ```html
-<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
-<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
+<link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css" />
+<link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css" />
 ```
 
 GT America Mono is retired: all mono text reads `--font-mono` (Berkeley Mono),
@@ -44,7 +44,7 @@ Canonical weight mapping (matches the brand font host):
 For the static guide, pages in `system/` load the generated site stylesheet:
 
 ```html
-<link rel="stylesheet" href="./tokens.css">
+<link rel="stylesheet" href="./tokens.css" />
 ```
 
 The canonical source is DTCG-compatible JSON in [`../tokens`](../tokens). This
@@ -73,8 +73,7 @@ into web components. Platform repos still implement TV components in their
 native UI stacks:
 
 ```html
-<link rel="stylesheet" href="./tokens.css">
-<link rel="stylesheet" href="./tv.css">
+<link rel="stylesheet" href="./tokens.css" /> <link rel="stylesheet" href="./tv.css" />
 ```
 
 TV material, focus, and the `tv` token group rules live in
@@ -131,18 +130,18 @@ The token layer aliases the canonical shadcn token names, so shadcn/ui blocks,
 Base UI components, and Tailwind presets resolve against put.io values without
 renaming. Always alias, never duplicate, so the two name systems cannot drift.
 
-| shadcn name | put.io target |
-| --- | --- |
-| `--primary` / `--primary-foreground` | `--yellow-solid` / `var(--primary-foreground)` (warm dark) |
+| shadcn name                                  | put.io target                                              |
+| -------------------------------------------- | ---------------------------------------------------------- |
+| `--primary` / `--primary-foreground`         | `--yellow-solid` / `var(--primary-foreground)` (warm dark) |
 | `--destructive` / `--destructive-foreground` | `--red-solid` / `var(--destructive-foreground)` (= `#fff`) |
-| `--success` / `--success-foreground` | `--green-solid` / `var(--success-foreground)` (= `#fff`) |
-| `--muted` / `--muted-foreground` | `--bg-secondary` / `--text-secondary` |
-| `--accent` / `--accent-foreground` | `--component-bg` / `--text` |
-| `--card` / `--card-foreground` | `--component-bg` / `--text` |
-| `--popover` / `--popover-foreground` | `--component-bg` / `--text` |
-| `--input` | `--border` |
-| `--ring` | `--shadow-focus-color` |
-| `--background` / `--foreground` | `--bg` / `--text` |
+| `--success` / `--success-foreground`         | `--green-solid` / `var(--success-foreground)` (= `#fff`)   |
+| `--muted` / `--muted-foreground`             | `--bg-secondary` / `--text-secondary`                      |
+| `--accent` / `--accent-foreground`           | `--component-bg` / `--text`                                |
+| `--card` / `--card-foreground`               | `--component-bg` / `--text`                                |
+| `--popover` / `--popover-foreground`         | `--component-bg` / `--text`                                |
+| `--input`                                    | `--border`                                                 |
+| `--ring`                                     | `--shadow-focus-color`                                     |
+| `--background` / `--foreground`              | `--bg` / `--text`                                          |
 
 There is also a full `--input-*` set (`-bg`, `-border`, `-border-hover`,
 `-border-focus`, `-ring`, `-text`, `-placeholder`, `-radius`) that aliases the
@@ -181,12 +180,12 @@ nested class chains.
 
 Four documented type stacks; pick one per surface:
 
-| Variant | Stack | Use when |
-|---------|-------|----------|
-| Clean Modern | GT America | default app UI |
-| Monospace | Berkeley Mono | terminal, logs, technical dashboards |
-| Brutalist | GT America Black + Berkeley Mono | marketing punctuation |
-| Editorial | GT America Black 900 (tight tracking) + GT America | landing hero, about |
+| Variant      | Stack                                              | Use when                             |
+| ------------ | -------------------------------------------------- | ------------------------------------ |
+| Clean Modern | GT America                                         | default app UI                       |
+| Monospace    | Berkeley Mono                                      | terminal, logs, technical dashboards |
+| Brutalist    | GT America Black + Berkeley Mono                   | marketing punctuation                |
+| Editorial    | GT America Black 900 (tight tracking) + GT America | landing hero, about                  |
 
 ## Preview cards
 

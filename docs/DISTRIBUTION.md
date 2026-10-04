@@ -5,8 +5,7 @@ This repo ships two public surfaces: the static guide at `design.put.io` and the
 
 ## Static Site
 
-SST deploys the checked-in `system/` directory to AWS S3, CloudFront, and Route
-53. Only the `production` stage is supported.
+SST deploys the checked-in `system/` directory to AWS S3, CloudFront, and Route 53. Only the `production` stage is supported.
 
 ```bash
 pnpm deploy:production

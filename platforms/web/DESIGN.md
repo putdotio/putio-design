@@ -26,11 +26,11 @@ Tier definitions live in [Binding Tiers](../../DESIGN.md#binding-tiers).
 
 ## Surfaces
 
-| Surface | Rules |
-| --- | --- |
-| App | dark by default, dense, 14px body, 1440x900 |
-| Landing | either mode, 16px body, more air |
-| Auth | panel on page background, `--panel-*` aliases |
+| Surface | Rules                                         |
+| ------- | --------------------------------------------- |
+| App     | dark by default, dense, 14px body, 1440x900   |
+| Landing | either mode, 16px body, more air              |
+| Auth    | panel on page background, `--panel-*` aliases |
 
 Dark is the product default. Light is allowed for landing, docs and narrow
 product states where readability is stronger.
@@ -40,15 +40,15 @@ product states where readability is stronger.
 The root [DESIGN.md](../../DESIGN.md) owns every web value and rule; this file
 does not restate them.
 
-| Topic | Owner |
-| --- | --- |
-| Root font-size, `--fs-*`, spacing ramp, `--z-*`, `--bp-*` | [Layout & Spacing](../../DESIGN.md#layout--spacing), [Typography](../../DESIGN.md#typography) |
-| Radius scale | [Shapes](../../DESIGN.md#shapes) |
-| Button tiers, outline rule, the four sizes, `--nav-height` | [Components](../../DESIGN.md#components) |
-| File rows, `--field-*`, `--panel-*`, `aria-invalid` | [Components](../../DESIGN.md#components) |
-| GT America coverage, Berkeley Mono roles, weights | [Typography](../../DESIGN.md#typography) |
-| Yellow, hover peer, semantic scales | [Colors](../../DESIGN.md#colors) |
-| Elevation | [Elevation & Depth](../../DESIGN.md#elevation--depth) |
+| Topic                                                      | Owner                                                                                         |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Root font-size, `--fs-*`, spacing ramp, `--z-*`, `--bp-*`  | [Layout & Spacing](../../DESIGN.md#layout--spacing), [Typography](../../DESIGN.md#typography) |
+| Radius scale                                               | [Shapes](../../DESIGN.md#shapes)                                                              |
+| Button tiers, outline rule, the four sizes, `--nav-height` | [Components](../../DESIGN.md#components)                                                      |
+| File rows, `--field-*`, `--panel-*`, `aria-invalid`        | [Components](../../DESIGN.md#components)                                                      |
+| GT America coverage, Berkeley Mono roles, weights          | [Typography](../../DESIGN.md#typography)                                                      |
+| Yellow, hover peer, semantic scales                        | [Colors](../../DESIGN.md#colors)                                                              |
+| Elevation                                                  | [Elevation & Depth](../../DESIGN.md#elevation--depth)                                         |
 
 Every file-type icon is `--yellow-solid`, Phosphor, all types.
 

@@ -22,17 +22,17 @@ colors:
     danger: "hsl(358, 75%, 59%)"
 typography:
   ui:
-    family: "\"GT America\", sans-serif"
+    family: '"GT America", sans-serif'
     weight: 400
     size: "1rem"
     lineHeight: 1.45
   display:
-    family: "\"GT America\", sans-serif"
+    family: '"GT America", sans-serif'
     weight: 900
     size: "96px"
     lineHeight: 1.1
   mono:
-    family: "\"Berkeley Mono\", monospace"
+    family: '"Berkeley Mono", monospace'
     weight: 400
     size: "0.875rem"
     lineHeight: 1.45

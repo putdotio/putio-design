@@ -8,7 +8,16 @@ source: "Material 3 + @putdotio/design token graph"
 reviewed:
   date: "2026-10-03"
   against: "Material 3 + Google's TV design (Compose for TV) + the native Android binding + the token graph."
-  cards: ["android-s00-shell", "android-s01-settings", "androidtv-s00-shell", "androidtv-s01-search", "androidtv-s02-account", "androidtv-s03-continue-watching", "mobile-s00-welcome"]
+  cards:
+    [
+      "android-s00-shell",
+      "android-s01-settings",
+      "androidtv-s00-shell",
+      "androidtv-s01-search",
+      "androidtv-s02-account",
+      "androidtv-s03-continue-watching",
+      "mobile-s00-welcome",
+    ]
 canvas:
   phone: "412x915dp"
   tv: "1920x1080px"
@@ -41,30 +50,30 @@ Tier definitions live in [Binding Tiers](../../DESIGN.md#binding-tiers).
 
 ## Phone and tablet colour scheme
 
-| M3 role | put.io token |
-| --- | --- |
-| `primary` | `--yellow-solid` |
-| `onPrimary` | `--primary-foreground` |
-| `primaryContainer` | `--yellow-solid` |
-| `onPrimaryContainer` | `--primary-foreground` |
-| `secondary` | `--text` |
-| `secondaryContainer` | `--yellow-solid` at 26% |
-| `onSecondaryContainer` | `--yellow-solid` |
-| `background` | `--app-bg` |
-| `onBackground` | `--text` |
-| `surface` | `--app-bg` |
-| `onSurface` | `--text` |
-| `onSurfaceVariant` | `--text-secondary` |
-| `surfaceContainerLow` | `--component-bg` |
-| `surfaceContainer` | `--component-bg` |
-| `surfaceContainerHigh` | `--component-bg-hover` |
-| `surfaceContainerHighest` | `--component-bg-active` |
-| `inverseSurface` | `--component-bg-active` |
-| `inverseOnSurface` | `--text` |
-| `inversePrimary` | `--yellow-text-secondary` |
-| `outline` | `--border` |
-| `outlineVariant` | `--line` |
-| `error` | `--red-solid` |
+| M3 role                   | put.io token              |
+| ------------------------- | ------------------------- |
+| `primary`                 | `--yellow-solid`          |
+| `onPrimary`               | `--primary-foreground`    |
+| `primaryContainer`        | `--yellow-solid`          |
+| `onPrimaryContainer`      | `--primary-foreground`    |
+| `secondary`               | `--text`                  |
+| `secondaryContainer`      | `--yellow-solid` at 26%   |
+| `onSecondaryContainer`    | `--yellow-solid`          |
+| `background`              | `--app-bg`                |
+| `onBackground`            | `--text`                  |
+| `surface`                 | `--app-bg`                |
+| `onSurface`               | `--text`                  |
+| `onSurfaceVariant`        | `--text-secondary`        |
+| `surfaceContainerLow`     | `--component-bg`          |
+| `surfaceContainer`        | `--component-bg`          |
+| `surfaceContainerHigh`    | `--component-bg-hover`    |
+| `surfaceContainerHighest` | `--component-bg-active`   |
+| `inverseSurface`          | `--component-bg-active`   |
+| `inverseOnSurface`        | `--text`                  |
+| `inversePrimary`          | `--yellow-text-secondary` |
+| `outline`                 | `--border`                |
+| `outlineVariant`          | `--line`                  |
+| `error`                   | `--red-solid`             |
 
 The container roles keep stock FAB, navigation and bottom-sheet components on
 the put.io palette instead of falling back to Material baseline purple. The
@@ -78,27 +87,27 @@ Compose for TV predates the `surfaceContainer` roles and names its outline roles
 `border` and `borderVariant`. Its `darkColorScheme(...)` projects the same
 contracted semantics through the roles its API provides.
 
-| Compose for TV role | put.io token |
-| --- | --- |
-| `primary` | `--yellow-solid` |
-| `onPrimary` | `--primary-foreground` |
-| `primaryContainer` | `--yellow-solid` |
-| `onPrimaryContainer` | `--primary-foreground` |
-| `inversePrimary` | `--yellow-text-secondary` |
-| `secondary` | `--text` |
-| `secondaryContainer` | `--yellow-solid` at 26% |
-| `onSecondaryContainer` | `--yellow-solid` |
-| `background` | `--app-bg` |
-| `onBackground` | `--text` |
-| `surface` | `--app-bg` |
-| `onSurface` | `--text` |
-| `surfaceVariant` | `--component-bg` |
-| `onSurfaceVariant` | `--text-secondary` |
-| `inverseSurface` | `--component-bg-active` |
-| `inverseOnSurface` | `--text` |
-| `border` | `--border` |
-| `borderVariant` | `--line` |
-| `error` | `--red-solid` |
+| Compose for TV role    | put.io token              |
+| ---------------------- | ------------------------- |
+| `primary`              | `--yellow-solid`          |
+| `onPrimary`            | `--primary-foreground`    |
+| `primaryContainer`     | `--yellow-solid`          |
+| `onPrimaryContainer`   | `--primary-foreground`    |
+| `inversePrimary`       | `--yellow-text-secondary` |
+| `secondary`            | `--text`                  |
+| `secondaryContainer`   | `--yellow-solid` at 26%   |
+| `onSecondaryContainer` | `--yellow-solid`          |
+| `background`           | `--app-bg`                |
+| `onBackground`         | `--text`                  |
+| `surface`              | `--app-bg`                |
+| `onSurface`            | `--text`                  |
+| `surfaceVariant`       | `--component-bg`          |
+| `onSurfaceVariant`     | `--text-secondary`        |
+| `inverseSurface`       | `--component-bg-active`   |
+| `inverseOnSurface`     | `--text`                  |
+| `border`               | `--border`                |
+| `borderVariant`        | `--line`                  |
+| `error`                | `--red-solid`             |
 
 Both schemes are dark only.
 
@@ -114,20 +123,20 @@ resolved colours.
 dp, from Material, on a 412x915dp canvas. Not the put.io spacing ramp. The ramp
 (4/8/16/32) applies where M3 leaves the choice open.
 
-| Element | Metric |
-| --- | --- |
-| Top app bar | 64dp small, 152dp large |
-| Navigation bar | 80dp; indicator geometry is Material-owned, 56x32dp in the current M3 Expressive implementation, at 26% primary |
-| List item | 56 / 72 / 88dp; leading icon 24dp in a 40dp container |
-| Divider | 1dp, inset 72dp to align with the label |
-| FAB | 56dp, 16dp corner |
-| Switch | 52x32dp, 2dp outline off, handle 16 to 24dp on select |
-| Slider | 16dp track, 4dp handle, full-round ends |
-| Dialog | 28dp corner, 24dp padding |
-| Bottom sheet | 28dp top corners, 32x4dp drag handle |
-| Snackbar | 48dp, 4dp corner |
-| Docked search bar | 56dp, fully rounded |
-| Button | 40dp, pill |
+| Element           | Metric                                                                                                          |
+| ----------------- | --------------------------------------------------------------------------------------------------------------- |
+| Top app bar       | 64dp small, 152dp large                                                                                         |
+| Navigation bar    | 80dp; indicator geometry is Material-owned, 56x32dp in the current M3 Expressive implementation, at 26% primary |
+| List item         | 56 / 72 / 88dp; leading icon 24dp in a 40dp container                                                           |
+| Divider           | 1dp, inset 72dp to align with the label                                                                         |
+| FAB               | 56dp, 16dp corner                                                                                               |
+| Switch            | 52x32dp, 2dp outline off, handle 16 to 24dp on select                                                           |
+| Slider            | 16dp track, 4dp handle, full-round ends                                                                         |
+| Dialog            | 28dp corner, 24dp padding                                                                                       |
+| Bottom sheet      | 28dp top corners, 32x4dp drag handle                                                                            |
+| Snackbar          | 48dp, 4dp corner                                                                                                |
+| Docked search bar | 56dp, fully rounded                                                                                             |
+| Button            | 40dp, pill                                                                                                      |
 
 ## The switch is the proof
 
@@ -141,15 +150,15 @@ be one that had overridden two platforms.
 
 ## Do not translate iOS
 
-| iOS has | Android uses |
-| --- | --- |
-| Section footer | The supporting line on a two-line list item |
-| Stepper | Slider, segmented button or menu |
-| Inset-grouped list | Subheads on a flat surface |
-| Action sheet | `AlertDialog` for destructive, `ModalBottomSheet` for choice-of-many |
-| Text back-label | System gesture and a top-bar arrow |
-| Long-press context menu | Overflow in a three-dot menu |
-| Toolbar plus | FAB |
+| iOS has                 | Android uses                                                         |
+| ----------------------- | -------------------------------------------------------------------- |
+| Section footer          | The supporting line on a two-line list item                          |
+| Stepper                 | Slider, segmented button or menu                                     |
+| Inset-grouped list      | Subheads on a flat surface                                           |
+| Action sheet            | `AlertDialog` for destructive, `ModalBottomSheet` for choice-of-many |
+| Text back-label         | System gesture and a top-bar arrow                                   |
+| Long-press context menu | Overflow in a three-dot menu                                         |
+| Toolbar plus            | FAB                                                                  |
 
 ## Type and icons
 
@@ -209,14 +218,14 @@ the screen.
 The signed-out screen is shared with iOS and drawn in
 [`mobile-s00-welcome`](../../system/preview/mobile-s00-welcome.html).
 
-| Part | Value |
-| --- | --- |
-| Header | `logo-retro-dark.svg`, 88 wide, centred in the 64dp top app bar slot |
-| Heading | `┌( ಠ‿ಠ)┘` on its own line, 32 above **Welcome!**; both headlineLarge 32/40; kaomoji semibold (its glyphs draw as hairlines), title medium |
-| Lede | bodyLarge 16/1.5, `--text-secondary`, 16 below the heading |
-| Position | content starts 128 below the header |
-| Action | one full-width M3 `Button` at the 56dp medium size, not the 40dp default, as the screen's only action (16dp side margin) **Sign in**; it opens put.io OAuth in the browser |
-| States | session expired (heading **Welcome back!**), sign-in failed and secure storage unavailable: a notice on `--component-bg` 32 below the heading, its icon aligned to the first text line, with **Sign in**, **Try again** or **Reset and sign in**; browser open: **Almost there**, the lede, a 24 spinner 32 below it and an outlined **Cancel** |
+| Part     | Value                                                                                                                                                                                                                                                                                                                                           |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Header   | `logo-retro-dark.svg`, 88 wide, centred in the 64dp top app bar slot                                                                                                                                                                                                                                                                            |
+| Heading  | `┌( ಠ‿ಠ)┘` on its own line, 32 above **Welcome!**; both headlineLarge 32/40; kaomoji semibold (its glyphs draw as hairlines), title medium                                                                                                                                                                                                      |
+| Lede     | bodyLarge 16/1.5, `--text-secondary`, 16 below the heading                                                                                                                                                                                                                                                                                      |
+| Position | content starts 128 below the header                                                                                                                                                                                                                                                                                                             |
+| Action   | one full-width M3 `Button` at the 56dp medium size, not the 40dp default, as the screen's only action (16dp side margin) **Sign in**; it opens put.io OAuth in the browser                                                                                                                                                                      |
+| States   | session expired (heading **Welcome back!**), sign-in failed and secure storage unavailable: a notice on `--component-bg` 32 below the heading, its icon aligned to the first text line, with **Sign in**, **Try again** or **Reset and sign in**; browser open: **Almost there**, the lede, a 24 spinner 32 below it and an outlined **Cancel** |
 
 The kaomoji is the one native exception to the tier-1 voice rule. There is no
 sign-up link, password field or illustration.
