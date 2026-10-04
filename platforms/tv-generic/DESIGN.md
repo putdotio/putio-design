@@ -8,7 +8,22 @@ source: "generic TV reference implementation + system/tv.css"
 reviewed:
   date: "2026-08-25"
   against: "The generic TV reference implementation, its screen inventory, and system/tv.css."
-  cards: ["tv-f00-foundations", "tv-p00-navigation", "tv-s00-account", "tv-s01-player", "tv-p01-action-menus", "tv-f01-focus", "tv-s03-search", "tv-s04-history", "tv-s05-trash", "tv-s06-states", "tv-s07-auth", "tv-p04-resume", "tv-p05-conversion"]
+  cards:
+    [
+      "tv-f00-foundations",
+      "tv-p00-navigation",
+      "tv-s00-account",
+      "tv-s01-player",
+      "tv-p01-action-menus",
+      "tv-f01-focus",
+      "tv-s03-search",
+      "tv-s04-history",
+      "tv-s05-trash",
+      "tv-s06-states",
+      "tv-s07-auth",
+      "tv-p04-resume",
+      "tv-p05-conversion",
+    ]
 canvas: "1920x1080"
 radius: "12px, one value"
 mode: "dark only"
@@ -39,15 +54,15 @@ names are read from the DTCG artifacts by platform adapters and are deliberately
 absent from `dist/css/tokens.css`, so CSS-variable syntax would promise a
 `var()` that resolves to nothing.
 
-| Role | Value |
-| --- | --- |
-| `tv.text.heading` | 64 |
-| `tv.text.label` | 48 |
-| `tv.text.body` | 36 |
-| `tv.text.caption` | 32 |
-| Spacing | 4 / 8 / 16 / 32 / 64 / 128 |
-| Radius | 12, one value for every TV surface |
-| Overscan | 4% of viewport width, 2% of viewport height |
+| Role              | Value                                       |
+| ----------------- | ------------------------------------------- |
+| `tv.text.heading` | 64                                          |
+| `tv.text.label`   | 48                                          |
+| `tv.text.body`    | 36                                          |
+| `tv.text.caption` | 32                                          |
+| Spacing           | 4 / 8 / 16 / 32 / 64 / 128                  |
+| Radius            | 12, one value for every TV surface          |
+| Overscan          | 4% of viewport width, 2% of viewport height |
 
 Overscan ratios declare their axis: multiply `tv.overscan.x` by viewport width
 and `tv.overscan.y` by viewport height, then compose padding locally with the
@@ -61,12 +76,12 @@ order.
 A fill, never a lift. Rows go transparent to `--component-bg-active`. Buttons
 step both fill and border.
 
-| Role | Rest | Focused |
-| --- | --- | --- |
-| Row fill | `tv.focus.row.background` | `tv.focus.row.backgroundFocused` |
-| Control fill | `tv.focus.control.background` | `tv.focus.control.backgroundFocused` |
-| Control border | `tv.focus.control.border` | `tv.focus.control.borderFocused` |
-| Control edge width | `tv.focus.borderWidth` (3px) | same |
+| Role               | Rest                          | Focused                              |
+| ------------------ | ----------------------------- | ------------------------------------ |
+| Row fill           | `tv.focus.row.background`     | `tv.focus.row.backgroundFocused`     |
+| Control fill       | `tv.focus.control.background` | `tv.focus.control.backgroundFocused` |
+| Control border     | `tv.focus.control.border`     | `tv.focus.control.borderFocused`     |
+| Control edge width | `tv.focus.borderWidth` (3px)  | same                                 |
 
 Rows carry no border, on web TV or Roku. The edge width never changes with
 focus, so focus never shifts layout. Label and icon stay
@@ -124,12 +139,12 @@ The icon set is the app's three glyphs. Do not expand it without a reason.
 
 All four TV surfaces read as one product:
 
-| Surface | Tier | Focus |
-| --- | --- | --- |
-| tv.put.io, Tizen, webOS | 4 | `--component-bg-active` fill |
-| Roku | 3 | nine-patch footprint, fill only |
-| tvOS | 2 | system lift: scale, shadow, parallax tilt |
-| Android TV | 2 | Compose scale plus elevation, no tilt |
+| Surface                 | Tier | Focus                                     |
+| ----------------------- | ---- | ----------------------------------------- |
+| tv.put.io, Tizen, webOS | 4    | `--component-bg-active` fill              |
+| Roku                    | 3    | nine-patch footprint, fill only           |
+| tvOS                    | 2    | system lift: scale, shadow, parallax tilt |
+| Android TV              | 2    | Compose scale plus elevation, no tilt     |
 
 Same header, same row anatomy, same 12px radius, same yellow icon column. They
 differ only where the platform's own focus behaviour differs.

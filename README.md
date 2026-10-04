@@ -47,16 +47,16 @@ Component recipes consume semantic aliases such as `--field-*`, `--panel-*`,
 
 Package entrypoints, from `exports` in [package.json](package.json):
 
-| Subpath | File |
-| --- | --- |
-| `@putdotio/design/css` | [`dist/css/tokens.css`](dist/css/tokens.css) |
-| `@putdotio/design/components` | [`system/components.css`](system/components.css) |
-| `@putdotio/design/tokens` | [`dist/tokens.flat.json`](dist/tokens.flat.json) |
-| `@putdotio/design/tokens/meta` | [`dist/tokens.js`](dist/tokens.js), typed by [`dist/tokens.d.ts`](dist/tokens.d.ts) |
-| `@putdotio/design/tokens/dtcg` | [`dist/tokens.dtcg.json`](dist/tokens.dtcg.json) |
-| `@putdotio/design/tokens/figma` | [`dist/figma/putio.tokens.json`](dist/figma/putio.tokens.json) |
-| `@putdotio/design/assets/<file>` | [`system/assets`](system/assets) |
-| `@putdotio/design/design.md` | [`DESIGN.md`](DESIGN.md) |
+| Subpath                          | File                                                                                |
+| -------------------------------- | ----------------------------------------------------------------------------------- |
+| `@putdotio/design/css`           | [`dist/css/tokens.css`](dist/css/tokens.css)                                        |
+| `@putdotio/design/components`    | [`system/components.css`](system/components.css)                                    |
+| `@putdotio/design/tokens`        | [`dist/tokens.flat.json`](dist/tokens.flat.json)                                    |
+| `@putdotio/design/tokens/meta`   | [`dist/tokens.js`](dist/tokens.js), typed by [`dist/tokens.d.ts`](dist/tokens.d.ts) |
+| `@putdotio/design/tokens/dtcg`   | [`dist/tokens.dtcg.json`](dist/tokens.dtcg.json)                                    |
+| `@putdotio/design/tokens/figma`  | [`dist/figma/putio.tokens.json`](dist/figma/putio.tokens.json)                      |
+| `@putdotio/design/assets/<file>` | [`system/assets`](system/assets)                                                    |
+| `@putdotio/design/design.md`     | [`DESIGN.md`](DESIGN.md)                                                            |
 
 ## Docs
 

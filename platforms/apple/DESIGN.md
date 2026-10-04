@@ -8,7 +8,20 @@ source: "Apple HIG + @putdotio/design token graph"
 reviewed:
   date: "2026-10-03"
   against: "Apple HIG (iOS 26 / iPadOS 26 / watchOS / tvOS) + the token graph + stock SwiftUI controls."
-  cards: ["ios-s00-shell", "ios-s01-files", "ios-s02-transfers", "ios-s04-settings", "ios-s03-players", "watchos-s00-shell", "tvos-s00-shell", "tvos-s01-search", "tvos-s02-account", "tvos-s03-continue-watching", "mobile-s00-welcome"]
+  cards:
+    [
+      "ios-s00-shell",
+      "ios-s01-files",
+      "ios-s02-transfers",
+      "ios-s04-settings",
+      "ios-s03-players",
+      "watchos-s00-shell",
+      "tvos-s00-shell",
+      "tvos-s01-search",
+      "tvos-s02-account",
+      "tvos-s03-continue-watching",
+      "mobile-s00-welcome",
+    ]
 canvas:
   iphone: "393x852pt"
   ipad: "1024x768pt"
@@ -64,23 +77,23 @@ At most one prominent glass capsule appears on a screen.
 Stock. Documented on cards so a designer can see tokens land on them. Never a
 build instruction.
 
-| Element | Comes from | put.io supplies |
-| --- | --- | --- |
-| `TabView` | iOS 26 floating tab bar, its glass, shrink-on-scroll, separate Search capsule, SF labels and Search glyph | tint on the selected tab; 24pt Phosphor glyph box |
-| `NavigationStack` | SF large title, collapse, back chevron and previous title | tint |
-| `NavigationSplitView` | sidebar, selection pill, column widths | tint on the pill |
-| `List` | row height, separator insets, swipe actions, scroll-edge effects | row content; `NavigationLink` owns folder disclosure |
-| `Form` `.insetGrouped` | 20pt margins, 10pt corners, 44pt rows, header and footer type | surface tokens |
-| `Toggle` | 51x31pt, knob, animation | tint when on |
-| `Stepper`, `Slider`, `Picker`, segmented `Picker` | geometry and behaviour | tint |
-| Sheet | detents, grabber, 38pt corner, parent scale-back | content |
-| `.contextMenu` | blur, lifted preview, menu material | menu items |
-| `.swipeActions` | widths, roles, rubber-banding | labels |
-| `ContentUnavailableView` | the entire empty state | glyph, title, body, tint |
-| `ProgressView` | 4pt linear bar and system-owned track | tint on the fill |
-| `Gauge` `.accessoryCircularCapacity` | 47pt ring, about 7pt stroke, system-derived track | tint |
-| `Button` | bordered styles on content; glass styles on floating layers | tint and app-drawn label |
-| `AVPlayerViewController` | the whole video surface | tint only |
+| Element                                           | Comes from                                                                                                | put.io supplies                                      |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `TabView`                                         | iOS 26 floating tab bar, its glass, shrink-on-scroll, separate Search capsule, SF labels and Search glyph | tint on the selected tab; 24pt Phosphor glyph box    |
+| `NavigationStack`                                 | SF large title, collapse, back chevron and previous title                                                 | tint                                                 |
+| `NavigationSplitView`                             | sidebar, selection pill, column widths                                                                    | tint on the pill                                     |
+| `List`                                            | row height, separator insets, swipe actions, scroll-edge effects                                          | row content; `NavigationLink` owns folder disclosure |
+| `Form` `.insetGrouped`                            | 20pt margins, 10pt corners, 44pt rows, header and footer type                                             | surface tokens                                       |
+| `Toggle`                                          | 51x31pt, knob, animation                                                                                  | tint when on                                         |
+| `Stepper`, `Slider`, `Picker`, segmented `Picker` | geometry and behaviour                                                                                    | tint                                                 |
+| Sheet                                             | detents, grabber, 38pt corner, parent scale-back                                                          | content                                              |
+| `.contextMenu`                                    | blur, lifted preview, menu material                                                                       | menu items                                           |
+| `.swipeActions`                                   | widths, roles, rubber-banding                                                                             | labels                                               |
+| `ContentUnavailableView`                          | the entire empty state                                                                                    | glyph, title, body, tint                             |
+| `ProgressView`                                    | 4pt linear bar and system-owned track                                                                     | tint on the fill                                     |
+| `Gauge` `.accessoryCircularCapacity`              | 47pt ring, about 7pt stroke, system-derived track                                                         | tint                                                 |
+| `Button`                                          | bordered styles on content; glass styles on floating layers                                               | tint and app-drawn label                             |
+| `AVPlayerViewController`                          | the whole video surface                                                                                   | tint only                                            |
 
 ### Download state button
 
@@ -88,13 +101,13 @@ The one composed control. iOS has no determinate circular progress button, so
 the app assembles one from a `Gauge`, an SF Symbol and a 44pt minimum tap
 target.
 
-| State | Glyph | Ring |
-| --- | --- | --- |
-| Idle | `arrow-down` 20pt, `--solid` | none |
-| Queued | `clock` 20pt | none. A queue is not progress |
-| Downloading | `stop` 14pt | Gauge, tint fill and system-derived track |
-| Downloaded | `check-circle` 22pt, `--yellow-solid` | hidden |
-| Failed | idle glyph | none. Reason goes in the subtitle |
+| State       | Glyph                                 | Ring                                      |
+| ----------- | ------------------------------------- | ----------------------------------------- |
+| Idle        | `arrow-down` 20pt, `--solid`          | none                                      |
+| Queued      | `clock` 20pt                          | none. A queue is not progress             |
+| Downloading | `stop` 14pt                           | Gauge, tint fill and system-derived track |
+| Downloaded  | `check-circle` 22pt, `--yellow-solid` | hidden                                    |
+| Failed      | idle glyph                            | none. Reason goes in the subtitle         |
 
 The 44pt value is the minimum target for states without a ring. While
 downloading, the stock gauge expands the button's label and hit region to its
@@ -178,14 +191,14 @@ implementation.
 The signed-out screen is shared with Android and drawn in
 [`mobile-s00-welcome`](../../system/preview/mobile-s00-welcome.html).
 
-| Part | Value |
-| --- | --- |
-| Header | `logo-retro-dark.svg`, 88 wide, centred in the 44pt nav bar slot |
-| Heading | `┌( ಠ‿ಠ)┘` on its own line, 32 above **Welcome!**; both Large Title 34/41; kaomoji semibold (its glyphs draw as hairlines), title medium |
-| Lede | Body 17/1.4, `--text-secondary`, 16 below the heading |
-| Position | content starts 128 below the header |
-| Action | one full-width `.borderedProminent` large capsule (50pt, 20pt side margin) **Sign in**; it opens put.io OAuth in the browser |
-| States | session expired (heading **Welcome back!**), sign-in failed and secure storage unavailable: a notice on `--component-bg` 32 below the heading, its icon aligned to the first text line, with **Sign in**, **Try again** or **Reset and sign in**. No browser-open state: `ASWebAuthenticationSession` is modal and reports cancellation through its callback |
+| Part     | Value                                                                                                                                                                                                                                                                                                                                                        |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Header   | `logo-retro-dark.svg`, 88 wide, centred in the 44pt nav bar slot                                                                                                                                                                                                                                                                                             |
+| Heading  | `┌( ಠ‿ಠ)┘` on its own line, 32 above **Welcome!**; both Large Title 34/41; kaomoji semibold (its glyphs draw as hairlines), title medium                                                                                                                                                                                                                     |
+| Lede     | Body 17/1.4, `--text-secondary`, 16 below the heading                                                                                                                                                                                                                                                                                                        |
+| Position | content starts 128 below the header                                                                                                                                                                                                                                                                                                                          |
+| Action   | one full-width `.borderedProminent` large capsule (50pt, 20pt side margin) **Sign in**; it opens put.io OAuth in the browser                                                                                                                                                                                                                                 |
+| States   | session expired (heading **Welcome back!**), sign-in failed and secure storage unavailable: a notice on `--component-bg` 32 below the heading, its icon aligned to the first text line, with **Sign in**, **Try again** or **Reset and sign in**. No browser-open state: `ASWebAuthenticationSession` is modal and reports cancellation through its callback |
 
 The kaomoji is the one native exception to the tier-1 voice rule. There is no
 sign-up link, password field or illustration.
