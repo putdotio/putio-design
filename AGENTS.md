@@ -68,6 +68,8 @@ licensing and loading: [Distribution](docs/DISTRIBUTION.md#fonts-and-assets).
 - Scripts, infra, or package config: `pnpm verify:full`.
 - `DESIGN.md`: `pnpm verify`, which checks its frontmatter against the tokens.
 - Other Markdown: `pnpm markdown:check`; no runtime proof.
+  [Links](.github/workflows/links.yml) checks relative links and anchors on
+  every pull request.
 
 ## Delivery
 
