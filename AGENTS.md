@@ -70,6 +70,9 @@ licensing and loading: [Distribution](docs/DISTRIBUTION.md#fonts-and-assets).
 - Other Markdown: `pnpm markdown:check`; no runtime proof.
   [Links](.github/workflows/links.yml) checks relative links and anchors on
   every pull request.
+- Workflows (`.github/**`): [Scan](.github/workflows/scan.yml) runs Actionlint
+  and Zizmor on pull requests that change them. It also runs Gitleaks and
+  TruffleHog on every pull request, and all four weekly.
 
 ## Delivery
 
