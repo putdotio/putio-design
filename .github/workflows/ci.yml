@@ -15,8 +15,11 @@ jobs:
     name: Verify design
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 15
+    # Pull requests share a group per ref so a new push cancels the stale run.
+    # Every push and dispatch gets its own group, so none is cancelled or
+    # replaced while queued and each pushed range gets scanned.
     concurrency:
-      group: verify-${{ github.workflow }}-${{ github.ref }}
+      group: verify-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     permissions:
       contents: read
