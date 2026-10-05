@@ -67,12 +67,11 @@ licensing and loading: [Distribution](docs/DISTRIBUTION.md#fonts-and-assets).
   from `pnpm dev` in light and dark.
 - Scripts, infra, or package config: `pnpm verify:full`.
 - `DESIGN.md`: `pnpm verify`, which checks its frontmatter against the tokens.
-- Other Markdown: `pnpm markdown:check`; no runtime proof.
-  [Links](.github/workflows/links.yml) checks relative links and anchors on
-  every pull request.
-- Workflows (`.github/**`): [Scan](.github/workflows/scan.yml) runs Actionlint
-  and Zizmor on pull requests that change them. It also runs Gitleaks and
-  TruffleHog on every pull request, and all four weekly.
+- Other Markdown: `pnpm markdown:check`; no runtime proof. The
+  [CI](.github/workflows/ci.yml) verify job checks relative links and anchors
+  on every run.
+- Workflows (`.github/**`): the CI verify job runs Actionlint and Zizmor on
+  `main` pushes that change them and on manual dispatch, not on pull requests.
 
 ## Delivery
 
