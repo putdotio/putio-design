@@ -1,6 +1,9 @@
 ## Summary
 
-## Changed
+<!-- One sentence on the outcome, then one visual aid: a screenshot or short
+recording for UI (`gh pr create --attach ./file.png`, never committed), a
+Mermaid diagram for a flow, a table for numbers, or a short code sample for an
+API. Add one-line bullets only for risks the aid doesn't show. -->
 
 ## Verification
 
@@ -9,7 +12,5 @@
 
 ## Review Notes
 
-- Screenshots or recordings for visual guide changes, uploaded with
-  `gh pr create --attach ./file.png` or `gh pr comment <n> --attach ./file.mp4`:
 - Package, deploy, or release impact:
 - Follow-up work:
