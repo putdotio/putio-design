@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions: {}
 
@@ -14,9 +15,12 @@ jobs:
     name: Verify design
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 15
+    # Pull requests share a group per ref so a new push cancels the stale run.
+    # Every push and dispatch gets its own group, so none is cancelled or
+    # replaced while queued and each pushed range gets scanned.
     concurrency:
-      group: verify-${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: true
+      group: verify-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     permissions:
       contents: read
     steps:
@@ -31,7 +35,7 @@ jobs:
           cache: false
 
       - name: Set up Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .node-version
           cache: pnpm
@@ -59,6 +63,11 @@ jobs:
 
       - name: Check generated artifacts are committed
         run: git diff --exit-code -- dist system/tokens.css
+
+      - uses: putdotio/.github/.github/actions/links@c1830f7938b7dc98f085082e988d3c46437bb15c # v1.2.0
+
+      - if: ${{ !cancelled() }}
+        uses: putdotio/.github/.github/actions/scan@c1830f7938b7dc98f085082e988d3c46437bb15c # v1.2.0
 
   release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, '[skip ci]')
@@ -115,7 +124,7 @@ jobs:
           cache: false
 
       - name: Set up Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .node-version
           cache: pnpm
