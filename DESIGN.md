@@ -187,6 +187,6 @@ Do use Phosphor-style inline SVG for forward-looking icon guidance and no emoji 
 
 Do keep `DESIGN.md`, `tokens/`, `dist/`, and `system/tokens.css` in agreement.
 
-Don't publish private material in this public repo; the enumerated list lives in the repo's `docs/DISTRIBUTION.md` (Public Safety).
+Don't publish private material in this public repo; the enumerated list lives in the repo's `docs/distribution.md` (Public Safety).
 
-Don't generate platform-native outputs (Swift, Kotlin, Android XML, Roku) from this repo; platform repos own their adapters. Policy in the repo's `docs/DISTRIBUTION.md`.
+Don't generate platform-native outputs (Swift, Kotlin, Android XML, Roku) from this repo; platform repos own their adapters. Policy in the repo's `docs/distribution.md`.

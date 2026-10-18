@@ -62,7 +62,7 @@ Package entrypoints, from `exports` in [package.json](package.json):
 
 - [Design contract](DESIGN.md)
 - [Design guide structure](system/README.md)
-- [Distribution](docs/DISTRIBUTION.md)
+- [Distribution](docs/distribution.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security](https://github.com/putdotio/.github/blob/main/SECURITY.md)
 - [Agent guide](AGENTS.md)

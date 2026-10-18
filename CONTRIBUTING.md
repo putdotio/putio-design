@@ -30,8 +30,8 @@ fixes it.
 
 - Edit token sources in `tokens/**/*.tokens.json`.
 - Run `pnpm tokens:build` after token changes; `pnpm tokens:check` rebuilds and runs the contract checks. Commit the regenerated `dist/` and `system/tokens.css`; CI fails on drift.
-- Keep examples public-safe ([Distribution: Public Safety](docs/DISTRIBUTION.md#public-safety)) and content-agnostic, using the raw filename examples in [Agent guide](AGENTS.md#content).
-- Put deploy and package details in [Distribution](docs/DISTRIBUTION.md).
+- Keep examples public-safe ([Distribution: Public Safety](docs/distribution.md#public-safety)) and content-agnostic, using the raw filename examples in [Agent guide](AGENTS.md#content).
+- Put deploy and package details in [Distribution](docs/distribution.md).
 
 ## Pull Requests
 

@@ -55,7 +55,7 @@ than hard-coded palette values. Brand yellow is `var(--yellow-solid)`,
 canonical `#FDCE45`; the emitted hsl form is pinned in
 [`../DESIGN.md`](../DESIGN.md) front-matter, and the `--yellow-solid-hover` →
 `--button-primary-bg-hover` derivation is specified in the repo's
-`docs/DISTRIBUTION.md`.
+`docs/distribution.md`.
 
 Stacking and breakpoints are tokenized (`--z-*`, `--bp-*`) and the root
 font-size is responsive; the canonical values live in

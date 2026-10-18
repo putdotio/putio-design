@@ -8,7 +8,7 @@ public guide at `design.put.io`. Everything here ships publicly.
 
 - [DESIGN.md](DESIGN.md): public design contract
 - [Design guide](system/README.md): deployed site shape
-- [Distribution](docs/DISTRIBUTION.md): deploy, package, and artifact policy
+- [Distribution](docs/distribution.md): deploy, package, and artifact policy
 - [Contributing](CONTRIBUTING.md): local workflow
 
 ## Commands
@@ -38,7 +38,7 @@ worktrees. Run `pnpm install` and `pnpm verify`.
 - Shared form and panel chrome lives in `--field-*` and `--panel-*` aliases.
 - Icons use Phosphor-style inline SVG. No emoji as UI icons.
 - TV surfaces are file browsers: list-first, focus-first, not poster grids.
-- Public-safety list and the no-platform-native-outputs policy: [Distribution](docs/DISTRIBUTION.md#public-safety), [Package Artifacts](docs/DISTRIBUTION.md#package-artifacts).
+- Public-safety list and the no-platform-native-outputs policy: [Distribution](docs/distribution.md#public-safety), [Package Artifacts](docs/distribution.md#package-artifacts).
 
 ## Content
 
@@ -57,7 +57,7 @@ Do not invent titles, posters, thumbnails, descriptions, codecs, or metadata the
 ## Typography
 
 Berkeley Mono is the only mono face; TV surfaces have no mono at all. Font
-licensing and loading: [Distribution](docs/DISTRIBUTION.md#fonts-and-assets).
+licensing and loading: [Distribution](docs/distribution.md#fonts-and-assets).
 
 ## Proof
 
@@ -80,4 +80,4 @@ whose semantic-release step publishes `@putdotio/design` to npm when a commit
 warrants a release, and [Deploy](.github/workflows/deploy.yml) redeploys
 `design.put.io` when the merge touches its paths, `docs/**` included. Only the
 `production` SST stage exists; do not create preview, spike, or staging
-stages. Mechanics: [Distribution](docs/DISTRIBUTION.md#static-site).
+stages. Mechanics: [Distribution](docs/distribution.md#static-site).
