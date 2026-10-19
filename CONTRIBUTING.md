@@ -21,7 +21,8 @@ Open the printed local URL. The guide loads production font CSS from
 pnpm verify
 ```
 
-Use `pnpm verify:full` before large guide, token, package, or deploy changes.
+Run `pnpm verify:full` for token, guide, script, package, or deploy changes;
+it adds the Playwright suite and a pack dry run.
 
 `pnpm verify` includes the Markdown formatting check; `pnpm exec oxfmt "**/*.md"`
 fixes it.

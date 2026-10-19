@@ -119,10 +119,9 @@ Fixed-mode previews opt out with `<html data-theme-lock="dark">`. This is only
 for product mockups whose visual language is intrinsically one mode. A 10-foot
 screen, a native app mockup, and on-video player chrome are fixed-mode
 surfaces, so the `ios-*`, `android-*`, `androidtv-*`, `tvos-*`, `watchos-*`,
-`roku-*`, and `tv-*` cards plus `web-p06-player.html` are locked. Locked
-previews ignore both `localStorage` and parent broadcasts.
-New component previews should not use the lock; the tokens render them
-correctly in both modes.
+`roku-*`, `tv-*`, and `mobile-*` cards plus `web-p06-player.html` are locked. Locked
+previews ignore `localStorage`, parent broadcasts, and the URL query. Leave new
+component previews unlocked; the tokens render them in both modes.
 
 ## shadcn / Base UI interop
 

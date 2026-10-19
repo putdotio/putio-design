@@ -42,9 +42,8 @@ publishes; releases go to npm with provenance and to GitHub Releases.
 
 Token sources live in `tokens/**/*.tokens.json`. The generated `dist/` files
 and `system/tokens.css` are checked in so package consumers and the static
-site need no build step. Run `pnpm tokens:build` after token edits;
-`pnpm tokens:check` rebuilds and runs the design-system contract checks, and
-CI fails if the rebuilt files differ from what is committed.
+site need no build step. CI fails if the rebuilt files differ from what is
+committed; the rebuild commands are in [Contributing](../CONTRIBUTING.md#development-notes).
 
 Color tokens are emitted as `hsl()` / `hsla()` CSS values. Brand yellow remains
 canonical `#FDCE45` in prose and identity guidance, with the generated CSS value
@@ -53,10 +52,10 @@ canonical `#FDCE45` in prose and identity guidance, with the generated CSS value
 
 ## Readiness Checks
 
-`pnpm verify` is the fast local gate. `pnpm verify:full` is the PR CI gate; it
+`pnpm verify` is the fast local gate. `pnpm verify:full` is the CI gate; it
 adds Playwright browser coverage (computed-style contracts, TV geometry, axe
-accessibility) and a pack dry run. Use it before release-like changes or large
-guide updates. Their composition is the `scripts` block in `package.json` and nowhere else.
+accessibility) and a pack dry run. Both are defined in the `scripts` block of
+`package.json`.
 
 ## Fonts And Assets
 
