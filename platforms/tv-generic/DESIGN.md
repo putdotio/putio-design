@@ -34,48 +34,38 @@ mode: "dark only"
 
 ## Binding
 
-Tier 4. The put.io design system applies as on web, restrained to a generic,
-calm, list-first 10-foot interface.
+Tier 4: the put.io design system as on web, restrained to a generic, calm,
+list-first 10-foot interface. Tier definitions live in
+[Binding Tiers](../../DESIGN.md#binding-tiers).
 
 The generic TV implementation is the reference look for **every** TV surface.
-Web TV and Roku match it directly. tvOS and Android TV align to the same family
-feel without giving up their platform's focus behaviour.
-
-Tier definitions live in [Binding Tiers](../../DESIGN.md#binding-tiers).
+Web TV and Roku match it directly. tvOS and Android TV share its family look
+and keep their platform's focus behaviour.
 
 ## Scale
 
-`system/tv.css` is authored 1:1 at 1920x1080. A px value in that file is a px on
-the TV. Preview artboards render at the real 1920x1080 and scale down only when
-a card is narrower.
+`system/tv.css` is authored 1:1 at 1920x1080: a px value in that file is a px
+on the TV. Preview artboards render at the real 1920x1080 and scale down only
+when a card is narrower.
 
-The canonical 10-foot scale is the `tv` token group in the DTCG graph, not the
-stylesheet. Cite it by graph path (`tv.text.body`), never as `--tv-*`: those
-names are read from the DTCG artifacts by platform adapters and are deliberately
-absent from `dist/css/tokens.css`, so CSS-variable syntax would promise a
-`var()` that resolves to nothing.
+The canonical 10-foot scale is the `tv` token group in the DTCG graph. Cite it
+by graph path, as [Components](../../DESIGN.md#components) explains, along with
+the overscan axes and the reversed `tv.z.*` order.
 
-| Role              | Value                                       |
-| ----------------- | ------------------------------------------- |
-| `tv.text.heading` | 64                                          |
-| `tv.text.label`   | 48                                          |
-| `tv.text.body`    | 36                                          |
-| `tv.text.caption` | 32                                          |
-| Spacing           | 4 / 8 / 16 / 32 / 64 / 128                  |
-| Radius            | 12, one value for every TV surface          |
-| Overscan          | 4% of viewport width, 2% of viewport height |
-
-Overscan ratios declare their axis: multiply `tv.overscan.x` by viewport width
-and `tv.overscan.y` by viewport height, then compose padding locally with the
-spacing tokens.
-
-TV stacks `tv.z.overlay` above `tv.z.toast`, the reverse of the web `--z-*`
-order.
+| Role     | Tokens                                                                                |
+| -------- | ------------------------------------------------------------------------------------- |
+| Type     | `tv.text.heading`, `tv.text.label`, `tv.text.body`, `tv.text.caption`, `tv.text.smol` |
+| Weight   | `tv.fontWeight.regular`, `tv.fontWeight.medium`                                       |
+| Spacing  | `tv.space.*`                                                                          |
+| Radius   | `tv.radius` (`--radius-tv` in CSS), one value for every TV surface                    |
+| Overscan | `tv.overscan.x` × viewport width, `tv.overscan.y` × viewport height                   |
+| Stacking | `tv.z.modal`, `tv.z.toast`, `tv.z.overlay`                                            |
+| Focus    | `tv.focus.*`, below                                                                   |
 
 ## Focus
 
-A fill, never a lift. Rows go transparent to `--component-bg-active`. Buttons
-step both fill and border.
+A fill, as [Components](../../DESIGN.md#components) defines: rows go
+transparent to `--component-bg-active`, and buttons step both fill and border.
 
 | Role               | Rest                          | Focused                              |
 | ------------------ | ----------------------------- | ------------------------------------ |
@@ -84,57 +74,46 @@ step both fill and border.
 | Control border     | `tv.focus.control.border`     | `tv.focus.control.borderFocused`     |
 | Control edge width | `tv.focus.borderWidth` (3px)  | same                                 |
 
-Rows carry no border, on web TV or Roku. The edge width never changes with
+Rows carry no border, on web TV or Roku. The edge width stays fixed through
 focus, so focus never shifts layout. Label and icon stay
 `context.tv.text.primary`.
 
-Not a white-invert pill. Not `scale(1.06)`. Not a yellow halo. Both of those
-were invented in an earlier revision of these specimens and removed.
+The fill is the whole treatment: no white-invert pill, no scale, no yellow
+halo.
 
 tvOS is the deliberate exception: it is tier 2, the platform owns focus, and its
 tab bar uses the system's light focused pill.
 
 ## Materials
 
-Solid token colours. No translucency, no blur on any TV surface.
+Solid token colours on every TV surface, per
+[Components](../../DESIGN.md#components).
 
 ## Navigation
 
-A Home hub that pushes full screens onto a stack. There is no tab bar.
+A Home hub pushes full screens onto a stack, and menus are centred modals; see
+[Components](../../DESIGN.md#components).
 
-Menus are centred modals, not popovers anchored to a trigger.
-
-Account is the settings screen. There is no separate preferences screen.
+Account is the settings screen.
 
 ## Type
 
-No mono in TV product UI; a debug overlay may use the platform's system monospace. Berkeley Mono is a web and mobile rule.
-
-10-foot numerics are GT America with tabular figures, via
-`font-variant-numeric: tabular-nums` on web and the same font feature settings
-in React Native.
-
-GT America Standard carries `tnum`, so any platform that can select OpenType
-features honours this. Platforms that cannot get proportional figures, where `1`
-is 399/1000 em against `0` at 636, so a running timecode visibly reflows. Roku
-is the current example.
+No mono in TV product UI; a debug overlay may use the platform's system
+monospace. The TV numeric rule lives in [Typography](../../DESIGN.md#typography). Web TV
+sets tabular figures with `font-variant-numeric: tabular-nums`, and React
+Native with the same font feature settings.
 
 ## Content
 
-A TV app is a file browser, not a poster wall.
+Browse is a list of raw filenames, per
+[Content and Icons](../../DESIGN.md#content-and-icons): no parsing, posters,
+thumbnails, ratings or synopsis.
 
-Raw filenames. No parsing, no posters, no thumbnails, no ratings, no synopsis.
+The resume decision is a prompt at play time; the browse-time trace of a
+started video is the watched eye on its row, in `--text-secondary`.
 
-No continue-watching row, shelf or hub tile. The resume decision is a prompt at
-play time; the browse-time trace of a started video is the watched eye on its
-row.
-
-No transfers screen. History is the TV activity surface: finished outcomes
-only, nothing mid-flight.
-
-Watched videos show the watched eye in `--text-secondary`.
-
-The icon set is the app's three glyphs. Do not expand it without a reason.
+History is the TV activity surface: finished outcomes only, nothing
+mid-flight. Transfers are managed on web and mobile.
 
 ## Family feel
 
@@ -150,17 +129,13 @@ All four TV surfaces read as one product:
 Same header, same row anatomy, same 12px radius, same yellow icon column. They
 differ only where the platform's own focus behaviour differs.
 
-## Style
-
-House style: one fact per line, tables over paragraphs, no em dashes.
-
 ## Don't
 
-- Add a tab bar.
-- Anchor a menu to its trigger.
+- Add a tab bar; navigation is the Home hub stack.
+- Anchor a menu to its trigger; menus are centred modals.
 - Use blur or a translucent material.
-- Use mono.
-- Invent a focus treatment.
+- Use mono; numerics are GT America tabular figures.
+- Invent a focus treatment; use the `tv.focus.*` fill.
 - Use more than one radius.
 - Draw an on-screen keyboard. Search delegates typing to the platform IME.
-- Build a continue-watching row or a transfers screen.
+- Build a continue-watching row, shelf or hub tile, or a transfers screen.
