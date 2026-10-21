@@ -6,7 +6,7 @@ tier: 2
 platforms: ["iOS 26", "iPadOS 26", "watchOS", "tvOS"]
 source: "Apple HIG + @putdotio/design token graph"
 reviewed:
-  date: "2026-10-03"
+  date: "2026-10-21"
   against: "Apple HIG (iOS 26 / iPadOS 26 / watchOS / tvOS) + the token graph + stock SwiftUI controls."
   cards:
     [
@@ -20,6 +20,8 @@ reviewed:
       "tvos-s01-search",
       "tvos-s02-account",
       "tvos-s03-continue-watching",
+      "tvos-s04-diagnostics",
+      "tvos-s05-unsupported",
       "mobile-s00-welcome",
     ]
 canvas:
@@ -35,47 +37,48 @@ mode: "dark only"
 
 ## Binding
 
-Tier 2. Tokens only. Every component, composition and page comes from Apple's
-human interface guidelines. put.io supplies four things and nothing else:
+Tier 2: tokens only, every component, composition and page from Apple's human
+interface guidelines. Tier definitions live in
+[Binding Tiers](../../DESIGN.md#binding-tiers). put.io supplies four things:
 
-1. **Tint**. `--yellow-solid` `#FDCE45`, set once as the SwiftUI `.tint()`.
+1. **Tint**. `--yellow-solid`, set once as the SwiftUI `.tint()`.
 2. **Surfaces**. `--app-bg`, `--text`, `--text-secondary`. Dark only.
 3. **Type**. GT America replaces SF Pro in app-drawn content. App-drawn control
    labels use `--fw-medium`. System-rendered chrome keeps SF, including tab
    labels, navigation titles and search fields.
 4. **File icons**. Phosphor, yellow, every file type.
 
-Tier definitions live in [Binding Tiers](../../DESIGN.md#binding-tiers).
-Never port `components.css`; native controls bind token values directly.
+Native controls bind token values directly. Every colour is `Color.putio*`,
+generated from the graph.
 
 ## Metrics
 
-Points, from the HIG, not the put.io spacing ramp. The ramp (4/8/16/32/64)
-applies only where the HIG leaves the choice open.
+Points, from the HIG. The put.io spacing ramp applies only where the HIG leaves
+the choice open.
 
-Corner radius is the system's, concentric to its container. `--radius` is a web
-value and looks wrong beside a system corner.
+Corner radius is the system's, concentric to its container. The web radius
+scale (`--radius` and its steps) looks wrong beside a system corner.
 
 ## Liquid Glass
 
-iOS 26. Glass is a material Apple composites, not a token, so it cannot resolve
-to a value in the graph.
+iOS 26. Glass is a material Apple composites, so it has no token value in the
+graph.
 
 Glass appears in the **floating layer only**: tab bar, toolbar, sheet chrome,
 floating buttons. Lists, rows, forms and full-screen content are opaque
-`--app-bg`. Never glass over glass.
+`--app-bg`. Glass never stacks on glass.
 
 Prominent glass takes the brand tint. Plain glass stays neutral.
 
 Buttons on opaque content use the stock `.borderedProminent` and `.bordered`
-styles. Glass buttons have no content-layer carve-out.
+styles; glass buttons stay on the floating layer.
 
 At most one prominent glass capsule appears on a screen.
 
 ## Elements
 
-Stock. Documented on cards so a designer can see tokens land on them. Never a
-build instruction.
+Every element is stock; its card shows where tokens land on the control, as
+[Binding Tiers](../../DESIGN.md#binding-tiers) describes for tier-2 cards.
 
 | Element                                           | Comes from                                                                                                | put.io supplies                                      |
 | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
@@ -109,23 +112,21 @@ target.
 | Downloaded  | `check-circle` 22pt, `--yellow-solid` | hidden                                    |
 | Failed      | idle glyph                            | none. Reason goes in the subtitle         |
 
-The 44pt value is the minimum target for states without a ring. While
-downloading, the stock gauge expands the button's label and hit region to its
-47pt intrinsic ring, with an approximately 7pt stroke. The gauge derives its
-unfilled track from the tint.
+States without a ring keep the 44pt minimum target. While downloading, the
+stock gauge expands the button's label and hit region to its 47pt intrinsic
+ring, with an approximately 7pt stroke, and derives its unfilled track from the
+tint. The app cannot set that track separately; use the stock ring rather than
+a custom path.
 
-The app cannot set the gauge track separately. The stock ring wins over a
-custom path.
-
-System-owned accent glyphs and labels use the one app tint. Do not split the
-back control, sheet checkmark, or empty-state action across yellow roles.
+System-owned accent glyphs and labels, such as the back control, sheet
+checkmark and empty-state action, use the one app tint.
 
 App-authored text that can bind its foreground independently may still use
 `--yellow-text-secondary`.
 
 ## watchOS
 
-Scope is counts, states and remote control. Not a file browser.
+Scope is counts, states and remote control. The watch is not a file browser.
 
 A 176pt row cannot hold `The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv`,
 and truncating strips exactly the information the name carries. The watch shows
@@ -135,7 +136,8 @@ Rows are full-bleed rounded rectangles on `--component-bg`, 12pt corner, **no
 chevron**. The whole row is the target and the Digital Crown is the scroll. A
 trailing chevron costs about 12% of usable width on a 41mm screen.
 
-No text entry. Adding a transfer starts on the phone or from a shared link.
+Adding a transfer starts on the phone or from a shared link; the watch has no
+text entry.
 
 One action per screen.
 
@@ -146,43 +148,39 @@ The system time keeps SF and is tinted by the app, so it renders
 
 Focus is `UIFocusSystem`'s: the focused view lifts, scaling with a light-source
 shadow and a parallax tilt under the remote's touch surface. Make a view
-focusable and let the OS do it. Never draw a focus ring.
+focusable and let the OS draw focus.
 
-The tv-native focus recipe (a `--component-bg-active` fill, no scale) is a React
-Native binding on tier 4. On tvOS that fill sits underneath the system lift, it
-does not replace it.
+The tier-4 focus recipe (a `--component-bg-active` fill, no scale) is a React
+Native binding. On tvOS that fill sits underneath the system lift and never
+replaces it.
 
-Top-level navigation is a `TabView`, not a header with a Search button. The bar
-floats at the top, hides while content scrolls, and takes focus on swipe up.
-Search is a tab.
+Top-level navigation is a `TabView`. The bar floats at the top, hides while
+content scrolls, and takes focus on swipe up. Search is a tab.
 
 System-rendered `TabView` labels keep SF. App-authored TV content uses GT
 America.
 
-The focused tab is a light pill with dark text. This contradicts the tv-native
-"never a white-invert pill" rule deliberately: tv-native is tier 4 where put.io
-owns focus, tvOS is tier 2 where the platform does.
+The focused tab is the system's light pill with dark text. Tier 4 forbids that
+pill because put.io owns focus there; on tvOS the platform owns it.
 
-No poster wall. A header and a list of destinations, matching every other put.io
-TV surface.
+Browse is a header and a list of destinations, matching every other put.io TV
+surface.
 
-Uses the `tv` token group: body 36, caption 32, label 48, heading 64; spacing
-4/8/16/32/64/128; radius 12. Overscan 4% x 2%.
-
-No mono. TV numerics are GT America tabular figures.
+Sizes come from the `tv` token group; see [web TV Scale](../tv-generic/DESIGN.md#scale).
+Numerics follow the TV rule in [Typography](../../DESIGN.md#typography); a
+debug overlay may use the system monospace.
 
 Search types on the system linear keyboard via `UISearchController`. Recent
 keywords surface as app-provided suggestions.
 
 Settings rows are label-left value-right; select cycles booleans or opens a
-full-screen chooser. No 51x31 toggle on tvOS.
+full-screen chooser. tvOS settings carry no 51x31 toggle.
 
 Continue watching uses a custom pre-play overlay before
 `AVPlayerViewController`: title, raw filename, progress preview and two stacked
-choices. It is not a stock system alert; its buttons use the system focus
-treatment.
+choices. Its buttons use the system focus treatment.
 
-The tvOS cards document how search, account and pre-play continuation bind the
+The tvOS cards show how search, account and pre-play continuation bind the
 token graph to platform navigation and focus. Platform apps own the native
 implementation.
 
@@ -200,43 +198,39 @@ The signed-out screen is shared with Android and drawn in
 | Action   | one full-width `.borderedProminent` large capsule (50pt, 20pt side margin) **Sign in**; it opens put.io OAuth in the browser                                                                                                                                                                                                                                 |
 | States   | session expired (heading **Welcome back!**), sign-in failed and secure storage unavailable: a notice on `--component-bg` 32 below the heading, its icon aligned to the first text line, with **Sign in**, **Try again** or **Reset and sign in**. No browser-open state: `ASWebAuthenticationSession` is modal and reports cancellation through its callback |
 
-The kaomoji is the one native exception to the tier-1 voice rule. There is no
-sign-up link, password field or illustration.
+The kaomoji is the one native exception to the tier-1 voice rule. The screen
+has one action: no sign-up link, password field or illustration.
 
 ## Content
 
-Raw filenames. The row title is the file's name as stored. No parsing into a
-title, no poster, no thumbnail.
+The row title is the file's name as stored, per
+[Content and Icons](../../DESIGN.md#content-and-icons): no parsing, no poster,
+no thumbnail.
 
 Subtitle is `size · relative date`, Berkeley Mono, tabular.
 
 Berkeley Mono covers sizes, counts, rates, timestamps, quotas and build numbers
-on iOS, iPadOS and watchOS. Not on tvOS.
+on iOS, iPadOS and watchOS. tvOS has no mono.
 
-Failure reasons are sentences, not codes. "No seeders found", not
-`ERR_NO_PEERS`.
+Failure reasons are sentences: "No seeders found", not `ERR_NO_PEERS`.
 
-The disco ball (`discoball.gif`, shipped since 2013) is the audio player's
-artwork. The audio player has no cover art and never will.
+The audio player's artwork is the disco ball (`discoball.gif`); it shows no
+cover art.
 
-Chrome sitting on a video frame is not on a theme surface: it uses white at
-fixed opacities, same as the web player. Tint is the one token that crosses onto
+Chrome on a video frame sits off the theme surfaces: it uses white at fixed
+opacities, same as the web player. Tint is the one token that crosses onto
 video.
-
-## Style
-
-House style: one fact per line, tables over paragraphs, no em dashes.
 
 ## Don't
 
-- Port `components.css`. There is no put.io tab bar, nav bar, sidebar, switch or field on this tier.
-- Hand-build a control. Anything that keeps its shape under Dynamic Type was drawn, not composed.
-- Write a hex literal in a native PR. Every colour is `Color.putio*`, generated from the graph.
-- Use a 6px or 8px radius on a native surface.
+- Port `components.css`. This tier has no put.io tab bar, nav bar, sidebar, switch or field; use the stock control.
+- Hand-build a control. A control that keeps its shape under Dynamic Type was drawn, not composed.
+- Write a hex literal in native code; use the generated `Color.putio*`.
+- Use a 6px or 8px radius on a native surface; use the system corner.
 - Ship a custom video player. Rebuilding the transport to add one control loses PiP, Lock Screen, CarPlay and the remote.
 - Bring the web transfer row's self-painting progress fill to iOS. Use `ProgressView`.
 - Make the Android app look like this one. Same tokens, different platform.
 
 ## Gaps
 
-Record token gaps upstream in the graph rather than hand-rolling a value.
+Record a missing token upstream in the graph instead of hand-rolling a value.

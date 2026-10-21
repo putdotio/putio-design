@@ -3227,7 +3227,7 @@ export const tokens = {
     "mode": "global",
     "value": "\"Berkeley Mono\", monospace",
     "originalValue": "\"Berkeley Mono\", monospace",
-    "description": "The single mono face: numerics, timestamps, file sizes, ETAs, counts, code, logs, magnet URIs, identifiers, and filenames. Web and mobile only — TV has no mono face."
+    "description": "The single mono face: numerics, timestamps, file sizes, ETAs, counts, code, logs, magnet URIs, identifiers, and filenames. Web and mobile only. TV product UI has no mono face; a TV debug overlay may use the platform's system monospace."
   },
   "typography.fontSize.xs": {
     "cssName": "--fs-xs",

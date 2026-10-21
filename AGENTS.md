@@ -1,21 +1,28 @@
 # Agent Guide
 
 put.io's design system. Token sources build the public `@putdotio/design` npm
-package, which the web, Apple, Android, Roku, and TV apps consume, and the
-public guide at `design.put.io`. Everything here ships publicly.
+package, which the web, Apple, Android, Roku, and TV apps consume, the public
+guide at `design.put.io`, and the claude.ai design system and canvases. Everything
+here ships publicly.
 
 ## Start Here
 
-- [DESIGN.md](DESIGN.md): public design contract
-- [Design guide](system/README.md): deployed site shape
-- [Distribution](docs/distribution.md): deploy, package, and artifact policy
-- [Contributing](CONTRIBUTING.md): local workflow
+- [DESIGN.md](DESIGN.md): the design contract; open before changing tokens,
+  components, or cards.
+- [Design guide](system/README.md): open before editing `system/**`.
+- [Distribution](docs/distribution.md): open before a deploy, a release, an
+  asset, or an artifact publish.
 
 ## Commands
 
-Setup, local run, validation, and the token rebuild rule:
-[Contributing](CONTRIBUTING.md). Command definitions: the `scripts` block in
-[package.json](package.json).
+```bash
+pnpm install
+pnpm dev            # serves the guide; open the printed URL
+pnpm tokens:build   # regenerates dist/ and system/tokens.css from tokens/
+pnpm verify         # fast gate: types, token contracts, artifact build, HTML, Markdown
+pnpm verify:full    # CI gate: adds Playwright and an npm pack dry run
+pnpm artifact       # builds the claude.ai design system and canvases into artifact/out/
+```
 
 ## PR Evidence
 
@@ -28,7 +35,7 @@ Review Notes. Keep proof media out of Git.
 ## Worktrees
 
 `.worktreeinclude` carries optional `.env` files into Codex and Claude
-worktrees. Run `pnpm install` and `pnpm verify`.
+worktrees; a fresh worktree needs `pnpm install`.
 
 ## Repo Rules
 
@@ -36,7 +43,7 @@ worktrees. Run `pnpm install` and `pnpm verify`.
 - Generated artifacts live in `dist/` and `system/tokens.css`.
 - Yellow `#FDCE45` is the fixed brand constant; CSS emits it as `hsl(44.7, 97.9%, 63.1%)`.
 - Shared form and panel chrome lives in `--field-*` and `--panel-*` aliases.
-- Icons use Phosphor-style inline SVG. No emoji as UI icons.
+- Icons use Phosphor-style inline SVG.
 - TV surfaces are file browsers: list-first, focus-first, not poster grids.
 - Public-safety list and the no-platform-native-outputs policy: [Distribution](docs/distribution.md#public-safety), [Package Artifacts](docs/distribution.md#package-artifacts).
 
@@ -56,7 +63,7 @@ Do not invent titles, posters, thumbnails, descriptions, codecs, or metadata the
 
 ## Typography
 
-Berkeley Mono is the only mono face; TV surfaces have no mono at all. Font
+Berkeley Mono is the only mono face; TV product UI has no mono; a TV debug overlay may use the platform's system monospace. Font
 licensing and loading: [Distribution](docs/distribution.md#fonts-and-assets).
 
 ## Proof
@@ -66,6 +73,8 @@ licensing and loading: [Distribution](docs/distribution.md#fonts-and-assets).
 - Guide (`system/**`): `pnpm verify:full`, then check the affected section
   from `pnpm dev` in light and dark.
 - Scripts, infra, or package config: `pnpm verify:full`.
+- Artifact inputs (`artifact/**`, `scripts/build-artifact.ts`): `pnpm verify`
+  builds it; after publishing, check the changed cards on the artifact page.
 - `DESIGN.md`: `pnpm verify`, which checks its frontmatter against the tokens.
 - Other Markdown: `pnpm markdown:check`; no runtime proof. The
   [CI](.github/workflows/ci.yml) verify job checks relative links and anchors
@@ -81,3 +90,7 @@ warrants a release, and [Deploy](.github/workflows/deploy.yml) redeploys
 `design.put.io` when the merge touches its paths, `docs/**` included. Only the
 `production` SST stage exists; do not create preview, spike, or staging
 stages. Mechanics: [Distribution](docs/distribution.md#static-site).
+
+Nothing republishes the claude.ai artifacts automatically. After a merge that
+changes tokens, `system/**`, `artifact/**`, or the artifact scripts,
+republish them: [Distribution](docs/distribution.md#claude-artifacts).

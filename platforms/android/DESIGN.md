@@ -6,7 +6,7 @@ tier: 2
 platforms: ["Android", "Android TV"]
 source: "Material 3 + @putdotio/design token graph"
 reviewed:
-  date: "2026-10-03"
+  date: "2026-10-21"
   against: "Material 3 + Google's TV design (Compose for TV) + the native Android binding + the token graph."
   cards:
     [
@@ -16,6 +16,9 @@ reviewed:
       "androidtv-s01-search",
       "androidtv-s02-account",
       "androidtv-s03-continue-watching",
+      "androidtv-s04-sign-in-verifying",
+      "androidtv-s05-diagnostics",
+      "androidtv-s06-unsupported",
       "mobile-s00-welcome",
     ]
 canvas:
@@ -28,25 +31,25 @@ mode: "dark only"
 
 ## Binding
 
-Tier 2. Tokens only. Every component comes from Material 3.
+Tier 2: tokens only, every component from Material 3. Tier definitions live in
+[Binding Tiers](../../DESIGN.md#binding-tiers).
 
 Phone and tablet use an `androidx.compose.material3.darkColorScheme(...)` filled
 from the token graph. Android TV uses the separate
-`androidx.tv.material3.darkColorScheme(...)` API. Each generated scheme projects
-the same semantic contract through the roles exposed by that Compose library.
-Material then owns pressed, disabled, selected and focused component states.
+`androidx.tv.material3.darkColorScheme(...)` API. Each scheme projects the same
+semantic contract through the roles its Compose library exposes. Material owns
+pressed, disabled, selected and focused component states.
 
 The two libraries use separate `MaterialTheme` composition locals. A TV root
-provides the TV scheme for `androidx.tv.material3` controls. When a control is
-available only from `androidx.compose.material3`, provide the phone/tablet M3
-scheme at that boundary or pass the mapped colours explicitly; the TV scheme
-does not theme regular M3 controls. Prefer the TV component when both libraries
-provide one. At the current library versions, `Switch` is a TV component;
+provides the TV scheme for `androidx.tv.material3` controls. When a control
+exists only in `androidx.compose.material3`, provide the phone/tablet scheme at
+that boundary or pass the mapped colours explicitly; the TV scheme themes TV
+controls only. Prefer the TV component when both libraries provide one. At the
+current library versions, `Switch` is a TV component and
 `LinearProgressIndicator` is the regular-M3 mixed-local case.
 
-There is no put.io Android component library and there will not be one.
-
-Tier definitions live in [Binding Tiers](../../DESIGN.md#binding-tiers).
+The native Android implementation reads `dist/tokens.dtcg.json`, generates both
+colour schemes from it, and owns every platform component.
 
 ## Phone and tablet colour scheme
 
@@ -76,16 +79,14 @@ Tier definitions live in [Binding Tiers](../../DESIGN.md#binding-tiers).
 | `error`                   | `--red-solid`             |
 
 The container roles keep stock FAB, navigation and bottom-sheet components on
-the put.io palette instead of falling back to Material baseline purple. The
-inverse roles bind stock snackbars to the documented surface, text and action
-colours. State layers are Material's 8% and 12% over `onSurface`, not put.io
-hover tokens.
+the put.io palette. The inverse roles bind stock snackbars to the put.io
+surface, text and action colours. State layers are Material's 8% and 12% over
+`onSurface`.
 
 ## Android TV colour scheme
 
-Compose for TV predates the `surfaceContainer` roles and names its outline roles
-`border` and `borderVariant`. Its `darkColorScheme(...)` projects the same
-contracted semantics through the roles its API provides.
+Compose for TV has no `surfaceContainer` roles and names its outline roles
+`border` and `borderVariant`.
 
 | Compose for TV role    | put.io token              |
 | ---------------------- | ------------------------- |
@@ -111,17 +112,13 @@ contracted semantics through the roles its API provides.
 
 Both schemes are dark only.
 
-Stock Compose for TV list-item focus reads `inverseSurface`; binding the inverse
-and container roles prevents focused and selected controls from falling back to
-Material baseline colours.
-
-Platform repos generate both maps from the token graph. Never hand-write the
-resolved colours.
+Stock Compose for TV list-item focus reads `inverseSurface`; the inverse and
+container roles keep focused and selected controls on the put.io palette.
 
 ## Metrics
 
-dp, from Material, on a 412x915dp canvas. Not the put.io spacing ramp. The ramp
-(4/8/16/32) applies where M3 leaves the choice open.
+dp, from Material, on a 412x915dp canvas. The put.io spacing ramp applies only
+where M3 leaves the choice open.
 
 | Element           | Metric                                                                                                          |
 | ----------------- | --------------------------------------------------------------------------------------------------------------- |
@@ -140,13 +137,9 @@ dp, from Material, on a 412x915dp canvas. Not the put.io spacing ramp. The ramp
 
 ## The switch is the proof
 
-Put the Android switch next to the iOS one. Both are yellow when on, because
-both read `--yellow-solid`. Neither looks like the other: 52x32dp with a 2dp
-outline and a handle that grows 16 to 24dp, against 51x31pt with a full-height
-knob and no outline.
-
-That difference is the tier working. A design system that made them match would
-be one that had overridden two platforms.
+The Android and iOS switches both read `--yellow-solid` when on, and each keeps
+its platform's geometry: 52x32dp with a 2dp outline and a handle that grows 16
+to 24dp on Android, 51x31pt with a full-height knob and no outline on iOS.
 
 ## Do not translate iOS
 
@@ -162,54 +155,52 @@ be one that had overridden two platforms.
 
 ## Type and icons
 
-GT America as the Material type family. `--fw-medium` on labels.
+GT America is the Material type family. Labels use `--fw-medium`.
 
-Berkeley Mono on sizes, rates, timestamps, quotas and version strings. Not on
-Android TV.
+Berkeley Mono sets sizes, rates, timestamps, quotas and version strings on
+phone and tablet. Android TV has no mono; see
+[Typography](../../DESIGN.md#typography).
 
-Yellow Phosphor file icons, every type. Not Material Symbols: the icon family is
-a cross-tier decision and Phosphor is it.
-
-When the API kind has no dedicated Phosphor file glyph, use the closest
-file-family glyph. `SWF` uses `file-code`.
+File icons are yellow Phosphor for every type; the icon family is a cross-tier
+rule, so Material Symbols stay out of file rows. When the API kind has no
+dedicated Phosphor file glyph, use the closest file-family glyph: `SWF` uses
+`file-code`.
 
 ## Android TV
 
-The TV cards document the tier-2 binding. They apply the token graph to
-Google's TV design rather than copying a generic-TV component recipe.
+The TV cards apply the token graph to Google's TV design.
 
 Focus is Compose for TV's: the focused `Surface` scales and elevates. Full-width
 rows scale 1.02 to stay inside the safe area; compact surfaces (drawer items,
-buttons, chips) take the stock 1.1. Smaller than tvOS's lift and with no
-parallax tilt, because most Android TV remotes are five-way pads with no touch
-surface. Keep the platform's numbers, do not port Apple's.
+buttons, chips) take the stock 1.1. Most Android TV remotes are five-way pads
+with no touch surface, so the lift is smaller than tvOS's and has no parallax
+tilt. Keep the platform's numbers.
 
 Top-level navigation is the M3 navigation drawer: an 80dp icon rail on the
 left, expanding with labels while focus is inside it. Destinations are Files,
 Search, History and Account.
 
-Text entry is the system IME. No app-drawn keyboard, no mic affordance.
+Text entry is the system IME, with no app-drawn keyboard and no mic affordance.
 
-The switch is M3's (52x32dp), reading `primary` when on. Never the RN
-iOS-green switch.
+The switch is M3's (52x32dp), reading `primary` when on.
 
-Dialogs are M3: 28dp corner, stacked full-width pill buttons on TV, focused
-buttons fill `primary` and use the compact-surface 1.1 scale.
+Dialogs are M3: 28dp corner and stacked full-width pill buttons; a focused
+button fills `primary` and takes the compact-surface 1.1 scale.
 
-Uses the `tv` token group: body 36, caption 32, label 48, heading 64; spacing
-4/8/16/32/64/128; radius 12. Overscan 4% x 2%.
+Sizes come from the `tv` token group; see [web TV Scale](../tv-generic/DESIGN.md#scale).
+Numerics follow the TV rule in [Typography](../../DESIGN.md#typography).
 
-No mono. TV numerics are GT America tabular figures.
+No mono in product UI; the debug overlay uses the system monospace.
 
-Structure is the shared TV family look: retro wordmark header, a list of
-destinations, 36px titles over 28px sublines, a 42px yellow Phosphor glyph in
-the icon column.
+Structure follows the shared TV family look: retro wordmark header and a list
+of destinations. Rows set 36px titles over 28px sublines with a 42px yellow
+Phosphor glyph in the icon column.
 
 Leanback launcher channels, programs, continue-watching and recommendations are
-system APIs. Fill them with real files. Do not reproduce them inside the app.
+system APIs. Fill them with real files and leave them to the launcher.
 
-No poster wall. Card-and-rail templates are built for catalogue apps with
-artwork. A rail of grey rectangles with filenames underneath shows fewer items,
+Browse is a list. Card-and-rail templates are built for catalogue apps with
+artwork: a rail of grey rectangles with filenames underneath shows fewer items,
 truncates longer names, and turns a straight D-pad path into one that crosses
 the screen.
 
@@ -227,32 +218,21 @@ The signed-out screen is shared with iOS and drawn in
 | Action   | one full-width M3 `Button` at the 56dp medium size, not the 40dp default, as the screen's only action (16dp side margin) **Sign in**; it opens put.io OAuth in the browser                                                                                                                                                                      |
 | States   | session expired (heading **Welcome back!**), sign-in failed and secure storage unavailable: a notice on `--component-bg` 32 below the heading, its icon aligned to the first text line, with **Sign in**, **Try again** or **Reset and sign in**; browser open: **Almost there**, the lede, a 24 spinner 32 below it and an outlined **Cancel** |
 
-The kaomoji is the one native exception to the tier-1 voice rule. There is no
-sign-up link, password field or illustration.
+The kaomoji is the one native exception to the tier-1 voice rule. The screen
+has one action: no sign-up link, password field or illustration.
 
 ## Content
 
-Raw filenames. No parsing, no posters, no thumbnails.
+Rows follow [Content and Icons](../../DESIGN.md#content-and-icons): raw
+filenames, no posters, no thumbnails.
 
-Progress in a row is a Material `LinearProgressIndicator`, not a self-painting
-row background. The web transfer row paints its own fill; that is a tier-1
-recipe built for a wide desktop list.
+Progress in a row is a Material `LinearProgressIndicator`. The web transfer
+row's self-painting background is a tier-1 recipe for a wide desktop list.
 
 Destructive copy names the object and the consequence, in the dialog body.
 
-## Style
-
-House style: one fact per line, tables over paragraphs, no em dashes.
-
 ## Don't
 
-- Reach for `components.css` `.switch`, `.modal` or `.sheet`. They encode web pointer states, a 6px radius and a hover model that does not exist on a phone.
-- Make the Android app look like the iOS app. A floating glass capsule, a text back-label or a 51x31 iOS-proportioned switch all read as a port.
-- Hand-write the colour scheme in an app repo.
-
-## Adoption
-
-The native Android implementation consumes `dist/tokens.dtcg.json`, generates
-its phone and TV colour schemes, and owns all platform components. This repo
-stays free of Kotlin and Android XML outputs by policy. Review Android cards
-against the platform implementation before changing this contract.
+- Reach for `components.css` `.switch`, `.modal` or `.sheet`. They encode web pointer states, a 6px radius and a hover model a phone lacks; use the stock M3 control.
+- Port the iOS look. A floating glass capsule, a text back-label or a 51x31 iOS-proportioned switch all read as a port; use the M3 equivalent from [Do not translate iOS](#do-not-translate-ios).
+- Hand-write the colour scheme or a resolved colour in an app repo; generate both schemes from the token graph.
