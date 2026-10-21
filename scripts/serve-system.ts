@@ -4,8 +4,7 @@ import { createServer, type ServerResponse } from "node:http";
 import path from "node:path";
 import process from "node:process";
 
-const root = process.cwd();
-const systemDir = path.join(root, "system");
+const systemDir = path.join(process.cwd(), "system");
 const port = Number(process.env.PORT ?? "4173");
 const host = process.env.HOST ?? "127.0.0.1";
 
@@ -52,8 +51,7 @@ const server = createServer(async (request, response) => {
       file = path.join(file, "index.html");
     }
 
-    const extension = path.extname(file);
-    response.setHeader("content-type", mimeTypes[extension] ?? "application/octet-stream");
+    response.setHeader("content-type", mimeTypes[path.extname(file)] ?? "application/octet-stream");
     const stream = createReadStream(file);
     stream.on("error", () => sendNotFound(response));
     stream.pipe(response);

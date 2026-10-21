@@ -52,20 +52,7 @@ function isObject(value: unknown): value is JsonObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-async function walk(dir: string): Promise<string[]> {
-  const entries = await readdir(dir, { withFileTypes: true });
-  const files = await Promise.all(
-    entries.map(async (entry) => {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) return walk(full);
-      if (entry.isFile()) return [full];
-      return [];
-    }),
-  );
-  return files.flat();
-}
-
-function mergeJson(target: JsonObject, source: JsonObject, file: string): JsonObject {
+function mergeJson(target: JsonObject, source: JsonObject, file: string) {
   for (const [key, value] of Object.entries(source)) {
     if (key in target && isObject(target[key]) && isObject(value) && !("$value" in target[key]) && !("$value" in value)) {
       mergeJson(target[key] as JsonObject, value, file);
@@ -76,7 +63,6 @@ function mergeJson(target: JsonObject, source: JsonObject, file: string): JsonOb
     }
     target[key] = value;
   }
-  return target;
 }
 
 function asToken(value: unknown): TokenNode | null {
@@ -163,12 +149,8 @@ function resolveReferences(tokens: FlatToken[]): FlatToken[] {
   }));
 }
 
-function formatCssValue(value: string | number): string {
-  return typeof value === "number" ? String(value) : value;
-}
-
 function cssBlock(selector: string, tokens: FlatToken[]): string {
-  const lines = tokens.map((token) => `  --${token.cssName}: ${formatCssValue(token.resolvedValue)};`);
+  const lines = tokens.map((token) => `  --${token.cssName}: ${token.resolvedValue};`);
   return `${selector} {\n${lines.join("\n")}\n}`;
 }
 
@@ -177,21 +159,18 @@ function cssForTokens(tokens: FlatToken[], foundationCss: string): string {
   const light = tokens.filter((token) => token.mode === "light");
   const dark = tokens.filter((token) => token.mode === "dark");
 
-  const rootTokens = [...light, ...global];
-  const parts = [
+  return [
     generatedHeader,
     "",
     "/* -- Light (default) ------------------------------------------------ */",
-    cssBlock(":root", rootTokens),
+    cssBlock(":root", [...light, ...global]),
     "",
     "/* -- Dark (.dark) --------------------------------------------------- */",
     cssBlock(".dark", dark),
     "",
     foundationCss.trim(),
     "",
-  ];
-
-  return parts.join("\n");
+  ].join("\n");
 }
 
 function nestedFlatJson(tokens: FlatToken[]): JsonObject {
@@ -244,13 +223,13 @@ function figmaTokens(tokens: FlatToken[]): JsonObject {
 }
 
 async function loadDictionary(): Promise<{ source: JsonObject; tokens: FlatToken[] }> {
-  const tokenFiles = (await walk(path.join(root, "tokens")))
+  const tokenFiles = (await readdir(path.join(root, "tokens"), { recursive: true }))
     .filter((file) => file.endsWith(".tokens.json"))
     .sort();
   const merged = {};
   for (const file of tokenFiles) {
-    const json = JSON.parse(await readFile(file, "utf8")) as JsonObject;
-    mergeJson(merged, json, path.relative(root, file));
+    const json = JSON.parse(await readFile(path.join(root, "tokens", file), "utf8")) as JsonObject;
+    mergeJson(merged, json, path.join("tokens", file));
   }
 
   const source = convertTokenData(merged, { output: "object", usesDtcg: true }) as JsonObject;

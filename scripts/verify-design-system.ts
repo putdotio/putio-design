@@ -81,25 +81,8 @@ const tokenValueContracts: TokenValueContract[] = [
   { name: "component.alias.destructiveForeground", cssName: "--destructive-foreground", value: "hsl(0, 0%, 100%)", mode: "global" },
 ];
 
-async function walk(dir: string): Promise<string[]> {
-  const entries = await readdir(dir, { withFileTypes: true });
-  const files = await Promise.all(
-    entries.map(async (entry) => {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) return walk(full);
-      if (entry.isFile()) return [full];
-      return [];
-    }),
-  );
-  return files.flat();
-}
-
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
-}
-
-async function assertExists(file: string) {
-  await access(path.join(root, file));
 }
 
 function assertTokenAlias(flat: Record<string, TokenRecord>, contract: TokenAliasContract) {
@@ -120,7 +103,7 @@ function extractFrontmatter(markdown: string): string {
   return markdown.slice(4, end);
 }
 
-function cssRule(css: string, selector: string): string {
+function cssDeclarations(css: string, selector: string): Map<string, string> {
   const declarations = new Map<string, string>();
   const source = css.replace(/\/\*[\s\S]*?\*\//g, "");
   for (const [, selectors, body] of source.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
@@ -132,7 +115,11 @@ function cssRule(css: string, selector: string): string {
     }
   }
   assert(declarations.size > 0, `Missing ${selector} CSS rule`);
-  return [...declarations].map(([property, value]) => `${property}: ${value};`).join("\n");
+  return declarations;
+}
+
+function cssRule(css: string, selector: string): string {
+  return [...cssDeclarations(css, selector)].map(([property, value]) => `${property}: ${value};`).join("\n");
 }
 
 function assertIncludes(source: string, value: string, label: string) {
@@ -151,16 +138,9 @@ function isSemVer(value: unknown): value is string {
 }
 
 function isIsoCalendarDate(value: unknown): value is string {
-  if (typeof value !== "string") return false;
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  if (!match) return false;
-
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
-  const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-  return month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth[month - 1];
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
 }
 
 function htmlElementsMatchingOpeningTag(source: string, matchesOpeningTag: (openingTag: string) => boolean): string[] {
@@ -171,9 +151,7 @@ function htmlElementsMatchingOpeningTag(source: string, matchesOpeningTag: (open
     const openingTag = opening[0];
     if (!matchesOpeningTag(openingTag) || /\/\s*>$/.test(openingTag)) continue;
 
-    const tagName = opening[1];
-    const escapedTag = tagName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const matchingTags = new RegExp(`<\\/?${escapedTag}\\b[^>]*>`, "gi");
+    const matchingTags = new RegExp(`<\\/?${opening[1]}\\b[^>]*>`, "gi");
     matchingTags.lastIndex = (opening.index ?? 0) + openingTag.length;
     let depth = 1;
     let closingIndex: number | undefined;
@@ -196,9 +174,13 @@ function htmlElementsMatchingOpeningTag(source: string, matchesOpeningTag: (open
   return elements;
 }
 
-function htmlOpeningClasses(source: string): string[] {
-  const openingTag = source.slice(0, source.indexOf(">") + 1);
-  return /\sclass\s*=\s*(["'])(.*?)\1/i.exec(openingTag)?.[2].split(/\s+/) ?? [];
+function htmlAttribute(element: string, name: string): string | undefined {
+  const openingTag = element.slice(0, element.indexOf(">") + 1);
+  return new RegExp(`\\s${name}\\s*=\\s*(["'])(.*?)\\1`, "i").exec(openingTag)?.[2];
+}
+
+function htmlOpeningClasses(element: string): string[] {
+  return htmlAttribute(element, "class")?.split(/\s+/) ?? [];
 }
 
 function htmlElementsWithClass(source: string, className: string, ...additionalClasses: string[]): string[] {
@@ -209,13 +191,11 @@ function htmlElementsWithClass(source: string, className: string, ...additionalC
 }
 
 function htmlElementsWithAttribute(source: string, attributeName: string): string[] {
-  const escapedAttribute = attributeName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const attribute = new RegExp(`\\s${escapedAttribute}(?:\\s*=|\\s|/?>)`, "i");
+  const attribute = new RegExp(`\\s${attributeName}(?:\\s*=|\\s|/?>)`, "i");
   return htmlElementsMatchingOpeningTag(source, (openingTag) => attribute.test(openingTag));
 }
 
-async function checkTokens() {
-  const flat = JSON.parse(await readFile(path.join(root, "dist/tokens.flat.json"), "utf8")) as Record<string, TokenRecord>;
+function checkTokens(flat: Record<string, TokenRecord>) {
   const yellow = flat["color.brand.yellow"];
   assert(yellow, "Missing color.brand.yellow token");
   assert(yellow.value === brandYellowCss, "color.brand.yellow must stay hsl(44.7, 97.9%, 63.1%), the CSS form of #FDCE45");
@@ -229,29 +209,23 @@ async function checkTokens() {
     assert(token.mode === contract.mode, `${contract.name} must be ${contract.mode} mode`);
     assert(token.value === contract.value, `${contract.name} must resolve to ${contract.value}`);
   }
-  assert(
-    flat["component.button.success.backgroundHover"]?.value !== flat["component.alias.success"]?.value,
-    "button success light hover must differ from the resting success background",
-  );
-  assert(
-    flat["component.button.success.backgroundHoverDark"]?.value !== flat["component.alias.successDark"]?.value,
-    "button success dark hover must differ from the resting success background",
-  );
-  assert(
-    flat["component.button.danger.backgroundHover"]?.value !== flat["component.alias.destructive"]?.value,
-    "button danger light hover must differ from the resting destructive background",
-  );
-  assert(
-    flat["component.button.danger.backgroundHoverDark"]?.value !== flat["component.alias.destructiveDark"]?.value,
-    "button danger dark hover must differ from the resting destructive background",
-  );
+  for (const [hover, resting] of [
+    ["component.button.success.backgroundHover", "component.alias.success"],
+    ["component.button.success.backgroundHoverDark", "component.alias.successDark"],
+    ["component.button.danger.backgroundHover", "component.alias.destructive"],
+    ["component.button.danger.backgroundHoverDark", "component.alias.destructiveDark"],
+  ]) {
+    assert(flat[hover]?.value !== flat[resting]?.value, `${hover} must differ from the resting ${resting}`);
+  }
   assert(flat["context.tv.text.tertiary"]?.deprecated === true, "context.tv.text.tertiary must remain marked deprecated");
-  assert(flat["tv.overscan.x"]?.type === "number", "tv.overscan.x must be a portable number ratio");
-  assert(flat["tv.overscan.x"]?.value === 0.04, "tv.overscan.x must equal 0.04");
-  assert(flat["tv.overscan.x"]?.basis === "viewport-width", "tv.overscan.x must declare viewport-width basis");
-  assert(flat["tv.overscan.y"]?.type === "number", "tv.overscan.y must be a portable number ratio");
-  assert(flat["tv.overscan.y"]?.value === 0.02, "tv.overscan.y must equal 0.02");
-  assert(flat["tv.overscan.y"]?.basis === "viewport-height", "tv.overscan.y must declare viewport-height basis");
+  for (const [name, value, basis] of [
+    ["tv.overscan.x", 0.04, "viewport-width"],
+    ["tv.overscan.y", 0.02, "viewport-height"],
+  ] as const) {
+    assert(flat[name]?.type === "number", `${name} must be a portable number ratio`);
+    assert(flat[name]?.value === value, `${name} must equal ${value}`);
+    assert(flat[name]?.basis === basis, `${name} must declare ${basis} basis`);
+  }
   assert(flat["tv.focus.borderWidth"]?.mode === "tv", "tv.focus.borderWidth must be tv mode");
   assert(flat["tv.focus.borderWidth"]?.value === "3px", "tv.focus.borderWidth must equal 3px, a multiple of Roku's 3px FHD grid");
   for (const [row, control] of [
@@ -277,7 +251,7 @@ async function checkTokens() {
   }
 }
 
-async function checkDesignMd() {
+async function checkDesignMd(flat: Record<string, TokenRecord>) {
   const designMd = await readFile(path.join(root, "DESIGN.md"), "utf8");
   const data = parse(extractFrontmatter(designMd)) as {
     colors?: DesignColors;
@@ -286,7 +260,6 @@ async function checkDesignMd() {
     spacing?: Record<string, string | number>;
     components?: Record<string, Record<string, string>>;
   };
-  const flat = JSON.parse(await readFile(path.join(root, "dist/tokens.flat.json"), "utf8")) as Record<string, TokenRecord>;
 
   const expectations: Array<[unknown, string, string]> = [
     [data.colors?.brand, "color.brand.yellow", "DESIGN.md colors.brand"],
@@ -381,9 +354,7 @@ async function checkAppleContract() {
   assert(isIsoCalendarDate(metadata.reviewed?.date), "Apple contract review date must be a valid ISO calendar date");
 
   const stateFragments = htmlElementsWithClass(contents.gauge, "el-state");
-  const states = stateFragments.map((fragment) =>
-    /\sdata-download-state\s*=\s*(["'])(.*?)\1/i.exec(fragment.slice(0, fragment.indexOf(">") + 1))?.[2],
-  );
+  const states = stateFragments.map((fragment) => htmlAttribute(fragment, "data-download-state"));
   assert(
     states.join(",") === "idle,queued,downloading,downloaded,failed",
     "Gauge card must bind the five download states in order",
@@ -404,10 +375,7 @@ async function checkAppleContract() {
   assert(failedReasonOwners.length === 1, "Failed must have one reason owner");
   assert(htmlOpeningClasses(failedReasonOwners[0]).includes("sd"), "Failed reason must belong to its subtitle");
   assert(failedReasonOwners[0].replace(/<[^>]*>/g, "").trim().length > 0, "Failed subtitle must describe reason ownership");
-  assert(
-    /\sdata-reason-owner\s*=\s*(["'])row-subtitle\1/.test(failedReasonOwners[0].split(">", 1)[0]),
-    "Failed reason owner must identify the row subtitle",
-  );
+  assert(htmlAttribute(failedReasonOwners[0], "data-reason-owner") === "row-subtitle", "Failed reason owner must identify the row subtitle");
   assertIncludes(cssRule(contents.css, ".ios-gauge-preview"), "width: 47px", "Gauge preview");
   assertIncludes(cssRule(contents.css, ".ios-gauge-preview"), "height: 47px", "Gauge preview");
   const gaugeTrackRule = cssRule(contents.css, ".ios-gauge-preview::before");
@@ -420,8 +388,7 @@ async function checkAppleContract() {
 
   assertIncludes(contents.progress, "ios-progress-preview", "ProgressView card");
   assertExcludes(contents.progress, "--component-bg-active", "ProgressView card");
-  const progressTrackRule = cssRule(contents.css, ".ios-progress-preview");
-  const progressTrack = /(?:^|;)\s*background\s*:\s*([^;]+)/.exec(progressTrackRule)?.[1];
+  const progressTrack = cssDeclarations(contents.css, ".ios-progress-preview").get("background");
   assert(
     progressTrack && /^color-mix\(in srgb, var\(--text\) \d+(?:\.\d+)?%, transparent\)$/.test(progressTrack),
     "ProgressView track must use the neutral system-opacity preview",
@@ -589,51 +556,30 @@ async function checkAppleContract() {
 }
 
 async function checkHtmlLinks() {
-  const htmlFiles = (await walk(path.join(root, "system"))).filter((file) => file.endsWith(".html"));
-  const attrPattern = /\b(?:href|src)=["']([^"']+)["']/g;
+  const systemDir = path.join(root, "system");
+  const htmlFiles = (await readdir(systemDir, { recursive: true })).filter((file) => file.endsWith(".html"));
 
   for (const file of htmlFiles) {
-    const html = await readFile(file, "utf8");
-    assert(!/^<!--\s*@dsCard/.test(html), `${path.relative(root, file)} still carries a design-tool @dsCard marker — strip it on import`);
-    for (const match of html.matchAll(attrPattern)) {
-      const target = match[1];
-      if (
-        target.startsWith("http://") ||
-        target.startsWith("https://") ||
-        target.startsWith("mailto:") ||
-        target.startsWith("data:") ||
-        target.startsWith("#") ||
-        target === ""
-      ) {
-        continue;
-      }
-      const cleanTarget = target.split(/[?#]/, 1)[0];
-      const resolved = path.resolve(path.dirname(file), cleanTarget);
-      try {
-        const info = await stat(resolved);
-        assert(info.isFile() || info.isDirectory(), `${target} from ${path.relative(root, file)} is not a file or directory`);
-      } catch {
-        throw new Error(`${target} from ${path.relative(root, file)} does not exist`);
-      }
+    const label = path.join("system", file);
+    const html = await readFile(path.join(systemDir, file), "utf8");
+    assert(!/^<!--\s*@dsCard/.test(html), `${label} still carries a design-tool @dsCard marker — strip it on import`);
+    for (const [, target] of html.matchAll(/\b(?:href|src)=["']([^"']+)["']/g)) {
+      if (/^(?:https?:|mailto:|data:|#)/.test(target)) continue;
+      const resolved = path.resolve(systemDir, path.dirname(file), target.split(/[?#]/, 1)[0]);
+      const info = await stat(resolved).catch(() => undefined);
+      assert(info?.isFile() || info?.isDirectory(), `${target} from ${label} does not exist`);
     }
   }
 }
 
-async function checkCss() {
+async function checkCss(flat: Record<string, TokenRecord>) {
   const tvCss = await readFile(path.join(root, "system/tv.css"), "utf8");
   assert(!/!important/.test(tvCss), "tv.css 10-foot styles must not use !important");
   assert(!/^:root\s*\{[\s\S]*?--surf-/m.test(tvCss), "TV-specific tokens must be scoped to .tv, not :root");
   assert(!/^\.tv-content\s*\{/m.test(tvCss), "tv.css component selectors must remain scoped under .tv");
 
   // tv.css mirrors the tv.focus group under .tv because mode "tv" tokens are absent from tokens.css.
-  const flat = JSON.parse(await readFile(path.join(root, "dist/tokens.flat.json"), "utf8")) as Record<string, TokenRecord>;
-  const tvRule = cssRule(tvCss, ".tv");
-  const tvDeclarations = new Map(
-    tvRule.split("\n").map((line) => {
-      const separator = line.indexOf(":");
-      return [line.slice(0, separator), line.slice(separator + 1).trim().replace(/;$/, "")] as const;
-    }),
-  );
+  const tvDeclarations = cssDeclarations(tvCss, ".tv");
   const darkByCssName = new Map(
     Object.values(flat)
       .filter((token) => token.mode === "dark" || token.mode === "global")
@@ -650,24 +596,23 @@ async function checkCss() {
   }
 }
 
-async function main() {
-  await Promise.all([
-    assertExists("dist/css/tokens.css"),
-    assertExists("dist/tokens.dtcg.json"),
-    assertExists("dist/tokens.flat.json"),
-    assertExists("dist/tokens.js"),
-    assertExists("dist/tokens.d.ts"),
-    assertExists("dist/figma/putio.tokens.json"),
-    assertExists("DESIGN.md"),
-    assertExists("system/assets/app-icon-beta.png"),
-  ]);
+await Promise.all(
+  [
+    "dist/css/tokens.css",
+    "dist/tokens.dtcg.json",
+    "dist/tokens.flat.json",
+    "dist/tokens.js",
+    "dist/tokens.d.ts",
+    "dist/figma/putio.tokens.json",
+    "DESIGN.md",
+    "system/assets/app-icon-beta.png",
+  ].map((file) => access(path.join(root, file))),
+);
 
-  await checkTokens();
-  await checkDesignMd();
-  await checkAppleContract();
-  await checkHtmlLinks();
-  await checkCss();
-  console.log("Design system checks passed");
-}
-
-await main();
+const flat = JSON.parse(await readFile(path.join(root, "dist/tokens.flat.json"), "utf8")) as Record<string, TokenRecord>;
+checkTokens(flat);
+await checkDesignMd(flat);
+await checkAppleContract();
+await checkHtmlLinks();
+await checkCss(flat);
+console.log("Design system checks passed");

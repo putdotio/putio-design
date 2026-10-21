@@ -11,34 +11,23 @@ const importConfig = (port) => {
     "--input-type=module",
     "--eval",
     "const { default: config } = await import('./playwright.config.ts'); console.log(JSON.stringify({ baseURL: config.use.baseURL, serverPort: config.webServer.env.PORT, serverURL: config.webServer.url }))",
-  ], {
-    cwd: process.cwd(),
-    encoding: "utf8",
-    env,
-  });
+  ], { encoding: "utf8", env });
 };
 
-const resolvedConfig = (port) => {
-  const result = importConfig(port);
-  assert.equal(result.status, 0, result.stderr);
-  return JSON.parse(result.stdout);
-};
-
-test("Playwright defaults to port 4173", () => {
-  assert.deepEqual(resolvedConfig(undefined), {
-    baseURL: "http://127.0.0.1:4173",
-    serverPort: "4173",
-    serverURL: "http://127.0.0.1:4173/tokens.css",
+for (const [label, override, expected] of [
+  ["defaults to port 4173", undefined, "4173"],
+  ["wires a valid port override through the browser and server config", "4174", "4174"],
+]) {
+  test(`Playwright ${label}`, () => {
+    const result = importConfig(override);
+    assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(JSON.parse(result.stdout), {
+      baseURL: `http://127.0.0.1:${expected}`,
+      serverPort: expected,
+      serverURL: `http://127.0.0.1:${expected}/tokens.css`,
+    });
   });
-});
-
-test("Playwright wires a valid port override through the browser and server config", () => {
-  assert.deepEqual(resolvedConfig("4174"), {
-    baseURL: "http://127.0.0.1:4174",
-    serverPort: "4174",
-    serverURL: "http://127.0.0.1:4174/tokens.css",
-  });
-});
+}
 
 for (const port of ["1", "65535"]) {
   test(`Playwright accepts port ${port}`, () => {
