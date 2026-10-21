@@ -1,7 +1,7 @@
 # Distribution
 
-This repo ships two public surfaces: the static guide at `design.put.io` and the
-`@putdotio/design` npm package.
+This repo ships three surfaces: the static guide at `design.put.io`, the
+`@putdotio/design` npm package, and the claude.ai design system artifact.
 
 ## Static Site
 
@@ -11,10 +11,9 @@ SST deploys the checked-in `system/` directory to AWS S3, CloudFront, and Route 
 pnpm deploy:production
 ```
 
-[`deploy.yml`](../.github/workflows/deploy.yml) deploys on `main` pushes that
-touch a path in its `on.push.paths` filter, which includes `DESIGN.md`,
-`docs/**`, `system/**`, `tokens/**`, and `dist/**`, and on manual dispatch. It
-does not re-run verification; CI runs `pnpm verify:full` on the same push.
+[`deploy.yml`](../.github/workflows/deploy.yml) deploys on manual dispatch and on
+`main` pushes that touch its `on.push.paths`. It does not re-run verification;
+CI runs `pnpm verify:full` on the same push.
 
 ## Package Artifacts
 
@@ -50,19 +49,42 @@ canonical `#FDCE45` in prose and identity guidance, with the generated CSS value
 `hsl(44.7, 97.9%, 63.1%)`. Primary button hover uses the separate
 `--button-primary-bg-hover` alias, generated from `--yellow-solid-hover`.
 
-## Readiness Checks
+## Design System Artifact
 
-`pnpm verify` is the fast local gate. `pnpm verify:full` is the CI gate; it
-adds Playwright browser coverage (computed-style contracts, TV geometry, axe
-accessibility) and a pack dry run. Both are defined in the `scripts` block of
-`package.json`.
+The claude.ai Design System artifact `put.io design` gives Claude sessions the
+system as tokens, cards, and a brand book. It is generated, never edited on its
+page: the next publish overwrites page edits.
+[`scripts/build-artifact.ts`](../scripts/build-artifact.ts) builds its
+`project/` files into `artifact/out/` from `dist/tokens.flat.json`, the guide
+CSS, `system/preview/`, `DESIGN.md`, and `platforms/*/DESIGN.md`, plus the
+hand-written cover and asset notes in `artifact/project/` and the README footer
+in `artifact/readme-footer.md`.
+
+- The artifact can't load `static.put.io`, so its previews render in Inter and
+  JetBrains Mono.
+- Every `system/assets/` file is an upload in the artifact, mapped to its
+  `/_blob/` URL in `artifact/notes.json`; the build fails on an unmapped file.
+  A new asset is an upload, a record in the artifact index's `assetGroups`, and
+  a `notes.json` entry.
+
+No API lets CI publish, so a Claude session with edit access to the artifact
+republishes it:
+
+1. `pnpm artifact`.
+2. Find the artifact with the Artifact tool (`list`, type `Design System`) and
+   read its `project/design-system.json`.
+3. Publish the paths in `artifact/out/files.json` with `root` `artifact/out`,
+   at most 255 per call. Send the index only when its title or asset records
+   change, merged into the copy just read, in the last call.
+
+Done when the changed cards render on the artifact page in light and dark.
 
 ## Fonts And Assets
 
 - Tokens reference the GT America and Berkeley Mono family names only. Do not
   publish proprietary font files unless licensing is explicitly cleared.
-- Platform font bundling must not register GT America Mono; the
-  `--font-ui-mono` token was removed, not aliased.
+- Platform font bundles register GT America and Berkeley Mono only; GT America
+  Mono is retired.
 - The design guide loads production font CSS from `static.put.io`.
 - Package-safe brand assets under `system/assets/` publish through
   `@putdotio/design/assets/*`.
@@ -73,5 +95,4 @@ accessibility) and a pack dry run. Both are defined in the `scripts` block of
 
 Do not publish private research, local paths, auth-gated links or workspace
 URLs, internal project links, screenshots from private workspaces, team photos,
-account data, discount strategy, or tracker notes in this repo. This is the
-canonical list; other docs point here.
+account data, discount strategy, or tracker notes in this repo.
