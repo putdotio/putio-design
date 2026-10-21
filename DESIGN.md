@@ -131,7 +131,7 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 
 ### Auth
 
-- A fluid column up to `340px`, the `36px` field recipe, a `30.33px` wordmark box (26px ink × 7/6), centred `19px`/500 headings, and a centred two-line prompt footer.
+- A fluid column up to `340px`, the `36px` field recipe, a `30.33px` wordmark box (26px ink × 7/6), centred `19px`/500 headings, and a centred two-line prompt footer. auth.put.io's set-password screen ships the action alone: drift.
 - Copy: “Sign in”, “Sign up”, and “That username or password doesn't look right.” followed by a “Reset your password” link.
 - References: `web-s06-auth`, `web-p00c-auth-signin`, `web-p00d-auth-signup`, `web-p00e-auth-2fa`.
 - One-time codes are one `.otp-input` (`inputmode="numeric"`, `autocomplete="one-time-code"`, `maxlength="6"`, `aria-invalid`) shown through two `.otp-group`s, one `.otp-separator`, and six `.otp-slot`s; script syncs slot text and `filled`/`active`, and maps a clicked slot to the input selection.

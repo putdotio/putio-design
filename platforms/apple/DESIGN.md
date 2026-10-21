@@ -63,8 +63,11 @@ Tier 2: tokens only on stock UIKit. Tier definitions live in
    `--component-bg` settings rows. Dark only (`UIUserInterfaceStyle` Dark).
 3. **Type**. GT America on app labels through the type-scale roles; nav titles
    Bold 17, tab labels Medium 10. Berkeley Mono only for audio player times
-   and two-factor codes. Search fields and alerts stay system SF.
-4. **Icons**. Phosphor, regular with a fill variant for selection.
+   and two-factor codes. Search fields and alerts stay system SF. Filenames,
+   sizes and dates in GT America are drift from the Berkeley Mono roles.
+4. **Icons**. Phosphor, regular with a fill variant for selection. Only
+   folders are yellow; other file glyphs in `--text-secondary` are drift from
+   the yellow file-icon rule.
 
 Every colour is a generated `UIColor.Putio.*`. Cards without a shipped
 counterpart carry a Proposed marker.

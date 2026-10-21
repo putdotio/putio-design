@@ -161,6 +161,7 @@ it draws system green: drift, documented in the Apple contract.
 ## Type and icons
 
 Type is Material's default scale in Roboto: no GT America, no Berkeley Mono.
+Both are drift from the root type roles, documented as shipped.
 Subheads are `titleSmall` in `primary`. The player's elapsed and duration labels
 use the system monospace: drift from the Berkeley Mono rule, documented as
 shipped. Android TV type is in [Android TV](#android-tv).
