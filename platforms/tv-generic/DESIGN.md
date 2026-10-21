@@ -108,7 +108,7 @@ Account is the settings screen. There is no separate preferences screen.
 
 ## Type
 
-No mono on any TV tier. Berkeley Mono is a web and mobile rule.
+No mono in TV product UI; a debug overlay may use the platform's system monospace. Berkeley Mono is a web and mobile rule.
 
 10-foot numerics are GT America with tabular figures, via
 `font-variant-numeric: tabular-nums` on web and the same font feature settings

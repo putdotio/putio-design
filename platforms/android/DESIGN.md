@@ -202,7 +202,7 @@ buttons fill `primary` and use the compact-surface 1.1 scale.
 Uses the `tv` token group: body 36, caption 32, label 48, heading 64; spacing
 4/8/16/32/64/128; radius 12. Overscan 4% x 2%.
 
-No mono. TV numerics are GT America tabular figures.
+No mono in product UI; the debug overlay uses the system monospace. TV numerics are GT America tabular figures.
 
 Structure is the shared TV family look: retro wordmark header, a list of
 destinations, 36px titles over 28px sublines, a 42px yellow Phosphor glyph in

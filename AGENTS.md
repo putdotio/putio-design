@@ -56,7 +56,7 @@ Do not invent titles, posters, thumbnails, descriptions, codecs, or metadata the
 
 ## Typography
 
-Berkeley Mono is the only mono face; TV surfaces have no mono at all. Font
+Berkeley Mono is the only mono face; TV product UI has no mono; a TV debug overlay may use the platform's system monospace. Font
 licensing and loading: [Distribution](docs/distribution.md#fonts-and-assets).
 
 ## Proof

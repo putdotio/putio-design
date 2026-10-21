@@ -85,7 +85,7 @@ Each role matches the size of the built-in it replaces. Changing a size is a
 layout change, not a type change: it reflows every Label height, wrap budget and
 row baseline already built against it.
 
-No mono. Same as every TV tier. Numerics are GT America, and per the system
+No mono in product UI, as on every TV tier; a debug overlay may use the system monospace. Numerics are GT America, and per the system
 contract Roku gets proportional figures because SceneGraph `Font` accepts only
 `uri` and `size`. Budget numeric columns for reflow.
 

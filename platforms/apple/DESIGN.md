@@ -171,7 +171,7 @@ TV surface.
 Uses the `tv` token group: body 36, caption 32, label 48, heading 64; spacing
 4/8/16/32/64/128; radius 12. Overscan 4% x 2%.
 
-No mono. TV numerics are GT America tabular figures.
+No mono in product UI; a debug overlay may use the system monospace. TV numerics are GT America tabular figures.
 
 Search types on the system linear keyboard via `UISearchController`. Recent
 keywords surface as app-provided suggestions.
