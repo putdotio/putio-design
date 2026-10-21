@@ -2,11 +2,12 @@ import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } f
 import path from "node:path";
 import process from "node:process";
 
-// Builds the claude.ai Design System artifact's project/ files into
-// artifact/out/: tokens.json from dist/tokens.flat.json, bundle.css from the
-// guide CSS, and a card per system/preview page. Hand-written files under
-// artifact/project/ (brand book, cover, asset notes) are copied as they are; artifact/notes.json maps each system/assets file to its
-// upload in the artifact. The artifact's index (project/design-system.json)
+// Builds one claude.ai Design System artifact per device family into
+// artifact/out/<family>/project/: tokens.json from dist/tokens.flat.json,
+// bundle.css from the guide CSS, and a card per system/preview page of that
+// family. artifact/shared/ (cover, asset notes) and artifact/<family>/README.md
+// are hand-written; artifact/notes.json maps each system/assets file to its
+// upload in each artifact. Each artifact's index (project/design-system.json)
 // stays with the artifact.
 
 type FlatToken = {
@@ -17,25 +18,29 @@ type FlatToken = {
   description?: string;
 };
 type Entry = { name: string; value: string | Record<string, string>; usage: string };
-type Notes = { images: Record<string, string> };
+type Notes = { images: Record<string, Record<string, string>> };
+type Page = { path: string; text: string; platform?: string };
 
 const root = process.cwd();
 const out = path.join(root, "artifact/out");
-const project = path.join(out, "project");
 const repo = "https://github.com/putdotio/putio-design/blob/main";
 
+/** A card lands in the artifact whose platforms include its filename prefix ("" = foundations). */
+const ARTIFACTS: Record<string, { word: string; platforms: ReadonlySet<string> }> = {
+  core: { word: "design", platforms: new Set([""]) },
+};
+const PHOSPHOR = ["regular", "fill", "bold", "duotone", "thin"] as const;
+
 const read = (rel: string): string => readFileSync(path.join(root, rel), "utf8");
-const write = (rel: string, text: string): void => {
-  const file = path.join(project, rel);
-  mkdirSync(path.dirname(file), { recursive: true });
-  writeFileSync(file, text);
+const pages: Page[] = [];
+const write = (rel: string, text: string, platform?: string): void => {
+  pages.push({ path: rel, text, platform });
 };
 
 const notes = JSON.parse(read("artifact/notes.json")) as Notes;
 const flat = Object.values(JSON.parse(read("dist/tokens.flat.json")) as Record<string, FlatToken>);
 
 rmSync(out, { recursive: true, force: true });
-cpSync(path.join(root, "artifact/project"), project, { recursive: true });
 
 // ---- tokens.json
 
@@ -194,17 +199,6 @@ write("tokens.json", `${JSON.stringify(tokens, null, 2)}\n`);
 
 // ---- bundle.css: the guide CSS minus the custom properties tokens.json owns
 
-const assetUrl = (file: string, from: string): string => {
-  const blob = notes.images[file];
-  if (!blob)
-    throw new Error(`${from}: system/assets/${file} has no upload in artifact/notes.json images`);
-  return blob;
-};
-const assetRefs = (text: string, from: string): string =>
-  text.replace(/\.\.\/assets\/([A-Za-z0-9._-]+)/g, (_, file: string) => assetUrl(file, from));
-
-for (const file of readdirSync(path.join(root, "system/assets"))) assetUrl(file, "system/assets");
-
 const unowned = siteCss
   .split("\n")
   .filter((line) => !owned.has(/^\s*--([a-z0-9-]+):/.exec(line)?.[1] ?? ""))
@@ -217,7 +211,7 @@ const bundle = [
   read("system/components.css").trim(),
   read("system/tv.css").trim(),
 ].join("\n\n");
-write("components/bundle.css", assetRefs(`${bundle}\n`, "bundle.css"));
+write("components/bundle.css", `${bundle}\n`);
 // The page runs no preview without a bundle. The package ships CSS only, so the
 // namespace stays empty and every card is plain markup.
 write(
@@ -298,20 +292,23 @@ for (const c of parsed) {
   );
   const canvas = html.includes('class="el tv') ? 1920 : Math.max(1120, ...declared);
 
-  const body = assetRefs(
-    html
-      .replace(/<script>\s*\/\* Theme bootstrap[\s\S]*?<\/script>\n?/, "")
-      .replace(/<head>\n?/, `<head>\n${themeSync(lock)}\n`)
-      .replace(
-        /<link rel="stylesheet" href="(https:\/\/static\.put\.io\/fonts\/[^"]+|\.\.\/(tokens|components|tv)\.css)">\n?/g,
-        "",
-      )
-      .replace(/<script src="\.\/_resize\.js" defer><\/script>\n?/, "")
-      .replace(/(href|src)="\.\/(_[a-z-]+\.(css|js))"/g, '$1="../../preview-kit/$2"'),
-    `system/preview/${c.file}`,
-  );
+  const body = html
+    .replace(/<script>\s*\/\* Theme bootstrap[\s\S]*?<\/script>\n?/, "")
+    .replace(/<head>\n?/, `<head>\n${themeSync(lock)}\n`)
+    .replace(
+      /<link rel="stylesheet" href="(https:\/\/static\.put\.io\/fonts\/[^"]+|\.\.\/(tokens|components|tv)\.css)">\n?/g,
+      "",
+    )
+    .replace(/<script src="\.\/_resize\.js" defer><\/script>\n?/, "")
+    .replace(/(href|src)="\.\/(_[a-z-]+\.(css|js))"/g, '$1="../../preview-kit/$2"')
+    // The artifact loads stylesheets and fonts only from its own files, so Phosphor ships in the kit.
+    .replace(
+      '<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>',
+      '<link rel="stylesheet" href="../../preview-kit/phosphor.css">',
+    );
   if (
     !body.includes("new MutationObserver(s)") ||
+    body.includes('src="https://unpkg.com/@phosphor-icons') ||
     /"(https:\/\/static\.put\.io[^"]*|\.\/_resize\.js|\.\.\/(tokens|components|tv)\.css)"/.test(
       body,
     )
@@ -323,33 +320,94 @@ for (const c of parsed) {
   write(
     `components/${component}/preview.html`,
     `<!-- @dsCard group="${group}" width=${canvas} height=${height} subtitle="${escapeAttr(title)}" -->\n${body}`,
+    c.platform ?? "",
   );
 
   const doc = c.platform ? `platforms/${PLATFORMS[c.platform][1]}/DESIGN.md` : "DESIGN.md";
   write(
     `components/${component}/README.md`,
     `# ${component}\n\n${/^[a-z][A-Z]/.test(title) ? title : title[0].toUpperCase() + title.slice(1)}.\n\n- Rules: [${doc}](${repo}/${doc})\n- Source: [${c.file}](${repo}/system/preview/${c.file})\n`,
+    c.platform ?? "",
   );
 }
 
 for (const file of readdirSync(previewDir).filter((f) => f.startsWith("_") && f !== "_resize.js")) {
-  write(`preview-kit/${file}`, assetRefs(read(`system/preview/${file}`), `system/preview/${file}`));
+  write(`preview-kit/${file}`, read(`system/preview/${file}`));
 }
+const phosphorSrc = path.join(root, "node_modules/@phosphor-icons/web/src");
+write(
+  "preview-kit/phosphor.css",
+  PHOSPHOR.map((weight) =>
+    readFileSync(path.join(phosphorSrc, weight, "style.css"), "utf8").replace(
+      /src:\s*url\("\.\/([^"]+)\.woff2"\)[^;]*;/,
+      'src: url("./phosphor/$1.woff2") format("woff2");',
+    ),
+  ).join("\n"),
+);
 
-// ---- the publish list: every project path, relative to artifact/out
+// ---- one project/ per artifact, and its publish list
 
-const files: string[] = [];
-const walk = (dir: string): void => {
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) walk(full);
-    else files.push(path.relative(out, full));
+const assets = readdirSync(path.join(root, "system/assets"));
+let total = 0;
+for (const [id, { word, platforms }] of Object.entries(ARTIFACTS)) {
+  const dir = path.join(out, id);
+  const project = path.join(dir, "project");
+  const images = notes.images[id] ?? {};
+  for (const file of assets) {
+    if (!images[file])
+      throw new Error(`artifact/notes.json images.${id}: no upload for system/assets/${file}`);
   }
-};
-walk(project);
-files.sort();
-writeFileSync(path.join(out, "files.json"), `${JSON.stringify(files, null, 2)}\n`);
+  const emit = (rel: string, text: string): void => {
+    const file = path.join(project, rel);
+    mkdirSync(path.dirname(file), { recursive: true });
+    writeFileSync(file, text);
+  };
+
+  cpSync(path.join(root, "artifact/shared"), project, { recursive: true });
+  emit("README.md", read(`artifact/${id}/README.md`));
+  emit(
+    "components/Cover/preview.html",
+    read("artifact/shared/components/Cover/preview.html").replaceAll("{{word}}", word),
+  );
+  for (const page of pages) {
+    if (page.platform !== undefined && !platforms.has(page.platform)) continue;
+    const text = page.text.replace(/\.\.\/assets\/([A-Za-z0-9._-]+)/g, (_, file: string) => {
+      if (!images[file]) throw new Error(`${page.path}: no system/assets/${file}`);
+      return images[file];
+    });
+    emit(
+      page.path,
+      page.path === "tokens.json"
+        ? text.replace('"name": "put.io design"', `"name": "put.io ${word}"`)
+        : text,
+    );
+  }
+  for (const weight of PHOSPHOR) {
+    for (const file of readdirSync(path.join(phosphorSrc, weight)).filter((f) =>
+      f.endsWith(".woff2"),
+    )) {
+      mkdirSync(path.join(project, "preview-kit/phosphor"), { recursive: true });
+      cpSync(
+        path.join(phosphorSrc, weight, file),
+        path.join(project, "preview-kit/phosphor", file),
+      );
+    }
+  }
+
+  const files: string[] = [];
+  const walk = (d: string): void => {
+    for (const entry of readdirSync(d, { withFileTypes: true })) {
+      const full = path.join(d, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else files.push(path.relative(dir, full));
+    }
+  };
+  walk(project);
+  files.sort();
+  writeFileSync(path.join(dir, "files.json"), `${JSON.stringify(files, null, 2)}\n`);
+  total += files.length;
+}
 console.log(
-  `artifact: ${files.length} files, ${colors.size} colors, ${cards.length} cards → artifact/out` +
+  `artifact: ${Object.keys(ARTIFACTS).length} artifacts, ${total} files, ${colors.size} colors, ${cards.length} cards → artifact/out` +
     (skipped.length > 0 ? `; kept in bundle.css: ${skipped.join(", ")}` : ""),
 );

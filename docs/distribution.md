@@ -52,13 +52,15 @@ canonical `#FDCE45` in prose and identity guidance, with the generated CSS value
 ## Design System Artifact
 
 The claude.ai Design System artifact `put.io design` gives Claude sessions the
-system as tokens, cards, and a brand book. It is generated, never edited on its
-page: the next publish overwrites page edits.
+foundations as tokens, cards, and a brand book. It is generated, never edited
+on its page: the next publish overwrites page edits.
 [`scripts/build-artifact.ts`](../scripts/build-artifact.ts) builds its
-`project/` files into `artifact/out/` from `dist/tokens.flat.json`, the guide
-CSS, and `system/preview/`, plus the hand-written brand book, cover, and asset
-notes in `artifact/project/`. The brand book stays a few lines that
-links `DESIGN.md` and the platform contracts.
+`project/` files into `artifact/out/core/` from `dist/tokens.flat.json`, the
+guide CSS, and the foundation cards in `system/preview/`, plus the
+hand-written brand book (`artifact/core/README.md`), cover, and asset notes
+(`artifact/shared/`). The brand book stays a few lines that links `DESIGN.md`
+and the platform contracts. Phosphor ships inside the artifact from the pinned
+`@phosphor-icons/web` dev dependency.
 
 - The artifact can't load `static.put.io`, so its previews render in Inter and
   JetBrains Mono.
@@ -73,7 +75,7 @@ republishes it:
 1. `pnpm artifact`.
 2. Find the artifact with the Artifact tool (`list`, type `Design System`) and
    read its `project/design-system.json`.
-3. Publish the paths in `artifact/out/files.json` with `root` `artifact/out`,
+3. Publish the paths in `artifact/out/core/files.json` with `root` `artifact/out/core`,
    at most 255 per call. Send the index only when its title or asset records
    change, merged into the copy just read, in the last call.
 
