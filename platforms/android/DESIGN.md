@@ -6,7 +6,7 @@ tier: 2
 platforms: ["Android", "Android TV"]
 source: "Material 3 + @putdotio/design token graph"
 reviewed:
-  date: "2026-10-03"
+  date: "2026-10-21"
   against: "Material 3 + Google's TV design (Compose for TV) + the native Android binding + the token graph."
   cards:
     [

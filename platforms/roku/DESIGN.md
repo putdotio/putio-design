@@ -5,7 +5,7 @@ description: "Binding contract for the put.io Roku channel. Tier 3: token inheri
 tier: 3
 source: "putdotio/putio-roku@main"
 reviewed:
-  date: "2026-08-25"
+  date: "2026-10-21"
   against: "Roku SceneGraph components, the generated token adapter, and platform metric and icon checks."
   cards:
     [

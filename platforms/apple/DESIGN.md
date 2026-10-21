@@ -6,7 +6,7 @@ tier: 2
 platforms: ["iOS 26", "iPadOS 26", "watchOS", "tvOS"]
 source: "Apple HIG + @putdotio/design token graph"
 reviewed:
-  date: "2026-10-03"
+  date: "2026-10-21"
   against: "Apple HIG (iOS 26 / iPadOS 26 / watchOS / tvOS) + the token graph + stock SwiftUI controls."
   cards:
     [

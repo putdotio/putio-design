@@ -6,7 +6,7 @@ tier: 4
 platforms: ["tv.put.io", "Tizen", "webOS"]
 source: "generic TV reference implementation + system/tv.css"
 reviewed:
-  date: "2026-08-25"
+  date: "2026-10-21"
   against: "The generic TV reference implementation, its screen inventory, and system/tv.css."
   cards:
     [
