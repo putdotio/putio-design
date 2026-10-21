@@ -5,7 +5,7 @@ description: "Binding contract for the put.io Roku channel. Tier 3: token inheri
 tier: 3
 source: "putdotio/putio-roku@main"
 reviewed:
-  date: "2026-08-25"
+  date: "2026-10-21"
   against: "Roku SceneGraph components, the generated token adapter, and platform metric and icon checks."
   cards:
     [
@@ -19,6 +19,7 @@ reviewed:
       "roku-s05-auth",
       "roku-p03-continue-watching",
       "roku-p04-conversion",
+      "roku-p05-not-supported",
     ]
 resolution:
   authored: "1920x1080"
@@ -81,7 +82,8 @@ Each role matches the size of the built-in it replaces. Changing a size is a
 layout change: it reflows every Label height, wrap budget and row baseline
 already built against it.
 
-Roku gets proportional figures, as [Typography](../../DESIGN.md#typography)
+No mono in product UI; a debug overlay may use the system monospace. Roku gets
+proportional figures, as [Typography](../../DESIGN.md#typography)
 describes. Budget numeric columns for reflow.
 
 ## Colour

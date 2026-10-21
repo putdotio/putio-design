@@ -6,7 +6,7 @@ tier: 2
 platforms: ["iOS 26", "iPadOS 26", "watchOS", "tvOS"]
 source: "Apple HIG + @putdotio/design token graph"
 reviewed:
-  date: "2026-10-03"
+  date: "2026-10-21"
   against: "Apple HIG (iOS 26 / iPadOS 26 / watchOS / tvOS) + the token graph + stock SwiftUI controls."
   cards:
     [
@@ -20,6 +20,8 @@ reviewed:
       "tvos-s01-search",
       "tvos-s02-account",
       "tvos-s03-continue-watching",
+      "tvos-s04-diagnostics",
+      "tvos-s05-unsupported",
       "mobile-s00-welcome",
     ]
 canvas:
@@ -165,7 +167,8 @@ Browse is a header and a list of destinations, matching every other put.io TV
 surface.
 
 Sizes come from the `tv` token group; see [web TV Scale](../tv-generic/DESIGN.md#scale).
-Numerics follow the TV rule in [Typography](../../DESIGN.md#typography).
+Numerics follow the TV rule in [Typography](../../DESIGN.md#typography); a
+debug overlay may use the system monospace.
 
 Search types on the system linear keyboard via `UISearchController`. Recent
 keywords surface as app-provided suggestions.

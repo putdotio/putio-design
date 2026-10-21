@@ -6,7 +6,7 @@ tier: 4
 platforms: ["tv.put.io", "Tizen", "webOS"]
 source: "generic TV reference implementation + system/tv.css"
 reviewed:
-  date: "2026-08-25"
+  date: "2026-10-21"
   against: "The generic TV reference implementation, its screen inventory, and system/tv.css."
   cards:
     [
@@ -23,6 +23,7 @@ reviewed:
       "tv-s07-auth",
       "tv-p04-resume",
       "tv-p05-conversion",
+      "tv-s08-diagnostics",
     ]
 canvas: "1920x1080"
 radius: "12px, one value"
@@ -97,7 +98,8 @@ Account is the settings screen.
 
 ## Type
 
-The TV numeric rule lives in [Typography](../../DESIGN.md#typography). Web TV
+No mono in TV product UI; a debug overlay may use the platform's system
+monospace. The TV numeric rule lives in [Typography](../../DESIGN.md#typography). Web TV
 sets tabular figures with `font-variant-numeric: tabular-nums`, and React
 Native with the same font feature settings.
 

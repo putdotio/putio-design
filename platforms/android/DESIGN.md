@@ -6,7 +6,7 @@ tier: 2
 platforms: ["Android", "Android TV"]
 source: "Material 3 + @putdotio/design token graph"
 reviewed:
-  date: "2026-10-03"
+  date: "2026-10-21"
   against: "Material 3 + Google's TV design (Compose for TV) + the native Android binding + the token graph."
   cards:
     [
@@ -16,6 +16,9 @@ reviewed:
       "androidtv-s01-search",
       "androidtv-s02-account",
       "androidtv-s03-continue-watching",
+      "androidtv-s04-sign-in-verifying",
+      "androidtv-s05-diagnostics",
+      "androidtv-s06-unsupported",
       "mobile-s00-welcome",
     ]
 canvas:
@@ -186,6 +189,8 @@ button fills `primary` and takes the compact-surface 1.1 scale.
 
 Sizes come from the `tv` token group; see [web TV Scale](../tv-generic/DESIGN.md#scale).
 Numerics follow the TV rule in [Typography](../../DESIGN.md#typography).
+
+No mono in product UI; the debug overlay uses the system monospace.
 
 Structure follows the shared TV family look: retro wordmark header and a list
 of destinations. Rows set 36px titles over 28px sublines with a 42px yellow
