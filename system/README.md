@@ -1,13 +1,15 @@
 # put.io design system
 
-This folder holds the generated site tokens, preview cards, and design-system index.
+The guide site: generated site tokens, component CSS, preview cards, and the
+design-system index.
 
 ## Layout
 
 - `index.html` redirects to `design-system.html`, the guide and preview-card
-  index. `design-system-light.html` is a legacy redirect to
+  index. `design-system-light.html` redirects to
   `design-system.html?theme=light`.
-- `tokens.css` is generated from `../tokens/**/*.tokens.json`; do not edit it.
+- `tokens.css` is generated from `../tokens/**/*.tokens.json`; edit the token
+  sources and rebuild.
 - `components.css` is the Tier-1 component layer (the web contract).
 - `tv.css` is the TV / 10-foot component CSS, scoped to `.tv` artboards.
 - `assets/` holds logos, favicons, retro marks, and app icons.
@@ -24,24 +26,26 @@ states, a spec strip, a don't block.
 ## Fonts
 
 Preview pages load the public put.io font CSS from `static.put.io`, the same
-source as the product. Do not commit font files here. Each HTML file links both
-families in `<head>`:
+source as the product; font licensing is in
+[Distribution](../docs/distribution.md#fonts-and-assets). Each preview links
+both families in `<head>`:
 
 ```html
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css" />
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css" />
 ```
 
-GT America Mono is retired: all mono text reads `--font-mono` (Berkeley Mono),
-whose tabular figures carry the numerics. Do not re-add the
-`gt-america/mono/font.css` load.
+Those two links are the full font set: mono text reads `--font-mono` (Berkeley
+Mono), whose tabular figures carry the numerics.
 
-Canonical weight mapping (matches the brand font host):
-`100 ultra-light · 200 thin · 300 light · 400 regular · 500 medium · 700 bold · 900 black`
+Weight names on the font host:
+`100 ultra-light · 200 thin · 300 light · 400 regular · 500 medium · 700 bold · 900 black`.
+The tokens use four of them through `--fw-regular`, `--fw-medium`, `--fw-bold`,
+and `--fw-black`.
 
 ## Using tokens
 
-For the static guide, pages in `system/` load the generated site stylesheet:
+Guide pages in `system/` load the generated site stylesheet:
 
 ```html
 <link rel="stylesheet" href="./tokens.css" />
@@ -50,60 +54,56 @@ For the static guide, pages in `system/` load the generated site stylesheet:
 The canonical source is DTCG-compatible JSON in [`../tokens`](../tokens). This
 site stylesheet (`system/tokens.css`) and the package stylesheet
 (`dist/css/tokens.css`, exported as `@putdotio/design/css`) are generated from
-the same source. Guide and component CSS should consume custom properties rather
-than hard-coded palette values. Brand yellow is `var(--yellow-solid)`,
-canonical `#FDCE45`; the emitted hsl form is pinned in
-[`../DESIGN.md`](../DESIGN.md) front-matter, and the `--yellow-solid-hover` →
-`--button-primary-bg-hover` derivation is specified in the repo's
-`docs/distribution.md`.
+the same source. Brand yellow is `var(--yellow-solid)`; its emitted hsl form is
+pinned in the [`../DESIGN.md`](../DESIGN.md) frontmatter, and the
+`--button-primary-bg-hover` derivation is in
+[Distribution](../docs/distribution.md#generated-files).
 
-Stacking and breakpoints are tokenized (`--z-*`, `--bp-*`) and the root
-font-size is responsive; the canonical values live in
-[`../DESIGN.md`](../DESIGN.md) (Layout & Spacing, Typography). Guide-specific
-rule: CSS media queries can't read custom properties, so write the literal px
-in `@media` and keep it in sync with the `--bp-*` token.
+Stacking, breakpoints, the root font-size, and the `@media` literal rule live
+in [Layout & Spacing](../DESIGN.md#layout--spacing) and
+[Typography](../DESIGN.md#typography).
 
 Package consumers import as in the [README](../README.md#use).
 
 For **TV preview cards**, also load `tv.css`, which adds the `.tv`, `.scr`,
 `.row`, solid surface tiers, and player chrome on top of the tokens, authored
 1:1 at 1920×1080 (a px in the file is a px on the TV). Every component selector
-is scoped under `.tv`, so the file is safe to bundle globally without bleeding
-into web components. Platform repos still implement TV components in their
-native UI stacks:
+is scoped under `.tv`, so the file can be bundled globally alongside web
+components. Platform repos implement TV components in their native UI stacks:
 
 ```html
 <link rel="stylesheet" href="./tokens.css" /> <link rel="stylesheet" href="./tv.css" />
 ```
 
 TV material, focus, and the `tv` token group rules live in
-[`../DESIGN.md`](../DESIGN.md) (Components). Guide specifics: the `tv` group is
-`mode: "tv"` and read from `dist/tokens.flat.json`; only `--radius-tv` is
-global and reachable in CSS.
+[Components](../DESIGN.md#components). Guide specifics: the `tv` group is
+`mode: "tv"` and read from `dist/tokens.flat.json`; `--radius-tv` is the one
+`tv` value the token CSS emits, so `tv.css` declares the `--tv-*` properties
+its cards use itself.
 
 ## Core rules
 
-- **Yellow `#FDCE45` is the brand constant at rest.** Full rule and approved uses in [`../DESIGN.md`](../DESIGN.md) (Colors). Guide specifics: `--yellow-solid-hover` (`#F3C435`) is the hover peer with its own canonical hex in both modes, and focus rings use the yellow at 35% alpha (`--shadow-focus-color`).
-- **Yellow as text on light needs `--yellow-text-secondary`** (≈5:1, AA); the brand `--yellow-solid` is fill-only on light backgrounds.
-- **Labels on yellow** use `--primary-foreground` (`hsl(38, 65%, 10%)`, a warm dark, never pure black). Passes AA on the yellow fill without feeling "hard."
-- **Icons: Phosphor-style inline SVG.** No emoji, ever.
-- **One design, two modes.** Light and dark are the same markup and components with different token values. Toggle `.dark` on `<html>`; do not fork the page or rebuild a light-specific copy. Components must consume semantic tokens (`--bg`, `--text`, `--border`, `--accent`, …), not raw `#hex` or `hsl()`.
-- **Fields and panels use the shared aliases** (`--field-*`, `--panel-*`); full rules, including the `aria-invalid` red-border-only requirement, are in [`../DESIGN.md`](../DESIGN.md) (Components).
-- **Wordmarks are optically pre-centred.** All three logo SVGs carry built-in top padding in the viewBox (retro pair `0 -16 376 112`, `logo.svg` `0 -24.44 621.79 176.055`). Flex-centre as-is; never add a `translateY` nudge. Height-set placements size boxes at 7/6 of the ink height.
-- **Content-agnostic.** put.io doesn't know what the user's files are. Never parse `The.Wire.S03E04.1080p.mkv` into `The Wire`. Raw filenames only. See the root [`DESIGN.md`](../DESIGN.md) for the full principle.
+- **Yellow** follows [Colors](../DESIGN.md#colors). Guide specifics: `--yellow-solid-hover` is the hover peer with one value in both modes, and button focus-visible rings use `--shadow-focus` (the yellow at 35% alpha, `--shadow-focus-color`). Form fields focus with the neutral `--field-ring` instead.
+- **Yellow as text on light** uses `--yellow-text-secondary` (≈5:1, AA); `--yellow-solid` is fill-only on light backgrounds.
+- **Labels on yellow** use `--primary-foreground`, a warm dark that passes AA on the yellow fill.
+- **One design, two modes.** Light and dark are the same markup and components with different token values. Toggle `.dark` on `<html>`; one page serves both modes. Components consume semantic tokens (`--bg`, `--text`, `--border`, `--accent`, …) instead of raw `#hex` or `hsl()`.
+- **Wordmarks are optically pre-centred.** All three logo SVGs carry built-in top padding in the viewBox (retro pair `0 -16 376 112`, `logo.svg` `0 -24.44 621.79 176.055`). Flex-centre them as-is, with no `translateY` nudge. Height-set placements size boxes at 7/6 of the ink height.
+
+Icons, fields and panels, and raw filenames follow the root
+[Components](../DESIGN.md#components) and
+[Content and Icons](../DESIGN.md#content-and-icons).
 
 ## Binding tiers
 
 Tier definitions, the Component/Element distinction, and the `preview/_tier.css`
-pairing rule live in [`../DESIGN.md`](../DESIGN.md) (Binding Tiers). Never read
-an Element card as a build-a-custom-control instruction.
+pairing rule live in [Binding Tiers](../DESIGN.md#binding-tiers). An Element
+card shows how a stock control receives tokens.
 
 Native cards are drawn 1:1 in their own unit (iPhone 393×852pt, iPad
 1024×768pt, Apple Watch 176×215pt, Android 412×915dp, TV 1920×1080px), so a
 number written on a card is the number in the HIG or the Material spec. Those
-metrics are Apple's and Google's; they are **not** put.io spacing tokens and
-must never be promoted into the graph. Device bezels and on-video chrome stay
-deliberately un-tokenised.
+metrics are Apple's and Google's and stay out of the put.io token graph. Device
+bezels and on-video chrome stay untokenised.
 
 ## Theme System
 
@@ -113,21 +113,22 @@ The guide (`design-system.html`) owns the theme toggle. It writes
 so embeds flip live without reloading. Each preview's inline bootstrap reads
 the same storage key on standalone open, and `preview/_resize.js` listens for
 the parent broadcast when embedded. A URL query (`?theme=light` or
-`?theme=dark`) overrides both, which is useful for screenshots.
+`?theme=dark`) overrides both, for screenshots.
 
-Fixed-mode previews opt out with `<html data-theme-lock="dark">`. This is only
-for product mockups whose visual language is intrinsically one mode. A 10-foot
+Fixed-mode previews opt out with `<html data-theme-lock="dark">`, reserved for
+product mockups whose visual language is intrinsically one mode. A 10-foot
 screen, a native app mockup, and on-video player chrome are fixed-mode
 surfaces, so the `ios-*`, `android-*`, `androidtv-*`, `tvos-*`, `watchos-*`,
-`roku-*`, `tv-*`, and `mobile-*` cards plus `web-p06-player.html` are locked. Locked
-previews ignore `localStorage`, parent broadcasts, and the URL query. Leave new
-component previews unlocked; the tokens render them in both modes.
+`roku-*`, `tv-*`, and `mobile-*` cards plus `web-p06-player.html` are locked.
+Locked previews ignore `localStorage`, parent broadcasts, and the URL query.
+New component previews stay unlocked, so the tokens render them in both modes.
 
 ## shadcn / Base UI interop
 
 The token layer aliases the canonical shadcn token names, so shadcn/ui blocks,
 Base UI components, and Tailwind presets resolve against put.io values without
-renaming. Always alias, never duplicate, so the two name systems cannot drift.
+renaming. Each shadcn name aliases a put.io token and carries no value of its
+own, so the two name systems cannot drift.
 
 | shadcn name                                  | put.io target                                              |
 | -------------------------------------------- | ---------------------------------------------------------- |
@@ -142,17 +143,16 @@ renaming. Always alias, never duplicate, so the two name systems cannot drift.
 | `--ring`                                     | `--shadow-focus-color`                                     |
 | `--background` / `--foreground`              | `--bg` / `--text`                                          |
 
-There is also a full `--input-*` set (`-bg`, `-border`, `-border-hover`,
-`-border-focus`, `-ring`, `-text`, `-placeholder`, `-radius`) that aliases the
-`--field-*` tokens one-for-one, so shadcn-shaped input code themes without
-renaming. **Author against `--field-*`;** the `--input-*` names exist only as the
-alias bridge and must never carry their own value.
+A full `--input-*` set (`-bg`, `-border`, `-border-hover`, `-border-focus`,
+`-ring`, `-text`, `-placeholder`, `-radius`) aliases the matching `--field-*`
+tokens, so shadcn-shaped input code themes without renaming. **Author against
+`--field-*`;** the `--input-*` names are only the alias bridge.
 
-The foreground tokens (`--primary-foreground`, `--destructive-foreground`,
-`--success-foreground`) encode the mode-safe inverse pair; always read these
-instead of writing literal `#000` / `#fff` on a solid surface.
+On a solid surface, read the foreground tokens (`--primary-foreground`,
+`--destructive-foreground`, `--success-foreground`), which encode the mode-safe
+inverse pair, instead of writing literal `#000` / `#fff`.
 
-put.io components prefer the long descriptive names (`--component-bg-hover`,
+put.io components use the long descriptive names (`--component-bg-hover`,
 `--yellow-text-secondary`) because they name the role exactly; shadcn-imported
 code keeps the short names.
 
@@ -160,20 +160,21 @@ code keeps the short names.
 
 Base UI / headless primitives set
 `data-state="open|closed|checked|unchecked|active|completed|pending|loading"`
-on the DOM. Our components target those same attribute values in CSS; see the
-wizard step bar in `web-p00b-form-flows.html`
-(`.step[data-state="completed"]`) and the menu/table cards. Prefer `data-state`
-over inventing class flags (`.is-active`, `.on`, `.current`) so the same DOM
-contract works with any controlling code and devtools show the state directly.
+on the DOM. put.io components target those same attribute values in CSS; see
+the wizard step bar in `web-p00b-form-flows.html`
+(`.step[data-state="completed"]`) and the menu/table cards. Express state with
+`data-state` rather than class flags (`.is-active`, `.on`, `.current`), so the
+same DOM contract works with any controlling code and devtools show the state
+directly.
 
 ### Compound parts via `data-slot`
 
 shadcn marks parts of compound components with `data-slot="card-header"`,
-`data-slot="card-title"`, etc. We do the same on the folder picker
+`data-slot="card-title"`, and so on. put.io does the same on the folder picker
 (`data-slot="modal" / "modal-header" / "modal-body" / "modal-footer"`) and the
 auth cards in `web-p00c-auth-signin.html` and `web-p00d-auth-signup.html`
-(`data-slot="auth" / "auth-header" / "auth-body"`). This lets external CSS tweak one part without inventing
-nested class chains.
+(`data-slot="auth" / "auth-header" / "auth-body"`), so external CSS can target
+one part without nested class chains.
 
 ## Design variants
 

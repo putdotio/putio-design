@@ -18,19 +18,11 @@
 
 Live guide: [design.put.io](https://design.put.io)
 
-This repo owns the public contract behind it: DTCG token sources, generated
-CSS/JSON/TypeScript artifacts, brand assets, preview cards, and deployable
-static guidance.
-
 ## Install
 
 ```bash
 npm install @putdotio/design
 ```
-
-Token sources live in [`tokens`](tokens), generated artifacts in
-[`dist`](dist), and package-safe brand assets in
-[`system/assets`](system/assets).
 
 ## Use
 

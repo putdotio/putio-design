@@ -1,11 +1,8 @@
 # platforms
 
-Per-platform binding contracts. One `DESIGN.md` each, in the shape of
-[putio-design DESIGN.md](https://github.com/putdotio/putio-design/blob/main/DESIGN.md):
-YAML frontmatter carrying the machine-readable contract, prose below it.
-
-These are the authoring drafts; each platform repo owns the copy that ships
-in it.
+Per-platform binding contracts. Each `DESIGN.md` follows the shape of the root
+[DESIGN.md](../DESIGN.md): YAML frontmatter carrying the machine-readable
+contract, prose below it.
 
 | File                               | Tier | Binds                               |
 | ---------------------------------- | ---- | ----------------------------------- |
@@ -19,8 +16,7 @@ Tier definitions: [DESIGN.md Binding Tiers](../DESIGN.md#binding-tiers).
 
 ## Staying current
 
-Each file carries a `reviewed` block naming the date, the sources it was checked
-against, and the cards it describes. These are hand-written, so that block is
-the only drift signal. Update it in the same change as the content.
-
-If two go stale, generate them from the cards' tier strips instead.
+Each contract's `reviewed` block records the review date, the sources it was
+checked against, and the cards it describes. The contracts are hand-written, so
+that block is their only drift signal: a card or source that changed after
+`reviewed.date` means the contract needs a fresh review.
