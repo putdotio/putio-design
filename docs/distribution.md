@@ -1,7 +1,7 @@
 # Distribution
 
 This repo ships three surfaces: the static guide at `design.put.io`, the
-`@putdotio/design` npm package, and the claude.ai design system artifact.
+`@putdotio/design` npm package, and the [Claude artifacts](#claude-artifacts).
 
 ## Static Site
 
@@ -49,37 +49,51 @@ canonical `#FDCE45` in prose and identity guidance, with the generated CSS value
 `hsl(44.7, 97.9%, 63.1%)`. Primary button hover uses the separate
 `--button-primary-bg-hover` alias, generated from `--yellow-solid-hover`.
 
-## Design System Artifact
+## Claude Artifacts
 
-The claude.ai Design System artifact `put.io design` gives Claude sessions the
-foundations as tokens, cards, and a brand book. It is generated, never edited
-on its page: the next publish overwrites page edits.
-[`scripts/build-artifact.ts`](../scripts/build-artifact.ts) builds its
-`project/` files into `artifact/out/core/` from `dist/tokens.flat.json`, the
-guide CSS, and the foundation cards in `system/preview/`, plus the
-hand-written brand book (`artifact/core/README.md`), cover, and asset notes
-(`artifact/shared/`). The brand book stays a few lines that links `DESIGN.md`
-and the platform contracts. Phosphor ships inside the artifact from the pinned
-`@phosphor-icons/web` dev dependency.
+Four claude.ai artifacts give Claude sessions the system. They are generated,
+never edited on their pages: the next publish overwrites page edits.
 
-- The artifact can't load `static.put.io`, so its previews render in Inter and
-  JetBrains Mono.
-- Every `system/assets/` file is an upload in the artifact, mapped to its
-  `/_blob/` URL in `artifact/notes.json`; the build fails on an unmapped file.
-  A new asset is an upload, a record in the artifact index's `assetGroups`, and
-  a `notes.json` entry.
+| Artifact        | Type          | Holds                                               |
+| --------------- | ------------- | --------------------------------------------------- |
+| `put.io design` | Design System | tokens, foundation cards, brand book                |
+| `put.io web`    | Design canvas | web screens, patterns and components as pages       |
+| `put.io TV`     | Design canvas | 1920×1080 web TV, Roku, tvOS and Android TV screens |
+| `put.io mobile` | Design canvas | iOS, iPadOS, Android and watchOS screens            |
 
-No API lets CI publish, so a Claude session with edit access to the artifact
-republishes it:
+`pnpm artifact` builds each one's `project/` files into `artifact/out/<id>/`
+with its publish list in `files.json`:
+[`scripts/build-artifact.ts`](../scripts/build-artifact.ts) the design system
+(`core`), [`scripts/build-canvases.ts`](../scripts/build-canvases.ts) the
+canvases, one artboard per screen in `system/preview/` with the card's
+headline as its note. Hand-written inputs: the brand book
+(`artifact/core/README.md`), the cover and asset notes (`artifact/shared/`).
 
-1. `pnpm artifact`.
-2. Find the artifact with the Artifact tool (`list`, type `Design System`) and
-   read its `project/design-system.json`.
-3. Publish the paths in `artifact/out/core/files.json` with `root` `artifact/out/core`,
-   at most 255 per call. Send the index only when its title or asset records
-   change, merged into the copy just read, in the last call.
+- No artifact can load `static.put.io`, so they render in Inter and JetBrains
+  Mono. Phosphor ships inside each from the pinned `@phosphor-icons/web` dev
+  dependency.
+- Every `system/assets/` file and Phosphor font is an upload in each artifact,
+  mapped to its `/_blob/` URL in `artifact/notes.json`; the build fails on an
+  unmapped one. A new asset is an upload per artifact plus its `notes.json`
+  entries, and a record in the design system's `assetGroups`.
+- Artifact URLs stay out of this repo. Find them with the Artifact tool
+  (`list`).
 
-Done when the changed cards render on the artifact page in light and dark.
+No API lets CI publish, so a Claude session with edit access republishes:
+
+1. `PUTIO_DESIGN_ARTIFACT_URL=<put.io design URL> pnpm artifact`; the
+   variable installs the design system on each canvas.
+2. Design system: read its `project/design-system.json`, publish the paths in
+   `artifact/out/core/files.json` with `root` `artifact/out/core`, and send the
+   index only when its title or asset records change, merged into the copy
+   just read, last.
+3. Each canvas: publish `project/canvas.json`, `project/Main.dc.html` and
+   `project/kit/**` from `artifact/out/<id>/` first, with
+   `project/ds/putio/tokens.json` copied from the design system's
+   `project/tokens.json`; then the other artboards. Remove artboards the build
+   no longer makes.
+
+Done when the changed cards and screens render on their pages.
 
 ## Fonts And Assets
 

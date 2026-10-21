@@ -2,7 +2,7 @@
 
 put.io's design system. Token sources build the public `@putdotio/design` npm
 package, which the web, Apple, Android, Roku, and TV apps consume, the public
-guide at `design.put.io`, and the claude.ai design system artifact. Everything
+guide at `design.put.io`, and the claude.ai design system and canvases. Everything
 here ships publicly.
 
 ## Start Here
@@ -21,7 +21,7 @@ pnpm dev            # serves the guide; open the printed URL
 pnpm tokens:build   # regenerates dist/ and system/tokens.css from tokens/
 pnpm verify         # fast gate: types, token contracts, artifact build, HTML, Markdown
 pnpm verify:full    # CI gate: adds Playwright and an npm pack dry run
-pnpm artifact       # builds the claude.ai artifact files into artifact/out/
+pnpm artifact       # builds the claude.ai design system and canvases into artifact/out/
 ```
 
 ## PR Evidence
@@ -91,6 +91,6 @@ warrants a release, and [Deploy](.github/workflows/deploy.yml) redeploys
 `production` SST stage exists; do not create preview, spike, or staging
 stages. Mechanics: [Distribution](docs/distribution.md#static-site).
 
-Nothing republishes the claude.ai artifact automatically. After a merge that
+Nothing republishes the claude.ai artifacts automatically. After a merge that
 changes tokens, `system/**`, or `artifact/**`,
-republish it: [Distribution](docs/distribution.md#design-system-artifact).
+republish them: [Distribution](docs/distribution.md#claude-artifacts).
