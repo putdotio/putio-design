@@ -56,9 +56,9 @@ system as tokens, cards, and a brand book. It is generated, never edited on its
 page: the next publish overwrites page edits.
 [`scripts/build-artifact.ts`](../scripts/build-artifact.ts) builds its
 `project/` files into `artifact/out/` from `dist/tokens.flat.json`, the guide
-CSS, `system/preview/`, `DESIGN.md`, and `platforms/*/DESIGN.md`, plus the
-hand-written cover and asset notes in `artifact/project/` and the README footer
-in `artifact/readme-footer.md`.
+CSS, and `system/preview/`, plus the hand-written brand book, cover, and asset
+notes in `artifact/project/`. The brand book stays a one-screen summary that
+links `DESIGN.md` and the platform contracts.
 
 - The artifact can't load `static.put.io`, so its previews render in Inter and
   JetBrains Mono.

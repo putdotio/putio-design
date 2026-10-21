@@ -4,9 +4,8 @@ import process from "node:process";
 
 // Builds the claude.ai Design System artifact's project/ files into
 // artifact/out/: tokens.json from dist/tokens.flat.json, bundle.css from the
-// guide CSS, a card per system/preview page, and the brand book from DESIGN.md
-// and platforms/*/DESIGN.md. Hand-written files under artifact/project/ are
-// copied as they are; artifact/notes.json maps each system/assets file to its
+// guide CSS, and a card per system/preview page. Hand-written files under
+// artifact/project/ (brand book, cover, asset notes) are copied as they are; artifact/notes.json maps each system/assets file to its
 // upload in the artifact. The artifact's index (project/design-system.json)
 // stays with the artifact.
 
@@ -335,22 +334,6 @@ for (const c of parsed) {
 
 for (const file of readdirSync(previewDir).filter((f) => f.startsWith("_") && f !== "_resize.js")) {
   write(`preview-kit/${file}`, assetRefs(read(`system/preview/${file}`), `system/preview/${file}`));
-}
-
-// ---- brand book: DESIGN.md, then one section per platform contract
-
-const markdown = (rel: string): string => {
-  const text = read(rel).replace(/^---\n[\s\S]*?\n---\n/, "");
-  return text.replace(/\]\((?!https?:|#|mailto:)([^)\s]+)\)/g, (_, link: string) => {
-    const target = path.posix.normalize(path.posix.join(path.posix.dirname(rel), link));
-    return `](${repo}/${target})`;
-  });
-};
-const readme = markdown("DESIGN.md").replace(/^\s*# [^\n]+\n/, "");
-write("README.md", `${readme.trim()}\n\n${read("artifact/readme-footer.md").trim()}\n`);
-for (const dir of readdirSync(path.join(root, "platforms"), { withFileTypes: true })) {
-  if (dir.isDirectory())
-    write(`platforms/${dir.name}.md`, markdown(`platforms/${dir.name}/DESIGN.md`));
 }
 
 // ---- the publish list: every project path, relative to artifact/out

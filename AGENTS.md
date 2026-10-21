@@ -92,5 +92,5 @@ warrants a release, and [Deploy](.github/workflows/deploy.yml) redeploys
 stages. Mechanics: [Distribution](docs/distribution.md#static-site).
 
 Nothing republishes the claude.ai artifact automatically. After a merge that
-changes tokens, `system/**`, `DESIGN.md`, `platforms/**`, or `artifact/**`,
+changes tokens, `system/**`, or `artifact/**`,
 republish it: [Distribution](docs/distribution.md#design-system-artifact).
