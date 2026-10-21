@@ -20,6 +20,8 @@ reviewed:
       "tvos-s01-search",
       "tvos-s02-account",
       "tvos-s03-continue-watching",
+      "tvos-s04-diagnostics",
+      "tvos-s05-unsupported",
       "mobile-s00-welcome",
     ]
 canvas:

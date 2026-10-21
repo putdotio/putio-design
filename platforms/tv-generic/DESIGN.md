@@ -23,6 +23,7 @@ reviewed:
       "tv-s07-auth",
       "tv-p04-resume",
       "tv-p05-conversion",
+      "tv-s08-diagnostics",
     ]
 canvas: "1920x1080"
 radius: "12px, one value"

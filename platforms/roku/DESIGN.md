@@ -19,6 +19,7 @@ reviewed:
       "roku-s05-auth",
       "roku-p03-continue-watching",
       "roku-p04-conversion",
+      "roku-p05-not-supported",
     ]
 resolution:
   authored: "1920x1080"

@@ -16,6 +16,9 @@ reviewed:
       "androidtv-s01-search",
       "androidtv-s02-account",
       "androidtv-s03-continue-watching",
+      "androidtv-s04-sign-in-verifying",
+      "androidtv-s05-diagnostics",
+      "androidtv-s06-unsupported",
       "mobile-s00-welcome",
     ]
 canvas:
