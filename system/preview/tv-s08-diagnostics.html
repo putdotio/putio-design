@@ -11,86 +11,127 @@
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="./_resize.js" defer></script>
 <style>
-.tvfit{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left}
-.tvfit .tv{position:absolute;inset:0}
-.tv .row{transition:none}
+.artboard{position:relative;width:1920px;max-width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:var(--app-bg);box-shadow:0 24px 64px rgba(0,0,0,0.45),0 0 0 1px var(--line);flex:0 0 auto}
+.tvfit,.tv-fit{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left}
+.tvfit>.tv,.tv-fit>.tv{position:absolute;inset:0}
+
+.tv .scr{height:100%;box-sizing:border-box;padding:0 0 calc(32px + var(--tv-safe-y));overflow:hidden}
+.tv .scr-head{flex:0 0 auto;gap:0;border-bottom:1px solid var(--list-item-border)}
+.tv .scr-title{flex:1 1 auto;min-width:0;margin-right:32px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv .scr-head .logo{display:block;width:184px;height:55px;margin-top:-7px}
+.tv .scr-actions{flex:0 0 auto;margin-left:auto}
+.tv .btn{padding:16px;gap:8px;font-size:24px;line-height:32px;letter-spacing:0;border-width:var(--border-width);transition:none}
+.tv .btn i{font-size:32px}
+.tv .btn.md{padding:16px 32px;gap:16px;font-size:32px;line-height:1.2}
+.tv .btn.md i{font-size:36px}
+.tv .row{flex:0 0 auto;min-height:114px;box-sizing:border-box;transition:none}
+.tv .row .ico{font-size:48px;line-height:1}
 .tv .row .title,.tv .row .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tv .row .trailing i{font-size:36px}
-.tv .dbg-video{position:absolute;inset:0;background:var(--tv-video-bg)}
-.tv .dbg-video .frame{position:absolute;left:420px;right:420px;top:0;bottom:0;background:linear-gradient(160deg,#181410,#0b0b0d 62%,#110e0c)}
-.tv .dbg-info{position:absolute;top:16px;right:16px;z-index:1;background:var(--overlay-inline);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
-.tv .dbg-info pre{margin:0;font-family:ui-monospace,"SF Mono",Menlo,"Roboto Mono",monospace;font-size:24px;line-height:1.17;color:var(--text)}
+.tv .row .sub{line-height:1.2;font-variant-numeric:normal}
+.tv .row .trailing{font-size:24px;line-height:1;color:var(--text-secondary)}
+.tv .row .trailing .ac{font-size:36px}
+.tv .row .trailing .ai{font-size:48px}
+.tv .row .trailing .tx{line-height:28px;text-transform:uppercase}
+.tv .row.off{opacity:.55}
+.tv .row.off .ico{color:var(--text-secondary)}
+.tv .sw{display:inline-block;position:relative;width:70px;height:40px;border-radius:var(--radius-pill);background:var(--border-hover)}
+.tv .sw::after{content:"";position:absolute;top:0;left:0;width:40px;height:40px;border-radius:var(--radius-pill);background:var(--hi-contrast)}
+.tv .sw.on{background:var(--green-solid)}
+.tv .sw.on::after{left:30px}
+.tv .spin{display:inline-block;box-sizing:border-box;width:32px;height:32px;border:4px solid var(--border);border-top-color:var(--yellow-solid);border-radius:50%}
+.tv .lst{margin:0 var(--tv-safe-x) 16px;font-size:32px;font-weight:500;line-height:1.2;color:var(--text-secondary)}
+.tv .lst.gap{margin-top:64px}
+.tv .err-line{margin:8px var(--tv-safe-x) 0;font-size:24px;line-height:1.4;color:var(--alert-danger-body)}
+.tv .state{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:0 256px 96px;text-align:center}
+.tv .state .st{font-size:96px;line-height:1;color:var(--text-secondary)}
+.tv .state .st.err{color:var(--red-solid)}
+.tv .state h2{margin:0;font-size:64px;font-weight:500;line-height:1.1;color:var(--text)}
+.tv .state p{margin:0;font-size:36px;line-height:1.2;color:var(--text-secondary)}
+.tv .state .btn{margin-top:32px}
+.tv .loader{display:inline-block;box-sizing:border-box;width:76px;height:76px;border:8px solid var(--border);border-top-color:var(--yellow-solid);border-radius:50%}
+.tv .stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--tv-video-bg)}
+.tv .sel{position:absolute;inset:0;z-index:30}
+.tv .sel::before{content:"";position:absolute;inset:0;background:var(--sheet-scrim)}
+.tv .sel-panel{position:absolute;top:50%;left:50%;min-width:25%;max-width:50%;max-height:76%;overflow:hidden;box-sizing:border-box;padding:32px;border:var(--border-width) solid var(--sheet-border);border-radius:var(--radius-tv);background:var(--sheet-bg);box-shadow:var(--sheet-shadow);transform:translate(-50%,-50%)}
+.tv .sel-panel h2{margin:0 0 16px;font-size:36px;font-weight:500;line-height:1.2;color:var(--text-secondary);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-wrap:break-word}
+.tv .opt{position:relative;display:flex;align-items:center;gap:16px;min-height:70px;box-sizing:border-box;margin-bottom:8px;padding:16px 64px 16px 16px;border-radius:var(--radius-tv);font-size:32px;line-height:1.2;color:var(--text);white-space:nowrap}
+.tv .opt:last-child{margin-bottom:0}
+.tv .opt.focused{background:var(--component-bg-active)}
+.tv .opt>i:first-child{font-size:36px;color:var(--yellow-solid)}
+.tv .opt .ck{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:32px;color:var(--text-secondary)}
+
+.tv .pl{position:absolute;inset:0;overflow:hidden;background:var(--tv-video-bg)}
+.tv .pc{position:absolute;left:0;right:0;bottom:0;padding:16px var(--tv-safe-x) var(--tv-safe-y);background:var(--overlay-full)}
+.tv .pc-head{display:flex;align-items:flex-end}
+.tv .pc-title{flex:1 1 auto;min-width:0;max-width:80%;margin:0 auto 8px 0;font-size:48px;font-weight:500;line-height:1.2;color:var(--tv-text-on-video);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv .pc-acts{display:flex;align-items:flex-end;flex:0 0 auto}
+.tv .pib{display:block;min-width:68px;padding:0;border:0;background:transparent;font:inherit;text-align:center;color:var(--tv-text-on-video)}
+.tv .pib i{font-size:36px}
+.tv .pib .lbl{display:block;margin-bottom:8px;font-size:24px;line-height:1.2;white-space:nowrap;opacity:0}
+.tv .pib.focused .lbl{opacity:1}
+.tv .pib .surf{display:flex;width:68px;height:68px;align-items:center;justify-content:center;margin:0 auto;border-radius:var(--radius-pill);font-size:36px}
+.tv .pib.focused .surf{background:var(--component-bg-active)}
+.tv .seek{position:relative;height:12px;margin-top:32px;border-radius:var(--radius-pill);background:var(--slider-track)}
+.tv .seek .fill{display:block;height:100%;border-radius:var(--radius-pill) 0 0 var(--radius-pill);background:var(--slider-fill)}
+.tv .seek .thumb{position:absolute;top:-12px;width:36px;height:36px;box-sizing:border-box;border:4px solid var(--border-hover);border-radius:var(--radius-pill);background:var(--slider-knob);opacity:0;transform:translateX(-50%)}
+.tv .seek.active .thumb{border-color:var(--text-secondary);opacity:1}
+.tv .ptime{position:relative;min-height:29px;margin-top:32px;font-size:24px;line-height:1.2;color:var(--tv-text-on-video)}
+.tv .ptime span{position:absolute;top:0}
+.tv .ptime span:first-child{left:0}
+.tv .ptime span:last-child{right:0}
+.tv .ptime i{margin-left:8px;font-size:24px;vertical-align:-3px}
+.tv .pload{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.tv .modal{position:absolute;inset:0;z-index:7;background:var(--overlay-full)}
+.tv .modal-panel{position:absolute;top:50%;left:50%;width:760px;box-sizing:border-box;padding:32px;border:1px solid var(--panel-border);border-radius:var(--radius-tv);background:var(--panel-bg);box-shadow:var(--shadow-lg);color:var(--text);transform:translate(-50%,-50%)}
+.tv .modal-panel.issue{min-height:250px;padding-left:128px}
+.tv .modal-ico{position:absolute;top:32px;left:32px;display:flex;width:58px;height:58px;align-items:center;justify-content:center;border-radius:var(--radius-pill);background:var(--yellow-component-bg);color:var(--yellow-solid);font-size:42px}
+.tv .modal-panel h2{margin:0;font-size:36px;font-weight:500;line-height:44px}
+.tv .modal-panel p{margin:16px 0 0;font-size:24px;line-height:34px;color:var(--text-secondary)}
+.tv .modal-eyebrow{font-size:24px;font-weight:500;line-height:1.2;color:var(--text-secondary)}
+.tv .modal-name{margin-top:8px;font-size:36px;font-weight:500;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv .modal-count{display:block;height:6px;margin-top:16px;overflow:hidden;border-radius:var(--radius-pill);background:var(--component-bg)}
+.tv .modal-count span{display:block;height:100%;background:var(--yellow-solid)}
+.tv .pacts{margin-top:32px;white-space:nowrap}
+.tv .pact{display:inline-block;min-width:246px;height:62px;box-sizing:border-box;padding:0 32px;border:1px solid var(--border);border-radius:var(--radius-tv);background:var(--component-bg);color:var(--text);font-size:24px;font-weight:500;line-height:60px;text-align:center}
+.tv .pact+.pact{margin-left:16px}
+.tv .pact.focused{border-color:var(--border-hover);background:var(--component-bg-active)}
+
+.tv .acct{display:flex;align-items:flex-end;width:100%}
+.tv .acct .avatar{flex:0 0 auto;width:120px;height:120px;margin-right:32px;border-radius:var(--radius-tv);background:var(--component-bg)}
+.tv .acct .who{flex:1 1 auto;min-width:0;max-width:70%;padding-bottom:8px}
+.tv .acct .uname{font-size:36px;font-weight:400;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv .acct .disk-l{margin-top:16px;font-size:24px;line-height:1.2;color:var(--text-secondary)}
+.tv .acct .disk{width:250px;height:10px;margin-top:8px;overflow:hidden;border-radius:var(--radius-sm);background:var(--slider-track)}
+.tv .acct .disk span{display:block;width:62%;height:100%;border-radius:var(--radius-sm);background:var(--slider-fill)}
+.tv .acct .btn{flex:0 0 auto;margin-left:auto}
+
+.tv .dpanel{margin:0 var(--tv-safe-x)}
+.tv .dpanel .lst{margin:64px 0 16px}
+.tv .dpanel .lst:first-child{margin-top:0}
+.tv .dpanel .row{margin:0}
+.tv .hud{position:absolute;top:32px;right:32px;z-index:5;width:420px;max-height:560px;overflow:hidden;box-sizing:border-box;padding:16px;border:1px solid var(--panel-border);border-radius:var(--panel-radius);background:var(--panel-bg);box-shadow:var(--panel-shadow);color:var(--text)}
+.tv .hud .eb{display:block;margin-bottom:4px;font-size:var(--fs-sm);font-weight:var(--fw-bold);letter-spacing:.08em;line-height:1.4;text-transform:uppercase;color:var(--yellow-solid)}
+.tv .hud h2{margin:0 0 4px;font-size:var(--fs-lg);font-weight:var(--fw-bold);line-height:1.2}
+.tv .hud .ds{margin:0 0 16px;font-size:var(--fs-sm);line-height:1.4;color:var(--text-secondary)}
+.tv .hud h3{margin:16px 0 8px;font-size:var(--fs-xs);font-weight:var(--fw-bold);letter-spacing:.08em;line-height:1.4;text-transform:uppercase;color:var(--yellow-solid)}
+.tv .hud dl{margin:0}
+.tv .hud dl div{display:flex;align-items:baseline;padding:4px 0;border-bottom:1px solid var(--line)}
+.tv .hud dl div:last-child{border-bottom:0}
+.tv .hud dt{flex:none;width:84px;margin-right:8px;font-size:var(--fs-xs);font-weight:var(--fw-bold);letter-spacing:.04em;line-height:1.4;text-transform:uppercase;color:var(--text-secondary)}
+.tv .hud dd{flex:1;min-width:0;margin:0;font-family:Menlo,Consolas,"Liberation Mono",monospace;font-size:var(--fs-xs);line-height:1.2;word-wrap:break-word}
 </style></head>
 <body>
-<div class="tierbar t4"><span class="tno">Tier 4</span><span class="twhat"><b>TV (Generic)</b>: tv.put.io, Tizen, webOS. The restrained, list-first web binding is the reference presentation. Android TV shares the product behaviour but applies Google's native TV components and focus model.</span><span class="ttok">--yellow-solid · --component-bg-active · --overlay-inline · --line · --radius-tv</span></div>
+<div class="tierbar t4"><span class="tno">Tier 4</span><span class="twhat"><b>Web TV</b>: tv.put.io, Tizen, webOS. Drawn from the shipped <code>apps/tv</code> in putio-web.</span><span class="ttok">--panel-bg · --panel-radius · --component-bg-active · --yellow-solid</span></div>
 <div class="preview-shell">
-<div>
-  <div class="label">Diagnostics is a user-facing destination, reached from Account</div>
-  <div class="note">Account's last section, <b>App and device information</b>, lists three read-only rows (App, Device, Operating system) and one link row, <b>Diagnostics</b>. Source: <code class="src">features/account/hooks/use-app-and-device-info-list-items.ts</code>.</div>
-  <div class="note">Diagnostics is one section, <b>Test streams</b>: every row plays a known-good stream from the API through the real player, so a playback bug can be split into "this device" or "this file". Source: <code class="src">features/diagnostics/screens/diagnostics.tsx</code>.</div>
+<div><div class="label">Playback test is a support destination, reached from Account</div><div class="note">Account's last section, <b>App and device information</b>, links Device info and Playback test and shows the release. Playback test plays known streams through each engine, so a playback bug splits into this TV or this file.</div></div>
+<div class="tvbox"><div class="tvfit"><div class="tv"><div class="scr"><div class="scr-head"><div class="acct"><div class="avatar"></div><div class="who"><div class="uname">grubby</div><div class="disk-l">6.8 TB of 11 TB used</div><div class="disk"><span></span></div></div><button class="btn"><i class="ph ph-sign-out" aria-hidden="true"></i>Sign out</button></div></div><div class="lst">Storage settings</div><div class="row"><div class="ico"><i class="ph ph-recycle" aria-hidden="true"></i></div><div class="body"><div class="title">Move deleted files to trash</div></div><div class="trailing"><span class="sw on"></span></div></div><div class="row"><div class="ico"><i class="ph ph-trash-simple" aria-hidden="true"></i></div><div class="body"><div class="title">Manage your trash</div><div class="sub">Trash management</div></div><div class="trailing"><i class="ph ph-caret-right ac" aria-hidden="true"></i></div></div><div class="lst gap">App and device information</div><div class="row focused"><div class="ico"><i class="ph ph-info" aria-hidden="true"></i></div><div class="body"><div class="title">Device info</div><div class="sub">Samsung Tizen</div></div><div class="trailing"><i class="ph ph-caret-right ac" aria-hidden="true"></i></div></div><div class="row"><div class="ico"><i class="ph ph-bug" aria-hidden="true"></i></div><div class="body"><div class="title">Playback test</div></div><div class="trailing"><i class="ph ph-caret-right ac" aria-hidden="true"></i></div></div><div class="row"><div class="ico"><i class="ph ph-compass-tool" aria-hidden="true"></i></div><div class="body"><div class="title">Release</div><div class="sub">tv@0.0.0+1e23ebd</div></div></div></div></div></div></div>
+<div class="cap"><b>Account · App and device information</b>Release is read-only and takes no focus. Beta builds add <b>Release channel</b>.</div>
+<div class="tvbox"><div class="tvfit"><div class="tv"><div class="scr"><div class="scr-head"><h1 class="scr-title">Playback test</h1></div><div class="dpanel"><div class="lst">Test streams</div><div class="row focused"><div class="ico"><i class="ph ph-file-video" aria-hidden="true"></i></div><div class="body"><div class="title">MP4 browser fallback</div><div class="sub">MP4 sample stream for browser fallback checks.</div></div><div class="trailing"><i class="ph ph-caret-right ac" aria-hidden="true"></i></div></div><div class="row"><div class="ico"><i class="ph ph-film-strip" aria-hidden="true"></i></div><div class="body"><div class="title">Shaka adaptive stream</div><div class="sub">HLS sample stream for Shaka playback checks.</div></div><div class="trailing"><i class="ph ph-caret-right ac" aria-hidden="true"></i></div></div><div class="row"><div class="ico"><i class="ph ph-film-strip" aria-hidden="true"></i></div><div class="body"><div class="title">Video.js adaptive stream</div><div class="sub">HLS sample stream for Video.js playback checks.</div></div><div class="trailing"><i class="ph ph-caret-right ac" aria-hidden="true"></i></div></div><div class="lst">Native engine probes</div><div class="row"><div class="ico"><i class="ph ph-bug" aria-hidden="true"></i></div><div class="body"><div class="title">Tizen AVPlay self-test</div><div class="sub">Open + prepare a sample MP4 stream through webapis.avplay.</div></div><div class="trailing"><i class="ph ph-caret-right ac" aria-hidden="true"></i></div></div></div></div></div></div></div>
+<div class="cap"><b>Playback test</b>Each stream row opens the diagnostic player. The probes run in place and report in the accessory.</div>
+<div class="tvbox"><div class="tvfit"><div class="tv"><div class="pl"><div class="hud"><span class="eb">Diagnostic player</span><h2>MP4 browser fallback</h2><p class="ds">MP4 sample stream for browser fallback checks.</p><h3>Playback state</h3><dl><div><dt>Engine</dt><dd>html-video</dd></div><div><dt>Status</dt><dd>Playing</dd></div><div><dt>Time</dt><dd>0:03 / 0:05</dd></div><div><dt>Bandwidth</dt><dd>—</dd></div><div><dt>Buffered</dt><dd>2.0 s ahead</dd></div><div><dt>Buffer size</dt><dd>medium</dd></div><div><dt>Type</dt><dd>video/mp4</dd></div><div><dt>Source</dt><dd>interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4</dd></div></dl><h3>Recent errors</h3><dl><div><dt>Errors</dt><dd>No errors captured this session.</dd></div></dl></div><div class="pc"><div class="pc-head"><div class="pc-title">MP4 browser fallback</div><div class="pc-acts"><button class="pib"><span class="lbl">Subtitles</span><span class="surf"><i class="ph-fill ph-closed-captioning" aria-hidden="true"></i></span></button><button class="pib"><span class="lbl">Speed</span><span class="surf"><i class="ph ph-gauge" aria-hidden="true"></i></span></button><button class="pib"><span class="lbl">Stats</span><span class="surf"><i class="ph ph-pulse" aria-hidden="true"></i></span></button></div></div><div class="seek active"><span class="fill" style="width:60%"></span><span class="thumb" style="left:60%"></span></div><div class="ptime"><span>0:03</span><span>0:05</span></div></div></div></div></div></div>
+<div class="cap"><b>Diagnostic player · Stats</b>The real player with the Stats panel open. In normal playback the <b>Stats</b> button toggles it.</div>
+<div class="kv"><div class="r"><span class="k">sections</span><span class="v"><b>Test streams</b> · <b>Native engine probes</b> · <b>Telemetry</b> (<b>Telemetry self-test</b>, <code>pulse</code>)</span></div><div class="r"><span class="k">streams</span><span class="v">MP4 browser fallback (<code>file-video</code>), Shaka and Video.js adaptive streams (<code>film-strip</code>)</span></div><div class="r"><span class="k">probes</span><span class="v">accessory <b>OK · 412 ms</b>, <b>FAILED</b>, <b>SENT</b>, <b>LOCAL</b>; AVPlay greys out as <b>UNAVAILABLE</b> outside packaged Tizen</span></div><div class="r"><span class="k">Stats</span><span class="v">420 wide, 960 with a support report; <code>--panel-bg</code>, <code>--panel-radius</code>; eyebrow <b>Diagnostic player</b> or <b>Support info</b></span></div><div class="r"><span class="k">Stats rows</span><span class="v">Engine, Status, Time, Bandwidth, Buffered, Buffer size, Start buffer, Rebuffer, Max buffer, Type, Source; then Recent errors</span></div><div class="r"><span class="k">type</span><span class="v">web <code>--fs-*</code> sizes; values in the system monospace, the one TV surface allowed it</span></div><div class="r"><span class="k">Device info</span><span class="v">a two-column report: App, Device, Playback setup · Display and locale, Capabilities</span></div></div>
+<div class="dont"><b>Do not</b> hide Playback test behind a gesture or build flag, or set its values in Berkeley Mono.</div>
 </div>
-
-<div class="tvbox"><div class="tvfit">
-  <div class="tv">
-    <div class="scr">
-      <div class="section-h">App and device information</div>
-      <div class="row"><div class="ico"><i class="ph ph-compass-tool" style="font-size:48px" aria-hidden="true"></i></div><div class="body"><div class="title">App</div><div class="sub">2.3.1 (482)</div></div></div>
-      <div class="row"><div class="ico"><i class="ph ph-television-simple" style="font-size:48px" aria-hidden="true"></i></div><div class="body"><div class="title">Device</div><div class="sub">Samsung - Tizen TV</div></div></div>
-      <div class="row"><div class="ico"><i class="ph ph-cube" style="font-size:48px" aria-hidden="true"></i></div><div class="body"><div class="title">Operating system</div><div class="sub">Tizen - v7.0</div></div></div>
-      <div class="row focused"><div class="ico"><i class="ph ph-bug" style="font-size:48px" aria-hidden="true"></i></div><div class="body"><div class="title">Diagnostics</div></div><div class="trailing"><i class="ph ph-caret-right" aria-hidden="true"></i></div></div>
-    </div>
-  </div>
-</div></div>
-<div class="cap"><b>Account · App and device information</b>Three description rows carry no accessory and do nothing on OK. Only Diagnostics carries the chevron, so only it takes a press.</div>
-
-<div class="tvbox"><div class="tvfit">
-  <div class="tv">
-    <div class="scr">
-      <div class="scr-head"><h1 class="scr-title">Diagnostics</h1></div>
-      <div class="section-h">Test streams</div>
-      <div class="row focused"><div class="ico"><i class="ph ph-file-video" style="font-size:48px" aria-hidden="true"></i></div><div class="body"><div class="title">apple presentation</div><div class="sub">http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8</div></div></div>
-      <div class="row"><div class="ico"><i class="ph ph-file-video" style="font-size:48px" aria-hidden="true"></i></div><div class="body"><div class="title">apple bipbop</div><div class="sub">http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8</div></div></div>
-      <div class="row"><div class="ico"><i class="ph ph-file-video" style="font-size:48px" aria-hidden="true"></i></div><div class="body"><div class="title">sintel</div><div class="sub">https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8</div></div></div>
-      <div class="row"><div class="ico"><i class="ph ph-file-video" style="font-size:48px" aria-hidden="true"></i></div><div class="body"><div class="title">big buck bunny</div><div class="sub">http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4</div></div></div>
-    </div>
-  </div>
-</div></div>
-<div class="cap"><b>Diagnostics · test streams</b>Title is the stream's API title, subline is its URL. The first row takes <code>hasTVPreferredFocus</code>. HLS and MP4 streams share one glyph.</div>
-
-<div class="tvbox"><div class="tvfit">
-  <div class="tv">
-    <div class="dbg-video"><div class="frame"></div></div>
-    <div class="dbg-info"><pre>{
-  "bandwidth": {
-    "trackId": "7",
-    "height": 720,
-    "width": 1280,
-    "bitrate": 39489732
-  },
-  "bufferConfig": {
-    "bufferForPlaybackAfterRebufferMs": 3000,
-    "bufferForPlaybackMs": 1500,
-    "maxBufferMs": 30000,
-    "minBufferMs": 8000
-  },
-  "bufferSize": "medium"
-}</pre></div>
-  </div>
-</div></div>
-<div class="cap"><b>Test stream · debug overlay</b>The real VideoPlayer, full screen, plus a top-right panel that prints bandwidth, buffer config and buffer size as JSON while the stream plays.</div>
-
-<div class="kv">
-  <div class="r"><span class="k">entry</span><span class="v">Account, section <b>App and device information</b>, row <b>Diagnostics</b> (<code>bug</code> glyph, link accessory)</span></div>
-  <div class="r"><span class="k">info rows</span><span class="v"><b>App</b> release string · <b>Device</b> name - model · <b>Operating system</b>. Description only, no accessory</span></div>
-  <div class="r"><span class="k">list</span><span class="v">screen title <b>Diagnostics</b>, one section <b>Test streams</b>, standard rows: title + URL subline</span></div>
-  <div class="r"><span class="k">glyphs</span><span class="v"><code>file-video</code> for every stream; the source uses two Lucide variants for HLS and MP4, both map to one Phosphor glyph</span></div>
-  <div class="r"><span class="k">overlay</span><span class="v"><code>--overlay-inline</code> fill, 1px <code>--line</code>, <code>--radius</code>, <code>spacing.xs</code> inset and padding, the platform's system monospace: a debug overlay is the one TV surface allowed it</span></div>
-  <div class="r"><span class="k">data</span><span class="v">stream titles and URLs come from <code>useTestStreams</code>. They are not user files and do not follow the raw-filename rule</span></div>
-</div>
-
-<div class="note" style="margin-top:4px">Contract: <a href="https://github.com/putdotio/putio-design/blob/main/platforms/tv-generic/DESIGN.md"><code>platforms/tv-generic/DESIGN.md</code></a> · source: <code class="src">features/diagnostics/screens/diagnostics.tsx</code>, <code class="src">diagnostics-video-player.tsx</code>, <code class="src">features/account/hooks/use-app-and-device-info-list-items.ts</code></div>
-<div class="dont"><b>Do not</b> hide Diagnostics behind a developer gesture or a build flag: it is a support tool the user opens when asked.<br><br>
-      Set the overlay in the system monospace, never Berkeley Mono, and keep it out of product UI.</div>
-</div>
-<script>(function(){function f(){document.querySelectorAll('.tvbox').forEach(function(b){var e=b.querySelector('.tvfit');if(e)e.style.transform='scale('+(b.clientWidth/1920)+')';});}f();addEventListener('resize',f);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f);})();</script>
+<script>(function(){function f(){document.querySelectorAll('.tvbox,.artboard').forEach(function(b){var e=b.querySelector('.tvfit,.tv-fit');if(e)e.style.transform='scale('+(b.clientWidth/1920)+')';});}f();addEventListener('resize',f);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f);})();</script>
 </body></html>

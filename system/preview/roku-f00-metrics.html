@@ -10,16 +10,30 @@
 <link rel="stylesheet" href="./_roku.css">
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="./_resize.js" defer></script>
+<style>
+/* ScreenHeader: stock Overhang on appBackground (logo, options), plus put.io's divider and h1 title. No clock. */
+.rk-overhang{position:relative;display:block;flex:0 0 auto;height:189px;padding:0;background:var(--app-bg);box-shadow:none}
+.rk-overhang img{position:absolute;left:102px;top:78px;height:48px}
+.rk-overhang .div{position:absolute;left:507px;top:81px;width:3px;height:42px;background:var(--border)}
+.rk-overhang .ttl{position:absolute;left:540px;top:69px;right:102px;height:66px;line-height:66px;font-size:45px;font-weight:var(--fw-bold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk-overhang .opt{position:absolute;right:102px;top:69px;height:66px;display:flex;align-items:center;gap:12px;font-size:33px;color:var(--text)}
+.rk-body{padding:0 102px}
+.rk-body .rk-row+.rk-row{margin-top:30px}
+.rk-row .t1{font-weight:var(--fw-medium)}
+.rk-row .tx:not(.vert) .t2{font-size:33px}
+.rk-row i.eye{font-size:40px;color:var(--text-secondary);flex:0 0 auto}
+.rk-row i.lead.muted{color:var(--text-secondary)}
+</style>
 </head>
 <body>
-<div class="tierbar t3"><span class="tno">Tier 3</span><span class="twhat"><b>Roku</b>. Tokens inherit as on tier 2, but they arrive as <b>generated BrightScript</b>. Geometry is not inherited at all: Roku has its own metrics module, and this card is downstream of it.</span><span class="ttok">DesignTokens.brs · primary · appBackground · focus · borderHover · textMuted · danger</span></div>
+<div class="tierbar t3"><span class="tno">Tier 3</span><span class="twhat"><b>Roku</b>. Tokens inherit as on tier 2, but they arrive as <b>generated BrightScript</b>. Geometry is not inherited at all: Roku has its own metrics module, and this card is downstream of it.</span><span class="ttok">UiMetrics.brs · DesignTokens.brs · primary · appBackground · focus · text</span></div>
 <div class="preview-shell">
 <div>
   <div class="label">Authored at FHD, on a 3px grid</div>
   <div class="note">Not 1280x720 scaled up. The grid is why an FHD layout lands on whole pixels when the device downscales to HD.</div>
   <div class="kv">
     <div class="r"><span class="k">uiScreenWidth</span><span class="v"><b>1920</b> · uiScreenHeight <b>1080</b></span></div>
-    <div class="r"><span class="k">uiScaleGrid</span><span class="v"><b>3</b>. Every position passes <code>uiSnap()</code></span></div>
+    <div class="r"><span class="k">uiScaleGrid</span><span class="v"><b>3</b>. <code>uiSnap()</code> rounds computed positions to it</span></div>
     <div class="r"><span class="k">uiPageMargin</span><span class="v"><b>102</b>, a constant. Produces the 1716px row width. Never computed from <code>--tv-overscan-*</code></span></div>
     <div class="r"><span class="k">uiBorderWidth</span><span class="v"><b>3</b>. <code>roku-ui-metrics.test.ts</code> fails any dialog at <code>width="1"</code>: a 1px border vanishes on a real panel after scaling</span></div>
     <div class="r"><span class="k">uiShadowOffset</span><span class="v"><b>12</b>, flat. SceneGraph has no blur</span></div>
@@ -29,27 +43,22 @@
 
 <div class="tvbox"><div class="tvfit">
   <div class="rk">
-    <div class="rk-overhang"><img src="../assets/logo-retro-dark.svg" alt="put.io"><div class="sp"></div><div class="clock">9:41</div></div>
+    <div class="rk-overhang"><img src="../assets/logo-retro-dark.svg" alt="put.io"></div>
     <div class="rk-body">
-      <div class="rk-crumb">Row geometry · every number from UiMetrics.brs and ListItem.xml</div>
-      <div class="rk-row focused"><i class="ph-fill ph-file-video lead"></i><div class="tx"><div class="t1">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div><div class="t2">resume at 21:04</div></div><div class="val">3.42 GB</div></div>
-      <div class="rk-row"><i class="ph-fill ph-folder lead"></i><div class="tx"><div class="t1">2024</div><div class="t2">Folder</div></div><div class="val">12 items</div></div>
-      <div style="display:flex;gap:24px;padding:36px 35px 0">
-        <span class="rk-btn focused"><i class="ph ph-magnifying-glass"></i>Search</span>
-        <span class="rk-btn"><i class="ph ph-funnel"></i>Filter</span>
-        <span class="rk-btn"><i class="ph ph-gear"></i>Settings</span>
-      </div>
+      <div class="rk-row focused"><i class="ph-fill ph-folder lead"></i><div class="tx"><div class="t1">Your Files</div></div></div>
+      <div class="rk-row"><i class="ph ph-magnifying-glass lead"></i><div class="tx"><div class="t1">Search</div></div></div>
+      <div class="rk-row"><i class="ph ph-clock-counter-clockwise lead"></i><div class="tx"><div class="t1">History</div></div></div>
+      <div class="rk-row"><i class="ph ph-gear lead"></i><div class="tx"><div class="t1">Settings</div></div></div>
     </div>
-    <div class="rk-hint"><span><span class="rk-key">OK</span>Play</span><span><span class="rk-key"><i class="ph ph-asterisk" aria-hidden="true"></i></span>Options</span><span><span class="rk-key"><i class="ph ph-arrow-left" aria-hidden="true"></i></span>Back</span></div>
   </div>
 </div></div>
-<div class="cap"><b>The grid, drawn 1:1</b>102px margin, 1716×120 rows, 3px borders. A value measured off this card is the value in the channel.</div>
+<div class="cap"><b>Home, drawn 1:1</b>Logo-only header, list at <code>[102,189]</code>, 1716×120 rows 30 apart. A value measured off this card is the value in the channel.</div>
 
 <div class="spec">
   <div class="cell"><div class="k">Canvas</div><div class="v">1920 × 1080</div><div class="d">uiScreenWidth / uiScreenHeight</div></div>
   <div class="cell"><div class="k">Grid</div><div class="v">3px</div><div class="d">uiScaleGrid · uiSnap() rounds to it</div></div>
   <div class="cell"><div class="k">Page margin</div><div class="v">102px</div><div class="d">uiPageMargin, a constant</div></div>
-  <div class="cell"><div class="k">Row</div><div class="v">1716 × 120</div><div class="d">uiListRowWidth / uiListRowHeight</div></div>
+  <div class="cell"><div class="k">Row</div><div class="v">1716 × 120</div><div class="d">uiListRowWidth / uiListRowHeight · 30 apart</div></div>
   <div class="cell"><div class="k">Border</div><div class="v">3px</div><div class="d">uiBorderWidth · 1px is a test failure</div></div>
   <div class="cell"><div class="k">Shadow</div><div class="v">12px offset</div><div class="d">uiShadowOffset · no blur</div></div>
   <div class="cell"><div class="k">Centring</div><div class="v">uiCenterX / Y</div><div class="d">snapped, never a raw divide</div></div>

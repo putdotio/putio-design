@@ -10,50 +10,68 @@
 <link rel="stylesheet" href="./_roku.css">
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="./_resize.js" defer></script>
+<style>
+/* ScreenHeader: stock Overhang on appBackground (logo, options), plus put.io's divider and h1 title. No clock. */
+.rk-overhang{position:relative;display:block;flex:0 0 auto;height:189px;padding:0;background:var(--app-bg);box-shadow:none}
+.rk-overhang img{position:absolute;left:102px;top:78px;height:48px}
+.rk-overhang .div{position:absolute;left:507px;top:81px;width:3px;height:42px;background:var(--border)}
+.rk-overhang .ttl{position:absolute;left:540px;top:69px;right:102px;height:66px;line-height:66px;font-size:45px;font-weight:var(--fw-bold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk-overhang .opt{position:absolute;right:102px;top:69px;height:66px;display:flex;align-items:center;gap:12px;font-size:33px;color:var(--text)}
+.rk-body{padding:0 102px}
+.rk-body .rk-row+.rk-row{margin-top:30px}
+.rk-row .t1{font-weight:var(--fw-medium)}
+.rk-row .tx:not(.vert) .t2{font-size:33px}
+.rk-row i.eye{font-size:40px;color:var(--text-secondary);flex:0 0 auto}
+.rk-row i.lead.muted{color:var(--text-secondary)}
+/* DeleteFileDialog: 1044 panel centred, 936 content; title 51, filename 144, buttons 57 below. */
+.rk-scrim{position:absolute;inset:0;background:var(--overlay-full)}
+.dl{position:absolute;left:438px;top:282px;width:1044px;height:516px;background:var(--component-bg);box-shadow:inset 0 0 0 3px var(--border-hover),12px 12px 0 var(--overlay-inline)}
+.dl .t{position:absolute;left:54px;top:51px;width:936px;height:45px;line-height:45px;text-align:center;font-size:45px;font-weight:var(--fw-bold)}
+.dl .f{position:absolute;left:54px;top:144px;width:936px;line-height:45px;text-align:center;font-size:33px;color:var(--text)}
+.dl .b{position:absolute;left:54px;width:936px;height:78px;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:var(--fw-medium)}
+.dl .b.del{top:291px;color:var(--red-solid-hover)}
+.dl .b.can{top:387px;background:var(--component-bg-active)}
+</style>
 </head>
 <body>
-<div class="tierbar t3"><span class="tno">Tier 3</span><span class="twhat"><b>Roku</b>. A stock <b>Dialog</b> again, what changes is the copy and the focus order. <code>danger</code> is <code>color.red.dark.solid</code> from the graph; the channel has no red literal.</span><span class="ttok">DesignTokens.brs · primary · appBackground · focus · borderHover · textMuted · danger</span></div>
+<div class="tierbar t3"><span class="tno">Tier 3</span><span class="twhat"><b>Roku</b>. A put.io <b>DeleteFileDialog</b> built from <code>DialogStyle.brs</code>, not a stock node. Its red is <code>dangerFocused</code>, <code>color.red.dark.solidHover</code> from the graph; the channel has no red literal.</span><span class="ttok">DialogStyle.brs · surface · panelBorder · buttonFocus · dangerFocused</span></div>
 <div class="preview-shell">
 <div>
-  <div class="label">Name the object, state the consequence, focus Cancel</div>
-  <div class="note">Destructive copy names the object and what happens to it, in the dialog body. Never in the row label: a row that says "Delete" can be triggered by accident from across the room.</div>
-  <div class="note"><b>Cancel takes focus first.</b> A D-pad has no pointer to aim, so the safe action sits under the cursor.<br><br>
-      Delete carries <code>danger</code> on border and label, stepping to <code>dangerFocused</code> on focus.</div>
-  <div class="note">The full raw filename goes in the body. It wraps, which is correct: the user confirms against the exact file.</div>
+  <div class="label">Name the object, focus Cancel</div>
+  <div class="note">Options (✱) on a Files row opens <b>Delete file?</b> with the full raw filename as the body, wrapped at 42 characters on <code>. _ -</code> or space, up to 3 lines. The row label never says Delete.</div>
+  <div class="note"><b>Cancel takes focus first.</b> A D-pad has no pointer to aim, so the safe action sits under the cursor. Up and down swap focus; Back closes.</div>
+  <div class="note">OK on Delete swaps the body to <b>Deleting...</b> and disables both buttons; a failure reads <b>An error occurred, please try again.</b> and returns focus to Cancel.</div>
 </div>
 
 <div class="tvbox"><div class="tvfit">
   <div class="rk">
-    <div class="rk-overhang"><img src="../assets/logo-retro-dark.svg" alt="put.io"><div class="sp"></div><div class="clock">9:41</div></div>
-    <div class="rk-body"><div class="rk-crumb">Your Files</div><div class="rk-row"><i class="ph-fill ph-folder lead" aria-hidden="true"></i><div class="tx vert"><div class="t1">homework_answers_DONT_DELETE</div><div class="t2">12 items</div></div></div>
-      <div class="rk-row focused"><i class="ph ph-file-video lead" aria-hidden="true"></i><div class="tx vert"><div class="t1">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div><div class="t2">3.42 GB · resume at 21:04</div></div></div></div>
-    <div class="rk-dlgwrap">
-      <div class="rk-dlg">
-        <div class="h">Delete this file?</div>
-        <div class="body">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv will be removed from your put.io account. This cannot be undone.</div>
-        <div style="display:flex;gap:24px;padding:24px 42px 42px">
-          <span class="rk-btn focused">Cancel</span>
-          <span class="rk-btn" style="border-color:var(--red-solid);color:var(--red-text-secondary)">Delete</span>
-        </div>
-      </div>
+    <div class="rk-overhang"><img src="../assets/logo-retro-dark.svg" alt="put.io"><div class="div"></div><div class="ttl">Your Files</div><div class="opt"><i class="ph ph-asterisk" aria-hidden="true"></i>Delete</div></div>
+    <div class="rk-body"><div class="rk-row"><i class="ph-fill ph-folder lead" aria-hidden="true"></i><div class="tx vert"><div class="t1">homework_answers_DONT_DELETE</div><div class="t2">4 MB - Jan 9, 2026</div></div></div>
+      <div class="rk-row focused"><i class="ph ph-file-video lead" aria-hidden="true"></i><div class="tx vert"><div class="t1">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div><div class="t2">3 GB - May 2, 2026</div></div><i class="ph ph-eye eye" aria-hidden="true"></i></div></div>
+    <div class="rk-scrim"></div>
+    <div class="dl">
+      <div class="t">Delete file?</div>
+      <div class="f">The.Wire.S03E04.Back.Burners.1080p.BluRay.<br>x264-DEMAND.mkv</div>
+      <div class="b del">Delete file</div>
+      <div class="b can">Cancel</div>
     </div>
   </div>
 </div></div>
-<div class="cap"><b>DeleteFileDialog</b>Cancel focused, Delete in <code>danger</code>. Buttons are 84px tall with a 3px border, focus swapping fill and edge together.</div>
+<div class="cap"><b>DeleteFileDialog</b>Cancel focused on <code>buttonFocus</code>; Delete file rests with no fill and a <code>dangerFocused</code> label, and fills <code>dangerFocused</code> when focused.</div>
 
 <div class="spec">
-  <div class="cell"><div class="k">Body</div><div class="v">33 regular</div><div class="d">Typography small · textMuted</div></div>
-  <div class="cell"><div class="k">Button</div><div class="v">84px · 33 medium</div><div class="d">Typography label</div></div>
-  <div class="cell"><div class="k">Resting</div><div class="v">surface + border</div><div class="d">componentBg / border</div></div>
-  <div class="cell"><div class="k">Focused</div><div class="v">focus + borderHover</div><div class="d">fill and edge swap together</div></div>
-  <div class="cell"><div class="k">Destructive</div><div class="v">danger</div><div class="d">color.red.dark.solid</div></div>
+  <div class="cell"><div class="k">Panel</div><div class="v">1044 wide</div><div class="d">surface · 936 content · height from lines</div></div>
+  <div class="cell"><div class="k">Title</div><div class="v">45 bold</div><div class="d">Typography h1 · centred</div></div>
+  <div class="cell"><div class="k">Filename</div><div class="v">33 regular</div><div class="d">Typography small · text · centred</div></div>
+  <div class="cell"><div class="k">Button</div><div class="v">936 × 78</div><div class="d">h2 36 medium · 18 apart</div></div>
+  <div class="cell"><div class="k">Delete</div><div class="v">danger</div><div class="d">label dangerFocused; focused fill dangerFocused</div></div>
+  <div class="cell"><div class="k">Cancel</div><div class="v">secondary</div><div class="d">no fill; focused buttonFocus</div></div>
+  <div class="cell"><div class="k">Border</div><div class="v">3px</div><div class="d">panelBorder · uiBorderWidth</div></div>
   <div class="cell"><div class="k">Focus order</div><div class="v">Cancel first</div><div class="d">safe action under the cursor</div></div>
-  <div class="cell"><div class="k">Border</div><div class="v">3px</div><div class="d">uiBorderWidth</div></div>
-  <div class="cell"><div class="k">Numerics</div><div class="v">GT America</div><div class="d">proportional on SceneGraph</div></div>
 </div>
 
 <div class="note" style="margin-top:4px">Per-control detail, the token map and the full don't list live in <a href="https://github.com/putdotio/putio-design/blob/main/platforms/roku/DESIGN.md"><code>platforms/roku/DESIGN.md</code></a>.</div>
-<div class="dont"><b>Do not</b> put the destructive verb in the row that opens this. The row says what the file is; the dialog says what happens to it.<br><br>
+<div class="dont"><b>Do not</b> put the destructive verb in the row that opens this. The row says what the file is; the dialog names it again before anything happens.<br><br>
       Do not default focus to Delete: the click you save is the one the user did not mean to make.</div>
 </div>
 <script>(function(){function f(){document.querySelectorAll('.tvbox').forEach(function(b){var e=b.querySelector('.tvfit');if(e)e.style.transform='scale('+(b.clientWidth/1920)+')';});}f();addEventListener('resize',f);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f);})();</script>

@@ -77,6 +77,14 @@
   .rules .k { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--yellow-text-secondary); }
   .rules .v { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; }
   .rules .v b { color: var(--text); }
+
+  /* Shipped file-list placeholder (app.put.io components/list/item/placeholder) */
+  .sk-row { grid-template-columns: 16px 25px 1fr; height: 60px; }
+  .sk-row .sk.ico { width: 25px; height: 25px; }
+  .sk-row .tt { display: flex; flex-direction: column; gap: 4px; }
+  .sk-row .tt .sk { height: 13px; }
+  .sk-row .tt .sk.sub { height: 9px; }
+  .sk-cb { width: 16px; height: 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); opacity: 0.5; }
 </style></head>
 <body>
 <div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat"><b>Web</b> (www / app / auth). The full design system: our component library and the <b>components.css</b> recipe. This is the one tier where the recipe is the contract, native tiers take the tokens and nothing else.</span><span class="ttok">--radius-sm · --component-bg-hover · --ease-in-out · --radius-lg</span></div>
@@ -87,21 +95,21 @@
     <span class="t">File-list skeleton</span>
     <span class="n">Skeleton</span>
   </div>
-  <div class="note">Skeletons stand in for <b>data with a known layout</b>: the file list, the transfers table. The skeleton mirrors the real row grid so nothing jumps when content lands.</div>
+  <div class="note">app.put.io fills every file-list row it hasn't fetched yet with this placeholder, on first load and while paging. Same row box, so nothing jumps.</div>
   <div class="kv">
-    <div class="r"><span class="k">grid</span><span class="v">44px rows, same columns as the real list</span></div>
-    <div class="r"><span class="k">base</span><span class="v"><code>--component-bg</code></span></div>
-    <div class="r"><span class="k">shimmer</span><span class="v"><code>--component-bg-hover</code>, only under <code>prefers-reduced-motion: no-preference</code></span></div>
-    <div class="r"><span class="k">fallback</span><span class="v">static two-tone. Designed, not an afterthought</span></div>
-    <div class="r"><span class="k">widths</span><span class="v">vary the name bars so the list is not stamped</span></div>
+    <div class="r"><span class="k">grid</span><span class="v">60px rows: disabled checkbox, 25px icon, 13px title bar, 9px subtitle bar</span></div>
+    <div class="r"><span class="k">base</span><span class="v"><code>--component-bg</code>, radius 4</span></div>
+    <div class="r"><span class="k">shimmer</span><span class="v">135° sweep to <code>--component-bg-hover</code>, 1s loop</span></div>
+    <div class="r"><span class="k">widths</span><span class="v">random, up to 50% of the row</span></div>
+    <div class="r"><span class="k">motion</span><span class="v">the system wants a static fallback under <code>prefers-reduced-motion</code>; app.put.io always shimmers</span></div>
   </div>
 
   <div class="sk-list" role="status" aria-label="Loading files">
-    <div class="sk-row"><span class="sk ico"></span><span class="sk" style="width: 72%;"></span><span class="sk"></span><span class="sk"></span></div>
-    <div class="sk-row"><span class="sk ico"></span><span class="sk" style="width: 45%;"></span><span class="sk"></span><span class="sk"></span></div>
-    <div class="sk-row"><span class="sk ico"></span><span class="sk" style="width: 84%;"></span><span class="sk"></span><span class="sk"></span></div>
-    <div class="sk-row"><span class="sk ico"></span><span class="sk" style="width: 58%;"></span><span class="sk"></span><span class="sk"></span></div>
-    <div class="sk-row"><span class="sk ico"></span><span class="sk" style="width: 66%;"></span><span class="sk"></span><span class="sk"></span></div>
+    <div class="sk-row"><span class="sk-cb"></span><span class="sk ico"></span><span class="tt"><span class="sk" style="width: 42%;"></span><span class="sk sub" style="width: 30%;"></span></span></div>
+    <div class="sk-row"><span class="sk-cb"></span><span class="sk ico"></span><span class="tt"><span class="sk" style="width: 18%;"></span><span class="sk sub" style="width: 44%;"></span></span></div>
+    <div class="sk-row"><span class="sk-cb"></span><span class="sk ico"></span><span class="tt"><span class="sk" style="width: 47%;"></span><span class="sk sub" style="width: 12%;"></span></span></div>
+    <div class="sk-row"><span class="sk-cb"></span><span class="sk ico"></span><span class="tt"><span class="sk" style="width: 31%;"></span><span class="sk sub" style="width: 26%;"></span></span></div>
+    <div class="sk-row"><span class="sk-cb"></span><span class="sk ico"></span><span class="tt"><span class="sk" style="width: 9%;"></span><span class="sk sub" style="width: 38%;"></span></span></div>
   </div>
 
   <div class="head" style="margin-top: 8px;">
@@ -111,16 +119,16 @@
 
   <div class="rules">
     <span class="k">skeleton</span>
-    <span class="v"><b>Layout known, data pending.</b> Lists, tables, the storage card. Show immediately, no delay-then-skeleton double flash.</span>
+    <span class="v"><b>Layout known, data pending.</b> Lists, page headers, previews. Show immediately.</span>
     <span class="k">spinner</span>
-    <span class="v"><b>Layout unknown or action-scoped.</b> Button loading (<code>.is-loading</code>), modal submit, player buffering. Sizes 16 / 20 / 28, see Tasks.</span>
+    <span class="v"><b>Layout unknown or action-scoped.</b> Button loading, modal submit, player buffering.</span>
     <span class="k">progress bar</span>
     <span class="v"><b>Measurable work.</b> Transfers, zips, uploads. Yellow fill; never a spinner when you know the percent.</span>
     <span class="k">empty state</span>
     <span class="v"><b>Loaded, and there is nothing.</b> Never render an empty state while loading, that reads as data loss. See Brand · Empty state.</span>
   </div>
 
-  <div class="note"><b>One screen's worth of rows, maximum.</b> Below the fold just loads. Under 150ms typical arrival, skip the skeleton: a flash of placeholder is worse than nothing.</div>
+  <div class="note">app.put.io also skeletons settings-style list rows, page headers, previews and the folder picker.</div>
 
 </div>
 </body></html>

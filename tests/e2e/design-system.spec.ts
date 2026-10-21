@@ -62,10 +62,12 @@ const authPreviews = [
     pagePath: "/preview/web-p00c-auth-signin.html",
     requiredActions: [
       { count: 2, name: "Forgot your password?", role: "link" },
-      { count: 1, name: "Show password", role: "button" },
+      { count: 2, name: "Show password", role: "button" },
       { count: 2, name: "Sign in", role: "button" },
       { count: 2, name: "Sign up", role: "link" },
-      { count: 1, name: "Resend sign-in link", role: "button" },
+      { count: 1, name: "Reset your password", role: "link" },
+      { count: 1, name: "Open mail", role: "button" },
+      { count: 1, name: "Resend link", role: "button" },
       { count: 1, name: "Go back", role: "link" },
     ],
   },
@@ -85,10 +87,10 @@ const authPreviews = [
       { count: 1, name: "Terms", role: "link" },
       { count: 1, name: "Privacy Policy", role: "link" },
       { count: 1, name: "Sign in", role: "link" },
-      { count: 1, name: "Send reset link", role: "button" },
-      { count: 1, name: "Back to sign in", role: "link" },
-      { count: 1, name: "Show password", role: "button" },
-      { count: 1, name: "Save and continue", role: "button" },
+      { count: 1, name: "Send password reset email", role: "button" },
+      { count: 2, name: "Back to sign in", role: "link" },
+      { count: 2, name: "Show password", role: "button" },
+      { count: 1, name: "Change Password", role: "button" },
       { count: 1, name: "Verifying…", role: "button" },
       { count: 1, name: "Sign out", role: "link" },
     ],
@@ -106,7 +108,8 @@ const authPreviews = [
     pagePath: "/preview/web-p00e-auth-2fa.html",
     requiredActions: [
       { count: 2, name: "Verify", role: "button" },
-      { count: 2, name: "Sign out", role: "link" },
+      { count: 3, name: "Use a recovery code", role: "link" },
+      { count: 3, name: "Sign out", role: "link" },
     ],
   },
   {
@@ -136,15 +139,21 @@ const passwordTogglePreviewPaths = [
   "/preview/web-p00d-auth-signup.html",
   "/preview/web-s06-auth.html",
 ] as const;
+// The Roku channel ships "use this activation code to log in", and its card documents that.
 const authCopyThemePreviews = htmlPages
-  .filter((pagePath) => pagePath.startsWith("/preview/") && path.posix.basename(pagePath).includes("auth"))
+  .filter(
+    (pagePath) =>
+      pagePath.startsWith("/preview/")
+      && path.posix.basename(pagePath).includes("auth")
+      && !path.posix.basename(pagePath).startsWith("roku-"),
+  )
   .flatMap<{
   pagePath: string;
   theme: "dark" | "light" | "locked";
 }>((pagePath) =>
   isThemeLocked(pagePath) ? [{ pagePath, theme: "locked" }] : authThemes.map((theme) => ({ pagePath, theme })),
 );
-const credentialErrorCopy = "That username or password doesn't look right";
+const credentialErrorCopy = "That username or password doesn't look right. Reset your password.";
 const forbiddenAuthCopy = /\b(?:login|log\s+in|register|create\s+(?:an\s+|your\s+)?account)\b/i;
 const narrowAuthViewportWidths = [320, 375] as const;
 const otpPreviewPaths = ["/preview/web-p00d-auth-signup.html", "/preview/web-p00e-auth-2fa.html"] as const;
@@ -346,10 +355,11 @@ test.describe("design.put.io static guide", () => {
             range.selectNodeContents(node);
             return range.getBoundingClientRect();
           };
-          const prompt = rect(items[0]);
-          const action = rect(items[1]);
+          // A footer is an optional prompt line over one action link.
+          const prompt = items.length > 1 ? rect(items[0]) : null;
+          const action = rect(items.at(-1));
           return {
-            actionIsLink: items[1] instanceof HTMLAnchorElement,
+            actionIsLink: items.at(-1) instanceof HTMLAnchorElement,
             actionTop: action?.top ?? 0,
             actionCenterDelta: action ? Math.abs(action.left + action.width / 2 - (footer.left + footer.width / 2)) : Number.POSITIVE_INFINITY,
             alignItems: styles.alignItems,
@@ -368,10 +378,12 @@ test.describe("design.put.io static guide", () => {
         expect(footer.flexDirection, `${preview.pagePath} footer direction`).toBe("column");
         expect(footer.alignItems, `${preview.pagePath} footer alignment`).toBe("center");
         expect(footer.textAlign, `${preview.pagePath} footer text alignment`).toBe("center");
-        expect(footer.itemCount, `${preview.pagePath} footer prompt/action items`).toBe(2);
+        expect([1, 2], `${preview.pagePath} footer prompt/action items`).toContain(footer.itemCount);
         expect(footer.actionIsLink, `${preview.pagePath} footer action`).toBe(true);
-        expect(footer.promptBottom, `${preview.pagePath} footer prompt line`).toBeLessThanOrEqual(footer.actionTop + 0.5);
-        expect(footer.promptCenterDelta, `${preview.pagePath} centered footer prompt`).toBeLessThanOrEqual(1);
+        if (footer.itemCount === 2) {
+          expect(footer.promptBottom, `${preview.pagePath} footer prompt line`).toBeLessThanOrEqual(footer.actionTop + 0.5);
+          expect(footer.promptCenterDelta, `${preview.pagePath} centered footer prompt`).toBeLessThanOrEqual(1);
+        }
         expect(footer.actionCenterDelta, `${preview.pagePath} centered footer action`).toBeLessThanOrEqual(1);
       }
 
@@ -426,12 +438,10 @@ test.describe("design.put.io static guide", () => {
       }
     }
   });
-  test("Apple transfer tracks preserve their stock preview styles @desktop", async ({ page }) => {
+  test("Apple transfer progress keeps its stock preview style @desktop", async ({ page }) => {
     await page.goto("/preview/ios-s02-transfers.html", { waitUntil: "domcontentloaded" });
     const cases = [
       { selector: ".lprog", helper: "ios-progress-preview", pseudo: "", properties: ["background-color", "background-image", "height", "border-radius"] },
-      { selector: ".ring.ios-gauge-preview", helper: "ios-gauge-preview", pseudo: "", properties: ["width", "height"] },
-      { selector: ".ring.ios-gauge-preview", helper: "ios-gauge-preview", pseudo: "::before", properties: ["background-image", "mask-image", "width", "height", "inset"] },
     ];
     for (const control of cases) {
       const comparisons = await page.locator(control.selector).evaluateAll((elements, { helper, pseudo, properties }) =>
@@ -755,7 +765,7 @@ test.describe("design.put.io static guide", () => {
     expect(search).not.toBeNull();
     expect(Math.abs((appbar?.x ?? 0) + (appbar?.width ?? 0) / 2 - ((search?.x ?? 0) + (search?.width ?? 0) / 2))).toBeLessThanOrEqual(1);
 
-    const filenameStyles = await page.locator(".files .cell > .t").first().evaluate((element) => {
+    const filenameStyles = await page.locator(".files .nm").first().evaluate((element) => {
       const styles = getComputedStyle(element);
       return {
         overflow: styles.overflow,
@@ -1030,15 +1040,15 @@ test.describe("design.put.io static guide", () => {
     await expect(input).toHaveAttribute("tabindex", "-1");
     await expect(otp.locator(".otp-slot")).toHaveText(code.split(""));
 
-    const statusId = await input.getAttribute("aria-describedby");
-    expect(statusId, "successful OTP should describe automatic continuation").toBeTruthy();
-    const status = page.locator(`#${statusId}`);
-    await expect(status).toHaveAttribute("role", "status");
-    await expect(status).toHaveText("Code verified. Continuing…");
-    await expect(status).toBeVisible();
+    // auth.put.io keeps the hint and swaps the submit to a disabled "Verified".
+    const hintId = await input.getAttribute("aria-describedby");
+    expect(hintId, "successful OTP should keep its hint").toBeTruthy();
+    await expect(page.locator(`#${hintId}`)).toBeVisible();
 
     const card = page.locator(".auth").filter({ has: otp });
-    await expect(card.locator("button.btn-primary")).toHaveCount(0);
+    const submit = card.locator("button.btn-primary");
+    await expect(submit).toHaveText("Verified");
+    await expect(submit).toBeDisabled();
 
     await otp.click({ position: { x: 12, y: 12 } });
     await expect(input).not.toBeFocused();
@@ -1085,9 +1095,9 @@ test.describe("design.put.io static guide", () => {
     const restingButtonWidth = await page.locator(".btn:not(.focused)").first().evaluate((element) => getComputedStyle(element).borderTopWidth);
 
     expect(rowStyles).toEqual({ background: active, borderWidth: "0px" });
-    // tv.focus.borderWidth: the edge is identical at rest and in focus.
-    expect(buttonStyles).toEqual({ background: active, border: hoverBorder, borderWidth: "3px" });
-    expect(restingButtonWidth).toBe("3px");
+    // apps/tv draws the edge at --border-width, identical at rest and in focus.
+    expect(buttonStyles).toEqual({ background: active, border: hoverBorder, borderWidth: "1px" });
+    expect(restingButtonWidth).toBe("1px");
   });
 
   test("TV search field shares the button focus recipe @tv", async ({ page }) => {
@@ -1106,7 +1116,7 @@ test.describe("design.put.io static guide", () => {
 
     expect(resting.field).toEqual(resting.button);
     expect(focused.field).toEqual(focused.button);
-    expect(focused.field.borderWidth).toBe("3px");
+    expect(focused.field.borderWidth).toBe("1px");
   });
 
   for (const pagePath of axePages) {

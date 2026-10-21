@@ -135,6 +135,7 @@
   }
   .modal .m-hd .close:hover { background: var(--component-bg-hover); color: var(--text); }
   .modal .m-body { padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+  .modal .m-body[hidden] { display: none; }
   .modal .m-foot {
     padding: 12px 18px;
     border-top: 1px solid var(--line);
@@ -289,6 +290,32 @@
     font-family: var(--font-mono); font-size: 11px;
     color: var(--yellow-text-secondary);
   }
+
+  /* Shipped settings list rows (app.put.io ListItem) */
+  .sec-hd { font-size: 13px; font-weight: 500; color: var(--text-secondary); padding: 16px 0 4px; }
+  .settings-row { grid-template-columns: 20px 1fr auto; gap: 12px; align-items: center; }
+  .settings-row .ico { font-size: 16px; color: var(--text-secondary); }
+  .settings-row .rhs { display: flex; align-items: center; gap: 4px; }
+  .settings-row .val { font-size: 12px; color: var(--text-secondary); }
+  .settings-row .chev { font-size: 12px; color: var(--text-secondary); }
+  .settings-row .sub a { color: inherit; text-decoration: underline; }
+  .tg { display: inline-flex; gap: 1px; background: var(--line); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .tg button { height: 28px; padding: 0 12px; border: 0; background: var(--segmented-control-bg); color: var(--text-secondary); font: inherit; font-size: 13px; cursor: pointer; }
+  .tg button[aria-pressed="true"] { background: var(--segmented-control-bg-active); color: var(--text); font-weight: 500; }
+  .switch { display: inline-block; width: 32px; height: 18px; border-radius: 999px; background: var(--green-solid); position: relative; border: 0; padding: 0; cursor: pointer; }
+  .switch[aria-checked="false"] { background: var(--border); }
+  .switch[aria-checked="false"]::after { right: auto; left: 2px; }
+  .switch::after { content: ''; position: absolute; top: 2px; right: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--white, #fff); }
+  /* Shipped modal: title + close, no header or footer bands */
+  .modal .m-hd, .modal .m-foot { background: transparent; border: 0; }
+  .modal .m-hd { padding-bottom: 6px; }
+  .modal .m-hd .ttl { font-size: 18px; }
+  .modal .m-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; margin: 0 18px; background: var(--line); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .modal .m-tabs [role="tab"] { font: inherit; border: 0; cursor: pointer; text-align: center; padding: 8px 16px; font-size: 14px; line-height: 1; color: var(--text-secondary); background: var(--segmented-control-bg, var(--component-bg)); }
+  .modal .m-tabs [role="tab"][aria-selected="true"] { color: var(--text); font-weight: 500; background: var(--segmented-control-bg-active, var(--component-bg-active)); }
+  .picker { display: flex; align-items: center; gap: 8px; padding: 4px 4px 4px 8px; background: var(--app-bg); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .picker > i { color: var(--yellow-solid); font-size: 16px; }
+  .picker .nm { flex: 1; font-size: 14px; }
 </style></head>
 <body>
 <div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat"><b>Web</b> (www / app / auth). The full design system: our component library and the <b>components.css</b> recipe. This is the one tier where the recipe is the contract, native tiers take the tokens and nothing else.</span><span class="ttok">--yellow-solid · --radius-md · --radius-sm · --dur-fast</span></div>
@@ -300,62 +327,51 @@
   <div class="panel">
     <div class="demo-hd">
       <span class="ix">L · 01</span>
-      <span class="t">Settings row · label-left</span>
-      <span class="when">Settings pages · profile · account preferences</span>
+      <span class="t">Settings row · list item</span>
+      <span class="when">Settings · Account: icon, title, description, control on the right</span>
     </div>
     <div class="demo-body" style="padding-top: 0;">
+      <div class="sec-hd">Appearance</div>
       <div class="settings-row">
+        <i class="ph ph-image ico" aria-hidden="true"></i>
         <div class="lhs">
-          <div class="ttl">Default download folder</div>
-          <div class="sub">Where new transfers land before you sort them.</div>
+          <div class="ttl" id="theme-label">Theme</div>
+          <div class="sub">Choose your interface color scheme.</div>
         </div>
         <div class="rhs">
-          <div class="field-wrap">
-            <i class="ph ph-folder lead"></i>
-            <input aria-label="Default download folder" class="field has-icon" value="/Movies/Unsorted" />
+          <div role="group" aria-labelledby="theme-label" class="tg">
+            <button type="button" aria-pressed="true">System</button>
+            <button type="button" aria-pressed="false">Light</button>
+            <button type="button" aria-pressed="false">Dark</button>
           </div>
         </div>
       </div>
+      <div class="sec-hd">Transfers</div>
       <div class="settings-row">
+        <i class="ph-fill ph-folder-open ico" aria-hidden="true"></i>
         <div class="lhs">
-          <div class="ttl" id="auto-convert-label">Auto-convert to MP4</div>
-          <div class="sub">Converts on completion. Costs 1 credit per file; transcoded files stay on put.io.</div>
+          <div class="ttl">Choose your default download folder</div>
         </div>
-        <div class="rhs">
-          <div role="group" aria-labelledby="auto-convert-label" style="display: inline-flex; background: var(--component-bg); border-radius: var(--radius); padding: 2px;">
-            <button type="button" aria-pressed="true" style="height: 28px; padding: 0 14px; border: 0; background: var(--bg); color: var(--text); font-size: 12.5px; font-weight: 500; border-radius: var(--radius-sm); cursor: pointer; box-shadow: var(--shadow-sm);">On</button>
-            <button type="button" aria-pressed="false" style="height: 28px; padding: 0 14px; border: 0; background: transparent; color: var(--text-secondary); font-size: 12.5px; font-weight: 500; cursor: pointer;">Off</button>
-          </div>
-        </div>
+        <div class="rhs"><span class="val">Unsorted</span><i class="ph-fill ph-caret-right chev" aria-hidden="true"></i></div>
       </div>
       <div class="settings-row">
+        <i class="ph-fill ph-command ico" aria-hidden="true"></i>
         <div class="lhs">
-          <div class="ttl">Seeding ratio target</div>
-          <div class="sub">Stop seeding once this share ratio is reached. <strong style="color:var(--text);">∞</strong> means seed forever.</div>
+          <div class="ttl">Use current folder for drag and drop and paste links</div>
+          <div class="sub">If you turn this on, we will download to the folder you're currently browsing.</div>
         </div>
-        <div class="rhs">
-          <div style="display: flex; align-items: center; gap: 14px;">
-            <div style="flex: 1; height: 4px; border-radius: 999px; background: var(--component-bg-active); position: relative;">
-              <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 38%; background: var(--yellow-solid); border-radius: 999px;"></div>
-              <div style="position: absolute; left: 38%; top: 50%; transform: translate(-50%, -50%); width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 2px solid var(--yellow-solid); box-shadow: 0 1px 3px rgba(0,0,0,0.5);"></div>
-            </div>
-            <span style="font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--text); width: 50px; text-align: right;">1.50×</span>
-          </div>
-        </div>
+        <div class="rhs"><button type="button" class="switch" role="switch" aria-checked="true" aria-label="Use current folder for drag and drop and paste links"></button></div>
       </div>
       <div class="settings-row">
+        <i class="ph-fill ph-bell ico" aria-hidden="true"></i>
         <div class="lhs">
-          <div class="ttl">Pushover key</div>
-          <div class="sub">Get a push notification when a transfer completes. Find your key at <a style="color: var(--yellow-text-secondary); text-decoration: underline; text-underline-offset: 2px;" href="#">pushover.net</a>.</div>
+          <div class="ttl">Configure Pushover token</div>
+          <div class="sub">"<a href="#">Pushover</a>" is a service that can send push notifications to your devices.</div>
         </div>
-        <div class="rhs">
-          <input aria-label="Pushover key" class="field mono" value="ud7nzwhf3k82q…" />
-          <div class="hint" style="margin-top: 4px;">Leave blank to disable.</div>
-        </div>
+        <div class="rhs"><i class="ph-fill ph-caret-right chev" aria-hidden="true"></i></div>
       </div>
     </div>
   </div>
-
   <!-- =============================================================
        L · 02, Modal · stacked, two-column body
        ============================================================= -->
@@ -363,59 +379,50 @@
       <div class="demo-hd">
         <span class="ix">L · 02</span>
         <span class="t">Modal · stacked form</span>
-        <span class="when">Quick action, narrow column</span>
+        <span class="when">New transfer · press T anywhere</span>
       </div>
       <div class="demo-body" style="padding: 20px; background: var(--bg);">
         <div class="modal" style="max-width: 100%;">
           <div class="m-hd">
             <div class="ttl">New transfer</div>
-            <button class="close" type="button" aria-label="Close"><i class="ph ph-x" style="font-size:14px;"></i></button>
+            <button class="close" type="button" aria-label="Close"><i class="ph-fill ph-x" style="font-size:16px;"></i></button>
           </div>
-          <div class="m-body">
+          <div class="m-tabs" role="tablist">
+            <button type="button" role="tab" aria-selected="true" tabindex="0" aria-controls="nt-paste">Paste links</button>
+            <button type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="nt-upload">Upload files</button>
+          </div>
+          <div class="m-body" role="tabpanel" id="nt-upload" hidden>
+            <div class="group"><span class="hint" style="margin: 0;">Drag and drop, or select files.</span></div>
+          </div>
+          <div class="m-body" role="tabpanel" id="nt-paste">
             <div class="group">
-              <span class="label">Source <span class="req">*</span></span>
-              <input aria-label="Source" class="field mono" placeholder="magnet:?xt=urn:btih:…" />
-              <span class="hint">Magnet, .torrent URL, or any supported download link.</span>
-            </div>
-            <div class="group">
-              <span class="label">Save to</span>
-              <div class="field-wrap">
-                <i class="ph ph-folder lead"></i>
-                <input aria-label="Save to" class="field has-icon" value="/Movies/Unsorted" />
+              <span class="hint" style="margin: 0 0 4px;">Saving to your default download folder.</span>
+              <div class="picker">
+                <i class="ph-fill ph-folder-open" aria-hidden="true"></i>
+                <span class="nm">Unsorted</span>
+                <button class="btn-default btn-icon btn-sm" type="button" aria-label="Configure" title="Configure"><i class="ph ph-gear"></i></button>
               </div>
             </div>
             <div class="group">
-              <span class="label">After completion</span>
-              <div style="display: flex; flex-direction: column; gap: 2px;">
-                <div style="display: flex; align-items: flex-start; gap: 10px; padding: 6px 8px; border-radius: var(--radius-sm);">
-                  <div style="position: relative; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--yellow-solid); background: var(--app-bg); flex-shrink: 0; margin-top: 1px;">
-                    <div style="position: absolute; inset: 3px; border-radius: 50%; background: var(--yellow-solid);"></div>
-                  </div>
-                  <div style="font-size: 13.5px; color: var(--text);">Keep on put.io <div style="font-size: 11.5px; color: var(--text-secondary); margin-top: 1px;">Stream or download later</div></div>
-                </div>
-                <div style="display: flex; align-items: flex-start; gap: 10px; padding: 6px 8px; border-radius: var(--radius-sm);">
-                  <div style="width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--border-hover); background: var(--app-bg); flex-shrink: 0; margin-top: 1px;"></div>
-                  <div style="font-size: 13.5px; color: var(--text);">Push to my device <div style="font-size: 11.5px; color: var(--text-secondary); margin-top: 1px;">Sync via the desktop app</div></div>
-                </div>
-              </div>
+              <span class="hint" style="margin: 0 0 4px;">Paste torrent links, magnet links, direct links or links to video pages from popular video sites.</span>
+              <textarea aria-label="Links" class="field mono" rows="4" style="height: auto; padding: 8px 12px;"></textarea>
             </div>
+            <a class="hint" href="#" style="margin: 0; color: var(--text-secondary);">Make put.io the default application when you click on a magnet link.</a>
           </div>
           <div class="m-foot">
-            <button class="btn-default">Cancel</button>
-            <button class="btn-primary"><i class="ph-bold ph-arrow-circle-down"></i>Add transfer</button>
+            <button class="btn-primary" title="⌘ Enter to add transfers">Add transfers</button>
           </div>
         </div>
       </div>
     </div>
-
     <!-- =============================================================
          L · 03, Two-column grid (account info)
          ============================================================= -->
     <div class="panel">
       <div class="demo-hd">
         <span class="ix">L · 03</span>
-        <span class="t">Two-column grid</span>
-        <span class="when">Account / billing, dense info</span>
+        <span class="t">Two-column grid <span class="proposed-tag">proposed</span></span>
+        <span class="when">Not in app.put.io: Account fields are list rows to their own pages</span>
       </div>
       <div class="demo-body">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px;">
@@ -462,8 +469,8 @@
   <div class="panel">
     <div class="demo-hd">
       <span class="ix">L · 04</span>
-      <span class="t">Inline composer · one-row action</span>
-      <span class="when">Top of a list view · quick-add</span>
+      <span class="t">Inline composer · one-row action <span class="proposed-tag">proposed</span></span>
+      <span class="when">Not in app.put.io: links pasted outside a field start a transfer</span>
     </div>
     <div class="demo-body">
       <div class="composer">
@@ -478,9 +485,8 @@
         <button class="btn-primary"><i class="ph-bold ph-plus"></i>Add</button>
       </div>
       <div class="composer-hint">
-        <span><i class="ph ph-keyboard"></i>Press <b>N</b> to focus from anywhere</span>
-        <span><i class="ph ph-clipboard-text"></i>Paste shortcut: <b>⌘ + V</b></span>
-        <span><i class="ph ph-info"></i>Up to 8 sources at once, comma-separated</span>
+        <span><i class="ph ph-keyboard"></i>app.put.io: <b>T</b> opens New transfer</span>
+        <span><i class="ph ph-clipboard-text"></i>Paste links anywhere outside a field</span>
       </div>
     </div>
   </div>
@@ -511,7 +517,7 @@
         </div>
       </div>
       <div class="callout-column">
-        <span class="label">Inline callouts</span>
+        <span class="label">Inline callouts <span class="proposed-tag">proposed</span></span>
         <div class="form-callout inline" data-demo-callout="inline" data-state="info">
           <i class="ph ph-info" aria-hidden="true"></i>
           <span>Use the email address linked to your account.</span>
@@ -530,13 +536,37 @@
 
 <div class="specs-link">
   <b>Layout rules.</b><br>
-  <code>L · 01</code> settings = explanation on the left, controls on the right<br>
-  <code>L · 02</code> modals stack tightly, labels above fields, primary CTA bottom-right<br>
+  <code>L · 01</code> settings save per row on change; a busy row disables its control and shows an indicator<br>
+  <code>L · 02</code> description sits above the field, the error below it in red caption text; one primary bottom-right<br>
   <code>L · 03</code> two-column grids for personal info, collapsing to one column under 640px<br>
   <code>L · 04</code> the composer is a one-row exception, paste-and-go, no labels<br>
-  <code>L · 05</code> block callouts carry form-level status; inline callouts keep the tone without chrome<br>
+  <code>L · 05</code> block callouts are app.put.io's notification: info, success, warning, danger. Field errors carry no icon<br>
+  app.put.io draws these with theme-ui, radius 4 and flaticon icons; the Phosphor here is the system's.
 </div>
 
 </div>
 
+<script>
+  for (const sw of document.querySelectorAll('button.switch[role="switch"]')) {
+    sw.addEventListener('click', () => sw.setAttribute('aria-checked', String(sw.getAttribute('aria-checked') !== 'true')));
+  }
+  for (const list of document.querySelectorAll('[role="tablist"]')) {
+    const tabs = [...list.querySelectorAll('[role="tab"]')];
+    const select = (tab) => {
+      for (const t of tabs) {
+        t.setAttribute('aria-selected', String(t === tab));
+        t.tabIndex = t === tab ? 0 : -1;
+        document.getElementById(t.getAttribute('aria-controls')).hidden = t !== tab;
+      }
+      tab.focus();
+    };
+    for (const tab of tabs) {
+      tab.addEventListener('click', () => select(tab));
+      tab.addEventListener('keydown', (event) => {
+        const step = { ArrowRight: 1, ArrowLeft: -1 }[event.key];
+        if (step) { event.preventDefault(); select(tabs[(tabs.indexOf(tab) + step + tabs.length) % tabs.length]); }
+      });
+    }
+  }
+</script>
 </body></html>

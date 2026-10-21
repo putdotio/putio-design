@@ -46,7 +46,7 @@
 .actions{position:absolute;left:var(--side);right:var(--side);bottom:var(--bottom);display:flex;flex-direction:column;gap:var(--space-2);align-items:stretch}
 .btn-p,.btn-s{box-sizing:border-box;display:flex;align-items:center;justify-content:center;height:var(--btn);border-radius:calc(var(--btn) / 2);font-family:var(--font-sans);font-weight:var(--fw-medium);cursor:default}
 .ios .btn-p,.ios .btn-s{font-size:17px}
-.android .btn-p,.android .btn-s{font-size:16px}
+.android .btn-p,.android .btn-s{font-size:16px;letter-spacing:0.15px}
 .btn-p{background:var(--yellow-solid);color:var(--primary-foreground)}
 /* iOS .bordered / Android OutlinedButton */
 .ios .btn-s{background:color-mix(in srgb, var(--yellow-solid) 18%, transparent);color:var(--yellow-solid)}
@@ -56,18 +56,31 @@
 .notice{align-self:stretch;display:flex;gap:var(--space-2);align-items:flex-start;text-align:left;background:var(--component-bg);border:1px solid var(--border);border-radius:12px;padding:12px var(--space-3);font-size:15px;line-height:1.3;color:var(--text)}
 .notice i{font-size:18px;line-height:19.5px;color:var(--yellow-solid);flex:none}
 .notice.err i{color:var(--red-solid, #e5484d)}
-.spin{box-sizing:border-box;width:24px;height:24px;border-radius:50%;border:2.5px solid var(--border);border-top-color:var(--yellow-solid);animation:spin 1s linear infinite}
+/* M3 indeterminate CircularProgressIndicator: arc only, transparent track */
+.spin{box-sizing:border-box;width:24px;height:24px;border-radius:50%;border:2.5px solid transparent;border-top-color:var(--yellow-solid);border-right-color:var(--yellow-solid);animation:spin 1s linear infinite}
 @media (prefers-reduced-motion: reduce){.spin{animation:none}}
 .variant{font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);letter-spacing:.04em;text-transform:uppercase}
 h2.row{font-size:15px;font-weight:500;margin:28px 0 14px;color:var(--text)}
+/* Android ships no custom Typography: M3 defaults to the system sans (Roboto). */
+.phone.android,.android .btn-p,.android .btn-s{font-family:Roboto,system-ui,sans-serif}
+.voice{white-space:normal}
+/* iOS as shipped (putio-ios main LoginViewController): 240pt logo centred in the
+   safe area, one 320x38 Button.primary 16pt above the safe-area bottom. */
+.ios-logo{position:absolute;left:50%;top:calc(54px + (852px - 54px - 34px) / 2);transform:translate(-50%,-50%);width:240px;height:auto}
+.ios-login{position:absolute;left:50%;bottom:50px;transform:translateX(-50%);width:320px;height:38px;border-radius:4px;background:var(--yellow-solid);color:var(--primary-foreground);display:flex;align-items:center;justify-content:center;font-family:var(--font-sans);font-weight:var(--fw-medium);font-size:16px}
+.ios-dim{position:absolute;inset:0;background:rgba(0,0,0,0.45)}
+.ios-alert{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:300px;border-radius:28px;overflow:hidden;background:color-mix(in srgb,var(--bg-secondary) 88%,transparent);font-family:-apple-system,BlinkMacSystemFont,sans-serif;text-align:center}
+.ios-alert .t{padding:20px 20px 4px;font-size:17px;font-weight:600}
+.ios-alert .m{padding:0 20px 16px;font-size:13px;line-height:18px}
+.ios-alert .b{height:48px;display:flex;align-items:center;justify-content:center;border-top:0.5px solid var(--line);font-size:17px;font-weight:600;color:var(--yellow-text-secondary)}
 </style></head>
 <body>
-<div class="tierbar t2"><span class="tno">Tier 2</span><span class="twhat"><b>iOS + Android phones</b>: tokens only. Stock SwiftUI and Material 3 buttons; put.io supplies the wordmark, tint, surfaces and type. Shared with iOS and Android.</span><span class="ttok">--app-bg · --text · --text-secondary · --yellow-solid · --primary-foreground</span></div>
+<div class="tierbar t2"><span class="tno">Tier 2</span><span class="twhat"><b>iOS + Android phones</b>: tokens only. Each phone app ships its own signed-out screen: a UIKit logo and button on iOS, Material 3 on Android. put.io supplies the wordmark, tint and surfaces.</span><span class="ttok">--app-bg · --text · --text-secondary · --yellow-solid · --primary-foreground · --component-bg · --border</span></div>
 <div class="preview-shell">
 <div>
   <div class="label">Phone welcome: the signed-out screen on iOS and Android</div>
-  <div class="note">Replaces the text-only sign-in screens on both phones. Same composition on both: the retro wordmark pinned top as a header, the kaomoji and welcome lockup anchored in the upper third; actions pinned to the thumb zone. One action: <b>Sign in</b> opens put.io OAuth in the browser (<code>ASWebAuthenticationSession</code> / Auth Tab). No sign-up entry point in the apps.</div>
-  <div class="note">Brings the TV voice to the phones: <code>┌( ಠ‿ಠ)┘ welcome!</code>. This screen is the one native exception to "the kaomoji voice is a tier-1 brand device and does not cross to native".</div>
+  <div class="note">Both apps sign in through put.io OAuth in the browser and have no password form or sign-up link. iOS opens <code>ASWebAuthenticationSession</code> on arrival; Android waits for <b>Sign in</b> and opens an Auth Tab.</div>
+  <div class="note">iOS shows the 240pt wordmark and one <b>Log in</b> button; failures are an “Authentication failed” alert. Android shows the kaomoji lockup, a lede, inline notices and a browser-open state.</div>
 </div>
 
 <h2 class="row">Welcome</h2>
@@ -75,15 +88,11 @@ h2.row{font-size:15px;font-weight:500;margin:28px 0 14px;color:var(--text)}
   <div class="ph-col"><div class="variant">iOS</div>
   <div class="phone ios">
     <div class="status"><span>9:41</span><span class="ic"><i class="ph-fill ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph-fill ph-battery-full"></i></span></div><div class="island"></div>
-    <img class="wordmark" src="../assets/logo-retro-dark.svg" alt="put.io">
-    <div class="hero">
-      <div class="copy"><div class="voice"><span class="k">┌( ಠ‿ಠ)┘</span>Welcome!</div>
-      <div class="lede">Sign in to stream, download and manage your files.</div>
-      </div>
-    </div>
-    <div class="actions"><div class="btn-p">Sign in</div></div>
+    <img class="ios-logo" src="../assets/logo-retro-dark.svg" alt="put.io">
+    <div class="ios-login">Log in</div>
     <div class="home"></div>
-  </div></div>
+  </div>
+  <div class="cap">Web sign-in starts on its own; Log in restarts it.</div></div>
 
   <div class="ph-col"><div class="variant">Android</div>
   <div class="phone android">
@@ -96,14 +105,24 @@ h2.row{font-size:15px;font-weight:500;margin:28px 0 14px;color:var(--text)}
     </div>
     <div class="actions"><div class="btn-p">Sign in</div></div>
     <div class="home"></div>
-  </div></div>
+  </div>
+  </div>
 </div>
 
-<h2 class="row">States (iOS shown unless marked; the other platform mirrors them)</h2>
+<h2 class="row">States</h2>
 <div class="phones">
-  <div class="ph-col"><div class="variant">Session expired</div>
+  <div class="ph-col"><div class="variant">Authentication failed · iOS</div>
   <div class="phone ios">
     <div class="status"><span>9:41</span><span class="ic"><i class="ph-fill ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph-fill ph-battery-full"></i></span></div><div class="island"></div>
+    <img class="ios-logo" src="../assets/logo-retro-dark.svg" alt="put.io">
+    <div class="ios-login">Log in</div><div class="ios-dim"></div><div class="ios-alert"><div class="t">Authentication failed</div><div class="m">Authentication state did not match the current session.</div><div class="b">OK</div></div>
+    <div class="home"></div>
+  </div>
+  <div class="cap">Any failure, cancel included, raises this alert with the error's description.</div></div>
+
+  <div class="ph-col"><div class="variant">Session expired · Android</div>
+  <div class="phone android">
+    <div class="status"><span>9:41</span><span class="ic"><i class="ph-fill ph-wifi-high"></i><i class="ph-fill ph-cell-signal-full"></i><i class="ph-fill ph-battery-full"></i></span></div><div class="punch"></div>
     <img class="wordmark" src="../assets/logo-retro-dark.svg" alt="put.io">
     <div class="hero">
       <div class="copy"><div class="voice"><span class="k">┌( ಠ‿ಠ)┘</span>Welcome back!</div>
@@ -112,7 +131,8 @@ h2.row{font-size:15px;font-weight:500;margin:28px 0 14px;color:var(--text)}
     </div>
     <div class="actions"><div class="btn-p">Sign in</div></div>
     <div class="home"></div>
-  </div></div>
+  </div>
+  </div>
 
   <div class="ph-col"><div class="variant">Browser open · Android</div>
   <div class="phone android">
@@ -126,11 +146,12 @@ h2.row{font-size:15px;font-weight:500;margin:28px 0 14px;color:var(--text)}
     </div>
     <div class="actions"><div class="btn-s">Cancel</div></div>
     <div class="home"></div>
-  </div></div>
+  </div>
+  </div>
 
-  <div class="ph-col"><div class="variant">Sign-in failed</div>
-  <div class="phone ios">
-    <div class="status"><span>9:41</span><span class="ic"><i class="ph-fill ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph-fill ph-battery-full"></i></span></div><div class="island"></div>
+  <div class="ph-col"><div class="variant">Sign-in failed · Android</div>
+  <div class="phone android">
+    <div class="status"><span>9:41</span><span class="ic"><i class="ph-fill ph-wifi-high"></i><i class="ph-fill ph-cell-signal-full"></i><i class="ph-fill ph-battery-full"></i></span></div><div class="punch"></div>
     <img class="wordmark" src="../assets/logo-retro-dark.svg" alt="put.io">
     <div class="hero">
       <div class="copy"><div class="voice"><span class="k">┌( ಠ‿ಠ)┘</span>Welcome!</div>
@@ -139,15 +160,17 @@ h2.row{font-size:15px;font-weight:500;margin:28px 0 14px;color:var(--text)}
     </div>
     <div class="actions"><div class="btn-p">Try again</div></div>
     <div class="home"></div>
-  </div></div>
+  </div>
+  </div>
 </div>
 
 <div class="kv" style="margin-top:28px">
-  <div class="r"><span class="k">header</span><span class="v"><code>logo-retro-dark.svg</code>, 88pt/dp wide, centred in the nav bar (iOS 44pt) / top app bar (Android 64dp) slot</span></div>
-  <div class="r"><span class="k">type</span><span class="v">one lockup: kaomoji and <b>Welcome!</b> at one size, iOS Large Title 34 / Android headlineLarge 32; title medium, tight tracking; kaomoji semibold (its glyphs draw as hairlines), wide tracking · lede Body 17/1.4 · bodyLarge 16/1.5, <code>--text-secondary</code>, max 296</span></div>
-<div class="r"><span class="k">spacing</span><span class="v">ramp only: content starts 128 below the header, kaomoji → title 32, title → lede 16, notice or spinner 32 below; one column with the action: 20pt side margin on iOS, 16dp on Android</span></div>
-    <div class="r"><span class="k">primary</span><span class="v">iOS <code>.borderedProminent</code> large capsule, 50pt, 50 above the bottom (34 safe area + 16) · Android M3 <code>Button</code> at the 56dp medium size (the 40dp default is for in-content actions), 40 above the bottom (24 gesture bar + 16); full width, tint <code>--yellow-solid</code>. The only action and the only yellow fill on screen</span></div>
-    <div class="r"><span class="k">states</span><span class="v">session expired (<b>Welcome back!</b>), sign-in failed, secure storage unavailable (Reset and sign in): a notice 32 below the heading on <code>--component-bg</code>, icon on the first text line, never an alert · browser open, Android only: <b>Almost there</b>, the lede, a 24 spinner 32 below, outlined <b>Cancel</b>. iOS has no such state: <code>ASWebAuthenticationSession</code> is modal and reports cancellation through its callback</span></div>
+  <div class="r"><span class="k">iOS</span><span class="v"><code>logo-retro-dark</code> 240pt wide, centred in the safe area · one 320×38 <b>Log in</b> button, <code>--yellow-solid</code> on <code>--primary-foreground</code>, 4pt radius, GT America Md 16, 16pt above the safe area · no kaomoji, lede or notice</span></div>
+  <div class="r"><span class="k">Android header</span><span class="v"><code>putio_wordmark</code> (from <code>logo-retro-dark.svg</code>), 88dp wide, centred in a 64dp slot under the status bar</span></div>
+  <div class="r"><span class="k">Android type</span><span class="v">system sans (Roboto), M3 defaults · kaomoji headlineLarge 32 SemiBold, wide tracking · <b>Welcome!</b> headlineLarge 32/40 Medium, tight tracking · lede bodyLarge 16/1.5, <code>--text-secondary</code>, max 296</span></div>
+  <div class="r"><span class="k">Android spacing</span><span class="v">content starts min(20% of height, 128) below the header; kaomoji → title 32, title → lede 16, notice or spinner 32 below; 16dp side margin; scrolls on short windows</span></div>
+  <div class="r"><span class="k">Android primary</span><span class="v">M3 <code>Button</code>, full width, 56dp min, pill, <code>--yellow-solid</code> / <code>--primary-foreground</code>, titleMedium 16 · Cancel is an <code>OutlinedButton</code>: 1dp <code>--border</code>, <code>--yellow-solid</code> label</span></div>
+  <div class="r"><span class="k">Android states</span><span class="v">notice on <code>--component-bg</code>, 1dp <code>--border</code>, 12dp corners, 18dp icon (clock-countdown <code>--yellow-solid</code>, warning-circle <code>--red-solid</code>) · also secure storage unavailable (<b>Reset and sign in</b>) and sign-in not configured (no button)</span></div>
 </div>
 <div class="dont"><b>Do not</b> add a username/password form, a sign-up link, an onboarding carousel, or an illustration. The browser is the only credential surface.</div>
 </div>

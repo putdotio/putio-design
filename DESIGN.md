@@ -70,7 +70,7 @@ A web mock is never a native spec. Every surface binds at one tier, and every ca
 
 - **Tier 0: Foundations.** The token graph. Values only; binds every tier.
 - **Tier 1: www · app · auth.** The full system: tokens plus the `system/components.css` recipes, which are the contract here only.
-- **Tier 2: iOS · iPadOS · tvOS · watchOS · Android · Android TV.** Tokens only. Components and pages come from the platform's guidelines; cards show how a stock control takes put.io tokens.
+- **Tier 2: iOS · iPadOS · tvOS · watchOS · Android · Android TV.** Tokens only. Components and pages come from the platform's guidelines; cards show how a stock control takes put.io tokens. The shipped tvOS and Android TV app draws its own components with Lucide icons: documented drift.
 - **Tier 3: Roku.** Tier 2, plus put.io conventions in custom SceneGraph components.
 - **Tier 4: tv.put.io · Tizen · webOS.** The web system, restrained to a calm, list-first 10-foot interface.
 
@@ -131,19 +131,19 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 
 ### Auth
 
-- A fluid column up to `340px`, the `36px` field recipe, a `30.33px` wordmark box (26px ink × 7/6), centred `19px`/500 headings, and a centred two-line prompt footer.
-- Copy: “Sign in”, “Sign up”, and “That username or password doesn't look right” with no terminal punctuation.
+- A fluid column up to `340px`, the `36px` field recipe, a `30.33px` wordmark box (26px ink × 7/6), centred `19px`/500 headings, and a centred two-line prompt footer. auth.put.io's set-password screen ships the action alone: drift.
+- Copy: “Sign in”, “Sign up”, and “That username or password doesn't look right.” followed by a “Reset your password” link.
 - References: `web-s06-auth`, `web-p00c-auth-signin`, `web-p00d-auth-signup`, `web-p00e-auth-2fa`.
 - One-time codes are one `.otp-input` (`inputmode="numeric"`, `autocomplete="one-time-code"`, `maxlength="6"`, `aria-invalid`) shown through two `.otp-group`s, one `.otp-separator`, and six `.otp-slot`s; script syncs slot text and `filled`/`active`, and maps a clicked slot to the input selection.
-- Editing an invalid code clears the error; retry waits for six digits. `data-state="verifying"` disables the input, keeps the digits, and announces through a polite live region. `data-state="success"` keeps the digits read-only, announces continuation in a `role="status"` callout, and shows no further action; the consumer owns navigation.
+- Editing an invalid code clears the error; retry waits for six digits. `data-state="verifying"` disables the input, keeps the digits, and announces through a polite live region. `data-state="success"` keeps the digits read-only, announces continuation in a `role="status"` callout, and shows no further action; the consumer owns navigation. auth.put.io ships a disabled “Verified” button and no announcement: drift from this rule.
 - No recovery-code action until a consumer owns the route. Groups own the responsive width, so the control fits narrow cards without scrolling.
 
 ### TV
 
 - TV is list-first and focus-first: a file browser, not a poster wall. TV repos consume the generic tokens and own their bindings.
-- Surfaces are solid token colours, no blur or translucency. Focus is a fill: rows go to `--component-bg-active`; web TV buttons step fill and border at `tv.focus.borderWidth` (`3px`). Values live in `tv.focus.row.*` and `tv.focus.control.*`. Roku dialog buttons are borderless and follow their variant.
+- Surfaces are solid token colours, no blur or translucency. Focus is a fill: rows go to `--component-bg-active`; web TV buttons step fill and border at `--border-width` (1px); `tv.focus.borderWidth` (3px) is unused. Values live in `tv.focus.row.*` and `tv.focus.control.*`. Roku dialog buttons are borderless and follow their variant.
 - Navigation is a Home hub pushing full screens; no tab bar. Menus are centred modals.
-- These rules bind web TV and Roku. Native TV follows its platform where the platform owns focus; tvOS buttons use system focus, other surfaces stay solid.
+- These rules bind every TV app. tvOS and Android TV ship one React Native app that draws the same fill with the system lift off.
 - The `tv` token group (type, spacing, overscan, radius, focus, z) is adapter data, absent from web CSS: cite it by graph path, never `--tv-*`. Overscan multiplies `tv.overscan.x` by width and `tv.overscan.y` by height. `tv.z.overlay` sits above `tv.z.toast`, the reverse of web.
 
 ## Content and Icons

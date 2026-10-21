@@ -360,40 +360,34 @@ async function checkAppleContract() {
     "Gauge card must bind the five download states in order",
   );
   const stateGlyphs = [
-    ["ph", "ph-arrow-down"], ["ph", "ph-clock"], ["ph-fill", "ph-stop"],
-    ["ph-fill", "ph-check-circle"], ["ph", "ph-arrow-down"],
+    ["ph", "ph-download-simple"], ["ph", "ph-clock"], ["ph-fill", "ph-stop"],
+    ["ph-fill", "ph-check-circle"], ["ph", "ph-download-simple"],
   ];
   for (const [index, fragment] of stateFragments.entries()) {
     const glyphs = [...htmlElementsWithClass(fragment, "ph"), ...htmlElementsWithClass(fragment, "ph-fill")];
     assert(glyphs.length === 1, `${states[index]} must have one glyph`);
     const classes = htmlOpeningClasses(glyphs[0]);
     assert(stateGlyphs[index].every((value) => classes.includes(value)), `${states[index]} must use its contracted glyph`);
-    const ringCount = htmlElementsWithClass(fragment, "ios-gauge-preview").length;
-    assert(ringCount === (states[index] === "downloading" ? 1 : 0), `${states[index]} Gauge ring ownership`);
+    // main draws its own 2pt ring (DownloadsTableViewCell): a --line track under a --yellow-solid fill.
+    const ring = /<svg\b[\s\S]*?<\/svg>/.exec(fragment)?.[0] ?? "";
+    assert(Boolean(ring) === (states[index] === "downloading"), `${states[index]} download ring ownership`);
+    if (ring) {
+      assertIncludes(ring, 'stroke="var(--line)"', "Download ring track");
+      assertIncludes(ring, 'stroke="var(--yellow-solid)"', "Download ring fill");
+      assertIncludes(ring, 'stroke-width="2"', "Download ring stroke");
+    }
   }
   const failedReasonOwners = htmlElementsWithAttribute(stateFragments[4], "data-reason-owner");
   assert(failedReasonOwners.length === 1, "Failed must have one reason owner");
   assert(htmlOpeningClasses(failedReasonOwners[0]).includes("sd"), "Failed reason must belong to its subtitle");
   assert(failedReasonOwners[0].replace(/<[^>]*>/g, "").trim().length > 0, "Failed subtitle must describe reason ownership");
   assert(htmlAttribute(failedReasonOwners[0], "data-reason-owner") === "row-subtitle", "Failed reason owner must identify the row subtitle");
-  assertIncludes(cssRule(contents.css, ".ios-gauge-preview"), "width: 47px", "Gauge preview");
-  assertIncludes(cssRule(contents.css, ".ios-gauge-preview"), "height: 47px", "Gauge preview");
-  const gaugeTrackRule = cssRule(contents.css, ".ios-gauge-preview::before");
-  const gaugeTrack = /background: conic-gradient\(currentColor var\(--ios-preview-progress\), color-mix\(in srgb, currentColor (\d+(?:\.\d+)?)%, transparent\) 0\);/.exec(gaugeTrackRule);
-  assert(gaugeTrack, "Gauge unfilled track must derive from tint at system opacity");
-  const gaugeOpacity = Number(gaugeTrack[1]);
-  assert(gaugeOpacity > 0 && gaugeOpacity < 100, "Gauge unfilled track must remain visible and distinct from its fill");
-  assertIncludes(gaugeTrackRule, "transparent 16.5px, #000 17px", "Gauge approximately 7pt stroke");
-  assertExcludes(gaugeTrackRule, "var(--line)", "Gauge track preview");
-
   assertIncludes(contents.progress, "ios-progress-preview", "ProgressView card");
   assertExcludes(contents.progress, "--component-bg-active", "ProgressView card");
-  const progressTrack = cssDeclarations(contents.css, ".ios-progress-preview").get("background");
-  assert(
-    progressTrack && /^color-mix\(in srgb, var\(--text\) \d+(?:\.\d+)?%, transparent\)$/.test(progressTrack),
-    "ProgressView track must use the neutral system-opacity preview",
-  );
-  assertExcludes(contents.gauge, "--line", "Gauge card");
+  // main's only UIProgressView (VideoConversion.storyboard) tracks on --line.
+  const progressBars = htmlElementsWithClass(contents.progress, "ios-progress-preview");
+  assert(progressBars.length > 0, "Progress card must show the conversion bar");
+  for (const bar of progressBars) assertIncludes(bar, "background:var(--line)", "Conversion progress track");
   const transferProgress = htmlElementsWithClass(contents.transfers, "lprog");
   assert(transferProgress.length === 4, "Transfers card must show four row progress examples");
   assert(
@@ -404,21 +398,12 @@ async function checkAppleContract() {
   for (const selector of [".ios-navbar .back", ".ios-navbar .act", ".cuv .cuv-a"]) {
     assertIncludes(cssRule(contents.css, selector), "var(--yellow-solid)", `${selector} tint`);
   }
-  for (const [name, source] of Object.entries({
-    navbar: contents.navbar,
-    sheet: contents.sheet,
-    empty: contents.empty,
-  })) {
-    assertExcludes(source, "--yellow-text-secondary", `${name} system accent contract`);
-  }
+  // main tints windows, bars and cells with --yellow-text-secondary (Stylize.swift).
+  assertIncludes(contents.navbar, "--yellow-text-secondary", "Shipped tint");
   assertIncludes(contents.contract, "App-authored text", "App-authored accent exception");
   assertIncludes(contents.contract, "--yellow-text-secondary", "App-authored accent exception");
 
-  assertIncludes(contents.glass, "<code>.borderedProminent</code>", "Glass boundary card");
-  assertIncludes(contents.glass, "<code>.bordered</code>", "Glass boundary card");
   assertIncludes(contents.contract, "At most one prominent glass capsule appears on a screen.", "Glass prominence limit");
-  assertIncludes(contents.empty, "ios-bordered-action", "Empty-state content action");
-  assertIncludes(contents.fileScreen, "ios-bordered-action", "File-screen content action");
   for (const [name, source] of Object.entries({ empty: contents.empty, fileScreen: contents.fileScreen })) {
     for (const action of htmlElementsWithClass(source, "cuv-a")) {
       assert(htmlOpeningClasses(action).includes("ios-bordered-action"), `${name} content action must be bordered`);
@@ -499,11 +484,10 @@ async function checkAppleContract() {
   assertIncludes(systemCheckRule, "font-size: 20px", "System-owned selection checkmark");
   assertIncludes(systemCheckRule, "color: var(--yellow-solid)", "System-owned selection checkmark");
   const systemSearchControls = [
-    ["Tab card Search capsule", contents.tabs, "ios-searchcap"],
-    ["Search field card", contents.searchfield, "ios-searchfield"],
-    ["Shell Search capsule", contents.shell, "ios-searchcap"],
-    ["Files Search field", contents.fileScreen, "ios-searchfield"],
-    ["Files Search capsule", contents.fileScreen, "ios-searchcap"],
+    // main has one UISearchController, on the root Files screen; no Search tab.
+    ["Search field card", contents.searchfield, "u-search"],
+    ["Shell Search field", contents.shell, "u-search"],
+    ["Files Search field", contents.fileScreen, "u-search"],
     ["Transfers Search capsule", contents.transfers, "ios-searchcap"],
   ] as const;
   for (const [label, source, className] of systemSearchControls) {
@@ -521,21 +505,12 @@ async function checkAppleContract() {
   for (const [name, source] of Object.entries({
     navbar: contents.navbar,
     fileScreen: contents.fileScreen,
-    transfers: contents.transfers,
   })) {
     const backControls = htmlElementsWithClass(source, "back");
     assert(backControls.length > 0, `${name} system-owned back control must exist`);
     for (const backControl of backControls) {
       assert(htmlElementsWithClass(backControl, "system-back").length === 1, `${name} must have one system-owned back glyph`);
       assertExcludes(backControl, "ph-", `${name} system-owned back glyph`);
-    }
-  }
-  for (const [name, source] of Object.entries({ sheet: contents.sheet, settings: contents.settings })) {
-    const selectionOwners = htmlElementsWithAttribute(source, "data-system-selection-owner");
-    assert(selectionOwners.length > 0, `${name} system-owned selection control must exist`);
-    for (const selectionOwner of selectionOwners) {
-      assert(htmlElementsWithClass(selectionOwner, "system-check").length === 1, `${name} must have one system-owned checkmark`);
-      assertExcludes(selectionOwner, "ph-", `${name} system-owned checkmark`);
     }
   }
   for (const [name, source] of Object.entries({
@@ -547,12 +522,13 @@ async function checkAppleContract() {
       (row) => htmlElementsWithClass(row, "ph-folder").length > 0,
     );
     assert(folderRows.length > 0, `${name} must show a folder row`);
+    // main draws a Phosphor caret on folders (FilesTableViewCell), not a system chevron.
     for (const [index, row] of folderRows.entries()) {
-      assert(htmlElementsWithClass(row, "system-chevron").length === 1, `${name} folder row ${index + 1} must have one system disclosure`);
+      assert(htmlElementsWithClass(row, "ph-caret-right").length === 1, `${name} folder row ${index + 1} must have one Phosphor caret`);
+      assert(htmlElementsWithClass(row, "system-chevron").length === 0, `${name} folder row ${index + 1} must not draw a system chevron`);
     }
-    assertExcludes(source, "ph-caret-right", `${name} folder disclosure`);
   }
-  assertIncludes(contents.folders, "List + NavigationLink", "Folder row source");
+  assertIncludes(contents.folders, "UITableViewCell", "Folder row source");
 }
 
 async function checkHtmlLinks() {

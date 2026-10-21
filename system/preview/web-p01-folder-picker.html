@@ -96,6 +96,29 @@
     display: flex; align-items: center; gap: 10px;
   }
   .picker [data-slot="modal-footer"] .spacer { flex: 1; }
+  /* Shipped drill-down list (app.put.io components/FolderPickerModal) */
+  .picker .crumbs { padding: 0 18px 8px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 3px; }
+  .picker .crumbs button { all: unset; cursor: pointer; }
+  /* app.put.io focus: a 1.5px --border-hover ring (FocusStyles.tsx). */
+  .picker button:focus-visible, .flist .dest:focus-visible { outline: 1.5px solid var(--border-hover); outline-offset: 2px; border-radius: var(--radius-sm); }
+  .picker .crumbs button[aria-current] { color: var(--text); }
+  .picker .crumbs i { font-size: 11px; }
+  .picker [data-slot="modal-body"] { background: transparent; border: 0; padding: 0; max-height: 33vh; }
+  .flist { list-style: none; margin: 0; padding: 0; }
+  .flist li { border-bottom: 1px solid var(--line); }
+  .flist .dest { display: flex; align-items: center; gap: 16px; width: 100%; padding: 16px; font: inherit; font-size: 14px; color: inherit; text-align: left; background: none; border: 0; cursor: pointer; }
+  .flist .dest:hover { background: var(--component-bg); }
+  .flist .dest:disabled { cursor: not-allowed; }
+  .flist .dest:disabled > * { opacity: 0.3; }
+  .flist .dest:disabled:hover { background: transparent; }
+  .flist .f-ico { font-size: 18px; color: var(--yellow-solid); }
+  .flist .f-name { flex: 1; word-break: break-word; }
+  .flist .chev { font-size: 12px; color: var(--text-secondary); }
+  .remember { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); }
+  .remember .sw { width: 28px; height: 16px; border-radius: 999px; background: var(--border); position: relative; border: 0; padding: 0; cursor: pointer; }
+  .remember .sw::after { content: ''; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; }
+  .remember .sw[aria-checked="true"] { background: var(--green-solid); }
+  .remember .sw[aria-checked="true"]::after { left: 14px; }
 </style></head>
 <body>
 <div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat"><b>Web</b> (www / app / auth). The full design system: our component library and the <b>components.css</b> recipe. This is the one tier where the recipe is the contract, native tiers take the tokens and nothing else.</span><span class="ttok">--radius-sm · --yellow-solid · --shadow-md · --component-bg-hover</span></div>
@@ -107,63 +130,39 @@
     <span class="n">FolderPicker</span>
   </div>
   <div class="note">
-    Move and copy destination. Standard modal recipe; the tree body drops to <code>--app-bg</code> so rows read as content, not chrome. 32px rows, 20px indent per level, <b>folder icons always <code>--yellow-solid</code></b>.<br><br>
-      The selected destination takes <code>--list-item-bg-active</code> plus a trailing check. The current location stays <b>visible but disabled</b>: hiding it would make the tree look wrong. Keyboard: <code>&uarr;&darr;</code> move, <code>&rarr;</code> expand, <code>&larr;</code> collapse, <code>&#8629;</code> confirm.
+    Move, copy and default-folder destination. A drill-down list, not a tree: click a folder to open it, breadcrumbs to go back, the primary button picks the folder you're in. Folder icons always <code>--yellow-solid</code>.<br><br>
+    Folders being moved stay visible at 30% and can't be opened. In the current folder the primary is disabled with "Files are already in this folder". Move and copy remember the last target when the switch is on.<br><br>
+    app.put.io draws this with flaticon icons and radius 4; the Phosphor here is the system's.
   </div>
 
-  <div class="picker card" role="dialog" aria-label="Move 3 items" data-slot="modal">
+  <div class="picker card" role="dialog" aria-label="Move 3 file(s)" data-slot="modal">
     <div data-slot="modal-header">
-      <h3>Move 3 items</h3>
-      <button class="x" aria-label="Close"><i class="ph ph-x" aria-hidden="true"></i></button>
+      <h3>Move 3 file(s)</h3>
+      <button class="x" aria-label="Close"><i class="ph-fill ph-x" aria-hidden="true"></i></button>
     </div>
+    <nav class="crumbs" aria-label="Breadcrumbs">
+      <button>Your Files</button><i class="ph-fill ph-caret-right" aria-hidden="true"></i><button aria-current="location">archive</button>
+    </nav>
     <div data-slot="modal-body">
-      <div class="tree" role="tree" aria-label="Choose destination folder">
-        <button role="treeitem" aria-expanded="true">
-          <i class="ph ph-caret-down caret" aria-hidden="true"></i>
-          <i class="ph-fill ph-folder f-ico" aria-hidden="true"></i>
-          <span class="f-name">Your Files</span>
-        </button>
-        <button role="treeitem" class="ind-1" aria-expanded="false" aria-disabled="true">
-          <i class="ph ph-caret-right caret" aria-hidden="true"></i>
-          <i class="ph-fill ph-folder f-ico" aria-hidden="true"></i>
-          <span class="f-name">incoming</span>
-          <span class="here">current</span>
-        </button>
-        <button role="treeitem" class="ind-1" aria-expanded="true">
-          <i class="ph ph-caret-down caret" aria-hidden="true"></i>
-          <i class="ph-fill ph-folder f-ico" aria-hidden="true"></i>
-          <span class="f-name">archive</span>
-        </button>
-        <button role="treeitem" class="ind-2" aria-selected="true">
-          <i class="ph ph-caret-right caret leaf" aria-hidden="true"></i>
-          <i class="ph-fill ph-folder f-ico" aria-hidden="true"></i>
-          <span class="f-name">2025</span>
-          <i class="ph ph-check sel-check" aria-hidden="true"></i>
-        </button>
-        <button role="treeitem" class="ind-2">
-          <i class="ph ph-caret-right caret leaf" aria-hidden="true"></i>
-          <i class="ph-fill ph-folder f-ico" aria-hidden="true"></i>
-          <span class="f-name">2024</span>
-        </button>
-        <button role="treeitem" class="ind-1" aria-expanded="false">
-          <i class="ph ph-caret-right caret" aria-hidden="true"></i>
-          <i class="ph ph-folder-lock f-ico" aria-hidden="true"></i>
-          <span class="f-name">private</span>
-        </button>
-        <button role="treeitem" class="ind-1">
-          <i class="ph ph-caret-right caret leaf" aria-hidden="true"></i>
-          <i class="ph-fill ph-folder f-ico" aria-hidden="true"></i>
-          <span class="f-name">shared-with-family</span>
-        </button>
-      </div>
+      <ul class="flist">
+        <li><button type="button" class="dest"><i class="ph-fill ph-folder-open f-ico" aria-hidden="true"></i><span class="f-name">2025</span><i class="ph-fill ph-caret-right chev" aria-hidden="true"></i></button></li>
+        <li><button type="button" class="dest" disabled><i class="ph-fill ph-folder-open f-ico" aria-hidden="true"></i><span class="f-name">2024</span><i class="ph-fill ph-caret-right chev" aria-hidden="true"></i></button></li>
+        <li><button type="button" class="dest"><i class="ph-fill ph-folder-open f-ico" aria-hidden="true"></i><span class="f-name">incoming</span><i class="ph-fill ph-caret-right chev" aria-hidden="true"></i></button></li>
+        <li><button type="button" class="dest"><i class="ph-fill ph-folder-open f-ico" aria-hidden="true"></i><span class="f-name">shared-with-family</span><i class="ph-fill ph-caret-right chev" aria-hidden="true"></i></button></li>
+      </ul>
     </div>
     <div data-slot="modal-footer">
-      <button class="btn btn-default btn-sm"><i class="ph ph-folder-plus" aria-hidden="true"></i>New folder</button>
+      <span class="remember"><button type="button" class="sw" role="switch" aria-checked="false" aria-label="Remember target folder"></button>Remember target folder</span>
       <span class="spacer"></span>
-      <button class="btn btn-default btn-md">Cancel</button>
-      <button class="btn btn-primary btn-md">Move here</button>
+      <button class="btn-default btn-md"><i class="ph-fill ph-folder-plus" aria-hidden="true"></i>Create folder</button>
+      <button class="btn-primary btn-md">Move Here</button>
     </div>
   </div>
 
 </div>
+<script>
+  for (const sw of document.querySelectorAll('.remember .sw')) {
+    sw.addEventListener('click', () => sw.setAttribute('aria-checked', String(sw.getAttribute('aria-checked') !== 'true')));
+  }
+</script>
 </body></html>

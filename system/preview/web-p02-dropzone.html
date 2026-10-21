@@ -147,6 +147,34 @@
     display: grid; place-items: center;
   }
   .upload-row .x:hover { background: var(--component-bg-hover); color: var(--text); }
+  .note code { font-family: var(--font-mono); color: var(--yellow-text-secondary); font-size: 11.5px; }
+  /* Shipped inline dropzone (app.put.io ui/Dropzone) */
+  .dz { border: 1px dashed var(--border); background: var(--app-bg); border-radius: var(--radius-sm); padding: 32px 8px; gap: 8px; transition: none; }
+  .dz:hover { border-color: var(--border); }
+  .dz.focus { border-color: var(--border-hover); }
+  .dz.active, .dz.reject { border-style: solid; background: var(--component-bg-active); }
+  .dz.active { border-color: var(--green-border); }
+  .dz.reject { border-color: var(--red-border); }
+  .dz i, .dz.active i, .dz.reject i { font-size: 48px; color: var(--text); }
+  .dz .sub { font-size: 14px; }
+  .dz .sel { color: var(--text); }
+  .dz .cap { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-secondary); }
+  /* Shipped full-screen layer (FullScreenDropzone) */
+  .fs-overlay .layer { position: absolute; inset: 0; padding: 32px; background: color-mix(in srgb, var(--component-bg-active) 75%, transparent); }
+  .fs-overlay .frame { height: 100%; box-sizing: border-box; border: 1px dashed var(--border); border-radius: var(--radius-sm); background: var(--component-bg-active); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+  .fs-overlay .frame i { font-size: 64px; color: var(--text); }
+  .fs-overlay .frame .ttl { font-size: 24px; color: var(--text); }
+  /* After drop, a compact copy of the upload task */
+  .upload-list { width: 300px; padding: 12px 16px; border-radius: var(--radius-sm); background: var(--lo-contrast); }
+  .up-hd { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .upload-row { grid-template-columns: 12px 1fr 20px; gap: 8px; align-items: start; padding: 12px 0; border-top: 1px solid var(--list-item-border); }
+  .up-hd + .upload-row { border-top: 0; }
+  .upload-row i.ft { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .upload-row .nm { font-size: 12px; white-space: normal; word-break: break-word; margin-bottom: 4px; }
+  .upload-row .meta { font-family: var(--font-sans); font-size: 12px; text-align: left; }
+  .donut { width: 20px; height: 20px; border-radius: 50%; background: conic-gradient(var(--green-solid) var(--v), var(--border) 0); -webkit-mask: radial-gradient(circle, transparent 5px, #000 5.5px); mask: radial-gradient(circle, transparent 5px, #000 5.5px); }
+  .donut.paused { background: conic-gradient(var(--solid) var(--v), var(--border) 0); }
+  .spin { width: 16px; height: 16px; box-sizing: border-box; border-radius: 50%; border: 2px solid color-mix(in srgb, var(--text) 12.5%, transparent); border-top-color: var(--text); }
 </style></head>
 <body>
 <div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat"><b>Web</b> (www / app / auth). The full design system: our component library and the <b>components.css</b> recipe. This is the one tier where the recipe is the contract, native tiers take the tokens and nothing else.</span><span class="ttok">--yellow-solid · --radius-lg · --dur-fast · --ease-out</span></div>
@@ -154,37 +182,33 @@
 
   <div class="head">
     <span class="ix">01</span>
-    <span class="t">Inline dropzone: three states</span>
+    <span class="t">Inline dropzone: four states</span>
     <span class="n">Dropzone · react-dropzone</span>
   </div>
   <div class="note">
-    Dashed-border dropzone for embedded upload contexts (settings → upload avatar, new transfer modal). <b>Idle</b> → neutral. <b>Drag accept</b> → yellow border + tinted bg.<br><br>
-      <b>Drag reject</b> → red border + tinted bg. Always shows the "or select" link as a click target.
+    The Upload files tab of New transfer. 1px dashed <code>--border</code> on <code>--app-bg</code>, radius 4. Dragging goes solid on <code>--component-bg-active</code>; the border says accept (green) or reject (red). The copy never changes.
   </div>
 
   <div class="grid">
     <div class="dz">
-      <i class="ph ph-cloud-arrow-up"></i>
-      <div class="ttl">Drag and drop, or select files</div>
-      <div class="sub">Any file type, up to 100 GB each. <a>Browse…</a></div>
+      <i class="ph-fill ph-cloud-arrow-up"></i>
+      <div class="sub">Drag and drop, or <span class="sel">select files.</span></div>
+      <div class="cap">idle</div>
     </div>
-
+    <div class="dz focus">
+      <i class="ph-fill ph-cloud-arrow-up"></i>
+      <div class="sub">Drag and drop, or <span class="sel">select files.</span></div>
+      <div class="cap">focused</div>
+    </div>
     <div class="dz active">
       <i class="ph-fill ph-cloud-arrow-up"></i>
-      <div class="ttl">Drop to upload</div>
-      <div class="sub">3 files · 4.8 GB</div>
+      <div class="sub">Drag and drop, or <span class="sel">select files.</span></div>
+      <div class="cap">drag accept</div>
     </div>
-
     <div class="dz reject">
-      <i class="ph ph-cloud-slash"></i>
-      <div class="ttl">Can't upload that</div>
-      <div class="sub">Files larger than 100 GB aren't supported. Try a magnet link instead.</div>
-    </div>
-
-    <div class="dz">
-      <i class="ph ph-magnet-straight"></i>
-      <div class="ttl">Paste a magnet or URL</div>
-      <div class="sub">Drag a torrent file, or paste a link with <code style="font-family:var(--font-mono);color:var(--yellow-text-secondary);font-size:11.5px;">⌘V</code>.</div>
+      <i class="ph-fill ph-cloud-arrow-up"></i>
+      <div class="sub">Drag and drop, or <span class="sel">select files.</span></div>
+      <div class="cap">drag reject</div>
     </div>
   </div>
 
@@ -194,56 +218,45 @@
     <span class="t">Full-screen overlay: drag-anywhere</span>
   </div>
   <div class="note">
-    Triggered when the user drags files <em>anywhere</em> in the app, not just over a dropzone. Yellow-tinted scrim with a 3px dashed border, big cloud glyph centered.<br><br>
-      The underlying UI dims but stays visible through the backdrop blur.
+    Dragging files anywhere in the app fades in a <code>--component-bg-active</code> layer at 75% with a dashed inner frame. Drop uploads to the default download folder, or the current folder if that setting is on.
   </div>
 
   <div class="fs-overlay">
     <div class="ghost-page"></div>
-    <div class="scrim">
-      <i class="ph-fill ph-cloud-arrow-up"></i>
-      <div class="ttl">Drop anywhere to upload</div>
-      <div class="sub">Files land in <code style="font-family:var(--font-mono);color:var(--yellow-text-secondary);font-size:11.5px;">/Films/2024/Q1</code></div>
+    <div class="layer">
+      <div class="frame">
+        <i class="ph-fill ph-cloud-arrow-up"></i>
+        <div class="ttl">Drop your files to upload</div>
+      </div>
     </div>
   </div>
 
   <!-- Upload progress -->
   <div class="head" style="margin-top: 8px;">
     <span class="ix">03</span>
-    <span class="t">Upload progress: after drop</span>
+    <span class="t">After drop: the upload task</span>
   </div>
   <div class="note">
-    Once the upload starts, the dropzone collapses into a list of rows. Each row shows file glyph, name, progress bar, percent / rate, and a cancel button.<br><br>
-      Completed rows turn green; failed turn red and keep their cancel as a "remove" affordance.
+    Dropped files go to the task dock as one Uploading card, a row per file. Full states live on Tasks. app.put.io draws these icons from its flaticon font.
   </div>
 
   <div class="upload-list">
+    <div class="up-hd"><span class="spin" aria-hidden="true"></span>Uploading...</div>
     <div class="upload-row">
-      <i class="ph ph-file-video ft"></i>
+      <i class="ph-fill ph-file-video ft"></i>
       <div class="body">
-        <div class="nm">Dune.Part.Two.2024.1080p.WEB-DL.x264-GROUP.mkv</div>
-        <div class="bar"><div style="width: 64%"></div></div>
+        <div class="nm">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div>
+        <div class="meta">3 GB</div>
       </div>
-      <div class="meta">2.18 GB · 18 MB/s</div>
-      <button class="x" aria-label="Remove from queue"><i class="ph ph-x" aria-hidden="true"></i></button>
+      <span class="donut" role="img" style="--v: 64%;" aria-label="64%"></span>
     </div>
-    <div class="upload-row done">
-      <i class="ph ph-image ft image"></i>
+    <div class="upload-row">
+      <i class="ph-fill ph-image ft"></i>
       <div class="body">
-        <div class="nm">tears_of_steel-poster.jpg</div>
-        <div class="bar"><div style="width: 100%"></div></div>
+        <div class="nm">IMG_4392.HEIC</div>
+        <div class="meta">Upload paused.</div>
       </div>
-      <div class="meta">DONE</div>
-      <button class="x" aria-label="Remove from queue"><i class="ph ph-x" aria-hidden="true"></i></button>
-    </div>
-    <div class="upload-row failed">
-      <i class="ph ph-file-zip ft archive"></i>
-      <div class="body">
-        <div class="nm">archive-2024.zip</div>
-        <div class="bar"><div style="width: 42%"></div></div>
-      </div>
-      <div class="meta">FAILED · TIMEOUT</div>
-      <button class="x" aria-label="Remove from queue"><i class="ph ph-x" aria-hidden="true"></i></button>
+      <span class="donut paused" role="img" style="--v: 30%;" aria-label="30%"></span>
     </div>
   </div>
 
