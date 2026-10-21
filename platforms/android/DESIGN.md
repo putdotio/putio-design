@@ -162,7 +162,8 @@ to 24dp on Android, 51x31pt with a full-height knob and no outline on iOS.
 
 Type is Material's default scale in Roboto: no GT America, no Berkeley Mono.
 Subheads are `titleSmall` in `primary`. The player's elapsed and duration labels
-use the system monospace. Android TV type is in [Android TV](#android-tv).
+use the system monospace: drift from the Berkeley Mono rule, documented as
+shipped. Android TV type is in [Android TV](#android-tv).
 
 File icons are yellow Phosphor fill glyphs for every type; the icon family is a
 cross-tier rule, so Material Symbols stay out of file rows. When the API kind

@@ -141,7 +141,7 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 ### TV
 
 - TV is list-first and focus-first: a file browser, not a poster wall. TV repos consume the generic tokens and own their bindings.
-- Surfaces are solid token colours, no blur or translucency. Focus is a fill: rows go to `--component-bg-active`; web TV buttons step fill and border at `tv.focus.borderWidth` (`3px`). Values live in `tv.focus.row.*` and `tv.focus.control.*`. Roku dialog buttons are borderless and follow their variant.
+- Surfaces are solid token colours, no blur or translucency. Focus is a fill: rows go to `--component-bg-active`; web TV buttons step fill and border at `--border-width` (1px); `tv.focus.borderWidth` (3px) is unused. Values live in `tv.focus.row.*` and `tv.focus.control.*`. Roku dialog buttons are borderless and follow their variant.
 - Navigation is a Home hub pushing full screens; no tab bar. Menus are centred modals.
 - These rules bind every TV app. tvOS and Android TV ship one React Native app that draws the same fill with the system lift off.
 - The `tv` token group (type, spacing, overscan, radius, focus, z) is adapter data, absent from web CSS: cite it by graph path, never `--tv-*`. Overscan multiplies `tv.overscan.x` by width and `tv.overscan.y` by height. `tv.z.overlay` sits above `tv.z.toast`, the reverse of web.

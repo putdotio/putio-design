@@ -147,7 +147,7 @@ Map through the manifest; a guessed name produces a missing glyph.
 | --------------- | ------------------------------------------------------------------------------------------ |
 | `primary`       | browse, navigation, settings, all file types. `iconColor` on `ListItemData` defaults to it |
 | `primary`       | history complete and warning, so semantic states keep meaning                              |
-| `danger`        | `color.red.dark.solid`                                                                     | history error icons |
+| `danger`        | history error icons (`color.red.dark.solid`)                                               |
 | `textMuted`     | incidental history, resume eye                                                             |
 | white, untinted | player controls, because they sit on video                                                 |
 
