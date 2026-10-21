@@ -135,7 +135,7 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 - Copy: “Sign in”, “Sign up”, and “That username or password doesn't look right.” followed by a “Reset your password” link.
 - References: `web-s06-auth`, `web-p00c-auth-signin`, `web-p00d-auth-signup`, `web-p00e-auth-2fa`.
 - One-time codes are one `.otp-input` (`inputmode="numeric"`, `autocomplete="one-time-code"`, `maxlength="6"`, `aria-invalid`) shown through two `.otp-group`s, one `.otp-separator`, and six `.otp-slot`s; script syncs slot text and `filled`/`active`, and maps a clicked slot to the input selection.
-- Editing an invalid code clears the error; retry waits for six digits. `data-state="verifying"` disables the input, keeps the digits, and announces through a polite live region. `data-state="success"` keeps the digits read-only, announces continuation in a `role="status"` callout, and shows no further action; the consumer owns navigation. auth.put.io ships a disabled “Verified” button and no announcement: drift from this rule.
+- Editing an invalid code clears the error; retry waits for six digits. `data-state="verifying"` disables the input, keeps the digits, and announces through a polite live region. `data-state="success"` keeps the digits read-only, announces continuation in a `role="status"` callout, and shows no further action; the consumer owns navigation. auth.put.io disables the button, relabels it “Verified”, and announces that through a visually hidden status region.
 - No recovery-code action until a consumer owns the route. Groups own the responsive width, so the control fits narrow cards without scrolling.
 
 ### TV
