@@ -1049,6 +1049,7 @@ test.describe("design.put.io static guide", () => {
     const submit = card.locator("button.btn-primary");
     await expect(submit).toHaveText("Verified");
     await expect(submit).toBeDisabled();
+    await expect(card.getByRole("status")).toHaveText("Verified");
 
     await otp.click({ position: { x: 12, y: 12 } });
     await expect(input).not.toBeFocused();
