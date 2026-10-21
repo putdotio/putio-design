@@ -154,14 +154,15 @@ const groups: Array<{
   styles: Array<Record<string, string | number>>;
 }> = [];
 for (const [group, name, selector] of STYLES) {
-  const body = new RegExp(
-    `^${selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} \\{([^}]*)\\}`,
-    "m",
-  ).exec(siteCss)?.[1];
+  const body = new RegExp(`^${selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} \\{([^}]*)\\}`, "m")
+    .exec(siteCss)?.[1]
+    ?.replace(/\/\*[\s\S]*?\*\//g, "");
   if (!body) throw new Error(`system/tokens.css: no "${selector}" rule`);
+  const raw = (prop: string): string | undefined =>
+    new RegExp(`(?:^|;)\\s*${prop}:\\s*([^;]+);`).exec(body)?.[1].trim();
   const decl = (prop: string): string | undefined => {
-    const m = new RegExp(`(?:^|;)\\s*${prop}:\\s*([^;]+);`).exec(body);
-    return m ? resolve(m[1].replace(/\/\*.*?\*\//g, "")) : undefined;
+    const value = raw(prop);
+    return value === undefined ? undefined : resolve(value);
   };
   const style: Record<string, string | number> = {
     name,
@@ -173,7 +174,7 @@ for (const [group, name, selector] of STYLES) {
   style.fontWeight = Number(decl("font-weight") ?? tokenValue.get("fw-regular"));
   const tracking = decl("letter-spacing");
   if (tracking) style.letterSpacing = tracking;
-  const family = decl("font-family")?.includes("display") ? "display" : "sans";
+  const family = raw("font-family")?.includes("--font-display") ? "display" : "sans";
   let g = groups.find((x) => x.name === group);
   if (!g) groups.push((g = { name: group, family, styles: [] }));
   if (family !== g.family) style.family = family;
