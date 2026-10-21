@@ -215,8 +215,7 @@ Dialog buttons are full-width 78px bars with no border, set by
 Player controls focus on a grey disc bitmap; the focused progress bar thickens
 to 12px on `panelBorder`.
 
-Of the four TV tiers, Roku is closest to tv.put.io and furthest from tvOS,
-which lifts.
+Every TV app draws the same fill; Roku's comes from a focus bitmap.
 
 ## Content
 

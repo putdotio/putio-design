@@ -142,9 +142,9 @@ where M3 leaves the choice open.
 
 ## The switch is the proof
 
-The Android and iOS switches both read `--yellow-solid` when on, and each keeps
-its platform's geometry: 52x32dp with a 2dp outline and a handle that grows 16
-to 24dp on Android, 51x31pt with a full-height knob and no outline on iOS.
+The Android switch reads `--yellow-solid` when on: 52x32dp with a 2dp outline
+and a handle that grows 16 to 24dp. The shipped iOS `UISwitch` sets no tint, so
+it draws system green: drift, documented in the Apple contract.
 
 ## Do not translate iOS
 
@@ -178,8 +178,8 @@ one 1080p pixel and the layout matches Apple TV's 1920-wide canvas.
 
 Colours come from the app's own `@putdotio/colors` (Radix gray dark), keyed by
 the token names; nothing is generated from the token graph. The app draws its
-own components, so Android TV is drift from the tier-2 binding, documented as
-shipped, not a conforming tier-2 app. Type is GT America,
+own components and uses Lucide icons, so Android TV is drift from the tier-2
+binding and the Phosphor rule, documented as shipped. Type is GT America,
 regular and medium: heading 64, label 48, body 36, caption 32, small 24. No
 mono in product UI. Icons are Lucide, stroke 2, in `--yellow-solid` on rows.
 

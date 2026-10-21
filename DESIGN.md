@@ -70,7 +70,7 @@ A web mock is never a native spec. Every surface binds at one tier, and every ca
 
 - **Tier 0: Foundations.** The token graph. Values only; binds every tier.
 - **Tier 1: www · app · auth.** The full system: tokens plus the `system/components.css` recipes, which are the contract here only.
-- **Tier 2: iOS · iPadOS · tvOS · watchOS · Android · Android TV.** Tokens only. Components and pages come from the platform's guidelines; cards show how a stock control takes put.io tokens. The shipped tvOS and Android TV app draws its own components: documented drift.
+- **Tier 2: iOS · iPadOS · tvOS · watchOS · Android · Android TV.** Tokens only. Components and pages come from the platform's guidelines; cards show how a stock control takes put.io tokens. The shipped tvOS and Android TV app draws its own components with Lucide icons: documented drift.
 - **Tier 3: Roku.** Tier 2, plus put.io conventions in custom SceneGraph components.
 - **Tier 4: tv.put.io · Tizen · webOS.** The web system, restrained to a calm, list-first 10-foot interface.
 
@@ -132,10 +132,10 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 ### Auth
 
 - A fluid column up to `340px`, the `36px` field recipe, a `30.33px` wordmark box (26px ink × 7/6), centred `19px`/500 headings, and a centred two-line prompt footer.
-- Copy: “Sign in”, “Sign up”, and “That username or password doesn't look right” with no terminal punctuation.
+- Copy: “Sign in”, “Sign up”, and “That username or password doesn't look right.” followed by a “Reset your password” link.
 - References: `web-s06-auth`, `web-p00c-auth-signin`, `web-p00d-auth-signup`, `web-p00e-auth-2fa`.
 - One-time codes are one `.otp-input` (`inputmode="numeric"`, `autocomplete="one-time-code"`, `maxlength="6"`, `aria-invalid`) shown through two `.otp-group`s, one `.otp-separator`, and six `.otp-slot`s; script syncs slot text and `filled`/`active`, and maps a clicked slot to the input selection.
-- Editing an invalid code clears the error; retry waits for six digits. `data-state="verifying"` disables the input, keeps the digits, and announces through a polite live region. `data-state="success"` keeps the digits read-only, announces continuation in a `role="status"` callout, and shows no further action; the consumer owns navigation.
+- Editing an invalid code clears the error; retry waits for six digits. `data-state="verifying"` disables the input, keeps the digits, and announces through a polite live region. `data-state="success"` keeps the digits read-only, announces continuation in a `role="status"` callout, and shows no further action; the consumer owns navigation. auth.put.io ships a disabled “Verified” button and no announcement: drift from this rule.
 - No recovery-code action until a consumer owns the route. Groups own the responsive width, so the control fits narrow cards without scrolling.
 
 ### TV
