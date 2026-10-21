@@ -57,7 +57,7 @@ page: the next publish overwrites page edits.
 [`scripts/build-artifact.ts`](../scripts/build-artifact.ts) builds its
 `project/` files into `artifact/out/` from `dist/tokens.flat.json`, the guide
 CSS, and `system/preview/`, plus the hand-written brand book, cover, and asset
-notes in `artifact/project/`. The brand book stays a one-screen summary that
+notes in `artifact/project/`. The brand book stays a few lines that
 links `DESIGN.md` and the platform contracts.
 
 - The artifact can't load `static.put.io`, so its previews render in Inter and

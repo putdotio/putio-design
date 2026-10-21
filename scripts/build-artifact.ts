@@ -328,7 +328,7 @@ for (const c of parsed) {
   const doc = c.platform ? `platforms/${PLATFORMS[c.platform][1]}/DESIGN.md` : "DESIGN.md";
   write(
     `components/${component}/README.md`,
-    `# ${component}\n\n${title[0].toUpperCase()}${title.slice(1)}.\n\nRules: [${doc}](${repo}/${doc}). Source: [system/preview/${c.file}](${repo}/system/preview/${c.file}).\n`,
+    `# ${component}\n\n${/^[a-z][A-Z]/.test(title) ? title : title[0].toUpperCase() + title.slice(1)}.\n\n- Rules: [${doc}](${repo}/${doc})\n- Source: [${c.file}](${repo}/system/preview/${c.file})\n`,
   );
 }
 
