@@ -41,19 +41,16 @@ typography:
 
 ## Binding
 
-Tier 3. Tokens inherit exactly as tier 2. Roku differs in one way: SceneGraph
-ships too few nodes to build this app from, so put.io builds custom components.
-That permission is narrow. Custom components use graph values and the shared TV
-row anatomy. A Roku screen a user could not recognise from their Apple TV has
-used it wrongly.
-
-Tier definitions live in [Binding Tiers](../../DESIGN.md#binding-tiers).
+Tier 3: tokens inherit exactly as on tier 2, and put.io builds custom SceneGraph
+components where the stock nodes cannot carry the app. Custom components use
+graph values and the shared TV row anatomy, so a Roku screen reads as the same
+product as the user's Apple TV. Tier definitions live in
+[Binding Tiers](../../DESIGN.md#binding-tiers).
 
 ## Geometry
 
-Authored at FHD 1920x1080, not HD. Every position passes through `uiSnap()`,
-which rounds to 3. The grid is why an FHD layout lands on whole pixels when the
-device downscales.
+Authored at FHD 1920x1080. Every position passes through `uiSnap()`, which
+rounds to 3, so an FHD layout lands on whole pixels when the device downscales.
 
 | Value         | Source                               | Number      |
 | ------------- | ------------------------------------ | ----------- |
@@ -64,8 +61,8 @@ device downscales.
 | Border        | `uiBorderWidth`                      | 3           |
 | Shadow offset | `uiShadowOffset`                     | 12          |
 
-Page margin is a constant, not an overscan percentage. Do not compute Roku's
-safe area from `tv.overscan.*`.
+The page margin is a constant; Roku's safe area never comes from
+`tv.overscan.*`.
 
 Borders are 3px. `roku-ui-metrics.test.ts` fails any dialog carrying
 `width="1"` or `height="1"`, because a 1px border disappears on a real panel
@@ -78,57 +75,55 @@ never reads `--radius-tv`.
 ## Type
 
 `Typography.brs` names a Roku built-in behind every role, so a build packaged
-without the licensed faces renders as it did before GT America landed.
+without the licensed faces renders with the built-ins.
 
 Each role matches the size of the built-in it replaces. Changing a size is a
-layout change, not a type change: it reflows every Label height, wrap budget and
-row baseline already built against it.
+layout change: it reflows every Label height, wrap budget and row baseline
+already built against it.
 
-No mono. Same as every TV tier. Numerics are GT America, and per the system
-contract Roku gets proportional figures because SceneGraph `Font` accepts only
-`uri` and `size`. Budget numeric columns for reflow.
+Roku gets proportional figures, as [Typography](../../DESIGN.md#typography)
+describes. Budget numeric columns for reflow.
 
 ## Colour
 
 `scripts/generate-roku-design.ts` reads `@putdotio/design/tokens`, converts each
-value to `0xRRGGBBAA`, and emits `source/DesignTokens.brs`. The channel holds no
-hex literals. Read through `designTokenColor(name)` or
-`setDialogNodeColor(node, "<token>")`.
+value to `0xRRGGBBAA`, and emits `source/DesignTokens.brs`. Read colours through
+`designTokenColor(name)` or `setDialogNodeColor(node, "<token>")`.
 
 Adding a colour means adding a row to the generator's map. A missing key is a
-build error, not a silent fallback.
+build error.
 
-| Roku name                          | DTCG key                               | Used for                                                         |
-| ---------------------------------- | -------------------------------------- | ---------------------------------------------------------------- |
-| `primary`, `primaryPressed`        | `color.brand.yellow`                   | file and navigation glyphs, progress fill, focused audio control |
-| `appBackground`                    | `color.neutral.dark.bg`                | channel canvas                                                   |
-| `appBackgroundWash`, `transparent` | `surface.dark.listItemBg`              | resting list-item background                                     |
-| `surface`, `secondary`             | `color.neutral.dark.componentBg`       | buttons, keycaps, panels                                         |
-| `focus`, `buttonFocus`             | `color.neutral.dark.componentBgActive` | FocusBackground fill                                             |
-| `border`                           | `color.neutral.dark.border`            | resting 3px edges                                                |
-| `borderHover`, `panelBorder`       | `color.neutral.dark.borderHover`       | focused edge, dialog chrome                                      |
-| `text`                             | `color.neutral.dark.text`              | row titles, dialog body                                          |
-| `textMuted`                        | `color.neutral.dark.textSecondary`     | sublines, incidental history, watched eye                        |
-| `textInverse`                      | `component.button.primary.foreground`  | label on a yellow fill                                           |
-| `disabledText`                     | `color.neutral.dark.solid`             | unavailable rows and actions                                     |
-| `danger`                           | `color.red.dark.solid`                 | error events, destructive confirmation                           |
-| `dangerFocused`                    | `color.red.dark.solidHover`            | destructive action while focused                                 |
-| `scrim`                            | `surface.dark.overlayFull`             | dialog backdrop                                                  |
-| `shadow`                           | `surface.dark.overlayInline`           | 12px dialog shadow                                               |
+| Roku name                               | DTCG key                               | Used for                                                         |
+| --------------------------------------- | -------------------------------------- | ---------------------------------------------------------------- |
+| `primary`, `primaryPressed`             | `color.brand.yellow`                   | file and navigation glyphs, progress fill, focused audio control |
+| `appBackground`                         | `color.neutral.dark.bg`                | channel canvas                                                   |
+| `appBackgroundWash`, `transparent`      | `surface.dark.listItemBg`              | resting list-item background                                     |
+| `surface`, `secondary`, `buttonSurface` | `color.neutral.dark.componentBg`       | buttons, keycaps, panels                                         |
+| `focus`, `buttonFocus`                  | `color.neutral.dark.componentBgActive` | FocusBackground fill                                             |
+| `border`                                | `color.neutral.dark.border`            | resting 3px edges                                                |
+| `borderHover`, `panelBorder`            | `color.neutral.dark.borderHover`       | focused edge, dialog chrome                                      |
+| `text`                                  | `color.neutral.dark.text`              | row titles, dialog body                                          |
+| `textMuted`                             | `color.neutral.dark.textSecondary`     | sublines, incidental history, watched eye                        |
+| `textInverse`                           | `component.button.primary.foreground`  | label on a yellow fill                                           |
+| `textOnVideo`                           | `tv.video.textOnVideo`                 | text over video                                                  |
+| `disabledText`                          | `color.neutral.dark.solid`             | unavailable rows and actions                                     |
+| `danger`                                | `color.red.dark.solid`                 | error events, destructive confirmation                           |
+| `dangerFocused`                         | `color.red.dark.solidHover`            | destructive action while focused                                 |
+| `scrim`                                 | `surface.dark.overlayFull`             | dialog backdrop                                                  |
+| `shadow`                                | `surface.dark.overlayInline`           | 12px dialog shadow                                               |
 
-Two aliases read wrong: `primaryPressed` is the same yellow as `primary`, and
-`transparent` maps to the list-item background rather than true transparency.
-Read the map, do not infer from the name.
+Two names mislead: `primaryPressed` is the same yellow as `primary`, and
+`transparent` maps to the list-item background. Read the map, not the name.
 
 ## Icons
 
 Phosphor, generated offline from the pinned `@phosphor-icons/core` into white
-128x128 PNG templates, recoloured at runtime with `blendColor`. Never bake
-colour into an asset. `loadDisplayMode="scaleToFit"` keeps one 128px source
-crisp from 22 to 128px.
+128x128 PNG templates and recoloured at runtime with `blendColor`, so assets
+carry no colour. `loadDisplayMode="scaleToFit"` keeps one 128px source crisp
+from 22 to 128px.
 
-Asset filename is not the Phosphor name. `config/phosphor-icons.json` maps
-`asset` to a Phosphor `name` and `weight`:
+Asset filenames differ from Phosphor names. `config/phosphor-icons.json` maps
+each `asset` to a Phosphor `name` and `weight`:
 
 | Roku asset     | Phosphor name             | Weight  |
 | -------------- | ------------------------- | ------- |
@@ -136,7 +131,7 @@ Asset filename is not the Phosphor name. `config/phosphor-icons.json` maps
 | `skip-back`    | `arrow-counter-clockwise` | regular |
 | `media-filter` | `funnel`                  | regular |
 
-Map through the manifest. Guessing produces a missing glyph.
+Map through the manifest; a guessed name produces a missing glyph.
 
 | Colour          | Applies to                                                                                 |
 | --------------- | ------------------------------------------------------------------------------------------ |
@@ -148,9 +143,9 @@ Map through the manifest. Guessing produces a missing glyph.
 
 Fill weight for filled, active and transport glyphs. Regular otherwise.
 
-`pnpm roku icons` regenerates from the manifest and prunes anything unlisted.
-`pnpm roku check-roku-icons` runs in `pnpm verify` and fails on PNG, version or
-licence drift. Do not hand-edit `images/icons/*.png`.
+`pnpm roku icons` regenerates `images/icons/*.png` from the manifest and prunes
+anything unlisted. `pnpm roku check-roku-icons` runs in `pnpm verify` and fails
+on PNG, version or licence drift.
 
 Brand artwork, channel posters, splash art, loaders and focus art stay outside
 this system.
@@ -163,8 +158,8 @@ Use Roku's: `Overhang`, `Dialog`, `Keyboard`, `MiniKeyboard`, `Video`,
 Build custom, from tokens: `ListItem`, `FocusBackground`, `UiMetrics.brs`,
 `Typography.brs`, `DialogStyle.brs`.
 
-`DialogStyle.brs` imports after `UiMetrics.brs`. The metrics test asserts that
-order on every consumer, because DialogStyle reads the grid helpers at load.
+`DialogStyle.brs` imports after `UiMetrics.brs`, because DialogStyle reads the
+grid helpers at load. The metrics test asserts that order on every consumer.
 
 ### ListItem
 
@@ -181,58 +176,51 @@ All three: inline content at `translation="[35,60]"`, `itemSpacings="28"`,
 
 Value-free `FileListItem` and `HistoryListItem` rows use
 `listItemMainTextWidth(rowWidth)` = rowWidth − 226, floored at 400: 1490 on a
-1716 row and 734 on search's 960 rows. A value-bearing `ListItem` instead caps
-its title before the value slot at rowWidth − 568, so the two regions do not
-overlap.
+1716 row and 734 on search's 960 rows. A value-bearing `ListItem` caps its
+title before the value slot at rowWidth − 568, so the two regions stay apart.
 
 Settings rows set `valueAlign="right"`, which moves the description string
-into the value slot. State is that value string; OK cycles it. No switches.
+into the value slot. State is that value string, and OK cycles it.
 
 ### Focus
 
-A `FocusBackground` node behind the row, toggled by `itemHasFocus`. Fill is
+A `FocusBackground` node behind the row, toggled by `itemHasFocus`. Its fill is
 `focus`, tinting a flat nine-patch; the row has no edge. `uiBorderWidth()` is
-for dialogs, TrackMenu and the header divider. No scale, no elevation:
-SceneGraph lists have no z-axis.
+for dialogs, TrackMenu and the header divider. SceneGraph lists have no z-axis,
+so focus has no scale and no elevation.
 
 The row fills are `tv.focus.row.*`, the same pair web TV reads. Dialog
-buttons carry no border and keep `applyDialogButtonState`: primary steps to
+buttons carry no border and use `applyDialogButtonState`: primary steps to
 `primary` with `textInverse`, secondary to `buttonFocus`, danger to
-`dangerFocused`. They do not read `tv.focus.control.*`.
+`dangerFocused`. Dialog buttons skip `tv.focus.control.*`.
 
-Closest of the four TV tiers to tv.put.io. Furthest from tvOS, which lifts.
+Of the four TV tiers, Roku is closest to tv.put.io and furthest from tvOS,
+which lifts.
 
 ## Content
 
-Raw filenames, always. `The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv`
-is the title. No parsing, no posters, no thumbnails.
+Raw filenames, always: `The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv`
+is the title, as [Content and Icons](../../DESIGN.md#content-and-icons)
+requires.
 
-A TV app is a file browser, not a poster wall. `PosterGrid` and `RowList` are
-built for catalogue apps with artwork: they show fewer items, truncate longer
-names, and turn a straight D-pad path into one that crosses the screen.
+Browse is a list. `PosterGrid` and `RowList` are built for catalogue apps with
+artwork: they show fewer items, truncate longer names, and turn a straight
+D-pad path into one that crosses the screen.
 
 Remote hints stay on screen (OK, star, Back) because Roku remotes vary by model.
 
-Destructive dialogs name the object and the consequence in the body, never in
-the row label. Cancel takes focus first.
-
-## Style
-
-House style: one fact per line, tables over paragraphs, no em dashes.
+Destructive dialogs name the object and the consequence in the body; the row
+label stays neutral. Cancel takes focus first.
 
 ## Don't
 
 - Author at 1280x720. The channel is FHD.
-- Write a hex literal into a `.brs` file.
-- Use a 1px border.
-- Read `--radius-tv`.
+- Write a hex literal into a `.brs` file; read the generated tokens.
+- Use a 1px border. Borders are 3px.
+- Read `--radius-tv`. Rounding comes from the nine-patch.
 - Build a custom modal. `Dialog` owns the remote, back button and focus containment.
 - Hand-build text entry. Use `Keyboard`.
 - Use a Phosphor name where the manifest expects an asset name.
-- Restyle `MiniKeyboard` or blend its focus. Search only blends its lists.
-- Show more than `transfer_completed` and `file_shared` on the History screen.
-
-## Open
-
-19 captures in `.vref/screenshots/roku-720p/` are unread. Every value here is
-checked against repo constants, not against what renders.
+- Restyle `MiniKeyboard` or blend its focus. Search blends only its lists.
+- Show events beyond `transfer_completed` and `file_shared` on the History screen.
+- Hand-edit `images/icons/*.png`; regenerate them.

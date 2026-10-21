@@ -2,7 +2,7 @@ put.io is a quiet, content-agnostic file browser. Dark by default.
 
 - Show filenames exactly as stored.
 - Neutrals do the work. `--yellow-solid` is the brand fill, one primary per group.
-- GT America for UI; Berkeley Mono for numbers and filenames. TV has no mono.
+- GT America for UI; Berkeley Mono for numbers and filenames. TV product UI has no mono; debug overlays may use the system monospace.
 - Phosphor icons; file-type icons are yellow.
 - Lists and rows before cards.
 
