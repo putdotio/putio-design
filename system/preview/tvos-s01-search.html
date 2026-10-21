@@ -12,58 +12,79 @@
 <script src="./_resize.js" defer></script>
 <style>
 .tvfit{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left}
-.prop{margin:0 0 12px;padding:12px 16px;border:2px dashed var(--yellow-solid);border-radius:8px;font-size:15px;line-height:1.5;color:var(--text)}
-.tvos .q{font-size:56px;font-weight:var(--fw-medium);text-align:center;padding:8px 0 36px;color:var(--text)}
-.tvos .lk{display:flex;justify-content:center;gap:6px;padding-bottom:12px}
-.tvos .lk .c{width:56px;height:68px;border-radius:10px;display:grid;place-items:center;font-size:32px;color:var(--text-secondary)}
-.tvos .lk .c.focused{background:#fff;color:#000;transform:scale(1.12);box-shadow:0 16px 36px rgba(0,0,0,.5)}
-.tvos .lk .c.fn{width:auto;padding:0 22px;font-size:24px;letter-spacing:.04em}
-.tvos .reshead{font-size:28px;color:var(--text-secondary);padding:36px 34px 10px}
-</style></head>
+/* Shipped tvOS (putio-tv-native-legacy, react-native-tvos). Lucide outline glyphs
+   in the app; drawn here with the nearest Phosphor regular glyph. Focus is a fill
+   and border only: the app turns the system lift off. */
+.rn{position:absolute;inset:0;background:var(--app-bg);color:var(--text);font-family:var(--font-sans);display:flex;flex-direction:column}
+.rn-head{display:flex;align-items:flex-end;gap:24px;padding:54px 77px 32px;border-bottom:1px solid var(--line)}
+.rn-head img{height:48px}
+.rn-head .ttl{font-size:48px;line-height:1.2;font-weight:var(--fw-medium);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.rn-head .sp{flex:1}
+.rn-body{padding:32px 77px 0;display:flex;flex-direction:column;min-height:0}
+.rn-row{display:flex;align-items:center;gap:32px;padding:32px;border-radius:12px}
+.rn-row.f{background:var(--component-bg-active)}
+.rn-row > i.ic{font-size:48px;color:var(--yellow-solid);flex:0 0 auto}
+.rn-row .tx{flex:1;min-width:0}
+.rn-row .t1{font-size:36px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rn-row .t2{font-size:32px;line-height:1.2;color:var(--text-secondary);margin-top:4px}
+.rn-row .tr{margin-left:auto;font-size:36px;color:var(--text-secondary);flex:0 0 auto}
+.rn-row .tr.big{font-size:48px}
+.rn-row .val{margin-left:auto;font-size:32px;color:var(--text-secondary)}
+.rn-btn{display:inline-flex;align-items:center;gap:12px;padding:16px 32px;border-radius:12px;background:var(--component-bg);border:1px solid var(--border);font-size:32px;font-weight:var(--fw-medium);text-transform:uppercase;color:var(--text);white-space:nowrap}
+.rn-btn i{font-size:32px}
+.rn-btn.sm{padding:16px;font-size:24px}
+.rn-btn.sm i{font-size:24px}
+.rn-btn.f{background:var(--component-bg-active);border-color:var(--border-hover)}
+.rn-sec{font-size:32px;font-weight:var(--fw-medium);color:var(--text-secondary);padding:0 32px 16px}
+.rn-gap{height:64px;flex:0 0 auto}
+.rn-sw{flex:0 0 auto;margin-left:auto;width:70px;height:40px;border-radius:20px;background:var(--solid);position:relative}
+.rn-sw::after{content:"";position:absolute;top:0;left:0;width:40px;height:40px;border-radius:50%;background:#fff}
+.rn-sw.on{background:var(--green-solid)}
+.rn-sw.on::after{left:30px}
+.rn-field{flex:1;display:flex;align-items:center;gap:16px;padding:16px;border-radius:12px;background:var(--component-bg);border:1px solid var(--border);font-size:36px}
+.rn-field i{font-size:48px;color:var(--text-secondary)}
+.rn-field.f{background:var(--component-bg-active);border-color:var(--border-hover)}
+.rn-hist{display:flex;gap:16px;padding:24px 0 32px}
+.rn-hist .rn-btn{text-transform:none}
+.rn-dim{position:absolute;inset:0;background:var(--overlay-full)}
+.rn-modal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:480px;background:var(--app-bg);border:1px solid var(--line);border-radius:12px;padding:32px}
+.rn-modal .mt{font-size:36px;font-weight:var(--fw-medium);color:var(--text-secondary);padding-bottom:16px}
+.rn-modal .opt{display:flex;align-items:center;gap:16px;padding:16px;border-radius:12px;font-size:32px}
+.rn-modal .opt i{font-size:32px;color:var(--text-secondary)}
+.rn-modal .opt.f{background:var(--component-bg-active)}
+.rn-modal .opt.del.f{background:var(--red-solid)}
+</style>
+</head>
 <body>
-<div class="tierbar t2"><span class="tno">Tier 2</span><span class="twhat"><b>tvOS</b>: tokens only. Search is a <b>tab</b>, and typing happens on the system's <b>linear keyboard</b>: a single alphabet row the focus engine sweeps across, drawn and owned by tvOS (<code>UISearchController</code>). put.io supplies tint, surfaces, type and the yellow file icons.</span><span class="ttok">--yellow-solid · --app-bg · --component-bg-active · --radius-tv</span></div>
+<div class="tierbar t2"><span class="tno">Tier 2</span><span class="twhat"><b>tvOS</b>: tokens only. The shipped tvOS app is React Native (react-native-tvos): app-drawn rows and buttons, a native stack, no <code>TabView</code>. Focus is a <code>--component-bg-active</code> fill; the system lift is turned off.</span><span class="ttok">--component-bg · --component-bg-active · --border · --border-hover · --text-secondary · --red-solid</span></div>
 <div class="preview-shell">
-<div class="prop"><b>Native tvOS direction.</b> The product behaviour is shared across TV tiers; the presentation follows Apple's system search controls and the token graph.</div>
+
 <div>
-  <div class="label">The system keyboard is the screen</div>
-  <div class="note">tvOS search puts the <b>linear keyboard</b> at the top: one A-to-Z row plus space and delete, swept by the focus engine. The focused character is the system's light pill with its lift. put.io draws none of it.</div>
-  <div class="note">Recent keywords surface as the system's search <b>suggestions</b> under the keyboard, fed from the same <code>/config/search_history</code> store every tier reads. Results are the standard tvOS rows: raw filenames, yellow glyphs, watched eye.</div>
+  <div class="label">A field, recent keywords, the file list</div>
+  <div class="note">Search is a Home row that pushes a full screen. The field is app-drawn; selecting it opens the tvOS keyboard on a hidden <code>TextInput</code>. Empty field reads “Tap to start typing”.</div>
+  <div class="note">Up to five recent keywords sit under the field as buttons, newest first. Opening a result saves the keyword. <b>Settings</b> turns history off or clears it.</div>
+  <div class="note">Results reuse the Files list. Nothing found reads “No results found.”; loading reads “Searching...”.</div>
 </div>
 
 <div class="tvbox"><div class="tvfit">
-  <div class="tvos">
-    <div class="tvos-tabbar">
-      <span class="tvt search selected"><i class="ph-bold ph-magnifying-glass" aria-hidden="true"></i></span>
-      <span class="tvt">Files</span>
-      <span class="tvt">Activity</span>
-      <span class="tvt">Account</span>
-    </div>
-    <div class="q">e</div>
-    <div class="lk">
-      <span class="c fn">SPACE</span><span class="c fn">DELETE</span>
-    </div>
-    <div class="lk">
-      <span class="c">A</span><span class="c">B</span><span class="c">C</span><span class="c">D</span><span class="c">E</span><span class="c">F</span><span class="c">G</span><span class="c">H</span><span class="c">I</span><span class="c">J</span><span class="c">K</span><span class="c">L</span><span class="c">M</span><span class="c">N</span><span class="c">O</span><span class="c">P</span><span class="c">Q</span><span class="c">R</span><span class="c">S</span><span class="c">T</span><span class="c">U</span><span class="c">V</span><span class="c">W</span><span class="c">X</span><span class="c">Y</span><span class="c">Z</span>
-    </div>
-    <div class="reshead">3 results</div>
-    <div class="tvos-row"><i class="ph-fill ph-folder lead" aria-hidden="true"></i><div class="tx"><div class="t1">homework_answers_DONT_DELETE</div><div class="t2">12 items</div></div><i class="ph-bold ph-caret-right tr" aria-hidden="true"></i></div>
-    <div class="tvos-row focused"><i class="ph-fill ph-file-video lead" aria-hidden="true"></i><div class="tx"><div class="t1">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div><div class="t2">3.42 GB · 2 May 2026</div></div><i class="ph-fill ph-eye tr" aria-hidden="true"></i></div>
-    <div class="tvos-row"><i class="ph-fill ph-file-video lead" aria-hidden="true"></i><div class="tx"><div class="t1">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</div><div class="t2">1.20 GB · 2 May 2026</div></div></div>
+  <div class="rn">
+<div class="rn-body" style="padding-top:54px"><div style="display:flex;gap:16px;align-items:center"><div class="rn-field"><i class="ph ph-magnifying-glass"></i>seinfeld</div><span class="rn-btn sm"><i class="ph ph-gear"></i>Settings</span></div><div class="rn-hist"><span class="rn-btn sm"><i class="ph ph-clock-counter-clockwise"></i>seinfeld</span><span class="rn-btn sm"><i class="ph ph-clock-counter-clockwise"></i>the wire</span><span class="rn-btn sm"><i class="ph ph-clock-counter-clockwise"></i>ubuntu</span></div><div class="rn-row f"><i class="ph ph-film-strip ic"></i><div class="tx"><div class="t1">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</div><div class="t2">1.17 GB</div></div></div></div>
   </div>
 </div></div>
-<div class="cap"><b>Search · result focused</b>The result row is the single focused target. When focus returns to the keyboard, tvOS supplies its light pill and lift.</div>
+<div class="cap"><b>Search · result focused</b>Field, Settings, keyword buttons, results. Results never take preferred focus.</div>
 
-<div class="kv">
-  <div class="r"><span class="k">entry</span><span class="v">Search is a tab in the <code>TabView</code>, never a header button</span></div>
-  <div class="r"><span class="k">keyboard</span><span class="v">system linear keyboard via <code>UISearchController</code>. Dictation and iPhone remote-keyboard input come free and must not be blocked</span></div>
-  <div class="r"><span class="k">query</span><span class="v">keyword echoed at 56 medium, centred, above the keyboard</span></div>
-  <div class="r"><span class="k">history</span><span class="v">recent keywords as system search suggestions, from <code>/config/search_history</code>. Cleared from Account, as on every tier</span></div>
-  <div class="r"><span class="k">results</span><span class="v">standard tvOS rows under a <code>N results</code> caption: raw filename, size-and-date subline, folder chevron, watched eye</span></div>
-  <div class="r"><span class="k">empty</span><span class="v"><code>ContentUnavailableView.search</code> with the keyword. Not a custom layout</span></div>
-</div>
+<div class="tvbox"><div class="tvfit">
+  <div class="rn">
+<div class="rn-body" style="padding-top:54px"><div style="display:flex;gap:16px;align-items:center"><div class="rn-field"><i class="ph ph-magnifying-glass"></i>seinfeld</div><span class="rn-btn sm"><i class="ph ph-gear"></i>Settings</span></div><div class="rn-hist"><span class="rn-btn sm"><i class="ph ph-clock-counter-clockwise"></i>seinfeld</span><span class="rn-btn sm"><i class="ph ph-clock-counter-clockwise"></i>the wire</span><span class="rn-btn sm"><i class="ph ph-clock-counter-clockwise"></i>ubuntu</span></div></div><div class="rn-dim"></div><div class="rn-modal"><div class="mt">Search settings</div><div class="opt"><i class="ph ph-clock-counter-clockwise"></i>Disable search history</div><div class="opt del f"><i class="ph ph-backspace"></i>Clear search history</div></div>
+  </div>
+</div></div>
+<div class="cap"><b>Search settings · select modal</b>Dimmed overlay, 25% wide panel. The destructive option focuses on <code>--red-solid</code>.</div>
 
-<div class="note" style="margin-top:4px">Contract: <a href="https://github.com/putdotio/putio-design/blob/main/platforms/apple/DESIGN.md"><code>platforms/apple/DESIGN.md</code></a></div>
-<div class="dont"><b>Do not</b> draw a grid keyboard, restyle the linear one, or put a Search button in a header. The keyboard, its focus, dictation and the suggestion row are all <code>UISearchController</code>'s; replacing any of them breaks the Siri Remote's swipe-typing.</div>
+<div class="spec"><div class="cell"><div class="k">Field</div><div class="v">--component-bg</div><div class="d">focused --component-bg-active, 1px border</div></div><div class="cell"><div class="k">Field text</div><div class="v">36px</div><div class="d">keyword --text, placeholder --text-secondary</div></div><div class="cell"><div class="k">Keywords</div><div class="v">sm buttons</div><div class="d">24px, history glyph, not uppercased</div></div><div class="cell"><div class="k">History</div><div class="v">5 max</div><div class="d">put.io user config</div></div><div class="cell"><div class="k">Results</div><div class="v">Files rows</div><div class="d">size-only subline</div></div><div class="cell"><div class="k">Modal</div><div class="v">25% wide</div><div class="d">--app-bg, 1px --line, 12px radius</div></div></div>
+
+<div class="note" style="margin-top:4px">Contract: <a href="https://github.com/putdotio/putio-design/blob/main/platforms/apple/DESIGN.md"><code>platforms/apple/DESIGN.md</code></a>.</div>
+<div class="dont"><b>Do not</b> draw an inline keyboard. The system keyboard comes from the hidden input.</div>
+
 </div>
 <script>(function(){function f(){document.querySelectorAll('.tvbox').forEach(function(b){var e=b.querySelector('.tvfit');if(e)e.style.transform='scale('+(b.clientWidth/1920)+')';});}f();addEventListener('resize',f);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f);})();</script>
 </body></html>

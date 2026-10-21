@@ -134,6 +134,15 @@
   .urow .nm { font-size: var(--fs-base); color: var(--text); }
   .urow .nm small { display: block; margin-top: 2px; font-size: 12px; color: var(--text-secondary); }
   .urow .actions { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); }
+  .avi.size-20 { width: 20px; height: 20px; font-size: 9px; }
+  .avi.size-30 { width: 30px; height: 30px; font-size: 11px; }
+  .avi.size-60 { width: 60px; height: 60px; font-size: 20px; }
+  .avi.skel { background: var(--component-bg-active); color: transparent; }
+  .fcards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; max-width: 720px; }
+  .fcard { position: relative; display: flex; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--component-bg); }
+  .fcard .nm { font-size: var(--fs-base); font-weight: 500; color: var(--text); }
+  .fcard .nm small { display: block; font-weight: 400; font-size: var(--fs-sm); color: var(--text-secondary); }
+  .fcard .x { position: absolute; top: 0; right: 0; width: 20px; height: 20px; border: 0; background: transparent; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; border-radius: var(--radius); cursor: pointer; }
 </style></head>
 <body>
 <div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat"><b>Web</b> (www / app / auth). The full design system: our component library and the <b>components.css</b> recipe. This is the one tier where the recipe is the contract, native tiers take the tokens and nothing else.</span><span class="ttok">--avatar-fg · --avatar-fg-warm · --radius-lg · --avatar-yellow</span></div>
@@ -141,23 +150,25 @@
 
   <div class="head">
     <span class="ix">01</span>
-    <span class="t">Avatar: circle (user) / squircle (app)</span>
+    <span class="t">Avatar: circle (user) / rounded square (app)</span>
     <span class="n">Avatar</span>
   </div>
   <div class="note">
-    Avatars come in two shapes: <b>circle</b> for users, <b>squircle</b> for apps (OAuth integrations, ecosystem). Initials are the fallback, derive a stable background from the username hash so the same user always lands on the same color.
+    Two shapes: <b>circle</b> for users, <b>4px radius</b> for apps (OAuth apps, extensions). app.put.io always shows the image from <code>avatars.put.io</code>; while it loads, a skeleton stands in. Initials below are placeholders for the image.
   </div>
 
   <div class="pad">
-    <div class="lbl">Sizes, sm 24 · md 32 · lg 48 · xl 72</div>
+    <div class="lbl">Sizes in use, 20 · 30 · 32 (default) · 48 · 60, plus a loading skeleton</div>
     <div class="row">
-      <div class="avi size-sm c-y">A</div>
-      <div class="avi size-md c-y">A</div>
+      <div class="avi size-20 c-y">A</div>
+      <div class="avi size-30 c-y">AT</div>
+      <div class="avi size-md c-y">AT</div>
       <div class="avi size-lg c-y">AT</div>
-      <div class="avi size-xl c-y">AT</div>
+      <div class="avi size-60 c-y">AT</div>
+      <div class="avi size-md skel" role="img" aria-label="Loading avatar"></div>
     </div>
 
-    <div class="lbl">Palette, derived from user hash, stable per identity</div>
+    <div class="lbl">Initials palette, derived from user hash <span class="proposed-tag">proposed</span></div>
     <div class="row">
       <div class="avi size-md c-y">AT</div>
       <div class="avi size-md c-g">EN</div>
@@ -168,7 +179,7 @@
       <div class="avi size-md c-o">PT</div>
     </div>
 
-    <div class="lbl">App avatars, squircle</div>
+    <div class="lbl">App avatars, 4px radius</div>
     <div class="row">
       <div class="avi size-md app c-y">P</div>
       <div class="avi size-md app c-b">V</div>
@@ -180,7 +191,7 @@
   <!-- Presence -->
   <div class="head" style="margin-top: 8px;">
     <span class="ix">02</span>
-    <span class="t">Presence: online / away / offline</span>
+    <span class="t">Presence: online / away / offline</span><span class="proposed-tag">proposed</span>
   </div>
   <div class="note">
     The dot in the bottom-right reads at any size. Reserve <b>green for active session</b>, <b>yellow for idle</b>, <b>gray for offline</b>.<br><br>
@@ -196,7 +207,7 @@
   <!-- Stack -->
   <div class="head" style="margin-top: 8px;">
     <span class="ix">03</span>
-    <span class="t">Stack: group / shared with</span>
+    <span class="t">Stack: group / shared with</span><span class="proposed-tag">proposed</span>
   </div>
   <div class="note">
     Overlapping avatars with a 2px ring to separate them from the background. Past 4 visible faces, collapse the remainder into a <code>+N</code> chip.<br><br>
@@ -220,35 +231,22 @@
     <span class="t">User chip: share recipients</span>
   </div>
   <div class="note">
-    Compact representation of a tagged user, used in share fields and audit logs. Clickable × removes them.<br><br>
-      Always preceded by the avatar. </div>
+    The share modal's friend picker: a 20px avatar, the name, an xs × that removes the friend.</div>
   <div class="row">
-    <div class="chip"><div class="avi size-sm c-y">KA</div>kai<button class="x" aria-label="Remove"><i class="ph ph-x"></i></button></div>
-    <div class="chip"><div class="avi size-sm c-g">IR</div>iris<button class="x" aria-label="Remove"><i class="ph ph-x"></i></button></div>
-    <div class="chip"><div class="avi size-sm c-r">JU</div>juno<button class="x" aria-label="Remove"><i class="ph ph-x"></i></button></div>
+    <div class="chip"><div class="avi size-20 c-y">KA</div>kai<button class="x" aria-label="Remove"><i class="ph ph-x"></i></button></div>
+    <div class="chip"><div class="avi size-20 c-g">IR</div>iris<button class="x" aria-label="Remove"><i class="ph ph-x"></i></button></div>
+    <div class="chip"><div class="avi size-20 c-r">JU</div>juno<button class="x" aria-label="Remove"><i class="ph ph-x"></i></button></div>
   </div>
 
   <!-- Rows -->
   <div class="head" style="margin-top: 8px;">
     <span class="ix">05</span>
-    <span class="t">Friend / member rows</span>
+    <span class="t">Friend cards</span>
   </div>
-  <div class="pad">
-    <div class="urow">
-      <div class="avi-host"><div class="avi size-md c-y">KA</div><div class="present"></div></div>
-      <div class="nm">kai<small>Sharing files with you</small></div>
-      <div class="actions"><i class="ph-fill ph-star" aria-hidden="true"></i> pinned</div>
-    </div>
-    <div class="urow">
-      <div class="avi-host"><div class="avi size-md c-g">IR</div><div class="present away"></div></div>
-      <div class="nm">iris<small>You're sharing 4 folders</small></div>
-      <div class="actions">manage</div>
-    </div>
-    <div class="urow">
-      <div class="avi-host"><div class="avi size-md c-r">JU</div><div class="present off"></div></div>
-      <div class="nm">juno<small>No active shares</small></div>
-      <div class="actions">unfollow</div>
-    </div>
+  <div class="fcards">
+    <div class="fcard"><div class="avi size-30 c-y">KA</div><div class="nm">kai<small>Sharing files with each other.</small></div><button class="x" aria-label="Unfriend kai"><i class="ph ph-x"></i></button></div>
+    <div class="fcard"><div class="avi size-30 c-g">IR</div><div class="nm">iris<small>Sharing files with you.</small></div><button class="x" aria-label="Unfriend iris"><i class="ph ph-x"></i></button></div>
+    <div class="fcard"><div class="avi size-30 c-r">JU</div><div class="nm">juno<small>No files are shared.</small></div><button class="x" aria-label="Unfriend juno"><i class="ph ph-x"></i></button></div>
   </div>
 </div>
 </body></html>

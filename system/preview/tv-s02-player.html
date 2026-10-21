@@ -11,44 +11,98 @@
 <link rel="stylesheet" href="./_element.css">
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="./_resize.js" defer></script>
-</head>
+<style>
+.tv .scr{height:100%;box-sizing:border-box;padding:0 0 calc(32px + var(--tv-safe-y));overflow:hidden}
+.tv .scr-head{flex:0 0 auto;gap:0;border-bottom:1px solid var(--list-item-border)}
+.tv .scr-title{flex:1 1 auto;min-width:0;margin-right:32px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv .scr-head .logo{display:block;width:184px;height:55px;margin-top:-7px}
+.tv .scr-actions{flex:0 0 auto;margin-left:auto}
+.tv .btn{padding:16px;gap:8px;font-size:24px;line-height:32px;letter-spacing:0;border-width:var(--border-width);transition:none}
+.tv .btn i{font-size:32px}
+.tv .btn.md{padding:16px 32px;gap:16px;font-size:32px;line-height:1.2}
+.tv .btn.md i{font-size:36px}
+.tv .row{flex:0 0 auto;min-height:114px;box-sizing:border-box;transition:none}
+.tv .row .ico{font-size:48px;line-height:1}
+.tv .row .title,.tv .row .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv .row .sub{line-height:1.2;font-variant-numeric:normal}
+.tv .row .trailing{font-size:24px;line-height:1;color:var(--text-secondary)}
+.tv .row .trailing .ac{font-size:36px}
+.tv .row .trailing .ai{font-size:48px}
+.tv .row .trailing .tx{line-height:28px;text-transform:uppercase}
+.tv .row.off{opacity:.55}
+.tv .row.off .ico{color:var(--text-secondary)}
+.tv .sw{display:inline-block;position:relative;width:70px;height:40px;border-radius:var(--radius-pill);background:var(--border-hover)}
+.tv .sw::after{content:"";position:absolute;top:0;left:0;width:40px;height:40px;border-radius:var(--radius-pill);background:var(--hi-contrast)}
+.tv .sw.on{background:var(--green-solid)}
+.tv .sw.on::after{left:30px}
+.tv .spin{display:inline-block;box-sizing:border-box;width:32px;height:32px;border:4px solid var(--border);border-top-color:var(--yellow-solid);border-radius:50%}
+.tv .lst{margin:0 var(--tv-safe-x) 16px;font-size:32px;font-weight:500;line-height:1.2;color:var(--text-secondary)}
+.tv .lst.gap{margin-top:64px}
+.tv .err-line{margin:8px var(--tv-safe-x) 0;font-size:24px;line-height:1.4;color:var(--alert-danger-body)}
+.tv .state{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:0 256px 96px;text-align:center}
+.tv .state .st{font-size:96px;line-height:1;color:var(--text-secondary)}
+.tv .state .st.err{color:var(--red-solid)}
+.tv .state h2{margin:0;font-size:64px;font-weight:500;line-height:1.1;color:var(--text)}
+.tv .state p{margin:0;font-size:36px;line-height:1.2;color:var(--text-secondary)}
+.tv .state .btn{margin-top:32px}
+.tv .loader{display:inline-block;box-sizing:border-box;width:76px;height:76px;border:8px solid var(--border);border-top-color:var(--yellow-solid);border-radius:50%}
+.tv .stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--tv-video-bg)}
+.tv .sel{position:absolute;inset:0;z-index:30}
+.tv .sel::before{content:"";position:absolute;inset:0;background:var(--sheet-scrim)}
+.tv .sel-panel{position:absolute;top:50%;left:50%;min-width:25%;max-width:50%;max-height:76%;overflow:hidden;box-sizing:border-box;padding:32px;border:var(--border-width) solid var(--sheet-border);border-radius:var(--radius-tv);background:var(--sheet-bg);box-shadow:var(--sheet-shadow);transform:translate(-50%,-50%)}
+.tv .sel-panel h2{margin:0 0 16px;font-size:36px;font-weight:500;line-height:1.2;color:var(--text-secondary);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-wrap:break-word}
+.tv .opt{position:relative;display:flex;align-items:center;gap:16px;min-height:70px;box-sizing:border-box;margin-bottom:8px;padding:16px 64px 16px 16px;border-radius:var(--radius-tv);font-size:32px;line-height:1.2;color:var(--text);white-space:nowrap}
+.tv .opt:last-child{margin-bottom:0}
+.tv .opt.focused{background:var(--component-bg-active)}
+.tv .opt>i:first-child{font-size:36px;color:var(--yellow-solid)}
+.tv .opt .ck{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:32px;color:var(--text-secondary)}
+
+.tv .pl{position:absolute;inset:0;overflow:hidden;background:var(--tv-video-bg)}
+.tv .pc{position:absolute;left:0;right:0;bottom:0;padding:16px var(--tv-safe-x) var(--tv-safe-y);background:var(--overlay-full)}
+.tv .pc-head{display:flex;align-items:flex-end}
+.tv .pc-title{flex:1 1 auto;min-width:0;max-width:80%;margin:0 auto 8px 0;font-size:48px;font-weight:500;line-height:1.2;color:var(--tv-text-on-video);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv .pc-acts{display:flex;align-items:flex-end;flex:0 0 auto}
+.tv .pib{display:block;min-width:68px;padding:0;border:0;background:transparent;font:inherit;text-align:center;color:var(--tv-text-on-video)}
+.tv .pib i{font-size:36px}
+.tv .pib .lbl{display:block;margin-bottom:8px;font-size:24px;line-height:1.2;white-space:nowrap;opacity:0}
+.tv .pib.focused .lbl{opacity:1}
+.tv .pib .surf{display:flex;width:68px;height:68px;align-items:center;justify-content:center;margin:0 auto;border-radius:var(--radius-pill);font-size:36px}
+.tv .pib.focused .surf{background:var(--component-bg-active)}
+.tv .seek{position:relative;height:12px;margin-top:32px;border-radius:var(--radius-pill);background:var(--slider-track)}
+.tv .seek .fill{display:block;height:100%;border-radius:var(--radius-pill) 0 0 var(--radius-pill);background:var(--slider-fill)}
+.tv .seek .thumb{position:absolute;top:-12px;width:36px;height:36px;box-sizing:border-box;border:4px solid var(--border-hover);border-radius:var(--radius-pill);background:var(--slider-knob);opacity:0;transform:translateX(-50%)}
+.tv .seek.active .thumb{border-color:var(--text-secondary);opacity:1}
+.tv .ptime{position:relative;min-height:29px;margin-top:32px;font-size:24px;line-height:1.2;color:var(--tv-text-on-video)}
+.tv .ptime span{position:absolute;top:0}
+.tv .ptime span:first-child{left:0}
+.tv .ptime span:last-child{right:0}
+.tv .ptime i{margin-left:8px;font-size:24px;vertical-align:-3px}
+.tv .pload{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.tv .modal{position:absolute;inset:0;z-index:7;background:var(--overlay-full)}
+.tv .modal-panel{position:absolute;top:50%;left:50%;width:760px;box-sizing:border-box;padding:32px;border:1px solid var(--panel-border);border-radius:var(--radius-tv);background:var(--panel-bg);box-shadow:var(--shadow-lg);color:var(--text);transform:translate(-50%,-50%)}
+.tv .modal-panel.issue{min-height:250px;padding-left:128px}
+.tv .modal-ico{position:absolute;top:32px;left:32px;display:flex;width:58px;height:58px;align-items:center;justify-content:center;border-radius:var(--radius-pill);background:var(--yellow-component-bg);color:var(--yellow-solid);font-size:42px}
+.tv .modal-panel h2{margin:0;font-size:36px;font-weight:500;line-height:44px}
+.tv .modal-panel p{margin:16px 0 0;font-size:24px;line-height:34px;color:var(--text-secondary)}
+.tv .modal-eyebrow{font-size:24px;font-weight:500;line-height:1.2;color:var(--text-secondary)}
+.tv .modal-name{margin-top:8px;font-size:36px;font-weight:500;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv .modal-count{display:block;height:6px;margin-top:16px;overflow:hidden;border-radius:var(--radius-pill);background:var(--component-bg)}
+.tv .modal-count span{display:block;height:100%;background:var(--yellow-solid)}
+.tv .pacts{margin-top:32px;white-space:nowrap}
+.tv .pact{display:inline-block;min-width:246px;height:62px;box-sizing:border-box;padding:0 32px;border:1px solid var(--border);border-radius:var(--radius-tv);background:var(--component-bg);color:var(--text);font-size:24px;font-weight:500;line-height:60px;text-align:center}
+.tv .pact+.pact{margin-left:16px}
+.tv .pact.focused{border-color:var(--border-hover);background:var(--component-bg-active)}
+</style></head>
 <body>
-<div class="tierbar t4"><span class="tno">Tier 4</span><span class="twhat"><b>TV (Generic)</b>: tv.put.io, Tizen, webOS. The design system as on web but restrained. This specimen comes from <code>apps/tv-native</code>; Android TV is a separate tier-2 Compose binding, so shared product decisions do not imply shared components.</span><span class="ttok">--app-bg · --text · --text-secondary · --component-bg-active · --yellow-solid · --solid · --radius-tv</span></div>
+<div class="tierbar t4"><span class="tno">Tier 4</span><span class="twhat"><b>Web TV</b>: tv.put.io, Tizen, webOS. Drawn from the shipped <code>apps/tv</code> in putio-web.</span><span class="ttok">--overlay-full · --panel-bg · --slider-fill · --component-bg-active · --yellow-solid</span></div>
 <div class="el tv">
-  <div class="el-head"><span class="n">Video player</span><span class="src">video-player/VideoPlayer</span><span class="stock">tier 4 only</span></div>
-  <div class="el-note">Controls sit on one opaque bar at the bottom, not a gradient scrim. They auto-hide after <b>3 seconds</b> and stay up while paused (<code>visible = controlsVisible || paused</code>). The seek bar is the default-focused control.</div>
+  <div class="el-head"><span class="n">Video player</span><span class="src">playback/native-player-shell</span><span class="stock">tier 4 only</span></div>
+  <div class="el-note">Controls, buffering, the playback issue modal and Up Next. The chrome is one flat bar; modals are centred panels.</div>
   <div class="el-states rows">
-   <div class="el-state"><div class="demo"><div class="tvp"><div class="frame"></div>
-<div class="ctls">
-  <div class="toprow">
-    <div class="ptitle">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div>
-    <div class="obtns"><div class="obtn"><i class="ph ph-headphones"></i></div><div class="obtn"><i class="ph ph-chat-slash"></i></div><div class="obtn"><i class="ph ph-gauge"></i></div></div>
+<div class="el-state"><div class="demo"><div class="stage"><div class="pc"><div class="pc-head"><div class="pc-title">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div><div class="pc-acts"><button class="pib"><span class="lbl">Subtitles</span><span class="surf"><i class="ph-fill ph-closed-captioning" aria-hidden="true"></i></span></button><button class="pib"><span class="lbl">Speed</span><span class="surf"><i class="ph ph-gauge" aria-hidden="true"></i></span></button><button class="pib"><span class="lbl">Stats</span><span class="surf"><i class="ph ph-pulse" aria-hidden="true"></i></span></button></div></div><div class="seek active"><span class="fill" style="width:36%"></span><span class="thumb" style="left:36%"></span></div><div class="ptime"><span>21:04</span><span>58:12</span></div></div></div></div><div class="cap2"><span class="sn">Playing, seek bar active</span><span class="sd">Thumb visible while no button holds focus</span></div></div><div class="el-state"><div class="demo"><div class="stage"><div class="pc"><div class="pc-head"><div class="pc-title">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div><div class="pc-acts"><button class="pib focused"><span class="lbl">Subtitles</span><span class="surf"><i class="ph-fill ph-closed-captioning" aria-hidden="true"></i></span></button><button class="pib"><span class="lbl">Speed</span><span class="surf"><i class="ph ph-gauge" aria-hidden="true"></i></span></button><button class="pib"><span class="lbl">Stats</span><span class="surf"><i class="ph ph-pulse" aria-hidden="true"></i></span></button></div></div><div class="seek"><span class="fill" style="width:36%"></span><span class="thumb" style="left:36%"></span></div><div class="ptime"><span>21:04<i class="ph-fill ph-pause-circle" aria-hidden="true"></i></span><span>58:12</span></div></div></div></div><div class="cap2"><span class="sn">Paused, Subtitles focused</span><span class="sd">Label above the pill, pause glyph after the time</span></div></div><div class="el-state"><div class="demo"><div class="stage"><div class="pload"><span class="loader"></span></div></div></div><div class="cap2"><span class="sn">Buffering</span><span class="sd">Centred spinner; the chrome keeps its own timer</span></div></div><div class="el-state"><div class="demo"><div class="stage"><div class="pc"><div class="pc-head"><div class="pc-title">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div><div class="pc-acts"><button class="pib"><span class="lbl">Subtitles</span><span class="surf"><i class="ph-fill ph-closed-captioning" aria-hidden="true"></i></span></button><button class="pib"><span class="lbl">Speed</span><span class="surf"><i class="ph ph-gauge" aria-hidden="true"></i></span></button><button class="pib"><span class="lbl">Stats</span><span class="surf"><i class="ph ph-pulse" aria-hidden="true"></i></span></button></div></div><div class="seek active"><span class="fill" style="width:36%"></span><span class="thumb" style="left:36%"></span></div><div class="ptime"><span>21:04<i class="ph-fill ph-pause-circle" aria-hidden="true"></i></span><span>58:12</span></div></div><div class="modal"><div class="modal-panel issue"><span class="modal-ico"><i class="ph ph-warning-circle" aria-hidden="true"></i></span><h2>Playback issue</h2><p>We couldn't load the video stream.</p><div class="pacts"><span class="pact focused">Try again</span><span class="pact">Dismiss</span></div></div></div></div></div><div class="cap2"><span class="sn">Playback issue</span><span class="sd">First action focused; <b>Try another source</b> leads while the plan has one</span></div></div><div class="el-state"><div class="demo"><div class="stage"><div class="modal"><div class="modal-panel"><div class="modal-eyebrow">Up Next</div><div class="modal-name">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</div><span class="modal-count"><span style="width:40%"></span></span><div class="pacts"><span class="pact focused">Play Next</span><span class="pact">Cancel</span></div></div></div></div></div><div class="cap2"><span class="sn">Up Next</span><span class="sd">Countdown bar only when autoplay is on</span></div></div>
   </div>
-  <div class="spacer"></div>
-  <div class="seek focused">
-    <div class="bar"><div class="fill" style="width:38%"></div><div class="rest" style="width:62%"></div></div>
-    <div class="thumb" style="left:calc(38% - 10px)"></div>
-  </div>
-  <div class="times"><div class="now">21:04</div><div>58:12</div></div>
-</div></div></div><div class="cap2"><span class="sn">Playing, seek bar focused</span><span class="sd">Thumb is visible only here. Unfocused, it fades to nothing</span></div></div>
-   <div class="el-state"><div class="demo"><div class="tvp"><div class="frame"></div>
-<div class="ctls">
-  <div class="toprow">
-    <div class="ptitle">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div>
-    <div class="obtns"><div class="obtn"><i class="ph ph-headphones"></i></div><div class="obtn focused"><div class="lbl">Subtitles</div><i class="ph ph-chat-slash"></i></div><div class="obtn"><i class="ph ph-gauge"></i></div></div>
-  </div>
-  <div class="spacer"></div>
-  <div class="seek">
-    <div class="bar"><div class="fill" style="width:38%"></div><div class="rest" style="width:62%"></div></div>
-    <div class="thumb" style="left:calc(38% - 10px)"></div>
-  </div>
-  <div class="times"><div class="now">21:04 <i class="ph-fill ph-pause-circle"></i></div><div>58:12</div></div>
-</div></div></div><div class="cap2"><span class="sn">Paused, Subtitles focused</span><span class="sd">Thumb gone, label appears above the button, pause glyph beside the time</span></div></div>
-   <div class="el-state"><div class="demo"><div class="tvp"><div class="frame"></div>
-<div class="buffer"><i class="ph ph-spinner"></i></div></div></div><div class="cap2"><span class="sn">Buffering</span><span class="sd">Centred indicator, no scrim, controls hidden</span></div></div>
- </div>
-  <div class="kv"><div class="r"><span class="k">bar</span><span class="v">opaque <code>rgba(0,0,0,.75)</code>, full width, bottom</span></div><div class="r"><span class="k">padding</span><span class="v"><code>spacing.sm</code> top, overscan safe margins on the sides and bottom</span></div><div class="r"><span class="k">title</span><span class="v">2 lines maximum, <code>maxWidth 80%</code></span></div><div class="r"><span class="k">buttons</span><span class="v">Language, Subtitles, Speed. Right-aligned, label appears on focus only</span></div><div class="r"><span class="k">conditional</span><span class="v">Language shows when audio tracks &gt; 1; Subtitles when text tracks &gt; 0; Speed always</span></div><div class="r"><span class="k">track</span><span class="v"><b>12px</b>. Progress <code>--yellow-solid</code>, remainder <code>--solid</code></span></div><div class="r"><span class="k">thumb</span><span class="v">36x36, 4px <code>rgba(255,255,255,.25)</code> border. <b>Opacity 0 unless the slider is focused</b></span></div><div class="r"><span class="k">times</span><span class="v">current left with a pause glyph, duration right</span></div><div class="r"><span class="k">seek step</span><span class="v">15s x press count, accelerating under 500ms between presses</span></div><div class="r"><span class="k">auto-hide</span><span class="v">3000ms; suppressed while paused</span></div></div>
-  <div class="el-dont"><b>Do not.</b> Show the thumb when the slider is unfocused, or use a gradient scrim. The bar is opaque so a 10-foot viewer can read the title over any frame.</div>
+<div class="kv"><div class="r"><span class="k">auto-hide</span><span class="v">3000 ms after the last key; held while paused, seeking or on a button</span></div><div class="r"><span class="k">seek</span><span class="v">15 s × presses within 500 ms; the video pauses while seeking and resumes on OK</span></div><div class="r"><span class="k">issue modal</span><span class="v">760 wide, <code>--panel-bg</code>; glyph in a 58 yellow disc; <b>Playback issue</b> 36 over the message 24; actions 246×62</span></div><div class="r"><span class="k">issue actions</span><span class="v"><b>Try another source</b> (when a fallback exists) · <b>Try again</b> · <b>Dismiss</b></span></div><div class="r"><span class="k">Up Next</span><span class="v">eyebrow <b>Up Next</b>, the next file's raw name, <b>Play Next</b> and <b>Cancel</b>; autoplay counts 5 s</span></div><div class="r"><span class="k">spinner</span><span class="v">76, 8px <code>--border</code> ring with a <code>--yellow-solid</code> head</span></div><div class="r"><span class="k">subtitles</span><span class="v">36 white over <code>--overlay-inline</code>, 20% up, lifted above the bar while it shows</span></div></div>
+  <div class="el-dont"><b>Do not</b> use a gradient scrim or show the thumb while an option button holds focus.</div>
   <div class="el-ref">Contract: <a href="https://github.com/putdotio/putio-design/blob/main/platforms/tv-generic/DESIGN.md"><code>platforms/tv-generic/DESIGN.md</code></a></div>
 </div>
 </body></html>

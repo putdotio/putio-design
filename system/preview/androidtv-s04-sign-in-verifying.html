@@ -13,32 +13,60 @@
 <style>
 .tvfit{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left}
 .prop{margin:0 0 12px;padding:12px 16px;border:2px dashed var(--yellow-solid);border-radius:8px;font-size:15px;line-height:1.5;color:var(--text)}
-.atv .ver{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px}
-.atv .ver .t{font-size:48px;font-weight:var(--fw-medium);color:var(--text)}
-.atv .ver .ring{width:96px;height:96px;border-radius:50%;border:8px solid color-mix(in srgb,var(--yellow-solid) 26%,transparent);border-top-color:var(--yellow-solid);box-sizing:border-box;animation:atv-spin 1s linear infinite}
-@keyframes atv-spin{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){.atv .ver .ring{animation:none}}
+/* The shipped Android TV app is React Native: 1dp is one 1080p pixel, so these are its numbers. */
+.rn{width:1920px;height:1080px;background:var(--app-bg);color:var(--text);font-family:var(--font-sans);display:flex;flex-direction:column;position:relative;overflow:hidden;box-sizing:border-box}
+.rn .lu{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;display:block}
+.rn .hd{display:flex;align-items:center;gap:32px;padding:54px 77px 32px;border-bottom:1px solid var(--line);flex:0 0 auto}
+.rn .hd .h1{flex:1;min-width:0;font-size:48px;line-height:58px;font-weight:var(--fw-medium);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rn .bd{flex:1;min-height:0;padding-top:32px;overflow:hidden;position:relative}
+.rn .row{display:flex;align-items:center;gap:32px;margin:0 77px;padding:32px;border-radius:12px}
+.rn .row.f{background:var(--component-bg-active)}
+.rn .row>.lu{font-size:48px;color:var(--yellow-solid)}
+.rn .row .tx{flex:1;min-width:0}
+.rn .row .t1{font-size:36px;line-height:43px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rn .row .t2{font-size:32px;line-height:38px;color:var(--text-secondary);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rn .row .acc{height:50px;display:flex;align-items:center;font-size:36px;color:var(--text-secondary);flex:0 0 auto}
+.rn .row .acc.ic{font-size:48px}
+.rn .sech{font-size:32px;line-height:38px;font-weight:var(--fw-medium);color:var(--text-secondary);padding:0 77px 16px}
+.rn .sfoot{height:64px}
+.rn .btn{display:inline-flex;align-items:center;gap:8px;padding:16px;border:1px solid var(--border);border-radius:12px;background:var(--component-bg);font-size:24px;line-height:32px;font-weight:var(--fw-medium);text-transform:uppercase;color:var(--text);flex:0 0 auto;white-space:nowrap}
+.rn .btn .lu{font-size:32px}
+.rn .btn.md{padding:16px 32px;gap:16px;font-size:32px;line-height:38px}
+.rn .btn.f{background:var(--component-bg-active);border-color:var(--border-hover)}
+.rn .sw{width:36px;height:14px;border-radius:7px;background:var(--solid);position:relative;margin:0 6px}
+.rn .sw::after{content:"";position:absolute;top:-3px;left:-3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.4)}
+.rn .sw.on{background:var(--green-border)}
+.rn .sw.on::after{left:19px;background:var(--green-solid)}
+.rn .ctr{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.rn .heading{font-size:64px;line-height:77px;font-weight:var(--fw-medium)}
+.rn .spin{width:96px;height:96px;border-radius:50%;border:8px solid transparent;border-top-color:var(--yellow-solid);border-right-color:var(--yellow-solid);box-sizing:border-box;transform:rotate(-30deg)}
+.rn .appinfo{position:absolute;left:0;right:0;bottom:54px;text-align:center;font-size:24px;color:var(--text-secondary);opacity:.33}
 </style></head>
 <body>
-<div class="tierbar t2"><span class="tno">Tier 2</span><span class="twhat"><b>Android TV</b>: tokens only. The stored-token check before Home: a stock M3 <code>CircularProgressIndicator</code> under one line of text. Nothing is focusable, so there is no focus treatment to show.</span><span class="ttok">primary=--yellow-solid · secondaryContainer=26% --yellow-solid · background=--app-bg</span></div>
+<div class="tierbar t2"><span class="tno">Tier 2</span><span class="twhat"><b>Android TV</b>: the React Native TV app. The stored-token check before Home: a heading over the platform spinner. Nothing is focusable.</span><span class="ttok">spinner=--yellow-solid · background=--app-bg</span></div>
 <div class="preview-shell">
-<div class="prop"><b>Tier-2 binding.</b> Compose for TV owns the component, the focus scale and the elevation; the token graph supplies the colours.</div>
+<div class="prop"><b>Shipped binding.</b> React Native (react-native-tvos), the same code as the Apple TV app. No Compose for TV: no M3 components, no focus scale; focus is a <code>--component-bg-active</code> fill.</div>
 <div>
   <div class="label">A stored token is verified before Home mounts</div>
-  <div class="note">On launch <code>auth.tsx</code> reads the stored token. With one, it replaces itself with <code>auth-with-token</code>, which verifies the token and shows this screen; with none, or on failure, it goes to the device-code screen. Only the Android TV build dwells here long enough to see.</div>
+  <div class="note">On launch <code>auth.tsx</code> reads the stored token. With one, it replaces itself with <code>auth-with-token</code>, which verifies the token and shows this screen; with none, or on failure, it goes to the device-code screen.</div>
 </div>
 
 <div class="tvbox"><div class="tvfit">
-  <div class="atv"><div class="ver"><div class="t">Logging you in</div><div class="ring" role="progressbar" aria-label="Logging you in"></div></div></div>
+  <div class="rn">
+    <div class="ctr">
+      <div class="heading">Logging you in</div>
+      <div class="spin" role="progressbar" aria-label="Logging you in" style="margin:32px 0 64px"></div>
+    </div>
+  </div>
 </div></div>
-<div class="cap"><b>Verifying a stored token</b>Indeterminate M3 progress in <code>primary</code> on its <code>secondaryContainer</code> track. Success replaces the stack with Home; failure replaces it with sign-in by code.</div>
+<div class="cap"><b>Verifying a stored token</b>The native Android spinner in <code>--yellow-solid</code>, drawn at twice its size. Success replaces the stack with Home; failure replaces it with sign-in by code.</div>
 
 <div class="kv">
   <div class="r"><span class="k">route</span><span class="v"><code>auth</code> → <code>auth/with-token</code> → Home, or → <code>auth/with-code</code> on error</span></div>
-  <div class="r"><span class="k">copy</span><span class="v"><b>Logging you in</b>, shipped string. The web contract says "Sign in"; the TV string is not aligned yet</span></div>
-  <div class="r"><span class="k">progress</span><span class="v">M3 indeterminate circular, 48dp (96px), 4dp stroke, <code>primary</code> on 26% <code>primary</code></span></div>
-  <div class="r"><span class="k">layout</span><span class="v">centred column, title 48 medium over the indicator. No drawer: navigation does not exist yet</span></div>
-  <div class="r"><span class="k">focus</span><span class="v">none. Back exits the app</span></div>
+  <div class="r"><span class="k">copy</span><span class="v"><b>Logging you in</b>, shipped string. The web contract says &ldquo;Sign in&rdquo;; the TV string is not aligned yet</span></div>
+  <div class="r"><span class="k">spinner</span><span class="v">React Native <code>ActivityIndicator</code>, large, scaled 2x on Android: about 96px, <code>--yellow-solid</code> arc, no track</span></div>
+  <div class="r"><span class="k">layout</span><span class="v">centred column: heading 64 medium, 32 to the spinner. No header: navigation does not exist yet</span></div>
+  <div class="r"><span class="k">focus</span><span class="v">none</span></div>
 </div>
 
 <div class="note" style="margin-top:4px">Contract: <a href="https://github.com/putdotio/putio-design/blob/main/platforms/android/DESIGN.md"><code>platforms/android/DESIGN.md</code></a></div>

@@ -13,48 +13,86 @@
 <style>
 .tvfit{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left}
 .prop{margin:0 0 12px;padding:12px 16px;border:2px dashed var(--yellow-solid);border-radius:8px;font-size:15px;line-height:1.5;color:var(--text)}
+/* The shipped Android TV app is React Native: 1dp is one 1080p pixel, so these are its numbers. */
+.rn{width:1920px;height:1080px;background:var(--app-bg);color:var(--text);font-family:var(--font-sans);display:flex;flex-direction:column;position:relative;overflow:hidden;box-sizing:border-box}
+.rn .lu{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;display:block}
+.rn .hd{display:flex;align-items:center;gap:32px;padding:54px 77px 32px;border-bottom:1px solid var(--line);flex:0 0 auto}
+.rn .hd .h1{flex:1;min-width:0;font-size:48px;line-height:58px;font-weight:var(--fw-medium);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rn .bd{flex:1;min-height:0;padding-top:32px;overflow:hidden;position:relative}
+.rn .row{display:flex;align-items:center;gap:32px;margin:0 77px;padding:32px;border-radius:12px}
+.rn .row.f{background:var(--component-bg-active)}
+.rn .row>.lu{font-size:48px;color:var(--yellow-solid)}
+.rn .row .tx{flex:1;min-width:0}
+.rn .row .t1{font-size:36px;line-height:43px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rn .row .t2{font-size:32px;line-height:38px;color:var(--text-secondary);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rn .row .acc{height:50px;display:flex;align-items:center;font-size:36px;color:var(--text-secondary);flex:0 0 auto}
+.rn .row .acc.ic{font-size:48px}
+.rn .sech{font-size:32px;line-height:38px;font-weight:var(--fw-medium);color:var(--text-secondary);padding:0 77px 16px}
+.rn .sfoot{height:64px}
+.rn .btn{display:inline-flex;align-items:center;gap:8px;padding:16px;border:1px solid var(--border);border-radius:12px;background:var(--component-bg);font-size:24px;line-height:32px;font-weight:var(--fw-medium);text-transform:uppercase;color:var(--text);flex:0 0 auto;white-space:nowrap}
+.rn .btn .lu{font-size:32px}
+.rn .btn.md{padding:16px 32px;gap:16px;font-size:32px;line-height:38px}
+.rn .btn.f{background:var(--component-bg-active);border-color:var(--border-hover)}
+.rn .sw{width:36px;height:14px;border-radius:7px;background:var(--solid);position:relative;margin:0 6px}
+.rn .sw::after{content:"";position:absolute;top:-3px;left:-3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.4)}
+.rn .sw.on{background:var(--green-border)}
+.rn .sw.on::after{left:19px;background:var(--green-solid)}
+.rn .ctr{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.rn .heading{font-size:64px;line-height:77px;font-weight:var(--fw-medium)}
+.rn .spin{width:96px;height:96px;border-radius:50%;border:8px solid transparent;border-top-color:var(--yellow-solid);border-right-color:var(--yellow-solid);box-sizing:border-box;transform:rotate(-30deg)}
+.rn .appinfo{position:absolute;left:0;right:0;bottom:54px;text-align:center;font-size:24px;color:var(--text-secondary);opacity:.33}
 </style></head>
 <body>
-<div class="tierbar t2"><span class="tno">Tier 2</span><span class="twhat"><b>Android TV</b>: tokens only. Components, focus and navigation come from <b>Google's TV design</b> (M3 / Compose for TV). put.io hands Compose a colour scheme built from the token graph and lets the platform do the rest. 2x artboard: 8dp reads 16px.</span><span class="ttok">primary=--yellow-solid · surfaceVariant=--component-bg · inverseSurface=--component-bg-active</span></div>
+<div class="tierbar t2"><span class="tno">Tier 2</span><span class="twhat"><b>Android TV</b>: the shipped app is the React Native TV app shared with Apple TV. Navigation is a stack pushed from a Home list; focus is a fill, with no scale or elevation.</span><span class="ttok">focus=--component-bg-active · glyph=--yellow-solid · header rule=--line</span></div>
 <div class="preview-shell">
-<div class="prop"><b>Tier-2 binding.</b> This card applies the token graph to Google's TV design. Compose for TV owns the navigation, focus scale and elevation.</div>
+<div class="prop"><b>Shipped binding.</b> React Native (react-native-tvos), the same code as the Apple TV app. No Compose for TV: no M3 components, no focus scale; focus is a <code>--component-bg-active</code> fill.</div>
 <div>
-  <div class="label">The platform owns focus and navigation</div>
-  <div class="note"><b>Focus is Compose for TV's ClickableSurface:</b> the focused surface scales and elevates over the M3 colour mapping. Full-width rows scale 1.02 to stay inside the safe area; compact surfaces (drawer items, buttons, pills) take the stock 1.1.</div>
-  <div class="note"><b>Top-level navigation is the M3 navigation drawer:</b> an 80dp icon rail on the left that expands with labels while focus is inside it. Destinations are Files, Search, History and Account.</div>
+  <div class="label">Home is a list; every destination is a pushed screen</div>
+  <div class="note"><b>No navigation drawer.</b> Home lists Your Files, Search, History (when account history is on) and Account under the retro wordmark. Each row pushes its screen; Back pops it.</div>
+  <div class="note"><b>Focus is a fill:</b> the focused row takes <code>--component-bg-active</code>, radius 12. Parallax is off, and nothing scales or elevates.</div>
 </div>
 
 <div class="tvbox"><div class="tvfit">
-  <div class="atv withnav nav-expanded">
-    <div class="drawer expanded">
-      <span class="dit sel focused"><i class="ph-fill ph-folder" aria-hidden="true"></i><span class="dl">Files</span></span>
-      <span class="dit"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><span class="dl">Search</span></span>
-      <span class="dit"><i class="ph ph-clock-counter-clockwise" aria-hidden="true"></i><span class="dl">History</span></span>
-      <span class="dit"><i class="ph ph-user" aria-hidden="true"></i><span class="dl">Account</span></span>
-    </div>
-    <div class="head"><div class="h1">Your Files</div><span class="hpill"><i class="ph-bold ph-arrow-clockwise" aria-hidden="true"></i>Refresh</span><span class="hpill"><i class="ph ph-sort-ascending" aria-hidden="true"></i>Name</span></div>
-    <div class="rows">
-      <div class="arow"><span class="ic"><i class="ph-fill ph-folder" aria-hidden="true"></i></span><div class="tx"><div class="t1">homework_answers_DONT_DELETE</div><div class="t2">131.61 MB</div></div><span class="chev"><i class="ph-bold ph-caret-right" aria-hidden="true"></i></span></div>
-      <div class="arow"><span class="ic"><i class="ph-fill ph-file-video" aria-hidden="true"></i></span><div class="tx"><div class="t1">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div><div class="t2">69.14 MB</div></div></div>
-      <div class="arow"><span class="ic"><i class="ph-fill ph-file-video" aria-hidden="true"></i></span><div class="tx"><div class="t1">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</div><div class="t2">1.16 MB</div></div></div>
-      <div class="arow"><span class="ic"><i class="ph-fill ph-file" aria-hidden="true"></i></span><div class="tx"><div class="t1">ubuntu-24.04.1-desktop-amd64.iso</div><div class="t2">1.12 GB</div></div></div>
-      <div class="arow"><span class="ic"><i class="ph-fill ph-file-audio" aria-hidden="true"></i></span><div class="tx"><div class="t1">podcast_ep127_final_mixdown_v2.mp3</div><div class="t2">3.59 GB</div></div></div>
+  <div class="rn">
+    <div class="hd"><img src="../assets/logo-retro-dark.svg" alt="put.io" style="height:48px;display:block"></div>
+    <div class="bd">
+      <div class="row f"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><path d="M2 10h20"/></svg><div class="tx"><div class="t1">Your Files</div></div><span class="acc"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span></div>
+      <div class="row"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><div class="tx"><div class="t1">Search</div></div><span class="acc"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span></div>
+      <div class="row"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg><div class="tx"><div class="t1">History</div></div><span class="acc"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span></div>
+      <div class="row"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><div class="tx"><div class="t1">Account</div></div><span class="acc"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span></div>
     </div>
   </div>
 </div></div>
-<div class="cap"><b>File browser · drawer expanded</b>Focus inside the drawer reveals labels; the selected, focused Files destination stays yellow and scales 1.1. Content remains a raw-filename list with yellow Phosphor glyphs and no posters.</div>
+<div class="cap"><b>Home</b>The wordmark heads a four-row list; Your Files takes preferred focus. One staff account also sees a Developer row.</div>
+
+<div class="tvbox"><div class="tvfit">
+  <div class="rn">
+    <div class="hd"><div class="h1">Your Files</div><span style="display:flex;gap:16px"><span class="btn"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>Refresh</span><span class="btn"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="M11 4h10"/><path d="M11 8h7"/><path d="M11 12h4"/></svg>Name</span></span></div>
+    <div class="bd">
+      <div class="row f"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><path d="M2 10h20"/></svg><div class="tx"><div class="t1">homework_answers_DONT_DELETE</div><div class="t2">131.61 MB</div></div><span class="acc"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span></div>
+      <div class="row"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M17 7.5h4"/><path d="M17 16.5h4"/></svg><div class="tx"><div class="t1">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div><div class="t2">3.42 GB</div></div><span class="acc ic"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></span></div>
+      <div class="row"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M17 7.5h4"/><path d="M17 16.5h4"/></svg><div class="tx"><div class="t1">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</div><div class="t2">1.16 GB</div></div></div>
+      <div class="row"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><div class="tx"><div class="t1">ubuntu-24.04.1-desktop-amd64.iso</div><div class="t2">5.69 GB</div></div></div>
+      <div class="row"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><div class="tx"><div class="t1">podcast_ep127_final_mixdown_v2.mp3</div><div class="t2">69.14 MB</div></div></div>
+      <div class="row"><svg class="lu" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><div class="tx"><div class="t1">document-scan-march-2026.pdf</div><div class="t2">140 KB</div></div></div>
+    </div>
+  </div>
+</div></div>
+<div class="cap"><b>Your Files</b>A folder is a pushed screen: its name as the title, Refresh and the current sort key as header buttons. Rows are raw filenames with yellow Lucide glyphs and no posters.</div>
 
 <div class="kv">
-  <div class="r"><span class="k">drawer</span><span class="v">M3 navigation drawer: 80dp rail (160px), expanded to 240dp (480px) with labels while focus is inside; selected icon and label use <code>primary</code></span></div>
-  <div class="r"><span class="k">focus</span><span class="v">ClickableSurface scale + elevation: 1.02 on full-width rows, 1.1 on compact surfaces. Focused fill reads <code>inverseSurface</code></span></div>
-  <div class="r"><span class="k">page</span><span class="v">margin 40dp (80px) after the rail, title 48 medium, 1px hairline under the header</span></div>
-  <div class="r"><span class="k">row</span><span class="v">64dp (128px), radius 12, no divider. Glyph 42px <code>--yellow-solid</code>, title 36, subline 28 tabular</span></div>
-  <div class="r"><span class="k">colour</span><span class="v">the Compose for TV <code>darkColorScheme</code> mapping in <code>platforms/android/DESIGN.md</code>. No hand-written hex anywhere</span></div>
-  <div class="r"><span class="k">content</span><span class="v">unchanged across tiers: raw filenames, sizes, Phosphor icons, no poster wall</span></div>
+  <div class="r"><span class="k">header</span><span class="v">title 48 medium (wordmark 48 tall on Home), 1px <code>--line</code> rule below; padding 54 top, 77 sides (4% overscan), 32 bottom</span></div>
+  <div class="r"><span class="k">row</span><span class="v">radius 12, padding 32, 77 side margin, no divider. Lucide glyph 48 <code>--yellow-solid</code>, title 36, size 32 <code>--text-secondary</code></span></div>
+  <div class="r"><span class="k">glyphs</span><span class="v">Lucide, stroke 2: <code>folder-closed</code>, <code>film</code> for video, <code>file</code> for everything else</span></div>
+  <div class="r"><span class="k">accessory</span><span class="v">chevron on folders, <code>eye</code> on started videos</span></div>
+  <div class="r"><span class="k">header buttons</span><span class="v">24 uppercase label, 32 glyph, padding 16, 1px <code>--border</code> on <code>--component-bg</code>; focused: <code>--component-bg-active</code> with <code>--border-hover</code></span></div>
+  <div class="r"><span class="k">sort</span><span class="v">the button names the sort key; it opens a <b>Sort by</b> list modal</span></div>
+  <div class="r"><span class="k">long press</span><span class="v">a modal of file actions: Play in VLC, Mark as watched, Trash or Delete</span></div>
+  <div class="r"><span class="k">colour</span><span class="v">the app&rsquo;s own <code>@putdotio/colors</code> (Radix gray dark), keyed by the token names; not generated from the token graph</span></div>
 </div>
 
 <div class="note" style="margin-top:4px">Contract: <a href="https://github.com/putdotio/putio-design/blob/main/platforms/android/DESIGN.md"><code>platforms/android/DESIGN.md</code></a></div>
-<div class="dont"><b>Do not</b> substitute another platform's focus treatment. Compose for TV owns scale and elevation, with put.io colours underneath.</div>
+<div class="dont"><b>Do not</b> draw a navigation drawer or a focus scale here. Neither ships on Android TV: Home is the menu, and focus is a fill.</div>
 </div>
 <script>(function(){function f(){document.querySelectorAll('.tvbox').forEach(function(b){var e=b.querySelector('.tvfit');if(e)e.style.transform='scale('+(b.clientWidth/1920)+')';});}f();addEventListener('resize',f);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f);})();</script>
 </body></html>

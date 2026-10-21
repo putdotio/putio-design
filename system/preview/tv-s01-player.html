@@ -34,268 +34,104 @@
 <link rel="stylesheet" href="../tokens.css">
 <link rel="stylesheet" href="../components.css">
 <link rel="stylesheet" href="./_tier.css">
+<link rel="stylesheet" href="./_frame.css">
 <link rel="stylesheet" href="../tv.css">
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="./_resize.js" defer></script>
 <style>
-  html, body { background: var(--app-bg); margin: 0; font-family: var(--font-sans); }
-  .preview-shell { padding: 24px; display: flex; flex-direction: column; gap: 22px; color: var(--text); }
-  
-  .note  {max-width: 740px}
-  
-  .src  { font-family: var(--font-mono); font-size: 11px; color: var(--yellow-text-secondary); }
+.artboard{position:relative;width:1920px;max-width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:var(--app-bg);box-shadow:0 24px 64px rgba(0,0,0,0.45),0 0 0 1px var(--line);flex:0 0 auto}
+.tvfit,.tv-fit{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left}
+.tvfit>.tv,.tv-fit>.tv{position:absolute;inset:0}
 
-  .artboard {
-    position: relative;
-    width: 1920px;
-    max-width: 100%;
-    aspect-ratio: 16 / 9;
-    border-radius: 31px;
-    overflow: hidden;
-    background: var(--tv-video-bg);
-    box-shadow: 0 53px 140px rgba(0,0,0,0.45), 0 0 0 2px var(--line);
-  }
-    /* The artboard is a TRUE 1:1 1920x1080 frame. .tv-fit is scaled down
-     only when the card is narrower than 1920, a value measured here is
-     the value on the TV. */
-  .artboard .tv-fit { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
-.artboard .tv {
-    position: absolute; inset: 0;
-    background: var(--bg-secondary);
-  }
-    .artboard .row, .artboard .btn { transition: none; }
-  /* .tv is authored 1:1 at 1920x1080, never let the title or row wrap */
-  .artboard .scr-title { white-space: nowrap; }
-  .artboard .row .title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tv .scr{height:100%;box-sizing:border-box;padding:0 0 calc(32px + var(--tv-safe-y));overflow:hidden}
+.tv .scr-head{flex:0 0 auto;gap:0;border-bottom:1px solid var(--list-item-border)}
+.tv .scr-title{flex:1 1 auto;min-width:0;margin-right:32px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv .scr-head .logo{display:block;width:184px;height:55px;margin-top:-7px}
+.tv .scr-actions{flex:0 0 auto;margin-left:auto}
+.tv .btn{padding:16px;gap:8px;font-size:24px;line-height:32px;letter-spacing:0;border-width:var(--border-width);transition:none}
+.tv .btn i{font-size:32px}
+.tv .btn.md{padding:16px 32px;gap:16px;font-size:32px;line-height:1.2}
+.tv .btn.md i{font-size:36px}
+.tv .row{flex:0 0 auto;min-height:114px;box-sizing:border-box;transition:none}
+.tv .row .ico{font-size:48px;line-height:1}
+.tv .row .title,.tv .row .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv .row .sub{line-height:1.2;font-variant-numeric:normal}
+.tv .row .trailing{font-size:24px;line-height:1;color:var(--text-secondary)}
+.tv .row .trailing .ac{font-size:36px}
+.tv .row .trailing .ai{font-size:48px}
+.tv .row .trailing .tx{line-height:28px;text-transform:uppercase}
+.tv .row.off{opacity:.55}
+.tv .row.off .ico{color:var(--text-secondary)}
+.tv .sw{display:inline-block;position:relative;width:70px;height:40px;border-radius:var(--radius-pill);background:var(--border-hover)}
+.tv .sw::after{content:"";position:absolute;top:0;left:0;width:40px;height:40px;border-radius:var(--radius-pill);background:var(--hi-contrast)}
+.tv .sw.on{background:var(--green-solid)}
+.tv .sw.on::after{left:30px}
+.tv .spin{display:inline-block;box-sizing:border-box;width:32px;height:32px;border:4px solid var(--border);border-top-color:var(--yellow-solid);border-radius:50%}
+.tv .lst{margin:0 var(--tv-safe-x) 16px;font-size:32px;font-weight:500;line-height:1.2;color:var(--text-secondary)}
+.tv .lst.gap{margin-top:64px}
+.tv .err-line{margin:8px var(--tv-safe-x) 0;font-size:24px;line-height:1.4;color:var(--alert-danger-body)}
+.tv .state{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:0 256px 96px;text-align:center}
+.tv .state .st{font-size:96px;line-height:1;color:var(--text-secondary)}
+.tv .state .st.err{color:var(--red-solid)}
+.tv .state h2{margin:0;font-size:64px;font-weight:500;line-height:1.1;color:var(--text)}
+.tv .state p{margin:0;font-size:36px;line-height:1.2;color:var(--text-secondary)}
+.tv .state .btn{margin-top:32px}
+.tv .loader{display:inline-block;box-sizing:border-box;width:76px;height:76px;border:8px solid var(--border);border-top-color:var(--yellow-solid);border-radius:50%}
+.tv .stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--tv-video-bg)}
+.tv .sel{position:absolute;inset:0;z-index:30}
+.tv .sel::before{content:"";position:absolute;inset:0;background:var(--sheet-scrim)}
+.tv .sel-panel{position:absolute;top:50%;left:50%;min-width:25%;max-width:50%;max-height:76%;overflow:hidden;box-sizing:border-box;padding:32px;border:var(--border-width) solid var(--sheet-border);border-radius:var(--radius-tv);background:var(--sheet-bg);box-shadow:var(--sheet-shadow);transform:translate(-50%,-50%)}
+.tv .sel-panel h2{margin:0 0 16px;font-size:36px;font-weight:500;line-height:1.2;color:var(--text-secondary);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-wrap:break-word}
+.tv .opt{position:relative;display:flex;align-items:center;gap:16px;min-height:70px;box-sizing:border-box;margin-bottom:8px;padding:16px 64px 16px 16px;border-radius:var(--radius-tv);font-size:32px;line-height:1.2;color:var(--text);white-space:nowrap}
+.tv .opt:last-child{margin-bottom:0}
+.tv .opt.focused{background:var(--component-bg-active)}
+.tv .opt>i:first-child{font-size:36px;color:var(--yellow-solid)}
+.tv .opt .ck{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:32px;color:var(--text-secondary)}
 
-  /* Video backdrop: dimmed faux frame for the chrome to sit on */
-  .video-bg {
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(80% 60% at 30% 30%, rgba(80,60,30,0.5) 0%, transparent 60%),
-      radial-gradient(60% 60% at 80% 70%, rgba(40,40,80,0.35) 0%, transparent 60%),
-      linear-gradient(180deg, var(--tv-hero-scrim-top) 0%, var(--tv-hero-scrim-bottom) 100%);
-    z-index: 0;
-  }
-  .video-bg::after {
-    content: '';
-    position: absolute; inset: 0;
-    background:
-      repeating-linear-gradient(0deg, transparent 0 3px, rgba(255,255,255,0.012) 3px 4px);
-  }
-
-  /* Player chrome: lifted from tv.css */
-  .pchrome {
-    position: absolute; inset: auto 0 0 0;
-    padding: 0 40px 28px;
-    z-index: 2;
-    display: flex; flex-direction: column;
-    gap: 16px;
-    background: linear-gradient(to top,
-      rgba(0,0,0,0.7) 0%,
-      rgba(0,0,0,0) 100%);
-  }
-  .pchrome .row-top {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 8px;
-  }
-  .pchrome .title {
-    font-size: 30px; font-weight: 700;
-    letter-spacing: -0.02em; line-height: 1.15;
-    color: var(--tv-text-on-video); max-width: 70%;
-    word-break: break-all;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
-  }
-  .pchrome .corner {
-    display: flex; gap: 12px; align-items: center;
-  }
-  .pchrome .scrub {
-    height: 6px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 999px;
-    position: relative;
-    margin-top: 4px;
-  }
-  .pchrome .scrub > i {
-    position: absolute; inset: 0 auto 0 0;
-    background: rgba(255,255,255,0.95);
-    border-radius: 999px;
-    width: 14%;
-  }
-  .pchrome .scrub > b {
-    position: absolute; left: 14%; top: 50%; transform: translate(-50%, -50%);
-    width: 16px; height: 16px;
-    border-radius: 50%;
-    background: var(--tv-text-on-video);
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.18), 0 0 18px rgba(255,255,255,0.6);
-  }
-  .pchrome .times {
-    display: flex; justify-content: space-between;
-    font-variant-numeric: tabular-nums;
-    font-size: 15px;
-    color: rgba(255,255,255,0.85);
-    margin-top: 2px;
-  }
-  .pchrome .pills { display: flex; gap: 10px; margin-top: 4px; }
-
-  /* circular icon button */
-  .gi {
-    width: 56px; height: 56px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--component-bg);
-    border: 1px solid var(--line);
-    color: var(--tv-text-on-video);
-  }
-  .gi.solid {
-    background: var(--tv-text-on-video);
-    color: var(--bg);
-    border-color: var(--tv-text-on-video);
-  }
-
-  .platforms { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-  .ptr { display: grid; grid-template-columns: 160px repeat(4, 1fr); }
-  .ptr + .ptr { border-top: 1px solid var(--line); }
-  .ptr > div { padding: 12px 14px; font-size: 12px; color: var(--text-secondary); border-left: 1px solid var(--line); line-height: 1.55; background: var(--bg-secondary); }
-  .ptr > div:first-child { border-left: 0; }
-  .ptr.head > div { background: var(--component-bg); font-size: 11px; color: var(--text); font-weight: 600; }
-  .ptr .what { background: var(--bg-secondary); color: var(--yellow-text-secondary); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; font-weight: 500; }
-
-  .anat { background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 10px;
-    display: grid; grid-template-columns: repeat(4, 1fr); overflow: hidden;
-  }
-  .anat .c { padding: 14px 16px; border-left: 1px solid var(--line); background: var(--bg-secondary); }
-  .anat .c:first-child { border-left: 0; }
-  .anat .k { font-size: 11px; font-weight: 500; color: var(--yellow-text-secondary); margin-bottom: 6px; }
-  .anat .v { font-family: var(--font-mono); font-size: 13px; color: var(--text); }
-  .anat .d { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+.tv .pl{position:absolute;inset:0;overflow:hidden;background:var(--tv-video-bg)}
+.tv .pc{position:absolute;left:0;right:0;bottom:0;padding:16px var(--tv-safe-x) var(--tv-safe-y);background:var(--overlay-full)}
+.tv .pc-head{display:flex;align-items:flex-end}
+.tv .pc-title{flex:1 1 auto;min-width:0;max-width:80%;margin:0 auto 8px 0;font-size:48px;font-weight:500;line-height:1.2;color:var(--tv-text-on-video);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv .pc-acts{display:flex;align-items:flex-end;flex:0 0 auto}
+.tv .pib{display:block;min-width:68px;padding:0;border:0;background:transparent;font:inherit;text-align:center;color:var(--tv-text-on-video)}
+.tv .pib i{font-size:36px}
+.tv .pib .lbl{display:block;margin-bottom:8px;font-size:24px;line-height:1.2;white-space:nowrap;opacity:0}
+.tv .pib.focused .lbl{opacity:1}
+.tv .pib .surf{display:flex;width:68px;height:68px;align-items:center;justify-content:center;margin:0 auto;border-radius:var(--radius-pill);font-size:36px}
+.tv .pib.focused .surf{background:var(--component-bg-active)}
+.tv .seek{position:relative;height:12px;margin-top:32px;border-radius:var(--radius-pill);background:var(--slider-track)}
+.tv .seek .fill{display:block;height:100%;border-radius:var(--radius-pill) 0 0 var(--radius-pill);background:var(--slider-fill)}
+.tv .seek .thumb{position:absolute;top:-12px;width:36px;height:36px;box-sizing:border-box;border:4px solid var(--border-hover);border-radius:var(--radius-pill);background:var(--slider-knob);opacity:0;transform:translateX(-50%)}
+.tv .seek.active .thumb{border-color:var(--text-secondary);opacity:1}
+.tv .ptime{position:relative;min-height:29px;margin-top:32px;font-size:24px;line-height:1.2;color:var(--tv-text-on-video)}
+.tv .ptime span{position:absolute;top:0}
+.tv .ptime span:first-child{left:0}
+.tv .ptime span:last-child{right:0}
+.tv .ptime i{margin-left:8px;font-size:24px;vertical-align:-3px}
+.tv .pload{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.tv .modal{position:absolute;inset:0;z-index:7;background:var(--overlay-full)}
+.tv .modal-panel{position:absolute;top:50%;left:50%;width:760px;box-sizing:border-box;padding:32px;border:1px solid var(--panel-border);border-radius:var(--radius-tv);background:var(--panel-bg);box-shadow:var(--shadow-lg);color:var(--text);transform:translate(-50%,-50%)}
+.tv .modal-panel.issue{min-height:250px;padding-left:128px}
+.tv .modal-ico{position:absolute;top:32px;left:32px;display:flex;width:58px;height:58px;align-items:center;justify-content:center;border-radius:var(--radius-pill);background:var(--yellow-component-bg);color:var(--yellow-solid);font-size:42px}
+.tv .modal-panel h2{margin:0;font-size:36px;font-weight:500;line-height:44px}
+.tv .modal-panel p{margin:16px 0 0;font-size:24px;line-height:34px;color:var(--text-secondary)}
+.tv .modal-eyebrow{font-size:24px;font-weight:500;line-height:1.2;color:var(--text-secondary)}
+.tv .modal-name{margin-top:8px;font-size:36px;font-weight:500;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv .modal-count{display:block;height:6px;margin-top:16px;overflow:hidden;border-radius:var(--radius-pill);background:var(--component-bg)}
+.tv .modal-count span{display:block;height:100%;background:var(--yellow-solid)}
+.tv .pacts{margin-top:32px;white-space:nowrap}
+.tv .pact{display:inline-block;min-width:246px;height:62px;box-sizing:border-box;padding:0 32px;border:1px solid var(--border);border-radius:var(--radius-tv);background:var(--component-bg);color:var(--text);font-size:24px;font-weight:500;line-height:60px;text-align:center}
+.tv .pact+.pact{margin-left:16px}
+.tv .pact.focused{border-color:var(--border-hover);background:var(--component-bg-active)}
 </style></head>
 <body>
-<div class="tierbar t4"><span class="tno">Tier 4</span><span class="twhat"><b>Web TV</b> (tv.put.io, Tizen, webOS). The design system as on web, restrained to a generic list-first 10-foot interface. The shipped <b>tv-native</b> app is the reference look; Roku matches it directly and the native TV tiers align with the same family feel inside their own control conventions.</span><span class="ttok">--tv-text-on-video · --tv-video-bg · --tv-hero-scrim-top · --tv-hero-scrim-bottom</span></div>
+<div class="tierbar t4"><span class="tno">Tier 4</span><span class="twhat"><b>Web TV</b>: tv.put.io, Tizen, webOS. Drawn from the shipped <code>apps/tv</code> in putio-web.</span><span class="ttok">--overlay-full · --tv-text-on-video · --slider-fill · --slider-track · --component-bg-active</span></div>
 <div class="preview-shell">
-
-  <div>
-    <div class="label">Player chrome, minimal, bottom-anchored</div>
-    <div class="note">
-      Apple TV owns the player. Minimal overlay: <b>bold filename bottom-left</b>, two icon circles top-right (CC focused white, audio solid), hairline scrubber in the bottom safe area, GT America timecodes with tabular figures. <b>No transport buttons</b>: the Siri Remote owns play/pause/scrub.<br><br>
-      Android TV, Roku, and Smart-TV web mirror this shape, but their apps draw the chrome because those platforms don't ship a system player. Source: <code class="src">system/tv.css</code>.
-    </div>
-  </div>
-
-  <!-- =================================================================
-       ARTBOARD, Immersive player
-       ============================================================ -->
-  <div class="artboard"><div class="tv-fit">
-    <div class="tv">
-      <div class="video-bg"></div>
-      <div class="pchrome">
-        <div class="row-top">
-          <div class="title">The.Wire.S03E04.Hamsterdam.2160p.UHD.BluRay.Remux.HDR.HEVC.DTS-HD.MA.5.1-DEMAND[rartv].mkv</div>
-          <div class="corner">
-            <div class="gi solid" title="Closed captions">
-              <i class="ph ph-closed-captioning" style="font-size:48px;" aria-hidden="true"></i>
-            </div>
-            <div class="gi" title="Audio tracks">
-              <i class="ph ph-speaker-high" style="font-size:48px;" aria-hidden="true"></i>
-            </div>
-          </div>
-        </div>
-        <div class="scrub">
-          <i></i>
-          <b></b>
-        </div>
-        <div class="times">
-          <span>00:08</span>
-          <span>−12:06</span>
-        </div>
-        <div class="pills">
-          <div class="btn">
-            <i class="ph ph-info" style="font-size:32px;" aria-hidden="true"></i>
-            <span>Info</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  </div>
-
-  <!-- =================================================================
-       ANATOMY
-       ============================================================ -->
-  <div>
-    <div class="label">Player chrome anatomy</div>
-  </div>
-  <div class="anat">
-    <div class="c"><div class="k">Filename</div><div class="v">30px · 700 · −0.02em</div><div class="d">break-all on tokens</div></div>
-    <div class="c"><div class="k">Scrubber</div><div class="v">6px track · 14px thumb</div><div class="d">no platform-buttons overlay</div></div>
-    <div class="c"><div class="k">Timecode</div><div class="v">15px · mono · tnum</div><div class="d">remaining: −MM:SS</div></div>
-    <div class="c"><div class="k">Icon circles</div><div class="v">56×56 · solid</div><div class="d">CC · Audio · Subtitles</div></div>
-  </div>
-
-  <!-- =================================================================
-       PLATFORM VARIATION
-       ============================================================ -->
-  <div>
-    <div class="label">Platform variation · who owns the player</div>
-  </div>
-
-  <div class="platforms">
-    <div class="ptr head">
-      <div>What</div>
-      <div>tvOS</div>
-      <div>Android TV</div>
-      <div>Roku</div>
-      <div>Smart-TV web</div>
-    </div>
-    <div class="ptr">
-      <div class="what">Player engine</div>
-      <div>AVPlayer · system</div>
-      <div>libVLC · Media3</div>
-      <div>Roku player · HLS / DASH</div>
-      <div>HTML5 Video</div>
-    </div>
-    <div class="ptr">
-      <div class="what">Transport buttons</div>
-      <div>none · Siri Remote</div>
-      <div>app-drawn icons</div>
-      <div>app-drawn flat icons</div>
-      <div>app-drawn icons</div>
-    </div>
-    <div class="ptr">
-      <div class="what">CC / subtitle picker</div>
-      <div>solid sheet</div>
-      <div>M3 bottom sheet</div>
-      <div>SceneGraph dialog</div>
-      <div>solid centred modal</div>
-    </div>
-    <div class="ptr">
-      <div class="what">PiP / multitask</div>
-      <div>system PiP</div>
-      <div>Android PiP</div>
-      <div>—</div>
-      <div>—</div>
-    </div>
-    <div class="ptr">
-      <div class="what">Unsupported codec</div>
-      <div>VLCKit fallback</div>
-      <div>libVLC (already)</div>
-      <div>"Stream via VLC" hint</div>
-      <div>"Stream via VLC" hint</div>
-    </div>
-  </div>
-
+<div><div class="label">Player chrome, one bar at the bottom</div><div class="note">The app draws its own controls over the video: the raw filename and option buttons, a seek bar, and times. They hide 3 s after the last key and stay up while paused or seeking.</div></div>
+<div class="artboard"><div class="tv-fit"><div class="tv"><div class="pl"><div class="pc"><div class="pc-head"><div class="pc-title">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div><div class="pc-acts"><button class="pib"><span class="lbl">Subtitles</span><span class="surf"><i class="ph-fill ph-closed-captioning" aria-hidden="true"></i></span></button><button class="pib"><span class="lbl">Speed</span><span class="surf"><i class="ph ph-gauge" aria-hidden="true"></i></span></button><button class="pib"><span class="lbl">Stats</span><span class="surf"><i class="ph ph-pulse" aria-hidden="true"></i></span></button></div></div><div class="seek active"><span class="fill" style="width:36%"></span><span class="thumb" style="left:36%"></span></div><div class="ptime"><span>21:04</span><span>58:12</span></div></div></div></div></div></div>
+<div class="cap"><b>Playing, seek bar active</b>The thumb shows while no option button holds focus.</div>
+<div class="kv"><div class="r"><span class="k">bar</span><span class="v"><code>--overlay-full</code>, full width; padding 16 top, safe-x sides, safe-y bottom; fades in <code>--dur-fast</code></span></div><div class="r"><span class="k">title</span><span class="v">48 medium, one line, at most 80% wide</span></div><div class="r"><span class="k">buttons</span><span class="v"><b>Language</b> (more than one audio track) · <b>Subtitles</b> · <b>Speed</b> · <b>Stats</b>; 68 pills, touching; label 24 above on focus</span></div><div class="r"><span class="k">seek bar</span><span class="v">12, <code>--slider-fill</code> on <code>--slider-track</code>; thumb 36, <code>--slider-knob</code> with a 4px edge</span></div><div class="r"><span class="k">times</span><span class="v">24, elapsed left with a pause glyph while paused, duration right; <code>m:ss</code> or <code>h:mm:ss</code></span></div><div class="r"><span class="k">keys</span><span class="v">OK plays and pauses; Left and Right seek 15 s × presses within 500 ms; Up enters the buttons, Down leaves them</span></div><div class="r"><span class="k">engines</span><span class="v">Auto, Native player (Tizen AVPlay), Shaka player, Video.js player, HTML video; set in Account</span></div><div class="r"><span class="k">end</span><span class="v">Up Next when the account suggests the next media, else back to the folder (see <code>tv-s02-player</code>)</span></div></div>
+<div class="dont"><b>Do not</b> add transport buttons or a gradient scrim. The remote owns play, pause and seek; the bar is one flat plate.</div>
 </div>
-<script>
-(function () {
-  function fit() {
-    document.querySelectorAll('.artboard').forEach(function (a) {
-      var f = a.querySelector('.tv-fit');
-      if (f) f.style.transform = 'scale(' + (a.clientWidth / 1920) + ')';
-    });
-  }
-  fit();
-  window.addEventListener('resize', fit);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
-})();
-</script>
+<script>(function(){function f(){document.querySelectorAll('.tvbox,.artboard').forEach(function(b){var e=b.querySelector('.tvfit,.tv-fit');if(e)e.style.transform='scale('+(b.clientWidth/1920)+')';});}f();addEventListener('resize',f);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f);})();</script>
 </body></html>

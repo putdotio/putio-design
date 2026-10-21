@@ -11,65 +11,63 @@
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="./_resize.js" defer></script>
 <style>
-.tvfit{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left}
-.tvfit .tv{position:absolute;inset:0}
-.tv .row{transition:none}
-.tv .row .title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tv .btn-sm{padding:16px;font-size:24px;gap:8px}
-.tv .btn-sm i{font-size:32px}
+.artboard{position:relative;width:1920px;max-width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:var(--app-bg);box-shadow:0 24px 64px rgba(0,0,0,0.45),0 0 0 1px var(--line);flex:0 0 auto}
+.tvfit,.tv-fit{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left}
+.tvfit>.tv,.tv-fit>.tv{position:absolute;inset:0}
+
+.tv .scr{height:100%;box-sizing:border-box;padding:0 0 calc(32px + var(--tv-safe-y));overflow:hidden}
+.tv .scr-head{flex:0 0 auto;gap:0;border-bottom:1px solid var(--list-item-border)}
+.tv .scr-title{flex:1 1 auto;min-width:0;margin-right:32px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv .scr-head .logo{display:block;width:184px;height:55px;margin-top:-7px}
+.tv .scr-actions{flex:0 0 auto;margin-left:auto}
+.tv .btn{padding:16px;gap:8px;font-size:24px;line-height:32px;letter-spacing:0;border-width:var(--border-width);transition:none}
+.tv .btn i{font-size:32px}
+.tv .btn.md{padding:16px 32px;gap:16px;font-size:32px;line-height:1.2}
+.tv .btn.md i{font-size:36px}
+.tv .row{flex:0 0 auto;min-height:114px;box-sizing:border-box;transition:none}
+.tv .row .ico{font-size:48px;line-height:1}
+.tv .row .title,.tv .row .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv .row .sub{line-height:1.2;font-variant-numeric:normal}
+.tv .row .trailing{font-size:24px;line-height:1;color:var(--text-secondary)}
+.tv .row .trailing .ac{font-size:36px}
+.tv .row .trailing .ai{font-size:48px}
+.tv .row .trailing .tx{line-height:28px;text-transform:uppercase}
+.tv .row.off{opacity:.55}
+.tv .row.off .ico{color:var(--text-secondary)}
+.tv .sw{display:inline-block;position:relative;width:70px;height:40px;border-radius:var(--radius-pill);background:var(--border-hover)}
+.tv .sw::after{content:"";position:absolute;top:0;left:0;width:40px;height:40px;border-radius:var(--radius-pill);background:var(--hi-contrast)}
+.tv .sw.on{background:var(--green-solid)}
+.tv .sw.on::after{left:30px}
+.tv .spin{display:inline-block;box-sizing:border-box;width:32px;height:32px;border:4px solid var(--border);border-top-color:var(--yellow-solid);border-radius:50%}
+.tv .lst{margin:0 var(--tv-safe-x) 16px;font-size:32px;font-weight:500;line-height:1.2;color:var(--text-secondary)}
+.tv .lst.gap{margin-top:64px}
+.tv .err-line{margin:8px var(--tv-safe-x) 0;font-size:24px;line-height:1.4;color:var(--alert-danger-body)}
+.tv .state{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:0 256px 96px;text-align:center}
+.tv .state .st{font-size:96px;line-height:1;color:var(--text-secondary)}
+.tv .state .st.err{color:var(--red-solid)}
+.tv .state h2{margin:0;font-size:64px;font-weight:500;line-height:1.1;color:var(--text)}
+.tv .state p{margin:0;font-size:36px;line-height:1.2;color:var(--text-secondary)}
+.tv .state .btn{margin-top:32px}
+.tv .loader{display:inline-block;box-sizing:border-box;width:76px;height:76px;border:8px solid var(--border);border-top-color:var(--yellow-solid);border-radius:50%}
+.tv .stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--tv-video-bg)}
+.tv .sel{position:absolute;inset:0;z-index:30}
+.tv .sel::before{content:"";position:absolute;inset:0;background:var(--sheet-scrim)}
+.tv .sel-panel{position:absolute;top:50%;left:50%;min-width:25%;max-width:50%;max-height:76%;overflow:hidden;box-sizing:border-box;padding:32px;border:var(--border-width) solid var(--sheet-border);border-radius:var(--radius-tv);background:var(--sheet-bg);box-shadow:var(--sheet-shadow);transform:translate(-50%,-50%)}
+.tv .sel-panel h2{margin:0 0 16px;font-size:36px;font-weight:500;line-height:1.2;color:var(--text-secondary);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-wrap:break-word}
+.tv .opt{position:relative;display:flex;align-items:center;gap:16px;min-height:70px;box-sizing:border-box;margin-bottom:8px;padding:16px 64px 16px 16px;border-radius:var(--radius-tv);font-size:32px;line-height:1.2;color:var(--text);white-space:nowrap}
+.tv .opt:last-child{margin-bottom:0}
+.tv .opt.focused{background:var(--component-bg-active)}
+.tv .opt>i:first-child{font-size:36px;color:var(--yellow-solid)}
+.tv .opt .ck{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:32px;color:var(--text-secondary)}
 </style></head>
 <body>
-<div class="tierbar t4"><span class="tno">Tier 4</span><span class="twhat"><b>TV (Generic)</b>: tv.put.io, Tizen, webOS. The restrained, list-first web binding is the reference presentation. Android TV shares the product behaviour but applies Google's native TV components and focus model.</span><span class="ttok">--yellow-solid · --text-secondary · --component-bg-active · --radius-tv</span></div>
+<div class="tierbar t4"><span class="tno">Tier 4</span><span class="twhat"><b>Web TV</b>: tv.put.io, Tizen, webOS. Drawn from the shipped <code>apps/tv</code> in putio-web.</span><span class="ttok">--file-row-icon · --text-secondary · --component-bg-active · --radius-tv</span></div>
 <div class="preview-shell">
-<div>
-  <div class="label">History is the TV activity surface</div>
-  <div class="note">There is <b>no transfers screen on any TV tier</b>: transfers are managed on web and mobile, and the TV reads the outcome here. A <code>SectionList</code> groups events by date; every row opens the event's file. Source: <code class="src">features/history/screens/history.tsx</code>.</div>
-  <div class="note">Row title is the <b>raw transfer or file name</b>. The subline joins time-ago and detail with a spaced pipe: <code>2 hours ago&nbsp;&nbsp;|&nbsp;&nbsp;3.42 GB</code>, and for shares <code>Shared by: %s</code> instead of the size.</div>
+<div><div class="label">History is the TV activity surface</div><div class="note">Finished outcomes only: completed transfers and files shared with you, grouped by day. Every row opens its file. There is no transfers screen.</div></div>
+<div class="tvbox"><div class="tvfit"><div class="tv"><div class="scr"><div class="scr-head"><h1 class="scr-title">History</h1><div class="scr-actions"><button class="btn"><i class="ph ph-backspace" aria-hidden="true"></i>Clear</button></div></div><div class="lst">Today</div><div class="row focused"><div class="ico"><i class="ph ph-file-arrow-down" aria-hidden="true"></i></div><div class="body"><div class="title">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</div><div class="sub">2h ago&nbsp;&nbsp;|&nbsp;&nbsp;1.2 GB</div></div></div><div class="row"><div class="ico"><i class="ph ph-file-arrow-down" aria-hidden="true"></i></div><div class="body"><div class="title">podcast_ep127_final_mixdown_v2.mp3</div><div class="sub">6h ago&nbsp;&nbsp;|&nbsp;&nbsp;72 MB</div></div></div><div class="lst gap">Yesterday</div><div class="row"><div class="ico"><i class="ph ph-cloud-arrow-down" aria-hidden="true"></i></div><div class="body"><div class="title">document-scan-march-2026.pdf</div><div class="sub">1d ago&nbsp;&nbsp;|&nbsp;&nbsp;shared by grubby</div></div></div><div class="row"><div class="ico"><i class="ph ph-file-arrow-down" aria-hidden="true"></i></div><div class="body"><div class="title">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div><div class="sub">1d ago&nbsp;&nbsp;|&nbsp;&nbsp;3.4 GB</div></div></div></div></div></div></div>
+<div class="cap"><b>History · grouped by day</b>Transfers use <code>file-arrow-down</code>, shares <code>cloud-arrow-down</code>.</div>
+<div class="kv"><div class="r"><span class="k">header</span><span class="v">title <b>History</b>; <b>Clear</b> sm button with <code>backspace</code></span></div><div class="r"><span class="k">sections</span><span class="v"><b>Today</b>, <b>Yesterday</b>, <b>Last week</b>, <b>Earlier</b></span></div><div class="r"><span class="k">title</span><span class="v">the transfer or file name, raw</span></div><div class="r"><span class="k">line</span><span class="v"><code>2h ago&nbsp;&nbsp;|&nbsp;&nbsp;1.2 GB</code>; shares <code>1d ago&nbsp;&nbsp;|&nbsp;&nbsp;shared by %s</code>; <b>Just now</b>, <code>5m ago</code>, <code>3d ago</code></span></div><div class="r"><span class="k">row</span><span class="v">no accessory; OK opens the file in Your Files</span></div><div class="r"><span class="k">clear</span><span class="v"><b>Are you sure you want to clear your history?</b> · <b>Clear</b> focused, then <b>Cancel</b></span></div><div class="r"><span class="k">empty</span><span class="v"><b>This is your history. It's currently empty.</b> / <b>You will see information here once things start happening.</b> with <code>clock-counter-clockwise</code></span></div><div class="r"><span class="k">availability</span><span class="v">Home hides History when the account turns history off</span></div></div>
+<div class="dont"><b>Do not</b> add a transfers screen, progress bars or live speeds.</div>
 </div>
-
-<div class="tvbox"><div class="tvfit">
-  <div class="tv">
-    <div class="scr">
-      <div class="scr-head">
-        <h1 class="scr-title">History</h1>
-        <div class="scr-spacer"></div>
-        <div class="scr-actions"><button class="btn btn-sm"><i class="ph ph-backspace" aria-hidden="true"></i>Clear</button></div>
-      </div>
-      <div class="section-h">Today</div>
-      <div class="row focused">
-        <div class="ico"><i class="ph ph-file-arrow-down" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
-        <div class="body"><div class="title">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</div><div class="sub">2 hours ago&nbsp;&nbsp;|&nbsp;&nbsp;1.20 GB</div></div>
-      </div>
-      <div class="row">
-        <div class="ico"><i class="ph ph-file-arrow-down" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
-        <div class="body"><div class="title">podcast_ep127_final_mixdown_v2.mp3</div><div class="sub">6 hours ago&nbsp;&nbsp;|&nbsp;&nbsp;72.4 MB</div></div>
-      </div>
-      <div class="section-h">Yesterday</div>
-      <div class="row">
-        <div class="ico"><i class="ph ph-share-network" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
-        <div class="body"><div class="title">document-scan-march-2026.pdf</div><div class="sub">Yesterday&nbsp;&nbsp;|&nbsp;&nbsp;Shared by: another user</div></div>
-      </div>
-      <div class="row">
-        <div class="ico"><i class="ph ph-file-arrow-down" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
-        <div class="body"><div class="title">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div><div class="sub">Yesterday&nbsp;&nbsp;|&nbsp;&nbsp;3.42 GB</div></div>
-      </div>
-    </div>
-  </div>
-</div></div>
-<div class="cap"><b>History · grouped by date</b>Two event families reach the list: completed transfers (<code>file-input</code> glyph) and files shared with you (<code>file-symlink</code> glyph). Both render brand-yellow at 48.</div>
-
-<div class="kv">
-  <div class="r"><span class="k">title</span><span class="v"><b>History</b> (<code>menu_dashboard</code>), with a sm <b>Clear</b> Button in the actions slot</span></div>
-  <div class="r"><span class="k">sections</span><span class="v">grouped by date via <code>groupEventsByDate</code>; the section header is the standard <code>.section-h</code> caption</span></div>
-  <div class="r"><span class="k">row</span><span class="v">standard ListItem: yellow 48 glyph, body-36 title, caption-32 subline, no accessory</span></div>
-  <div class="r"><span class="k">select</span><span class="v">navigates to the event's file (<code>files</code> route with <code>file_id</code>)</span></div>
-  <div class="r"><span class="k">clear</span><span class="v">AlertDialog: <b>Are you sure you want to clear your history?</b> · destructive <b>Clear</b> first, Cancel second (see <code>tv-p03-select-modal</code>)</span></div>
-  <div class="r"><span class="k">empty</span><span class="v"><b>This is your history. It's currently empty.</b> / <b>You will see information here once things start happening.</b> with the <code>history</code> glyph (see <code>tv-s06-states</code>)</span></div>
-  <div class="r"><span class="k">availability</span><span class="v">the Home hub hides History entirely when <code>history_enabled</code> is off</span></div>
-</div>
-
-<div class="note" style="margin-top:4px">Contract: <a href="https://github.com/putdotio/putio-design/blob/main/platforms/tv-generic/DESIGN.md"><code>platforms/tv-generic/DESIGN.md</code></a> · source: <code class="src">features/history/screens/history.tsx</code>, <code class="src">components/list-section-header.tsx</code></div>
-<div class="dont"><b>Do not</b> add a transfers screen, progress bars, or live speeds to this tier. The TV shows finished outcomes only; anything mid-flight belongs to web and mobile.</div>
-</div>
-<script>(function(){function f(){document.querySelectorAll('.tvbox').forEach(function(b){var e=b.querySelector('.tvfit');if(e)e.style.transform='scale('+(b.clientWidth/1920)+')';});}f();addEventListener('resize',f);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f);})();</script>
+<script>(function(){function f(){document.querySelectorAll('.tvbox,.artboard').forEach(function(b){var e=b.querySelector('.tvfit,.tv-fit');if(e)e.style.transform='scale('+(b.clientWidth/1920)+')';});}f();addEventListener('resize',f);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f);})();</script>
 </body></html>

@@ -119,6 +119,38 @@
     .spinner { animation: task-spin 0.8s linear infinite; }
   }
   @keyframes task-spin { to { transform: rotate(360deg); } }
+
+  .note code, .kv code { font-family: var(--font-mono); }
+  /* Shipped task dock (app.put.io tasks/ + components/task) */
+  .dock { width: 300px; display: flex; flex-direction: column; gap: 20px; }
+  .tcard { position: relative; padding: 12px 16px; border-radius: var(--radius-sm); background: var(--lo-contrast); border: 1px solid var(--line); }
+  .tcard .tt { display: flex; align-items: center; gap: 8px; padding-right: 20px; font-size: 14px; font-weight: 500; line-height: 1.2; word-break: break-word; }
+  .tcard.done .tt, .tcard.done .tt a { color: var(--green-text-secondary); }
+  .tcard.error .tt { color: var(--red-text-secondary); }
+  .tcard .tt a { text-decoration: none; }
+  .tcard .zl { display: flex; flex-direction: column; }
+  .tcard .zl .sz { font-size: 12px; font-weight: 400; color: var(--text-secondary); }
+  .tcard .x { all: unset; cursor: pointer; position: absolute; right: 4px; top: 4px; width: 24px; height: 24px; display: grid; place-items: center; color: var(--text-secondary); font-size: 12px; }
+  .tcard .msg { margin: 0; padding: 8px 0 0; font-size: 12px; line-height: 1.5; color: var(--text); word-wrap: break-word; }
+  .ups { margin-top: 8px; }
+  .up { display: flex; align-items: flex-start; gap: 8px; padding: 12px 0; font-size: 12px; color: var(--text-secondary); }
+  .up + .up { border-top: 1px solid var(--list-item-border); }
+  .up .fi { font-size: 12px; margin-top: 2px; }
+  .up .ub { flex: 1; min-width: 0; word-break: break-word; }
+  .up .un { color: var(--text); line-height: 1.2; margin-bottom: 4px; }
+  .up .bad { color: var(--red-solid); }
+  .up .us.bad { color: var(--red-text-secondary); }
+  .up .ok { font-size: 18px; color: var(--green-solid); }
+  .ib { all: unset; cursor: pointer; color: var(--text-secondary); font-size: 16px; line-height: 1; }
+  .donut { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; background: conic-gradient(var(--green-solid) var(--v), var(--border) 0); -webkit-mask: radial-gradient(circle, transparent 5px, #000 5.5px); mask: radial-gradient(circle, transparent 5px, #000 5.5px); }
+  .donut.paused { background: conic-gradient(var(--solid) var(--v), var(--border) 0); }
+  .spin { width: 16px; height: 16px; flex-shrink: 0; border-radius: 50%; border: 2px solid color-mix(in srgb, var(--text) 12.5%, transparent); border-top-color: var(--text); display: inline-block; box-sizing: border-box; }
+  .spin.s32 { width: 32px; height: 32px; border-width: 4px; }
+  @media (prefers-reduced-motion: no-preference) { .spin { animation: task-spin 0.8s linear infinite; } }
+  .dock-foot { text-align: right; font-size: 12px; margin-top: -12px; }
+  .dock-foot a { color: var(--text-secondary); }
+  .pbar.shipped { height: 6px; border-radius: var(--radius-sm); background: var(--border); }
+  .pbar.shipped .fill { border-radius: 0; }
 </style></head>
 <body>
 <div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat"><b>Web</b> (www / app / auth). The full design system: our component library and the <b>components.css</b> recipe. This is the one tier where the recipe is the contract, native tiers take the tokens and nothing else.</span><span class="ttok">--radius-pill · --component-bg-active · --yellow-solid · --red-text-secondary</span></div>
@@ -126,48 +158,48 @@
 
   <div class="head">
     <span class="ix">01</span>
-    <span class="t">Task list</span>
+    <span class="t">Task dock</span>
     <span class="n">Tasks</span>
   </div>
-  <div class="note">Server-side jobs the user waits on: zip creation, remote upload, bulk move. States ride <code>data-state="pending | loading | active | completed | failed"</code>.</div>
+  <div class="note">Jobs the user waits on: zip, download links, extract, copy to your disk, uploads. Each is a 300px card stacked in a dock fixed bottom-right. A spinner leads the title while it runs; the title turns green when done, red on error. The x cancels or dismisses.</div>
   <div class="kv">
-    <div class="r"><span class="k">determinate</span><span class="v">4px <code>--yellow-solid</code> on <code>--component-bg-active</code></span></div>
-    <div class="r"><span class="k">unknown</span><span class="v">sliding indeterminate bar, paused under reduced motion</span></div>
-    <div class="r"><span class="k">completed</span><span class="v">glyph goes green</span></div>
-    <div class="r"><span class="k">failed</span><span class="v">glyph red, inline reason, quiet Retry. <b>Never a red-filled row</b></span></div>
+    <div class="r"><span class="k">running</span><span class="v">16px spinner in text colour, no bar: the server sends no percent</span></div>
+    <div class="r"><span class="k">uploads</span><span class="v">one card, a row per file, a 20px green donut per row; hover swaps in Pause</span></div>
+    <div class="r"><span class="k">completed</span><span class="v">title green; zip and download links become a link with copy</span></div>
+    <div class="r"><span class="k">failed</span><span class="v">title red, reason in the message; failed uploads get Retry</span></div>
+    <div class="r"><span class="k">footer</span><span class="v">"Clear completed" once anything is done</span></div>
   </div>
 
-  <div class="tasks">
-    <div class="task" data-state="active">
-      <div class="t-ico"><i class="ph ph-file-zip" aria-hidden="true"></i></div>
-      <div class="t-name">Creating zip · <code>backup-photos-2025.zip</code></div>
-      <div class="t-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="64" aria-label="Zip progress"><div class="fill" style="width: 64%;"></div></div>
-      <div class="t-status">64% · 41.1 of 64.2 GB</div>
+  <div class="dock">
+    <div class="tcard">
+      <div class="tt"><span class="spin" role="status" aria-label="Running"></span>Creating Package...</div>
+      <button class="x" aria-label="Cancel"><i class="ph-fill ph-x"></i></button>
+      <p class="msg">Preparing the package</p>
     </div>
-    <div class="task" data-state="loading">
-      <div class="t-ico"><i class="ph ph-cloud-arrow-up" aria-hidden="true"></i></div>
-      <div class="t-name">Uploading to remote storage</div>
-      <div class="t-bar" role="progressbar" aria-label="Upload progress"><div class="fill"></div></div>
-      <div class="t-status">preparing&hellip;</div>
+
+    <div class="tcard">
+      <div class="tt"><span class="spin" role="status" aria-label="Running"></span>Uploading...</div>
+      <button class="x" aria-label="Cancel"><i class="ph-fill ph-x"></i></button>
+      <div class="ups">
+        <div class="up"><i class="ph-fill ph-file-video fi"></i><div class="ub"><div class="un">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div><div class="us">3 GB</div></div><span class="donut" role="img" style="--v: 64%;" aria-label="64%"></span></div>
+        <div class="up"><i class="ph-fill ph-file-pdf fi"></i><div class="ub"><div class="un">document-scan-march-2026.pdf</div><div class="us">2 MB</div></div><i class="ph-fill ph-check-circle ok"></i></div>
+        <div class="up"><i class="ph-fill ph-minus-circle fi bad"></i><div class="ub"><div class="un">IMG_4392.HEIC</div><div class="us bad">Upload failed, please try again.</div></div><button class="ib" aria-label="Retry" title="Retry"><i class="ph ph-arrow-clockwise"></i></button></div>
+      </div>
     </div>
-    <div class="task" data-state="pending">
-      <div class="t-ico"><i class="ph ph-folder-simple" aria-hidden="true"></i></div>
-      <div class="t-name">Moving 214 items to <code>/archive</code></div>
-      <div class="t-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Move progress"><div class="fill"></div></div>
-      <div class="t-status">queued</div>
+
+    <div class="tcard done">
+      <div class="tt"><button class="ib" aria-label="Copy"><i class="ph ph-copy"></i></button><span class="zl"><a href="#">document-scan-march-2026.pdf and 4 other files</a><span class="sz">2.1 GB</span></span></div>
+      <button class="x" aria-label="Dismiss"><i class="ph-fill ph-x"></i></button>
+      <p class="msg">Please use a download manager, browsers are terrible at resuming broken downloads.</p>
     </div>
-    <div class="task" data-state="completed">
-      <div class="t-ico"><i class="ph-fill ph-check-circle" aria-hidden="true"></i></div>
-      <div class="t-name">Zip ready · <code>concert-recordings.zip</code></div>
-      <div class="t-sub">2.1 GB · link expires in 7 days</div>
-      <div class="t-status"><button class="btn btn-default btn-sm"><i class="ph ph-arrow-down" aria-hidden="true"></i>Download</button></div>
+
+    <div class="tcard error">
+      <div class="tt">Couldn't Create Download Links for IMG_4392.HEIC and 2 other files</div>
+      <button class="x" aria-label="Dismiss"><i class="ph-fill ph-x"></i></button>
+      <p class="msg">Sorry. We could not get download links for these files.</p>
     </div>
-    <div class="task" data-state="failed">
-      <div class="t-ico"><i class="ph-fill ph-x-circle" aria-hidden="true"></i></div>
-      <div class="t-name">Remote upload failed</div>
-      <div class="t-err">Destination out of space (needs 12.1 GB, 3.4 GB free)</div>
-      <div class="t-status"><button class="btn btn-default btn-sm"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i>Retry</button></div>
-    </div>
+
+    <div class="dock-foot"><a href="#">Clear completed</a></div>
   </div>
 
   <div class="head" style="margin-top: 8px;">
@@ -175,27 +207,25 @@
     <span class="t">Progress primitives</span>
   </div>
   <div class="kv">
-    <div class="r"><span class="k">2px</span><span class="v">hairline, inside rows and under toolbars</span></div>
-    <div class="r"><span class="k">4px</span><span class="v">default, tasks and transfers</span></div>
-    <div class="r"><span class="k">8px</span><span class="v">emphasis, storage bar</span></div>
-    <div class="r"><span class="k">fill</span><span class="v"><code>--yellow-solid</code> on <code>--component-bg-active</code>. Green and red are terminal states only, never in-flight</span></div>
-    <div class="r"><span class="k">spinner</span><span class="v">yellow arc on <code>--component-bg-active</code>, 16 / 20 / 28px</span></div>
+    <div class="r"><span class="k">bar</span><span class="v">6px <code>--yellow-solid</code> on <code>--border</code>, radius 4: the storage bar</span></div>
+    <div class="r"><span class="k">row fill</span><span class="v">transfers fill their row background, see Transfer states</span></div>
+    <div class="r"><span class="k">donut</span><span class="v">20px, <code>--green-solid</code>; <code>--solid</code> while paused</span></div>
+    <div class="r"><span class="k">spinner</span><span class="v">theme-ui spinner: 16px in tasks, 32px page loading</span></div>
   </div>
 
   <div class="prim-grid">
-    <span class="lab">2px hairline</span>
-    <div class="pbar h2"><div class="fill" style="width: 38%;"></div></div>
-    <span class="lab">4px default</span>
-    <div class="pbar h4"><div class="fill" style="width: 64%;"></div></div>
-    <span class="lab">8px emphasis</span>
-    <div class="pbar h8"><div class="fill" style="width: 82%;"></div></div>
-    <span class="lab">spinners 16 · 20 · 28</span>
+    <span class="lab">6px bar</span>
+    <div class="pbar shipped"><div class="fill" style="width: 64%;"></div></div>
+    <span class="lab">donut · running / paused</span>
+    <span style="display: inline-flex; gap: 16px; align-items: center;"><span class="donut" style="--v: 64%;"></span><span class="donut paused" style="--v: 30%;"></span></span>
+    <span class="lab">spinners 16 · 32</span>
     <span style="display: inline-flex; gap: 16px; align-items: center;">
-      <span class="spinner s16" role="status" aria-label="Loading"></span>
-      <span class="spinner s20" role="status" aria-label="Loading"></span>
-      <span class="spinner s28" role="status" aria-label="Loading"></span>
+      <span class="spin" role="status" aria-label="Loading"></span>
+      <span class="spin s32" role="status" aria-label="Loading"></span>
     </span>
   </div>
+
+  <div class="note">2px and 8px bars, a sliding indeterminate bar, and a yellow spinner arc <span class="proposed-tag">proposed</span>: not in app.put.io. Its icons come from the flaticon font.</div>
 
 </div>
 </body></html>

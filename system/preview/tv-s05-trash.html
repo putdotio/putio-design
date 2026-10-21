@@ -11,64 +11,65 @@
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="./_resize.js" defer></script>
 <style>
-.tvfit{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left}
-.tvfit .tv{position:absolute;inset:0}
-.tv .row{transition:none}
-.tv .row .title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tv .btn-sm{padding:16px;font-size:24px;gap:8px}
-.tv .btn-sm i{font-size:32px}
+.artboard{position:relative;width:1920px;max-width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:var(--app-bg);box-shadow:0 24px 64px rgba(0,0,0,0.45),0 0 0 1px var(--line);flex:0 0 auto}
+.tvfit,.tv-fit{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left}
+.tvfit>.tv,.tv-fit>.tv{position:absolute;inset:0}
+
+.tv .scr{height:100%;box-sizing:border-box;padding:0 0 calc(32px + var(--tv-safe-y));overflow:hidden}
+.tv .scr-head{flex:0 0 auto;gap:0;border-bottom:1px solid var(--list-item-border)}
+.tv .scr-title{flex:1 1 auto;min-width:0;margin-right:32px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv .scr-head .logo{display:block;width:184px;height:55px;margin-top:-7px}
+.tv .scr-actions{flex:0 0 auto;margin-left:auto}
+.tv .btn{padding:16px;gap:8px;font-size:24px;line-height:32px;letter-spacing:0;border-width:var(--border-width);transition:none}
+.tv .btn i{font-size:32px}
+.tv .btn.md{padding:16px 32px;gap:16px;font-size:32px;line-height:1.2}
+.tv .btn.md i{font-size:36px}
+.tv .row{flex:0 0 auto;min-height:114px;box-sizing:border-box;transition:none}
+.tv .row .ico{font-size:48px;line-height:1}
+.tv .row .title,.tv .row .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv .row .sub{line-height:1.2;font-variant-numeric:normal}
+.tv .row .trailing{font-size:24px;line-height:1;color:var(--text-secondary)}
+.tv .row .trailing .ac{font-size:36px}
+.tv .row .trailing .ai{font-size:48px}
+.tv .row .trailing .tx{line-height:28px;text-transform:uppercase}
+.tv .row.off{opacity:.55}
+.tv .row.off .ico{color:var(--text-secondary)}
+.tv .sw{display:inline-block;position:relative;width:70px;height:40px;border-radius:var(--radius-pill);background:var(--border-hover)}
+.tv .sw::after{content:"";position:absolute;top:0;left:0;width:40px;height:40px;border-radius:var(--radius-pill);background:var(--hi-contrast)}
+.tv .sw.on{background:var(--green-solid)}
+.tv .sw.on::after{left:30px}
+.tv .spin{display:inline-block;box-sizing:border-box;width:32px;height:32px;border:4px solid var(--border);border-top-color:var(--yellow-solid);border-radius:50%}
+.tv .lst{margin:0 var(--tv-safe-x) 16px;font-size:32px;font-weight:500;line-height:1.2;color:var(--text-secondary)}
+.tv .lst.gap{margin-top:64px}
+.tv .err-line{margin:8px var(--tv-safe-x) 0;font-size:24px;line-height:1.4;color:var(--alert-danger-body)}
+.tv .state{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:0 256px 96px;text-align:center}
+.tv .state .st{font-size:96px;line-height:1;color:var(--text-secondary)}
+.tv .state .st.err{color:var(--red-solid)}
+.tv .state h2{margin:0;font-size:64px;font-weight:500;line-height:1.1;color:var(--text)}
+.tv .state p{margin:0;font-size:36px;line-height:1.2;color:var(--text-secondary)}
+.tv .state .btn{margin-top:32px}
+.tv .loader{display:inline-block;box-sizing:border-box;width:76px;height:76px;border:8px solid var(--border);border-top-color:var(--yellow-solid);border-radius:50%}
+.tv .stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--tv-video-bg)}
+.tv .sel{position:absolute;inset:0;z-index:30}
+.tv .sel::before{content:"";position:absolute;inset:0;background:var(--sheet-scrim)}
+.tv .sel-panel{position:absolute;top:50%;left:50%;min-width:25%;max-width:50%;max-height:76%;overflow:hidden;box-sizing:border-box;padding:32px;border:var(--border-width) solid var(--sheet-border);border-radius:var(--radius-tv);background:var(--sheet-bg);box-shadow:var(--sheet-shadow);transform:translate(-50%,-50%)}
+.tv .sel-panel h2{margin:0 0 16px;font-size:36px;font-weight:500;line-height:1.2;color:var(--text-secondary);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-wrap:break-word}
+.tv .opt{position:relative;display:flex;align-items:center;gap:16px;min-height:70px;box-sizing:border-box;margin-bottom:8px;padding:16px 64px 16px 16px;border-radius:var(--radius-tv);font-size:32px;line-height:1.2;color:var(--text);white-space:nowrap}
+.tv .opt:last-child{margin-bottom:0}
+.tv .opt.focused{background:var(--component-bg-active)}
+.tv .opt>i:first-child{font-size:36px;color:var(--yellow-solid)}
+.tv .opt .ck{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:32px;color:var(--text-secondary)}
 </style></head>
 <body>
-<div class="tierbar t4"><span class="tno">Tier 4</span><span class="twhat"><b>TV (Generic)</b>: tv.put.io, Tizen, webOS. The restrained, list-first web binding is the reference presentation. Android TV shares the product behaviour but applies Google's native TV components and focus model.</span><span class="ttok">--yellow-solid · --red-solid · --component-bg-active · --radius-tv</span></div>
+<div class="tierbar t4"><span class="tno">Tier 4</span><span class="twhat"><b>Web TV</b>: tv.put.io, Tizen, webOS. Drawn from the shipped <code>apps/tv</code> in putio-web.</span><span class="ttok">--file-row-icon · --sheet-bg · --component-bg-active · --radius-tv</span></div>
 <div class="preview-shell">
-<div>
-  <div class="label">Trash is a file list with two bulk actions</div>
-  <div class="note">Reached from Account's <b>Manage your trash</b> row, not from the Home hub. The body is the standard file list; the header carries <b>Restore all</b> and <b>Empty</b> as sm Buttons. Source: <code class="src">features/trash/screens/trash.tsx</code>.</div>
-  <div class="note">Selecting a row opens a centred SelectModal titled with the <b>raw filename</b>: <b>Restore</b> (history glyph), then destructive <b>Delete</b>. The destructive option fills <code>--red-solid</code> only while focused.</div>
+<div><div class="label">Trash is a file list with two bulk actions</div><div class="note">Reached from Account's <b>Manage your trash</b>, shown only while trash is on. OK on a row opens its actions.</div></div>
+<div class="tvbox"><div class="tvfit"><div class="tv"><div class="scr"><div class="scr-head"><h1 class="scr-title">Trash</h1><div class="scr-actions"><button class="btn"><i class="ph ph-clock-counter-clockwise" aria-hidden="true"></i>Restore all</button><button class="btn"><i class="ph ph-trash-simple" aria-hidden="true"></i>Empty trash</button></div></div><div class="row focused"><div class="ico"><i class="ph-fill ph-folder" aria-hidden="true"></i></div><div class="body"><div class="title">homework_answers_DONT_DELETE</div><div class="sub">Folder · Expires on November 12, 2026</div></div><div class="trailing"><i class="ph ph-caret-right ac" aria-hidden="true"></i></div></div><div class="row"><div class="ico"><i class="ph ph-file-video" aria-hidden="true"></i></div><div class="body"><div class="title">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</div><div class="sub">1.2 GB · Expires on November 14, 2026</div></div></div><div class="row"><div class="ico"><i class="ph ph-file-video" aria-hidden="true"></i></div><div class="body"><div class="title">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div><div class="sub">3.4 GB · Expires on November 18, 2026</div></div></div></div></div></div></div>
+<div class="cap"><b>Trash · list</b>Each line is the size, or <b>Folder</b>, and the expiry date.</div>
+<div class="tvbox"><div class="tvfit"><div class="tv"><div class="scr"><div class="scr-head"><h1 class="scr-title">Trash</h1><div class="scr-actions"><button class="btn"><i class="ph ph-clock-counter-clockwise" aria-hidden="true"></i>Restore all</button><button class="btn"><i class="ph ph-trash-simple" aria-hidden="true"></i>Empty trash</button></div></div><div class="row"><div class="ico"><i class="ph-fill ph-folder" aria-hidden="true"></i></div><div class="body"><div class="title">homework_answers_DONT_DELETE</div><div class="sub">Folder · Expires on November 12, 2026</div></div><div class="trailing"><i class="ph ph-caret-right ac" aria-hidden="true"></i></div></div><div class="row focused"><div class="ico"><i class="ph ph-file-video" aria-hidden="true"></i></div><div class="body"><div class="title">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</div><div class="sub">1.2 GB · Expires on November 14, 2026</div></div></div><div class="row"><div class="ico"><i class="ph ph-file-video" aria-hidden="true"></i></div><div class="body"><div class="title">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div><div class="sub">3.4 GB · Expires on November 18, 2026</div></div></div></div><div class="sel"><div class="sel-panel"><h2>Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</h2><div class="opt focused"><i class="ph ph-clock-counter-clockwise" aria-hidden="true"></i><span>Restore</span><i class="ph ph-check ck" aria-hidden="true"></i></div><div class="opt"><i class="ph ph-trash-simple" aria-hidden="true"></i><span>Delete permanently</span></div></div></div></div></div></div>
+<div class="cap"><b>Trash · row actions</b><b>Restore</b> carries the check and opens focused.</div>
+<div class="kv"><div class="r"><span class="k">header</span><span class="v"><b>Restore all</b> and <b>Empty trash</b>, sm buttons</span></div><div class="r"><span class="k">row</span><span class="v"><code>folder</code> or <code>file-video</code>; folders carry a caret</span></div><div class="r"><span class="k">line</span><span class="v"><code>1.2 GB · Expires on November 14, 2026</code></span></div><div class="r"><span class="k">delete</span><span class="v"><b>Delete "%s" permanently?</b> · <b>Delete permanently</b>, then <b>Cancel</b></span></div><div class="r"><span class="k">empty trash</span><span class="v"><b>Empty trash?</b> · <b>Empty trash permanently</b>, then <b>Cancel</b></span></div><div class="r"><span class="k">empty</span><span class="v"><b>Trash is empty</b> / <b>There are no files in your trash.</b> with <code>folder-open</code></span></div><div class="r"><span class="k">errors</span><span class="v">action failures show in an alert above the list</span></div></div>
+<div class="dont"><b>Do not</b> put a delete button or a selection mode on the rows. Row actions live in the overlay; bulk actions in the header.</div>
 </div>
-
-<div class="tvbox"><div class="tvfit">
-  <div class="tv">
-    <div class="scr">
-      <div class="scr-head">
-        <h1 class="scr-title">Trash</h1>
-        <div class="scr-spacer"></div>
-        <div class="scr-actions">
-          <button class="btn btn-sm"><i class="ph ph-clock-counter-clockwise" aria-hidden="true"></i>Restore all</button>
-          <button class="btn btn-sm"><i class="ph ph-trash" aria-hidden="true"></i>Empty</button>
-        </div>
-      </div>
-      <div class="row focused">
-        <div class="ico"><i class="ph-fill ph-folder" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
-        <div class="body"><div class="title">homework_answers_DONT_DELETE</div><div class="sub">14.8 GB</div></div>
-      </div>
-      <div class="row">
-        <div class="ico"><i class="ph ph-film-strip" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
-        <div class="body"><div class="title">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</div><div class="sub">1.20 GB</div></div>
-      </div>
-      <div class="row">
-        <div class="ico"><i class="ph ph-file" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
-        <div class="body"><div class="title">document-scan-march-2026.pdf</div><div class="sub">184 KB</div></div>
-      </div>
-      <div class="row">
-        <div class="ico"><i class="ph ph-file-audio" style="font-size:48px;color:var(--yellow-solid);" aria-hidden="true"></i></div>
-        <div class="body"><div class="title">podcast_ep127_final_mixdown_v2.mp3</div><div class="sub">72.4 MB</div></div>
-      </div>
-    </div>
-  </div>
-</div></div>
-<div class="cap"><b>Trash · file list, no accessories</b>Deleted files carry no chevron and no watched eye: the accessory slot is suppressed when <code>deleted_at</code> is set.</div>
-
-<div class="kv">
-  <div class="r"><span class="k">entry</span><span class="v">Account opens <b>Manage your trash</b>. Trash is not a Home hub destination</span></div>
-  <div class="r"><span class="k">actions</span><span class="v"><b>Restore all</b> (history glyph) and <b>Empty</b> (trash glyph), sm Buttons in the header slot</span></div>
-  <div class="r"><span class="k">row</span><span class="v">standard file row: yellow 48 type glyph, raw filename, size subline, <b>no accessory</b></span></div>
-  <div class="r"><span class="k">row select</span><span class="v">SelectModal titled with the filename: <b>Restore</b>, destructive <b>Delete</b></span></div>
-  <div class="r"><span class="k">empty</span><span class="v"><b>Your trash is empty</b> / <b>When you send files to trash, we keep them here for 14 days.</b> with the <code>delete</code> glyph</span></div>
-</div>
-
-<div class="note" style="margin-top:4px">Contract: <a href="https://github.com/putdotio/putio-design/blob/main/platforms/tv-generic/DESIGN.md"><code>platforms/tv-generic/DESIGN.md</code></a> · source: <code class="src">features/trash/screens/trash.tsx</code>, <code class="src">features/trash/queries/trash.ts</code></div>
-<div class="dont"><b>Do not</b> put a per-row delete button or a selection mode in the list. Row actions live in the centred modal; bulk actions live in the header. Nothing else.</div>
-</div>
-<script>(function(){function f(){document.querySelectorAll('.tvbox').forEach(function(b){var e=b.querySelector('.tvfit');if(e)e.style.transform='scale('+(b.clientWidth/1920)+')';});}f();addEventListener('resize',f);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f);})();</script>
+<script>(function(){function f(){document.querySelectorAll('.tvbox,.artboard').forEach(function(b){var e=b.querySelector('.tvfit,.tv-fit');if(e)e.style.transform='scale('+(b.clientWidth/1920)+')';});}f();addEventListener('resize',f);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f);})();</script>
 </body></html>

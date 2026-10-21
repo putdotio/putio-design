@@ -60,46 +60,90 @@
   .bar > div { height: 100%; background: var(--yellow-solid); }
   .t-meta { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 11px; color: var(--text-secondary); display:flex; gap: 16px; }
   .btn-gold { background: var(--yellow-solid); color: var(--primary-foreground); font-family: var(--font-sans); font-weight:500; font-size: 12px; padding: 4px 10px; border-radius: 3px; border: 0; cursor: pointer; margin-left: auto; }
+
+  .note { max-width: 760px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; }
+  .note code { font-family: var(--font-mono); color: var(--yellow-text-secondary); font-size: 11.5px; }
+  /* Shipped rows (app.put.io TransferListItem) */
+  .tlist { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .tr { position: relative; display: flex; align-items: center; gap: 16px; padding: 16px 16px 16px 16px; border-bottom: 1px solid var(--line); word-break: break-word; }
+  .tr::after { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: var(--pct, 0); z-index: 0; }
+  .tr > * { position: relative; z-index: 1; }
+  .tr.downloading { background: var(--transfer-list-item-finished-bg); }
+  .tr.downloading::after { background: var(--transfer-list-item-downloading-bg); }
+  .tr.seeding { background: var(--transfer-list-item-passive-bg); }
+  .tr.seeding::after { background: var(--transfer-list-item-completing-bg); }
+  .tr.passive { background: var(--transfer-list-item-passive-bg); }
+  .tr.completed { background: transparent; }
+  .tr .cb { width: 16px; height: 16px; flex-shrink: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--app-bg); }
+  .tr .done-dot { width: 16px; height: 16px; flex-shrink: 0; border-radius: 50%; background: var(--green-solid); margin: 0 2px; }
+  .tr .mid { flex: 1; min-width: 0; }
+  .tr .t-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; font-size: 14px; color: var(--text); margin-bottom: 4px; }
+  .tr .t-title a { color: inherit; text-decoration: none; }
+  .tr .links { font-size: 12px; color: var(--text); }
+  .tr .links a { color: inherit; }
+  .tr .t-meta { font-size: 12px; color: var(--text-secondary); }
+  .tr .t-meta .err { color: var(--red-solid); font-size: 12px; vertical-align: -1px; }
+  .tr .t-right { text-align: right; }
+  .tr .eta { font-size: 18px; color: var(--text); }
+  .tr .spd { font-size: 14px; color: var(--text); white-space: nowrap; }
+  .tr .spd i { font-size: 12px; }
 </style><script src="./_resize.js" defer></script>
 </head>
 <body>
 <div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat"><b>Web</b> (www / app / auth). The full design system: our component library and the <b>components.css</b> recipe. This is the one tier where the recipe is the contract, native tiers take the tokens and nothing else.</span><span class="ttok">--yellow-solid · --red-solid · --green-solid · --red-border</span></div>
 <div class="preview-shell">
-  <div class="label">Transfer states, health via color dot, not jargon</div>
+  <div class="label">Transfer states, progress as a row fill</div>
+  <div class="note">The row background fills left to right with <code>percent_done</code>. Details sit in one caption line split by <code>|</code>. Completed rows lose the checkbox for a green dot that turns into a red x (Remove) on hover. app.put.io uses flaticon icons; names show middle-truncated (50 + 10 chars), with dots kept.</div>
 
+  <ul class="tlist">
+    <li class="tr downloading" style="--pct: 24%;">
+      <span class="cb" aria-hidden="true"></span>
+      <div class="mid">
+        <div class="t-title"><span class="nm">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</span></div>
+        <div class="t-meta">34 peers | downloaded: 847 MB of 3.42 GB | uploaded: 12 MB of 3.42 GB | availability: 100%</div>
+      </div>
+      <div class="t-right"><div class="eta">2m 48s</div><div class="spd">14.2 MB/s <i class="ph ph-arrow-down"></i> 120 KB/s <i class="ph ph-arrow-up"></i></div></div>
+    </li>
+    <li class="tr seeding" style="--pct: 100%;">
+      <span class="cb" aria-hidden="true"></span>
+      <div class="mid">
+        <div class="t-title"><span class="nm">ubuntu-24.04.1-desktop-amd64.iso</span><span class="links">torrent.ubuntu.com</span></div>
+        <div class="t-meta">Finished &amp; Seeding | uploaded: 8.7 GB of 5.9 GB | ratio: 1.47 | 3 peers</div>
+      </div>
+    </li>
+    <li class="tr completed">
+      <span class="done-dot" title="Remove"></span>
+      <div class="mid">
+        <div class="t-title"><a class="nm" href="#">Seinfeld.S09E23.The.Finale.Part.2.720p.HDTV.x264-FLEET.mkv</a></div>
+        <div class="t-meta">Completed | seeded: 1.2 GB of 1.2 GB | ratio: 1.00 | 3 hours ago</div>
+      </div>
+      <div class="t-right"><button class="btn-success btn-sm" style="min-width: 100px;">Go to file</button></div>
+    </li>
+    <li class="tr passive">
+      <span class="cb" aria-hidden="true"></span>
+      <div class="mid">
+        <div class="t-title"><span class="nm">IMG_4392.HEIC</span></div>
+        <div class="t-meta">In queue...</div>
+      </div>
+    </li>
+    <li class="tr passive">
+      <span class="cb" aria-hidden="true"></span>
+      <div class="mid">
+        <div class="t-title"><span class="nm">podcast_ep127_final_mixdown_v2.mp3</span><span class="links"><a href="#">Retry</a></span></div>
+        <div class="t-meta"><i class="ph-fill ph-minus-circle err"></i> Error</div>
+      </div>
+    </li>
+  </ul>
+
+  <div class="label" style="margin-top: 12px;">Status dot <span class="proposed-tag">proposed</span></div>
+  <div class="note">Not in app.put.io: a colour dot per state and a separate progress bar.</div>
   <div class="transfer downloading">
     <div class="t-head">
       <div class="dot yellow"></div>
-      <div class="t-title">Dune.Part.Two.2024.1080p.WEB-DL.x264</div>
+      <div class="t-title">The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv</div>
       <div class="t-right">847 MB / 3.42 GB · 14.2 MB/s</div>
     </div>
     <div class="bar"><div style="width: 24%"></div></div>
-    <div class="t-meta"><span>2m 48s remaining</span><span>34 seeders · 7 peers</span></div>
-  </div>
-
-  <div class="transfer finished">
-    <div class="t-head">
-      <div class="dot green"></div>
-      <div class="t-title">The.Bear.S03.COMPLETE.1080p.mkv</div>
-      <div class="t-right">18.6 GB</div>
-      <button class="btn-gold">Go to file →</button>
-    </div>
-  </div>
-
-  <div class="transfer passive">
-    <div class="t-head">
-      <div class="dot gray"></div>
-      <div class="t-title">Seeding · podcast-archive-2015-2019.zip</div>
-      <div class="t-right">ratio 1.47</div>
-    </div>
-  </div>
-
-  <div class="transfer error">
-    <div class="t-head">
-      <div class="dot red"></div>
-      <div class="t-title">cassini.ring.scans.tar</div>
-      <div class="t-right">Source unreachable · retry in 4m</div>
-    </div>
   </div>
 </div>
 </body></html>

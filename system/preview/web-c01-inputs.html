@@ -142,34 +142,31 @@
   /* ── Segmented control ──────────────────────────────────────── */
   .seg {
     display: inline-flex;
-    background: var(--segmented-control-bg, var(--component-bg));
-    border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 2px; gap: 2px;
+    background: var(--line);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    gap: 1px; overflow: hidden;
   }
   .seg button {
-    height: 26px; padding: 0 12px; border: 0;
-    background: transparent; color: var(--text-secondary);
-    font-family: var(--font-sans); font-size: 12.5px; font-weight: 500;
-    border-radius: var(--radius-sm);
-    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
-    transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    padding: 8px 16px; border: 0;
+    background: var(--segmented-control-bg, var(--component-bg)); color: var(--text-secondary);
+    font-family: var(--font-sans); font-size: var(--fs-sm, 13px); line-height: 1;
+    cursor: pointer;
   }
   .seg button:hover { color: var(--text); }
   .seg button.on {
     background: var(--segmented-control-bg-active, var(--bg));
-    color: var(--text);
-    box-shadow: var(--shadow-sm);
+    color: var(--text); font-weight: 500;
   }
-  .seg button i { font-size: 13px; }
 
   /* ── Radio list ─────────────────────────────────────────────── */
-  .radio-list { display: flex; flex-direction: column; gap: 2px; }
+  .radio-list { display: flex; flex-direction: column; gap: 16px; }
   .radio-item {
-    display: flex; align-items: flex-start; gap: 12px;
-    padding: 8px 10px; border-radius: var(--radius-sm);
+    display: flex; align-items: flex-start; gap: 16px;
+    padding: 16px; border-radius: var(--radius);
+    border: 1px solid var(--border);
     cursor: pointer;
   }
-  .radio-item:hover { background: var(--component-bg-hover); }
+  .radio-item:hover, .radio-item.on { background: var(--list-item-bg-hover, var(--component-bg-hover)); border-color: var(--border-hover); }
   .radio-dot {
     flex-shrink: 0; margin-top: 2px;
     width: 16px; height: 16px; border-radius: 50%;
@@ -198,31 +195,18 @@
   }
   .check-item:hover { background: var(--component-bg-hover); }
   .check-box {
-    flex-shrink: 0; margin-top: 2px;
-    width: 16px; height: 16px; border-radius: var(--radius-sm);
-    border: 1.5px solid var(--border-hover);
+    flex-shrink: 0;
+    width: 20px; height: 20px; box-sizing: border-box; border-radius: var(--radius);
+    border: 1px solid var(--solid);
     background: var(--app-bg);
     position: relative;
-    transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
   }
-  .check-item.on .check-box {
-    background: var(--yellow-solid);
-    border-color: var(--yellow-solid);
-  }
+  .check-item.on .check-box { border-color: var(--text); }
   .check-item.on .check-box::after {
     content: ''; position: absolute;
-    left: 4px; top: 0; width: 5px; height: 9px;
-    border: solid var(--primary-foreground); border-width: 0 2px 2px 0;
+    left: 6px; top: 2px; width: 5px; height: 10px;
+    border: solid var(--text); border-width: 0 2px 2px 0;
     transform: rotate(45deg);
-  }
-  .check-box.indeterminate {
-    background: var(--yellow-solid);
-    border-color: var(--yellow-solid);
-  }
-  .check-box.indeterminate::after {
-    content: ''; position: absolute;
-    left: 3px; top: 6.5px; width: 8px; height: 2px;
-    background: var(--primary-foreground);
   }
 
   /* ── Toggle / switch ───────────────────────────────────────── */
@@ -242,19 +226,18 @@
   }
   .toggle {
     flex-shrink: 0;
-    width: 36px; height: 22px; border-radius: var(--radius-pill);
-    background: var(--component-bg-active); border: 1px solid var(--border);
+    width: 34px; height: 20px; border-radius: var(--radius-pill);
+    background: var(--border);
     position: relative; cursor: pointer;
-    transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
   }
   .toggle::after {
     content: ''; position: absolute; top: 2px; left: 2px;
     width: 16px; height: 16px; border-radius: 50%;
-    background: var(--text-secondary);
-    transition: all var(--dur-fast) var(--ease-out);
+    background: #fff;
+    transition: left 100ms;
   }
-  .toggle.on { background: var(--yellow-solid); border-color: var(--yellow-solid); }
-  .toggle.on::after { left: 16px; background: var(--primary-foreground); }
+  .toggle.on { background: var(--green-solid); }
+  .toggle.on::after { left: 16px; }
 
   /* ── Form (live demo on top, then library) ─────────────────── */
   .specs-link {
@@ -283,92 +266,87 @@
   <!-- ROW 1 · Text inputs -->
   <div class="grid">
     <div class="group full">
-      <span class="label">Magnet · URL · .torrent</span>
-      <input aria-label="Magnet · URL · .torrent" class="field mono" value="magnet:?xt=urn:btih:a1b2c3…&dn=Dune.Part.Two.2024.1080p" />
-      <span class="hint">Paste a magnet link, .torrent URL, or any supported download URL.</span>
+      <span class="label">Paste links</span>
+      <textarea aria-label="Paste links" class="field" rows="3">magnet:?xt=urn:btih:…&amp;dn=ubuntu-24.04.1-desktop-amd64.iso</textarea>
+      <span class="hint">Paste torrent links, magnet links, direct links or links to video pages from popular video sites.</span>
     </div>
-
     <div class="group">
       <span class="label">Search</span>
       <div class="field-wrap">
         <i class="ph ph-magnifying-glass lead"></i>
-        <input aria-label="Search" class="field has-icon" placeholder="Search files and folders"/>
+        <input aria-label="Search" class="field has-icon" placeholder="Search in put.io"/>
         <div class="kbd">/</div>
       </div>
     </div>
-
-    <div class="group">
-      <span class="label">Folder name</span>
-      <input aria-label="Folder name" class="field" value="2024-Q1" />
-      <span class="hint">Renames the folder for everyone with access.</span>
-    </div>
-
     <div class="group error">
-      <span class="label">Password</span>
-      <input aria-label="Password" class="field" type="password" value="••••••" />
-      <span class="err-msg">That password doesn't match. Try again, or reset it.</span>
+      <span class="label">Create folder</span>
+      <input aria-label="Folder name" class="field" placeholder="Folder name" />
+      <span class="err-msg">This field is required.</span>
     </div>
-
+    <div class="group error">
+      <span class="label">Please enter your current password</span>
+      <input aria-label="Current password" class="field" type="password" value="••••••" />
+      <span class="err-msg">Your current password doesn't match the one in our records</span>
+    </div>
     <div class="group">
-      <span class="label">API token · disabled</span>
-      <input aria-label="API token · disabled" class="field mono" value="put_5fAB7cD8eF9gH0iJ" disabled />
-      <span class="hint">Generated tokens can't be edited. Revoke and re-issue if needed.</span>
+      <span class="label">OAuth token · disabled</span>
+      <input aria-label="OAuth token" class="field" value="••••••••••••••••••••" disabled />
+      <span class="hint">Read-only; an eye reveals it and a button copies it.</span>
     </div>
-
     <div class="group full">
       <span class="label">Description · textarea</span>
-      <textarea aria-label="Description · textarea" class="field">Quarterly archive, clear-out scheduled for July. Keep TV Shows folder unsorted; films are tagged.</textarea>
+      <textarea aria-label="Description" class="field"></textarea>
+      <span class="hint">The description will be visible during authorization. 10 - 255 characters.</span>
     </div>
   </div>
 
   <!-- ROW 2 · Pickers -->
   <div class="grid">
     <div class="group">
-      <span class="label">Native select</span>
+      <span class="label">Native select <span class="proposed-tag">proposed</span></span>
       <div class="select-wrap">
         <select aria-label="Native select" class="select">
-          <option>Date added (newest)</option>
-          <option>Date added (oldest)</option>
           <option>Name</option>
-          <option>Size (largest)</option>
-          <option>Size (smallest)</option>
+          <option>Size</option>
+          <option>Date Added</option>
+          <option>Date Modified</option>
+          <option>Type</option>
+          <option>Watch Status</option>
         </select>
         <i class="ph-bold ph-caret-down caret"></i>
       </div>
-      <span class="hint">For lists ≥ 5 items. Native chevron, OS picker on mobile.</span>
+      <span class="hint">No visible native select in app.put.io.</span>
     </div>
-
     <div class="group">
-      <span class="label">Dropdown, open</span>
+      <span class="label">Dropdown, open · file sort</span>
       <div class="dropdown-shown">
         <div class="control">
-          <span>Date added (newest)</span>
+          <span>Sort by Date Added</span>
           <i class="ph-bold ph-caret-down"></i>
         </div>
         <div class="menu">
-          <div class="opt sel"><span>Date added (newest)</span><i class="ph-bold ph-check"></i></div>
-          <div class="opt"><span>Date added (oldest)</span></div>
           <div class="opt"><span>Name</span></div>
-          <div class="opt"><span>Size (largest)</span></div>
+          <div class="opt"><span>Size</span></div>
+          <div class="opt sel"><span>Date Added</span><i class="ph-bold ph-arrow-down"></i></div>
+          <div class="opt"><span>Date Modified</span></div>
+          <div class="opt"><span>Type</span></div>
+          <div class="opt"><span>Watch Status</span></div>
         </div>
       </div>
-      <span class="hint">Custom dropdown, for searchable / icon-rich choices. Source: <code style="font-family:var(--font-mono);color:var(--yellow-text-secondary);">Dropdown</code></span>
+      <span class="hint">The selected option carries the direction; picking it again flips it.</span>
     </div>
-
     <div class="group">
-      <span class="label">Segmented · view mode</span>
+      <span class="label">Segmented · billing period</span>
       <div class="seg">
-        <button class="on"><i class="ph ph-list"></i>List</button>
-        <button><i class="ph ph-squares-four"></i>Grid</button>
+        <button class="on">Pay monthly</button>
+        <button>Pay yearly</button>
       </div>
-      <span class="hint">2–3 choices, all visible. ≥4 use a dropdown.</span>
     </div>
-
     <div class="group">
-      <span class="label">Segmented · sort direction</span>
+      <span class="label">Segmented · payment type</span>
       <div class="seg">
-        <button><i class="ph ph-arrow-up"></i>Asc</button>
-        <button class="on"><i class="ph ph-arrow-down"></i>Desc</button>
+        <button>Prepaid</button>
+        <button class="on">Subscription</button>
       </div>
     </div>
   </div>
@@ -376,59 +354,56 @@
   <!-- ROW 3 · Choices -->
   <div class="grid">
     <div class="group">
-      <span class="label">Radio, single choice</span>
+      <span class="label">Radio · target folder for transfers</span>
       <div class="radio-list">
         <div class="radio-item on">
           <div class="radio-dot"></div>
-          <div class="radio-text">Save to put.io<small>Keep the file in cloud storage</small></div>
+          <div class="radio-text">Your default download folder<small>We will use your default download folder unless you choose a custom folder during the session.</small></div>
         </div>
         <div class="radio-item">
           <div class="radio-dot"></div>
-          <div class="radio-text">Download to this device<small>Pull a copy onto the device</small></div>
+          <div class="radio-text">Last seen folder in Files page<small>We will try to use the last seen folder and fallback to your default download folder unless you choose a custom folder during the session.</small></div>
         </div>
         <div class="radio-item">
           <div class="radio-dot"></div>
-          <div class="radio-text">Stream<small>Watch without downloading</small></div>
+          <div class="radio-text">Choose a custom folder<small>We will use this folder until you refresh or close this browser tab.</small></div>
         </div>
       </div>
     </div>
-
     <div class="group">
-      <span class="label">Checkbox, multiple</span>
+      <span class="label">Checkbox · RSS feed</span>
       <div class="check-list">
         <div class="check-item on">
           <div class="check-box"></div>
-          <div class="radio-text">Notify when finished<small>Email + push notification</small></div>
+          <div class="radio-text">Don't process the current feed, only transfer new items.</div>
         </div>
         <div class="check-item">
           <div class="check-box"></div>
-          <div class="radio-text">Auto-convert to MP4<small>Costs 1 conversion credit</small></div>
-        </div>
-        <div class="check-item">
-          <div class="check-box indeterminate"></div>
-          <div class="radio-text">Move to folder<small>Some files already match</small></div>
+          <div class="radio-text">If I run out of space, make room by deleting the oldest files in the download folder PERMANENTLY. BEWARE! This is powerful.</div>
         </div>
       </div>
+      <span class="hint">No indeterminate state ships.</span>
     </div>
   </div>
 
   <!-- ROW 4 · Toggles -->
   <div class="group full">
-    <span class="label">Toggle · setting row</span>
+    <span class="label">Switch · setting row</span>
     <div class="toggle-row">
-      <div class="l">Autoplay next file<small>When a video ends, play the next file in the folder.</small></div>
+      <div class="l">Suggest playing the next media<small>If we sense there are more audio or video files like the one you're enjoying, we try to find and suggest the next one.</small></div>
       <div class="toggle on"></div>
     </div>
     <div class="toggle-row">
-      <div class="l">Invisible mode<small>Don't show me in friend listings.</small></div>
+      <div class="l">Become invisible<small>You won't appear on the user searches.</small></div>
       <div class="toggle"></div>
     </div>
     <div class="toggle-row">
-      <div class="l">RSS auto-fetch<small>Check feeds every 15 minutes.</small></div>
+      <div class="l">Move deleted files to trash<small>If you disable this, your files will be deleted permanently. Otherwise, we'll keep them for 14 days.</small></div>
       <div class="toggle on"></div>
     </div>
   </div>
 
+  <div class="specs-link"><b>Shipped.</b> app.put.io builds these on Mantine inputs and theme-ui: radius 4, flaticon icons, GT America body text in every field (no mono). The checkbox fills nothing and draws a <code>--text</code> check; the switch turns <code>--green-solid</code>.</div>
 </div>
 
 </body></html>

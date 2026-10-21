@@ -11,49 +11,64 @@
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="./_resize.js" defer></script>
 <style>
+/* ScreenHeader: stock Overhang on appBackground (logo, options), plus put.io's divider and h1 title. No clock. */
+.rk-overhang{position:relative;display:block;flex:0 0 auto;height:189px;padding:0;background:var(--app-bg);box-shadow:none}
+.rk-overhang img{position:absolute;left:102px;top:78px;height:48px}
+.rk-overhang .div{position:absolute;left:507px;top:81px;width:3px;height:42px;background:var(--border)}
+.rk-overhang .ttl{position:absolute;left:540px;top:69px;right:102px;height:66px;line-height:66px;font-size:45px;font-weight:var(--fw-bold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk-overhang .opt{position:absolute;right:102px;top:69px;height:66px;display:flex;align-items:center;gap:12px;font-size:33px;color:var(--text)}
+.rk-body{padding:0 102px}
+.rk-body .rk-row+.rk-row{margin-top:30px}
+.rk-row .t1{font-weight:var(--fw-medium)}
+.rk-row .tx:not(.vert) .t2{font-size:33px}
+.rk-row i.eye{font-size:40px;color:var(--text-secondary);flex:0 0 auto}
+.rk-row i.lead.muted{color:var(--text-secondary)}
 .tvfit{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left}
-
+/* AppDialog: a message over 34 chars widens the panel to 1044 (936 content) and wraps at 40. */
+.rk-scrim{position:absolute;inset:0;background:var(--overlay-full)}
+.ad{position:absolute;left:438px;top:327px;width:1044px;height:423px;background:var(--component-bg);box-shadow:inset 0 0 0 3px var(--border-hover),12px 12px 0 var(--overlay-inline)}
+.ad .t{position:absolute;left:54px;top:51px;width:936px;height:45px;line-height:45px;text-align:center;font-size:45px;font-weight:var(--fw-bold)}
+.ad .m{position:absolute;left:54px;width:936px;height:45px;line-height:45px;text-align:center;font-size:36px;color:var(--text-secondary)}
+.ad .b{position:absolute;left:54px;top:294px;width:936px;height:78px;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:var(--fw-medium);background:var(--yellow-solid);color:var(--primary-foreground)}
 </style></head>
 <body>
-<div class="tierbar t3"><span class="tno">Tier 3</span><span class="twhat"><b>Roku</b>. The shared <code>AppDialog</code> with one button. The channel plays folders, video, audio and images; anything else opens this dialog instead of a screen.</span><span class="ttok">DesignTokens.brs · scrim · surface · panelBorder · focus · borderHover</span></div>
+<div class="tierbar t3"><span class="tno">Tier 3</span><span class="twhat"><b>Roku</b>. The shared <code>AppDialog</code> with one button. The channel opens folders, video, audio and images; anything else opens this dialog instead of a screen.</span><span class="ttok">DialogStyle.brs · scrim · surface · panelBorder · primary · textInverse</span></div>
 <div class="preview-shell">
 <div>
   <div class="label">Unsupported files never open a screen</div>
-  <div class="note"><code>isFileSupported</code> accepts <code>FOLDER</code>, <code>VIDEO</code>, <code>IMAGE</code> and <code>AUDIO</code>. Files already requests only those types (<code>file_type=FOLDER,AUDIO,VIDEO,IMAGE</code>), so this dialog is reached from <b>History</b> and <b>Search</b>, where any file type can appear.</div>
-  <div class="note">One button, <b>OK</b>, focused. Closing returns focus to the row that opened it.</div>
+  <div class="note"><code>isFileSupported</code> accepts <code>FOLDER</code>, <code>VIDEO</code>, <code>IMAGE</code> and <code>AUDIO</code>. Files, Search and History all call this dialog; Files only filters other types out when <b>Only Show Media Files</b> is on.</div>
+  <div class="note">One button, <b>OK</b>, focused and filled <code>primary</code>. Closing returns focus to the row that opened it.</div>
 </div>
 
 <div class="tvbox"><div class="tvfit">
   <div class="rk">
-    <div class="rk-overhang"><img src="../assets/logo-retro-dark.svg" alt="put.io"><div class="sp"></div><div class="clock">9:41</div></div>
-    <div class="rk-body"><div class="rk-crumb">History</div>
-      <div class="rk-row focused"><i class="ph ph-check-circle lead" aria-hidden="true"></i><div class="tx vert"><div class="t1">document-scan-march-2026.pdf</div><div class="t2">12 Aug 2026 - 210 KB</div></div></div>
-      <div class="rk-row"><i class="ph ph-check-circle lead" aria-hidden="true"></i><div class="tx vert"><div class="t1">podcast_ep127_final_mixdown_v2.mp3</div><div class="t2">9 Aug 2026 - 72.4 MB</div></div></div>
+    <div class="rk-overhang"><img src="../assets/logo-retro-dark.svg" alt="put.io"><div class="div"></div><div class="ttl">History</div></div>
+    <div class="rk-body">
+      <div class="rk-row focused"><i class="ph ph-cloud-check lead" aria-hidden="true"></i><div class="tx vert"><div class="t1">document-scan-march-2026.pdf</div><div class="t2">Aug 12, 2026 - 210 KB</div></div></div>
+      <div class="rk-row"><i class="ph ph-cloud-check lead" aria-hidden="true"></i><div class="tx vert"><div class="t1">podcast_ep127_final_mixdown_v2.mp3</div><div class="t2">Aug 9, 2026 - 72 MB</div></div></div>
     </div>
-    <div class="rk-dlgwrap">
-      <div class="rk-dlg">
-        <div class="h">Oops :(</div>
-        <div class="body">We're unable to show this kind of file on this app (for now)</div>
-        <div style="display:flex;gap:24px;padding:24px 42px 42px">
-          <span class="rk-btn focused">OK</span>
-        </div>
-      </div>
+    <div class="rk-scrim"></div>
+    <div class="ad">
+      <div class="t">Oops :(</div>
+      <div class="m" style="top:144px">We're unable to show this kind of file</div>
+      <div class="m" style="top:192px">on this app (for now)</div>
+      <div class="b">OK</div>
     </div>
   </div>
 </div></div>
-<div class="cap"><b>AppDialog · file not supported</b>Opened from a History row whose file is a PDF. The row stays focused underneath; OK closes the dialog and runs the screen's close callback.</div>
+<div class="cap"><b>AppDialog · file not supported</b>Opened from a History row whose file is a PDF. The message runs past 34 characters, so the panel widens to 1044 and wraps at 40.</div>
 
 <div class="kv">
-  <div class="r"><span class="k">trigger</span><span class="v"><code>showFileNotSupportedDialog()</code> in <code>shared/utils.brs</code>, called from <code>History.brs</code> and <code>Search.brs</code></span></div>
+  <div class="r"><span class="k">trigger</span><span class="v"><code>showFileNotSupportedDialog()</code> in <code>shared/utils.brs</code>, called from Files, Search and History</span></div>
   <div class="r"><span class="k">supported</span><span class="v"><code>FOLDER</code> · <code>VIDEO</code> · <code>IMAGE</code> · <code>AUDIO</code>, each mapped to its own screen by <code>getScreenFromFileType</code></span></div>
-  <div class="r"><span class="k">title</span><span class="v"><b>Oops :(</b>, shipped copy, ASCII only</span></div>
-  <div class="r"><span class="k">body</span><span class="v"><b>We're unable to show this kind of file on this app (for now)</b>, no terminal punctuation</span></div>
-  <div class="r"><span class="k">buttons</span><span class="v"><b>OK</b> only, focused on open</span></div>
+  <div class="r"><span class="k">title</span><span class="v"><b>Oops :(</b>, h1 45, centred</span></div>
+  <div class="r"><span class="k">body</span><span class="v"><b>We're unable to show this kind of file on this app (for now)</b>, body 36 <code>textMuted</code>, centred lines 48 apart</span></div>
+  <div class="r"><span class="k">buttons</span><span class="v"><b>OK</b> only: 936x78, primary, focused on open</span></div>
   <div class="r"><span class="k">tier-4 twin</span><span class="v">the full-screen ErrorState in <code>tv-s06-states</code>: <b>Unsupported file type</b> + <b>Go back</b></span></div>
 </div>
 
-<div class="note" style="margin-top:4px">Contract: <a href="https://github.com/putdotio/putio-design/blob/main/platforms/roku/DESIGN.md"><code>platforms/roku/DESIGN.md</code></a> · source: <code class="src">components/shared/utils.brs</code>, <code class="src">screens/History/History.brs</code>, <code class="src">screens/Search/Search.brs</code></div>
-<div class="dont"><b>Do not</b> list unsupported files in Files to reach this dialog; the request filters them out. And do not add a second button: there is nothing to do with the file on this channel.</div>
+<div class="note" style="margin-top:4px">Contract: <a href="https://github.com/putdotio/putio-design/blob/main/platforms/roku/DESIGN.md"><code>platforms/roku/DESIGN.md</code></a> · source: <code class="src">components/shared/utils.brs</code>, <code class="src">components/shared/AppDialog/AppDialog.brs</code></div>
+<div class="dont"><b>Do not</b> add a second button: there is nothing to do with the file on this channel.</div>
 </div>
 <script>(function(){function f(){document.querySelectorAll('.tvbox').forEach(function(b){var e=b.querySelector('.tvfit');if(e)e.style.transform='scale('+(b.clientWidth/1920)+')';});}f();addEventListener('resize',f);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f);})();</script>
 </body></html>
