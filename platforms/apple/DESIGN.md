@@ -130,7 +130,8 @@ Subtitles: "In Queue", "Starting...", "Downloading... N%", "Stopped",
 ## tvOS
 
 The shipped tvOS app is React Native (react-native-tvos), shared with Android
-TV.
+TV. It draws its own components from its own `@putdotio/colors`: drift from the
+tier-2 binding, documented as shipped.
 
 - Home is the logo over a list: Your Files, Search, History, Account. Each
   pushes a full-screen stack screen. No `TabView`.

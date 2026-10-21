@@ -176,7 +176,9 @@ the same code as the Apple TV app. It halves the reported density, so 1dp is
 one 1080p pixel and the layout matches Apple TV's 1920-wide canvas.
 
 Colours come from the app's own `@putdotio/colors` (Radix gray dark), keyed by
-the token names; nothing is generated from the token graph. Type is GT America,
+the token names; nothing is generated from the token graph. The app draws its
+own components, so Android TV is drift from the tier-2 binding, documented as
+shipped, not a conforming tier-2 app. Type is GT America,
 regular and medium: heading 64, label 48, body 36, caption 32, small 24. No
 mono in product UI. Icons are Lucide, stroke 2, in `--yellow-solid` on rows.
 

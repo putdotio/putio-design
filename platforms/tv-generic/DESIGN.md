@@ -91,8 +91,8 @@ shifts layout. Label and icon keep their colours. `apps/tv` does not use
 The fill is the whole treatment: no white-invert pill, no scale, no yellow
 halo, no transition. Only the player chrome fades, over `--dur-fast`.
 
-tvOS is the deliberate exception: it is tier 2, the platform owns focus, and its
-tab bar uses the system's light focused pill.
+tvOS and Android TV ship one React Native app (`putio-tv-native-legacy`) that
+draws the same fill with the system lift off.
 
 ## Materials
 
@@ -111,9 +111,9 @@ your trash, Device info and Playback test.
 
 ## Type
 
-No mono in TV product UI. Support surfaces (the player's Stats panel, Device
-info values, a playback failure's support report) use the platform's system
-monospace. `apps/tv` sets no tabular figures; times and sizes use GT America's
+No mono in TV product UI; the player's Stats overlay may use the platform's
+system monospace. `apps/tv` also sets Device info values and the playback
+failure report in system monospace: drift from this rule, not an exception. `apps/tv` sets no tabular figures; times and sizes use GT America's
 default figures.
 
 ## Content
@@ -132,15 +132,16 @@ you, nothing mid-flight. Transfers are managed on web and mobile.
 
 All four TV surfaces read as one product:
 
-| Surface                 | Tier | Focus                                     |
-| ----------------------- | ---- | ----------------------------------------- |
-| tv.put.io, Tizen, webOS | 4    | `--component-bg-active` fill              |
-| Roku                    | 3    | nine-patch footprint, fill only           |
-| tvOS                    | 2    | system lift: scale, shadow, parallax tilt |
-| Android TV              | 2    | Compose scale plus elevation, no tilt     |
+| Surface                 | Tier | Focus                                  |
+| ----------------------- | ---- | -------------------------------------- |
+| tv.put.io, Tizen, webOS | 4    | `--component-bg-active` fill           |
+| Roku                    | 3    | nine-patch footprint, fill only        |
+| tvOS, Android TV        | 2\*  | `--component-bg-active` fill, lift off |
 
-Same header, same row anatomy, same 12px radius, same yellow icon column. They
-differ only where the platform's own focus behaviour differs.
+Same header, same row anatomy, same 12px radius, same yellow icon column.
+
+\* Listed as tier 2, but the shipped app draws its own components from its own
+`@putdotio/colors`: drift from the tier-2 binding.
 
 ## Don't
 

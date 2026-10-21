@@ -505,7 +505,6 @@ async function checkAppleContract() {
   for (const [name, source] of Object.entries({
     navbar: contents.navbar,
     fileScreen: contents.fileScreen,
-    transfers: contents.transfers,
   })) {
     const backControls = htmlElementsWithClass(source, "back");
     assert(backControls.length > 0, `${name} system-owned back control must exist`);

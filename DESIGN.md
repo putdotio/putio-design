@@ -70,7 +70,7 @@ A web mock is never a native spec. Every surface binds at one tier, and every ca
 
 - **Tier 0: Foundations.** The token graph. Values only; binds every tier.
 - **Tier 1: www · app · auth.** The full system: tokens plus the `system/components.css` recipes, which are the contract here only.
-- **Tier 2: iOS · iPadOS · tvOS · watchOS · Android · Android TV.** Tokens only. Components and pages come from the platform's guidelines; cards show how a stock control takes put.io tokens.
+- **Tier 2: iOS · iPadOS · tvOS · watchOS · Android · Android TV.** Tokens only. Components and pages come from the platform's guidelines; cards show how a stock control takes put.io tokens. The shipped tvOS and Android TV app draws its own components: documented drift.
 - **Tier 3: Roku.** Tier 2, plus put.io conventions in custom SceneGraph components.
 - **Tier 4: tv.put.io · Tizen · webOS.** The web system, restrained to a calm, list-first 10-foot interface.
 
@@ -143,7 +143,7 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 - TV is list-first and focus-first: a file browser, not a poster wall. TV repos consume the generic tokens and own their bindings.
 - Surfaces are solid token colours, no blur or translucency. Focus is a fill: rows go to `--component-bg-active`; web TV buttons step fill and border at `tv.focus.borderWidth` (`3px`). Values live in `tv.focus.row.*` and `tv.focus.control.*`. Roku dialog buttons are borderless and follow their variant.
 - Navigation is a Home hub pushing full screens; no tab bar. Menus are centred modals.
-- These rules bind web TV and Roku. Native TV follows its platform where the platform owns focus; tvOS buttons use system focus, other surfaces stay solid.
+- These rules bind every TV app. tvOS and Android TV ship one React Native app that draws the same fill with the system lift off.
 - The `tv` token group (type, spacing, overscan, radius, focus, z) is adapter data, absent from web CSS: cite it by graph path, never `--tv-*`. Overscan multiplies `tv.overscan.x` by width and `tv.overscan.y` by height. `tv.z.overlay` sits above `tv.z.toast`, the reverse of web.
 
 ## Content and Icons
