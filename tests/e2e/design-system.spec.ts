@@ -566,8 +566,12 @@ test.describe("design.put.io static guide", () => {
       if (preview.active) expect(preview.nearViewport).toBe(true);
       else expect(preview.placeholderHeight).toBe(preview.expectedHeight);
     }
-    await page.locator("#theme-toggle").click();
+    const themeToggle = page.locator("#theme-toggle");
+    await expect(themeToggle).toHaveAccessibleName("View light");
+    await expect(themeToggle).not.toHaveAttribute("aria-pressed");
+    await themeToggle.click();
     await expect(page.locator("html")).not.toHaveClass(/dark/);
+    await expect(themeToggle).toHaveAccessibleName("View dark");
     const card = page.locator('.embed:has(a.open[href="./preview/web-c00-buttons.html"])');
     await expect(card.locator("iframe")).toHaveCount(0);
     await card.scrollIntoViewIfNeeded();
