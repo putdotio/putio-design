@@ -49,6 +49,18 @@ canonical `#FDCE45` in prose and identity guidance, with the generated CSS value
 `hsl(44.7, 97.9%, 63.1%)`. Primary button hover uses the separate
 `--button-primary-bg-hover` alias, generated from `--yellow-solid-hover`.
 
+## Deprecated Tokens
+
+A deprecated token stays published until the next major release, which
+removes it as a breaking change.
+
+- Its source sets `$extensions.putio.deprecated: true`, aliases its
+  replacement, and names that replacement in `$description`. The build fails
+  otherwise.
+- The flat JSON and `tokens.js` carry `deprecated: true`.
+- The CSS marks the property: `--input-bg: …; /* deprecated: use --field-bg */`.
+- Guide pages read the replacement; `pnpm verify` fails on a deprecated read.
+
 ## Claude Artifacts
 
 Four claude.ai artifacts give Claude sessions the system. They are generated,
