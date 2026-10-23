@@ -192,6 +192,94 @@ function cssForTokens(tokens: FlatToken[], foundationCss: string): string {
   ].join("\n");
 }
 
+// Tailwind v4 theme namespaces, in output order.
+const tailwindNamespaces = ["color", "font", "font-weight", "text", "leading", "tracking", "radius", "shadow", "ease", "transition-duration"] as const;
+type TailwindNamespace = (typeof tailwindNamespaces)[number];
+// Tailwind maps these color names to CSS keywords before it reads the theme.
+const tailwindColorKeywords = new Set(["current", "inherit", "transparent"]);
+
+// The namespace a token feeds and the cssName segment that names its family in
+// put.io (`fs` in `fs-lg`), dropped from the Tailwind key (`--text-lg`).
+function tailwindRule(token: FlatToken): { namespace: TailwindNamespace; family?: string } | null {
+  const segments = token.cssName.split("-");
+  switch (token.type) {
+    case "color":
+      return { namespace: "color" };
+    case "fontFamily":
+      return { namespace: "font", family: "font" };
+    case "fontWeight":
+      return { namespace: "font-weight", family: "fw" };
+    case "cubicBezier":
+      return { namespace: "ease", family: "ease" };
+    case "duration":
+      return { namespace: "transition-duration", family: "dur" };
+    case "string":
+      return segments.includes("shadow") || segments.includes("ring") ? { namespace: "shadow", family: "shadow" } : null;
+    case "dimension":
+    case "number":
+      if (segments[0] === "fs") return { namespace: "text", family: "fs" };
+      if (segments[0] === "lh") return { namespace: "leading", family: "lh" };
+      if (segments.includes("tracking")) return { namespace: "tracking", family: "tracking" };
+      if (segments.includes("radius")) return { namespace: "radius", family: "radius" };
+      return null;
+    default:
+      return null;
+  }
+}
+
+function tailwindThemeEntries(tokens: FlatToken[]): Map<string, { namespace: TailwindNamespace; cssName: string }> {
+  const deprecated = new Set(tokens.filter((token) => token.deprecated).map((token) => token.cssName));
+  const entries = new Map<string, { namespace: TailwindNamespace; cssName: string }>();
+  for (const token of tokens) {
+    // TV tokens are absent from tokens.css; "other" holds z-indexes and media-query breakpoints, which var() cannot feed.
+    if (token.mode === "tv" || token.category === "other" || deprecated.has(token.cssName)) continue;
+    const rule = tailwindRule(token);
+    if (!rule || (rule.namespace === "color" && tailwindColorKeywords.has(token.cssName))) continue;
+    const segments = token.cssName.split("-");
+    const familyIndex = rule.family ? segments.indexOf(rule.family) : -1;
+    if (familyIndex >= 0) segments.splice(familyIndex, 1);
+    const key = segments.length > 0 ? `--${rule.namespace}-${segments.join("-")}` : `--${rule.namespace}`;
+    const existing = entries.get(key);
+    if (existing && existing.cssName !== token.cssName) {
+      throw new Error(`Tailwind theme key ${key} would map both --${existing.cssName} and --${token.cssName}`);
+    }
+    entries.set(key, { namespace: rule.namespace, cssName: token.cssName });
+  }
+  return entries;
+}
+
+function tailwindThemeCss(tokens: FlatToken[]): string {
+  const entries = [...tailwindThemeEntries(tokens)];
+  const blocks = tailwindNamespaces.flatMap((namespace) => {
+    const lines = entries
+      .filter(([, entry]) => entry.namespace === namespace)
+      .flatMap(([key, entry]) => [
+        `  ${key}: var(--${entry.cssName});`,
+        // put.io pairs line height with context (--lh-*), not with size, so drop Tailwind's per-size default.
+        ...(namespace === "text" ? [`  ${key}--line-height: initial;`] : []),
+      ]);
+    return lines.length > 0 ? [lines.join("\n")] : [];
+  });
+
+  return [
+    `/* ============================================================
+   put.io Tailwind v4 theme
+   Do not edit directly. Generated from DTCG token JSON in tokens/.
+
+   Import after "tailwindcss" and @putdotio/design/css.
+   ============================================================ */`,
+    "",
+    `/* inline: utilities read the put.io custom property where they apply,
+   so .dark keeps working.
+   reference: Tailwind emits none of these keys as variables, so a key that
+   shares a token's name, such as --radius-sm, never redeclares it. */`,
+    "@theme inline reference {",
+    blocks.join("\n\n"),
+    "}",
+    "",
+  ].join("\n");
+}
+
 function nestedFlatJson(tokens: FlatToken[]): JsonObject {
   return Object.fromEntries(
     tokens.map((token) => [
@@ -266,6 +354,7 @@ async function main() {
   await mkdir(path.join(root, "system"), { recursive: true });
 
   await writeFile(path.join(root, "dist/css/tokens.css"), css);
+  await writeFile(path.join(root, "dist/css/tailwind.css"), tailwindThemeCss(tokens));
   await writeFile(path.join(root, "system/tokens.css"), css);
   await writeFile(path.join(root, "dist/tokens.dtcg.json"), `${JSON.stringify(source, null, 2)}\n`);
   await writeFile(path.join(root, "dist/tokens.flat.json"), `${JSON.stringify(nestedFlatJson(tokens), null, 2)}\n`);

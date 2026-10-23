@@ -37,12 +37,26 @@ component recipes:
 Component recipes consume semantic aliases such as `--field-*`, `--panel-*`,
 `--primary`, `--success`, and `--destructive`, not palette tokens.
 
+Tailwind v4 apps add the theme after Tailwind and the tokens. `layer(base)`
+keeps the token file's element styles below utilities:
+
+```css
+@import "tailwindcss";
+@import "@putdotio/design/css" layer(base);
+@import "@putdotio/design/tailwind";
+```
+
+Utilities then read the tokens: `bg-bg` is `var(--bg)`, `rounded-sm` is
+`var(--radius-sm)`, `text-lg` is `var(--fs-lg)`. The full mapping:
+[Tailwind v4 theme](system/README.md#tailwind-v4-theme).
+
 Package entrypoints, from `exports` in [package.json](package.json):
 
 | Subpath                          | File                                                                                |
 | -------------------------------- | ----------------------------------------------------------------------------------- |
 | `@putdotio/design/css`           | [`dist/css/tokens.css`](dist/css/tokens.css)                                        |
 | `@putdotio/design/components`    | [`system/components.css`](system/components.css)                                    |
+| `@putdotio/design/tailwind`      | [`dist/css/tailwind.css`](dist/css/tailwind.css)                                    |
 | `@putdotio/design/tokens`        | [`dist/tokens.flat.json`](dist/tokens.flat.json)                                    |
 | `@putdotio/design/tokens/meta`   | [`dist/tokens.js`](dist/tokens.js), typed by [`dist/tokens.d.ts`](dist/tokens.d.ts) |
 | `@putdotio/design/tokens/dtcg`   | [`dist/tokens.dtcg.json`](dist/tokens.dtcg.json)                                    |

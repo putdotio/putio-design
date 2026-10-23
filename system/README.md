@@ -157,6 +157,41 @@ put.io components use the long descriptive names (`--component-bg-hover`,
 `--yellow-text-secondary`) because they name the role exactly; shadcn-imported
 code keeps the short names.
 
+### Tailwind v4 theme
+
+`@putdotio/design/tailwind` ([`dist/css/tailwind.css`](../dist/css/tailwind.css))
+maps the tokens into Tailwind v4 theme keys. The build derives each key from the
+token's type and CSS name, so new tokens join their namespace without a hand
+list. Import it after `tailwindcss` and `@putdotio/design/css`; the
+[README](../README.md#use) shows the import lines.
+
+| Tailwind key              | put.io token                                               | Example utilities                               |
+| ------------------------- | ---------------------------------------------------------- | ----------------------------------------------- |
+| `--color-<name>`          | every color token `--<name>`                               | `bg-bg`, `text-muted-foreground`                |
+| `--font-*`                | `--font-*`                                                 | `font-sans`, `font-mono`                        |
+| `--font-weight-*`         | `--fw-*`                                                   | `font-regular`, `font-bold`                     |
+| `--text-*`                | `--fs-*`                                                   | `text-sm`, `text-display`                       |
+| `--leading-*`             | `--lh-*`                                                   | `leading-tight`                                 |
+| `--tracking-*`            | `--tracking-*`, `--button-tracking*`                       | `tracking-tight`, `tracking-button`             |
+| `--radius`, `--radius-*`  | `--radius`, `--radius-*`, `--<component>-radius`           | `rounded`, `rounded-sm`, `rounded-panel`        |
+| `--shadow-*`              | `--shadow-*`, `--<component>-shadow`, `--<component>-ring` | `shadow-sm`, `shadow-menu`, `shadow-field-ring` |
+| `--ease-*`                | `--ease-*`                                                 | `ease-out`                                      |
+| `--transition-duration-*` | `--dur-*`                                                  | `duration-base`                                 |
+
+- The block is `@theme inline reference`. Utilities read the put.io custom
+  property where they apply, so `.dark` works. Tailwind declares none of the
+  keys, so `--radius-sm` or `--font-sans` stays the token instead of a
+  self-reference. In custom CSS, read the put.io name (`var(--bg)`), not
+  `var(--color-bg)`.
+- shadcn class names such as `bg-primary`, `border-input`, and
+  `text-muted-foreground` resolve through the aliases above.
+- `text-*` sizes set no line height; the document's `--lh-normal` applies until
+  a `leading-*` utility sets one.
+- TV tokens, deprecated tokens, z-indexes, breakpoints, and spacing stay out.
+  Spacing utilities keep Tailwind's linear `--spacing` scale, not the
+  `--space-*` steps. Tailwind defaults that put.io does not define, such as
+  `rounded-xl`, stay available.
+
 ### State via `data-state`, not class flags
 
 Base UI / headless primitives set
