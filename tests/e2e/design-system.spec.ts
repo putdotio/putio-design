@@ -391,6 +391,21 @@ test.describe("design.put.io static guide", () => {
       }
     }
   });
+  test("auth tab order runs fields, submit, then secondary links @desktop", async ({ page }) => {
+    await page.goto("/preview/web-p00c-auth-signin.html?theme=dark", { waitUntil: "domcontentloaded" });
+    const column = page.locator(".auth-column").first();
+    await column.locator("#signin-identity").focus();
+    const order: string[] = [];
+    for (let step = 0; step < 4; step += 1) {
+      await page.keyboard.press("Tab");
+      order.push(await page.evaluate(() => {
+        const active = document.activeElement;
+        return active?.id || active?.textContent?.trim() || "";
+      }));
+    }
+    expect(order).toEqual(["signin-password", "Sign in", "Forgot password?", "Sign up"]);
+  });
+
   test("field errors ease in under their field without leaving space when closed @desktop", async ({ page }) => {
     await page.goto("/preview/web-c02b-field-validation.html?theme=light", { waitUntil: "domcontentloaded" });
     const group = page.locator("[data-demo-field-error]").first();
