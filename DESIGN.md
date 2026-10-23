@@ -89,7 +89,7 @@ Tier 1, 3, and 4 cards are Components (put.io owns the recipe); tier 2 cards are
 - Berkeley Mono is the one mono face: numerics, timestamps, sizes, ETAs, counts, code, logs, identifiers, hashes, magnet URIs, filenames. Columns of numbers add `font-variant-numeric: tabular-nums`.
 - TV product UI has no mono face (a debug overlay may use the platform's system monospace): 10-foot numerics use GT America `tnum`. Platforms without OpenType feature selection (Roku: `Font` takes only `uri` and `size`) get proportional figures, so budget timecodes for reflow (`1` is 399/1000 em, `0` is 636).
 - GT America is Latin only (523 codepoints, Western and Central European plus Turkish, no dingbats such as `✓` `▶` `★`). Symbols are icons. Text that can hold a filename keeps a fallback family; web falls back per glyph, while one-font-per-label platforms must ship a fallback or render `.notdef` boxes.
-- Root font-size is 14px, 15px from `--bp-lg`. Body, labels, inputs: `--fs-base`. Captions, button labels: `--fs-sm`. `--fs-2xl`, `--fs-3xl`, `--fs-display` are fixed pixels.
+- Root font-size is 14px, 15px from `--bp-lg`. Body, labels, inputs: `--fs-base`. Captions, button labels: `--fs-sm`. Screen titles and one-time-code digits: `--fs-title`, with titles at `--lh-snug` and `--tracking-snug`; the code separator is `--fs-md`. `--fs-title`, `--fs-2xl`, `--fs-3xl`, `--fs-display` are fixed pixels.
 
 ## Layout & Spacing
 
@@ -137,7 +137,7 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 - The logo sits top-left in the header, in a `30.33px` box (26px ink × 7/6). The top right stays empty by default.
 - One left-aligned column, up to `340px`, is centred horizontally and vertically.
 - A quiet centred footer links Terms of Service, Privacy Policy, and Help in muted `--fs-sm`.
-- One title per screen: `22px`, medium, `-0.01em` tracking. No subtitles, taglines, or marketing lines; copy stays short.
+- One title per screen: `--fs-title` (`22px`), medium, `--tracking-snug` (`-0.01em`). No subtitles, taglines, or marketing lines; copy stays short.
 - Fields are the standard filled field. Fields and buttons in the column are `44px`.
 - Labels are small, muted, and above the field.
 - The primary button is full-width yellow. Secondary actions sit under the form as muted text links: “Forgot password?”, “New to put.io? Sign up”, “Wrong account? Sign out”.
