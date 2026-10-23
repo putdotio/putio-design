@@ -281,10 +281,15 @@
       input.removeAttribute('aria-invalid');
       if (!errorFeedback) return;
 
-      // Close the reveal row; the message stays until it has collapsed.
+      // Close the reveal row, then empty the alert once it has collapsed.
       var row = errorFeedback.closest('.form-reveal');
-      if (row) row.dataset.state = 'closed';
-      else errorFeedback.hidden = true;
+      var message = errorFeedback;
+      if (row) {
+        row.dataset.state = 'closed';
+        setTimeout(function () { if (row.dataset.state !== 'open') message.textContent = ''; }, 400);
+      } else {
+        message.hidden = true;
+      }
       var remainingDescriptions = describedBy.filter(function (id) { return id !== errorFeedback.id; });
       if (remainingDescriptions.length) input.setAttribute('aria-describedby', remainingDescriptions.join(' '));
       else input.removeAttribute('aria-describedby');

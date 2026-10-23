@@ -419,26 +419,24 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
    whatever sits below slides instead of jumping. Markup:
    .form-reveal > div > .form-callout.inline[data-state="error"]; the
    inner div clips, so spacing on the message collapses with it. Keep
-   the message (role="alert") mounted; set its text and
-   data-state="open" together, and keep the text until the row has
-   closed so it does not snap. Visibility flips at the start of an open
-   and the end of a close, so a closed row leaves the accessibility
-   tree. The token base collapses the transition under
+   the message (role="alert") mounted and rendered, so screen readers
+   hear new text: set its text and data-state="open" together; on
+   close, set data-state="closed" and empty the message once the row
+   has collapsed (transitionend), so it does not snap and a closed row
+   says nothing. The token base collapses the transition under
    prefers-reduced-motion.
    =========================================================== */
 .form-reveal {
   display: grid;
   grid-template-rows: 0fr;
   opacity: 0;
-  visibility: hidden;
   transition:
     grid-template-rows var(--dur-reveal) var(--ease-out),
-    opacity var(--dur-reveal) var(--ease-out),
-    visibility var(--dur-reveal) var(--ease-out);
+    opacity var(--dur-reveal) var(--ease-out);
 }
 .form-reveal > * { min-height: 0; overflow: hidden; }
 .form-reveal .form-callout { margin: 0; }
-.form-reveal[data-state="open"] { grid-template-rows: 1fr; opacity: 1; visibility: visible; }
+.form-reveal[data-state="open"] { grid-template-rows: 1fr; opacity: 1; }
 /* Inside a .form-group the row absorbs the group gap, so a closed row
    adds no space and an open one sits the usual 6px under its field. */
 .form-group > .form-reveal { margin-top: -6px; }
@@ -631,7 +629,7 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px 20px;
+  gap: 8px 16px;
   padding: 24px 32px 28px;
   font-size: var(--fs-sm);
 }

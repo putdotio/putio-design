@@ -128,7 +128,7 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 - Fields read `--field-bg`, `--field-border`, and `--field-ring` (focus). `aria-invalid="true"` turns border and text red; the fill stays.
 - Raised panels read `--panel-*`.
 - Feedback uses `.form-callout`: `--alert-*` colours, `data-state` `info`, `success`, or `error`; `.inline` drops surface and border. It holds a message only. `.form-group` (`6px` gap) spaces a control and its feedback.
-- Every field and form error eases in through `.form-reveal`: `grid-template-rows` `0fr` to `1fr` plus opacity, over `--dur-reveal` (`180ms`) with `--ease-out`, so whatever sits below slides instead of jumping. A field error sits under its field inside `.form-group`, where the row absorbs the group gap; a form error sits above the submit button. `data-state="open"` shows it; keep the `role="alert"` message mounted. An `aria-invalid` field or code fades its border red over the same `--dur-reveal`. Under `prefers-reduced-motion` nothing animates.
+- Every field and form error eases in through `.form-reveal`: `grid-template-rows` `0fr` to `1fr` plus opacity, over `--dur-reveal` (`180ms`) with `--ease-out`, so whatever sits below slides instead of jumping. A field error sits under its field inside `.form-group`, where the row absorbs the group gap; a form error sits above the submit button. `data-state="open"` shows it. Keep the `role="alert"` message mounted and rendered; empty it once a closed row has collapsed. An `aria-invalid` field or code fades its border red over the same `--dur-reveal`. Under `prefers-reduced-motion` nothing animates.
 
 ### Auth
 

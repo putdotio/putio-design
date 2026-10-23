@@ -241,10 +241,18 @@
     var row = form && form.querySelector('.form-reveal');
     if (!row) return;
     var message = row.querySelector('[role="alert"]');
+    var text = message.textContent;
     var fields = Array.from(form.querySelectorAll('.field'));
     button.addEventListener('click', function () {
       var open = row.dataset.state !== 'open';
-      row.dataset.state = open ? 'open' : 'closed';
+      if (open) {
+        message.textContent = text;
+        row.dataset.state = 'open';
+      } else {
+        row.dataset.state = 'closed';
+        // Empty the alert once the row has collapsed, so a closed row says nothing.
+        setTimeout(function () { if (row.dataset.state !== 'open') message.textContent = ''; }, 400);
+      }
       fields.forEach(function (field) {
         if (open) {
           field.setAttribute('aria-invalid', 'true');

@@ -338,7 +338,7 @@ test.describe("design.put.io static guide", () => {
       );
       expect(rows.length, `${preview.pagePath} should render Auth forms`).toBeGreaterThan(0);
       for (const row of rows) {
-        expect(row, `${preview.pagePath} form error row`).toEqual({ hasMessage: true, nextIsSubmit: true, revealCount: 1, transition: "0.18s, 0.18s, 0.18s" });
+        expect(row, `${preview.pagePath} form error row`).toEqual({ hasMessage: true, nextIsSubmit: true, revealCount: 1, transition: "0.18s, 0.18s" });
       }
       await expect(page.locator(".auth-column .form-callout:not(.inline)")).toHaveCount(0);
     });
@@ -414,11 +414,13 @@ test.describe("design.put.io static guide", () => {
     await expect(message).toBeVisible();
     await expect(field).toHaveAttribute("aria-invalid", "true");
     const open = await gaps();
-    expect(open.transition).toBe("0.18s, 0.18s, 0.18s");
+    expect(open.transition).toBe("0.18s, 0.18s");
     expect(Math.abs(open.fieldToMessage - 6)).toBeLessThanOrEqual(0.5);
 
     await page.locator("[data-demo-toggle-errors]").click();
-    await expect(message).toBeHidden();
+    await expect(group.locator(".form-reveal")).toHaveAttribute("data-state", "closed");
+    await expect(message).toBeEmpty();
+    expect(await message.getAttribute("role")).toBe("alert");
     await expect(field).not.toHaveAttribute("aria-invalid");
     await expect.poll(async () => Math.abs((await gaps()).fieldToRowBottom)).toBeLessThanOrEqual(0.5);
   });
@@ -864,14 +866,16 @@ test.describe("design.put.io static guide", () => {
     await submit.click();
     await expect(input).not.toHaveAttribute("aria-invalid");
     await expect(input).not.toHaveAttribute("aria-describedby");
-    await expect(feedback).toBeHidden();
+    // A closed reveal row keeps its alert rendered but empty.
+    await expect(errorCard.locator(".form-reveal")).toHaveAttribute("data-state", "closed");
+    await expect(feedback).toBeEmpty();
     await expect(invalidOtp).toHaveAttribute("data-state", "verifying");
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await input.fill("81050");
     await expect(input).not.toHaveAttribute("aria-invalid");
     await expect(input).not.toHaveAttribute("aria-describedby");
-    await expect(feedback).toBeHidden();
+    await expect(feedback).toBeEmpty();
     await expect(submit).toBeDisabled();
 
     await input.fill("810507");
