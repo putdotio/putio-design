@@ -391,6 +391,38 @@ test.describe("design.put.io static guide", () => {
       }
     }
   });
+  test("field errors ease in under their field without leaving space when closed @desktop", async ({ page }) => {
+    await page.goto("/preview/web-c02b-field-validation.html?theme=light", { waitUntil: "domcontentloaded" });
+    const group = page.locator("[data-demo-field-error]").first();
+    const field = group.locator(".field");
+    const message = group.locator('[role="alert"]');
+    const gaps = () =>
+      group.evaluate((element) => {
+        const fieldBox = element.querySelector(".field")?.getBoundingClientRect();
+        const messageElement = element.querySelector('[role="alert"]');
+        const messageBox = messageElement?.getBoundingClientRect();
+        const messagePadding = messageElement ? Number.parseFloat(getComputedStyle(messageElement).paddingTop) : 0;
+        // Grid cells stretch the group, so measure the reveal row itself.
+        const rowBox = element.querySelector(".form-reveal")?.getBoundingClientRect();
+        return {
+          fieldToRowBottom: (rowBox?.bottom ?? 0) - (fieldBox?.bottom ?? 0),
+          fieldToMessage: (messageBox?.top ?? 0) + messagePadding - (fieldBox?.bottom ?? 0),
+          transition: getComputedStyle(element.querySelector(".form-reveal") as Element).transitionDuration,
+        };
+      });
+
+    await expect(message).toBeVisible();
+    await expect(field).toHaveAttribute("aria-invalid", "true");
+    const open = await gaps();
+    expect(open.transition).toBe("0.18s, 0.18s, 0.18s");
+    expect(Math.abs(open.fieldToMessage - 6)).toBeLessThanOrEqual(0.5);
+
+    await page.locator("[data-demo-toggle-errors]").click();
+    await expect(message).toBeHidden();
+    await expect(field).not.toHaveAttribute("aria-invalid");
+    await expect.poll(async () => Math.abs((await gaps()).fieldToRowBottom)).toBeLessThanOrEqual(0.5);
+  });
+
   test("Apple transfer progress keeps its stock preview style @desktop", async ({ page }) => {
     await page.goto("/preview/ios-s02-transfers.html", { waitUntil: "domcontentloaded" });
     const cases = [

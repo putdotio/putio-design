@@ -32,6 +32,7 @@ const REQUIRED_SELECTORS = [
   ".form-callout.inline",
   ".form-reveal",
   '.form-reveal[data-state="open"]',
+  ".form-group > .form-reveal",
   ".otp",
   ".otp-input",
   ".otp-group",
