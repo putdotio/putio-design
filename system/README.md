@@ -172,10 +172,8 @@ directly.
 
 shadcn marks parts of compound components with `data-slot="card-header"`,
 `data-slot="card-title"`, and so on. put.io does the same on the folder picker
-(`data-slot="modal" / "modal-header" / "modal-body" / "modal-footer"`) and the
-auth cards in `web-p00c-auth-signin.html` and `web-p00d-auth-signup.html`
-(`data-slot="auth" / "auth-header" / "auth-body"`), so external CSS can target
-one part without nested class chains.
+(`data-slot="modal" / "modal-header" / "modal-body" / "modal-footer"`), so
+external CSS can target one part without nested class chains.
 
 ## Design variants
 

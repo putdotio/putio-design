@@ -38,85 +38,123 @@
 <script src="./_resize.js" defer></script>
 <script src="./_password-toggle.js" defer></script>
 <style>
-  html, body { margin: 0; background: var(--html-bg); color: var(--text); font-family: var(--font-sans); font-size: 14px; }
-  .surface { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 22px; }
+  html, body { margin: 0; background: var(--app-bg); color: var(--text); font-family: var(--font-sans); font-size: 14px; }
+
+  .surface { padding: 28px 32px 36px; display: flex; flex-direction: column; gap: 24px; }
+
+  /* Demo chrome: each panel frames one auth page. */
+  .panel .demo-hd {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .panel .demo-hd .ix { font-family: var(--font-mono); font-size: 11px; color: var(--yellow-text-secondary); letter-spacing: 0.04em; }
+  .panel .demo-hd .t { font-size: 13px; color: var(--text); font-weight: 500; }
+  .panel .demo-hd .when { margin-left: auto; font-size: 11px; color: var(--text-secondary); }
+  .panel .auth-stage { padding: 0; }
+  /* The recipe fills the viewport; a framed demo takes a fixed height. */
+  .auth-stage .auth-page { min-height: 620px; }
+
+  /* .auth-* recipe lives in ../components.css. Card-local: logo mode swap,
+     the password reveal, and demo-only states. */
+  .auth-logo.brand-dark { display: none; }
+  html.dark .auth-logo.brand-light { display: none; }
+  html.dark .auth-logo.brand-dark { display: block; }
+  .field-wrap { position: relative; }
+  .password-toggle {
+    position: absolute; top: 0; right: 0;
+    width: 44px; height: 44px; padding: 0; border: 0;
+    display: grid; place-items: center; background: transparent;
+    color: var(--text-secondary); font-size: 16px; cursor: pointer;
+  }
+  .password-toggle:hover { color: var(--text); }
+  .field-wrap.has-password-toggle .field { padding-right: 44px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+  .specs-link {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+    line-height: 1.6;
+  }
+  .specs-link b { color: var(--text); font-weight: 500; }
+  .specs-link code { font-family: var(--font-mono); font-size: 11px; color: var(--yellow-text-secondary); }
+
+  @media (max-width: 640px) {
+    .surface { padding: 16px 8px 24px; }
+    .panel .demo-hd { align-items: flex-start; flex-wrap: wrap; }
+    .panel .demo-hd .when { width: 100%; margin-left: 0; }
+    .auth-stage .auth-page { min-height: 560px; }
+  }
   .hd .t { font-size: 15px; font-weight: 500; }
   .hd .d { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; max-width: 62ch; margin-top: 4px; }
   .states { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  .state { display: flex; flex-direction: column; gap: 10px; }
+  .state { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
   .cap { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-secondary); }
-  .screen { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 36px 28px 30px; display: flex; justify-content: center; }
-  .col { width: 100%; max-width: 340px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
-  .brand-dark { display: none; height: 30.33px; width: auto; } /* ink 26px: padded wordmark */
-  .brand-light { display: block; height: 30.33px; width: auto; }
-  .dark .brand-dark { display: block; }
-  .dark .brand-light { display: none; }
-  .card { width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px; box-shadow: var(--panel-shadow); }
-  .card .auth-header { text-align: center; }
-  .card h1 { margin: 0; font-size: 19px; font-weight: 500; letter-spacing: -0.01em; }
-  .card .sub { margin: 0; font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; }
-  .pw { position: relative; }
-  .pw .reveal { position: absolute; top: 0; right: 0; height: 36px; width: 38px; padding: 0; background: transparent; border: 0; color: var(--text-secondary); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
-  .pw .reveal:hover { color: var(--text); }
-  .pw .field { padding-right: 42px; }
-  /* Prompt and action stack: the link is its own line, not a run-on after
-     the question. Two lines read as a labelled action; one reads as prose. */
-  .foot { margin: 0; font-size: 12.5px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 4px; align-items: center; text-align: center; }
-  .foot a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; font-weight: 500; }
-  
-  
+  .screen { border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
+  .screen .auth-page { min-height: 600px; }
   .anat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
   .anat .c { border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; }
   .anat .k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-secondary); }
   .anat .v { font-size: 12.5px; margin-top: 3px; }
-  @media (max-width: 640px) {
-    .surface { padding: 16px 8px 24px; }
+  @media (max-width: 900px) {
     .states { grid-template-columns: 1fr; }
-    .screen { padding: 32px 8px 24px; }
-    .card.card-lg { padding: 24px 20px 22px; }
     .anat { grid-template-columns: 1fr 1fr; }
   }
-</style>
-</head>
+</style></head>
 <body>
-<div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat"><b>Web</b> (auth.put.io). The shipped sign-in screen. auth.put.io consumes <b>@putdotio/design</b> tokens and recipes through Tailwind and shadcn.</span><span class="ttok">--radius-lg · --panel-shadow · --red-text-secondary · --text-secondary</span></div>
+<div class="tierbar t1"><span class="tno">Tier 1</span><span class="twhat"><b>Web</b> (auth.put.io). The sign-in screen. auth.put.io consumes <b>@putdotio/design</b> tokens and recipes through Tailwind and shadcn.</span><span class="ttok">--bg-secondary · --line · --dur-reveal · --red-border</span></div>
+
 <div class="surface">
   <div class="hd">
     <div class="t">Auth screen</div>
-    <div class="d">The auth.put.io sign-in surface: retro logo mark, one elevated card, username + password with a reveal toggle, and a full-width primary CTA. A credential error sits under the password field; only form-level errors take a callout.</div>
+    <div class="d">The auth.put.io sign-in page: no card, the logo top-left, one 340px column on the page background, filled 44px fields, and a full-width primary. A credential error eases in right above the button. auth.put.io still ships the older card layout: drift.</div>
   </div>
 
   <div class="states">
     <div class="state">
       <div class="cap">default</div>
       <div class="screen">
-        <div class="col">
-          <img class="brand-dark" src="../assets/logo-retro-dark.svg" alt="put.io">
-          <img class="brand-light" src="../assets/logo-retro-light.svg" alt="put.io">
-          <div class="card card-lg">
-            <div class="auth-header">
-              <h1>Sign in</h1>
-              <p class="sub">Your files are where you left them.</p>
+        <div class="auth-page">
+        <div class="auth-header">
+          <img class="auth-logo brand-light" src="../assets/logo-retro-light.svg" alt="put.io" />
+          <img class="auth-logo brand-dark"  src="../assets/logo-retro-dark.svg"  alt="put.io" />
+        </div>
+          <div class="auth-main">
+            <div class="auth-column">
+            <h1 class="auth-title">Sign in to put.io</h1>
+            <form>
+              <div class="form-stack">
+                <div class="form-group">
+                  <label class="label" for="a-identity">Username or email</label>
+                  <input id="a-identity" class="field" autocomplete="username" spellcheck="false" value="kai@example.com" />
+                </div>
+                <div class="form-group">
+                  <div class="label-row">
+                    <label class="label" for="a-password">Password</label>
+                    <a href="#">Forgot password?</a>
+                  </div>
+                  <div class="field-wrap has-password-toggle">
+                    <input id="a-password" class="field" type="password" autocomplete="current-password" value="correct-horse" />
+                    <button class="password-toggle" type="button" data-password-toggle aria-label="Show password"><i class="ph ph-eye" aria-hidden="true"></i></button>
+                  </div>
+                </div>
+              </div>
+            <div class="form-reveal" data-state="closed">
+              <div><p class="form-callout inline" data-state="error" id="a-msg" role="alert"></p></div>
             </div>
-            <div class="form-stack">
-              <div class="form-group">
-                <label class="label" for="a-id">Username or email</label>
-                <input class="field" id="a-id" type="text" autocomplete="username" spellcheck="false">
-              </div>
-              <div class="form-group">
-                <div class="label-row">
-                  <label class="label" for="a-pw">Password</label>
-                  <a href="#">Forgot your password?</a>
-                </div>
-                <div class="pw">
-                  <input class="field" id="a-pw" type="password" autocomplete="current-password">
-                  <button type="button" class="reveal" data-password-toggle aria-label="Show password"><i class="ph ph-eye" style="font-size:16px" aria-hidden="true"></i></button>
-                </div>
-              </div>
-              <button type="button" class="btn-primary btn-block">Sign in</button>
+              <button class="btn-primary btn-block" type="button">Sign in</button>
+            </form>
+            <div class="auth-links"><p>New to put.io? <a href="#">Sign up</a></p></div>
             </div>
           </div>
-          <p class="foot"><span>New to put.io?</span><a href="#">Sign up</a></p>
+        <div class="auth-footer">
+          <a href="#">Terms of Service</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Help</a>
+        </div>
         </div>
       </div>
     </div>
@@ -124,47 +162,78 @@
     <div class="state">
       <div class="cap">error</div>
       <div class="screen">
-        <div class="col">
-          <img class="brand-dark" src="../assets/logo-retro-dark.svg" alt="put.io">
-          <img class="brand-light" src="../assets/logo-retro-light.svg" alt="put.io">
-          <div class="card card-lg">
-            <div class="auth-header">
-              <h1>Sign in</h1>
-              <p class="sub">Your files are where you left them.</p>
+        <div class="auth-page">
+        <div class="auth-header">
+          <img class="auth-logo brand-light" src="../assets/logo-retro-light.svg" alt="put.io" />
+          <img class="auth-logo brand-dark"  src="../assets/logo-retro-dark.svg"  alt="put.io" />
+        </div>
+          <div class="auth-main">
+            <div class="auth-column">
+            <h1 class="auth-title">Sign in to put.io</h1>
+            <form>
+              <div class="form-stack">
+                <div class="form-group">
+                  <label class="label" for="b-identity">Username or email</label>
+                  <input id="b-identity" class="field" autocomplete="username" spellcheck="false" value="kai@example.com" aria-invalid="true" aria-describedby="b-err" />
+                </div>
+                <div class="form-group">
+                  <div class="label-row">
+                    <label class="label" for="b-password">Password</label>
+                    <a href="#">Forgot password?</a>
+                  </div>
+                  <div class="field-wrap has-password-toggle">
+                    <input id="b-password" class="field" type="password" autocomplete="current-password" value="correct-horse" aria-invalid="true" aria-describedby="b-err" />
+                    <button class="password-toggle" type="button" data-password-toggle aria-label="Show password"><i class="ph ph-eye" aria-hidden="true"></i></button>
+                  </div>
+                </div>
+              </div>
+            <div class="form-reveal" data-state="open">
+              <div><p class="form-callout inline" data-state="error" id="b-err" role="alert">That username or password doesn't look right.</p></div>
             </div>
-            <div class="form-stack">
-              <div class="form-group">
-                <label class="label" for="b-id">Username or email</label>
-                <input class="field" id="b-id" type="text" autocomplete="username" spellcheck="false">
-              </div>
-              <div class="form-group">
-                <div class="label-row">
-                  <label class="label" for="b-pw">Password</label>
-                  <a href="#">Forgot your password?</a>
-                </div>
-                <div class="pw">
-                  <input class="field" id="b-pw" type="password" aria-invalid="true" aria-describedby="b-pw-error" autocomplete="current-password">
-                  <button type="button" class="reveal" data-password-toggle aria-label="Show password"><i class="ph ph-eye" style="font-size:16px" aria-hidden="true"></i></button>
-                </div>
-                <div class="form-callout inline" data-state="error" id="b-pw-error" role="alert">
-                  <span>That username or password doesn't look right. <a href="#" style="color: inherit; text-decoration: underline; text-underline-offset: 2px;">Reset your password</a>.</span>
-                </div>
-              </div>
-              <button type="button" class="btn-primary btn-block">Sign in</button>
+              <button class="btn-primary btn-block" type="button" data-demo-reveal-toggle>Sign in</button>
+            </form>
+            <div class="auth-links"><p>New to put.io? <a href="#">Sign up</a></p></div>
             </div>
           </div>
-          <p class="foot"><span>New to put.io?</span><a href="#">Sign up</a></p>
+        <div class="auth-footer">
+          <a href="#">Terms of Service</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Help</a>
+        </div>
         </div>
       </div>
     </div>
   </div>
 
   <div class="anat">
-    <div class="c"><div class="k">Card</div><div class="v">card-lg · --panel-shadow</div></div>
+    <div class="c"><div class="k">Surface</div><div class="v">page background · no card</div></div>
     <div class="c"><div class="k">Width</div><div class="v">340px column</div></div>
-    <div class="c"><div class="k">CTA</div><div class="v">btn-primary btn-block</div></div>
-    <div class="c"><div class="k">Error</div><div class="v">--red-text-secondary, inline</div></div>
+    <div class="c"><div class="k">Controls</div><div class="v">44px · --bg-secondary · --line</div></div>
+    <div class="c"><div class="k">Error</div><div class="v">.form-reveal · --dur-reveal</div></div>
   </div>
 </div>
-</body>
-</html>
+<script>
+  /* Demo only: Sign in on the error page toggles the credential error, so
+     the reveal and the border fade can be watched. */
+  document.querySelectorAll('[data-demo-reveal-toggle]').forEach(function (button) {
+    var form = button.closest('form');
+    var row = form && form.querySelector('.form-reveal');
+    if (!row) return;
+    var message = row.querySelector('[role="alert"]');
+    var fields = Array.from(form.querySelectorAll('.field'));
+    button.addEventListener('click', function () {
+      var open = row.dataset.state !== 'open';
+      row.dataset.state = open ? 'open' : 'closed';
+      fields.forEach(function (field) {
+        if (open) {
+          field.setAttribute('aria-invalid', 'true');
+          field.setAttribute('aria-describedby', message.id);
+        } else {
+          field.removeAttribute('aria-invalid');
+          field.removeAttribute('aria-describedby');
+        }
+      });
+    });
+  });
+</script>
+</body></html>

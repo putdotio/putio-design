@@ -128,15 +128,25 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 - Fields read `--field-bg`, `--field-border`, and `--field-ring` (focus). `aria-invalid="true"` turns border and text red; the fill stays.
 - Raised panels read `--panel-*`.
 - Feedback uses `.form-callout`: `--alert-*` colours, `data-state` `info`, `success`, or `error`; `.inline` drops surface and border. It holds a message only. `.form-group` (`6px` gap) spaces a control and its feedback.
+- `.form-reveal` eases one message in: `grid-template-rows` `0fr` to `1fr` plus opacity, over `--dur-reveal` (`180ms`) with `--ease-out`, so the controls below slide instead of jumping. `data-state="open"` shows it; keep the `role="alert"` message mounted. An `aria-invalid` field fades its border red over the same `--dur-reveal`. Under `prefers-reduced-motion` nothing animates.
 
 ### Auth
 
-- A fluid column up to `340px`, the `36px` field recipe, a `30.33px` wordmark box (26px ink × 7/6), centred `19px`/500 headings, and a centred two-line prompt footer. auth.put.io's set-password screen ships the action alone: drift.
-- Copy: “Sign in”, “Sign up”, and “That username or password doesn't look right.” followed by a “Reset your password” link.
-- References: `web-s06-auth`, `web-p00c-auth-signin`, `web-p00d-auth-signup`, `web-p00e-auth-2fa`.
-- One-time codes are one `.otp-input` (`inputmode="numeric"`, `autocomplete="one-time-code"`, `maxlength="6"`, `aria-invalid`) shown through two `.otp-group`s, one `.otp-separator`, and six `.otp-slot`s; script syncs slot text and `filled`/`active`, and maps a clicked slot to the input selection.
-- Editing an invalid code clears the error; retry waits for six digits. `data-state="verifying"` disables the input, keeps the digits, and announces through a polite live region. `data-state="success"` keeps the digits read-only, announces continuation in a `role="status"` callout, and shows no further action; the consumer owns navigation. auth.put.io disables the button, relabels it “Verified”, and announces that through a visually hidden status region.
-- No recovery-code action until a consumer owns the route. Groups own the responsive width, so the control fits narrow cards without scrolling.
+- Sign in, sign up, password reset, and two-factor pages have no card or panel: the form sits on `--bg`. Recipe: `.auth-page`, `.auth-header`, `.auth-main`, `.auth-column`, `.auth-title`, `.auth-links`, `.auth-footer`.
+- The logo sits top-left in the header, in a `30.33px` box (26px ink × 7/6). The top right stays empty by default.
+- One left-aligned column, up to `340px`, is centred horizontally and vertically.
+- A quiet centred footer links Terms of Service, Privacy Policy, and Help in muted `--fs-sm`.
+- One title per screen: `22px`, medium, `-0.01em` tracking. No subtitles, taglines, or marketing lines; copy stays short.
+- Fields are filled: the page points `--field-bg` at `--bg-secondary` and `--field-border` at `--line`. Fields and buttons in the column are `44px`.
+- Labels are small, muted, and above the field. “Forgot password?” sits in the password label row.
+- The primary button is full-width yellow. Secondary actions sit under the form as muted text links: “New to put.io? Sign up”, “Wrong account? Sign out”.
+- Form errors: one message in a `.form-reveal` row right above the submit button, in red `--fs-base` text. Invalid fields turn red. Auth forms never use the boxed `.form-callout`.
+- Copy: “Sign in”, “Sign up”, and “That username or password doesn't look right.”
+- auth.put.io still ships the older card layout: drift.
+- References: `web-s06-auth`, `web-p00c-auth-signin`, `web-p00d-auth-signup`, `web-p00e-auth-2fa`. Outside references: the TIDAL, Stripe Link, Cursor, Linear, and Vercel sign-in pages.
+- One-time codes are one `.otp-input` (`inputmode="numeric"`, `autocomplete="one-time-code"`, `maxlength="6"`, `aria-invalid`) shown through two `.otp-group`s, one `.otp-separator`, and six `.otp-slot`s; script syncs slot text and `filled`/`active`, and maps a clicked slot to the input selection. The slots stretch the full column with mono digits. The label reads “Code from your authenticator app”, with no hint line.
+- Editing an invalid code closes the error; retry waits for six digits. `data-state="verifying"` disables the input, keeps the digits, and announces through a polite live region. `data-state="success"` keeps the digits read-only, announces continuation in a `role="status"` region, and shows no further action; the consumer owns navigation. auth.put.io disables the button, relabels it “Verified”, and announces that through a visually hidden status region.
+- “Use a recovery code” appears only once a consumer owns the route. Groups own the responsive width, so the control fits narrow columns without scrolling.
 
 ### TV
 

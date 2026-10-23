@@ -3559,6 +3559,13 @@ export const tokens = {
     "value": "120ms",
     "originalValue": "120ms"
   },
+  "motion.duration.reveal": {
+    "cssName": "--dur-reveal",
+    "type": "duration",
+    "mode": "global",
+    "value": "180ms",
+    "originalValue": "180ms"
+  },
   "motion.duration.base": {
     "cssName": "--dur-base",
     "type": "duration",

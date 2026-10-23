@@ -48,44 +48,30 @@ const buttonHoverAliases = [
   [".btn-info", "--button-info-bg-hover"],
 ] as const;
 
+// Every auth card draws the card-less page recipe from components.css.
 const authPreviews = [
   {
-    cardSelector: ".auth",
-    centeredMarkSelector: ".auth .success-mark",
-    columnSelector: ".auth",
-    credentialErrorSelector: "#signin-err",
-    fieldSelector: ".auth .field",
-    footerSelector: ".auth-foot",
-    headerSelector: ".auth .a-hd",
-    headingSelector: ".auth .a-hd h3",
-    logoSelector: ".auth-logo",
+    credentialErrorSelector: "#signin-error-err",
+    hasFields: true,
     pagePath: "/preview/web-p00c-auth-signin.html",
     requiredActions: [
-      { count: 2, name: "Forgot your password?", role: "link" },
+      { count: 2, name: "Forgot password?", role: "link" },
       { count: 2, name: "Show password", role: "button" },
       { count: 2, name: "Sign in", role: "button" },
       { count: 2, name: "Sign up", role: "link" },
-      { count: 1, name: "Reset your password", role: "link" },
       { count: 1, name: "Open mail", role: "button" },
       { count: 1, name: "Resend link", role: "button" },
       { count: 1, name: "Go back", role: "link" },
     ],
   },
   {
-    cardSelector: ".auth",
-    centeredMarkSelector: null,
-    columnSelector: ".auth",
     credentialErrorSelector: null,
-    fieldSelector: ".auth .field",
-    footerSelector: ".auth-foot",
-    headerSelector: ".auth .a-hd",
-    headingSelector: ".auth .a-hd h3",
-    logoSelector: ".auth-logo",
+    hasFields: true,
     pagePath: "/preview/web-p00d-auth-signup.html",
     requiredActions: [
       { count: 1, name: "Sign up", role: "button" },
       { count: 1, name: "Terms", role: "link" },
-      { count: 1, name: "Privacy Policy", role: "link" },
+      { count: 5, name: "Privacy Policy", role: "link" },
       { count: 1, name: "Sign in", role: "link" },
       { count: 1, name: "Send password reset email", role: "button" },
       { count: 2, name: "Back to sign in", role: "link" },
@@ -96,15 +82,8 @@ const authPreviews = [
     ],
   },
   {
-    cardSelector: ".auth",
-    centeredMarkSelector: null,
-    columnSelector: ".auth",
     credentialErrorSelector: null,
-    fieldSelector: null,
-    footerSelector: ".auth-foot",
-    headerSelector: ".auth .a-hd",
-    headingSelector: ".auth .a-hd h3",
-    logoSelector: ".auth-logo",
+    hasFields: false,
     pagePath: "/preview/web-p00e-auth-2fa.html",
     requiredActions: [
       { count: 2, name: "Verify", role: "button" },
@@ -113,24 +92,18 @@ const authPreviews = [
     ],
   },
   {
-    cardSelector: ".col > .card",
-    centeredMarkSelector: null,
-    columnSelector: ".col",
-    credentialErrorSelector: "#b-pw-error",
-    fieldSelector: ".col .field",
-    footerSelector: ".foot",
-    headerSelector: ".card .auth-header",
-    headingSelector: ".card h1",
-    logoSelector: ".col > :is(.brand-light, .brand-dark)",
+    credentialErrorSelector: "#b-err",
+    hasFields: true,
     pagePath: "/preview/web-s06-auth.html",
     requiredActions: [
-      { count: 2, name: "Forgot your password?", role: "link" },
+      { count: 2, name: "Forgot password?", role: "link" },
       { count: 2, name: "Show password", role: "button" },
       { count: 2, name: "Sign in", role: "button" },
       { count: 2, name: "Sign up", role: "link" },
     ],
   },
 ] as const;
+const authFooterLinks = ["Terms of Service", "Privacy Policy", "Help"];
 
 const authThemes = ["light", "dark"] as const;
 const authThemePreviews = authPreviews.flatMap((preview) => authThemes.map((theme) => ({ preview, theme })));
@@ -153,7 +126,7 @@ const authCopyThemePreviews = htmlPages
 }>((pagePath) =>
   isThemeLocked(pagePath) ? [{ pagePath, theme: "locked" }] : authThemes.map((theme) => ({ pagePath, theme })),
 );
-const credentialErrorCopy = "That username or password doesn't look right. Reset your password.";
+const credentialErrorCopy = "That username or password doesn't look right.";
 const forbiddenAuthCopy = /\b(?:login|log\s+in|register|create\s+(?:an\s+|your\s+)?account)\b/i;
 const narrowAuthViewportWidths = [320, 375] as const;
 const otpPreviewPaths = ["/preview/web-p00d-auth-signup.html", "/preview/web-p00e-auth-2fa.html"] as const;
@@ -181,8 +154,7 @@ async function expectAuthFitsViewport(
   }));
   expect(documentWidth.scrollWidth, `${preview.pagePath} document width in ${context}`).toBeLessThanOrEqual(documentWidth.clientWidth);
 
-  const selectors = preview.cardSelector === preview.columnSelector ? preview.cardSelector : `${preview.columnSelector}, ${preview.cardSelector}`;
-  const bounds = await page.locator(selectors).evaluateAll((elements) =>
+  const bounds = await page.locator(".auth-column").evaluateAll((elements) =>
     elements.map((element) => {
       const box = element.getBoundingClientRect();
       return { left: box.left, right: box.right };
@@ -194,7 +166,7 @@ async function expectAuthFitsViewport(
     expect(bound.right, `${preview.pagePath} right edge in ${context}`).toBeLessThanOrEqual(documentWidth.clientWidth + 0.5);
   }
 
-  const otpBounds = await page.locator(`${preview.cardSelector} .otp`).evaluateAll((elements) =>
+  const otpBounds = await page.locator(".auth-column .otp").evaluateAll((elements) =>
     elements.map((element) => {
       const parent = element.parentElement;
       if (!parent) throw new Error("OTP control requires a containing form group");
@@ -259,135 +231,116 @@ test.describe("design.put.io static guide", () => {
         const error = page.locator(preview.credentialErrorSelector);
         await expect(error).toHaveText(credentialErrorCopy);
         await expect(error).toHaveAttribute("role", "alert");
-        const invalidField = page.locator(`${preview.fieldSelector}[aria-invalid="true"]`);
-        await expect(invalidField).toHaveCount(1);
-        const describedBy = await invalidField.getAttribute("aria-describedby");
-        expect(describedBy?.split(/\s+/), `${preview.pagePath} invalid field should describe its credential error`).toContain(
-          preview.credentialErrorSelector.slice(1),
-        );
+        await expect(error.locator("xpath=ancestor::*[contains(@class, 'form-reveal')][1]")).toHaveAttribute("data-state", "open");
+        const form = page.locator("form").filter({ has: error });
+        const invalidFields = form.locator('.field[aria-invalid="true"]');
+        await expect(invalidFields).toHaveCount(await form.locator(".field").count());
+        for (const describedBy of await invalidFields.evaluateAll((fields) => fields.map((field) => field.getAttribute("aria-describedby")))) {
+          expect(describedBy?.split(/\s+/), `${preview.pagePath} invalid field should describe its credential error`).toContain(
+            preview.credentialErrorSelector.slice(1),
+          );
+        }
       }
     });
 
     test(`${preview.pagePath} follows the Auth geometry contract in ${theme} mode @desktop`, async ({ page }) => {
       await page.goto(`${preview.pagePath}?theme=${theme}`, { waitUntil: "domcontentloaded" });
 
-      for (const [name, selector] of [
-        ["column", preview.columnSelector],
-        ["card", preview.cardSelector],
-      ] as const) {
-        const widths = await page.locator(selector).evaluateAll((elements) =>
-          elements
-            .filter((element) => getComputedStyle(element).display !== "none")
-            .map((element) => element.getBoundingClientRect().width),
-        );
-        expect(widths.length, `${preview.pagePath} should render at least one Auth ${name}`).toBeGreaterThan(0);
-        for (const width of widths) {
-          expect(Math.abs(width - 340), `${preview.pagePath} ${name} width`).toBeLessThanOrEqual(0.1);
-        }
-      }
-
-      if (preview.fieldSelector) {
-        const fieldHeights = await page.locator(preview.fieldSelector).evaluateAll((elements) =>
-          elements.map((element) => getComputedStyle(element).height),
-        );
-        expect(fieldHeights.length, `${preview.pagePath} should render Auth fields`).toBeGreaterThan(0);
-        for (const height of fieldHeights) expect(height, `${preview.pagePath} field height`).toBe("36px");
-      }
-
-      const logoHeightsByCard = await page.locator(preview.cardSelector).evaluateAll(
-        (elements, logoSelector) =>
-          elements
-            .filter((element) => getComputedStyle(element).display !== "none")
-            .map((element) => {
-              const scope = element.closest(".auth-stage, .col");
-              if (!scope) return [];
-              return Array.from(scope.querySelectorAll(logoSelector))
-                .filter((logo) => getComputedStyle(logo).display !== "none")
-                .map((logo) => logo.getBoundingClientRect().height);
-            }),
-        preview.logoSelector,
-      );
-      expect(logoHeightsByCard.length, `${preview.pagePath} should render Auth cards`).toBeGreaterThan(0);
-      for (const logoHeights of logoHeightsByCard) {
-        expect(logoHeights, `${preview.pagePath} Auth card visible wordmark count`).toHaveLength(1);
-        expect(Math.abs((logoHeights[0] ?? 0) - 30.33), `${preview.pagePath} visible wordmark height`).toBeLessThanOrEqual(0.05);
-      }
-
-      const headings = await page.locator(preview.headingSelector).evaluateAll((elements) =>
-        elements.map((element) => {
-          const styles = getComputedStyle(element);
-          return { fontSize: styles.fontSize, fontWeight: styles.fontWeight, textAlign: styles.textAlign };
-        }),
-      );
-      expect(headings.length, `${preview.pagePath} should render Auth headings`).toBeGreaterThan(0);
-      for (const heading of headings) {
-        expect(heading, `${preview.pagePath} heading typography`).toEqual({ fontSize: "19px", fontWeight: "500", textAlign: "center" });
-      }
-
-      const headerAlignments = await page.locator(preview.headerSelector).evaluateAll((elements) =>
-        elements.map((element) => getComputedStyle(element).textAlign),
-      );
-      expect(headerAlignments.length, `${preview.pagePath} should render Auth headers`).toBeGreaterThan(0);
-      for (const textAlign of headerAlignments) {
-        expect(textAlign, `${preview.pagePath} header alignment`).toBe("center");
-      }
-
-      if (preview.centeredMarkSelector) {
-        const centerDeltas = await page.locator(preview.centeredMarkSelector).evaluateAll((elements) =>
+      const pages = await page.locator(".auth-page").evaluateAll(
+        (elements, footerLinks) =>
           elements.map((element) => {
-            const mark = element.getBoundingClientRect();
-            const parent = element.parentElement?.getBoundingClientRect();
-            return parent ? Math.abs(mark.left + mark.width / 2 - (parent.left + parent.width / 2)) : Number.POSITIVE_INFINITY;
+            const box = (node: Element | null) => node?.getBoundingClientRect() ?? null;
+            const header = element.querySelector(":scope > .auth-header");
+            const logos = Array.from(header?.querySelectorAll(".auth-logo") ?? []).filter((logo) => getComputedStyle(logo).display !== "none");
+            const main = element.querySelector(":scope > .auth-main");
+            const column = main?.querySelector(":scope > .auth-column") ?? null;
+            const titles = Array.from(column?.querySelectorAll(".auth-title") ?? []);
+            const footer = element.querySelector(":scope > .auth-footer");
+            const columnBox = box(column);
+            const mainBox = box(main);
+            const mainStyles = main ? getComputedStyle(main) : null;
+            const mainContentTop = (mainBox?.top ?? 0) + Number.parseFloat(mainStyles?.paddingTop ?? "0");
+            const mainContentBottom = (mainBox?.bottom ?? 0) - Number.parseFloat(mainStyles?.paddingBottom ?? "0");
+            const title = titles[0];
+            const titleStyles = title ? getComputedStyle(title) : null;
+            return {
+              background: getComputedStyle(element).backgroundColor,
+              cardSurfaces: element.querySelectorAll(".card, .panel").length,
+              columnCenterDelta: columnBox && mainBox ? Math.abs(columnBox.left + columnBox.width / 2 - (mainBox.left + mainBox.width / 2)) : Number.POSITIVE_INFINITY,
+              columnMiddleDelta: columnBox ? Math.abs(columnBox.top + columnBox.height / 2 - (mainContentTop + mainContentBottom) / 2) : Number.POSITIVE_INFINITY,
+              columnWidth: columnBox?.width ?? 0,
+              footerJustify: footer ? getComputedStyle(footer).justifyContent : "",
+              footerLinks: Array.from(footer?.querySelectorAll("a") ?? []).map((link) => link.textContent?.trim()),
+              logoCount: logos.length,
+              logoHeight: logos[0]?.getBoundingClientRect().height ?? 0,
+              logoLeftOfColumn: (box(logos[0] ?? null)?.left ?? Number.POSITIVE_INFINITY) < (columnBox?.left ?? 0),
+              logoAboveColumn: (box(logos[0] ?? null)?.bottom ?? Number.POSITIVE_INFINITY) <= (columnBox?.top ?? 0),
+              title: titleStyles
+                ? { fontSize: titleStyles.fontSize, fontWeight: titleStyles.fontWeight, textAlign: titleStyles.textAlign }
+                : null,
+              titleCount: titles.length,
+              footerLinksExpected: footerLinks,
+            };
+          }),
+        authFooterLinks,
+      );
+      const background = await resolvedCssColor(page, "--bg");
+      expect(pages.length, `${preview.pagePath} should render Auth pages`).toBeGreaterThan(0);
+      for (const authPage of pages) {
+        expect(authPage.background, `${preview.pagePath} page background`).toBe(background);
+        expect(authPage.cardSurfaces, `${preview.pagePath} card-less page`).toBe(0);
+        expect(Math.abs(authPage.columnWidth - 340), `${preview.pagePath} column width`).toBeLessThanOrEqual(0.1);
+        expect(authPage.columnCenterDelta, `${preview.pagePath} column centred horizontally`).toBeLessThanOrEqual(1);
+        expect(authPage.columnMiddleDelta, `${preview.pagePath} column centred vertically`).toBeLessThanOrEqual(1);
+        expect(authPage.logoCount, `${preview.pagePath} visible header wordmarks`).toBe(1);
+        expect(Math.abs(authPage.logoHeight - 30.33), `${preview.pagePath} wordmark height`).toBeLessThanOrEqual(0.05);
+        expect(authPage.logoLeftOfColumn && authPage.logoAboveColumn, `${preview.pagePath} wordmark sits top-left`).toBe(true);
+        expect(authPage.titleCount, `${preview.pagePath} one title per screen`).toBe(1);
+        expect(authPage.title, `${preview.pagePath} title typography`).toEqual({ fontSize: "22px", fontWeight: "500", textAlign: "start" });
+        expect(authPage.footerJustify, `${preview.pagePath} footer alignment`).toBe("center");
+        expect(authPage.footerLinks, `${preview.pagePath} footer links`).toEqual(authPage.footerLinksExpected);
+      }
+
+      const controls = await page
+        .locator(preview.hasFields ? ".auth-column :is(.field, .btn-block)" : ".auth-column .btn-block")
+        .evaluateAll((elements) => elements.map((element) => getComputedStyle(element).height));
+      expect(controls.length, `${preview.pagePath} should render Auth controls`).toBeGreaterThan(0);
+      for (const height of controls) expect(height, `${preview.pagePath} control height`).toBe("44px");
+
+      if (preview.hasFields) {
+        const [filledBackground, filledBorder] = await Promise.all([resolvedCssColor(page, "--bg-secondary"), resolvedCssColor(page, "--line")]);
+        const fields = await page.locator('.auth-column .field:not([aria-invalid="true"])').evaluateAll((elements) =>
+          elements.map((element) => {
+            const styles = getComputedStyle(element);
+            return { background: styles.backgroundColor, border: styles.borderTopColor };
           }),
         );
-        expect(centerDeltas.length, `${preview.pagePath} should render confirmation marks`).toBeGreaterThan(0);
-        for (const delta of centerDeltas) expect(delta, `${preview.pagePath} confirmation mark center`).toBeLessThanOrEqual(0.1);
-      }
-
-      const footers = await page.locator(preview.footerSelector).evaluateAll((elements) =>
-        elements.map((element) => {
-          const styles = getComputedStyle(element);
-          const footer = element.getBoundingClientRect();
-          const items = Array.from(element.childNodes).filter((node) => node.textContent?.trim());
-          const rect = (node: ChildNode | undefined): DOMRect | null => {
-            if (!node) return null;
-            const range = document.createRange();
-            range.selectNodeContents(node);
-            return range.getBoundingClientRect();
-          };
-          // A footer is an optional prompt line over one action link.
-          const prompt = items.length > 1 ? rect(items[0]) : null;
-          const action = rect(items.at(-1));
-          return {
-            actionIsLink: items.at(-1) instanceof HTMLAnchorElement,
-            actionTop: action?.top ?? 0,
-            actionCenterDelta: action ? Math.abs(action.left + action.width / 2 - (footer.left + footer.width / 2)) : Number.POSITIVE_INFINITY,
-            alignItems: styles.alignItems,
-            display: styles.display,
-            flexDirection: styles.flexDirection,
-            itemCount: items.length,
-            promptBottom: prompt?.bottom ?? Number.POSITIVE_INFINITY,
-            promptCenterDelta: prompt ? Math.abs(prompt.left + prompt.width / 2 - (footer.left + footer.width / 2)) : Number.POSITIVE_INFINITY,
-            textAlign: styles.textAlign,
-          };
-        }),
-      );
-      expect(footers.length, `${preview.pagePath} should render Auth footers`).toBeGreaterThan(0);
-      for (const footer of footers) {
-        expect(footer.display, `${preview.pagePath} footer display`).toBe("flex");
-        expect(footer.flexDirection, `${preview.pagePath} footer direction`).toBe("column");
-        expect(footer.alignItems, `${preview.pagePath} footer alignment`).toBe("center");
-        expect(footer.textAlign, `${preview.pagePath} footer text alignment`).toBe("center");
-        expect([1, 2], `${preview.pagePath} footer prompt/action items`).toContain(footer.itemCount);
-        expect(footer.actionIsLink, `${preview.pagePath} footer action`).toBe(true);
-        if (footer.itemCount === 2) {
-          expect(footer.promptBottom, `${preview.pagePath} footer prompt line`).toBeLessThanOrEqual(footer.actionTop + 0.5);
-          expect(footer.promptCenterDelta, `${preview.pagePath} centered footer prompt`).toBeLessThanOrEqual(1);
-        }
-        expect(footer.actionCenterDelta, `${preview.pagePath} centered footer action`).toBeLessThanOrEqual(1);
+        expect(fields.length, `${preview.pagePath} should render resting fields`).toBeGreaterThan(0);
+        for (const field of fields) expect(field, `${preview.pagePath} filled field`).toEqual({ background: filledBackground, border: filledBorder });
       }
 
       await expectAuthFitsViewport(page, preview, `${theme} desktop mode`);
+    });
+
+    test(`${preview.pagePath} reveals form errors above the submit button in ${theme} mode @desktop`, async ({ page }) => {
+      await page.goto(`${preview.pagePath}?theme=${theme}`, { waitUntil: "domcontentloaded" });
+      const rows = await page.locator(".auth-column form").evaluateAll((forms) =>
+        forms.map((form) => {
+          const reveal = form.querySelector(":scope > .form-reveal");
+          const message = reveal?.querySelector('[role="alert"]');
+          return {
+            hasMessage: message instanceof HTMLElement,
+            nextIsSubmit: reveal?.nextElementSibling?.classList.contains("btn-primary") ?? false,
+            revealCount: form.querySelectorAll(".form-reveal").length,
+            transition: reveal ? getComputedStyle(reveal).transitionDuration : "",
+          };
+        }),
+      );
+      expect(rows.length, `${preview.pagePath} should render Auth forms`).toBeGreaterThan(0);
+      for (const row of rows) {
+        expect(row, `${preview.pagePath} form error row`).toEqual({ hasMessage: true, nextIsSubmit: true, revealCount: 1, transition: "0.18s, 0.18s, 0.18s" });
+      }
+      await expect(page.locator(".auth-column .form-callout:not(.inline)")).toHaveCount(0);
     });
   }
 
@@ -658,10 +611,11 @@ test.describe("design.put.io static guide", () => {
         greenText,
         secondaryText,
       ] = await Promise.all(
+        // Auth pages re-point --field-bg and --field-border to the filled pair.
         [
-          "--field-bg",
+          "--bg-secondary",
           "--field-bg-disabled",
-          "--field-border",
+          "--line",
           "--field-border-hover",
           "--field-border-focus",
           "--field-text",
@@ -1044,12 +998,8 @@ test.describe("design.put.io static guide", () => {
     await expect(input).toHaveAttribute("tabindex", "-1");
     await expect(otp.locator(".otp-slot")).toHaveText(code.split(""));
 
-    // auth.put.io keeps the hint and swaps the submit to a disabled "Verified".
-    const hintId = await input.getAttribute("aria-describedby");
-    expect(hintId, "successful OTP should keep its hint").toBeTruthy();
-    await expect(page.locator(`#${hintId}`)).toBeVisible();
-
-    const card = page.locator(".auth").filter({ has: otp });
+    // auth.put.io swaps the submit to a disabled "Verified".
+    const card = page.locator(".auth-column").filter({ has: otp });
     const submit = card.locator("button.btn-primary");
     await expect(submit).toHaveText("Verified");
     await expect(submit).toBeDisabled();
@@ -1076,7 +1026,7 @@ test.describe("design.put.io static guide", () => {
     await expect(otp).toHaveAttribute("aria-disabled", "true");
     await expect(otp.locator(".otp-slot")).toHaveText(code.split(""));
 
-    const card = page.locator(".auth").filter({ has: otp });
+    const card = page.locator(".auth-column").filter({ has: otp });
     const submit = card.locator("button.btn-primary");
     await expect(submit).toBeDisabled();
     await expect(submit).toHaveAttribute("aria-live", "polite");

@@ -93,7 +93,7 @@ shipped card.
 | ------- | --------------------------------------------------------------------------------------------- |
 | App     | follows the system by default; root 14px, 15px from 1280; header 60px; sidebar 240px or 180px |
 | Landing | either mode, 16px body, more air; not reviewed against `apps/www`                             |
-| Auth    | follows the system; 340px panel on page background, `--panel-*` aliases                       |
+| Auth    | follows the system; card-less 340px column on the page background, filled 44px fields         |
 
 The system's mode defaults follow [Colors](../../DESIGN.md#colors); its root
 font-size follows [Typography](../../DESIGN.md#typography).

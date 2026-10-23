@@ -211,8 +211,9 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 
      .card  = focal, elevated component surface. Sits ON --bg,
               uses --component-bg so it reads as raised in dark
-              and contained in light. Auth card, modal, settings
-              card, anything the user's attention should go TO.
+              and contained in light. Modal, settings card,
+              anything the user's attention should go TO. Auth
+              pages take neither: see .auth-page.
 
      .panel = quiet inline reference container. Sits ON --bg,
               uses --bg-secondary so it stays recessive but
@@ -298,9 +299,11 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 }
 /* Invalid — border + text only, no surface fill.
    Step convention: rest = step 7 (--red-border),
-   focus/hover = step 8 (--red-border-hover). */
+   focus/hover = step 8 (--red-border-hover).
+   The border fades in over --dur-reveal, in step with .form-reveal. */
 .field[aria-invalid="true"] {
   border-color: var(--red-border);
+  transition-duration: var(--dur-reveal);
 }
 .field[aria-invalid="true"]:hover {
   border-color: var(--red-border-hover);
@@ -408,6 +411,34 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 }
 
 /* ===========================================================
+   Form reveal — eases one form message in without a layout jump.
+
+   The row animates its height through grid-template-rows (0fr → 1fr)
+   with opacity, so the button below slides instead of jumping. Markup:
+   .form-reveal > div > .form-callout.inline[data-state="error"]; the
+   inner div clips, so spacing on the message collapses with it. Keep
+   the message (role="alert") mounted; set its text and
+   data-state="open" together, and keep the text until the row has
+   closed so it does not snap. Visibility flips at the start of an open
+   and the end of a close, so a closed row leaves the accessibility
+   tree. The token base collapses the transition under
+   prefers-reduced-motion.
+   =========================================================== */
+.form-reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--dur-reveal) var(--ease-out),
+    opacity var(--dur-reveal) var(--ease-out),
+    visibility var(--dur-reveal) var(--ease-out);
+}
+.form-reveal > * { min-height: 0; overflow: hidden; }
+.form-reveal .form-callout { margin: 0; }
+.form-reveal[data-state="open"] { grid-template-rows: 1fr; opacity: 1; visibility: visible; }
+
+/* ===========================================================
    One-time password — one real input, six visual slots.
 
    The transparent input spans the whole recipe so pointer, keyboard,
@@ -483,6 +514,7 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 .otp:has(.otp-input[aria-invalid="true"]) .otp-slot {
   border-color: var(--red-border);
   color: var(--red-text-secondary);
+  transition-duration: var(--dur-reveal);
 }
 .otp:has(.otp-input[aria-invalid="true"]):focus-within .otp-slot[data-state="active"] {
   border-color: var(--red-border-hover);
@@ -510,6 +542,98 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   color: var(--text-secondary);
   box-shadow: none;
   cursor: not-allowed;
+}
+
+/* ===========================================================
+   Auth page — sign in, sign up, password reset, two-factor.
+
+   Card-less: the form sits on the page background. Logo top-left
+   in .auth-header, one left-aligned 340px column centred in
+   .auth-main, a quiet link row in .auth-footer. The page re-points
+   --field-bg / --field-border, so .field and .otp-slot render filled
+   without a variant. Controls are 44px; the title is the only
+   heading. Under 640px the gutters drop to 24px so the logo lines
+   up with the column.
+   =========================================================== */
+.auth-page {
+  --field-bg: var(--bg-secondary);
+  --field-border: var(--line);
+  box-sizing: border-box;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+}
+.auth-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 32px;
+}
+.auth-logo { display: block; height: 30.33px; width: auto; }
+.auth-main {
+  flex: 1 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 24px 48px;
+}
+.auth-column {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+}
+.auth-title {
+  margin: 0 0 28px;
+  font-size: 22px;
+  line-height: 30px;
+  font-weight: var(--fw-medium);
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.auth-column .form-stack { gap: 16px; }
+.auth-column .label {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-regular);
+  color: var(--text-secondary);
+}
+.auth-column .form-group .label-row a { font-size: var(--fs-sm); }
+.auth-column .field { height: 44px; }
+.auth-column .form-reveal .form-callout { padding-top: 12px; font-size: var(--fs-base); }
+.auth-column .btn-block { height: 44px; }
+.auth-column .form-reveal + .btn-block { margin-top: 16px; }
+.auth-links {
+  margin: 24px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+  color: var(--text-secondary);
+  font-size: var(--fs-base);
+}
+/* A prompt's link reads as text ("New to put.io? Sign up"); a bare
+   action link ("Use a recovery code") stays muted. */
+.auth-links p { margin: 0; }
+.auth-links a { color: var(--text); text-underline-offset: 3px; }
+.auth-links > a { color: var(--text-secondary); text-decoration: none; }
+.auth-links > a:hover { color: var(--text); }
+.auth-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 20px;
+  padding: 24px 32px 28px;
+  font-size: var(--fs-sm);
+}
+.auth-footer a { color: var(--text-secondary); text-decoration: none; }
+.auth-footer a:hover { color: var(--text); }
+@media (max-width: 640px) {
+  .auth-header { padding: 24px; }
+  .auth-footer { padding: 24px; }
 }
 
 /* Floating-menu surface — one recipe for dropdowns, context menus,
