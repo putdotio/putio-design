@@ -140,7 +140,7 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 - Fields are filled: the page points `--field-bg` at `--bg-secondary` and `--field-border` at `--line`. Fields and buttons in the column are `44px`.
 - Labels are small, muted, and above the field.
 - The primary button is full-width yellow. Secondary actions sit under the form as muted text links: “Forgot password?”, “New to put.io? Sign up”, “Wrong account? Sign out”.
-- Tab order runs fields, submit, then secondary links. The reveal-password toggle takes `tabindex="-1"`; no link leaves the tab order.
+- Tab order runs fields, submit, then secondary links; DOM order follows visual order, with no positive `tabindex`. Two-factor runs the code, Verify, then its links. The reveal-password toggle takes `tabindex="-1"` and keeps its accessible name: keyboard-only users can't toggle visibility, screen-reader users still can in browse mode. No link leaves the tab order.
 - Form errors: one message in a `.form-reveal` row right above the submit button, in red `--fs-base` text. Invalid fields turn red. Auth forms never use the boxed `.form-callout`.
 - Copy: “Sign in”, “Sign up”, and “That username or password doesn't look right.”
 - auth.put.io still ships the older card layout: drift.
