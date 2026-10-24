@@ -195,6 +195,23 @@ function htmlElementsWithAttribute(source: string, attributeName: string): strin
   return htmlElementsMatchingOpeningTag(source, (openingTag) => attribute.test(openingTag));
 }
 
+// WCAG relative luminance of an opaque hsl() colour; field chrome is all neutral.
+function hslLuminance(value: string | number): number {
+  const match = /^hsl\(\s*([\d.]+),\s*([\d.]+)%,\s*([\d.]+)%\s*\)$/.exec(String(value));
+  assert(match, `Expected an opaque hsl() colour, got ${value}`);
+  const [h, s, l] = [Number(match[1]), Number(match[2]) / 100, Number(match[3]) / 100];
+  const k = (n: number) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const channel = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+  const linear = (c: number) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * linear(channel(0)) + 0.7152 * linear(channel(8)) + 0.0722 * linear(channel(4));
+}
+
+function contrastRatio(a: string | number, b: string | number): number {
+  const [hi, lo] = [hslLuminance(a), hslLuminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
 function checkTokens(flat: Record<string, TokenRecord>) {
   const yellow = flat["color.brand.yellow"];
   assert(yellow, "Missing color.brand.yellow token");
@@ -216,6 +233,24 @@ function checkTokens(flat: Record<string, TokenRecord>) {
     ["component.button.danger.backgroundHoverDark", "component.alias.destructiveDark"],
   ]) {
     assert(flat[hover]?.value !== flat[resting]?.value, `${hover} must differ from the resting ${resting}`);
+  }
+  // Fields are filled, and focus stands on its own: a border past hover, ringed in the same colour, at 3:1
+  // against every colour beside it, the fill inside and the page or panel outside (WCAG 1.4.11).
+  for (const mode of ["", "Dark"]) {
+    const scheme = mode ? "dark" : "light";
+    const fill = flat[`component.field.background${mode}`]?.value ?? "";
+    const focus = flat[`component.field.borderFocus${mode}`]?.value ?? "";
+    assert(fill !== flat[`surface.${scheme}.appBg`]?.value, `component.field.background${mode} must not equal the app background`);
+    assert(focus !== flat[`component.field.borderHover${mode}`]?.value, `component.field.borderFocus${mode} must differ from the hover border`);
+    assert(flat[`component.field.ring${mode}`]?.value === `0 0 0 1px ${focus}`, `component.field.ring${mode} must be a 1px ring in the focus border colour`);
+    for (const [surface, value] of [
+      ["field fill", fill],
+      ["page", flat[`color.neutral.${scheme}.bg`]?.value ?? ""],
+      ["app background", flat[`surface.${scheme}.appBg`]?.value ?? ""],
+      ["panel", flat[`component.panel.background${mode}`]?.value ?? ""],
+    ]) {
+      assert(contrastRatio(focus, value) >= 3, `component.field.borderFocus${mode} must reach 3:1 against the ${surface}`);
+    }
   }
   assert(flat["context.tv.text.tertiary"]?.deprecated === true, "context.tv.text.tertiary must remain marked deprecated");
   for (const [name, value, basis] of [

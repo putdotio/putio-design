@@ -456,7 +456,7 @@ export const tokens = {
     "cssName": "--input-bg",
     "type": "color",
     "mode": "light",
-    "value": "hsl(0, 0%, 100%)",
+    "value": "hsl(0, 0%, 97.3%)",
     "originalValue": "{component.field.background}",
     "description": "Deprecated alias. Use --field-bg (component.field.background).",
     "deprecated": true
@@ -465,7 +465,7 @@ export const tokens = {
     "cssName": "--input-bg",
     "type": "color",
     "mode": "dark",
-    "value": "hsl(0, 0%, 8.5%)",
+    "value": "hsl(0, 0%, 11.0%)",
     "originalValue": "{component.field.backgroundDark}",
     "description": "Deprecated alias. Use --field-bg (component.field.backgroundDark).",
     "deprecated": true
@@ -474,7 +474,7 @@ export const tokens = {
     "cssName": "--input-border",
     "type": "color",
     "mode": "light",
-    "value": "hsl(0, 0%, 85.8%)",
+    "value": "hsl(0, 0%, 88.7%)",
     "originalValue": "{component.field.border}",
     "description": "Deprecated alias. Use --field-border (component.field.border).",
     "deprecated": true
@@ -483,7 +483,7 @@ export const tokens = {
     "cssName": "--input-border",
     "type": "color",
     "mode": "dark",
-    "value": "hsl(0, 0%, 24.3%)",
+    "value": "hsl(0, 0%, 20.5%)",
     "originalValue": "{component.field.borderDark}",
     "description": "Deprecated alias. Use --field-border (component.field.borderDark).",
     "deprecated": true
@@ -519,7 +519,7 @@ export const tokens = {
     "cssName": "--input-border-focus",
     "type": "color",
     "mode": "light",
-    "value": "hsl(0, 0%, 78.0%)",
+    "value": "hsl(0, 0%, 52.3%)",
     "originalValue": "{component.field.borderFocus}",
     "description": "Deprecated alias. Use --field-border-focus (component.field.borderFocus).",
     "deprecated": true
@@ -528,7 +528,7 @@ export const tokens = {
     "cssName": "--input-border-focus",
     "type": "color",
     "mode": "dark",
-    "value": "hsl(0, 0%, 31.2%)",
+    "value": "hsl(0, 0%, 49.4%)",
     "originalValue": "{component.field.borderFocusDark}",
     "description": "Deprecated alias. Use --field-border-focus (component.field.borderFocusDark).",
     "deprecated": true
@@ -537,7 +537,7 @@ export const tokens = {
     "cssName": "--input-ring",
     "type": "string",
     "mode": "light",
-    "value": "0 0 0 1px hsl(0, 0%, 78.0%)",
+    "value": "0 0 0 1px hsl(0, 0%, 52.3%)",
     "originalValue": "{component.field.ring}",
     "description": "Deprecated alias. Use --field-ring (component.field.ring).",
     "deprecated": true
@@ -546,7 +546,7 @@ export const tokens = {
     "cssName": "--input-ring",
     "type": "string",
     "mode": "dark",
-    "value": "0 0 0 1px hsl(0, 0%, 31.2%)",
+    "value": "0 0 0 1px hsl(0, 0%, 49.4%)",
     "originalValue": "{component.field.ringDark}",
     "description": "Deprecated alias. Use --field-ring (component.field.ringDark).",
     "deprecated": true
@@ -591,48 +591,48 @@ export const tokens = {
     "cssName": "--field-bg",
     "type": "color",
     "mode": "light",
-    "value": "hsl(0, 0%, 100%)",
-    "originalValue": "{surface.light.appBg}",
-    "description": "Form-control fill. Fields stay on the app background surface, even inside a raised panel."
+    "value": "hsl(0, 0%, 97.3%)",
+    "originalValue": "{color.neutral.light.bgSecondary}",
+    "description": "Form-control fill. Fields are filled so they read on the page background as well as inside panels."
   },
   "component.field.backgroundDark": {
     "cssName": "--field-bg",
     "type": "color",
     "mode": "dark",
-    "value": "hsl(0, 0%, 8.5%)",
-    "originalValue": "{surface.dark.appBg}",
+    "value": "hsl(0, 0%, 11.0%)",
+    "originalValue": "{color.neutral.dark.bgSecondary}",
     "description": "Dark-mode form-control fill."
   },
   "component.field.backgroundDisabled": {
     "cssName": "--field-bg-disabled",
     "type": "color",
     "mode": "light",
-    "value": "hsl(0, 0%, 97.3%)",
-    "originalValue": "{color.neutral.light.bgSecondary}",
-    "description": "Disabled form-control fill."
+    "value": "hsl(0, 0%, 95.1%)",
+    "originalValue": "{color.neutral.light.componentBg}",
+    "description": "Disabled form-control fill, a step off the resting fill."
   },
   "component.field.backgroundDisabledDark": {
     "cssName": "--field-bg-disabled",
     "type": "color",
     "mode": "dark",
-    "value": "hsl(0, 0%, 11.0%)",
-    "originalValue": "{color.neutral.dark.bgSecondary}",
+    "value": "hsl(0, 0%, 13.6%)",
+    "originalValue": "{color.neutral.dark.componentBg}",
     "description": "Dark-mode disabled form-control fill."
   },
   "component.field.border": {
     "cssName": "--field-border",
     "type": "color",
     "mode": "light",
-    "value": "hsl(0, 0%, 85.8%)",
-    "originalValue": "{color.neutral.light.border}",
+    "value": "hsl(0, 0%, 88.7%)",
+    "originalValue": "{color.neutral.light.line}",
     "description": "Resting form-control border."
   },
   "component.field.borderDark": {
     "cssName": "--field-border",
     "type": "color",
     "mode": "dark",
-    "value": "hsl(0, 0%, 24.3%)",
-    "originalValue": "{color.neutral.dark.border}",
+    "value": "hsl(0, 0%, 20.5%)",
+    "originalValue": "{color.neutral.dark.line}",
     "description": "Dark-mode resting form-control border."
   },
   "component.field.borderHover": {
@@ -655,17 +655,17 @@ export const tokens = {
     "cssName": "--field-border-focus",
     "type": "color",
     "mode": "light",
-    "value": "hsl(0, 0%, 78.0%)",
-    "originalValue": "{color.neutral.light.borderHover}",
-    "description": "Focused form-control border. Focus matches hover and does not use the yellow focus shadow."
+    "value": "hsl(0, 0%, 52.3%)",
+    "originalValue": "{color.neutral.light.solidHover}",
+    "description": "Focused form-control border, a step past hover; at least 3:1 against the fill, the page, and panels. Does not use the yellow focus shadow."
   },
   "component.field.borderFocusDark": {
     "cssName": "--field-border-focus",
     "type": "color",
     "mode": "dark",
-    "value": "hsl(0, 0%, 31.2%)",
-    "originalValue": "{color.neutral.dark.borderHover}",
-    "description": "Dark-mode focused form-control border. Focus matches hover and does not use the yellow focus shadow."
+    "value": "hsl(0, 0%, 49.4%)",
+    "originalValue": "{color.neutral.dark.solidHover}",
+    "description": "Dark-mode focused form-control border, a step past hover; at least 3:1 against the fill, the page, and panels."
   },
   "component.field.text": {
     "cssName": "--field-text",
@@ -711,16 +711,16 @@ export const tokens = {
     "cssName": "--field-ring",
     "type": "string",
     "mode": "light",
-    "value": "0 0 0 1px hsl(0, 0%, 78.0%)",
-    "originalValue": "0 0 0 1px {color.neutral.light.borderHover}",
-    "description": "Quiet field focus ring. Brand-yellow shadow focus is reserved for buttons, links, nav, and TV focus."
+    "value": "0 0 0 1px hsl(0, 0%, 52.3%)",
+    "originalValue": "0 0 0 1px {color.neutral.light.solidHover}",
+    "description": "Quiet field focus ring in the focus border colour. Brand-yellow shadow focus is reserved for buttons, links, nav, and TV focus."
   },
   "component.field.ringDark": {
     "cssName": "--field-ring",
     "type": "string",
     "mode": "dark",
-    "value": "0 0 0 1px hsl(0, 0%, 31.2%)",
-    "originalValue": "0 0 0 1px {color.neutral.dark.borderHover}",
+    "value": "0 0 0 1px hsl(0, 0%, 49.4%)",
+    "originalValue": "0 0 0 1px {color.neutral.dark.solidHover}",
     "description": "Dark-mode quiet field focus ring. Brand-yellow shadow focus is reserved for buttons, links, nav, and TV focus."
   },
   "component.panel.background": {
