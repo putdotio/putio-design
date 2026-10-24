@@ -14,6 +14,11 @@ contract, prose below it.
 
 Tier definitions: [DESIGN.md Binding Tiers](../DESIGN.md#binding-tiers).
 
+Android's contract lives in
+[putio-android](https://github.com/putdotio/putio-android/blob/main/docs/design.md);
+[android/DESIGN.md](android/DESIGN.md) points there. Each platform's contract
+moves to its app repository the same way.
+
 ## Staying current
 
 Each contract's `reviewed` block records the review date, the sources it was
