@@ -339,8 +339,8 @@ padding: 28px 32px 36px;
   .count-row .c.over { color: var(--red-text-secondary); }
 
   /* ─── Validation states ─────────────────────────────────── */
-  .group.error .field { border-color: var(--red-border); }
-  .group.error .field:focus { border-color: var(--red-border-hover); box-shadow: 0 0 0 1px var(--red-border-hover); }
+  /* Error groups use the recipe: aria-invalid on the field, .form-reveal for the caption. */
+  .demo-toggle { margin-left: 12px; }
   .group.warn .field { border-color: var(--yellow-border); }
   .group.success .field { border-color: var(--green-border); }
   .group.success .field:focus { border-color: var(--green-border-hover); box-shadow: 0 0 0 1px var(--green-border-hover); }
@@ -398,27 +398,27 @@ padding: 28px 32px 36px;
   <div class="head">
     <span class="ix">B · 02</span>
     <span class="t">Validation: error ships · warning · success · async are proposed</span>
-    <span class="n">color + icon + message · never color alone</span>
+    <span class="n">color + icon + message · never color alone<button class="btn-default btn-sm demo-toggle" type="button" data-demo-toggle-errors>Toggle errors</button></span>
   </div>
 
   <div class="grid c-3">
-    <div class="group error">
+    <div class="group form-group" data-demo-field-error>
       <span class="label">New username</span>
       <span class="hint" style="margin: 0;">3-80 characters. Only letters (a-z), numbers, dashes, and underscores.</span>
-      <input class="field" value="kai/" aria-label="New username" aria-invalid="true" />
-      <span class="msg error">Only letters (a-z), numbers, dashes, and underscores are allowed.</span>
+      <input class="field" value="kai/" aria-label="New username" aria-invalid="true" aria-describedby="v-username-err" />
+      <div class="form-reveal" data-state="open"><div><p class="form-callout inline" data-state="error" id="v-username-err" role="alert">Only letters (a-z), numbers, dashes, and underscores are allowed.</p></div></div>
     </div>
-    <div class="group error">
+    <div class="group form-group" data-demo-field-error>
       <span class="label">Description</span>
       <span class="hint" style="margin: 0;">The description will be visible during authorization. 10 - 255 characters.</span>
-      <input class="field" value="NAS sync" aria-label="Description" aria-invalid="true" />
-      <span class="msg error">Must be between 10 and 250 characters.</span>
+      <input class="field" value="NAS sync" aria-label="Description" aria-invalid="true" aria-describedby="v-description-err" />
+      <div class="form-reveal" data-state="open"><div><p class="form-callout inline" data-state="error" id="v-description-err" role="alert">Must be between 10 and 250 characters.</p></div></div>
     </div>
-    <div class="group error">
+    <div class="group form-group" data-demo-field-error>
       <span class="label">URL of the RSS feed</span>
       <span class="hint" style="margin: 0;">You can give us an RSS feed containing torrents or files.</span>
-      <input class="field" value="" aria-label="URL of the RSS feed" aria-invalid="true" />
-      <span class="msg error">This field is required.</span>
+      <input class="field" value="" aria-label="URL of the RSS feed" aria-invalid="true" aria-describedby="v-rss-err" />
+      <div class="form-reveal" data-state="open"><div><p class="form-callout inline" data-state="error" id="v-rss-err" role="alert">This field is required.</p></div></div>
     </div>
     <div class="group warn">
       <span class="label">Default download folder <span class="proposed-tag">proposed</span></span>
@@ -446,10 +446,34 @@ padding: 28px 32px 36px;
   </div>
 
   <div class="specs-link">
-    <b>Shipped.</b> A field error is a red border plus a red caption under the field, no icon; the description sits between label and field. A submit error is one danger notification above the form. Validators: required, length between, exact length, username format.
+    <b>Shipped.</b> A field error is a red border plus a red caption under the field, no icon; the description sits between label and field. Both ease in over <code>--dur-reveal</code>: the caption through <code>.form-reveal</code>, the border with it. app.put.io shows them at once: drift. A submit error is one danger notification above the form. Validators: required, length between, exact length, username format.
     <b>Proposed.</b> Warning, parse success, async checking and character counters; every state pairs <em>color · icon · sentence</em>.
   </div>
 
 </div>
 
+<script>
+  /* Demo only: toggles the three error fields so the reveal can be watched. */
+  document.querySelectorAll('[data-demo-toggle-errors]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      document.querySelectorAll('[data-demo-field-error]').forEach(function (group) {
+        var row = group.querySelector('.form-reveal');
+        var message = row.querySelector('[role="alert"]');
+        var field = group.querySelector('.field');
+        if (!message.dataset.text) message.dataset.text = message.textContent;
+        var open = row.dataset.state !== 'open';
+        if (open) {
+          message.textContent = message.dataset.text;
+          row.dataset.state = 'open';
+          field.setAttribute('aria-invalid', 'true');
+        } else {
+          row.dataset.state = 'closed';
+          field.removeAttribute('aria-invalid');
+          // Empty the alert once the row has collapsed, so a closed row says nothing.
+          setTimeout(function () { if (row.dataset.state !== 'open') message.textContent = ''; }, 400);
+        }
+      });
+    });
+  });
+</script>
 </body></html>
