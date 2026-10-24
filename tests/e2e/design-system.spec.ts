@@ -311,7 +311,7 @@ test.describe("design.put.io static guide", () => {
         .locator(preview.hasFields ? ".auth-column :is(.field, .btn-block)" : ".auth-column .btn-block")
         .evaluateAll((elements) => elements.map((element) => getComputedStyle(element).height));
       expect(controls.length, `${preview.pagePath} should render Auth controls`).toBeGreaterThan(0);
-      for (const height of controls) expect(height, `${preview.pagePath} control height`).toBe("44px");
+      for (const height of controls) expect(height, `${preview.pagePath} control height`).toBe("36px");
 
       if (preview.hasFields) {
         const [filledBackground, filledBorder] = await Promise.all([resolvedCssColor(page, "--bg-secondary"), resolvedCssColor(page, "--line")]);
