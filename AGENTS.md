@@ -2,7 +2,7 @@
 
 put.io's design system. Token sources build the public `@putdotio/design` npm
 package, which the web, Apple, Android, Roku, and TV apps consume, the public
-guide at `design.put.io`, and the claude.ai design system and canvases. Everything
+guide at `design.put.io`, and the claude.ai design system. Everything
 here ships publicly.
 
 ## Start Here
@@ -21,7 +21,7 @@ pnpm dev            # serves the guide; open the printed URL
 pnpm tokens:build   # regenerates dist/ and system/tokens.css from tokens/
 pnpm verify         # fast gate: types, token contracts, artifact build, HTML, Markdown
 pnpm verify:full    # CI gate: adds Playwright and an npm pack dry run
-pnpm artifact       # builds the claude.ai design system and canvases into artifact/out/
+pnpm artifact       # builds the claude.ai design system into artifact/out/
 ```
 
 ## PR Evidence
