@@ -133,15 +133,15 @@ Subtitles: "In Queue", "Starting...", "Downloading... N%", "Stopped",
 ## tvOS
 
 The shipped tvOS app is React Native (react-native-tvos), shared with Android
-TV. It draws its own components from its own `@putdotio/colors` and uses Lucide
-icons: drift from the tier-2 binding and the Phosphor rule, documented as
-shipped.
+TV. It draws its own components from its own `@putdotio/colors`: drift from the
+tier-2 binding, documented as shipped.
 
 - Home is the logo over a list: Your Files, Search, History, Account. Each
   pushes a full-screen stack screen. No `TabView`.
 - Focus is a `--component-bg-active` fill on a 12px radius; buttons add a
   `--border-hover` border. The system lift is off.
-- GT America, no mono, no tabular figures. Lucide outline icons, `--yellow-solid`.
+- GT America, no mono, no tabular figures. Row icons are Phosphor in
+  `--yellow-solid`: fill for file types, regular for the rest.
 - Values sit as `--text-secondary` sublines under row titles.
 - Booleans are an app-drawn 70×40 switch, `--green-solid` when on.
 - Button labels are uppercase.
