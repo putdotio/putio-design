@@ -116,7 +116,7 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 - **Primary:** `--button-primary-bg`, hover `--button-primary-bg-hover`, label `--button-primary-fg`. At most one per action group.
 - **Secondary:** `--button-default-bg` plus a `--border` border; hover steps both (`--button-default-bg-hover`, `--border-hover`).
 - **Ghost:** text only, `--button-ghost-fg`; hover adds `--button-ghost-bg-hover` and lifts the label to `--button-ghost-fg-hover`. Use it for anything quieter than secondary: header `Sign in`, toolbar actions, `Cancel` beside a confirm, icon-only buttons.
-- **Disabled:** colour drops to `--solid` at full opacity: filled variants take a `--solid` fill with `--solid-foreground` labels; quiet ones take `--solid` text. A finished action stays filled with `data-state="success"` on `.btn-success`.
+- **Disabled:** submit buttons are never disabled at rest; the submit validates. A filled button is disabled only while its action runs (with a spinner) or once it is done, so it keeps its own fill and label at full opacity; a finished 2FA “Verified” is a `.btn-success` with `data-state="success"`. Secondary and quiet buttons drop their text to `--solid` at full opacity.
 - **Focus:** `--shadow-focus`, a 2px `--bg` gap then a 2px `--solid-hover` ring, at least 3:1 against the page and panels in both modes.
 - A bordered button always fills (secondary). Border-only buttons read smaller beside solid fills and vanish on dark.
 - Four sizes share one box per size across tiers: default 36px, `md` 32px, `sm` 28px, `xs` 24px. Read `--button-height*`, `--button-padding-x*`, `--button-label-size*`, `--button-tracking*`, `--button-icon-size`, `--button-gap`.
@@ -127,6 +127,7 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 ### Rows, fields, and panels
 
 - File rows are the core component: raw names, compact metadata, obvious hover and focus at the same row height.
+- A field's own link sits at the end of its label row: `.label-action`, placed after the field so Tab reaches the field first. It is `--fs-caption`, `--text-secondary` (hover `--text`), no underline, on the label's baseline.
 - Fields read `--field-bg`, `--field-border`, and `--field-ring` (focus). They are filled: `--bg-secondary` on a `--line` border, so they read on the page as well as in panels. Hover steps the border to `--border-hover`; focus steps it to `--solid-hover` with a matching 1px ring, at least 3:1 against the fill, the page, and panels in both modes (WCAG 1.4.11). Disabled fields take `--component-bg`. `--bg-secondary` is the field fill, so fields never sit on it. `aria-invalid="true"` turns border and text red; the fill stays.
 - Raised panels read `--panel-*`.
 - Feedback uses `.form-callout`: `--alert-*` colours, `data-state` `info`, `success`, or `error`; `.inline` drops surface and border. It holds a message only. `.form-group` (`8px` gap) spaces a control and its feedback.
@@ -134,16 +135,17 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 
 ### Auth
 
-- Sign in, sign up, password reset, and two-factor pages have no card or panel: the form sits on `--bg`. Recipe: `.auth-page`, `.auth-header`, `.auth-main`, `.auth-column`, `.auth-title`, `.auth-note`, `.auth-links`, `.auth-footer`.
+- Sign in, sign up, password reset, and two-factor pages have no card or panel: the form sits on `--bg`. Recipe: `.auth-page`, `.auth-header`, `.auth-main`, `.auth-column`, `.auth-title`, `.auth-note`, `.auth-actions`, `.auth-links`, `.auth-footer`.
 - The logo sits top-left in the header, in a `30.33px` box (26px ink × 7/6). The top right stays empty by default.
 - One left-aligned column, up to `340px`, is centred horizontally and optically centred vertically: the form's middle sits near 45% of the viewport height, never below the true middle.
-- A quiet centred footer links Terms of Service, Privacy Policy, and Help in muted `--fs-ui`, separated by middots.
-- Text is one size: everything except the title and fields is `--fs-ui`. That covers labels, hints, `.auth-note` lines, errors, the link row, and the footer. Fields take `--fs-field`.
+- A quiet centred footer links Terms of Service, Privacy Policy, and Help in muted `--fs-caption`, separated by middots, 16px above the page bottom.
+- Text is one size: labels, hints, `.auth-note` lines, errors, and the link row take `--fs-ui`. The footer and a label's own action take `--fs-caption`; fields take `--fs-field`.
 - One title per screen: `--fs-title` (`22px`), medium, `--tracking-snug` (`-0.01em`). No subtitles, taglines, or marketing lines; copy stays short.
 - Fields and buttons keep the standard 36px box: the filled field and a full-width default-size primary.
 - Labels are small, muted, and above the field.
-- The primary button is full-width yellow. Secondary actions sit under the form as muted text links: “Forgot password?”, “New to put.io? Sign up”, “Wrong account? Sign out”. Two links split to the edges; a lone link or prompt centres. A back link leads with Phosphor's arrow-left as inline SVG. A legal line under the submit button centres on it.
-- Tab order runs fields, submit, then secondary links; DOM order follows visual order, with no positive `tabindex`. Two-factor runs the code, Verify, then its links. The reveal-password toggle takes `tabindex="-1"` and keeps its accessible name: keyboard-only users can't toggle visibility, screen-reader users still can in browse mode. No link leaves the tab order.
+- The primary button is full-width yellow. “Forgot password?” is the Password field's `.label-action`. Other secondary actions sit under the form in `.auth-links`: a bare link stays muted (“Use a recovery code”, “← Back to sign in”); a prompt's link (“New to put.io? Sign up”, “Wrong account? Sign out”) is `--text`, medium, and underlines only on hover. Two items split to the edges; a lone link or prompt centres.
+- Buttons outside a form sit in `.auth-actions`, 16px below what precedes them; a description `.auth-note` right before them leaves 28px. A back link leads with Phosphor's arrow-left as inline SVG. A legal line under the submit button centres on it.
+- Tab order runs fields (each followed by its label action), submit, then secondary links; DOM order follows visual order, with no positive `tabindex`. Two-factor runs the code, Verify, then its links. The reveal-password toggle takes `tabindex="-1"` and keeps its accessible name: keyboard-only users can't toggle visibility, screen-reader users still can in browse mode. No link leaves the tab order.
 - Form errors: one message in a `.form-reveal` row right above the submit button, in red `--fs-ui` text, 8px under the fields. Invalid fields turn red. Auth forms never use the boxed `.form-callout`.
 - Copy: “Sign in”, “Sign up”, and “That username or password doesn't look right.”
 - auth.put.io still ships the older card layout: drift.

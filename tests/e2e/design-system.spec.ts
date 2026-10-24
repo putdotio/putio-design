@@ -379,7 +379,10 @@ test.describe("design.put.io static guide", () => {
       const spacing = await page.locator(fieldSelector).evaluate((element) => {
         const parent = element.closest(".form-group");
         if (!parent) throw new Error("Auth field requires a form-group parent");
-        const children = Array.from(parent.children).filter((child) => getComputedStyle(child).display !== "none");
+        // A label action shares the label's row, so it is outside the vertical rhythm.
+        const children = Array.from(parent.children).filter(
+          (child) => getComputedStyle(child).display !== "none" && !child.classList.contains("label-action"),
+        );
         return {
           parentUsesFormGroup: parent.classList.contains("form-group"),
           rowGap: getComputedStyle(parent).rowGap,
@@ -418,7 +421,7 @@ test.describe("design.put.io static guide", () => {
     });
   }
 
-  test("auth tab order runs fields, submit, then secondary links @desktop", async ({ page }) => {
+  test("auth tab order runs fields and their label actions, submit, then secondary links @desktop", async ({ page }) => {
     await page.goto("/preview/web-p00c-auth-signin.html?theme=dark", { waitUntil: "domcontentloaded" });
     const column = page.locator(".auth-column").first();
     await column.locator("#signin-identity").focus();
@@ -430,7 +433,7 @@ test.describe("design.put.io static guide", () => {
         return active?.id || active?.textContent?.trim() || "";
       }));
     }
-    expect(order).toEqual(["signin-password", "Sign in", "Forgot password?", "Sign up"]);
+    expect(order).toEqual(["signin-password", "Forgot password?", "Sign in", "Sign up"]);
   });
 
   test("field errors ease in under their field without leaving space when closed @desktop", async ({ page }) => {
@@ -917,10 +920,11 @@ test.describe("design.put.io static guide", () => {
     await expect(input).not.toHaveAttribute("aria-invalid");
     await expect(input).not.toHaveAttribute("aria-describedby");
     await expect(feedback).toBeEmpty();
-    await expect(submit).toBeDisabled();
-
-    await input.fill("810507");
+    // Submits are never disabled at rest; a short code does not start verifying.
     await expect(submit).toBeEnabled();
+    await submit.click();
+    await expect(invalidOtp).not.toHaveAttribute("data-state", "verifying");
+    await expect(input).toBeEnabled();
   });
 
   test("OTP edits sanitize digits and synchronize slots with the caret @desktop", async ({ page }) => {
@@ -1047,9 +1051,11 @@ test.describe("design.put.io static guide", () => {
     const input = otp.locator(".otp-input");
     const submit = card.locator("[data-otp-submit]");
 
-    await expect(submit).toBeDisabled();
-    await input.fill("392471");
+    // Submits are never disabled at rest; an empty code does not start verifying.
     await expect(submit).toBeEnabled();
+    await submit.click();
+    await expect(otp).not.toHaveAttribute("data-state", "verifying");
+    await input.fill("392471");
     await submit.click();
 
     await expect(input).toHaveValue("392471");

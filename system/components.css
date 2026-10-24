@@ -148,22 +148,14 @@ button i { font-size: var(--button-icon-size); line-height: 1; display: inline-f
 
 /* States */
 /* Bare disabled buttons fade; hover styles above are gated on :not(:disabled).
-   Filled variants instead drop their fill to --solid at full opacity, so a
-   disabled "Verifying…" stays legible. A finished action keeps its success
-   fill with data-state="success" (2FA "Verified"). */
+   Submit buttons are never disabled at rest: the submit validates. A filled
+   button is disabled only while its action runs (with a spinner) or once it
+   is done, so it keeps its own fill and label at full opacity: "Verifying…"
+   stays yellow, a finished 2FA "Verified" stays green with
+   data-state="success". */
 button:disabled { opacity: 0.3; cursor: not-allowed; }
-:is(.btn-primary, .btn-success, .btn-danger, .btn-info, .btn-invert):not(.btn-quiet):disabled {
-  opacity: 1;
-  background: var(--solid);
-  border-color: var(--solid);
-  color: var(--solid-foreground);
-}
+:is(.btn-primary, .btn-success, .btn-danger, .btn-info, .btn-invert):not(.btn-quiet):disabled { opacity: 1; }
 .btn-default:not(.btn-quiet):disabled { opacity: 1; color: var(--solid); }
-.btn-success[data-state="success"]:disabled {
-  background: var(--button-success-bg);
-  border-color: var(--button-success-bg);
-  color: var(--button-success-fg);
-}
 /* An opaque double ring: a --bg gap, then --solid-hover, ≥3:1 on page and panels. */
 button:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
 
@@ -360,8 +352,21 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 .form-group .hint  { margin-top: 0; }
 .form-group > .form-callout.inline { margin-top: 0; }
 
-/* Label-row: label on the left, link on the right (e.g. "Forgot your
-   password?"). Sits ABOVE the field, inside a .form-group. */
+/* Label action: a field's own link at the end of its label row (e.g.
+   "Forgot password?"). Place .label-action after the field in the DOM, so
+   Tab reaches the field before its link; the grid lifts it onto the label's
+   row and aligns the two on their baselines. */
+.form-group:has(> .label-action) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 12px;
+}
+.form-group:has(> .label-action) > * { grid-column: 1 / -1; }
+.form-group:has(> .label-action) > .label { grid-row: 1; grid-column: 1; align-self: baseline; }
+.form-group > .label-action { grid-row: 1; grid-column: 2; align-self: baseline; }
+
+/* Label-row: the older wrapper, label and link before the field. Prefer
+   .label-action, which keeps the link after its field in Tab order. */
 .form-group .label-row {
   display: flex;
   justify-content: space-between;
@@ -369,12 +374,14 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   gap: 12px;
 }
 .form-group .label-row .label { margin-bottom: 0; }
+.form-group > .label-action,
 .form-group .label-row a {
-  font-size: var(--fs-ui);
+  font-size: var(--fs-caption);
   color: var(--text-secondary);
   text-decoration: none;
   white-space: nowrap;
 }
+.form-group > .label-action:hover,
 .form-group .label-row a:hover { color: var(--text); }
 
 /* ===========================================================
@@ -571,9 +578,9 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
    Card-less: the form sits on the page background. Logo top-left
    in .auth-header, one left-aligned 340px column centred in
    .auth-main, a quiet link row in .auth-footer. Controls keep the
-   standard 36px box; the title is the only heading. All other text
-   (labels, hints, notes, errors, links, footer) is the UI role, --fs-ui;
-   fields take --fs-field. Under
+   standard 36px box; the title is the only heading. Labels, hints, notes,
+   errors and links take the UI role, --fs-ui; the footer and a label's own
+   action take --fs-caption; fields take --fs-field. Under
    640px the gutters drop to 24px so the logo lines up with the column.
    =========================================================== */
 .auth-page {
@@ -634,6 +641,11 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 .auth-column form > .form-reveal + .btn-block { margin-top: 16px; }
 /* A legal line under the submit button centres on it. */
 .auth-column form > .btn-block + .auth-note { margin-top: 16px; text-align: center; }
+/* Buttons outside a form ("Open mail", "Resend link"): 16px under what
+   precedes them, but a description right before them spaces them like the
+   title does, 28px. */
+.auth-actions { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+.auth-column > .auth-note + .auth-actions { margin-top: 28px; }
 .auth-links {
   margin: 24px 0 0;
   display: flex;
@@ -644,13 +656,20 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   color: var(--text-secondary);
   font-size: var(--fs-ui);
 }
-/* A prompt's link reads as text ("New to put.io? Sign up"); a bare
-   action link ("Use a recovery code") stays muted. The token base sizes
-   every p at --fs-body, so a prompt inherits the row's size. */
+/* A prompt's link reads as text ("New to put.io? Sign up"): medium, no
+   underline until hover. A bare action link ("Use a recovery code") stays
+   muted. The token base sizes every p at --fs-body, so a prompt inherits
+   the row's size. */
 .auth-links p { margin: 0; font-size: inherit; }
-.auth-links a { color: var(--text); text-underline-offset: 3px; }
-.auth-links > a { color: var(--text-secondary); text-decoration: none; }
-.auth-links > a:hover { color: var(--text); }
+.auth-links a {
+  color: var(--text);
+  font-weight: var(--fw-medium);
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+.auth-links a:hover { text-decoration: underline; }
+.auth-links > a { color: var(--text-secondary); font-weight: inherit; }
+.auth-links > a:hover { color: var(--text); text-decoration: none; }
 /* Two items split to the edges; a lone link or prompt centres. */
 .auth-links > :only-child { margin-inline: auto; text-align: center; }
 /* A back link leads with Phosphor's arrow-left, an inline SVG (or the icon font). */
@@ -662,8 +681,8 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px 16px;
-  padding: 24px 32px 28px;
-  font-size: var(--fs-ui);
+  padding: 24px 32px 16px;
+  font-size: var(--fs-caption);
 }
 .auth-footer a { color: var(--text-secondary); text-decoration: none; }
 .auth-footer a:hover { color: var(--text); }
@@ -682,7 +701,7 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 }
 @media (max-width: 640px) {
   .auth-header { padding: 24px; }
-  .auth-footer { padding: 24px; }
+  .auth-footer { padding: 24px 24px 16px; }
 }
 
 /* Floating-menu surface — one recipe for dropdowns, context menus,
