@@ -131,16 +131,22 @@ const forbiddenAuthCopy = /\b(?:login|log\s+in|register|create\s+(?:an\s+|your\s
 const narrowAuthViewportWidths = [320, 375] as const;
 const otpPreviewPaths = ["/preview/web-p00d-auth-signup.html", "/preview/web-p00e-auth-2fa.html"] as const;
 
-async function resolvedCssColor(page: Page, variableName: string): Promise<string> {
-  return page.evaluate((name) => {
-    const styles = getComputedStyle(document.documentElement);
-    const probe = document.createElement("div");
-    probe.style.backgroundColor = styles.getPropertyValue(name).trim();
-    document.body.append(probe);
-    const color = getComputedStyle(probe).backgroundColor;
-    probe.remove();
-    return color;
-  }, variableName);
+// Resolves a colour token where it applies: at the root, or inside `scope` when a
+// recipe re-points it there (the auth page re-points the field tokens).
+async function resolvedCssColor(page: Page, variableName: string, scope?: string): Promise<string> {
+  return page.evaluate(
+    ([name, scopeSelector]) => {
+      const host = scopeSelector ? document.querySelector(scopeSelector) : document.body;
+      if (!host) throw new Error(`Missing colour scope ${scopeSelector}`);
+      const probe = document.createElement("div");
+      probe.style.backgroundColor = `var(${name})`;
+      host.append(probe);
+      const color = getComputedStyle(probe).backgroundColor;
+      probe.remove();
+      return color;
+    },
+    [variableName, scope] as const,
+  );
 }
 
 async function expectAuthFitsViewport(
@@ -660,11 +666,10 @@ test.describe("design.put.io static guide", () => {
         greenText,
         secondaryText,
       ] = await Promise.all(
-        // Auth pages re-point --field-bg and --field-border to the filled pair.
         [
-          "--bg-secondary",
+          "--field-bg",
           "--field-bg-disabled",
-          "--line",
+          "--field-border",
           "--field-border-hover",
           "--field-border-focus",
           "--field-text",
@@ -674,7 +679,7 @@ test.describe("design.put.io static guide", () => {
           "--green-border",
           "--green-text-secondary",
           "--text-secondary",
-        ].map((token) => resolvedCssColor(page, token)),
+        ].map((token) => resolvedCssColor(page, token, ".auth-page")),
       );
       const slotStyles = (selector: string) =>
         page.locator(selector).first().evaluate((element) => {
