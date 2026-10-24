@@ -126,7 +126,7 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 ### Rows, fields, and panels
 
 - File rows are the core component: raw names, compact metadata, obvious hover and focus at the same row height.
-- Fields read `--field-bg`, `--field-border`, and `--field-ring` (focus). `aria-invalid="true"` turns border and text red; the fill stays.
+- Fields read `--field-bg`, `--field-border`, and `--field-ring` (focus). They are filled: `--bg-secondary` on a `--line` border, so they read on the page as well as in panels. Hover steps the border to `--border-hover`; focus steps it to `--solid-hover` with a matching 1px ring, at least 3:1 against the fill, the page, and panels in both modes (WCAG 1.4.11). Disabled fields take `--component-bg`. `--bg-secondary` is the field fill, so fields never sit on it. `aria-invalid="true"` turns border and text red; the fill stays.
 - Raised panels read `--panel-*`.
 - Feedback uses `.form-callout`: `--alert-*` colours, `data-state` `info`, `success`, or `error`; `.inline` drops surface and border. It holds a message only. `.form-group` (`6px` gap) spaces a control and its feedback.
 - Every field and form error eases in through `.form-reveal`: `grid-template-rows` `0fr` to `1fr` plus opacity, over `--dur-reveal` (`180ms`) with `--ease-out`, so whatever sits below slides instead of jumping. A field error sits under its field inside `.form-group`, where the row absorbs the group gap; a form error sits above the submit button. `data-state="open"` shows it. Keep the `role="alert"` message mounted and rendered; empty it once a closed row has collapsed. An `aria-invalid` field or code fades its border red over the same `--dur-reveal`. Under `prefers-reduced-motion` nothing animates.
@@ -138,7 +138,7 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 - One left-aligned column, up to `340px`, is centred horizontally and vertically.
 - A quiet centred footer links Terms of Service, Privacy Policy, and Help in muted `--fs-sm`.
 - One title per screen: `22px`, medium, `-0.01em` tracking. No subtitles, taglines, or marketing lines; copy stays short.
-- Fields are filled: the page points `--field-bg` at `--bg-secondary` and `--field-border` at `--line`. Fields and buttons in the column are `44px`.
+- Fields are the standard filled field. Fields and buttons in the column are `44px`.
 - Labels are small, muted, and above the field.
 - The primary button is full-width yellow. Secondary actions sit under the form as muted text links: “Forgot password?”, “New to put.io? Sign up”, “Wrong account? Sign out”.
 - Tab order runs fields, submit, then secondary links; DOM order follows visual order, with no positive `tabindex`. Two-factor runs the code, Verify, then its links. The reveal-password toggle takes `tabindex="-1"` and keeps its accessible name: keyboard-only users can't toggle visibility, screen-reader users still can in browse mode. No link leaves the tab order.
