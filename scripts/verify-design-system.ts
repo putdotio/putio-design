@@ -264,6 +264,11 @@ function checkTokens(flat: Record<string, TokenRecord>) {
       assert(contrastRatio(ring, value) >= 3, `elevation.focus${mode} ring must reach 3:1 against the ${surface}`);
     }
   }
+  // Spacing follows Tailwind's keys: spacing.N is N × 4px, so --space-N matches p-N.
+  for (const [name, token] of Object.entries(flat).filter(([name]) => /^spacing\.\d+$/.test(name))) {
+    const steps = Number(name.slice("spacing.".length));
+    assert(String(token.value) === (steps === 0 ? "0" : `${steps * 4}px`), `${name} must equal ${steps} × 4px, got ${token.value}`);
+  }
   assert(flat["context.tv.text.tertiary"]?.deprecated === true, "context.tv.text.tertiary must remain marked deprecated");
   for (const [name, value, basis] of [
     ["tv.overscan.x", 0.04, "viewport-width"],
@@ -343,9 +348,9 @@ async function checkDesignMd(flat: Record<string, TokenRecord>) {
     [data.rounded?.pill, "radius.pill", "DESIGN.md rounded.pill"],
     [data.spacing?.xs, "spacing.1", "DESIGN.md spacing.xs"],
     [data.spacing?.sm, "spacing.2", "DESIGN.md spacing.sm"],
-    [data.spacing?.md, "spacing.3", "DESIGN.md spacing.md"],
-    [data.spacing?.lg, "spacing.4", "DESIGN.md spacing.lg"],
-    [data.spacing?.xl, "spacing.5", "DESIGN.md spacing.xl"],
+    [data.spacing?.md, "spacing.4", "DESIGN.md spacing.md"],
+    [data.spacing?.lg, "spacing.8", "DESIGN.md spacing.lg"],
+    [data.spacing?.xl, "spacing.16", "DESIGN.md spacing.xl"],
   ];
 
   for (const [actual, tokenName, label] of expectations) {
@@ -578,6 +583,44 @@ async function checkAppleContract() {
   assertIncludes(contents.folders, "UITableViewCell", "Folder row source");
 }
 
+// Web spacing follows Tailwind's 4px unit: padding, margin and gap are multiples of 4px, with 1px and 2px
+// left for hairline nudges. TV and Roku keep their 3px FHD grid, and native shells keep platform metrics.
+const spacingGridFiles = async () => {
+  const preview = (await readdir(path.join(root, "system/preview"))).filter(
+    (file) => /^(web-|[01]\d)/.test(file) || ["_tier.css", "_frame.css", "_element.css"].includes(file),
+  );
+  return ["system/components.css", "system/design-system.html", ...preview.map((file) => `system/preview/${file}`)];
+};
+const spacingDeclaration = /(?<![-\w])((?:padding|margin)(?:-(?:top|right|bottom|left|block|inline)(?:-(?:start|end))?)?|gap|row-gap|column-gap)\s*:\s*([^;"}{]+)/g;
+
+function offGridSpacing(css: string): string[] {
+  const found: string[] = [];
+  for (const [, selector, body] of css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
+    if (/\.tv\b/.test(selector)) continue;
+    for (const [declaration, , value] of body.matchAll(spacingDeclaration)) {
+      for (const [, amount] of value.matchAll(/(?<![\w.#])-?(\d+(?:\.\d+)?)px/g)) {
+        const px = Number(amount);
+        if (px > 2 && px % 4 !== 0) found.push(`${selector.trim().split("\n").at(-1)?.trim()} { ${declaration.trim()} }`);
+      }
+    }
+  }
+  return found;
+}
+
+async function checkSpacingGrid() {
+  for (const file of await spacingGridFiles()) {
+    const source = await readFile(path.join(root, file), "utf8");
+    const css = file.endsWith(".css")
+      ? source
+      : [
+          ...[...source.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map(([, block]) => block),
+          ...[...source.matchAll(/\sstyle="([^"]*)"/g)].map(([, inline]) => `inline { ${inline} }`),
+        ].join("\n");
+    const offGrid = offGridSpacing(css);
+    assert(offGrid.length === 0, `${file} spacing must sit on the 4px grid: ${offGrid.slice(0, 3).join("; ")}`);
+  }
+}
+
 async function checkHtmlLinks() {
   const systemDir = path.join(root, "system");
   const htmlFiles = (await readdir(systemDir, { recursive: true })).filter((file) => file.endsWith(".html"));
@@ -656,5 +699,6 @@ await checkDesignMd(flat);
 await checkAppleContract();
 await checkHtmlLinks();
 await checkCss(flat);
+await checkSpacingGrid();
 await checkDeprecatedReads(flat);
 console.log("Design system checks passed");

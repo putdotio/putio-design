@@ -20,7 +20,9 @@ const FLAT_TOKENS = "dist/tokens.flat.json";
 const FIXTURE_CSS = `@import "tailwindcss" theme(static);\n@import "@putdotio/design/tailwind";\n`;
 
 // The utility each theme namespace drives, and the declaration that carries the value.
-const UTILITIES: Array<{ key: RegExp; utility: string; property: string }> = [
+const UTILITIES: Array<{ key: RegExp; utility: string; property: string; reads?: (token: string) => string }> = [
+  // Spacing utilities multiply the one unit: p-4 is calc(var(--space-1) * 4), the value of --space-4.
+  { key: /^--spacing$/, utility: "p-4", property: "padding", reads: (token) => `calc(var(${token}) * 4)` },
   { key: /^--color-(.+)$/, utility: "bg-", property: "background-color" },
   { key: /^--font-weight-(.+)$/, utility: "font-", property: "font-weight" },
   { key: /^--font-(.+)$/, utility: "font-", property: "font-family" },
@@ -127,7 +129,8 @@ const candidates = entries.map(({ key, token }) => {
   const match = UTILITIES.map((entry) => ({ entry, suffix: entry.key.exec(key) })).find(({ suffix }) => suffix);
   assert(match?.suffix, `${THEME_CSS} ${key} is not in a checked Tailwind namespace`);
   const suffix = match.suffix[1];
-  return { key, token, property: match.entry.property, utility: suffix ? `${match.entry.utility}${suffix}` : match.entry.utility.replace(/-$/, "") };
+  const utility = suffix ? `${match.entry.utility}${suffix}` : match.entry.reads ? match.entry.utility : match.entry.utility.replace(/-$/, "");
+  return { key, token, property: match.entry.property, utility, reads: match.entry.reads?.(token) ?? `var(${token})` };
 });
 
 const compiler = await compile(FIXTURE_CSS, { base: root, loadStylesheet });
@@ -139,11 +142,15 @@ for (const [, name, value] of output.matchAll(/(--[\w-]+)\s*:\s*([^;{}]*)/g)) {
   assert(!value.includes(`var(${name})`) && !value.includes(`var(${name},`), `Tailwind declares self-referencing ${name}: ${value.trim()}`);
 }
 
-for (const { key, token, property, utility } of candidates) {
+for (const { key, property, utility, reads } of candidates) {
   const rule = utilityRule(output, utility);
   assert(rule, `${key} must generate .${utility}`);
-  assert(rule.get(property) === `var(${token})`, `.${utility} ${property} must read var(${token}), got ${rule.get(property)}`);
+  assert(rule.get(property) === reads, `.${utility} ${property} must read ${reads}, got ${rule.get(property)}`);
 }
+
+// Without the mapping, Tailwind's own 0.25rem unit would follow the 14px root instead of 4px.
+const spacing = compiler.build(["p-4"]);
+assert(utilityRule(stripComments(spacing), "p-4")?.get("padding") === "calc(var(--space-1) * 4)", ".p-4 must multiply --space-1, the put.io 4px unit");
 
 const tailwindVars = customProperties(output, ":root");
 const lightVars = new Map([...tailwindVars, ...customProperties(tokensCss, ":root")]);

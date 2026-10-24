@@ -193,7 +193,7 @@ function cssForTokens(tokens: FlatToken[], foundationCss: string): string {
 }
 
 // Tailwind v4 theme namespaces, in output order.
-const tailwindNamespaces = ["color", "font", "font-weight", "text", "leading", "tracking", "radius", "shadow", "ease", "transition-duration"] as const;
+const tailwindNamespaces = ["spacing", "color", "font", "font-weight", "text", "leading", "tracking", "radius", "shadow", "ease", "transition-duration"] as const;
 type TailwindNamespace = (typeof tailwindNamespaces)[number];
 // Tailwind maps these color names to CSS keywords before it reads the theme.
 const tailwindColorKeywords = new Set(["current", "inherit", "transparent"]);
@@ -233,6 +233,11 @@ function tailwindThemeEntries(tokens: FlatToken[]): Map<string, { namespace: Tai
     // TV tokens are absent from tokens.css; "other" holds z-indexes and media-query breakpoints, which var() cannot feed.
     // Deprecated tokens stay, like in every other output, until a major release removes them.
     if (token.mode === "tv" || token.category === "other") continue;
+    // --space-N is N × --space-1, so Tailwind's one spacing unit carries every step: p-4 = --space-4.
+    if (token.cssName === "space-1") {
+      entries.set("--spacing", { namespace: "spacing", cssName: token.cssName });
+      continue;
+    }
     const rule = tailwindRule(token);
     if (!rule || (rule.namespace === "color" && tailwindColorKeywords.has(token.cssName))) continue;
     const segments = token.cssName.split("-");

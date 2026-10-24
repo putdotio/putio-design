@@ -390,10 +390,10 @@ test.describe("design.put.io static guide", () => {
         };
       });
       expect(spacing.parentUsesFormGroup, `${pagePath} ${fieldSelector} parent recipe`).toBe(true);
-      expect(spacing.rowGap, `${pagePath} ${fieldSelector} parent gap`).toBe("6px");
+      expect(spacing.rowGap, `${pagePath} ${fieldSelector} parent gap`).toBe("8px");
       expect(spacing.renderedGaps.length, `${pagePath} ${fieldSelector} grouped relationships`).toBeGreaterThan(0);
       for (const gap of spacing.renderedGaps) {
-        expect(Math.abs(gap - 6), `${pagePath} ${fieldSelector} rendered separation`).toBeLessThanOrEqual(0.1);
+        expect(Math.abs(gap - 8), `${pagePath} ${fieldSelector} rendered separation`).toBeLessThanOrEqual(0.1);
       }
     }
   });
@@ -457,7 +457,7 @@ test.describe("design.put.io static guide", () => {
     await expect(field).toHaveAttribute("aria-invalid", "true");
     const open = await gaps();
     expect(open.transition).toBe("0.18s, 0.18s");
-    expect(Math.abs(open.fieldToMessage - 6)).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(open.fieldToMessage - 8)).toBeLessThanOrEqual(0.5);
 
     await page.locator("[data-demo-toggle-errors]").click();
     await expect(group.locator(".form-reveal")).toHaveAttribute("data-state", "closed");
