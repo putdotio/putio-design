@@ -3310,6 +3310,14 @@ export const tokens = {
     "originalValue": "1.5rem",
     "description": "Heading."
   },
+  "typography.fontSize.title": {
+    "cssName": "--fs-title",
+    "type": "dimension",
+    "mode": "global",
+    "value": "22px",
+    "originalValue": "22px",
+    "description": "Screen titles and one-time-code digits. The fixed-pixel sibling of fontSize.lg (H2), which scales with the root."
+  },
   "typography.fontSize.xl": {
     "cssName": "--fs-xl",
     "type": "dimension",
@@ -3412,6 +3420,14 @@ export const tokens = {
     "mode": "global",
     "value": "-0.02em",
     "originalValue": "-0.02em"
+  },
+  "typography.letterSpacing.snug": {
+    "cssName": "--tracking-snug",
+    "type": "dimension",
+    "mode": "global",
+    "value": "-0.01em",
+    "originalValue": "-0.01em",
+    "description": "Slight negative tracking for screen titles."
   },
   "typography.letterSpacing.normal": {
     "cssName": "--tracking-normal",
