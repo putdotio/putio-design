@@ -143,10 +143,11 @@ own, so the two name systems cannot drift.
 | `--ring`                                     | `--shadow-focus-color`                                     |
 | `--background` / `--foreground`              | `--bg` / `--text`                                          |
 
-A full `--input-*` set (`-bg`, `-border`, `-border-hover`, `-border-focus`,
-`-ring`, `-text`, `-placeholder`, `-radius`) aliases the matching `--field-*`
-tokens, so shadcn-shaped input code themes without renaming. **Author against
-`--field-*`;** the `--input-*` names are only the alias bridge.
+The `--input-*` set (`-bg`, `-border`, `-border-hover`, `-border-focus`,
+`-ring`, `-text`, `-placeholder`, `-radius`) and `--foreground-muted` are
+[deprecated](../docs/distribution.md#deprecated-tokens): shadcn itself names
+only `--input` and `--muted-foreground`. Each deprecated name aliases its
+replacement; **author against `--field-*` and `--text-secondary`.**
 
 On a solid surface, read the foreground tokens (`--primary-foreground`,
 `--destructive-foreground`, `--success-foreground`), which encode the mode-safe

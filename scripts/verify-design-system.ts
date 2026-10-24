@@ -572,6 +572,19 @@ async function checkCss(flat: Record<string, TokenRecord>) {
   }
 }
 
+// Deprecated names stay published for consumers; the guide reads their replacements.
+async function checkDeprecatedReads(flat: Record<string, TokenRecord>) {
+  const deprecated = new Set(Object.values(flat).filter((token) => token.deprecated).map((token) => token.cssName));
+  const systemDir = path.join(root, "system");
+  const files = (await readdir(systemDir, { recursive: true })).filter((file) => /\.(css|html)$/.test(file) && file !== "tokens.css");
+  for (const file of files) {
+    const source = (await readFile(path.join(systemDir, file), "utf8")).replace(/\/\*[\s\S]*?\*\//g, "");
+    for (const [, name] of source.matchAll(/var\(\s*(--[a-z0-9-]+)/g)) {
+      assert(!deprecated.has(name), `system/${file} reads deprecated ${name}; use the replacement its token names`);
+    }
+  }
+}
+
 await Promise.all(
   [
     "dist/css/tokens.css",
@@ -591,4 +604,5 @@ await checkDesignMd(flat);
 await checkAppleContract();
 await checkHtmlLinks();
 await checkCss(flat);
+await checkDeprecatedReads(flat);
 console.log("Design system checks passed");

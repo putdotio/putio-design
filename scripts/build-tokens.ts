@@ -35,6 +35,7 @@ type FlatToken = {
   figma: boolean;
   basis?: "viewport-width" | "viewport-height";
   deprecated?: boolean;
+  replacement?: string;
 };
 
 const root = process.cwd();
@@ -146,11 +147,29 @@ function resolveReferences(tokens: FlatToken[]): FlatToken[] {
   return tokens.map((token) => ({
     ...token,
     resolvedValue: resolveValue(token.value, [token.name]),
+    replacement: token.deprecated ? replacementFor(token, byName) : undefined,
   }));
 }
 
+// A deprecated token aliases its replacement, so both resolve alike in every
+// mode until the next major removes the old name.
+function replacementFor(token: FlatToken, byName: Map<string, FlatToken>): string {
+  const target = /^\{([^}]+)\}$/.exec(String(token.value))?.[1];
+  const replacement = target === undefined ? undefined : byName.get(target);
+  if (!replacement || replacement.deprecated) {
+    throw new Error(`Deprecated token ${token.name} must alias a current replacement, got ${token.value}`);
+  }
+  if (!token.description?.includes(`--${replacement.cssName}`)) {
+    throw new Error(`Deprecated token ${token.name} must name --${replacement.cssName} in its $description`);
+  }
+  return replacement.cssName;
+}
+
 function cssBlock(selector: string, tokens: FlatToken[]): string {
-  const lines = tokens.map((token) => `  --${token.cssName}: ${token.resolvedValue};`);
+  const lines = tokens.map((token) => {
+    const note = token.replacement ? ` /* deprecated: use --${token.replacement} */` : "";
+    return `  --${token.cssName}: ${token.resolvedValue};${note}`;
+  });
   return `${selector} {\n${lines.join("\n")}\n}`;
 }
 
