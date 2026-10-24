@@ -210,7 +210,7 @@ for (const hook of CONSUMER_HOOKS) {
 const WEB_PREVIEW = /^(web-|\d).*\.html$/;
 const WEB_SHARED_CSS = ["_element.css", "_frame.css", "_tier.css"];
 const LITERAL_SIZE = /font-size\s*:\s*-?[\d.]+(?:px|rem)\b|(?<![\w-])font\s*:[^;"}]*\d(?:px|rem)\b/gi;
-const ICON_CLASS = /^(ph|ph-[\w-]+|ic|[\w-]*-ic|[\w-]*icon[\w-]*|glyph|chev[\w-]*|caret)$/i;
+const ICON_CLASS = /^(ph|ph-[\w-]+|ic|ico|[\w-]*-ic|[\w-]*-ico|[\w-]*icon[\w-]*|glyph|chev[\w-]*|caret)$/i;
 
 function isIconCompound(compound: string): boolean {
   const element = /^[a-z][\w-]*/i.exec(compound)?.[0].toLowerCase();
