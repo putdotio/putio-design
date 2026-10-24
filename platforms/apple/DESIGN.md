@@ -157,18 +157,16 @@ No watchOS app ships. The watch card is proposed.
 
 ## Welcome
 
-The signed-out screen is drawn in
-[`mobile-s00-welcome`](../../system/preview/mobile-s00-welcome.html).
+iOS and Android share one signed-out screen, drawn in
+[`mobile-s00-welcome`](../../system/preview/mobile-s00-welcome.html): the
+retro wordmark in the nav bar, a kaomoji roll with mono yellow captions and
+page dots, **Welcome!**, one lede line, and one full-width **Sign in** button
+that opens `ASWebAuthenticationSession`. The
+[Android contract](https://github.com/putdotio/putio-android/blob/main/DESIGN.md#welcome)
+owns its states and copy.
 
-| Part    | iOS as shipped                                                                       |
-| ------- | ------------------------------------------------------------------------------------ |
-| Logo    | `logo-retro-dark`, 240pt wide, centred in the safe area                              |
-| Action  | one 320×38 **Log in** button, `--yellow-solid`, 4pt radius, 16pt above the safe area |
-| Flow    | `ASWebAuthenticationSession` starts on arrival; Log in restarts it                   |
-| Failure | "Authentication failed" alert with the error description and OK                      |
-
-No kaomoji, lede or notice on iOS. Android's welcome lives in the
-[Android contract](../android/DESIGN.md).
+iOS as reviewed still ships the older screen: a 240pt `logo-retro-dark`, one
+320×38 **Log in** button, and an "Authentication failed" alert.
 
 ## Content
 
