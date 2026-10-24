@@ -1,8 +1,9 @@
 # platforms
 
-Per-platform binding contracts. Each `DESIGN.md` follows the shape of the root
-[DESIGN.md](../DESIGN.md): YAML frontmatter carrying the machine-readable
-contract, prose below it.
+Per-platform binding contracts. Each `DESIGN.md` here follows the shape of the
+root [DESIGN.md](../DESIGN.md): YAML frontmatter carrying the machine-readable
+contract, prose below it. A contract that moved to its app repository leaves a
+pointer with no frontmatter; its `reviewed` block lives in the app repository.
 
 | File                               | Tier | Binds                               |
 | ---------------------------------- | ---- | ----------------------------------- |
