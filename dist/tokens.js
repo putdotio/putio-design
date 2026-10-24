@@ -3236,9 +3236,18 @@ export const tokens = {
   "elevation.focus": {
     "cssName": "--shadow-focus",
     "type": "string",
-    "mode": "global",
-    "value": "0 0 0 3px hsla(47, 100%, 65%, 0.35)",
-    "originalValue": "0 0 0 3px {elevation.focusColor}"
+    "mode": "light",
+    "value": "0 0 0 2px hsl(0, 0%, 99.0%), 0 0 0 4px hsl(0, 0%, 52.3%)",
+    "originalValue": "0 0 0 2px {color.neutral.light.bg}, 0 0 0 4px {color.neutral.light.solidHover}",
+    "description": "Button, link, and nav focus: a 2px page-coloured gap, then a 2px opaque ring at least 3:1 against the page and panels."
+  },
+  "elevation.focusDark": {
+    "cssName": "--shadow-focus",
+    "type": "string",
+    "mode": "dark",
+    "value": "0 0 0 2px hsl(0, 0%, 8.5%), 0 0 0 4px hsl(0, 0%, 49.4%)",
+    "originalValue": "0 0 0 2px {color.neutral.dark.bg}, 0 0 0 4px {color.neutral.dark.solidHover}",
+    "description": "Dark-mode button, link, and nav focus ring."
   },
   "typography.fontFamily.sans": {
     "cssName": "--font-sans",

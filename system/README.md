@@ -83,7 +83,7 @@ its cards use itself.
 
 ## Core rules
 
-- **Yellow** follows [Colors](../DESIGN.md#colors). Guide specifics: `--yellow-solid-hover` is the hover peer with one value in both modes, and button focus-visible rings use `--shadow-focus` (the yellow at 35% alpha, `--shadow-focus-color`). Form fields focus with the neutral `--field-ring` instead.
+- **Yellow** follows [Colors](../DESIGN.md#colors). Guide specifics: `--yellow-solid-hover` is the hover peer with one value in both modes, and button focus-visible rings use `--shadow-focus`: a 2px `--bg` gap, then a 2px `--solid-hover` ring, at least 3:1 against the page and panels. `--shadow-focus-color` (the yellow at 35% alpha) stays only as shadcn's `--ring`. Form fields focus with `--field-ring` instead.
 - **Yellow as text on light** uses `--yellow-text-secondary` (≈5:1, AA); `--yellow-solid` is fill-only on light backgrounds.
 - **Labels on yellow** use `--primary-foreground`, a warm dark that passes AA on the yellow fill.
 - **One design, two modes.** Light and dark are the same markup and components with different token values. Toggle `.dark` on `<html>`; one page serves both modes. Components consume semantic tokens (`--bg`, `--text`, `--border`, `--accent`, …) instead of raw `#hex` or `hsl()`.

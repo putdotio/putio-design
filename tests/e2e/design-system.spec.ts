@@ -330,7 +330,7 @@ test.describe("design.put.io static guide", () => {
           const message = reveal?.querySelector('[role="alert"]');
           return {
             hasMessage: message instanceof HTMLElement,
-            nextIsSubmit: reveal?.nextElementSibling?.classList.contains("btn-primary") ?? false,
+            nextIsSubmit: reveal?.nextElementSibling?.matches("button.btn-block") ?? false,
             revealCount: form.querySelectorAll(".form-reveal").length,
             transition: reveal ? getComputedStyle(reveal).transitionDuration : "",
           };
@@ -669,7 +669,7 @@ test.describe("design.put.io static guide", () => {
           "--field-border-focus",
           "--field-text",
           "--red-border",
-          "--red-border-hover",
+          "--red-solid",
           "--red-text-secondary",
           "--green-border",
           "--green-text-secondary",
@@ -1049,11 +1049,12 @@ test.describe("design.put.io static guide", () => {
     await expect(input).toHaveAttribute("tabindex", "-1");
     await expect(otp.locator(".otp-slot")).toHaveText(code.split(""));
 
-    // auth.put.io swaps the submit to a disabled "Verified".
+    // The submit turns a disabled success "Verified" that keeps its green fill.
     const card = page.locator(".auth-column").filter({ has: otp });
-    const submit = card.locator("button.btn-primary");
+    const submit = card.locator("button.btn-block");
     await expect(submit).toHaveText("Verified");
     await expect(submit).toBeDisabled();
+    expect(await submit.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe(await resolvedCssColor(page, "--button-success-bg"));
     await expect(card.getByRole("status")).toHaveText("Verified");
 
     await otp.click({ position: { x: 12, y: 12 } });

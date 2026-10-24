@@ -115,7 +115,8 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 - **Primary:** `--button-primary-bg`, hover `--button-primary-bg-hover`, label `--button-primary-fg`. At most one per action group.
 - **Secondary:** `--button-default-bg` plus a `--border` border; hover steps both (`--button-default-bg-hover`, `--border-hover`).
 - **Ghost:** text only, `--button-ghost-fg`; hover adds `--button-ghost-bg-hover` and lifts the label to `--button-ghost-fg-hover`. Use it for anything quieter than secondary: header `Sign in`, toolbar actions, `Cancel` beside a confirm, icon-only buttons.
-- **Disabled:** colour drops to `--solid` at full opacity.
+- **Disabled:** colour drops to `--solid` at full opacity: filled variants take a `--solid` fill with `--solid-foreground` labels; quiet ones take `--solid` text. A finished action stays filled with `data-state="success"` on `.btn-success`.
+- **Focus:** `--shadow-focus`, a 2px `--bg` gap then a 2px `--solid-hover` ring, at least 3:1 against the page and panels in both modes.
 - A bordered button always fills (secondary). Border-only buttons read smaller beside solid fills and vanish on dark.
 - Four sizes share one box per size across tiers: default 36px, `md` 32px, `sm` 28px, `xs` 24px. Read `--button-height*`, `--button-padding-x*`, `--button-label-size*`, `--button-tracking*`, `--button-icon-size`, `--button-gap`.
 - A dark bar on a light page is a `.dark`-scoped region.
@@ -146,7 +147,7 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 - auth.put.io still ships the older card layout: drift.
 - References: `web-s06-auth`, `web-p00c-auth-signin`, `web-p00d-auth-signup`, `web-p00e-auth-2fa`. Outside references: the TIDAL, Stripe Link, Cursor, Linear, and Vercel sign-in pages.
 - One-time codes are one `.otp-input` (`inputmode="numeric"`, `autocomplete="one-time-code"`, `maxlength="6"`, `aria-invalid`) shown through two `.otp-group`s, one `.otp-separator`, and six `.otp-slot`s; script syncs slot text and `filled`/`active`, and maps a clicked slot to the input selection. The slots stretch the full column with mono digits. The label reads “Code from your authenticator app”, with no hint line.
-- Editing an invalid code closes the error; retry waits for six digits. `data-state="verifying"` disables the input, keeps the digits, and announces through a polite live region. `data-state="success"` keeps the digits read-only, announces continuation in a `role="status"` region, and shows no further action; the consumer owns navigation. auth.put.io disables the button, relabels it “Verified”, and announces that through a visually hidden status region.
+- Editing an invalid code closes the error; retry waits for six digits. `data-state="verifying"` disables the input, keeps the digits, and announces through a polite live region. `data-state="success"` keeps the digits read-only, announces continuation in a `role="status"` region, and shows no further action; the consumer owns navigation. The submit turns a disabled `.btn-success` with `data-state="success"`, relabelled “Verified”, announced through a visually hidden status region.
 - “Use a recovery code” appears only once a consumer owns the route. Groups own the responsive width, so the control fits narrow columns without scrolling.
 
 ### TV
