@@ -1,11 +1,12 @@
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import process from "node:process";
 
 // system/components.css ships as @putdotio/design/components on top of
 // @putdotio/design/css, so every var(--x) it reads must be emitted by the
 // token build, its published selectors must survive parsing, and chrome with
 // its own alias family (--field-*, --panel-*, --menu-*) must read that family
-// rather than the generic surface tokens.
+// rather than the generic surface tokens. Web text in it, the guide and the
+// web previews takes a font-size token, never a literal.
 
 const COMPONENT_CSS = "system/components.css";
 const TOKENS_CSS = "dist/css/tokens.css";
@@ -202,6 +203,74 @@ for (const hook of CONSUMER_HOOKS) {
   if (uses !== withFallback) failures.push(`${hook} is a consumer hook and must always be read with a fallback`);
 }
 
+// Web text sizes come from a role (--fs-ui, --fs-body, --fs-caption,
+// --fs-field) or a heading step, never a literal. Icon glyphs keep px because
+// they size with control geometry, and rules scoped under .tv keep the TV grid.
+// Native and TV previews keep their platform px and are not scanned.
+const WEB_PREVIEW = /^(web-|\d).*\.html$/;
+const WEB_SHARED_CSS = ["_element.css", "_frame.css", "_tier.css"];
+const LITERAL_SIZE = /font-size\s*:\s*-?[\d.]+(?:px|rem)\b|(?<![\w-])font\s*:[^;"}]*\d(?:px|rem)\b/gi;
+const ICON_CLASS = /^(ph|ph-[\w-]+|ic|[\w-]*-ic|[\w-]*icon[\w-]*|glyph|chev[\w-]*|caret)$/i;
+
+function isIconCompound(compound: string): boolean {
+  const element = /^[a-z][\w-]*/i.exec(compound)?.[0].toLowerCase();
+  const classes = [...compound.matchAll(/\.([\w-]+)/g)].map((match) => match[1]);
+  return element === "i" || element === "svg" || classes.some((name) => ICON_CLASS.test(name));
+}
+
+function exemptSelector(selector: string): boolean {
+  const selectors = selector.replace(/::?[\w-]+(\([^)]*\))?/g, "").split(",").map((part) => part.trim()).filter(Boolean);
+  return (
+    selectors.length > 0 &&
+    selectors.every((part) => /\.tv(?![\w-])/.test(part) || isIconCompound(part.split(/[\s>+~]+/).at(-1) ?? ""))
+  );
+}
+
+const webTypeFiles = [
+  COMPONENT_CSS,
+  "system/design-system.html",
+  "system/design-system-light.html",
+  "system/index.html",
+  ...WEB_SHARED_CSS.map((name) => `system/preview/${name}`),
+  ...(await readdir("system/preview")).filter((name) => WEB_PREVIEW.test(name)).map((name) => `system/preview/${name}`),
+];
+for (const file of webTypeFiles) {
+  const source = await readFile(file, "utf8");
+  // Blank comments in place so offsets and line numbers stay true.
+  const text = source.replace(/\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->/g, (block) => block.replace(/[^\n]/g, " "));
+  const regions: Array<{ start: number; end: number; tag?: string }> = file.endsWith(".css")
+    ? [{ start: 0, end: text.length }]
+    : [
+        ...[...text.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map((match) => {
+          const start = (match.index ?? 0) + match[0].indexOf(match[1]);
+          return { start, end: start + match[1].length };
+        }),
+        ...[...text.matchAll(/<([a-z][\w-]*)\b[^>]*?\sstyle="([^"]*)"/gi)].map((match) => {
+          const start = (match.index ?? 0) + match[0].lastIndexOf(match[2]);
+          return { start, end: start + match[2].length, tag: match[0] };
+        }),
+      ];
+  for (const region of regions) {
+    const css = text.slice(region.start, region.end);
+    for (const match of css.matchAll(LITERAL_SIZE)) {
+      const at = match.index ?? 0;
+      let exempt: boolean;
+      if (region.tag) {
+        const element = /^<([a-z][\w-]*)/i.exec(region.tag)?.[1] ?? "";
+        const classes = /\sclass="([^"]*)"/.exec(region.tag)?.[1] ?? "";
+        exempt = isIconCompound(`${element}${classes.split(/\s+/).filter(Boolean).map((name) => `.${name}`).join("")}`);
+      } else {
+        const brace = css.lastIndexOf("{", at);
+        const from = Math.max(css.lastIndexOf("}", brace), css.lastIndexOf("{", brace - 1), css.lastIndexOf(";", brace));
+        exempt = exemptSelector(css.slice(from + 1, brace).trim());
+      }
+      if (exempt) continue;
+      const line = source.slice(0, region.start + at).split("\n").length;
+      failures.push(`${file}:${line} sets a literal ${match[0].trim()}; use a role (--fs-ui, --fs-body, --fs-caption, --fs-field) or a heading step`);
+    }
+  }
+}
+
 if (failures.length > 0) {
   for (const failure of failures) console.error(`- ${failure}`);
   console.error(`\n${COMPONENT_CSS} would not ship correctly. Fix the above, then re-run pnpm tokens:check.`);
@@ -211,6 +280,7 @@ if (failures.length > 0) {
     `Component CSS resolves: ${referenced.size} custom properties, ` +
       `${REQUIRED_SELECTORS.length} required selectors, ` +
       `${ALIAS_CONTRACTS.length} alias contracts, ` +
-      `${CONSUMER_HOOKS.size} consumer hook(s) with fallbacks`,
+      `${CONSUMER_HOOKS.size} consumer hook(s) with fallbacks, ` +
+      `${webTypeFiles.length} web files on font-size tokens`,
   );
 }

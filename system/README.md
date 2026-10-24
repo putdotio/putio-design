@@ -87,6 +87,7 @@ its cards use itself.
 - **Yellow as text on light** uses `--yellow-text-secondary` (≈5:1, AA); `--yellow-solid` is fill-only on light backgrounds.
 - **Labels on yellow** use `--primary-foreground`, a warm dark that passes AA on the yellow fill.
 - **One design, two modes.** Light and dark are the same markup and components with different token values. Toggle `.dark` on `<html>`; one page serves both modes. Components consume semantic tokens (`--bg`, `--text`, `--border`, `--accent`, …) instead of raw `#hex` or `hsl()`.
+- **Text sizes are tokens.** The guide, the web previews, and their shared CSS (`_tier.css`, `_frame.css`, `_element.css`) set text with a role (`--fs-ui`, `--fs-body`, `--fs-caption`, `--fs-field`) or a heading step, per [Typography](../DESIGN.md#typography). Icon glyphs keep px, rules under `.tv` keep the TV grid, and native and TV previews keep platform px. `pnpm verify` fails on any other literal font size.
 - **Wordmarks are optically pre-centred.** All three logo SVGs carry built-in top padding in the viewBox (retro pair `0 -16 376 112`, `logo.svg` `0 -24.44 621.79 176.055`). Flex-centre them as-is, with no `translateY` nudge. Height-set placements size boxes at 7/6 of the ink height.
 
 Icons, fields and panels, and raw filenames follow the root
