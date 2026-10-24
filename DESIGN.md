@@ -133,16 +133,17 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 
 ### Auth
 
-- Sign in, sign up, password reset, and two-factor pages have no card or panel: the form sits on `--bg`. Recipe: `.auth-page`, `.auth-header`, `.auth-main`, `.auth-column`, `.auth-title`, `.auth-links`, `.auth-footer`.
+- Sign in, sign up, password reset, and two-factor pages have no card or panel: the form sits on `--bg`. Recipe: `.auth-page`, `.auth-header`, `.auth-main`, `.auth-column`, `.auth-title`, `.auth-note`, `.auth-links`, `.auth-footer`.
 - The logo sits top-left in the header, in a `30.33px` box (26px ink × 7/6). The top right stays empty by default.
 - One left-aligned column, up to `340px`, is centred horizontally and optically centred vertically: the form's middle sits near 45% of the viewport height, never below the true middle.
 - A quiet centred footer links Terms of Service, Privacy Policy, and Help in muted `--fs-sm`.
+- Text is one size: everything except the title and input text is `--fs-sm`. That covers labels, hints, `.auth-note` lines, errors, the link row, and the footer.
 - One title per screen: `--fs-title` (`22px`), medium, `--tracking-snug` (`-0.01em`). No subtitles, taglines, or marketing lines; copy stays short.
 - Fields and buttons keep the standard 36px box: the filled field and a full-width default-size primary.
 - Labels are small, muted, and above the field.
 - The primary button is full-width yellow. Secondary actions sit under the form as muted text links: “Forgot password?”, “New to put.io? Sign up”, “Wrong account? Sign out”.
 - Tab order runs fields, submit, then secondary links; DOM order follows visual order, with no positive `tabindex`. Two-factor runs the code, Verify, then its links. The reveal-password toggle takes `tabindex="-1"` and keeps its accessible name: keyboard-only users can't toggle visibility, screen-reader users still can in browse mode. No link leaves the tab order.
-- Form errors: one message in a `.form-reveal` row right above the submit button, in red `--fs-base` text. Invalid fields turn red. Auth forms never use the boxed `.form-callout`.
+- Form errors: one message in a `.form-reveal` row right above the submit button, in red `--fs-sm` text, 8px under the fields. Invalid fields turn red. Auth forms never use the boxed `.form-callout`.
 - Copy: “Sign in”, “Sign up”, and “That username or password doesn't look right.”
 - auth.put.io still ships the older card layout: drift.
 - References: `web-s06-auth`, `web-p00c-auth-signin`, `web-p00d-auth-signup`, `web-p00e-auth-2fa`. Outside references: the TIDAL, Stripe Link, Cursor, Linear, and Vercel sign-in pages.

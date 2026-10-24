@@ -49,6 +49,7 @@ const REQUIRED_SELECTORS = [
   ".auth-main",
   ".auth-column",
   ".auth-title",
+  ".auth-note",
   ".auth-links",
   ".auth-footer",
   ".menu-pop",
