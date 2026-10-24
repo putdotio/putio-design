@@ -228,11 +228,11 @@ function tailwindRule(token: FlatToken): { namespace: TailwindNamespace; family?
 }
 
 function tailwindThemeEntries(tokens: FlatToken[]): Map<string, { namespace: TailwindNamespace; cssName: string }> {
-  const deprecated = new Set(tokens.filter((token) => token.deprecated).map((token) => token.cssName));
   const entries = new Map<string, { namespace: TailwindNamespace; cssName: string }>();
   for (const token of tokens) {
     // TV tokens are absent from tokens.css; "other" holds z-indexes and media-query breakpoints, which var() cannot feed.
-    if (token.mode === "tv" || token.category === "other" || deprecated.has(token.cssName)) continue;
+    // Deprecated tokens stay, like in every other output, until a major release removes them.
+    if (token.mode === "tv" || token.category === "other") continue;
     const rule = tailwindRule(token);
     if (!rule || (rule.namespace === "color" && tailwindColorKeywords.has(token.cssName))) continue;
     const segments = token.cssName.split("-");

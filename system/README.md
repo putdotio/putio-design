@@ -187,7 +187,7 @@ list. Import it after `tailwindcss` and `@putdotio/design/css`; the
   `text-muted-foreground` resolve through the aliases above.
 - `text-*` sizes set no line height; the document's `--lh-normal` applies until
   a `leading-*` utility sets one.
-- TV tokens, deprecated tokens, z-indexes, breakpoints, and spacing stay out.
+- TV tokens, z-indexes, breakpoints, and spacing stay out. Deprecated tokens stay in until a major release removes them.
   Spacing utilities keep Tailwind's linear `--spacing` scale, not the
   `--space-*` steps. Tailwind defaults that put.io does not define, such as
   `rounded-xl`, stay available.
