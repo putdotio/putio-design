@@ -251,6 +251,18 @@ function checkTokens(flat: Record<string, TokenRecord>) {
     ]) {
       assert(contrastRatio(focus, value) >= 3, `component.field.borderFocus${mode} must reach 3:1 against the ${surface}`);
     }
+    // Invalid fields and codes focus at --red-solid.
+    const red = flat[`color.red.${scheme}.solid`]?.value ?? "";
+    assert(contrastRatio(red, fill) >= 3, `color.red.${scheme}.solid must reach 3:1 against the field fill for invalid focus`);
+    // Buttons, links and nav: --shadow-focus ends in an opaque ring that must hold 3:1 on page and panel.
+    const ring = /(hsl\([^)]*\))\s*$/.exec(String(flat[`elevation.focus${mode}`]?.value ?? ""))?.[1] ?? "";
+    assert(ring, `elevation.focus${mode} must end in an opaque hsl() ring`);
+    for (const [surface, value] of [
+      ["page", flat[`color.neutral.${scheme}.bg`]?.value ?? ""],
+      ["panel", flat[`component.panel.background${mode}`]?.value ?? ""],
+    ]) {
+      assert(contrastRatio(ring, value) >= 3, `elevation.focus${mode} ring must reach 3:1 against the ${surface}`);
+    }
   }
   assert(flat["context.tv.text.tertiary"]?.deprecated === true, "context.tv.text.tertiary must remain marked deprecated");
   for (const [name, value, basis] of [
@@ -584,6 +596,11 @@ async function checkHtmlLinks() {
 }
 
 async function checkCss(flat: Record<string, TokenRecord>) {
+  // The red-pair contrast check above holds only while invalid focus reads --red-solid.
+  const componentCss = await readFile(path.join(root, "system/components.css"), "utf8");
+  for (const selector of ['.field[aria-invalid="true"]:focus-visible', '.otp:has(.otp-input[aria-invalid="true"]):focus-within .otp-slot[data-state="active"]']) {
+    assertIncludes(cssRule(componentCss, selector), "var(--red-solid)", `${selector} focus colour`);
+  }
   const tvCss = await readFile(path.join(root, "system/tv.css"), "utf8");
   assert(!/!important/.test(tvCss), "tv.css 10-foot styles must not use !important");
   assert(!/^:root\s*\{[\s\S]*?--surf-/m.test(tvCss), "TV-specific tokens must be scoped to .tv, not :root");

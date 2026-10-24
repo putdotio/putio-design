@@ -139,7 +139,7 @@ own, so the two name systems cannot drift.
 | `--accent` / `--accent-foreground`           | `--component-bg` / `--text`                                |
 | `--card` / `--card-foreground`               | `--component-bg` / `--text`                                |
 | `--popover` / `--popover-foreground`         | `--component-bg` / `--text`                                |
-| `--input`                                    | `--border`                                                 |
+| `--input`                                    | `--field-border`                                           |
 | `--ring`                                     | `--shadow-focus-color`                                     |
 | `--background` / `--foreground`              | `--bg` / `--text`                                          |
 
