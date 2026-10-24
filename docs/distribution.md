@@ -25,12 +25,14 @@ The token CSS export is the web custom-property contract. It includes palette
 tokens, component aliases such as `--field-*` and `--panel-*`, plus action
 aliases such as `--primary`, `--success`, `--destructive`, and their
 `--*-foreground` companions. The component export is the Tier-1 web recipe
-contract.
+contract. The Tailwind export is the one generated adapter: a Tailwind v4
+`@theme` that maps those custom properties to Tailwind keys and carries no
+values of its own.
 
-Do not publish platform-native outputs from this repo. Web, iOS, Android,
-Roku, and TV repos consume the generic token artifacts and brand assets and
-own their platform adapters; revisit only if a consuming platform repo
-explicitly asks for a generated adapter.
+Do not publish other platform-native outputs from this repo. Web, iOS,
+Android, Roku, and TV repos consume the generic token artifacts and brand
+assets and own their platform adapters; revisit only if a consuming platform
+repo explicitly asks for a generated adapter.
 
 Merges to `main` are publishable. [ci.yml](../.github/workflows/ci.yml) runs
 `pnpm verify:full` on pull requests and `main` pushes, then semantic-release on
