@@ -74,7 +74,7 @@ A web mock is never a native spec. Every surface binds at one tier, and every ca
 - **Tier 3: Roku.** Tier 2, plus put.io conventions in custom SceneGraph components.
 - **Tier 4: tv.put.io · Tizen · webOS.** The web system, restrained to a calm, list-first 10-foot interface.
 
-Tier 1, 3, and 4 cards are Components (put.io owns the recipe); tier 2 cards are Elements (the platform owns the control). Per-platform contracts: `platforms/<platform>/DESIGN.md`. On every tier, file-type icons are brand-yellow Phosphor icons.
+Tier 1, 3, and 4 cards are Components (put.io owns the recipe); tier 2 cards are Elements (the platform owns the control). Per-platform contracts: `platforms/<platform>/DESIGN.md`, or the app repository it points to. On every tier, file-type icons are brand-yellow Phosphor icons.
 
 ## Colors
 

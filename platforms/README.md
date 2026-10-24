@@ -1,8 +1,9 @@
 # platforms
 
-Per-platform binding contracts. Each `DESIGN.md` follows the shape of the root
-[DESIGN.md](../DESIGN.md): YAML frontmatter carrying the machine-readable
-contract, prose below it.
+Per-platform binding contracts. Each `DESIGN.md` here follows the shape of the
+root [DESIGN.md](../DESIGN.md): YAML frontmatter carrying the machine-readable
+contract, prose below it. A contract that moved to its app repository leaves a
+pointer with no frontmatter; its `reviewed` block lives in the app repository.
 
 | File                               | Tier | Binds                               |
 | ---------------------------------- | ---- | ----------------------------------- |
@@ -13,6 +14,11 @@ contract, prose below it.
 | [tv-generic](tv-generic/DESIGN.md) | 4    | tv.put.io, Tizen, webOS             |
 
 Tier definitions: [DESIGN.md Binding Tiers](../DESIGN.md#binding-tiers).
+
+Android's contract lives in
+[putio-android](https://github.com/putdotio/putio-android/blob/main/docs/design.md);
+[android/DESIGN.md](android/DESIGN.md) points there. Each platform's contract
+moves to its app repository the same way.
 
 ## Staying current
 
