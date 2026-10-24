@@ -41,7 +41,7 @@
 button {
   font-family: var(--font-sans);
   font-weight: var(--fw-medium);
-  font-size: calc(var(--button-label-size) * var(--tw-fs, 1));  /* production button = fontSize 0 (0.875rem) */
+  font-size: calc(var(--button-label-size) * var(--tw-fs, 1));  /* --button-label-size reads the UI role */
   /* Real starting bg so transition has something to interpolate
      from — otherwise UA `buttonface` paints silver until hover. */
   background-color: transparent;
@@ -209,13 +209,13 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   border-bottom: 1px solid var(--line);
 }
 .head .ix {
-  font-family: var(--font-mono); font-size: 11px;
+  font-family: var(--font-mono); font-size: var(--fs-caption);
   color: var(--yellow-text-secondary); letter-spacing: 0.04em;
 }
-.head .t { font-size: 15px; font-weight: 500; color: var(--text); }
+.head .t { font-size: var(--fs-ui); font-weight: 500; color: var(--text); }
 .head .n {
   margin-left: auto;
-  font-size: 12px; color: var(--text-secondary);
+  font-size: var(--fs-caption); color: var(--text-secondary);
 }
 
 
@@ -291,7 +291,7 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   background: var(--field-bg);
   color: var(--field-text);
   font-family: var(--font-sans);
-  font-size: var(--fs-base);
+  font-size: var(--fs-field);
   transition:
     border-color var(--dur-fast) var(--ease-out),
     box-shadow   var(--dur-fast) var(--ease-out),
@@ -334,7 +334,9 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 .field[data-state="loading"]:focus-visible {
   box-shadow: none;
 }
-.field.mono { font-family: var(--font-mono); font-size: 13px; }
+/* Mono fields keep the field role, not the 0.92em .mono step: under 16px,
+   iOS Safari zooms on focus. */
+.field.mono { font-family: var(--font-mono); font-size: var(--fs-field); }
 
 /* ===========================================================
    Form layout recipes — the rhythm comes from gap, not from
@@ -368,7 +370,7 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 }
 .form-group .label-row .label { margin-bottom: 0; }
 .form-group .label-row a {
-  font-size: 12px;
+  font-size: var(--fs-ui);
   color: var(--text-secondary);
   text-decoration: none;
   white-space: nowrap;
@@ -395,14 +397,14 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   border-radius: var(--alert-radius);
   background: var(--alert-info-bg);
   color: var(--alert-info-body);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-ui);
   line-height: var(--lh-normal);
 }
 .form-callout[hidden] { display: none; }
 .form-callout > :is(i, svg) {
   flex-shrink: 0;
   color: var(--alert-info-icon);
-  font-size: 14px;
+  font-size: var(--fs-ui);
   line-height: var(--lh-normal);
 }
 .form-callout[data-state="success"] {
@@ -422,7 +424,7 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   border: 0;
   border-radius: 0;
   background: transparent;
-  font-size: var(--fs-sm);
+  font-size: var(--fs-ui);
 }
 
 /* ===========================================================
@@ -526,7 +528,7 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   flex: 0 0 auto;
   padding: 0;
   color: var(--text-secondary);
-  font-size: 18px;
+  font-size: var(--fs-md);
   line-height: 1;
   pointer-events: none;
 }
@@ -570,7 +572,8 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
    in .auth-header, one left-aligned 340px column centred in
    .auth-main, a quiet link row in .auth-footer. Controls keep the
    standard 36px box; the title is the only heading. All other text
-   (labels, hints, notes, errors, links, footer) is --fs-sm. Under
+   (labels, hints, notes, errors, links, footer) is the UI role, --fs-ui;
+   fields take --fs-field. Under
    640px the gutters drop to 24px so the logo lines up with the column.
    =========================================================== */
 .auth-page {
@@ -614,7 +617,7 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 }
 .auth-column .form-stack { gap: 16px; }
 .auth-column .label {
-  font-size: var(--fs-sm);
+  font-size: var(--fs-ui);
   font-weight: var(--fw-regular);
   color: var(--text-secondary);
 }
@@ -622,7 +625,7 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 .auth-column .hint,
 .auth-note {
   margin: 0;
-  font-size: var(--fs-sm);
+  font-size: var(--fs-ui);
   line-height: var(--lh-normal);
   color: var(--text-secondary);
 }
@@ -637,11 +640,11 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   justify-content: space-between;
   gap: 8px 16px;
   color: var(--text-secondary);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-ui);
 }
 /* A prompt's link reads as text ("New to put.io? Sign up"); a bare
    action link ("Use a recovery code") stays muted. The token base sizes
-   every p at --fs-base, so a prompt inherits the row's size. */
+   every p at --fs-body, so a prompt inherits the row's size. */
 .auth-links p { margin: 0; font-size: inherit; }
 .auth-links a { color: var(--text); text-underline-offset: 3px; }
 .auth-links > a { color: var(--text-secondary); text-decoration: none; }
@@ -652,7 +655,7 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   justify-content: center;
   gap: 8px 16px;
   padding: 24px 32px 28px;
-  font-size: var(--fs-sm);
+  font-size: var(--fs-ui);
 }
 .auth-footer a { color: var(--text-secondary); text-decoration: none; }
 .auth-footer a:hover { color: var(--text); }
@@ -680,7 +683,7 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 }
 .menu-pop .menu-label {
   padding: 8px 8px 4px;
-  font-family: var(--font-mono); font-size: 10.5px;
+  font-family: var(--font-mono); font-size: var(--fs-caption);
   letter-spacing: 0.06em; text-transform: uppercase;
   /* --menu-label, not the generic --text-secondary. Same value in both modes
      today, so this is a retheming fix rather than a visual one: the family owns

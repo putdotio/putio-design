@@ -331,7 +331,7 @@ async function checkDesignMd(flat: Record<string, TokenRecord>) {
     [data.colors?.light?.danger, "color.red.light.solid", "DESIGN.md colors.light.danger"],
     [data.typography?.ui?.family, "typography.fontFamily.sans", "DESIGN.md typography.ui.family"],
     [data.typography?.ui?.weight, "typography.fontWeight.regular", "DESIGN.md typography.ui.weight"],
-    [data.typography?.ui?.size, "typography.fontSize.base", "DESIGN.md typography.ui.size"],
+    [data.typography?.ui?.size, "typography.role.ui", "DESIGN.md typography.ui.size"],
     [data.typography?.ui?.lineHeight, "typography.lineHeight.normal", "DESIGN.md typography.ui.lineHeight"],
     [data.typography?.display?.family, "typography.fontFamily.display", "DESIGN.md typography.display.family"],
     [data.typography?.display?.weight, "typography.fontWeight.black", "DESIGN.md typography.display.weight"],

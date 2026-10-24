@@ -89,11 +89,11 @@ shipped card.
 
 ## Surfaces
 
-| Surface | Rules                                                                                         |
-| ------- | --------------------------------------------------------------------------------------------- |
-| App     | follows the system by default; root 14px, 15px from 1280; header 60px; sidebar 240px or 180px |
-| Landing | either mode, 16px body, more air; not reviewed against `apps/www`                             |
-| Auth    | follows the system; card-less 340px column on the page background, standard 36px controls     |
+| Surface | Rules                                                                                     |
+| ------- | ----------------------------------------------------------------------------------------- |
+| App     | keeps its own root, 14px and 15px from 1280; header 60px; sidebar 240px or 180px          |
+| Landing | either mode, 16px body, more air; not reviewed against `apps/www`                         |
+| Auth    | follows the system; card-less 340px column on the page background, standard 36px controls |
 
 The system's mode defaults follow [Colors](../../DESIGN.md#colors); its root
 font-size follows [Typography](../../DESIGN.md#typography).

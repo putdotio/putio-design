@@ -369,7 +369,7 @@ export const tokens = {
     "type": "dimension",
     "mode": "global",
     "value": "0.875rem",
-    "originalValue": "{typography.fontSize.sm}",
+    "originalValue": "{typography.role.ui}",
     "description": "Uppercase label size."
   },
   "component.button.labelSizeXs": {
@@ -3276,7 +3276,8 @@ export const tokens = {
     "type": "dimension",
     "mode": "global",
     "value": "0.75rem",
-    "originalValue": "0.75rem"
+    "originalValue": "0.75rem",
+    "description": "12px. Captions: read it through --fs-caption."
   },
   "typography.fontSize.sm": {
     "cssName": "--fs-sm",
@@ -3284,7 +3285,7 @@ export const tokens = {
     "mode": "global",
     "value": "0.875rem",
     "originalValue": "0.875rem",
-    "description": "Caption and button labels — production fontSize 0."
+    "description": "14px. UI chrome (labels, buttons, links, errors): read it through --fs-ui."
   },
   "typography.fontSize.base": {
     "cssName": "--fs-base",
@@ -3292,7 +3293,7 @@ export const tokens = {
     "mode": "global",
     "value": "1rem",
     "originalValue": "1rem",
-    "description": "Body, labels, inputs — production fontSize 1; equals the responsive root (14px, 15px at >= breakpoint.lg)."
+    "description": "16px, the root. Body text and inputs: read it through --fs-body or --fs-field."
   },
   "typography.fontSize.md": {
     "cssName": "--fs-md",
@@ -3300,7 +3301,7 @@ export const tokens = {
     "mode": "global",
     "value": "1.125rem",
     "originalValue": "1.125rem",
-    "description": "Subheading."
+    "description": "18px. Subheading."
   },
   "typography.fontSize.lg": {
     "cssName": "--fs-lg",
@@ -3308,15 +3309,15 @@ export const tokens = {
     "mode": "global",
     "value": "1.5rem",
     "originalValue": "1.5rem",
-    "description": "Heading."
+    "description": "24px. Heading."
   },
   "typography.fontSize.title": {
     "cssName": "--fs-title",
     "type": "dimension",
     "mode": "global",
-    "value": "22px",
-    "originalValue": "22px",
-    "description": "Screen titles and one-time-code digits. The fixed-pixel sibling of fontSize.lg (H2), which scales with the root."
+    "value": "1.375rem",
+    "originalValue": "1.375rem",
+    "description": "22px. Screen titles and one-time-code digits, beside fontSize.lg (H2)."
   },
   "typography.fontSize.xl": {
     "cssName": "--fs-xl",
@@ -3324,29 +3325,29 @@ export const tokens = {
     "mode": "global",
     "value": "2rem",
     "originalValue": "2rem",
-    "description": "Page title."
+    "description": "32px. Page title."
   },
   "typography.fontSize.2xl": {
     "cssName": "--fs-2xl",
     "type": "dimension",
     "mode": "global",
-    "value": "48px",
-    "originalValue": "48px",
-    "description": "Fixed display tier — does not scale with the responsive root."
+    "value": "3rem",
+    "originalValue": "3rem",
+    "description": "48px. Display tier."
   },
   "typography.fontSize.3xl": {
     "cssName": "--fs-3xl",
     "type": "dimension",
     "mode": "global",
-    "value": "64px",
-    "originalValue": "64px",
-    "description": "Fixed display tier — does not scale with the responsive root."
+    "value": "4rem",
+    "originalValue": "4rem",
+    "description": "64px. Display tier."
   },
   "typography.fontSize.4xl": {
     "cssName": "--fs-4xl",
     "type": "dimension",
     "mode": "global",
-    "value": "64px",
+    "value": "4rem",
     "originalValue": "{typography.fontSize.3xl}",
     "description": "Compatibility alias for the former 4xl tier; new surfaces should use fontSize.3xl or fontSize.display."
   },
@@ -3354,9 +3355,9 @@ export const tokens = {
     "cssName": "--fs-display",
     "type": "dimension",
     "mode": "global",
-    "value": "96px",
-    "originalValue": "96px",
-    "description": "Fixed display tier for brand display moments."
+    "value": "6rem",
+    "originalValue": "6rem",
+    "description": "96px. Display tier for brand display moments."
   },
   "typography.lineHeight.tight": {
     "cssName": "--lh-tight",
@@ -3449,6 +3450,38 @@ export const tokens = {
     "mode": "global",
     "value": "0.08em",
     "originalValue": "0.08em"
+  },
+  "typography.role.ui": {
+    "cssName": "--fs-ui",
+    "type": "dimension",
+    "mode": "global",
+    "value": "0.875rem",
+    "originalValue": "{typography.fontSize.sm}",
+    "description": "UI chrome: labels, buttons, nav, links, errors, footers."
+  },
+  "typography.role.body": {
+    "cssName": "--fs-body",
+    "type": "dimension",
+    "mode": "global",
+    "value": "1rem",
+    "originalValue": "{typography.fontSize.base}",
+    "description": "Body and long text."
+  },
+  "typography.role.caption": {
+    "cssName": "--fs-caption",
+    "type": "dimension",
+    "mode": "global",
+    "value": "0.75rem",
+    "originalValue": "{typography.fontSize.xs}",
+    "description": "Captions and metadata."
+  },
+  "typography.role.field": {
+    "cssName": "--fs-field",
+    "type": "dimension",
+    "mode": "global",
+    "value": "1rem",
+    "originalValue": "{typography.fontSize.base}",
+    "description": "Text a person types into a field. 16px keeps iOS Safari from zooming on focus."
   },
   "spacing.0": {
     "cssName": "--space-0",

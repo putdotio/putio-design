@@ -45,6 +45,7 @@ const FIXTURE = [
   { utility: "font-sans", property: "font-family", light: "typography.fontFamily.sans" },
   { utility: "font-bold", property: "font-weight", light: "typography.fontWeight.bold" },
   { utility: "text-lg", property: "font-size", light: "typography.fontSize.lg" },
+  { utility: "text-ui", property: "font-size", light: "typography.role.ui" },
   { utility: "leading-tight", property: "line-height", light: "typography.lineHeight.tight" },
   { utility: "tracking-tight", property: "letter-spacing", light: "typography.letterSpacing.tight" },
   { utility: "shadow-sm", property: "--tw-shadow", light: "elevation.sm", dark: "surface.dark.shadowSm" },
@@ -148,7 +149,7 @@ for (const { key, property, utility, reads } of candidates) {
   assert(rule.get(property) === reads, `.${utility} ${property} must read ${reads}, got ${rule.get(property)}`);
 }
 
-// Without the mapping, Tailwind's own 0.25rem unit would follow the 14px root instead of 4px.
+// Without the mapping, Tailwind's own 0.25rem unit would follow the root instead of the 4px unit.
 const spacing = compiler.build(["p-4"]);
 assert(utilityRule(stripComments(spacing), "p-4")?.get("padding") === "calc(var(--space-1) * 4)", ".p-4 must multiply --space-1, the put.io 4px unit");
 
