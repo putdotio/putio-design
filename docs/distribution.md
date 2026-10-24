@@ -65,49 +65,36 @@ removes it as a breaking change.
 
 ## Claude Artifacts
 
-Four claude.ai artifacts give Claude sessions the system. They are generated,
-never edited on their pages: the next publish overwrites page edits.
+One generated claude.ai artifact, `put.io design` (Design System), gives Claude
+sessions the system: tokens, foundation cards and the brand book. It is never
+edited on its page; the next publish overwrites page edits.
 
-| Artifact        | Type          | Holds                                               |
-| --------------- | ------------- | --------------------------------------------------- |
-| `put.io design` | Design System | tokens, foundation cards, brand book                |
-| `put.io web`    | Design canvas | web screens, patterns and components as pages       |
-| `put.io TV`     | Design canvas | 1920×1080 web TV, Roku, tvOS and Android TV screens |
-| `put.io mobile` | Design canvas | iOS, iPadOS, Android and watchOS screens            |
+`pnpm artifact` builds its `project/` files into `artifact/out/core/` with its
+publish list in `files.json`
+([`scripts/build-artifact.ts`](../scripts/build-artifact.ts)). Hand-written
+inputs: the brand book (`artifact/core/README.md`), the cover and asset notes
+(`artifact/shared/`).
 
-`pnpm artifact` builds each one's `project/` files into `artifact/out/<id>/`
-with its publish list in `files.json`:
-[`scripts/build-artifact.ts`](../scripts/build-artifact.ts) the design system
-(`core`), [`scripts/build-canvases.ts`](../scripts/build-canvases.ts) the
-canvases, one artboard per screen in `system/preview/` with the card's
-headline as its note. Hand-written inputs: the brand book
-(`artifact/core/README.md`), the cover and asset notes (`artifact/shared/`).
-
-- No artifact can load `static.put.io`, so they render in Inter and JetBrains
-  Mono. Phosphor ships inside each from the pinned `@phosphor-icons/web` dev
+- No artifact can load `static.put.io`, so it renders in Inter and JetBrains
+  Mono. Phosphor ships inside it from the pinned `@phosphor-icons/web` dev
   dependency.
-- Every `system/assets/` file and Phosphor font is an upload in each artifact,
-  mapped to its `/_blob/` URL in `artifact/notes.json`; the build fails on an
-  unmapped one. A new asset is an upload per artifact plus its `notes.json`
-  entries, and a record in the design system's `assetGroups`.
+- Every `system/assets/` file is an upload in the artifact, mapped to its
+  `/_blob/` URL in `artifact/notes.json`; the build fails on an unmapped one. A
+  new asset is an upload plus its `notes.json` entry, and a record in the
+  design system's `assetGroups`.
 - Artifact URLs stay out of this repo. Find them with the Artifact tool
   (`list`).
 
 No API lets CI publish, so a Claude session with edit access republishes:
+read its `project/design-system.json`, publish the paths in
+`artifact/out/core/files.json` with `root` `artifact/out/core`, and send the
+index only when its title or asset records change, merged into the copy just
+read, last. Done when the changed cards render on its page.
 
-1. `PUTIO_DESIGN_ARTIFACT_URL=<put.io design URL> pnpm artifact`; the
-   variable installs the design system on each canvas.
-2. Design system: read its `project/design-system.json`, publish the paths in
-   `artifact/out/core/files.json` with `root` `artifact/out/core`, and send the
-   index only when its title or asset records change, merged into the copy
-   just read, last.
-3. Each canvas: publish `project/canvas.json`, `project/Main.dc.html` and
-   `project/kit/**` from `artifact/out/<id>/` first, with
-   `project/ds/putio/tokens.json` copied from the design system's
-   `project/tokens.json`; then the other artboards. Remove artboards the build
-   no longer makes.
-
-Done when the changed cards and screens render on their pages.
+Design canvases are not built here. Each platform keeps its own canvas next to
+its contract in its app repository (for Android,
+[putio-android `docs/design.md`](https://github.com/putdotio/putio-android/blob/main/docs/design.md)),
+and installs the put.io design system from the artifact above.
 
 ## Fonts And Assets
 
