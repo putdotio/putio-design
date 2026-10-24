@@ -397,6 +397,27 @@ test.describe("design.put.io static guide", () => {
       }
     }
   });
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720 }, { width: 390, height: 844 }]) {
+    test(`a full-height auth page lifts the form above the middle at ${viewport.width}x${viewport.height} @desktop`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await page.goto("/preview/web-p00c-auth-signin.html?theme=dark", { waitUntil: "domcontentloaded" });
+      const lift = await page.evaluate(() => {
+        const authPage = document.querySelector<HTMLElement>(".auth-page");
+        if (!authPage) throw new Error("Missing auth page");
+        // Render the first demo as the whole viewport, as auth.put.io does.
+        document.body.replaceChildren(authPage);
+        authPage.style.minHeight = "100dvh";
+        const title = authPage.querySelector(".auth-title")?.getBoundingClientRect();
+        const submit = authPage.querySelector(".btn-block")?.getBoundingClientRect();
+        if (!title || !submit) throw new Error("Missing title or submit");
+        return (innerHeight / 2 - (title.top + submit.bottom) / 2) / innerHeight;
+      });
+      // The form's middle sits 3–8% of the height above the true middle.
+      expect(lift).toBeGreaterThanOrEqual(0.03);
+      expect(lift).toBeLessThanOrEqual(0.08);
+    });
+  }
+
   test("auth tab order runs fields, submit, then secondary links @desktop", async ({ page }) => {
     await page.goto("/preview/web-p00c-auth-signin.html?theme=dark", { waitUntil: "domcontentloaded" });
     const column = page.locator(".auth-column").first();
