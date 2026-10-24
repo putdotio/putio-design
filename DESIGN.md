@@ -70,7 +70,7 @@ A web mock is never a native spec. Every surface binds at one tier, and every ca
 
 - **Tier 0: Foundations.** The token graph. Values only; binds every tier.
 - **Tier 1: www · app · auth.** The full system: tokens plus the `system/components.css` recipes, which are the contract here only.
-- **Tier 2: iOS · iPadOS · tvOS · watchOS · Android · Android TV.** Tokens only. Components and pages come from the platform's guidelines; cards show how a stock control takes put.io tokens. The shipped tvOS and Android TV app draws its own components with Lucide icons: documented drift.
+- **Tier 2: iOS · iPadOS · tvOS · watchOS · Android · Android TV.** Tokens only. Components and pages come from the platform's guidelines; cards show how a stock control takes put.io tokens. The shipped tvOS and Android TV app draws its own components with Phosphor icons; the components are documented drift.
 - **Tier 3: Roku.** Tier 2, plus put.io conventions in custom SceneGraph components.
 - **Tier 4: tv.put.io · Tizen · webOS.** The web system, restrained to a calm, list-first 10-foot interface.
 

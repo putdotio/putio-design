@@ -179,10 +179,10 @@ one 1080p pixel and the layout matches Apple TV's 1920-wide canvas.
 
 Colours come from the app's own `@putdotio/colors` (Radix gray dark), keyed by
 the token names; nothing is generated from the token graph. The app draws its
-own components and uses Lucide icons, so Android TV is drift from the tier-2
-binding and the Phosphor rule, documented as shipped. Type is GT America,
-regular and medium: heading 64, label 48, body 36, caption 32, small 24. No
-mono in product UI. Icons are Lucide, stroke 2, in `--yellow-solid` on rows.
+own components, so Android TV is drift from the tier-2 binding, documented as
+shipped. Type is GT America, regular and medium: heading 64, label 48, body 36,
+caption 32, small 24. No mono in product UI. Row icons are Phosphor in
+`--yellow-solid`: fill for file types, regular for the rest.
 
 Navigation is a stack. Home lists Your Files, Search, History (when account
 history is on) and Account under the retro wordmark; each row pushes a screen,
