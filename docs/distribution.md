@@ -93,7 +93,7 @@ read, last. Done when the changed cards render on its page.
 
 Design canvases are not built here. Each platform keeps its own canvas next to
 its contract in its app repository (for Android,
-[putio-android `docs/design.md`](https://github.com/putdotio/putio-android/blob/main/docs/design.md)),
+[putio-android `DESIGN.md`](https://github.com/putdotio/putio-android/blob/main/DESIGN.md)),
 and installs the put.io design system from the artifact above.
 
 ## Fonts And Assets

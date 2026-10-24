@@ -1,7 +1,7 @@
 # put.io on Android
 
 The Android contract lives with the app:
-[putio-android `docs/design.md`](https://github.com/putdotio/putio-android/blob/main/docs/design.md).
+[putio-android `DESIGN.md`](https://github.com/putdotio/putio-android/blob/main/DESIGN.md).
 It binds the phone, tablet and Android TV apps at tier 2 and records where the
 shipped app still differs.
 
