@@ -16,7 +16,7 @@ pointer with no frontmatter; its `reviewed` block lives in the app repository.
 Tier definitions: [DESIGN.md Binding Tiers](../DESIGN.md#binding-tiers).
 
 Android's contract lives in
-[putio-android](https://github.com/putdotio/putio-android/blob/main/docs/design.md);
+[putio-android](https://github.com/putdotio/putio-android/blob/main/DESIGN.md);
 [android/DESIGN.md](android/DESIGN.md) points there. Each platform's contract
 moves to its app repository the same way.
 
