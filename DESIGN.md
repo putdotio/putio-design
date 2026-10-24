@@ -142,7 +142,7 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 - One title per screen: `--fs-title` (`22px`), medium, `--tracking-snug` (`-0.01em`). No subtitles, taglines, or marketing lines; copy stays short.
 - Fields and buttons keep the standard 36px box: the filled field and a full-width default-size primary.
 - Labels are small, muted, and above the field.
-- The primary button is full-width yellow. Secondary actions sit under the form as muted text links: “Forgot password?”, “New to put.io? Sign up”, “Wrong account? Sign out”. Two links split to the edges; a lone link or prompt centres. A back link leads with `ph-arrow-left`. A legal line under the submit button centres on it.
+- The primary button is full-width yellow. Secondary actions sit under the form as muted text links: “Forgot password?”, “New to put.io? Sign up”, “Wrong account? Sign out”. Two links split to the edges; a lone link or prompt centres. A back link leads with Phosphor's arrow-left as inline SVG. A legal line under the submit button centres on it.
 - Tab order runs fields, submit, then secondary links; DOM order follows visual order, with no positive `tabindex`. Two-factor runs the code, Verify, then its links. The reveal-password toggle takes `tabindex="-1"` and keeps its accessible name: keyboard-only users can't toggle visibility, screen-reader users still can in browse mode. No link leaves the tab order.
 - Form errors: one message in a `.form-reveal` row right above the submit button, in red `--fs-ui` text, 8px under the fields. Invalid fields turn red. Auth forms never use the boxed `.form-callout`.
 - Copy: “Sign in”, “Sign up”, and “That username or password doesn't look right.”
