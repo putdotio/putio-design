@@ -89,7 +89,7 @@ Tier 1, 3, and 4 cards are Components (put.io owns the recipe); tier 2 cards are
 - Berkeley Mono is the one mono face: numerics, timestamps, sizes, ETAs, counts, code, logs, identifiers, hashes, magnet URIs, filenames. Columns of numbers add `font-variant-numeric: tabular-nums`.
 - TV product UI has no mono face (a debug overlay may use the platform's system monospace): 10-foot numerics use GT America `tnum`. Platforms without OpenType feature selection (Roku: `Font` takes only `uri` and `size`) get proportional figures, so budget timecodes for reflow (`1` is 399/1000 em, `0` is 636).
 - GT America is Latin only (523 codepoints, Western and Central European plus Turkish, no dingbats such as `✓` `▶` `★`). Symbols are icons. Text that can hold a filename keeps a fallback family; web falls back per glyph, while one-font-per-label platforms must ship a fallback or render `.notdef` boxes.
-- Root font-size is 14px, 15px from `--bp-lg`. Body, labels, inputs: `--fs-base`. Captions, button labels: `--fs-sm`. Screen titles and one-time-code digits: `--fs-title`, with titles at `--lh-snug` and `--tracking-snug`; the code separator is `--fs-md`. `--fs-title`, `--fs-2xl`, `--fs-3xl`, `--fs-display` are fixed pixels.
+- Root font-size is 14px, 15px from `--bp-lg`. Body, labels, inputs: `--fs-base`. Captions, button labels: `--fs-sm`. Screen titles and one-time-code digits: `--fs-title`, the fixed-pixel sibling of H2's `--fs-lg`, which scales with the root. Titles sit on a 30px line with `--tracking-snug`; the code separator is 18px. `--fs-title`, `--fs-2xl`, `--fs-3xl`, `--fs-display` are fixed pixels.
 
 ## Layout & Spacing
 

@@ -3316,7 +3316,7 @@ export const tokens = {
     "mode": "global",
     "value": "22px",
     "originalValue": "22px",
-    "description": "Screen titles and one-time-code digits. Fixed pixels, like the display steps."
+    "description": "Screen titles and one-time-code digits. The fixed-pixel sibling of fontSize.lg (H2), which scales with the root."
   },
   "typography.fontSize.xl": {
     "cssName": "--fs-xl",
