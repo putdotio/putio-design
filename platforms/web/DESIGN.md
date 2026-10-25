@@ -95,9 +95,6 @@ shipped card.
 | Landing | either mode, 16px body, more air; not reviewed against `apps/www`                         |
 | Auth    | follows the system; card-less 340px column on the page background, standard 36px controls |
 
-The system's mode defaults follow [Colors](../../DESIGN.md#colors); its root
-font-size follows [Typography](../../DESIGN.md#typography).
-
 ## Values
 
 The root [DESIGN.md](../../DESIGN.md) owns every web value and rule:
