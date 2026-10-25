@@ -4,14 +4,6 @@ Per-platform binding contracts. Each `DESIGN.md` here follows the shape of the
 root [DESIGN.md](../DESIGN.md): YAML frontmatter carrying the machine-readable
 contract, prose below it.
 
-| File                               | Tier | Binds                               |
-| ---------------------------------- | ---- | ----------------------------------- |
-| [web](web/DESIGN.md)               | 1    | www.put.io, app.put.io, auth.put.io |
-| [apple](apple/DESIGN.md)           | 2    | iOS, iPadOS, watchOS, tvOS          |
-| [android](android/DESIGN.md)       | 2    | Android, Android TV                 |
-| [roku](roku/DESIGN.md)             | 3    | Roku channel                        |
-| [tv-generic](tv-generic/DESIGN.md) | 4    | tv.put.io, Tizen, webOS             |
-
 Tier definitions: [DESIGN.md Binding Tiers](../DESIGN.md#binding-tiers).
 
 A contract that moves to its app repository leaves a pointer with no
