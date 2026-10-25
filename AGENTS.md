@@ -22,8 +22,8 @@ pnpm artifact       # builds the claude.ai design system into artifact/out/
 
 ## Repo Rules
 
-- `tokens/**/*.tokens.json` is the source of truth. `dist/` and
-  `system/tokens.css` are generated and committed.
+- `tokens/**/*.tokens.json` is the source of truth; `dist/` and
+  `system/tokens.css` are generated.
 - A deprecated token stays published until the next major release removes it.
   Its source sets `$extensions.putio.deprecated: true`, aliases the
   replacement, and names it in `$description`.
@@ -51,7 +51,8 @@ put.io is content-agnostic. Use raw filenames exactly as they appear:
 - `homework_answers_DONT_DELETE`
 - `document-scan-march-2026.pdf`
 
-Do not invent titles, posters, thumbnails, descriptions, codecs, or metadata the product does not have.
+Show only metadata the product has: no invented titles, posters, thumbnails,
+descriptions, or codecs.
 
 ## Proof
 
@@ -64,19 +65,16 @@ Do not invent titles, posters, thumbnails, descriptions, codecs, or metadata the
 - Artifact inputs (`artifact/**`, `scripts/build-artifact.ts`): `pnpm verify`
   builds it; after publishing, check the changed cards on the artifact page.
 - `DESIGN.md`: `pnpm verify`, which checks its frontmatter against the tokens.
-- Other Markdown: `pnpm markdown:check`. The [CI](.github/workflows/ci.yml)
-  verify job checks relative links and anchors.
-- Workflows (`.github/**`): the CI verify job runs Actionlint and Zizmor on
-  `main` pushes that change them and on manual dispatch, not on pull requests.
+- Other Markdown: `pnpm markdown:check`; CI also checks links and anchors.
+- Workflows (`.github/**`): CI lints them only after they reach `main`, not
+  on pull requests.
 
 ## Delivery
 
-Pull requests squash-merge into `main`. A merge runs
-[CI](.github/workflows/ci.yml), whose semantic-release step publishes
-`@putdotio/design` to npm when a commit warrants a release, and
-[Deploy](.github/workflows/deploy.yml), which redeploys `design.put.io` when
-the merge touches its paths. Only the `production` SST stage exists; do not
-create preview, spike, or staging stages.
+Pull requests squash-merge into `main`. A merge can publish `@putdotio/design`
+to npm ([CI](.github/workflows/ci.yml)) and redeploy `design.put.io`
+([Deploy](.github/workflows/deploy.yml)). Only the `production` SST stage
+exists; create no other stage.
 
 ### claude.ai design system
 

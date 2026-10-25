@@ -97,18 +97,7 @@ shipped card.
 
 ## Values
 
-The root [DESIGN.md](../../DESIGN.md) owns every web value and rule:
-
-| Topic                                                      | Owner                                                                                         |
-| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Root font-size, `--fs-*`, spacing ramp, `--z-*`, `--bp-*`  | [Layout & Spacing](../../DESIGN.md#layout--spacing), [Typography](../../DESIGN.md#typography) |
-| Radius scale                                               | [Shapes](../../DESIGN.md#shapes)                                                              |
-| Button tiers, outline rule, the four sizes, `--nav-height` | [Components](../../DESIGN.md#components)                                                      |
-| File rows, `--field-*`, `--panel-*`, `aria-invalid`        | [Components](../../DESIGN.md#components)                                                      |
-| GT America coverage, Berkeley Mono roles, weights          | [Typography](../../DESIGN.md#typography)                                                      |
-| Yellow, hover peer, semantic scales                        | [Colors](../../DESIGN.md#colors)                                                              |
-| Elevation                                                  | [Elevation & Depth](../../DESIGN.md#elevation--depth)                                         |
-| File-type icons                                            | [Binding Tiers](../../DESIGN.md#binding-tiers)                                                |
+The root [DESIGN.md](../../DESIGN.md) owns every web value and rule.
 
 ## Don't
 

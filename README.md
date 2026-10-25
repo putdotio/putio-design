@@ -47,22 +47,10 @@ keeps the token file's element styles below utilities:
 ```
 
 Utilities then read the tokens: `bg-bg` is `var(--bg)`, `rounded-sm` is
-`var(--radius-sm)`, `text-lg` is `var(--fs-lg)`. The full mapping:
+`var(--radius-sm)`, `text-lg` is `var(--fs-lg)`. Theme rules:
 [Tailwind v4 theme](system/README.md#tailwind-v4-theme).
 
-Package entrypoints, from `exports` in [package.json](package.json):
-
-| Subpath                          | File                                                                                |
-| -------------------------------- | ----------------------------------------------------------------------------------- |
-| `@putdotio/design/css`           | [`dist/css/tokens.css`](dist/css/tokens.css)                                        |
-| `@putdotio/design/components`    | [`system/components.css`](system/components.css)                                    |
-| `@putdotio/design/tailwind`      | [`dist/css/tailwind.css`](dist/css/tailwind.css)                                    |
-| `@putdotio/design/tokens`        | [`dist/tokens.flat.json`](dist/tokens.flat.json)                                    |
-| `@putdotio/design/tokens/meta`   | [`dist/tokens.js`](dist/tokens.js), typed by [`dist/tokens.d.ts`](dist/tokens.d.ts) |
-| `@putdotio/design/tokens/dtcg`   | [`dist/tokens.dtcg.json`](dist/tokens.dtcg.json)                                    |
-| `@putdotio/design/tokens/figma`  | [`dist/figma/putio.tokens.json`](dist/figma/putio.tokens.json)                      |
-| `@putdotio/design/assets/<file>` | [`system/assets`](system/assets)                                                    |
-| `@putdotio/design/design.md`     | [`DESIGN.md`](DESIGN.md)                                                            |
+Every entrypoint is listed under `exports` in [package.json](package.json).
 
 ## Docs
 
