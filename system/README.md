@@ -26,9 +26,7 @@ states, a spec strip, a don't block.
 ## Fonts
 
 Preview pages load the public put.io font CSS from `static.put.io`, the same
-source as the product; font licensing is in
-[Distribution](../docs/distribution.md#fonts-and-assets). Each preview links
-both families in `<head>`:
+source as the product. Each preview links both families in `<head>`:
 
 ```html
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css" />
@@ -55,15 +53,11 @@ The canonical source is DTCG-compatible JSON in [`../tokens`](../tokens). This
 site stylesheet (`system/tokens.css`) and the package stylesheet
 (`dist/css/tokens.css`, exported as `@putdotio/design/css`) are generated from
 the same source. Brand yellow is `var(--yellow-solid)`; its emitted hsl form is
-pinned in the [`../DESIGN.md`](../DESIGN.md) frontmatter, and the
-`--button-primary-bg-hover` derivation is in
-[Distribution](../docs/distribution.md#generated-files).
+pinned in the [`../DESIGN.md`](../DESIGN.md) frontmatter.
 
 Stacking, breakpoints, the root font-size, and the `@media` literal rule live
 in [Layout & Spacing](../DESIGN.md#layout--spacing) and
 [Typography](../DESIGN.md#typography).
-
-Package consumers import as in the [README](../README.md#use).
 
 For **TV preview cards**, also load `tv.css`, which adds the `.tv`, `.scr`,
 `.row`, solid surface tiers, and player chrome on top of the tokens, authored
@@ -146,7 +140,7 @@ own, so the two name systems cannot drift.
 
 The `--input-*` set (`-bg`, `-border`, `-border-hover`, `-border-focus`,
 `-ring`, `-text`, `-placeholder`, `-radius`) and `--foreground-muted` are
-[deprecated](../docs/distribution.md#deprecated-tokens): shadcn itself names
+deprecated: shadcn itself names
 only `--input` and `--muted-foreground`. Each deprecated name aliases its
 replacement; **author against `--field-*` and `--text-secondary`.**
 

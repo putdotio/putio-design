@@ -2,8 +2,7 @@
 
 Per-platform binding contracts. Each `DESIGN.md` here follows the shape of the
 root [DESIGN.md](../DESIGN.md): YAML frontmatter carrying the machine-readable
-contract, prose below it. A contract that moved to its app repository leaves a
-pointer with no frontmatter; its `reviewed` block lives in the app repository.
+contract, prose below it.
 
 | File                               | Tier | Binds                               |
 | ---------------------------------- | ---- | ----------------------------------- |
@@ -15,14 +14,13 @@ pointer with no frontmatter; its `reviewed` block lives in the app repository.
 
 Tier definitions: [DESIGN.md Binding Tiers](../DESIGN.md#binding-tiers).
 
-Android's contract lives in
-[putio-android](https://github.com/putdotio/putio-android/blob/main/DESIGN.md);
-[android/DESIGN.md](android/DESIGN.md) points there. Each platform's contract
-moves to its app repository the same way.
+A contract that moves to its app repository leaves a pointer with no
+frontmatter here, as [android](android/DESIGN.md) points to
+[putio-android](https://github.com/putdotio/putio-android/blob/main/DESIGN.md).
+Its `reviewed` block moves with it.
 
 ## Staying current
 
 Each contract's `reviewed` block records the review date, the sources it was
-checked against, and the cards it describes. The contracts are hand-written, so
-that block is their only drift signal: a card or source that changed after
-`reviewed.date` means the contract needs a fresh review.
+checked against, and the cards it describes. It is the only drift signal: a
+card or source that changed after `reviewed.date` needs a fresh review.

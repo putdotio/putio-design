@@ -113,8 +113,9 @@ your trash, Device info and Playback test.
 
 No mono in TV product UI; the player's Stats overlay may use the platform's
 system monospace. `apps/tv` also sets Device info values and the playback
-failure report in system monospace: drift from this rule, not an exception. `apps/tv` sets no tabular figures; times and sizes use GT America's
-default figures.
+failure report in system monospace: drift from this rule, not an exception.
+`apps/tv` sets no tabular figures; times and sizes use GT America's default
+figures.
 
 ## Content
 
