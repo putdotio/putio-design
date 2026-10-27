@@ -46,7 +46,7 @@ descriptions, or codecs.
 ## Proof
 
 - Token sources: `pnpm tokens:build`, commit `dist/` and `system/tokens.css`,
-  then `pnpm verify:full`. CI fails if the rebuilt files differ.
+  then `pnpm verify:full`.
 - Guide (`system/**`): `pnpm verify:full`, then check the affected section
   from `pnpm dev` in light and dark. Attach the captures to the pull request
   with `gh pr create --attach` (gh 2.99+); keep them out of Git.
@@ -54,7 +54,7 @@ descriptions, or codecs.
 - Artifact inputs (`artifact/**`, `scripts/build-artifact.ts`): `pnpm verify`
   builds it; after publishing, check the changed cards on the artifact page.
 - `DESIGN.md`: `pnpm verify`, which checks its frontmatter against the tokens.
-- Other Markdown: `pnpm markdown:check`; CI also checks links and anchors.
+- Other Markdown: `pnpm markdown:check`.
 - Workflows (`.github/**`): CI lints them only after they reach `main`, not
   on pull requests.
 
