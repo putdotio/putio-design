@@ -9,17 +9,6 @@ here ships publicly.
   components, or cards.
 - [Design guide](system/README.md): open before editing `system/**`.
 
-## Commands
-
-```bash
-pnpm install
-pnpm dev            # serves the guide; open the printed URL
-pnpm tokens:build   # regenerates dist/ and system/tokens.css from tokens/
-pnpm verify         # fast gate: types, token contracts, artifact build, HTML, Markdown
-pnpm verify:full    # CI gate: adds Playwright and an npm pack dry run
-pnpm artifact       # builds the claude.ai design system into artifact/out/
-```
-
 ## Repo Rules
 
 - `tokens/**/*.tokens.json` is the source of truth; `dist/` and
@@ -57,7 +46,7 @@ descriptions, or codecs.
 ## Proof
 
 - Token sources: `pnpm tokens:build`, commit `dist/` and `system/tokens.css`,
-  then `pnpm verify:full`. CI fails if the rebuilt files differ.
+  then `pnpm verify:full`.
 - Guide (`system/**`): `pnpm verify:full`, then check the affected section
   from `pnpm dev` in light and dark. Attach the captures to the pull request
   with `gh pr create --attach` (gh 2.99+); keep them out of Git.
@@ -65,7 +54,7 @@ descriptions, or codecs.
 - Artifact inputs (`artifact/**`, `scripts/build-artifact.ts`): `pnpm verify`
   builds it; after publishing, check the changed cards on the artifact page.
 - `DESIGN.md`: `pnpm verify`, which checks its frontmatter against the tokens.
-- Other Markdown: `pnpm markdown:check`; CI also checks links and anchors.
+- Other Markdown: `pnpm markdown:check`.
 - Workflows (`.github/**`): CI lints them only after they reach `main`, not
   on pull requests.
 
@@ -78,20 +67,9 @@ exists; create no other stage.
 
 ### claude.ai design system
 
-Nothing republishes the `put.io design` artifact automatically. After a merge
-that changes tokens, `system/**`, `artifact/**`, or the artifact scripts, a
-Claude session with edit access republishes it:
-
-1. Run `pnpm artifact`.
-2. Read the artifact's `project/design-system.json`.
-3. Publish the paths in `artifact/out/core/files.json` with `root`
-   `artifact/out/core`.
-4. Last, send the index only if its title or asset records changed, merged
-   into the copy read in step 2.
-5. Check that the changed cards render on its page. The artifact cannot load
-   `static.put.io`, so it renders in Inter and JetBrains Mono.
-
-Find the artifact with the Artifact tool (`list`). Never edit it on its page;
-the next publish overwrites the edit. A new `system/assets/` file needs an
-upload, its `/_blob/` URL in `artifact/notes.json`, and a record in the
-design system's `assetGroups`.
+- Nothing republishes the `put.io design` artifact automatically. After a
+  merge that changes tokens, `system/**`, `artifact/**`, or the artifact
+  scripts, run the
+  [republish-design-artifact](.claude/skills/republish-design-artifact/SKILL.md)
+  skill.
+- Never edit the artifact on its page; the next publish overwrites the edit.
