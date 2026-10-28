@@ -62,7 +62,7 @@ button i { font-size: var(--button-icon-size); line-height: 1; display: inline-f
    bare <button>. Anything that shouts "do a thing" (primary / secondary /
    destructive) is a `.btn-*` variant and inherits these. */
 .btn,
-.btn-primary, .btn-success, .btn-danger, .btn-info, .btn-invert, .btn-default, .btn-ghost, .btn-quiet {
+.btn-primary, .btn-success, .btn-danger, .btn-info, .btn-invert, .btn-default, .btn-ghost {
   height: calc(var(--button-height) * var(--tw-fs, 1));
   padding: 0 calc(var(--button-padding-x) * var(--tw-fs, 1));
   border-radius: var(--button-radius);
@@ -99,6 +99,9 @@ button i { font-size: var(--button-icon-size); line-height: 1; display: inline-f
 .btn-quiet.btn-danger, .btn-quiet.btn-info, .btn-quiet.btn-default {
   background: transparent; border-color: transparent; color: var(--button-ghost-fg);
 }
+/* The hover fill and focus ring round off; an icon-only quiet button takes the square box. */
+.btn-quiet { border-radius: var(--button-radius); }
+.btn-quiet.btn-icon { height: calc(var(--button-height) * var(--tw-fs, 1)); }
 .btn-quiet.btn-info { color: var(--text); }
 /* --yellow-text-secondary, not --yellow-solid: solid is a fill step, and in
    light mode the brand yellow as a glyph colour on a light surface is
@@ -147,7 +150,7 @@ button i { font-size: var(--button-icon-size); line-height: 1; display: inline-f
   .btn-invert:hover:not(:disabled, [aria-disabled="true"])   { border-color: var(--border-hover); }
   .btn-default:hover:not(:disabled, [aria-disabled="true"])  { background: var(--button-default-bg-hover); border-color: var(--border-hover); }
   .btn-ghost:hover:not(:disabled, [aria-disabled="true"])    { background: var(--button-ghost-bg-hover); border-color: transparent; color: var(--button-ghost-fg-hover); }
-  .btn-quiet:hover:not(:disabled, [aria-disabled="true"]), .btn-quiet.btn-default:hover:not(:disabled, [aria-disabled="true"]), .btn-quiet.btn-info:hover:not(:disabled, [aria-disabled="true"]) { background: var(--button-ghost-bg-hover); border-color: transparent; color: var(--button-ghost-fg-hover); }
+  .btn-quiet:hover:not(:disabled, [aria-disabled="true"]) { background: var(--button-ghost-bg-hover); border-color: transparent; color: var(--button-ghost-fg-hover); }
   .btn-quiet.btn-primary:hover:not(:disabled, [aria-disabled="true"]), .btn-quiet.btn-warning:hover:not(:disabled, [aria-disabled="true"]) { background: var(--yellow-component-bg-hover); border-color: transparent; color: var(--yellow-text-secondary); }
   .btn-quiet.btn-success:hover:not(:disabled, [aria-disabled="true"]) { background: var(--green-component-bg-hover); border-color: transparent; color: var(--green-solid); }
   .btn-quiet.btn-danger:hover:not(:disabled, [aria-disabled="true"]) { background: var(--red-component-bg-hover); border-color: transparent; color: var(--red-solid); }
@@ -195,6 +198,10 @@ button.is-loading::after {
 /* Shared spinner keyframe — consumed by .is-loading and by form/shell
    cards. Defined once here; do not redeclare it per card. */
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* Typed text never takes a label's tracking or case. Tailwind v4 preflight
+   sets letter-spacing: inherit on form controls, so reset both here. */
+input, textarea, select { text-transform: none; letter-spacing: normal; }
 
 
 /* ===========================================================
@@ -293,7 +300,7 @@ button.is-loading::after {
 }
 .field::placeholder { color: var(--field-placeholder); }
 @media (hover: hover) and (pointer: fine) {
-  .field:hover { border-color: var(--field-border-hover); }
+  .field:hover:where(:not(:disabled, [aria-disabled="true"])) { border-color: var(--field-border-hover); }
 }
 .field:focus,
 .field:focus-visible {
@@ -303,7 +310,6 @@ button.is-loading::after {
 }
 .field:disabled,
 .field[aria-disabled="true"] {
-  border-color: var(--field-border);
   background: var(--field-bg-disabled);
   color: var(--text-secondary);
   cursor: not-allowed;
@@ -769,7 +775,9 @@ button.is-loading::after {
 
    .checkbox  — <button role="checkbox">, aria-checked or data-state="checked"
    input[type="checkbox"] — native inputs get the brand accent
-   .switch    — <button role="switch">, aria-checked or data-state="checked"
+   .switch    — <button role="switch">, aria-checked or data-state="checked".
+                Resize it with --switch-width and --switch-height; the thumb
+                and its travel follow.
    =========================================================== */
 .checkbox {
   position: relative;
@@ -784,7 +792,7 @@ button.is-loading::after {
   transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
 /* Pads the 14px box out to the 24px minimum target (WCAG 2.5.8). */
-.checkbox::before { content: ''; position: absolute; inset: -6.5px; }
+.checkbox::before { content: ''; position: absolute; inset: -5px; }
 .checkbox.checked,
 .checkbox[data-state="checked"],
 .checkbox[aria-checked="true"] {
@@ -802,7 +810,7 @@ button.is-loading::after {
 input[type="checkbox"], input[type="radio"] { accent-color: var(--yellow-solid); cursor: pointer; }
 
 .switch {
-  width: 44px; height: 24px; flex-shrink: 0;
+  width: var(--switch-width, 44px); height: var(--switch-height, 24px); flex-shrink: 0;
   padding: 0;
   border: 0;
   border-radius: var(--radius-pill);
@@ -812,7 +820,7 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--yellow-solid);
 }
 .switch::after {
   content: ''; position: absolute; top: 2px; left: 2px;
-  width: 20px; height: 20px; border-radius: 50%;
+  width: calc(var(--switch-height, 24px) - 4px); height: calc(var(--switch-height, 24px) - 4px); border-radius: 50%;
   background: var(--text);
   transition: transform var(--dur-fast) var(--ease-out);
 }
@@ -823,6 +831,6 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--yellow-solid);
    colour sits on green" rather than a raw white that no theme can reach. */
 .switch.on::after,
 .switch[data-state="checked"]::after,
-.switch[aria-checked="true"]::after { transform: translateX(20px); background: var(--button-success-fg); }
+.switch[aria-checked="true"]::after { transform: translateX(calc(var(--switch-width, 44px) - var(--switch-height, 24px))); background: var(--button-success-fg); }
 .checkbox:focus-visible,
 .switch:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--shadow-focus); }
