@@ -101,7 +101,7 @@
     display: flex; align-items: center; justify-content: center;
     background: hsl(0, 0%, 20%);  /* channelArt.production.posterBackground */
   }
-  /* Nightly/staging surface: true black, scattered star field, crescent moon.
+  /* Nightly/staging surface: true black and a scattered star field.
      Unlike dev, the wordmark is NOT pushed to white, nightly keeps the retro
      logo intact, yellow drop-shadow and all, because the surface already
      carries the flavor. */
@@ -111,23 +111,13 @@
   :root { --tv-channel-art-nightly-bg: hsl(0, 0%, 2%); }
   .chrome.night, .ico-splash.night {
     background-color: var(--tv-channel-art-nightly-bg);
-    background-image: url(../assets/nightly-starfield.png);
+    /* Two offset layers of the tile double the star density at the same star size. */
+    background-image: url(../assets/nightly-starfield.png), url(../assets/nightly-starfield.png);
     background-repeat: repeat;
     background-size: 150px 150px;
+    background-position: 0 0, 75px 75px;
     position: relative;
   }
-  .night .moon, .night .ufo { position: absolute; z-index: 1; display: block; }
-  .ico-banner.night .moon { width: 26px; left: 15px; top: 13px; }
-  .ico-roku-poster.night .moon { width: 28px; left: 17px; top: 15px; }
-  .ico-topshelf.night .moon { width: 23px; left: 15px; top: 12px; }
-  .ico-splash.night .moon { width: 22px; left: 14px; top: 18px; }
-  /* Saucer widths are 0.95× the moon's: the moon disc fills 87.5% of its canvas,
-     the saucer hull 92.2% of its own, so equal CSS widths would render the ship
-     ~5% larger. These land the rendered hull on the rendered disc. */
-  .ico-banner.night .ufo { width: 25px; right: 20px; top: 16px; }
-  .ico-roku-poster.night .ufo { width: 27px; right: 20px; top: 18px; }
-  .ico-topshelf.night .ufo { width: 22px; right: 20px; top: 13px; }
-  .ico-splash.night .ufo { width: 21px; right: 15px; top: 22px; }
   .chrome.night .wm, .ico-splash.night .wm { position: relative; z-index: 2; }
 
   .chrome.dev {
@@ -177,6 +167,13 @@
   .ico-splash.dev .wm { filter: brightness(0) invert(1); }
   .ico-splash .wm { width: 96px; height: auto; display: block; }
 
+  /* Monochrome: one ink on a neutral surface, as a tinting platform draws it. */
+  .chrome.mono, .ico-squircle.mono, .ico-splash.mono { background: var(--bg-secondary); }
+  .mono img { filter: brightness(0); }
+  /* The SVG is the full 108dp adaptive canvas; launchers show its 72dp centre. */
+  .ico-squircle.mono img { width: 150%; height: 150%; margin: -25%; }
+  .dark .mono img { filter: brightness(0) invert(1); }
+
   /* Specs */
   .specs {
     background: var(--bg-secondary);
@@ -205,7 +202,7 @@
   <div class="head">
     <h1>App icon</h1>
     <div class="sub">
-      One mark, five formats, four flavors. The mark is never hue-shifted.
+      One mark, five formats, five flavors. The mark is never hue-shifted.
     </div>
     <div class="kv">
       <div class="r"><span class="k">Squircle</span><span class="v">iOS, macOS, Android, web</span></div>
@@ -216,9 +213,10 @@
     </div>
     <div class="kv">
       <div class="r"><span class="k">Production</span><span class="v">charcoal surface, brand mark</span></div>
-      <div class="r"><span class="k">Nightly</span><span class="v">true black, star field, moon, saucer. TestFlight and internal tracks</span></div>
+      <div class="r"><span class="k">Nightly</span><span class="v">true black, star field. TestFlight and internal tracks</span></div>
       <div class="r"><span class="k">Dev</span><span class="v">blueprint blue + grid, white glyphs, yellow takes the dev accent</span></div>
       <div class="r"><span class="k">Lab</span><span class="v">near-black green, green accent. Roku only</span></div>
+      <div class="r"><span class="k">Monochrome</span><span class="v">one ink, tinted by the platform</span></div>
     </div>
   </div>
 
@@ -248,6 +246,12 @@
         <div class="name">put.io · dev</div>
         <div class="hex">blueprint + grid</div>
       </div>
+      <div class="cell">
+        <div class="ico-squircle mono"><img src="../assets/app-icon-monochrome.svg" alt="Monochrome app icon"></div>
+        <div class="cap">monochrome</div>
+        <div class="name">put.io · monochrome</div>
+        <div class="hex">one ink · 108dp grid</div>
+      </div>
     </div>
   </div>
 
@@ -269,8 +273,6 @@
       </div>
       <div class="cell">
         <div class="chrome ico-banner night">
-          <img class="moon" src="../assets/nightly-fullmoon.png" alt="">
-          <img class="ufo" src="../assets/nightly-saucer.png" alt="">
           <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io wordmark · nightly">
         </div>
         <div class="cap night">nightly · staging</div>
@@ -284,6 +286,14 @@
         <div class="cap">dev</div>
         <div class="name">put.io · dev banner</div>
         <div class="hex">white on blueprint</div>
+      </div>
+      <div class="cell">
+        <div class="chrome ico-banner mono">
+          <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io wordmark · monochrome">
+        </div>
+        <div class="cap">monochrome</div>
+        <div class="name">put.io · monochrome banner</div>
+        <div class="hex">one ink</div>
       </div>
     </div>
   </div>
@@ -306,8 +316,6 @@
       </div>
       <div class="cell">
         <div class="chrome ico-roku-poster night">
-          <img class="moon" src="../assets/nightly-fullmoon.png" alt="">
-          <img class="ufo" src="../assets/nightly-saucer.png" alt="">
           <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io wordmark · nightly">
         </div>
         <div class="cap night">nightly · staging</div>
@@ -322,10 +330,18 @@
         <div class="name">put.io · dev channel</div>
         <div class="hex">white on blueprint</div>
       </div>
+      <div class="cell">
+        <div class="chrome ico-roku-poster mono">
+          <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io wordmark · monochrome">
+        </div>
+        <div class="cap">monochrome</div>
+        <div class="name">put.io · monochrome channel</div>
+        <div class="hex">one ink</div>
+      </div>
     </div>
     <div class="note">
-      <b>Wordmark only</b>, centred on charcoal. No mark+wordmark stack.<br><br>
-      Same composition as Android TV and Apple TV. </div>
+      Wordmark only, centred. No mark above it. Android TV and Apple TV match.
+    </div>
   </div>
 
   <!-- 04 · Apple TV top shelf -->
@@ -346,8 +362,6 @@
       </div>
       <div class="cell">
         <div class="chrome ico-topshelf night">
-          <img class="moon" src="../assets/nightly-fullmoon.png" alt="">
-          <img class="ufo" src="../assets/nightly-saucer.png" alt="">
           <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io · nightly">
         </div>
         <div class="cap night">nightly · staging</div>
@@ -362,9 +376,14 @@
         <div class="name">put.io · dev top shelf</div>
         <div class="hex">white on blueprint</div>
       </div>
-    </div>
-    <div class="note">
-      <b>Wordmark only.</b> Read at couch distance, so it matches Android TV and Roku exactly.
+      <div class="cell">
+        <div class="chrome ico-topshelf mono">
+          <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io wordmark · monochrome">
+        </div>
+        <div class="cap">monochrome</div>
+        <div class="name">put.io · monochrome top shelf</div>
+        <div class="hex">one ink</div>
+      </div>
     </div>
   </div>
 
@@ -386,8 +405,6 @@
       </div>
       <div class="cell">
         <div class="ico-splash night">
-          <img class="moon" src="../assets/nightly-fullmoon.png" alt="">
-          <img class="ufo" src="../assets/nightly-saucer.png" alt="">
           <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io · nightly">
         </div>
         <div class="cap night">nightly · staging</div>
@@ -402,13 +419,21 @@
         <div class="name">put.io · dev splash</div>
         <div class="hex">white on blueprint</div>
       </div>
+      <div class="cell">
+        <div class="ico-splash mono">
+          <img class="wm" src="../assets/logo-retro-dark.svg" alt="put.io wordmark · monochrome">
+        </div>
+        <div class="cap">monochrome</div>
+        <div class="name">put.io · monochrome splash</div>
+        <div class="hex">one ink</div>
+      </div>
     </div>
     <div class="note">
-      Wordmark centred on <code>channelArt.production.splashBackground</code> (#161616). #333 is for poster, banner and top shelf only. No P-mark, no stack, no gradient. iOS ships no launch art.
+      Splash uses <code>channelArt.production.splashBackground</code> (#161616); #333 is for TV art only. No mark, no gradient. iOS ships no launch art.
     </div>
     <div class="note">
-      Nightly renders <code>logo-retro-dark.svg</code> exactly as production: white glyphs, <code>#FDCE45</code> drop-shadow. The night sky carries the flavor, not the mark.<br><br>
-      <b>Never invert, tint or flatten the wordmark on nightly.</b> Dev recolours the yellow to <code>channelArt.development.accent</code> only because yellow vanishes into blueprint blue; the specimens here flatten it to white. Black has no such problem.
+      <b>Nightly never recolours the wordmark.</b> Only dev does: its yellow takes <code>channelArt.development.accent</code>, because yellow disappears on blue. The dev specimens here show it flat white.<br>
+      <b>Monochrome</b> flattens to one ink only where the platform tints it.
     </div>
   </div>
 
@@ -443,16 +468,13 @@
 
   <div class="note">
     <b>Roku</b>: production, dev, lab.<br>
-      <b>Android</b>: production, nightly. Debug reuses the production icon.<br>
-      <b>iOS</b>: dev, nightly. Only nightly has an icon.<br><br>
-      Bundle IDs differ per flavor, so they sit side by side on one device. The icon is the only way to tell them apart on a home screen.
+      <b>Android</b>: production, nightly, dev (debug), plus the monochrome mark for themed icons.<br>
+      <b>iOS</b>: dev, nightly. Only nightly has an icon.<br>
+      Flavors install side by side, so the icon tells them apart.
   </div>
 
   <div class="note">
-    <b>Stars</b>: three sizes, three opacities, weighted faint. Scattered, never gridded. Clear of both objects.<br>
-      <b>Moon</b>: top-left, full disc <code>#FDCE45</code>, craters <code>channelArt.nightly.moonCrater</code> (#EBBD33). <code>nightly-fullmoon.png</code> predates the token and still draws #EDBB35 and #E4B02D.<br>
-      <b>Saucer</b>: top-right, hull no wider than the moon. White hull, pale-gold dome, three yellow underlights. No tractor beam, it competed with the mark.<br><br>
-      Assets: <code>nightly-starfield.png</code> (256×256, tiled at 150px), <code>nightly-fullmoon.png</code>, <code>nightly-saucer.png</code>. Static. No animation, no glow.
+    <b>Nightly</b>: <code>nightly-starfield.png</code> tiled at 150px twice, offset 75px, on <code>channelArt.nightly.background</code>. Nothing else: no moon, saucer, animation, or glow.
   </div>
 
 </div>
