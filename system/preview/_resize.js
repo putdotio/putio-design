@@ -1,13 +1,12 @@
 /* Auto-resize helper for preview iframes.
    Each preview measures its own content height and posts it to the parent
    (design-system.html), which sets the iframe's height to match.
-   Listens for resize/font-load/DOM mutations so the iframe never clips.
+   Re-measures on resize and font load so the iframe never clips.
    ---------------------------------------------------------------------- */
 (() => {
   if (window.top === window) return;            // only when embedded
   const params = new URLSearchParams(location.search);
-  // Initial theme — applied at script-eval time, before paint.
-  // The parent can also flip the theme at runtime via postMessage:
+  // The parent flips the theme at runtime via postMessage:
   //   { type: '__theme', theme: 'light' | 'dark' }
   // Same DOM, same components — only the .dark class on <html> changes.
   function applyTheme(t) {

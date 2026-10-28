@@ -78,7 +78,7 @@ Tier 1, 3, and 4 cards are Components (put.io owns the recipe); tier 2 cards are
 
 ## Colors
 
-- Yellow `#FDCE45` (`--yellow-solid`) is the brand value in both modes: brand mark, primary actions, folder and file emphasis, progress, focus. Hover is `--yellow-solid-hover`.
+- Yellow `#FDCE45` (`--yellow-solid`) is the brand value in both modes: brand mark, primary actions, folder and file emphasis, progress. Hover is `--yellow-solid-hover`.
 - Every yellow is one of these tokens, flat. Yellow text on light surfaces is `--yellow-text-secondary`.
 - Dark is the default product mode; light serves landing pages, docs, and states that read better light.
 - Red, green, and neutral come from their token scales.
@@ -90,7 +90,7 @@ Tier 1, 3, and 4 cards are Components (put.io owns the recipe); tier 2 cards are
 - TV product UI has no mono face (a debug overlay may use the platform's system monospace): 10-foot numerics use GT America `tnum`. Platforms without OpenType feature selection (Roku: `Font` takes only `uri` and `size`) get proportional figures, so budget timecodes for reflow (`1` is 399/1000 em, `0` is 636).
 - GT America is Latin only (523 codepoints, Western and Central European plus Turkish, no dingbats such as `✓` `▶` `★`). Symbols are icons. Text that can hold a filename keeps a fallback family; web falls back per glyph, while one-font-per-label platforms must ship a fallback or render `.notdef` boxes.
 - The root is the browser default, `100%` (16px), so text follows the reader's setting. Components choose a text role, not a size step: `--fs-ui` (14px) for UI chrome (labels, buttons, nav, links, errors), `--fs-body` (16px) for body and long text, `--fs-caption` (12px) for captions, and `--fs-field` (16px) for typed text, which keeps iOS Safari from zooming on focus.
-- The steps are rem on Tailwind's 16px scale: `--fs-xs` 12px, `--fs-sm` 14, `--fs-base` 16, `--fs-md` 18, `--fs-lg` 24, `--fs-xl` 32, `--fs-2xl` 48, `--fs-3xl` 64, `--fs-display` 96. Screen titles and one-time-code digits take `--fs-title` (22px) on a 30px line with `--tracking-snug`; the code separator is `--fs-md`.
+- The steps are rem on Tailwind's 16px scale: `--fs-xs` 12px, `--fs-sm` 14, `--fs-base` 16, `--fs-md` 18, `--fs-lg` 24, `--fs-xl` 32, `--fs-2xl` 48, `--fs-3xl` 64, `--fs-display` 96. Screen titles take `--fs-title` (22px) on a 30px line with `--tracking-snug`. One-time-code digits take `--fs-title` in mono; the code separator is `--fs-md`.
 
 ## Layout & Spacing
 
@@ -101,7 +101,7 @@ Tier 1, 3, and 4 cards are Components (put.io owns the recipe); tier 2 cards are
 
 ## Elevation & Depth
 
-Borders and soft shadows mark interaction: popovers, modals, menus, TV focus, drag and drop targets. Glow belongs only to focused TV states.
+Borders and soft shadows mark interaction: popovers, modals, menus, TV focus, drag and drop targets. Nothing glows; TV focus is a fill.
 
 ## Shapes
 
@@ -116,7 +116,8 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 - **Primary:** `--button-primary-bg`, hover `--button-primary-bg-hover`, label `--button-primary-fg`. At most one per action group.
 - **Secondary:** `--button-default-bg` plus a `--border` border; hover steps both (`--button-default-bg-hover`, `--border-hover`).
 - **Ghost:** text only, `--button-ghost-fg`; hover adds `--button-ghost-bg-hover` and lifts the label to `--button-ghost-fg-hover`. Use it for anything quieter than secondary: header `Sign in`, toolbar actions, `Cancel` beside a confirm, icon-only buttons.
-- **Disabled:** submit buttons are never disabled at rest; the submit validates. A filled button is disabled only while its action runs (with a spinner) or once it is done, so it keeps its own fill and label at full opacity; a finished 2FA “Verified” is a `.btn-success` with `data-state="success"`. Secondary and quiet buttons drop their text to `--solid` at full opacity.
+- **Disabled:** `:disabled` and `aria-disabled="true"` read the same. Submit buttons are never disabled at rest; the submit validates. A filled button is disabled only while its action runs (with a spinner) or once it is done, so it keeps its own fill and label at full opacity; a finished 2FA “Verified” is a `.btn-success` with `data-state="success"`. Secondary and quiet buttons drop their text to `--solid` at full opacity.
+- **Hover:** only under `(hover: hover) and (pointer: fine)`, so a tap never leaves a button lit.
 - **Focus:** `--shadow-focus`, a 2px `--bg` gap then a 2px `--solid-hover` ring, at least 3:1 against the page and panels in both modes.
 - A bordered button always fills (secondary). Border-only buttons read smaller beside solid fills and vanish on dark.
 - Four sizes share one box per size across tiers: default 36px, `md` 32px, `sm` 28px, `xs` 24px. Read `--button-height*`, `--button-padding-x*`, `--button-label-size*`, `--button-tracking*`, `--button-icon-size`, `--button-gap`.
@@ -135,14 +136,14 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 
 ### Auth
 
-- Sign in, sign up, password reset, and two-factor pages have no card or panel: the form sits on `--bg`. Recipe: `.auth-page`, `.auth-header`, `.auth-main`, `.auth-column`, `.auth-title`, `.auth-note`, `.auth-actions`, `.auth-links`, `.auth-footer`.
+- Sign in, sign up, password reset, and two-factor pages have no card or panel: the form sits on `--bg`. Recipe: `.auth-page`, `.auth-header`, `.auth-logo`, `.auth-main`, `.auth-column`, `.auth-title`, `.auth-note`, `.auth-actions`, `.auth-links`, `.auth-footer`.
 - The logo sits top-left in the header, in a `30.33px` box (26px ink × 7/6). The top right stays empty by default.
 - One left-aligned column, up to `340px`, is centred horizontally and optically centred vertically: the form's middle sits near 45% of the viewport height, never below the true middle.
 - A quiet centred footer links Terms of Service, Privacy Policy, and Help in muted `--fs-caption`, separated by middots, 16px above the page bottom.
 - Text is one size: labels, hints, `.auth-note` lines, errors, and the link row take `--fs-ui`. The footer and a label's own action take `--fs-caption`; fields take `--fs-field`.
 - One title per screen: `--fs-title` (`22px`), medium, `--tracking-snug` (`-0.01em`). No subtitles, taglines, or marketing lines; copy stays short.
 - Fields and buttons keep the standard 36px box: the filled field and a full-width default-size primary.
-- Labels are small, muted, and above the field.
+- Labels are small, regular, muted, and above the field.
 - The primary button is full-width yellow. “Forgot password?” is the Password field's `.label-action`. Other secondary actions sit under the form in `.auth-links`: a bare link stays muted (“Use a recovery code”, “← Back to sign in”); a prompt's link (“New to put.io? Sign up”, “Wrong account? Sign out”) is `--text`, medium, and underlines only on hover. Two items split to the edges; a lone link or prompt centres.
 - Buttons outside a form sit in `.auth-actions`, 16px below what precedes them; a description `.auth-note` right before them leaves 28px. A back link leads with Phosphor's arrow-left as inline SVG. A legal line under the submit button centres on it.
 - Tab order runs fields (each followed by its label action), submit, then secondary links; DOM order follows visual order, with no positive `tabindex`. Two-factor runs the code, Verify, then its links. The reveal-password toggle takes `tabindex="-1"` and keeps its accessible name: keyboard-only users can't toggle visibility, screen-reader users still can in browse mode. No link leaves the tab order.
@@ -150,7 +151,7 @@ Default radius `6px`; `4px` for tight controls, `8px` or `10px` for panels, pill
 - Copy: “Sign in”, “Sign up”, and “That username or password doesn't look right.”
 - auth.put.io still ships the older card layout: drift.
 - References: `web-s06-auth`, `web-p00c-auth-signin`, `web-p00d-auth-signup`, `web-p00e-auth-2fa`. Outside references: the TIDAL, Stripe Link, Cursor, Linear, and Vercel sign-in pages.
-- One-time codes are one `.otp-input` (`inputmode="numeric"`, `autocomplete="one-time-code"`, `maxlength="6"`, `aria-invalid`) shown through two `.otp-group`s, one `.otp-separator`, and six `.otp-slot`s; script syncs slot text and `filled`/`active`, and maps a clicked slot to the input selection. The slots stretch the full column with mono digits. The label reads “Code from your authenticator app”, with no hint line.
+- One-time codes are one `.otp-input` (`inputmode="numeric"`, `autocomplete="one-time-code"`, `maxlength="6"`, `aria-invalid`) inside an `.otp` root, shown through two `.otp-group`s, one `.otp-separator`, and six `.otp-slot`s; script syncs slot text and `filled`/`active`, and maps a clicked slot to the input selection. The slots stretch the full column with mono digits. The label reads “Code from your authenticator app”, with no hint line.
 - Editing an invalid code closes the error; retry waits for six digits. `data-state="verifying"` disables the input, keeps the digits, and announces through a polite live region. `data-state="success"` keeps the digits read-only, announces continuation in a `role="status"` region, and shows no further action; the consumer owns navigation. The submit turns a disabled `.btn-success` with `data-state="success"`, relabelled “Verified”, announced through a visually hidden status region.
 - “Use a recovery code” appears only once a consumer owns the route. Groups own the responsive width, so the control fits narrow columns without scrolling.
 

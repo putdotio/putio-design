@@ -59,7 +59,7 @@ const REQUIRED_SELECTORS = [
 ];
 
 // Variables the consuming page sets, not the system. Always read with a fallback.
-const CONSUMER_HOOKS = new Set(["--tw-fs"]);
+const CONSUMER_HOOKS = new Set(["--tw-fs", "--switch-width", "--switch-height"]);
 
 // Per-family substitutions, not a global ban list: --text-secondary is wrong in
 // a menu label (--menu-label owns it) but fine in .field:disabled.

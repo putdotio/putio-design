@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>put.io · design system</title>
 <link rel="icon" href="./assets/favicon.svg">
-<meta name="theme-color" content="#09090B" id="meta-theme-color">
+<meta name="description" content="Tokens, primitives and component specs for put.io. Generic CSS and JSON here; platform apps adapt natively.">
+<link rel="canonical" href="./design-system.html">
+<meta name="theme-color" content="#161616" id="meta-theme-color">
 <script>
   /* Apply saved theme before first paint. Default: dark.
      html.dark   = dark theme
@@ -18,10 +20,11 @@
       var dark  = urlTheme ? urlTheme === 'dark' : (saved ? saved === 'dark' : true);
       if (dark) document.documentElement.classList.add('dark');
       var meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute('content', dark ? '#09090B' : '#FFFFFF');
+      if (meta) meta.setAttribute('content', dark ? '#161616' : '#FCFCFC');
     } catch (e) {}
   })();
 </script>
+<link rel="preconnect" href="https://static.put.io" crossorigin>
 <link rel="stylesheet" href="https://static.put.io/fonts/gt-america/standard/font.css">
 <link rel="stylesheet" href="https://static.put.io/fonts/berkeley-mono/variable/font.css">
 <link rel="stylesheet" href="./tokens.css">
@@ -74,7 +77,7 @@
   /* ── TOC sidebar ── */
   .toc {
     position: sticky; top: 0;
-    height: 100vh; overflow-y: auto;
+    height: 100vh; height: 100dvh; overflow-y: auto;
     padding: 28px 24px 24px;
     border-right: 1px solid var(--rule-soft);
     background: var(--bg);
@@ -339,7 +342,7 @@
   .shadows .s .box.sm { box-shadow: var(--shadow-sm); }
   .shadows .s .box.md { box-shadow: var(--shadow-md); }
   .shadows .s .box.lg { box-shadow: var(--shadow-lg); }
-  .shadows .s .box.fc { box-shadow: var(--shadow-focus); border-color: var(--accent); }
+  .shadows .s .box.fc { box-shadow: var(--shadow-focus); }
   .shadows .s .nm { font-family: var(--font-mono); font-size: var(--fs-caption); color: var(--accent); }
   .shadows .s .v  { font-family: var(--font-mono); font-size: var(--fs-caption); color: var(--ink-meta); text-align: center; }
 
@@ -422,12 +425,7 @@
     font-family: var(--font-mono); font-size: 9.5px; font-weight: 700;
   }
   .proto .glyph.tv  { background: color-mix(in srgb, var(--yellow-solid) 14%, transparent); color: var(--accent); }
-  .proto .glyph.rk  { background: color-mix(in srgb, #A78BFA 14%, transparent);             color: #6D28D9; }
-  .proto .glyph.web { background: color-mix(in srgb, #60A5FA 14%, transparent);             color: #1D4ED8; }
-  .proto .glyph.ios { background: color-mix(in srgb, #34D399 14%, transparent);             color: #067A55; }
-  html.dark .proto .glyph.rk  { background: color-mix(in srgb, #A78BFA 16%, transparent); color: #A78BFA; }
-  html.dark .proto .glyph.web { background: color-mix(in srgb, #60A5FA 16%, transparent); color: #60A5FA; }
-  html.dark .proto .glyph.ios { background: color-mix(in srgb, #34D399 16%, transparent); color: #34D399; }
+  .proto .glyph.rk, .proto .glyph.web, .proto .glyph.ios { background: var(--component-bg); color: var(--text-secondary); }
   .proto .nm { font-size: var(--fs-caption); font-weight: 500; color: var(--text); }
   .proto .meta {
     font-family: var(--font-mono); font-size: var(--fs-caption);
@@ -518,6 +516,7 @@
   }
   .contract .consume .tab {
     flex: 1; padding: 8px 8px;
+    border-width: 0; background: transparent; font-weight: var(--fw-regular);
     font-family: var(--font-mono); font-size: var(--fs-caption);
     color: var(--ink-meta); letter-spacing: 0.04em; text-transform: uppercase;
     text-align: center; cursor: pointer;
@@ -859,9 +858,9 @@
     }
     .spec { grid-template-columns: 1fr; }
     .spec > div { grid-column: span 1 !important; border-right: 0; }
-    header.hero { grid-template-columns: 1fr; padding: 40px 0 24px; }
+    header.hero { flex-direction: column; align-items: flex-start; padding: 40px 0 24px; }
     header.hero h1 { font-size: var(--fs-xl); }
-    .part > .part-hd { grid-template-columns: 1fr; }
+    .part > .part-hd { flex-direction: column; align-items: flex-start; }
     .part > .part-hd h2 { font-size: var(--fs-lg); }
   }
 
@@ -879,9 +878,16 @@
     .type-row .sample { grid-column: 1 / -1; overflow-wrap: anywhere; }
     .contract .pipe .row { grid-template-columns: 1fr; gap: 0; }
   }
+  .skip {
+    position: absolute; left: 16px; top: -48px; z-index: var(--z-tooltip);
+    padding: 8px 12px; border-radius: var(--radius-sm);
+    background: var(--component-bg); color: var(--text);
+  }
+  .skip:focus-visible { top: 16px; outline: 2px solid var(--solid-hover); outline-offset: 2px; }
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 
 <div class="shell">
 
@@ -971,7 +977,7 @@
   <!-- ============================================================
        MAIN
        ============================================================ -->
-  <main>
+  <main id="main">
 
     <header class="hero">
       <div>
@@ -1000,13 +1006,13 @@
       </div>
       <div class="panel consume">
         <h3 style="padding: 8px 16px 0;">Consume</h3>
-        <div class="tabs" data-tabs>
-          <div class="tab is-active" data-pane="css">CSS</div>
-          <div class="tab" data-pane="dtcg">DTCG JSON</div>
-          <div class="tab" data-pane="ts">Build</div>
+        <div class="tabs" role="tablist" aria-label="Consume">
+          <button class="tab is-active" type="button" role="tab" id="consume-tab-css" aria-controls="consume-css" aria-selected="true" data-pane="css">CSS</button>
+          <button class="tab" type="button" role="tab" id="consume-tab-dtcg" aria-controls="consume-dtcg" aria-selected="false" data-pane="dtcg">DTCG JSON</button>
+          <button class="tab" type="button" role="tab" id="consume-tab-ts" aria-controls="consume-ts" aria-selected="false" data-pane="ts">Build</button>
         </div>
-        <div class="pane is-active" data-pane="css"><pre><span class="c">/* generated output — import in any page */</span>
-<span class="k">@import</span> <span class="s">"system/tokens.css"</span>;
+        <div class="pane is-active" role="tabpanel" id="consume-css" aria-labelledby="consume-tab-css" data-pane="css"><pre><span class="c">/* generated output — import in any page */</span>
+<span class="k">@import</span> <span class="s">"@putdotio/design/css"</span>;
 
 <span class="c">/* use vars as roles, never literals */</span>
 .btn-primary {
@@ -1014,7 +1020,7 @@
   color: <span class="k">var</span>(--primary-foreground);
   border-radius: <span class="k">var</span>(--radius);
 }</pre></div>
-        <div class="pane" data-pane="dtcg"><pre><span class="c">// tokens/*.tokens.json · W3C DTCG — paths map 1:1 to CSS vars</span>
+        <div class="pane" role="tabpanel" id="consume-dtcg" aria-labelledby="consume-tab-dtcg" data-pane="dtcg"><pre><span class="c">// tokens/*.tokens.json · W3C DTCG — paths map 1:1 to CSS vars</span>
 {
   <span class="k">"yellow"</span>: {
     <span class="k">"solid"</span>: {
@@ -1030,7 +1036,7 @@
     }
   }
 }</pre></div>
-        <div class="pane" data-pane="ts"><pre><span class="c">// regenerate after editing tokens/*.tokens.json</span>
+        <div class="pane" role="tabpanel" id="consume-ts" aria-labelledby="consume-tab-ts" data-pane="ts"><pre><span class="c">// regenerate after editing tokens/*.tokens.json</span>
 <span class="k">$</span> node scripts/build-tokens.ts
 
 <span class="c">// any tool that speaks DTCG can read the same graph</span>
@@ -1048,11 +1054,11 @@
       <h3>House rules</h3>
       <ol>
         <li><b>Utility is beautiful.</b> Beauty comes from making file operations feel premium — not from decoration.</li>
-        <li><b>Content-agnostic by default.</b> No posters, album art, curated metadata, or “watched” state. Filename, size, date.</li>
+        <li id="p-content-agnostic"><b>Content-agnostic by default.</b> No posters, album art, curated metadata, or “watched” state. Filename, size, date.</li>
         <li><b>Raw filenames stay raw.</b> Never parse, rewrite or fake metadata from a filename. Render verbatim, mono.</li>
         <li><b>Clarity over cleverness.</b> One verb per icon, one icon per verb. <i>Download / Save / Stream</i> never overlap.</li>
-        <li><b>Type carries the weight.</b> Three families — sans for UI, two monos for numerics and identifiers.</li>
-        <li><b>One yellow at a time.</b> <code>#FDCE45</code> is the single CTA and the focus ring. Not decoration.</li>
+        <li><b>Type carries the weight.</b> Two families — GT America for UI, Berkeley Mono for numerics and identifiers.</li>
+        <li id="p-oneyellow"><b>One yellow at a time.</b> <code>#FDCE45</code> is the single CTA. Not decoration.</li>
         <li><b>TV is list-first.</b> Without thumbnails, rows beat card walls. Don’t copy Apple TV or Plex.</li>
         <li><b>Voice and restraint.</b> Plain, short, English-first. Subtract before you add.</li>
       </ol>
@@ -1100,7 +1106,7 @@
 
         <div class="tok-row-hd"><span>Brand</span><span>step 9 shifts between modes; everything else flips like a normal 12-step scale</span></div>
         <div class="tok-grid c-4">
-          <div class="tok"><div class="swatch tall text" style="background:var(--yellow-solid)">BRAND</div><div class="name">--yellow-solid</div><div class="val">#FDCE45</div><div class="use">Brand fill: CTAs, focus halos (35% alpha), folder icons, progress bars. <b>Never as text on light.</b></div></div>
+          <div class="tok"><div class="swatch tall text" style="background:var(--yellow-solid)">BRAND</div><div class="name">--yellow-solid</div><div class="val">#FDCE45</div><div class="use">Brand fill: CTAs, folder icons, progress bars. <b>Never as text on light.</b></div></div>
           <div class="tok"><div class="swatch tall text" style="background:var(--yellow-solid-hover)">+ hover</div><div class="name">--yellow-solid-hover</div><div class="val">#F3C435</div><div class="use">CTA hover — slightly darker brand yellow. Yellow can't darken much without going olive; this is the most we can shift.</div></div>
           <div class="tok"><div class="swatch tall text" style="background:var(--primary-foreground); color:var(--yellow-solid);">contrast</div><div class="name">--primary-foreground</div><div class="val">#292109</div><div class="use">Label text on yellow-solid — warm dark, not pure black. <code>yellow-contrast</code>.</div></div>
           <div class="tok"><div class="swatch tall text on-dark" style="background:var(--yellow-bg)">surface</div><div class="name">--yellow-bg</div><div class="val">step 1 · #FEFDFA / #000</div><div class="use">Faintest tint backdrop in light; drops to pure black at the deepest step in dark.</div></div>
@@ -1108,18 +1114,18 @@
 
         <div class="tok-row-hd"><span>Neutrals · dark (app default)</span><span>12 steps · gray scale</span></div>
         <div class="tok-grid c-6">
-          <div class="tok"><div class="swatch" style="background:var(--bg)"></div><div class="name">--bg</div><div class="val">hsl(0 0% 8.5%)</div><div class="use">Page background — the dominant app surface. Sidebars, body, full-screen modals.</div></div>
-          <div class="tok"><div class="swatch" style="background:var(--bg-secondary)"></div><div class="name">--bg-secondary</div><div class="val">hsl(0 0% 11%)</div><div class="use">Inset panel · quiet aside. Code blocks, reference panels, secondary nav.</div></div>
-          <div class="tok"><div class="swatch" style="background:var(--component-bg)"></div><div class="name">--component-bg</div><div class="val">hsl(0 0% 13.6%)</div><div class="use">Card surface · default button fill · chips. Focal components.</div></div>
-          <div class="tok"><div class="swatch" style="background:var(--component-bg-hover)"></div><div class="name">--component-bg-hover</div><div class="val">hsl(0 0% 15.8%)</div><div class="use">Hover state for any <code>--component-bg</code> surface.</div></div>
-          <div class="tok"><div class="swatch" style="background:var(--component-bg-active)"></div><div class="name">--component-bg-active</div><div class="val">hsl(0 0% 17.9%)</div><div class="use">Pressed / selected state · toggle on.</div></div>
-          <div class="tok"><div class="swatch" style="background:var(--line)"></div><div class="name">--line</div><div class="val">hsl(0 0% 20.5%)</div><div class="use">Hairline divider between rows, cells, sections.</div></div>
-          <div class="tok"><div class="swatch" style="background:var(--border)"></div><div class="name">--border</div><div class="val">hsl(0 0% 24.3%)</div><div class="use">Component border — inputs, buttons, cards. Resting state.</div></div>
-          <div class="tok"><div class="swatch" style="background:var(--border-hover)"></div><div class="name">--border-hover</div><div class="val">hsl(0 0% 31.2%)</div><div class="use">Border on hover / focus-within.</div></div>
-          <div class="tok"><div class="swatch" style="background:var(--solid)"></div><div class="name">--solid</div><div class="val">hsl(0 0% 43.9%)</div><div class="use">Solid neutral fill — <code>btn-info</code>, mid-tone icons.</div></div>
-          <div class="tok"><div class="swatch" style="background:var(--solid-hover)"></div><div class="name">--solid-hover</div><div class="val">hsl(0 0% 49.4%)</div><div class="use">Hover companion to <code>--solid</code>.</div></div>
-          <div class="tok"><div class="swatch" style="background:var(--text-secondary)"></div><div class="name">--text-secondary</div><div class="val">hsl(0 0% 62.8%)</div><div class="use">Meta copy — captions, hints, timestamps, secondary nav.</div></div>
-          <div class="tok"><div class="swatch" style="background:var(--text)"></div><div class="name">--text</div><div class="val">hsl(0 0% 93%)</div><div class="use">Primary text — body, headings, button labels.</div></div>
+          <div class="tok"><div class="swatch dark" style="background:var(--bg)"></div><div class="name">--bg</div><div class="val">hsl(0 0% 8.5%)</div><div class="use">Page background — the dominant app surface. Sidebars, body, full-screen modals.</div></div>
+          <div class="tok"><div class="swatch dark" style="background:var(--bg-secondary)"></div><div class="name">--bg-secondary</div><div class="val">hsl(0 0% 11%)</div><div class="use">Inset panel · quiet aside. Code blocks, reference panels, secondary nav.</div></div>
+          <div class="tok"><div class="swatch dark" style="background:var(--component-bg)"></div><div class="name">--component-bg</div><div class="val">hsl(0 0% 13.6%)</div><div class="use">Card surface · default button fill · chips. Focal components.</div></div>
+          <div class="tok"><div class="swatch dark" style="background:var(--component-bg-hover)"></div><div class="name">--component-bg-hover</div><div class="val">hsl(0 0% 15.8%)</div><div class="use">Hover state for any <code>--component-bg</code> surface.</div></div>
+          <div class="tok"><div class="swatch dark" style="background:var(--component-bg-active)"></div><div class="name">--component-bg-active</div><div class="val">hsl(0 0% 17.9%)</div><div class="use">Pressed / selected state · toggle on.</div></div>
+          <div class="tok"><div class="swatch dark" style="background:var(--line)"></div><div class="name">--line</div><div class="val">hsl(0 0% 20.5%)</div><div class="use">Hairline divider between rows, cells, sections.</div></div>
+          <div class="tok"><div class="swatch dark" style="background:var(--border)"></div><div class="name">--border</div><div class="val">hsl(0 0% 24.3%)</div><div class="use">Component border — inputs, buttons, cards. Resting state.</div></div>
+          <div class="tok"><div class="swatch dark" style="background:var(--border-hover)"></div><div class="name">--border-hover</div><div class="val">hsl(0 0% 31.2%)</div><div class="use">Border on hover / focus-within.</div></div>
+          <div class="tok"><div class="swatch dark" style="background:var(--solid)"></div><div class="name">--solid</div><div class="val">hsl(0 0% 43.9%)</div><div class="use">Solid neutral fill — <code>btn-info</code>, mid-tone icons.</div></div>
+          <div class="tok"><div class="swatch dark" style="background:var(--solid-hover)"></div><div class="name">--solid-hover</div><div class="val">hsl(0 0% 49.4%)</div><div class="use">Hover companion to <code>--solid</code>.</div></div>
+          <div class="tok"><div class="swatch dark" style="background:var(--text-secondary)"></div><div class="name">--text-secondary</div><div class="val">hsl(0 0% 62.8%)</div><div class="use">Meta copy — captions, hints, timestamps, secondary nav.</div></div>
+          <div class="tok"><div class="swatch dark" style="background:var(--text)"></div><div class="name">--text</div><div class="val">hsl(0 0% 93%)</div><div class="use">Primary text — body, headings, button labels.</div></div>
         </div>
 
         <div class="tok-row-hd"><span>Semantic · positive · destructive · in-motion</span><span>status only, never decoration</span></div>
@@ -1133,10 +1139,10 @@
 
         <div class="sub-hd" style="margin: 24px 0 8px;"><div class="ix">specimens</div><h4>Color · canonical previews<span class="src">preview/02 · 03 · 13</span></h4></div>
         <div class="embeds full">
-          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Semantic scales</span><a class="open" href="./preview/03-color-semantic.html">open ↗</a></div><template><iframe data-pid="03-color-semantic" src="./preview/03-color-semantic.html?id=03-color-semantic" loading="lazy"></iframe></template></div>
-          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Surface roles</span><a class="open" href="./preview/02-color-surfaces.html">open ↗</a></div><template><iframe data-pid="02-color-surfaces" src="./preview/02-color-surfaces.html?id=02-color-surfaces" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Contrast audit</span><a class="open" href="./preview/13-accessibility.html">open ↗</a></div><template><iframe data-pid="13-accessibility" src="./preview/13-accessibility.html?id=13-accessibility" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Accessibility minimums</span><a class="open" href="./preview/13b-a11y-minimums.html">open ↗</a></div><template><iframe data-pid="13b-a11y-minimums" src="./preview/13b-a11y-minimums.html?id=13b-a11y-minimums" loading="lazy"></iframe></template></div>
+          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Semantic scales</span><a class="open" href="./preview/03-color-semantic.html" aria-label="Open Semantic scales">open ↗</a></div><template><iframe title="Semantic scales" data-pid="03-color-semantic" src="./preview/03-color-semantic.html?id=03-color-semantic" loading="lazy"></iframe></template></div>
+          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Surface roles</span><a class="open" href="./preview/02-color-surfaces.html" aria-label="Open Surface roles">open ↗</a></div><template><iframe title="Surface roles" data-pid="02-color-surfaces" src="./preview/02-color-surfaces.html?id=02-color-surfaces" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Contrast audit</span><a class="open" href="./preview/13-accessibility.html" aria-label="Open Contrast audit">open ↗</a></div><template><iframe title="Contrast audit" data-pid="13-accessibility" src="./preview/13-accessibility.html?id=13-accessibility" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Accessibility minimums</span><a class="open" href="./preview/13b-a11y-minimums.html" aria-label="Open Accessibility minimums">open ↗</a></div><template><iframe title="Accessibility minimums" data-pid="13b-a11y-minimums" src="./preview/13b-a11y-minimums.html?id=13b-a11y-minimums" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1162,7 +1168,7 @@
             <li>Weights used: 400 · 500 · 700 · 900 (display only)</li>
             <li>Web text takes a role (<code>--fs-ui</code>, <code>--fs-body</code>, <code>--fs-caption</code>, <code>--fs-field</code>) or a heading step; no literal sizes. Floor: <code>--fs-caption</code>, 12px</li>
             <li>Mobile body never below 14px · TV body never below 24px</li>
-            <li class="no">No display serif, no script, no system stack fallbacks for body</li>
+            <li class="no">No display serif, no script</li>
           </ul></dd></div>
         </dl>
 
@@ -1180,14 +1186,14 @@
           <div class="type-row"><div class="tok-name">--fs-caption</div><div class="meta">role · 0.75rem · 12px · 400</div><div class="sample" style="font-size:var(--fs-caption);color:var(--ink-meta);">Caption · 2h remaining</div></div>
           <div class="type-row"><div class="tok-name">--fs-caption</div><div class="meta">eyebrow · 12px · 500 · UP</div><div class="sample" style="font-size:var(--fs-caption);font-weight:500;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-meta);">Files · Transfers</div></div>
           <div class="type-row"><div class="tok-name">--font-mono</div><div class="meta">Berkeley · tabular</div><div class="sample" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:var(--fs-ui);">11.20 TB · 12.4 MB/s · 00:03:42</div></div>
-          <div class="type-row"><div class="tok-name">--font-mono</div><div class="meta">Berkeley · filenames</div><div class="sample" style="font-family:var(--font-mono);font-size:var(--fs-ui);">ubuntu-22.04.iso · sha1: e3b0c44…</div></div>
+          <div class="type-row"><div class="tok-name">--font-mono</div><div class="meta">Berkeley · filenames</div><div class="sample" style="font-family:var(--font-mono);font-size:var(--fs-ui);">ubuntu-24.04.1-desktop-amd64.iso · sha1: e3b0c44…</div></div>
         </div>
 
         <div class="sub-hd" style="margin: 24px 0 8px;"><div class="ix">specimens</div><h4>Type · canonical previews<span class="src">preview/04 · 05 · 06</span></h4></div>
         <div class="embeds full">
-          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Families</span><a class="open" href="./preview/04-type-families.html">open ↗</a></div><template><iframe data-pid="04-type-families" src="./preview/04-type-families.html?id=04-type-families" loading="lazy"></iframe></template></div>
-          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Type scale</span><a class="open" href="./preview/05-type-scale.html">open ↗</a></div><template><iframe data-pid="05-type-scale" src="./preview/05-type-scale.html?id=05-type-scale" loading="lazy"></iframe></template></div>
-          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Specimen</span><a class="open" href="./preview/06-type-specimen.html">open ↗</a></div><template><iframe data-pid="06-type-specimen" src="./preview/06-type-specimen.html?id=06-type-specimen" loading="lazy"></iframe></template></div>
+          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Families</span><a class="open" href="./preview/04-type-families.html" aria-label="Open Families">open ↗</a></div><template><iframe title="Families" data-pid="04-type-families" src="./preview/04-type-families.html?id=04-type-families" loading="lazy"></iframe></template></div>
+          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Type scale</span><a class="open" href="./preview/05-type-scale.html" aria-label="Open Type scale">open ↗</a></div><template><iframe title="Type scale" data-pid="05-type-scale" src="./preview/05-type-scale.html?id=05-type-scale" loading="lazy"></iframe></template></div>
+          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Specimen</span><a class="open" href="./preview/06-type-specimen.html" aria-label="Open Specimen">open ↗</a></div><template><iframe title="Specimen" data-pid="06-type-specimen" src="./preview/06-type-specimen.html?id=06-type-specimen" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1213,7 +1219,7 @@
         </dl>
 
         <div class="embeds full" style="margin-top: 16px;">
-          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Spacing in context</span><a class="open" href="./preview/07-spacing-scale.html">open ↗</a></div><template><iframe data-pid="07-spacing-scale" src="./preview/07-spacing-scale.html?id=07-spacing-scale" loading="lazy"></iframe></template></div>
+          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Spacing in context</span><a class="open" href="./preview/07-spacing-scale.html" aria-label="Open Spacing in context">open ↗</a></div><template><iframe title="Spacing in context" data-pid="07-spacing-scale" src="./preview/07-spacing-scale.html?id=07-spacing-scale" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1223,20 +1229,20 @@
           <div class="ix">A.04</div>
           <div>
             <h3>Radii &amp; shadow</h3>
-            <div class="sub">Five radii, four elevations. 6 px is the default for buttons, inputs, cards. Yellow halo is one of the shadows.</div>
+            <div class="sub">Five radii, four elevations. 6 px is the default for buttons, inputs, cards. Focus is a neutral double ring.</div>
           </div>
         </header>
 
         <dl class="spec">
-          <div class="purpose"><dt>Purpose</dt><dd>Radii match component scale. Shadows define elevation roles — hover/focus, popover, modal — and a yellow focus halo that is the focus system.</dd></div>
+          <div class="purpose"><dt>Purpose</dt><dd>Radii match component scale. Shadows define elevation roles — hover/focus, popover, modal — plus the focus ring.</dd></div>
           <div class="source"><dt>Source of truth</dt><dd><code>tokens/*.tokens.json</code> → <code>tokens.css</code> · <code>--radius-*</code> · <code>--shadow-*</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>CSS custom properties</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre><span class="k">.btn</span>     { border-radius: <span class="k">var</span>(--radius); }       <span class="c">/* 6px default */</span>
 <span class="k">.pill</span>    { border-radius: <span class="k">var</span>(--radius-pill); }
-<span class="k">.btn:focus-visible</span> { box-shadow: <span class="k">var</span>(--shadow-focus); }  <span class="c">/* yellow halo */</span></pre></dd></div>
+<span class="k">.btn:focus-visible</span> { box-shadow: <span class="k">var</span>(--shadow-focus); }  <span class="c">/* --bg gap + --solid-hover ring */</span></pre></dd></div>
           <div class="constraints"><dt>Constraints</dt><dd><ul>
             <li><code>--radius</code> = 6 is the canonical default</li>
-            <li>Only <code>--shadow-focus</code> ever uses yellow</li>
+            <li>Focus is never yellow: brand yellow falls under 3:1 on the light page</li>
             <li class="no">No drop shadow on hover — use bg shift instead</li>
           </ul></dd></div>
         </dl>
@@ -1250,14 +1256,14 @@
         </div>
 
         <div class="shadows" style="margin-top: 16px;">
-          <div class="s"><div class="box sm"></div><div class="nm">--shadow-sm</div><div class="v">hover / focus<br>0 1px 2px / 0.4</div></div>
-          <div class="s"><div class="box md"></div><div class="nm">--shadow-md</div><div class="v">popover, menu<br>0 4px 12px / 0.5</div></div>
-          <div class="s"><div class="box lg"></div><div class="nm">--shadow-lg</div><div class="v">modal, sheet<br>0 16px 40px / 0.6</div></div>
-          <div class="s"><div class="box fc"></div><div class="nm">--shadow-focus</div><div class="v">soft halo<br>0 0 0 3px / 0.35</div></div>
+          <div class="s"><div class="box sm"></div><div class="nm">--shadow-sm</div><div class="v">hover / focus<br>0 1px 2px<br>α 0.05 / 0.4</div></div>
+          <div class="s"><div class="box md"></div><div class="nm">--shadow-md</div><div class="v">popover, menu<br>0 4px 12px<br>α 0.08 / 0.5</div></div>
+          <div class="s"><div class="box lg"></div><div class="nm">--shadow-lg</div><div class="v">modal, sheet<br>0 16px 40px<br>α 0.12 / 0.6</div></div>
+          <div class="s"><div class="box fc"></div><div class="nm">--shadow-focus</div><div class="v">focus ring<br>2px --bg gap<br>2px --solid-hover</div></div>
         </div>
 
         <div class="embeds full" style="margin-top: 16px;">
-          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Radii &amp; shadows · canonical preview</span><a class="open" href="./preview/08-radii-shadows.html">open ↗</a></div><template><iframe data-pid="08-radii-shadows" src="./preview/08-radii-shadows.html?id=08-radii-shadows" loading="lazy"></iframe></template></div>
+          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Radii &amp; shadows · canonical preview</span><a class="open" href="./preview/08-radii-shadows.html" aria-label="Open Radii &amp; shadows · canonical preview">open ↗</a></div><template><iframe title="Radii &amp; shadows · canonical preview" data-pid="08-radii-shadows" src="./preview/08-radii-shadows.html?id=08-radii-shadows" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1284,7 +1290,7 @@
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Easing &amp; duration scale</span><a class="open" href="./preview/10-motion.html">open ↗</a></div><template><iframe data-pid="10-motion" src="./preview/10-motion.html?id=10-motion" loading="lazy"></iframe></template></div>
+          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Easing &amp; duration scale</span><a class="open" href="./preview/10-motion.html" aria-label="Open Easing &amp; duration scale">open ↗</a></div><template><iframe title="Easing &amp; duration scale" data-pid="10-motion" src="./preview/10-motion.html?id=10-motion" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1314,9 +1320,9 @@
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Logo</span><a class="open" href="./preview/00-brand-logo.html">open ↗</a></div><template><iframe data-pid="00-brand-logo" src="./preview/00-brand-logo.html?id=00-brand-logo" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>App icon</span><a class="open" href="./preview/01-brand-app-icon.html">open ↗</a></div><template><iframe data-pid="01-brand-app-icon" src="./preview/01-brand-app-icon.html?id=01-brand-app-icon" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Empty-state voice</span><a class="open" href="./preview/12-empty-state.html">open ↗</a></div><template><iframe data-pid="12-empty-state" src="./preview/12-empty-state.html?id=12-empty-state" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Logo</span><a class="open" href="./preview/00-brand-logo.html" aria-label="Open Logo">open ↗</a></div><template><iframe title="Logo" data-pid="00-brand-logo" src="./preview/00-brand-logo.html?id=00-brand-logo" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>App icon</span><a class="open" href="./preview/01-brand-app-icon.html" aria-label="Open App icon">open ↗</a></div><template><iframe title="App icon" data-pid="01-brand-app-icon" src="./preview/01-brand-app-icon.html?id=01-brand-app-icon" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Empty-state voice</span><a class="open" href="./preview/12-empty-state.html" aria-label="Open Empty-state voice">open ↗</a></div><template><iframe title="Empty-state voice" data-pid="12-empty-state" src="./preview/12-empty-state.html?id=12-empty-state" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1333,7 +1339,7 @@
 
         <dl class="spec">
           <div class="purpose"><dt>Purpose</dt><dd>One icon family across all platforms. Regular weight default · fill weight for active states. Inline SVG only — no icon fonts in new code.</dd></div>
-          <div class="source"><dt>Source of truth</dt><dd>Phosphor icons · <code>phosphor-icons.com</code></dd></div>
+          <div class="source"><dt>Source of truth</dt><dd>Phosphor icons · <code>phosphoricons.com</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>Inline-SVG icon set · per-icon metadata JSON</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre><span class="c">&lt;!-- inline SVG, 24×24, currentColor --&gt;</span>
 &lt;svg <span class="k">width</span>=<span class="s">"24"</span> <span class="k">height</span>=<span class="s">"24"</span> <span class="k">viewBox</span>=<span class="s">"0 0 256 256"</span>&gt;
@@ -1349,9 +1355,9 @@
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Icon set · Phosphor</span><a class="open" href="./preview/09-icon-set.html">open ↗</a></div><template><iframe data-pid="09-icon-set" src="./preview/09-icon-set.html?id=09-icon-set" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>File &amp; media icon catalog</span><a class="open" href="./preview/09b-icon-catalog-files.html">open ↗</a></div><template><iframe data-pid="09b-icon-catalog-files" src="./preview/09b-icon-catalog-files.html?id=09b-icon-catalog-files" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>UI &amp; system icon catalog</span><a class="open" href="./preview/09c-icon-catalog-ui.html">open ↗</a></div><template><iframe data-pid="09c-icon-catalog-ui" src="./preview/09c-icon-catalog-ui.html?id=09c-icon-catalog-ui" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Icon set · Phosphor</span><a class="open" href="./preview/09-icon-set.html" aria-label="Open Icon set · Phosphor">open ↗</a></div><template><iframe title="Icon set · Phosphor" data-pid="09-icon-set" src="./preview/09-icon-set.html?id=09-icon-set" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>File &amp; media icon catalog</span><a class="open" href="./preview/09b-icon-catalog-files.html" aria-label="Open File &amp; media icon catalog">open ↗</a></div><template><iframe title="File &amp; media icon catalog" data-pid="09b-icon-catalog-files" src="./preview/09b-icon-catalog-files.html?id=09b-icon-catalog-files" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>UI &amp; system icon catalog</span><a class="open" href="./preview/09c-icon-catalog-ui.html" aria-label="Open UI &amp; system icon catalog">open ↗</a></div><template><iframe title="UI &amp; system icon catalog" data-pid="09c-icon-catalog-ui" src="./preview/09c-icon-catalog-ui.html?id=09c-icon-catalog-ui" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1361,13 +1367,13 @@
           <div class="ix">A.08</div>
           <div>
             <h3>Focus</h3>
-            <div class="sub">Two focus languages. Keyboard and pointer resolve to the brand-yellow halo; D-pad resolves to a surface fill, because a 10-foot screen reads fills better than rings.</div>
+            <div class="sub">Two focus languages. Keyboard focus resolves to a neutral double ring; D-pad resolves to a surface fill, because a 10-foot screen reads fills better than rings.</div>
           </div>
           <div class="src"><a href="./preview/11-focus-system.html">preview/11-focus-system.html ↗</a></div>
         </header>
 
         <dl class="spec">
-          <div class="purpose"><dt>Purpose</dt><dd>Web/mobile = soft 3px brand-yellow halo (35% alpha). TV = a solid surface fill: rows go transparent → <code>--component-bg-active</code>, buttons also step their border to <code>--border-hover</code>. No ring, scale, shadow, or halo on TV.</dd></div>
+          <div class="purpose"><dt>Purpose</dt><dd>Web/mobile = <code>--shadow-focus</code>: a 2px <code>--bg</code> gap, then a 2px <code>--solid-hover</code> ring, ≥3:1 on page and panels. TV = a solid surface fill: rows go transparent → <code>--component-bg-active</code>, buttons also step their border to <code>--border-hover</code>. No ring, scale, shadow, or halo on TV.</dd></div>
           <div class="source"><dt>Source of truth</dt><dd><code>tokens/*.tokens.json</code> → <code>tokens.css</code> · <code>--shadow-focus</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>TV variant via <code>tv.css</code></dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre><span class="c">/* web/mobile */</span>
@@ -1376,14 +1382,14 @@
 <span class="k">.tv .row.focused</span> { background: <span class="k">var</span>(--component-bg-active); }
 <span class="k">.tv .btn.focused</span>  { background: <span class="k">var</span>(--component-bg-active); border-color: <span class="k">var</span>(--border-hover); }</pre></dd></div>
           <div class="constraints"><dt>Constraints</dt><dd><ul>
-            <li>Yellow is mandatory for <b>web and mobile</b> focus — it is the one place the brand color is required. TV is the exception: focus there is a surface fill, never yellow</li>
+            <li>Focus is never yellow: brand yellow falls under 3:1 on the light page. TV focus is a surface fill</li>
             <li>Use <code>:focus-visible</code> on web/mobile, never plain <code>:focus</code></li>
             <li class="no">No outline removal without a visible replacement</li>
           </ul></dd></div>
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Focus contexts</span><a class="open" href="./preview/11-focus-system.html">open ↗</a></div><template><iframe data-pid="11-focus-system" src="./preview/11-focus-system.html?id=11-focus-system" loading="lazy"></iframe></template></div>
+          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Focus contexts</span><a class="open" href="./preview/11-focus-system.html" aria-label="Open Focus contexts">open ↗</a></div><template><iframe title="Focus contexts" data-pid="11-focus-system" src="./preview/11-focus-system.html?id=11-focus-system" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1400,8 +1406,8 @@
           <div class="sub">Reusable, composable, framework-agnostic specs. Each card answers <b>purpose · source · artifact · usage · constraints</b>, then shows the canonical specimen.</div>
         </div>
         <div class="src">
-          <span>source · preview/components-*</span>
-          <a href="./preview/">preview/ ↗</a>
+          <span>source · system/components.css</span>
+          <a href="./components.css">components.css ↗</a>
         </div>
       </header>
 
@@ -1411,7 +1417,7 @@
           <div class="ix">B.01</div>
           <div>
             <h3>Buttons</h3>
-            <div class="sub">5 variants × 3 sizes. Primary is brand-yellow on a black ink. Only one primary per region — see <a href="#p-oneyellow">one yellow at a time</a>.</div>
+            <div class="sub">Primary, secondary and ghost tiers × 4 sizes. Primary is brand-yellow on a black ink. Only one primary per region — see <a href="#p-oneyellow">one yellow at a time</a>.</div>
           </div>
           <div class="src"><a href="./preview/web-c00-buttons.html">preview/web-c00-buttons.html ↗</a></div>
         </header>
@@ -1432,7 +1438,7 @@
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Variants &amp; sizes</span><a class="open" href="./preview/web-c00-buttons.html">open ↗</a></div><template><iframe data-pid="web-c00-buttons" src="./preview/web-c00-buttons.html?id=web-c00-buttons" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Variants &amp; sizes</span><a class="open" href="./preview/web-c00-buttons.html" aria-label="Open Variants &amp; sizes">open ↗</a></div><template><iframe title="Variants &amp; sizes" data-pid="web-c00-buttons" src="./preview/web-c00-buttons.html?id=web-c00-buttons" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1442,7 +1448,7 @@
           <div class="ix">B.02</div>
           <div>
             <h3>Inputs</h3>
-            <div class="sub">Text, search (with <kbd style="font-family:var(--font-mono);color:var(--accent);background:var(--code-bg);padding:1px 4px;border-radius:3px;">/</kbd> hint), password, error. Yellow border + halo on <code class="mono" style="color:var(--accent);">:focus-visible</code>.</div>
+            <div class="sub">Text, search (with <kbd style="font-family:var(--font-mono);color:var(--accent);background:var(--code-bg);padding:1px 4px;border-radius:3px;">/</kbd> hint), password, error. Focus steps the border to <code class="mono" style="color:var(--accent);">--solid-hover</code> with a 1px ring.</div>
           </div>
           <div class="src"><a href="./preview/web-c01-inputs.html">preview/web-c01-inputs.html ↗</a></div>
         </header>
@@ -1451,8 +1457,8 @@
           <div class="purpose"><dt>Purpose</dt><dd>Text entry primitive. Search box, password field, validation states use the same shell.</dd></div>
           <div class="source"><dt>Source of truth</dt><dd><code>Input</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>CSS class set · platform-native field shells</dd></div>
-          <div class="usage"><dt>Usage</dt><dd><pre>&lt;input <span class="k">class</span>=<span class="s">"input"</span> <span class="k">type</span>=<span class="s">"text"</span> <span class="k">placeholder</span>=<span class="s">"Search files"</span>&gt;
-&lt;input <span class="k">class</span>=<span class="s">"input is-error"</span> <span class="k">aria-invalid</span>=<span class="s">"true"</span>&gt;</pre></dd></div>
+          <div class="usage"><dt>Usage</dt><dd><pre>&lt;input <span class="k">class</span>=<span class="s">"field"</span> <span class="k">type</span>=<span class="s">"text"</span> <span class="k">placeholder</span>=<span class="s">"Search files"</span>&gt;
+&lt;input <span class="k">class</span>=<span class="s">"field"</span> <span class="k">aria-invalid</span>=<span class="s">"true"</span>&gt;</pre></dd></div>
           <div class="constraints"><dt>Constraints</dt><dd><ul>
             <li>Label outside the field · placeholder is hint, not label</li>
             <li>Error message uses <code>--red-solid</code> below the field</li>
@@ -1461,7 +1467,7 @@
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Inputs</span><a class="open" href="./preview/web-c01-inputs.html">open ↗</a></div><template><iframe data-pid="web-c01-inputs" src="./preview/web-c01-inputs.html?id=web-c01-inputs" loading="lazy"></iframe></template></div>
+          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Inputs</span><a class="open" href="./preview/web-c01-inputs.html" aria-label="Open Inputs">open ↗</a></div><template><iframe title="Inputs" data-pid="web-c01-inputs" src="./preview/web-c01-inputs.html?id=web-c01-inputs" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1489,8 +1495,8 @@
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Extended fields + validation states</span><a class="open" href="./preview/web-c02-form-fields.html">open ↗</a></div><template><iframe data-pid="web-c02-form-fields" src="./preview/web-c02-form-fields.html?id=web-c02-form-fields" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Field validation</span><a class="open" href="./preview/web-c02b-field-validation.html">open ↗</a></div><template><iframe data-pid="web-c02b-field-validation" src="./preview/web-c02b-field-validation.html?id=web-c02b-field-validation" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Extended fields + validation states</span><a class="open" href="./preview/web-c02-form-fields.html" aria-label="Open Extended fields + validation states">open ↗</a></div><template><iframe title="Extended fields + validation states" data-pid="web-c02-form-fields" src="./preview/web-c02-form-fields.html?id=web-c02-form-fields" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Field validation</span><a class="open" href="./preview/web-c02b-field-validation.html" aria-label="Open Field validation">open ↗</a></div><template><iframe title="Field validation" data-pid="web-c02b-field-validation" src="./preview/web-c02b-field-validation.html?id=web-c02b-field-validation" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1518,11 +1524,11 @@
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Core layout patterns</span><a class="open" href="./preview/web-p00-form-layouts.html">open ↗</a></div><template><iframe data-pid="web-p00-form-layouts" src="./preview/web-p00-form-layouts.html?id=web-p00-form-layouts" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Multi-step forms</span><a class="open" href="./preview/web-p00b-form-flows.html">open ↗</a></div><template><iframe data-pid="web-p00b-form-flows" src="./preview/web-p00b-form-flows.html?id=web-p00b-form-flows" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Auth · sign-in</span><a class="open" href="./preview/web-p00c-auth-signin.html">open ↗</a></div><template><iframe data-pid="web-p00c-auth-signin" src="./preview/web-p00c-auth-signin.html?id=web-p00c-auth-signin" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Auth · sign-up &amp; recovery</span><a class="open" href="./preview/web-p00d-auth-signup.html">open ↗</a></div><template><iframe data-pid="web-p00d-auth-signup" src="./preview/web-p00d-auth-signup.html?id=web-p00d-auth-signup" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Auth · two-factor</span><a class="open" href="./preview/web-p00e-auth-2fa.html">open ↗</a></div><template><iframe data-pid="web-p00e-auth-2fa" src="./preview/web-p00e-auth-2fa.html?id=web-p00e-auth-2fa" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Core layout patterns</span><a class="open" href="./preview/web-p00-form-layouts.html" aria-label="Open Core layout patterns">open ↗</a></div><template><iframe title="Core layout patterns" data-pid="web-p00-form-layouts" src="./preview/web-p00-form-layouts.html?id=web-p00-form-layouts" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Multi-step forms</span><a class="open" href="./preview/web-p00b-form-flows.html" aria-label="Open Multi-step forms">open ↗</a></div><template><iframe title="Multi-step forms" data-pid="web-p00b-form-flows" src="./preview/web-p00b-form-flows.html?id=web-p00b-form-flows" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Auth · sign-in</span><a class="open" href="./preview/web-p00c-auth-signin.html" aria-label="Open Auth · sign-in">open ↗</a></div><template><iframe title="Auth · sign-in" data-pid="web-p00c-auth-signin" src="./preview/web-p00c-auth-signin.html?id=web-p00c-auth-signin" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Auth · sign-up &amp; recovery</span><a class="open" href="./preview/web-p00d-auth-signup.html" aria-label="Open Auth · sign-up &amp; recovery">open ↗</a></div><template><iframe title="Auth · sign-up &amp; recovery" data-pid="web-p00d-auth-signup" src="./preview/web-p00d-auth-signup.html?id=web-p00d-auth-signup" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Auth · two-factor</span><a class="open" href="./preview/web-p00e-auth-2fa.html" aria-label="Open Auth · two-factor">open ↗</a></div><template><iframe title="Auth · two-factor" data-pid="web-p00e-auth-2fa" src="./preview/web-p00e-auth-2fa.html?id=web-p00e-auth-2fa" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1552,7 +1558,7 @@
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Pills · chips · tags</span><a class="open" href="./preview/web-c06-badges.html">open ↗</a></div><template><iframe data-pid="web-c06-badges" src="./preview/web-c06-badges.html?id=web-c06-badges" loading="lazy"></iframe></template></div>
+          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Pills · chips · tags</span><a class="open" href="./preview/web-c06-badges.html" aria-label="Open Pills · chips · tags">open ↗</a></div><template><iframe title="Pills · chips · tags" data-pid="web-c06-badges" src="./preview/web-c06-badges.html?id=web-c06-badges" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1581,7 +1587,7 @@
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Four list-item shapes</span><a class="open" href="./preview/web-c15-list-item.html">open ↗</a></div><template><iframe data-pid="web-c15-list-item" src="./preview/web-c15-list-item.html?id=web-c15-list-item" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Four list-item shapes</span><a class="open" href="./preview/web-c15-list-item.html" aria-label="Open Four list-item shapes">open ↗</a></div><template><iframe title="Four list-item shapes" data-pid="web-c15-list-item" src="./preview/web-c15-list-item.html?id=web-c15-list-item" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1601,8 +1607,8 @@
           <div class="source"><dt>Source of truth</dt><dd><code>FileRow</code></dd></div>
           <div class="artifact"><dt>Generated</dt><dd>Web table / mobile cell / TV row variants</dd></div>
           <div class="usage"><dt>Usage</dt><dd><pre>&lt;<span class="k">FileRow</span>
-  <span class="k">kind</span>=<span class="s">"folder"</span>                            <span class="c">// folder | video | audio | doc | archive | other</span>
-  <span class="k">name</span>=<span class="s">"The.Wire.S03E04.1080p.x264-GROUP.mkv"</span>  <span class="c">// raw, verbatim</span>
+  <span class="k">kind</span>=<span class="s">"video"</span>                             <span class="c">// folder | video | audio | doc | archive | other</span>
+  <span class="k">name</span>=<span class="s">"The.Wire.S03E04.Back.Burners.1080p.BluRay.x264-DEMAND.mkv"</span>  <span class="c">// raw, verbatim</span>
   <span class="k">size</span>=<span class="s">"1.42 GB"</span>
   <span class="k">date</span>=<span class="s">"2026-05-25"</span> /&gt;</pre></dd></div>
           <div class="constraints"><dt>Constraints</dt><dd><ul>
@@ -1614,7 +1620,7 @@
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>File &amp; folder rows</span><a class="open" href="./preview/web-c16-file-row.html">open ↗</a></div><template><iframe data-pid="web-c16-file-row" src="./preview/web-c16-file-row.html?id=web-c16-file-row" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>File &amp; folder rows</span><a class="open" href="./preview/web-c16-file-row.html" aria-label="Open File &amp; folder rows">open ↗</a></div><template><iframe title="File &amp; folder rows" data-pid="web-c16-file-row" src="./preview/web-c16-file-row.html?id=web-c16-file-row" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1644,7 +1650,7 @@
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Disk usage</span><a class="open" href="./preview/web-c20-storage-bar.html">open ↗</a></div><template><iframe data-pid="web-c20-storage-bar" src="./preview/web-c20-storage-bar.html?id=web-c20-storage-bar" loading="lazy"></iframe></template></div>
+          <div class="panel embed tall"><div class="ehd"><span class="ttl"><span class="dot"></span>Disk usage</span><a class="open" href="./preview/web-c20-storage-bar.html" aria-label="Open Disk usage">open ↗</a></div><template><iframe title="Disk usage" data-pid="web-c20-storage-bar" src="./preview/web-c20-storage-bar.html?id=web-c20-storage-bar" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1667,7 +1673,7 @@
   <span class="k">state</span>=<span class="s">"downloading"</span>     <span class="c">// queued | downloading | seeding | completed | failed</span>
   <span class="k">health</span>=<span class="s">"good"</span>             <span class="c">// good | warn | bad</span>
   <span class="k">progress</span>={0.62}
-  <span class="k">name</span>=<span class="s">"ubuntu-22.04.iso"</span> /&gt;</pre></dd></div>
+  <span class="k">name</span>=<span class="s">"ubuntu-24.04.1-desktop-amd64.iso"</span> /&gt;</pre></dd></div>
           <div class="constraints"><dt>Constraints</dt><dd><ul>
             <li>Default view is plain-English: "Downloading · 62%"</li>
             <li>Lime accent (<code>--lime-3</code>) for in-motion surface only</li>
@@ -1676,7 +1682,7 @@
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Health-indicator lifecycle</span><a class="open" href="./preview/web-p04-transfer-states.html">open ↗</a></div><template><iframe data-pid="web-p04-transfer-states" src="./preview/web-p04-transfer-states.html?id=web-p04-transfer-states" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Health-indicator lifecycle</span><a class="open" href="./preview/web-p04-transfer-states.html" aria-label="Open Health-indicator lifecycle">open ↗</a></div><template><iframe title="Health-indicator lifecycle" data-pid="web-p04-transfer-states" src="./preview/web-p04-transfer-states.html?id=web-p04-transfer-states" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1707,8 +1713,8 @@
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Empty-state catalogue</span><a class="open" href="./preview/12-empty-state.html">open ↗</a></div><template><iframe data-pid="12-empty-state-2" src="./preview/12-empty-state.html?id=12-empty-state-2" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Empty-state action &amp; error</span><a class="open" href="./preview/12b-empty-state-errors.html">open ↗</a></div><template><iframe data-pid="12b-empty-state-errors" src="./preview/12b-empty-state-errors.html?id=12b-empty-state-errors" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Empty-state catalogue</span><a class="open" href="./preview/12-empty-state.html" aria-label="Open Empty-state catalogue">open ↗</a></div><template><iframe title="Empty-state catalogue" data-pid="12-empty-state-2" src="./preview/12-empty-state.html?id=12-empty-state-2" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Empty-state action &amp; error</span><a class="open" href="./preview/12b-empty-state-errors.html" aria-label="Open Empty-state action &amp; error">open ↗</a></div><template><iframe title="Empty-state action &amp; error" data-pid="12b-empty-state-errors" src="./preview/12b-empty-state-errors.html?id=12b-empty-state-errors" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1737,8 +1743,8 @@
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Four overlay shapes</span><a class="open" href="./preview/web-c11-modal.html">open ↗</a></div><template><iframe data-pid="web-c11-modal" src="./preview/web-c11-modal.html?id=web-c11-modal" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Right-side detail sheet</span><a class="open" href="./preview/web-c12-sheet.html">open ↗</a></div><template><iframe data-pid="web-c12-sheet" src="./preview/web-c12-sheet.html?id=web-c12-sheet" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Four overlay shapes</span><a class="open" href="./preview/web-c11-modal.html" aria-label="Open Four overlay shapes">open ↗</a></div><template><iframe title="Four overlay shapes" data-pid="web-c11-modal" src="./preview/web-c11-modal.html?id=web-c11-modal" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Right-side detail sheet</span><a class="open" href="./preview/web-c12-sheet.html" aria-label="Open Right-side detail sheet">open ↗</a></div><template><iframe title="Right-side detail sheet" data-pid="web-c12-sheet" src="./preview/web-c12-sheet.html?id=web-c12-sheet" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1750,7 +1756,7 @@
             <h3>Other primitives</h3>
             <div class="sub">Avatars · breadcrumbs · command palette · menus · notification · tabs · tooltip. Same token rules, same focus model.</div>
           </div>
-          <div class="src"><a href="./preview/">preview/components-* ↗</a></div>
+          <div class="src"><a href="./components.css">components.css ↗</a></div>
         </header>
 
         <dl class="spec">
@@ -1768,23 +1774,23 @@
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Avatars</span><a class="open" href="./preview/web-c07-avatar.html">open ↗</a></div><template><iframe data-pid="web-c07-avatar" src="./preview/web-c07-avatar.html?id=web-c07-avatar" loading="lazy"></iframe></template></div>
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Breadcrumbs</span><a class="open" href="./preview/web-c19-breadcrumbs.html">open ↗</a></div><template><iframe data-pid="web-c19-breadcrumbs" src="./preview/web-c19-breadcrumbs.html?id=web-c19-breadcrumbs" loading="lazy"></iframe></template></div>
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Dropzone</span><a class="open" href="./preview/web-p02-dropzone.html">open ↗</a></div><template><iframe data-pid="web-p02-dropzone" src="./preview/web-p02-dropzone.html?id=web-p02-dropzone" loading="lazy"></iframe></template></div>
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Notifications</span><a class="open" href="./preview/web-c14-notification.html">open ↗</a></div><template><iframe data-pid="web-c14-notification" src="./preview/web-c14-notification.html?id=web-c14-notification" loading="lazy"></iframe></template></div>
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Tabs</span><a class="open" href="./preview/web-c05-tabs.html">open ↗</a></div><template><iframe data-pid="web-c05-tabs" src="./preview/web-c05-tabs.html?id=web-c05-tabs" loading="lazy"></iframe></template></div>
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Tooltips</span><a class="open" href="./preview/web-c08-tooltip.html">open ↗</a></div><template><iframe data-pid="web-c08-tooltip" src="./preview/web-c08-tooltip.html?id=web-c08-tooltip" loading="lazy"></iframe></template></div>
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Segmented control</span><a class="open" href="./preview/web-c03-segmented.html">open ↗</a></div><template><iframe data-pid="web-c03-segmented" src="./preview/web-c03-segmented.html?id=web-c03-segmented" loading="lazy"></iframe></template></div>
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Menu</span><a class="open" href="./preview/web-c09-menu.html">open ↗</a></div><template><iframe data-pid="web-c09-menu" src="./preview/web-c09-menu.html?id=web-c09-menu" loading="lazy"></iframe></template></div>
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Command palette</span><a class="open" href="./preview/web-p03-command-palette.html">open ↗</a></div><template><iframe data-pid="web-p03-command-palette" src="./preview/web-p03-command-palette.html?id=web-p03-command-palette" loading="lazy"></iframe></template></div>
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Data table</span><a class="open" href="./preview/web-c17-table.html">open ↗</a></div><template><iframe data-pid="web-c17-table" src="./preview/web-c17-table.html?id=web-c17-table" loading="lazy"></iframe></template></div>
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Tasks</span><a class="open" href="./preview/web-p05-task-progress.html">open ↗</a></div><template><iframe data-pid="web-p05-task-progress" src="./preview/web-p05-task-progress.html?id=web-p05-task-progress" loading="lazy"></iframe></template></div>
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Folder picker</span><a class="open" href="./preview/web-p01-folder-picker.html">open ↗</a></div><template><iframe data-pid="web-p01-folder-picker" src="./preview/web-p01-folder-picker.html?id=web-p01-folder-picker" loading="lazy"></iframe></template></div>
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Skeleton &amp; loading</span><a class="open" href="./preview/web-c21-skeleton.html">open ↗</a></div><template><iframe data-pid="web-c21-skeleton" src="./preview/web-c21-skeleton.html?id=web-c21-skeleton" loading="lazy"></iframe></template></div>
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Slider</span><a class="open" href="./preview/web-c04-slider.html">open ↗</a></div><template><iframe data-pid="web-c04-slider" src="./preview/web-c04-slider.html?id=web-c04-slider" loading="lazy"></iframe></template></div>
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Context menu</span><a class="open" href="./preview/web-c10-context-menu.html">open ↗</a></div><template><iframe data-pid="web-c10-context-menu" src="./preview/web-c10-context-menu.html?id=web-c10-context-menu" loading="lazy"></iframe></template></div>
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Alert</span><a class="open" href="./preview/web-c13-alert.html">open ↗</a></div><template><iframe data-pid="web-c13-alert" src="./preview/web-c13-alert.html?id=web-c13-alert" loading="lazy"></iframe></template></div>
-          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Pagination</span><a class="open" href="./preview/web-c18-pagination.html">open ↗</a></div><template><iframe data-pid="web-c18-pagination" src="./preview/web-c18-pagination.html?id=web-c18-pagination" loading="lazy"></iframe></template></div>
+          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Avatars</span><a class="open" href="./preview/web-c07-avatar.html" aria-label="Open Avatars">open ↗</a></div><template><iframe title="Avatars" data-pid="web-c07-avatar" src="./preview/web-c07-avatar.html?id=web-c07-avatar" loading="lazy"></iframe></template></div>
+          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Breadcrumbs</span><a class="open" href="./preview/web-c19-breadcrumbs.html" aria-label="Open Breadcrumbs">open ↗</a></div><template><iframe title="Breadcrumbs" data-pid="web-c19-breadcrumbs" src="./preview/web-c19-breadcrumbs.html?id=web-c19-breadcrumbs" loading="lazy"></iframe></template></div>
+          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Dropzone</span><a class="open" href="./preview/web-p02-dropzone.html" aria-label="Open Dropzone">open ↗</a></div><template><iframe title="Dropzone" data-pid="web-p02-dropzone" src="./preview/web-p02-dropzone.html?id=web-p02-dropzone" loading="lazy"></iframe></template></div>
+          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Notifications</span><a class="open" href="./preview/web-c14-notification.html" aria-label="Open Notifications">open ↗</a></div><template><iframe title="Notifications" data-pid="web-c14-notification" src="./preview/web-c14-notification.html?id=web-c14-notification" loading="lazy"></iframe></template></div>
+          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Tabs</span><a class="open" href="./preview/web-c05-tabs.html" aria-label="Open Tabs">open ↗</a></div><template><iframe title="Tabs" data-pid="web-c05-tabs" src="./preview/web-c05-tabs.html?id=web-c05-tabs" loading="lazy"></iframe></template></div>
+          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Tooltips</span><a class="open" href="./preview/web-c08-tooltip.html" aria-label="Open Tooltips">open ↗</a></div><template><iframe title="Tooltips" data-pid="web-c08-tooltip" src="./preview/web-c08-tooltip.html?id=web-c08-tooltip" loading="lazy"></iframe></template></div>
+          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Segmented control</span><a class="open" href="./preview/web-c03-segmented.html" aria-label="Open Segmented control · Web">open ↗</a></div><template><iframe title="Segmented control · Web" data-pid="web-c03-segmented" src="./preview/web-c03-segmented.html?id=web-c03-segmented" loading="lazy"></iframe></template></div>
+          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Menu</span><a class="open" href="./preview/web-c09-menu.html" aria-label="Open Menu">open ↗</a></div><template><iframe title="Menu" data-pid="web-c09-menu" src="./preview/web-c09-menu.html?id=web-c09-menu" loading="lazy"></iframe></template></div>
+          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Command palette</span><a class="open" href="./preview/web-p03-command-palette.html" aria-label="Open Command palette">open ↗</a></div><template><iframe title="Command palette" data-pid="web-p03-command-palette" src="./preview/web-p03-command-palette.html?id=web-p03-command-palette" loading="lazy"></iframe></template></div>
+          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Data table</span><a class="open" href="./preview/web-c17-table.html" aria-label="Open Data table">open ↗</a></div><template><iframe title="Data table" data-pid="web-c17-table" src="./preview/web-c17-table.html?id=web-c17-table" loading="lazy"></iframe></template></div>
+          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Tasks</span><a class="open" href="./preview/web-p05-task-progress.html" aria-label="Open Tasks">open ↗</a></div><template><iframe title="Tasks" data-pid="web-p05-task-progress" src="./preview/web-p05-task-progress.html?id=web-p05-task-progress" loading="lazy"></iframe></template></div>
+          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Folder picker</span><a class="open" href="./preview/web-p01-folder-picker.html" aria-label="Open Folder picker">open ↗</a></div><template><iframe title="Folder picker" data-pid="web-p01-folder-picker" src="./preview/web-p01-folder-picker.html?id=web-p01-folder-picker" loading="lazy"></iframe></template></div>
+          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Skeleton &amp; loading</span><a class="open" href="./preview/web-c21-skeleton.html" aria-label="Open Skeleton &amp; loading">open ↗</a></div><template><iframe title="Skeleton &amp; loading" data-pid="web-c21-skeleton" src="./preview/web-c21-skeleton.html?id=web-c21-skeleton" loading="lazy"></iframe></template></div>
+          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Slider</span><a class="open" href="./preview/web-c04-slider.html" aria-label="Open Slider · Web">open ↗</a></div><template><iframe title="Slider · Web" data-pid="web-c04-slider" src="./preview/web-c04-slider.html?id=web-c04-slider" loading="lazy"></iframe></template></div>
+          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Context menu</span><a class="open" href="./preview/web-c10-context-menu.html" aria-label="Open Context menu · Web">open ↗</a></div><template><iframe title="Context menu · Web" data-pid="web-c10-context-menu" src="./preview/web-c10-context-menu.html?id=web-c10-context-menu" loading="lazy"></iframe></template></div>
+          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Alert</span><a class="open" href="./preview/web-c13-alert.html" aria-label="Open Alert">open ↗</a></div><template><iframe title="Alert" data-pid="web-c13-alert" src="./preview/web-c13-alert.html?id=web-c13-alert" loading="lazy"></iframe></template></div>
+          <div class="panel embed"><div class="ehd"><span class="ttl"><span class="dot"></span>Pagination</span><a class="open" href="./preview/web-c18-pagination.html" aria-label="Open Pagination">open ↗</a></div><template><iframe title="Pagination" data-pid="web-c18-pagination" src="./preview/web-c18-pagination.html?id=web-c18-pagination" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1869,8 +1875,8 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed featured" style="--preview-height: 600px;"><div class="ehd"><span class="ttl"><span class="dot"></span>Files · main view</span><a class="open" href="./preview/web-s00-shell.html">open ↗</a></div><template><iframe data-pid="web-s00-shell" src="./preview/web-s00-shell.html?id=web-s00-shell" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured" style="--preview-height: 600px;"><div class="ehd"><span class="ttl"><span class="dot"></span>Web player</span><a class="open" href="./preview/web-p06-player.html">open ↗</a></div><template><iframe data-pid="web-p06-player" src="./preview/web-p06-player.html?id=web-p06-player" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured" style="--preview-height: 600px;"><div class="ehd"><span class="ttl"><span class="dot"></span>Files · main view</span><a class="open" href="./preview/web-s00-shell.html" aria-label="Open Files · main view">open ↗</a></div><template><iframe title="Files · main view" data-pid="web-s00-shell" src="./preview/web-s00-shell.html?id=web-s00-shell" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured" style="--preview-height: 600px;"><div class="ehd"><span class="ttl"><span class="dot"></span>Web player</span><a class="open" href="./preview/web-p06-player.html" aria-label="Open Web player">open ↗</a></div><template><iframe title="Web player" data-pid="web-p06-player" src="./preview/web-p06-player.html?id=web-p06-player" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1884,12 +1890,12 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
           <div class="src">preview/web-s*</div>
         </header>
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Transfers</span><a class="open" href="./preview/web-s01-transfers.html">open ↗</a></div><template><iframe data-pid="web-s01-transfers" src="./preview/web-s01-transfers.html?id=web-s01-transfers" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>History</span><a class="open" href="./preview/web-s02-history.html">open ↗</a></div><template><iframe data-pid="web-s02-history" src="./preview/web-s02-history.html?id=web-s02-history" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>RSS feeds</span><a class="open" href="./preview/web-s03-rss.html">open ↗</a></div><template><iframe data-pid="web-s03-rss" src="./preview/web-s03-rss.html?id=web-s03-rss" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Public share</span><a class="open" href="./preview/web-s04-public-share.html">open ↗</a></div><template><iframe data-pid="web-s04-public-share" src="./preview/web-s04-public-share.html?id=web-s04-public-share" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Settings</span><a class="open" href="./preview/web-s05-settings.html">open ↗</a></div><template><iframe data-pid="web-s05-settings" src="./preview/web-s05-settings.html?id=web-s05-settings" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Auth screen</span><a class="open" href="./preview/web-s06-auth.html">open ↗</a></div><template><iframe data-pid="web-s06-auth" src="./preview/web-s06-auth.html?id=web-s06-auth" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Transfers</span><a class="open" href="./preview/web-s01-transfers.html" aria-label="Open Transfers">open ↗</a></div><template><iframe title="Transfers" data-pid="web-s01-transfers" src="./preview/web-s01-transfers.html?id=web-s01-transfers" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>History</span><a class="open" href="./preview/web-s02-history.html" aria-label="Open History · Web">open ↗</a></div><template><iframe title="History · Web" data-pid="web-s02-history" src="./preview/web-s02-history.html?id=web-s02-history" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>RSS feeds</span><a class="open" href="./preview/web-s03-rss.html" aria-label="Open RSS feeds">open ↗</a></div><template><iframe title="RSS feeds" data-pid="web-s03-rss" src="./preview/web-s03-rss.html?id=web-s03-rss" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Public share</span><a class="open" href="./preview/web-s04-public-share.html" aria-label="Open Public share">open ↗</a></div><template><iframe title="Public share" data-pid="web-s04-public-share" src="./preview/web-s04-public-share.html?id=web-s04-public-share" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Settings</span><a class="open" href="./preview/web-s05-settings.html" aria-label="Open Settings · Web">open ↗</a></div><template><iframe title="Settings · Web" data-pid="web-s05-settings" src="./preview/web-s05-settings.html?id=web-s05-settings" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Auth screen</span><a class="open" href="./preview/web-s06-auth.html" aria-label="Open Auth screen">open ↗</a></div><template><iframe title="Auth screen" data-pid="web-s06-auth" src="./preview/web-s06-auth.html?id=web-s06-auth" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1905,23 +1911,23 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
           <div class="src">preview/ios-e*</div>
         </header>
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>List row</span><a class="open" href="./preview/ios-e00-list-row.html">open ↗</a></div><template><iframe data-pid="ios-e00-list-row" src="./preview/ios-e00-list-row.html?id=ios-e00-list-row" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Toggle</span><a class="open" href="./preview/ios-e01-toggle.html">open ↗</a></div><template><iframe data-pid="ios-e01-toggle" src="./preview/ios-e01-toggle.html?id=ios-e01-toggle" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Slider</span><a class="open" href="./preview/ios-e02-slider.html">open ↗</a></div><template><iframe data-pid="ios-e02-slider" src="./preview/ios-e02-slider.html?id=ios-e02-slider" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Segmented control</span><a class="open" href="./preview/ios-e03-segmented.html">open ↗</a></div><template><iframe data-pid="ios-e03-segmented" src="./preview/ios-e03-segmented.html?id=ios-e03-segmented" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Stepper</span><a class="open" href="./preview/ios-e04-stepper.html">open ↗</a></div><template><iframe data-pid="ios-e04-stepper" src="./preview/ios-e04-stepper.html?id=ios-e04-stepper" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Glass button</span><a class="open" href="./preview/ios-e05-glass-button.html">open ↗</a></div><template><iframe data-pid="ios-e05-glass-button" src="./preview/ios-e05-glass-button.html?id=ios-e05-glass-button" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Picker</span><a class="open" href="./preview/ios-e06-picker.html">open ↗</a></div><template><iframe data-pid="ios-e06-picker" src="./preview/ios-e06-picker.html?id=ios-e06-picker" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Inset group</span><a class="open" href="./preview/ios-e07-inset-group.html">open ↗</a></div><template><iframe data-pid="ios-e07-inset-group" src="./preview/ios-e07-inset-group.html?id=ios-e07-inset-group" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Search field</span><a class="open" href="./preview/ios-e08-searchfield.html">open ↗</a></div><template><iframe data-pid="ios-e08-searchfield" src="./preview/ios-e08-searchfield.html?id=ios-e08-searchfield" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>ProgressView</span><a class="open" href="./preview/ios-e09-progress.html">open ↗</a></div><template><iframe data-pid="ios-e09-progress" src="./preview/ios-e09-progress.html?id=ios-e09-progress" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Tab bar</span><a class="open" href="./preview/ios-e10-tabbar.html">open ↗</a></div><template><iframe data-pid="ios-e10-tabbar" src="./preview/ios-e10-tabbar.html?id=ios-e10-tabbar" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Navigation bar</span><a class="open" href="./preview/ios-e11-navbar.html">open ↗</a></div><template><iframe data-pid="ios-e11-navbar" src="./preview/ios-e11-navbar.html?id=ios-e11-navbar" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Sheet</span><a class="open" href="./preview/ios-e12-sheet.html">open ↗</a></div><template><iframe data-pid="ios-e12-sheet" src="./preview/ios-e12-sheet.html?id=ios-e12-sheet" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Context menu</span><a class="open" href="./preview/ios-e13-contextmenu.html">open ↗</a></div><template><iframe data-pid="ios-e13-contextmenu" src="./preview/ios-e13-contextmenu.html?id=ios-e13-contextmenu" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Swipe actions</span><a class="open" href="./preview/ios-e14-swipe.html">open ↗</a></div><template><iframe data-pid="ios-e14-swipe" src="./preview/ios-e14-swipe.html?id=ios-e14-swipe" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Empty state</span><a class="open" href="./preview/ios-e15-emptystate.html">open ↗</a></div><template><iframe data-pid="ios-e15-emptystate" src="./preview/ios-e15-emptystate.html?id=ios-e15-emptystate" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Gauge</span><a class="open" href="./preview/ios-e16-gauge.html">open ↗</a></div><template><iframe data-pid="ios-e16-gauge" src="./preview/ios-e16-gauge.html?id=ios-e16-gauge" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>List row</span><a class="open" href="./preview/ios-e00-list-row.html" aria-label="Open List row">open ↗</a></div><template><iframe title="List row" data-pid="ios-e00-list-row" src="./preview/ios-e00-list-row.html?id=ios-e00-list-row" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Toggle</span><a class="open" href="./preview/ios-e01-toggle.html" aria-label="Open Toggle">open ↗</a></div><template><iframe title="Toggle" data-pid="ios-e01-toggle" src="./preview/ios-e01-toggle.html?id=ios-e01-toggle" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Slider</span><a class="open" href="./preview/ios-e02-slider.html" aria-label="Open Slider · iOS">open ↗</a></div><template><iframe title="Slider · iOS" data-pid="ios-e02-slider" src="./preview/ios-e02-slider.html?id=ios-e02-slider" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Segmented control</span><a class="open" href="./preview/ios-e03-segmented.html" aria-label="Open Segmented control · iOS">open ↗</a></div><template><iframe title="Segmented control · iOS" data-pid="ios-e03-segmented" src="./preview/ios-e03-segmented.html?id=ios-e03-segmented" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Stepper</span><a class="open" href="./preview/ios-e04-stepper.html" aria-label="Open Stepper">open ↗</a></div><template><iframe title="Stepper" data-pid="ios-e04-stepper" src="./preview/ios-e04-stepper.html?id=ios-e04-stepper" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Glass button</span><a class="open" href="./preview/ios-e05-glass-button.html" aria-label="Open Glass button">open ↗</a></div><template><iframe title="Glass button" data-pid="ios-e05-glass-button" src="./preview/ios-e05-glass-button.html?id=ios-e05-glass-button" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Picker</span><a class="open" href="./preview/ios-e06-picker.html" aria-label="Open Picker">open ↗</a></div><template><iframe title="Picker" data-pid="ios-e06-picker" src="./preview/ios-e06-picker.html?id=ios-e06-picker" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Inset group</span><a class="open" href="./preview/ios-e07-inset-group.html" aria-label="Open Inset group">open ↗</a></div><template><iframe title="Inset group" data-pid="ios-e07-inset-group" src="./preview/ios-e07-inset-group.html?id=ios-e07-inset-group" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Search field</span><a class="open" href="./preview/ios-e08-searchfield.html" aria-label="Open Search field">open ↗</a></div><template><iframe title="Search field" data-pid="ios-e08-searchfield" src="./preview/ios-e08-searchfield.html?id=ios-e08-searchfield" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>ProgressView</span><a class="open" href="./preview/ios-e09-progress.html" aria-label="Open ProgressView">open ↗</a></div><template><iframe title="ProgressView" data-pid="ios-e09-progress" src="./preview/ios-e09-progress.html?id=ios-e09-progress" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Tab bar</span><a class="open" href="./preview/ios-e10-tabbar.html" aria-label="Open Tab bar">open ↗</a></div><template><iframe title="Tab bar" data-pid="ios-e10-tabbar" src="./preview/ios-e10-tabbar.html?id=ios-e10-tabbar" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Navigation bar</span><a class="open" href="./preview/ios-e11-navbar.html" aria-label="Open Navigation bar · iOS">open ↗</a></div><template><iframe title="Navigation bar · iOS" data-pid="ios-e11-navbar" src="./preview/ios-e11-navbar.html?id=ios-e11-navbar" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Sheet</span><a class="open" href="./preview/ios-e12-sheet.html" aria-label="Open Sheet">open ↗</a></div><template><iframe title="Sheet" data-pid="ios-e12-sheet" src="./preview/ios-e12-sheet.html?id=ios-e12-sheet" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Context menu</span><a class="open" href="./preview/ios-e13-contextmenu.html" aria-label="Open Context menu · iOS">open ↗</a></div><template><iframe title="Context menu · iOS" data-pid="ios-e13-contextmenu" src="./preview/ios-e13-contextmenu.html?id=ios-e13-contextmenu" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Swipe actions</span><a class="open" href="./preview/ios-e14-swipe.html" aria-label="Open Swipe actions">open ↗</a></div><template><iframe title="Swipe actions" data-pid="ios-e14-swipe" src="./preview/ios-e14-swipe.html?id=ios-e14-swipe" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Empty state</span><a class="open" href="./preview/ios-e15-emptystate.html" aria-label="Open Empty state">open ↗</a></div><template><iframe title="Empty state" data-pid="ios-e15-emptystate" src="./preview/ios-e15-emptystate.html?id=ios-e15-emptystate" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Gauge</span><a class="open" href="./preview/ios-e16-gauge.html" aria-label="Open Gauge">open ↗</a></div><template><iframe title="Gauge" data-pid="ios-e16-gauge" src="./preview/ios-e16-gauge.html?id=ios-e16-gauge" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1935,19 +1941,19 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
           <div class="src">preview/ios-s* · watchos · tvos</div>
         </header>
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>iOS / iPadOS shell</span><a class="open" href="./preview/ios-s00-shell.html">open ↗</a></div><template><iframe data-pid="ios-s00-shell" src="./preview/ios-s00-shell.html?id=ios-s00-shell" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>iOS files</span><a class="open" href="./preview/ios-s01-files.html">open ↗</a></div><template><iframe data-pid="ios-s01-files" src="./preview/ios-s01-files.html?id=ios-s01-files" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>iOS transfers &amp; downloads</span><a class="open" href="./preview/ios-s02-transfers.html">open ↗</a></div><template><iframe data-pid="ios-s02-transfers" src="./preview/ios-s02-transfers.html?id=ios-s02-transfers" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>iOS players</span><a class="open" href="./preview/ios-s03-players.html">open ↗</a></div><template><iframe data-pid="ios-s03-players" src="./preview/ios-s03-players.html?id=ios-s03-players" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>iOS settings</span><a class="open" href="./preview/ios-s04-settings.html">open ↗</a></div><template><iframe data-pid="ios-s04-settings" src="./preview/ios-s04-settings.html?id=ios-s04-settings" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Phone welcome (iOS + Android)</span><a class="open" href="./preview/mobile-s00-welcome.html">open ↗</a></div><template><iframe data-pid="mobile-s00-welcome" src="./preview/mobile-s00-welcome.html?id=mobile-s00-welcome" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>watchOS</span><a class="open" href="./preview/watchos-s00-shell.html">open ↗</a></div><template><iframe data-pid="watchos-s00-shell" src="./preview/watchos-s00-shell.html?id=watchos-s00-shell" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>tvOS</span><a class="open" href="./preview/tvos-s00-shell.html">open ↗</a></div><template><iframe data-pid="tvos-s00-shell" src="./preview/tvos-s00-shell.html?id=tvos-s00-shell" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>tvOS search</span><a class="open" href="./preview/tvos-s01-search.html">open ↗</a></div><template><iframe data-pid="tvos-s01-search" src="./preview/tvos-s01-search.html?id=tvos-s01-search" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>tvOS account</span><a class="open" href="./preview/tvos-s02-account.html">open ↗</a></div><template><iframe data-pid="tvos-s02-account" src="./preview/tvos-s02-account.html?id=tvos-s02-account" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>tvOS continue watching</span><a class="open" href="./preview/tvos-s03-continue-watching.html">open ↗</a></div><template><iframe data-pid="tvos-s03-continue-watching" src="./preview/tvos-s03-continue-watching.html?id=tvos-s03-continue-watching" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>tvOS app and device information</span><a class="open" href="./preview/tvos-s04-diagnostics.html">open ↗</a></div><template><iframe data-pid="tvos-s04-diagnostics" src="./preview/tvos-s04-diagnostics.html?id=tvos-s04-diagnostics" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>tvOS unsupported file</span><a class="open" href="./preview/tvos-s05-unsupported.html">open ↗</a></div><template><iframe data-pid="tvos-s05-unsupported" src="./preview/tvos-s05-unsupported.html?id=tvos-s05-unsupported" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>iOS / iPadOS shell</span><a class="open" href="./preview/ios-s00-shell.html" aria-label="Open iOS / iPadOS shell">open ↗</a></div><template><iframe title="iOS / iPadOS shell" data-pid="ios-s00-shell" src="./preview/ios-s00-shell.html?id=ios-s00-shell" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>iOS files</span><a class="open" href="./preview/ios-s01-files.html" aria-label="Open iOS files">open ↗</a></div><template><iframe title="iOS files" data-pid="ios-s01-files" src="./preview/ios-s01-files.html?id=ios-s01-files" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>iOS transfers &amp; downloads</span><a class="open" href="./preview/ios-s02-transfers.html" aria-label="Open iOS transfers &amp; downloads">open ↗</a></div><template><iframe title="iOS transfers &amp; downloads" data-pid="ios-s02-transfers" src="./preview/ios-s02-transfers.html?id=ios-s02-transfers" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>iOS players</span><a class="open" href="./preview/ios-s03-players.html" aria-label="Open iOS players">open ↗</a></div><template><iframe title="iOS players" data-pid="ios-s03-players" src="./preview/ios-s03-players.html?id=ios-s03-players" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>iOS settings</span><a class="open" href="./preview/ios-s04-settings.html" aria-label="Open iOS settings">open ↗</a></div><template><iframe title="iOS settings" data-pid="ios-s04-settings" src="./preview/ios-s04-settings.html?id=ios-s04-settings" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Phone welcome (iOS + Android)</span><a class="open" href="./preview/mobile-s00-welcome.html" aria-label="Open Phone welcome (iOS + Android) · Mobile">open ↗</a></div><template><iframe title="Phone welcome (iOS + Android) · Mobile" data-pid="mobile-s00-welcome" src="./preview/mobile-s00-welcome.html?id=mobile-s00-welcome" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>watchOS</span><a class="open" href="./preview/watchos-s00-shell.html" aria-label="Open watchOS">open ↗</a></div><template><iframe title="watchOS" data-pid="watchos-s00-shell" src="./preview/watchos-s00-shell.html?id=watchos-s00-shell" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>tvOS</span><a class="open" href="./preview/tvos-s00-shell.html" aria-label="Open tvOS">open ↗</a></div><template><iframe title="tvOS" data-pid="tvos-s00-shell" src="./preview/tvos-s00-shell.html?id=tvos-s00-shell" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>tvOS search</span><a class="open" href="./preview/tvos-s01-search.html" aria-label="Open tvOS search">open ↗</a></div><template><iframe title="tvOS search" data-pid="tvos-s01-search" src="./preview/tvos-s01-search.html?id=tvos-s01-search" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>tvOS account</span><a class="open" href="./preview/tvos-s02-account.html" aria-label="Open tvOS account">open ↗</a></div><template><iframe title="tvOS account" data-pid="tvos-s02-account" src="./preview/tvos-s02-account.html?id=tvos-s02-account" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>tvOS continue watching</span><a class="open" href="./preview/tvos-s03-continue-watching.html" aria-label="Open tvOS continue watching">open ↗</a></div><template><iframe title="tvOS continue watching" data-pid="tvos-s03-continue-watching" src="./preview/tvos-s03-continue-watching.html?id=tvos-s03-continue-watching" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>tvOS app and device information</span><a class="open" href="./preview/tvos-s04-diagnostics.html" aria-label="Open tvOS app and device information">open ↗</a></div><template><iframe title="tvOS app and device information" data-pid="tvos-s04-diagnostics" src="./preview/tvos-s04-diagnostics.html?id=tvos-s04-diagnostics" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>tvOS unsupported file</span><a class="open" href="./preview/tvos-s05-unsupported.html" aria-label="Open tvOS unsupported file">open ↗</a></div><template><iframe title="tvOS unsupported file" data-pid="tvos-s05-unsupported" src="./preview/tvos-s05-unsupported.html?id=tvos-s05-unsupported" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -1991,18 +1997,18 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
           </ul></dd></div>
         </dl>
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>List item</span><a class="open" href="./preview/android-e00-listitem.html">open ↗</a></div><template><iframe data-pid="android-e00-listitem" src="./preview/android-e00-listitem.html?id=android-e00-listitem" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Switch</span><a class="open" href="./preview/android-e01-switch.html">open ↗</a></div><template><iframe data-pid="android-e01-switch" src="./preview/android-e01-switch.html?id=android-e01-switch" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Navigation bar</span><a class="open" href="./preview/android-e02-navbar.html">open ↗</a></div><template><iframe data-pid="android-e02-navbar" src="./preview/android-e02-navbar.html?id=android-e02-navbar" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>FAB</span><a class="open" href="./preview/android-e03-fab.html">open ↗</a></div><template><iframe data-pid="android-e03-fab" src="./preview/android-e03-fab.html?id=android-e03-fab" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Top app bar</span><a class="open" href="./preview/android-e04-topbar.html">open ↗</a></div><template><iframe data-pid="android-e04-topbar" src="./preview/android-e04-topbar.html?id=android-e04-topbar" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Dialog</span><a class="open" href="./preview/android-e05-dialog.html">open ↗</a></div><template><iframe data-pid="android-e05-dialog" src="./preview/android-e05-dialog.html?id=android-e05-dialog" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Bottom sheet</span><a class="open" href="./preview/android-e06-sheet.html">open ↗</a></div><template><iframe data-pid="android-e06-sheet" src="./preview/android-e06-sheet.html?id=android-e06-sheet" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Progress</span><a class="open" href="./preview/android-e07-progress.html">open ↗</a></div><template><iframe data-pid="android-e07-progress" src="./preview/android-e07-progress.html?id=android-e07-progress" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Button</span><a class="open" href="./preview/android-e08-button.html">open ↗</a></div><template><iframe data-pid="android-e08-button" src="./preview/android-e08-button.html?id=android-e08-button" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Slider</span><a class="open" href="./preview/android-e09-slider.html">open ↗</a></div><template><iframe data-pid="android-e09-slider" src="./preview/android-e09-slider.html?id=android-e09-slider" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Search bar</span><a class="open" href="./preview/android-e10-searchbar.html">open ↗</a></div><template><iframe data-pid="android-e10-searchbar" src="./preview/android-e10-searchbar.html?id=android-e10-searchbar" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Snackbar</span><a class="open" href="./preview/android-e11-snackbar.html">open ↗</a></div><template><iframe data-pid="android-e11-snackbar" src="./preview/android-e11-snackbar.html?id=android-e11-snackbar" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>List item</span><a class="open" href="./preview/android-e00-listitem.html" aria-label="Open List item">open ↗</a></div><template><iframe title="List item" data-pid="android-e00-listitem" src="./preview/android-e00-listitem.html?id=android-e00-listitem" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Switch</span><a class="open" href="./preview/android-e01-switch.html" aria-label="Open Switch">open ↗</a></div><template><iframe title="Switch" data-pid="android-e01-switch" src="./preview/android-e01-switch.html?id=android-e01-switch" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Navigation bar</span><a class="open" href="./preview/android-e02-navbar.html" aria-label="Open Navigation bar · Android">open ↗</a></div><template><iframe title="Navigation bar · Android" data-pid="android-e02-navbar" src="./preview/android-e02-navbar.html?id=android-e02-navbar" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>FAB</span><a class="open" href="./preview/android-e03-fab.html" aria-label="Open FAB">open ↗</a></div><template><iframe title="FAB" data-pid="android-e03-fab" src="./preview/android-e03-fab.html?id=android-e03-fab" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Top app bar</span><a class="open" href="./preview/android-e04-topbar.html" aria-label="Open Top app bar">open ↗</a></div><template><iframe title="Top app bar" data-pid="android-e04-topbar" src="./preview/android-e04-topbar.html?id=android-e04-topbar" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Dialog</span><a class="open" href="./preview/android-e05-dialog.html" aria-label="Open Dialog">open ↗</a></div><template><iframe title="Dialog" data-pid="android-e05-dialog" src="./preview/android-e05-dialog.html?id=android-e05-dialog" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Bottom sheet</span><a class="open" href="./preview/android-e06-sheet.html" aria-label="Open Bottom sheet">open ↗</a></div><template><iframe title="Bottom sheet" data-pid="android-e06-sheet" src="./preview/android-e06-sheet.html?id=android-e06-sheet" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Progress</span><a class="open" href="./preview/android-e07-progress.html" aria-label="Open Progress">open ↗</a></div><template><iframe title="Progress" data-pid="android-e07-progress" src="./preview/android-e07-progress.html?id=android-e07-progress" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Button</span><a class="open" href="./preview/android-e08-button.html" aria-label="Open Button">open ↗</a></div><template><iframe title="Button" data-pid="android-e08-button" src="./preview/android-e08-button.html?id=android-e08-button" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Slider</span><a class="open" href="./preview/android-e09-slider.html" aria-label="Open Slider · Android">open ↗</a></div><template><iframe title="Slider · Android" data-pid="android-e09-slider" src="./preview/android-e09-slider.html?id=android-e09-slider" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Search bar</span><a class="open" href="./preview/android-e10-searchbar.html" aria-label="Open Search bar">open ↗</a></div><template><iframe title="Search bar" data-pid="android-e10-searchbar" src="./preview/android-e10-searchbar.html?id=android-e10-searchbar" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Snackbar</span><a class="open" href="./preview/android-e11-snackbar.html" aria-label="Open Snackbar">open ↗</a></div><template><iframe title="Snackbar" data-pid="android-e11-snackbar" src="./preview/android-e11-snackbar.html?id=android-e11-snackbar" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -2016,16 +2022,16 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
           <div class="src">preview/android-s* · androidtv</div>
         </header>
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android shell</span><a class="open" href="./preview/android-s00-shell.html">open ↗</a></div><template><iframe data-pid="android-s00-shell" src="./preview/android-s00-shell.html?id=android-s00-shell" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android settings &amp; dialogs</span><a class="open" href="./preview/android-s01-settings.html">open ↗</a></div><template><iframe data-pid="android-s01-settings" src="./preview/android-s01-settings.html?id=android-s01-settings" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Phone welcome (iOS + Android)</span><a class="open" href="./preview/mobile-s00-welcome.html">open ↗</a></div><template><iframe data-pid="mobile-s00-welcome-2" src="./preview/mobile-s00-welcome.html?id=mobile-s00-welcome-2" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android TV</span><a class="open" href="./preview/androidtv-s00-shell.html">open ↗</a></div><template><iframe data-pid="androidtv-s00-shell" src="./preview/androidtv-s00-shell.html?id=androidtv-s00-shell" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android TV search</span><a class="open" href="./preview/androidtv-s01-search.html">open ↗</a></div><template><iframe data-pid="androidtv-s01-search" src="./preview/androidtv-s01-search.html?id=androidtv-s01-search" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android TV account</span><a class="open" href="./preview/androidtv-s02-account.html">open ↗</a></div><template><iframe data-pid="androidtv-s02-account" src="./preview/androidtv-s02-account.html?id=androidtv-s02-account" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android TV continue watching</span><a class="open" href="./preview/androidtv-s03-continue-watching.html">open ↗</a></div><template><iframe data-pid="androidtv-s03-continue-watching" src="./preview/androidtv-s03-continue-watching.html?id=androidtv-s03-continue-watching" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android TV sign-in check</span><a class="open" href="./preview/androidtv-s04-sign-in-verifying.html">open ↗</a></div><template><iframe data-pid="androidtv-s04-sign-in-verifying" src="./preview/androidtv-s04-sign-in-verifying.html?id=androidtv-s04-sign-in-verifying" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android TV app and device information</span><a class="open" href="./preview/androidtv-s05-diagnostics.html">open ↗</a></div><template><iframe data-pid="androidtv-s05-diagnostics" src="./preview/androidtv-s05-diagnostics.html?id=androidtv-s05-diagnostics" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android TV unsupported file</span><a class="open" href="./preview/androidtv-s06-unsupported.html">open ↗</a></div><template><iframe data-pid="androidtv-s06-unsupported" src="./preview/androidtv-s06-unsupported.html?id=androidtv-s06-unsupported" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android shell</span><a class="open" href="./preview/android-s00-shell.html" aria-label="Open Android shell">open ↗</a></div><template><iframe title="Android shell" data-pid="android-s00-shell" src="./preview/android-s00-shell.html?id=android-s00-shell" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android settings &amp; dialogs</span><a class="open" href="./preview/android-s01-settings.html" aria-label="Open Android settings &amp; dialogs">open ↗</a></div><template><iframe title="Android settings &amp; dialogs" data-pid="android-s01-settings" src="./preview/android-s01-settings.html?id=android-s01-settings" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Phone welcome (iOS + Android)</span><a class="open" href="./preview/mobile-s00-welcome.html" aria-label="Open Phone welcome (iOS + Android) · Mobile">open ↗</a></div><template><iframe title="Phone welcome (iOS + Android) · Mobile" data-pid="mobile-s00-welcome-2" src="./preview/mobile-s00-welcome.html?id=mobile-s00-welcome-2" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android TV</span><a class="open" href="./preview/androidtv-s00-shell.html" aria-label="Open Android TV">open ↗</a></div><template><iframe title="Android TV" data-pid="androidtv-s00-shell" src="./preview/androidtv-s00-shell.html?id=androidtv-s00-shell" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android TV search</span><a class="open" href="./preview/androidtv-s01-search.html" aria-label="Open Android TV search">open ↗</a></div><template><iframe title="Android TV search" data-pid="androidtv-s01-search" src="./preview/androidtv-s01-search.html?id=androidtv-s01-search" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android TV account</span><a class="open" href="./preview/androidtv-s02-account.html" aria-label="Open Android TV account">open ↗</a></div><template><iframe title="Android TV account" data-pid="androidtv-s02-account" src="./preview/androidtv-s02-account.html?id=androidtv-s02-account" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android TV continue watching</span><a class="open" href="./preview/androidtv-s03-continue-watching.html" aria-label="Open Android TV continue watching">open ↗</a></div><template><iframe title="Android TV continue watching" data-pid="androidtv-s03-continue-watching" src="./preview/androidtv-s03-continue-watching.html?id=androidtv-s03-continue-watching" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android TV sign-in check</span><a class="open" href="./preview/androidtv-s04-sign-in-verifying.html" aria-label="Open Android TV sign-in check">open ↗</a></div><template><iframe title="Android TV sign-in check" data-pid="androidtv-s04-sign-in-verifying" src="./preview/androidtv-s04-sign-in-verifying.html?id=androidtv-s04-sign-in-verifying" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android TV app and device information</span><a class="open" href="./preview/androidtv-s05-diagnostics.html" aria-label="Open Android TV app and device information">open ↗</a></div><template><iframe title="Android TV app and device information" data-pid="androidtv-s05-diagnostics" src="./preview/androidtv-s05-diagnostics.html?id=androidtv-s05-diagnostics" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Android TV unsupported file</span><a class="open" href="./preview/androidtv-s06-unsupported.html" aria-label="Open Android TV unsupported file">open ↗</a></div><template><iframe title="Android TV unsupported file" data-pid="androidtv-s06-unsupported" src="./preview/androidtv-s06-unsupported.html?id=androidtv-s06-unsupported" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -2045,22 +2051,22 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
           <strong>Icon names are not Phosphor names on Roku.</strong> Card asset names map through <code>config/phosphor-icons.json</code> in the Roku channel repo — never assume the card&#8217;s glyph name is the asset name.
         </div>
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Roku metrics</span><a class="open" href="./preview/roku-f00-metrics.html">open ↗</a></div><template><iframe data-pid="roku-f00-metrics" src="./preview/roku-f00-metrics.html?id=roku-f00-metrics" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>ListItem</span><a class="open" href="./preview/roku-c00-listitem.html">open ↗</a></div><template><iframe data-pid="roku-c00-listitem" src="./preview/roku-c00-listitem.html?id=roku-c00-listitem" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>FocusBackground</span><a class="open" href="./preview/roku-c01-focus.html">open ↗</a></div><template><iframe data-pid="roku-c01-focus" src="./preview/roku-c01-focus.html?id=roku-c01-focus" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Dialog button focus</span><a class="open" href="./preview/roku-c02-dialog-focus.html">open ↗</a></div><template><iframe data-pid="roku-c02-dialog-focus" src="./preview/roku-c02-dialog-focus.html?id=roku-c02-dialog-focus" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Roku ★ Options</span><a class="open" href="./preview/roku-p00-options.html">open ↗</a></div><template><iframe data-pid="roku-p00-options" src="./preview/roku-p00-options.html?id=roku-p00-options" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Destructive confirm</span><a class="open" href="./preview/roku-p01-destructive.html">open ↗</a></div><template><iframe data-pid="roku-p01-destructive" src="./preview/roku-p01-destructive.html?id=roku-p01-destructive" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Track menu</span><a class="open" href="./preview/roku-p02-trackmenu.html">open ↗</a></div><template><iframe data-pid="roku-p02-trackmenu" src="./preview/roku-p02-trackmenu.html?id=roku-p02-trackmenu" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Continue watching</span><a class="open" href="./preview/roku-p03-continue-watching.html">open ↗</a></div><template><iframe data-pid="roku-p03-continue-watching" src="./preview/roku-p03-continue-watching.html?id=roku-p03-continue-watching" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Conversion status</span><a class="open" href="./preview/roku-p04-conversion.html">open ↗</a></div><template><iframe data-pid="roku-p04-conversion" src="./preview/roku-p04-conversion.html?id=roku-p04-conversion" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>File not supported</span><a class="open" href="./preview/roku-p05-not-supported.html">open ↗</a></div><template><iframe data-pid="roku-p05-not-supported" src="./preview/roku-p05-not-supported.html?id=roku-p05-not-supported" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>File browser</span><a class="open" href="./preview/roku-s00-files.html">open ↗</a></div><template><iframe data-pid="roku-s00-files" src="./preview/roku-s00-files.html?id=roku-s00-files" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Video player</span><a class="open" href="./preview/roku-s01-player.html">open ↗</a></div><template><iframe data-pid="roku-s01-player" src="./preview/roku-s01-player.html?id=roku-s01-player" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Search</span><a class="open" href="./preview/roku-s02-search.html">open ↗</a></div><template><iframe data-pid="roku-s02-search" src="./preview/roku-s02-search.html?id=roku-s02-search" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Settings</span><a class="open" href="./preview/roku-s03-settings.html">open ↗</a></div><template><iframe data-pid="roku-s03-settings" src="./preview/roku-s03-settings.html?id=roku-s03-settings" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>History</span><a class="open" href="./preview/roku-s04-history.html">open ↗</a></div><template><iframe data-pid="roku-s04-history" src="./preview/roku-s04-history.html?id=roku-s04-history" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Auth</span><a class="open" href="./preview/roku-s05-auth.html">open ↗</a></div><template><iframe data-pid="roku-s05-auth" src="./preview/roku-s05-auth.html?id=roku-s05-auth" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Roku metrics</span><a class="open" href="./preview/roku-f00-metrics.html" aria-label="Open Roku metrics">open ↗</a></div><template><iframe title="Roku metrics" data-pid="roku-f00-metrics" src="./preview/roku-f00-metrics.html?id=roku-f00-metrics" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>ListItem</span><a class="open" href="./preview/roku-c00-listitem.html" aria-label="Open ListItem">open ↗</a></div><template><iframe title="ListItem" data-pid="roku-c00-listitem" src="./preview/roku-c00-listitem.html?id=roku-c00-listitem" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>FocusBackground</span><a class="open" href="./preview/roku-c01-focus.html" aria-label="Open FocusBackground">open ↗</a></div><template><iframe title="FocusBackground" data-pid="roku-c01-focus" src="./preview/roku-c01-focus.html?id=roku-c01-focus" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Dialog button focus</span><a class="open" href="./preview/roku-c02-dialog-focus.html" aria-label="Open Dialog button focus">open ↗</a></div><template><iframe title="Dialog button focus" data-pid="roku-c02-dialog-focus" src="./preview/roku-c02-dialog-focus.html?id=roku-c02-dialog-focus" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Roku ★ Options</span><a class="open" href="./preview/roku-p00-options.html" aria-label="Open Roku ★ Options">open ↗</a></div><template><iframe title="Roku ★ Options" data-pid="roku-p00-options" src="./preview/roku-p00-options.html?id=roku-p00-options" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Destructive confirm</span><a class="open" href="./preview/roku-p01-destructive.html" aria-label="Open Destructive confirm">open ↗</a></div><template><iframe title="Destructive confirm" data-pid="roku-p01-destructive" src="./preview/roku-p01-destructive.html?id=roku-p01-destructive" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Track menu</span><a class="open" href="./preview/roku-p02-trackmenu.html" aria-label="Open Track menu">open ↗</a></div><template><iframe title="Track menu" data-pid="roku-p02-trackmenu" src="./preview/roku-p02-trackmenu.html?id=roku-p02-trackmenu" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Continue watching</span><a class="open" href="./preview/roku-p03-continue-watching.html" aria-label="Open Continue watching">open ↗</a></div><template><iframe title="Continue watching" data-pid="roku-p03-continue-watching" src="./preview/roku-p03-continue-watching.html?id=roku-p03-continue-watching" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Conversion status</span><a class="open" href="./preview/roku-p04-conversion.html" aria-label="Open Conversion status · Roku">open ↗</a></div><template><iframe title="Conversion status · Roku" data-pid="roku-p04-conversion" src="./preview/roku-p04-conversion.html?id=roku-p04-conversion" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>File not supported</span><a class="open" href="./preview/roku-p05-not-supported.html" aria-label="Open File not supported">open ↗</a></div><template><iframe title="File not supported" data-pid="roku-p05-not-supported" src="./preview/roku-p05-not-supported.html?id=roku-p05-not-supported" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>File browser</span><a class="open" href="./preview/roku-s00-files.html" aria-label="Open File browser">open ↗</a></div><template><iframe title="File browser" data-pid="roku-s00-files" src="./preview/roku-s00-files.html?id=roku-s00-files" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Video player</span><a class="open" href="./preview/roku-s01-player.html" aria-label="Open Video player">open ↗</a></div><template><iframe title="Video player" data-pid="roku-s01-player" src="./preview/roku-s01-player.html?id=roku-s01-player" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Search</span><a class="open" href="./preview/roku-s02-search.html" aria-label="Open Search · Roku">open ↗</a></div><template><iframe title="Search · Roku" data-pid="roku-s02-search" src="./preview/roku-s02-search.html?id=roku-s02-search" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Settings</span><a class="open" href="./preview/roku-s03-settings.html" aria-label="Open Settings · Roku">open ↗</a></div><template><iframe title="Settings · Roku" data-pid="roku-s03-settings" src="./preview/roku-s03-settings.html?id=roku-s03-settings" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>History</span><a class="open" href="./preview/roku-s04-history.html" aria-label="Open History · Roku">open ↗</a></div><template><iframe title="History · Roku" data-pid="roku-s04-history" src="./preview/roku-s04-history.html?id=roku-s04-history" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Auth</span><a class="open" href="./preview/roku-s05-auth.html" aria-label="Open Auth">open ↗</a></div><template><iframe title="Auth" data-pid="roku-s05-auth" src="./preview/roku-s05-auth.html?id=roku-s05-auth" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -2092,7 +2098,7 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
         </dl>
 
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Foundations</span><a class="open" href="./preview/tv-f00-foundations.html">open ↗</a></div><template><iframe data-pid="tv-f00-foundations" src="./preview/tv-f00-foundations.html?id=tv-f00-foundations" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Foundations</span><a class="open" href="./preview/tv-f00-foundations.html" aria-label="Open Foundations">open ↗</a></div><template><iframe title="Foundations" data-pid="tv-f00-foundations" src="./preview/tv-f00-foundations.html?id=tv-f00-foundations" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -2106,7 +2112,7 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
           <div class="src"><a href="./preview/tv-f01-focus.html">preview/tv-f01-focus.html ↗</a></div>
         </header>
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Focus states</span><a class="open" href="./preview/tv-f01-focus.html">open ↗</a></div><template><iframe data-pid="tv-f01-focus" src="./preview/tv-f01-focus.html?id=tv-f01-focus" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Focus states</span><a class="open" href="./preview/tv-f01-focus.html" aria-label="Open Focus states">open ↗</a></div><template><iframe title="Focus states" data-pid="tv-f01-focus" src="./preview/tv-f01-focus.html?id=tv-f01-focus" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -2120,8 +2126,8 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
           <div class="src"><a href="./preview/tv-p00-navigation.html">preview/tv-p00-navigation.html ↗</a></div>
         </header>
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Navigation</span><a class="open" href="./preview/tv-p00-navigation.html">open ↗</a></div><template><iframe data-pid="tv-p00-navigation" src="./preview/tv-p00-navigation.html?id=tv-p00-navigation" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>TV account</span><a class="open" href="./preview/tv-s00-account.html">open ↗</a></div><template><iframe data-pid="tv-s00-account" src="./preview/tv-s00-account.html?id=tv-s00-account" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Navigation</span><a class="open" href="./preview/tv-p00-navigation.html" aria-label="Open Navigation">open ↗</a></div><template><iframe title="Navigation" data-pid="tv-p00-navigation" src="./preview/tv-p00-navigation.html?id=tv-p00-navigation" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>TV account</span><a class="open" href="./preview/tv-s00-account.html" aria-label="Open TV account">open ↗</a></div><template><iframe title="TV account" data-pid="tv-s00-account" src="./preview/tv-s00-account.html?id=tv-s00-account" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -2135,8 +2141,8 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
           <div class="src"><a href="./preview/tv-p01-action-menus.html">preview/tv-p01-action-menus.html ↗</a></div>
         </header>
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Action menus</span><a class="open" href="./preview/tv-p01-action-menus.html">open ↗</a></div><template><iframe data-pid="tv-p01-action-menus" src="./preview/tv-p01-action-menus.html?id=tv-p01-action-menus" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Select modal</span><a class="open" href="./preview/tv-p03-select-modal.html">open ↗</a></div><template><iframe data-pid="tv-p03-select-modal" src="./preview/tv-p03-select-modal.html?id=tv-p03-select-modal" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Action menus</span><a class="open" href="./preview/tv-p01-action-menus.html" aria-label="Open Action menus">open ↗</a></div><template><iframe title="Action menus" data-pid="tv-p01-action-menus" src="./preview/tv-p01-action-menus.html?id=tv-p01-action-menus" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Select modal</span><a class="open" href="./preview/tv-p03-select-modal.html" aria-label="Open Select modal">open ↗</a></div><template><iframe title="Select modal" data-pid="tv-p03-select-modal" src="./preview/tv-p03-select-modal.html?id=tv-p03-select-modal" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -2150,10 +2156,10 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
           <div class="src"><a href="./preview/tv-s01-player.html">preview/tv-s01-player.html ↗</a></div>
         </header>
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>TV player</span><a class="open" href="./preview/tv-s01-player.html">open ↗</a></div><template><iframe data-pid="tv-s01-player" src="./preview/tv-s01-player.html?id=tv-s01-player" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Video player · controls</span><a class="open" href="./preview/tv-s02-player.html">open ↗</a></div><template><iframe data-pid="tv-s02-player" src="./preview/tv-s02-player.html?id=tv-s02-player" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Resume prompt</span><a class="open" href="./preview/tv-p04-resume.html">open ↗</a></div><template><iframe data-pid="tv-p04-resume" src="./preview/tv-p04-resume.html?id=tv-p04-resume" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Conversion status</span><a class="open" href="./preview/tv-p05-conversion.html">open ↗</a></div><template><iframe data-pid="tv-p05-conversion" src="./preview/tv-p05-conversion.html?id=tv-p05-conversion" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>TV player</span><a class="open" href="./preview/tv-s01-player.html" aria-label="Open TV player">open ↗</a></div><template><iframe title="TV player" data-pid="tv-s01-player" src="./preview/tv-s01-player.html?id=tv-s01-player" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Video player · controls</span><a class="open" href="./preview/tv-s02-player.html" aria-label="Open Video player · controls">open ↗</a></div><template><iframe title="Video player · controls" data-pid="tv-s02-player" src="./preview/tv-s02-player.html?id=tv-s02-player" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Resume prompt</span><a class="open" href="./preview/tv-p04-resume.html" aria-label="Open Resume prompt">open ↗</a></div><template><iframe title="Resume prompt" data-pid="tv-p04-resume" src="./preview/tv-p04-resume.html?id=tv-p04-resume" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Conversion status</span><a class="open" href="./preview/tv-p05-conversion.html" aria-label="Open Conversion status · TV">open ↗</a></div><template><iframe title="Conversion status · TV" data-pid="tv-p05-conversion" src="./preview/tv-p05-conversion.html?id=tv-p05-conversion" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -2167,12 +2173,12 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
           <div class="src">preview/tv-s03…s08</div>
         </header>
         <div class="embeds full">
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Search</span><a class="open" href="./preview/tv-s03-search.html">open ↗</a></div><template><iframe data-pid="tv-s03-search" src="./preview/tv-s03-search.html?id=tv-s03-search" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>History</span><a class="open" href="./preview/tv-s04-history.html">open ↗</a></div><template><iframe data-pid="tv-s04-history" src="./preview/tv-s04-history.html?id=tv-s04-history" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Trash</span><a class="open" href="./preview/tv-s05-trash.html">open ↗</a></div><template><iframe data-pid="tv-s05-trash" src="./preview/tv-s05-trash.html?id=tv-s05-trash" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Empty, error, loading</span><a class="open" href="./preview/tv-s06-states.html">open ↗</a></div><template><iframe data-pid="tv-s06-states" src="./preview/tv-s06-states.html?id=tv-s06-states" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Device-code auth</span><a class="open" href="./preview/tv-s07-auth.html">open ↗</a></div><template><iframe data-pid="tv-s07-auth" src="./preview/tv-s07-auth.html?id=tv-s07-auth" loading="lazy"></iframe></template></div>
-          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Diagnostics</span><a class="open" href="./preview/tv-s08-diagnostics.html">open ↗</a></div><template><iframe data-pid="tv-s08-diagnostics" src="./preview/tv-s08-diagnostics.html?id=tv-s08-diagnostics" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Search</span><a class="open" href="./preview/tv-s03-search.html" aria-label="Open Search · TV">open ↗</a></div><template><iframe title="Search · TV" data-pid="tv-s03-search" src="./preview/tv-s03-search.html?id=tv-s03-search" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>History</span><a class="open" href="./preview/tv-s04-history.html" aria-label="Open History · TV">open ↗</a></div><template><iframe title="History · TV" data-pid="tv-s04-history" src="./preview/tv-s04-history.html?id=tv-s04-history" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Trash</span><a class="open" href="./preview/tv-s05-trash.html" aria-label="Open Trash">open ↗</a></div><template><iframe title="Trash" data-pid="tv-s05-trash" src="./preview/tv-s05-trash.html?id=tv-s05-trash" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Empty, error, loading</span><a class="open" href="./preview/tv-s06-states.html" aria-label="Open Empty, error, loading">open ↗</a></div><template><iframe title="Empty, error, loading" data-pid="tv-s06-states" src="./preview/tv-s06-states.html?id=tv-s06-states" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Device-code auth</span><a class="open" href="./preview/tv-s07-auth.html" aria-label="Open Device-code auth">open ↗</a></div><template><iframe title="Device-code auth" data-pid="tv-s07-auth" src="./preview/tv-s07-auth.html?id=tv-s07-auth" loading="lazy"></iframe></template></div>
+          <div class="panel embed featured"><div class="ehd"><span class="ttl"><span class="dot"></span>Diagnostics</span><a class="open" href="./preview/tv-s08-diagnostics.html" aria-label="Open Diagnostics">open ↗</a></div><template><iframe title="Diagnostics" data-pid="tv-s08-diagnostics" src="./preview/tv-s08-diagnostics.html?id=tv-s08-diagnostics" loading="lazy"></iframe></template></div>
         </div>
       </section>
 
@@ -2267,8 +2273,6 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
   }
 
   function watchFrame(frame) {
-    if (frame.__pwatch) return;
-    frame.__pwatch = true;
     const onLoad = () => {
       // measure immediately and after fonts settle
       measureFrame(frame);
@@ -2284,12 +2288,6 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
     // The real (post-lazy) load — fires on every navigation, including the
     // first time a lazy iframe pulls its real src.
     frame.addEventListener('load', onLoad);
-    // If the iframe already has its real document (non-lazy or already
-    // loaded before this script ran), kick once now too.
-    try {
-      const d = frame.contentDocument;
-      if (d && d.body && (d.body.scrollHeight || d.body.children.length)) onLoad();
-    } catch (e) {}
   }
 
   const previews = new IntersectionObserver(entries => {
@@ -2297,6 +2295,7 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
       if (!entry.isIntersecting) return;
       const template = entry.target.querySelector('template');
       const frame = template.content.querySelector('iframe').cloneNode(true);
+      frame.src += '&theme=' + (document.documentElement.classList.contains('dark') ? 'dark' : 'light');
       map.set(frame.dataset.pid, frame);
       watchFrame(frame);
       template.replaceWith(frame);
@@ -2331,9 +2330,9 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
     entries.forEach(en => {
       if (!en.isIntersecting) return;
       const id = en.target.id;
-      links.forEach(l => l.classList.remove('is-active'));
+      links.forEach(l => { l.classList.remove('is-active'); l.removeAttribute('aria-current'); });
       const a = byId.get(id);
-      if (a) a.classList.add('is-active');
+      if (a) { a.classList.add('is-active'); a.setAttribute('aria-current', 'true'); }
     });
   }, { rootMargin: '-20% 0px -70% 0px' });
   targets.forEach(t => io.observe(t));
@@ -2345,7 +2344,10 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
   const panes = document.querySelectorAll('.contract .pane[data-pane]');
   tabs.forEach(t => t.addEventListener('click', () => {
     const k = t.dataset.pane;
-    tabs.forEach(x => x.classList.toggle('is-active', x.dataset.pane === k));
+    tabs.forEach(x => {
+      x.classList.toggle('is-active', x.dataset.pane === k);
+      x.setAttribute('aria-selected', String(x.dataset.pane === k));
+    });
     panes.forEach(x => x.classList.toggle('is-active', x.dataset.pane === k));
   }));
 })();
@@ -2366,10 +2368,12 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
       try { f.contentWindow && f.contentWindow.postMessage({ type: '__theme', theme }, '*'); } catch (e) {}
     });
   }
-  function apply(dark) {
+  function apply(dark, persist) {
     document.documentElement.classList.toggle('dark', dark);
-    if (meta) meta.setAttribute('content', dark ? '#09090B' : '#FFFFFF');
-    try { localStorage.setItem('putio-ds-theme', dark ? 'dark' : 'light'); } catch (e) {}
+    if (meta) meta.setAttribute('content', dark ? '#161616' : '#FCFCFC');
+    if (persist) {
+      try { localStorage.setItem('putio-ds-theme', dark ? 'dark' : 'light'); } catch (e) {}
+    }
     broadcast(dark ? 'dark' : 'light');
   }
 
@@ -2388,9 +2392,9 @@ the native apps        <span class="c">// iOS / Android / Roku — build their O
   }, true);
 
   if (btn) {
-    apply(document.documentElement.classList.contains('dark'));
+    apply(document.documentElement.classList.contains('dark'), false);
     btn.addEventListener('click', () => {
-      apply(!document.documentElement.classList.contains('dark'));
+      apply(!document.documentElement.classList.contains('dark'), true);
     });
   }
 })();

@@ -621,6 +621,21 @@ async function checkSpacingGrid() {
   }
 }
 
+// A literal "\n" pasted into CSS parses as an escaped "n", so the selector
+// after it silently stops matching.
+async function checkCssEscapes() {
+  const systemDir = path.join(root, "system");
+  const files = (await readdir(systemDir, { recursive: true })).filter((file) => /\.(?:css|html)$/.test(file));
+  for (const file of files) {
+    const source = await readFile(path.join(systemDir, file), "utf8");
+    const css = file.endsWith(".css")
+      ? source
+      : [...source.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map(([, block]) => block).join("\n");
+    const code = css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'/g, '""');
+    assert(!code.includes("\\n"), `system/${file} has a literal \\n in CSS; it parses as an escaped "n"`);
+  }
+}
+
 async function checkHtmlLinks() {
   const systemDir = path.join(root, "system");
   const htmlFiles = (await readdir(systemDir, { recursive: true })).filter((file) => file.endsWith(".html"));
@@ -698,6 +713,7 @@ checkTokens(flat);
 await checkDesignMd(flat);
 await checkAppleContract();
 await checkHtmlLinks();
+await checkCssEscapes();
 await checkCss(flat);
 await checkSpacingGrid();
 await checkDeprecatedReads(flat);

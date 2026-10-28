@@ -66,10 +66,12 @@ function mergeJson(target: JsonObject, source: JsonObject, file: string) {
   }
 }
 
-function asToken(value: unknown): TokenNode | null {
+function asToken(value: unknown, parts: string[]): TokenNode | null {
   if (!isObject(value) || !("$value" in value)) return null;
   const token = value as TokenNode;
-  if (typeof token.$value !== "string" && typeof token.$value !== "number") return null;
+  if (typeof token.$value !== "string" && typeof token.$value !== "number") {
+    throw new Error(`Token ${parts.join(".")} has an unsupported $value; expected a string or number`);
+  }
   return token;
 }
 
@@ -87,7 +89,7 @@ function toCssName(parts: string[]): string {
 }
 
 function flattenTokens(node: unknown, parts: string[] = []): FlatToken[] {
-  const token = asToken(node);
+  const token = asToken(node, parts);
   if (token) {
     const putio = token.$extensions?.putio;
     if (!token.$type) {
