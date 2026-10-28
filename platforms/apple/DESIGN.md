@@ -140,7 +140,8 @@ tier-2 binding, documented as shipped.
   pushes a full-screen stack screen. No `TabView`.
 - Focus is a `--component-bg-active` fill on a 12px radius; buttons add a
   `--border-hover` border. The system lift is off.
-- GT America, no mono, no tabular figures. Row icons are Phosphor in
+- GT America, no mono. No tabular figures yet: drift from the root `tnum`
+  rule. Row icons are Phosphor in
   `--yellow-solid`: fill for file types, regular for the rest.
 - Values sit as `--text-secondary` sublines under row titles.
 - Booleans are an app-drawn 70×40 switch, `--green-solid` when on.

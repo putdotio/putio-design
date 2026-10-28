@@ -62,7 +62,7 @@ button i { font-size: var(--button-icon-size); line-height: 1; display: inline-f
    bare <button>. Anything that shouts "do a thing" (primary / secondary /
    destructive) is a `.btn-*` variant and inherits these. */
 .btn,
-.btn-primary, .btn-success, .btn-danger, .btn-info, .btn-invert, .btn-default, .btn-ghost {
+.btn-primary, .btn-success, .btn-danger, .btn-info, .btn-invert, .btn-default, .btn-ghost, .btn-quiet {
   height: calc(var(--button-height) * var(--tw-fs, 1));
   padding: 0 calc(var(--button-padding-x) * var(--tw-fs, 1));
   border-radius: var(--button-radius);
@@ -79,6 +79,7 @@ button i { font-size: var(--button-icon-size); line-height: 1; display: inline-f
 .btn-icon { width: calc(var(--button-height) * var(--tw-fs, 1)) !important; padding: 0 !important; text-transform: none; letter-spacing: normal; }
 .btn-icon.btn-md { width: calc(var(--button-height-md) * var(--tw-fs, 1)) !important; }
 .btn-icon.btn-sm { width: calc(var(--button-height-sm) * var(--tw-fs, 1)) !important; }
+.btn-icon.btn-xs { width: calc(var(--button-height-xs) * var(--tw-fs, 1)) !important; }
 
 /* Layout-only modifier — full-width CTA */
 .btn-block { width: 100%; }
@@ -98,18 +99,14 @@ button i { font-size: var(--button-icon-size); line-height: 1; display: inline-f
 .btn-quiet.btn-danger, .btn-quiet.btn-info, .btn-quiet.btn-default {
   background: transparent; border-color: transparent; color: var(--button-ghost-fg);
 }
-.btn-quiet:hover:not(:disabled), .btn-quiet.btn-default:hover:not(:disabled) { background: var(--button-ghost-bg-hover); border-color: transparent; color: var(--button-ghost-fg-hover); }
 .btn-quiet.btn-info { color: var(--text); }
 /* --yellow-text-secondary, not --yellow-solid: solid is a fill step, and in
    light mode the brand yellow as a glyph colour on a light surface is
    unreadable. The text step carries a legible value in both modes. */
 .btn-quiet.btn-primary, .btn-quiet.btn-warning { color: var(--yellow-text-secondary); }
-.btn-quiet.btn-primary:hover:not(:disabled), .btn-quiet.btn-warning:hover:not(:disabled) { background: var(--yellow-component-bg-hover); border-color: transparent; color: var(--yellow-text-secondary); }
 .btn-quiet.btn-success { color: var(--green-solid); }
-.btn-quiet.btn-success:hover:not(:disabled) { background: var(--green-component-bg-hover); border-color: transparent; color: var(--green-solid); }
 .btn-quiet.btn-danger { color: var(--red-solid); }
-.btn-quiet.btn-danger:hover:not(:disabled) { background: var(--red-component-bg-hover); border-color: transparent; color: var(--red-solid); }
-.btn-quiet:disabled { opacity: 1; color: var(--solid); background: transparent; }
+.btn-quiet:is(:disabled, [aria-disabled="true"]) { opacity: 1; color: var(--solid); background: transparent; }
 
 /* Variants — token-driven. Foregrounds read from --*-foreground
    tokens in tokens.css so "what color on top" lives in one place.
@@ -121,17 +118,11 @@ button i { font-size: var(--button-icon-size); line-height: 1; display: inline-f
    accidental low-contrast bug. Never use these variants at xs/sm — the
    label drops below the large-text threshold. */
 .btn-primary  { background: var(--button-primary-bg); border-color: var(--button-primary-bg); color: var(--button-primary-fg); }
-.btn-primary:hover:not(:disabled)  { background: var(--button-primary-bg-hover); border-color: var(--button-primary-bg-hover); }
 .btn-success  { background: var(--button-success-bg); border-color: var(--button-success-bg); color: var(--button-success-fg); }
-.btn-success:hover:not(:disabled)  { background: var(--button-success-bg-hover); border-color: var(--button-success-bg-hover); }
 .btn-danger   { background: var(--button-danger-bg);  border-color: var(--button-danger-bg);  color: var(--button-danger-fg); }
-.btn-danger:hover:not(:disabled)   { background: var(--button-danger-bg-hover);  border-color: var(--button-danger-bg-hover); }
 .btn-info     { background: var(--button-info-bg);    border-color: var(--button-info-bg);    color: var(--button-info-fg); }
-.btn-info:hover:not(:disabled)     { background: var(--button-info-bg-hover);    border-color: var(--button-info-bg-hover); }
 .btn-invert   { background: var(--text);          border-color: var(--border);        color: var(--invert-foreground); }
-.btn-invert:hover:not(:disabled)   { border-color: var(--border-hover); }
 .btn-default  { background: var(--button-default-bg); border-color: var(--border);        color: var(--button-default-fg); }
-.btn-default:hover:not(:disabled)  { background: var(--button-default-bg-hover); border-color: var(--border-hover); }
 
 /* Ghost — the third tier: text-only. No fill, no border at rest;
    hover paints the shared quiet fill and lifts the label a step
@@ -143,36 +134,55 @@ button i { font-size: var(--button-icon-size); line-height: 1; display: inline-f
    Disabled matches the quiet treatment: the colour drops to --solid,
    the box does not fade. */
 .btn-ghost    { background: var(--button-ghost-bg); border-color: transparent; color: var(--button-ghost-fg); }
-.btn-ghost:hover:not(:disabled)    { background: var(--button-ghost-bg-hover); border-color: transparent; color: var(--button-ghost-fg-hover); }
-.btn-ghost:disabled { opacity: 1; color: var(--solid); background: transparent; }
+.btn-ghost:is(:disabled, [aria-disabled="true"]) { opacity: 1; color: var(--solid); background: transparent; }
+
+/* Hover — pointer devices only, so a tapped button doesn't stay lit on touch.
+   Quiet comes after the filled variants, so a quiet info button keeps the
+   ghost hover. */
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover:not(:disabled, [aria-disabled="true"])  { background: var(--button-primary-bg-hover); border-color: var(--button-primary-bg-hover); }
+  .btn-success:hover:not(:disabled, [aria-disabled="true"])  { background: var(--button-success-bg-hover); border-color: var(--button-success-bg-hover); }
+  .btn-danger:hover:not(:disabled, [aria-disabled="true"])   { background: var(--button-danger-bg-hover);  border-color: var(--button-danger-bg-hover); }
+  .btn-info:hover:not(:disabled, [aria-disabled="true"])     { background: var(--button-info-bg-hover);    border-color: var(--button-info-bg-hover); }
+  .btn-invert:hover:not(:disabled, [aria-disabled="true"])   { border-color: var(--border-hover); }
+  .btn-default:hover:not(:disabled, [aria-disabled="true"])  { background: var(--button-default-bg-hover); border-color: var(--border-hover); }
+  .btn-ghost:hover:not(:disabled, [aria-disabled="true"])    { background: var(--button-ghost-bg-hover); border-color: transparent; color: var(--button-ghost-fg-hover); }
+  .btn-quiet:hover:not(:disabled, [aria-disabled="true"]), .btn-quiet.btn-default:hover:not(:disabled, [aria-disabled="true"]), .btn-quiet.btn-info:hover:not(:disabled, [aria-disabled="true"]) { background: var(--button-ghost-bg-hover); border-color: transparent; color: var(--button-ghost-fg-hover); }
+  .btn-quiet.btn-primary:hover:not(:disabled, [aria-disabled="true"]), .btn-quiet.btn-warning:hover:not(:disabled, [aria-disabled="true"]) { background: var(--yellow-component-bg-hover); border-color: transparent; color: var(--yellow-text-secondary); }
+  .btn-quiet.btn-success:hover:not(:disabled, [aria-disabled="true"]) { background: var(--green-component-bg-hover); border-color: transparent; color: var(--green-solid); }
+  .btn-quiet.btn-danger:hover:not(:disabled, [aria-disabled="true"]) { background: var(--red-component-bg-hover); border-color: transparent; color: var(--red-solid); }
+}
 
 /* States */
-/* Bare disabled buttons fade; hover styles above are gated on :not(:disabled).
+/* Bare disabled buttons fade. `aria-disabled="true"` counts as disabled, as
+   Base UI sets it on focusable disabled buttons; hover skips both.
    Submit buttons are never disabled at rest: the submit validates. A filled
    button is disabled only while its action runs (with a spinner) or once it
    is done, so it keeps its own fill and label at full opacity: "Verifying…"
    stays yellow, a finished 2FA "Verified" stays green with
    data-state="success". */
-button:disabled { opacity: 0.3; cursor: not-allowed; }
-:is(.btn-primary, .btn-success, .btn-danger, .btn-info, .btn-invert):not(.btn-quiet):disabled { opacity: 1; }
-.btn-default:not(.btn-quiet):disabled { opacity: 1; color: var(--solid); }
-/* An opaque double ring: a --bg gap, then --solid-hover, ≥3:1 on page and panels. */
-button:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+button:is(:disabled, [aria-disabled="true"]) { opacity: 0.3; cursor: not-allowed; }
+:is(.btn-primary, .btn-success, .btn-danger, .btn-info, .btn-invert):not(.btn-quiet):is(:disabled, [aria-disabled="true"]) { opacity: 1; }
+.btn-default:not(.btn-quiet):is(:disabled, [aria-disabled="true"]) { opacity: 1; color: var(--solid); }
+/* An opaque double ring: a --bg gap, then --solid-hover, ≥3:1 on page and panels.
+   Forced-colors mode drops box-shadow and paints the transparent outline. */
+button:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--shadow-focus); }
 
 /* Loading state — hides label, paints a CSS spinner over the button */
-button.is-loading { color: transparent !important; position: relative; pointer-events: none; opacity: 0.75; }
+button.is-loading { color: transparent !important; position: relative; pointer-events: none; }
 button.is-loading::after {
   content: ''; position: absolute; inset: 0; margin: auto;
   width: 14px; height: 14px; border-radius: 50%;
   border: 1.5px solid currentColor; border-top-color: transparent;
+  color: var(--text);
   opacity: 0.75;
   animation: spin 0.7s linear infinite;
 }
 .btn-primary.is-loading::after { color: var(--primary-foreground); }
-.btn-success.is-loading::after,
-.btn-danger.is-loading::after,
-.btn-info.is-loading::after,
-.btn-invert.is-loading::after { color: var(--destructive-foreground); }
+.btn-success.is-loading::after { color: var(--button-success-fg); }
+.btn-danger.is-loading::after { color: var(--button-danger-fg); }
+.btn-info.is-loading::after { color: var(--button-info-fg); }
+.btn-invert.is-loading::after { color: var(--invert-foreground); }
 .btn-default.is-loading::after, .btn-ghost.is-loading::after { color: var(--text); }
 /* The spinner borrows currentColor, and .is-loading makes the label colour
    transparent — so a quiet button needs its own spinner colour or the control
@@ -186,14 +196,10 @@ button.is-loading::after {
    cards. Defined once here; do not redeclare it per card. */
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Inputs/textareas/selects inherit nothing from the button reset.
-   These are dropped for safety in case they ever do. */
-input, textarea, select { text-transform: none; letter-spacing: normal; }
-
 
 /* ===========================================================
    Specimen header — the yellow-mono index marker that anchors
-   each preview card. 11 files used to duplicate this verbatim.
+   each preview card.
    =========================================================== */
 .head {
   display: flex; align-items: baseline; gap: 16px;
@@ -221,13 +227,11 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
               pages take neither: see .auth-page.
 
      .panel = quiet inline reference container. Sits ON --bg,
-              uses --bg-secondary so it stays recessive but
-              still bordered. Code blocks, info asides, sidebar
-              panels, callouts. Lower visual weight than a card.
+              reads --panel-* so consumers can retheme it apart
+              from cards; today the values match. Code blocks,
+              info asides, sidebar panels, callouts.
 
-   Both use the same hairline border + 8–10 px radius — the
-   ONLY thing that differs is the surface fill. Pick the role,
-   not the chrome.
+   Pick the role, not the chrome.
    =========================================================== */
 .card {
   background: var(--component-bg);
@@ -252,10 +256,8 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 /* ===========================================================
    Field primitives — production parity with app.put.io forms.
 
-   ONE source of truth for input chrome. Local preview files used
-   to redefine `.field` three times with different focus rings;
-   now they all inherit from here. To override per-screen, change
-   geometry (height/padding) — not the surface tokens.
+   ONE source of truth for input chrome. To override per-screen,
+   change geometry (height/padding) — not the surface tokens.
 
    Surface contract (filled, so a field reads on any surface):
      bg            → --field-bg          (= --bg-secondary)
@@ -290,15 +292,18 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
     background   var(--dur-fast) var(--ease-out);
 }
 .field::placeholder { color: var(--field-placeholder); }
-.field:hover { border-color: var(--field-border-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .field:hover { border-color: var(--field-border-hover); }
+}
 .field:focus,
 .field:focus-visible {
-  outline: none;
+  outline: 2px solid transparent;
   border-color: var(--field-border-focus);
   box-shadow: var(--field-ring);
 }
 .field:disabled,
 .field[aria-disabled="true"] {
+  border-color: var(--field-border);
   background: var(--field-bg-disabled);
   color: var(--text-secondary);
   cursor: not-allowed;
@@ -312,8 +317,8 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   border-color: var(--red-border);
   transition-duration: var(--dur-reveal);
 }
-.field[aria-invalid="true"]:hover {
-  border-color: var(--red-border-hover);
+@media (hover: hover) and (pointer: fine) {
+  .field[aria-invalid="true"]:hover { border-color: var(--red-border-hover); }
 }
 .field[aria-invalid="true"]:focus,
 .field[aria-invalid="true"]:focus-visible {
@@ -381,8 +386,10 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   text-decoration: none;
   white-space: nowrap;
 }
-.form-group > .label-action:hover,
-.form-group .label-row a:hover { color: var(--text); }
+@media (hover: hover) and (pointer: fine) {
+  .form-group > .label-action:hover,
+  .form-group .label-row a:hover { color: var(--text); }
+}
 
 /* ===========================================================
    Form feedback — one public recipe for block and inline status.
@@ -406,6 +413,7 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   color: var(--alert-info-body);
   font-size: var(--fs-ui);
   line-height: var(--lh-normal);
+  overflow-wrap: anywhere;
 }
 .form-callout[hidden] { display: none; }
 .form-callout > :is(i, svg) {
@@ -484,6 +492,7 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   gap: clamp(4px, 2vw, 8px);
   width: 100%;
   min-width: 0;
+  isolation: isolate;
 }
 .otp-input {
   position: absolute;
@@ -495,6 +504,7 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   margin: 0;
   padding: 0;
   border: 0;
+  font-size: var(--fs-field);
   opacity: 0;
   cursor: text;
 }
@@ -530,6 +540,9 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 .otp:focus-within .otp-slot[data-state="active"] {
   border-color: var(--field-border-focus);
   box-shadow: var(--field-ring);
+}
+@media (forced-colors: active) {
+  .otp:focus-within .otp-slot[data-state="active"] { outline: 2px solid Highlight; }
 }
 .otp-separator {
   flex: 0 0 auto;
@@ -617,7 +630,7 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
 .auth-title {
   margin: 0 0 28px;
   font-size: var(--fs-title);
-  line-height: 30px;
+  line-height: calc(30 / 22);
   font-weight: var(--fw-medium);
   letter-spacing: var(--tracking-snug);
   color: var(--text);
@@ -667,9 +680,11 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   text-decoration: none;
   text-underline-offset: 3px;
 }
-.auth-links a:hover { text-decoration: underline; }
 .auth-links > a { color: var(--text-secondary); font-weight: inherit; }
-.auth-links > a:hover { color: var(--text); text-decoration: none; }
+@media (hover: hover) and (pointer: fine) {
+  .auth-links a:hover { text-decoration: underline; }
+  .auth-links > a:hover { color: var(--text); text-decoration: none; }
+}
 /* Two items split to the edges; a lone link or prompt centres. */
 .auth-links > :only-child { margin-inline: auto; text-align: center; }
 /* A back link leads with Phosphor's arrow-left, an inline SVG (or the icon font). */
@@ -685,7 +700,17 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
   font-size: var(--fs-caption);
 }
 .auth-footer a { color: var(--text-secondary); text-decoration: none; }
-.auth-footer a:hover { color: var(--text); }
+@media (hover: hover) and (pointer: fine) {
+  .auth-footer a:hover { color: var(--text); }
+}
+.form-group > .label-action:focus-visible,
+.form-group .label-row a:focus-visible,
+.auth-links a:focus-visible,
+.auth-footer a:focus-visible {
+  outline: 2px solid var(--solid-hover);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
 /* A middot centres in the gap before each link after the first. The empty
    alt keeps it out of the link's accessible name. */
 .auth-footer > * + * { position: relative; }
@@ -742,25 +767,31 @@ input, textarea, select { text-transform: none; letter-spacing: normal; }
    `.on` is exactly the invented flag the state contract tells
    you not to add — prefer the attribute in new markup.
 
-   .checkbox  — div or <span>, data-state="checked" when on
+   .checkbox  — <button role="checkbox">, aria-checked or data-state="checked"
    input[type="checkbox"] — native inputs get the brand accent
-   .switch    — div, data-state="checked" when on
+   .switch    — <button role="switch">, aria-checked or data-state="checked"
    =========================================================== */
 .checkbox {
+  position: relative;
   width: 14px; height: 14px; flex-shrink: 0;
-  border: 1.5px solid var(--border-hover);
+  padding: 0;
+  border: 1.5px solid var(--solid);
   border-radius: var(--radius-sm);
   background: transparent;
+  cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
+/* Pads the 14px box out to the 24px minimum target (WCAG 2.5.8). */
+.checkbox::before { content: ''; position: absolute; inset: -6.5px; }
 .checkbox.checked,
-.checkbox[data-state="checked"] {
+.checkbox[data-state="checked"],
+.checkbox[aria-checked="true"] {
   background: var(--yellow-solid);
   border-color: var(--yellow-solid);
-  position: relative;
 }
 .checkbox.checked::after,
-.checkbox[data-state="checked"]::after {
+.checkbox[data-state="checked"]::after,
+.checkbox[aria-checked="true"]::after {
   content: ''; position: absolute; left: 3px; top: 0;
   width: 5px; height: 9px;
   border: solid var(--primary-foreground); border-width: 0 2px 2px 0;
@@ -770,6 +801,8 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--yellow-solid);
 
 .switch {
   width: 44px; height: 24px; flex-shrink: 0;
+  padding: 0;
+  border: 0;
   border-radius: var(--radius-pill);
   background: var(--component-bg-active);
   position: relative; cursor: pointer;
@@ -779,11 +812,15 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--yellow-solid);
   content: ''; position: absolute; top: 2px; left: 2px;
   width: 20px; height: 20px; border-radius: 50%;
   background: var(--text);
-  transition: left var(--dur-fast) var(--ease-out);
+  transition: transform var(--dur-fast) var(--ease-out);
 }
 .switch.on,
-.switch[data-state="checked"] { background: var(--green-solid); }
+.switch[data-state="checked"],
+.switch[aria-checked="true"] { background: var(--green-solid); }
 /* The thumb rides the green selected track, so it takes the token for "what
    colour sits on green" rather than a raw white that no theme can reach. */
 .switch.on::after,
-.switch[data-state="checked"]::after { left: 22px; background: var(--button-success-fg); }
+.switch[data-state="checked"]::after,
+.switch[aria-checked="true"]::after { transform: translateX(20px); background: var(--button-success-fg); }
+.checkbox:focus-visible,
+.switch:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--shadow-focus); }

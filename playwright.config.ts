@@ -11,7 +11,6 @@ export default defineConfig({
   testDir: "./tests/e2e",
   outputDir: "test-results/playwright",
   fullyParallel: true,
-  // Keep the full-guide axe scans from competing with the icon catalog scans.
   workers: 2,
   retries: process.env.CI ? 1 : 0,
   timeout: 30_000,

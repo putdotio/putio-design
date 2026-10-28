@@ -1,29 +1,23 @@
 /* ============================================================
    put.io, tv.css
-   TV / 10ft surfaces, FLAT, solid, high-contrast 10-foot system.
-   (The old "Liquid Glass" treatment, backdrop-filter, translucent
-   white fills, ambient refraction blobs, was removed: it read as
-   muddy and low-contrast on a real TV. Everything is now solid token
-   surfaces with clear focus.)
+   TV / 10ft surfaces: flat, solid token surfaces with clear focus.
+   No backdrop-filter or translucent fills; they read muddy on a TV.
 
-   All component classes are scoped under .tv, safe to load globally
-   (styles.css bundles it) without bleeding into web components.
-
-   Load AFTER tokens.css (styles.css does both):
+   All component classes are scoped under .tv, so the file never bleeds
+   into web components. Load it after tokens.css:
      <link rel="stylesheet" href="../tokens.css">
      <link rel="stylesheet" href="../tv.css">
 
    NOTE ON SIZES: the px values here are TRUE 1:1 values for a
    1920x1080 screen. A preview card renders the artboard at its real
    1920x1080 size, so a number in this file is the number on the TV -
-   read it directly. (Until 2026-08 this file was authored at an 876px
-   artboard scale and scaled up with a transform; that indirection is
-   gone.) The type steps match tv-native's theme.tsx exactly:
+   read it directly. The type steps match tv-native's theme.tsx exactly:
    text.body 36 / caption 32 / label 48, spacing.md 32, radii 12.
 
    Classes: .tv, .scr, .row, .btn, .icon-btn,
             .sheet, .key, .brand (TV variant), .kbd (TV variant),
-            .toggle, .bar, .player-chrome, .code-tile.
+            .toggle, .bar, .player-chrome, .code-tile, .radio,
+            .tvp (video player), .tvsel (select modal).
 
    NOTE: no mono anywhere. tv-native's theme has exactly two families
    (GTAmerica-Rg / -Md); numerics use tabular figures in GT America,
@@ -36,14 +30,13 @@
    THE CANONICAL 10-FOOT SCALE IS THE `tv` TOKEN GROUP, not this file.
    Those are mode: "tv" tokens and are deliberately absent from the web
    CSS output, read them from dist/tokens.flat.json. This stylesheet
-   now agrees with the graph 1:1, but the graph is still the source of
-   truth for type steps, spacing, overscan, screen paddings and
-   z-indices, add a value there first, then use it here.
+   agrees with the graph 1:1; the graph is the source of truth for type
+   steps, spacing, overscan, screen paddings and z-indices, so add a
+   value there first, then use it here.
 
    NO TAB BAR. tv-native is a stack navigator with the header hidden;
    the top-level surface is a Home hub of destinations. There is no
-   segmented top-nav, no tab bar, and no persistent chrome, earlier
-   revisions of these specimens documented one that does not exist.
+   segmented top-nav, no tab bar, and no persistent chrome.
    ============================================================ */
 
 /* TV-only surface aliases: colors/type already live in tokens.css.
@@ -54,9 +47,6 @@
   --text-2: var(--text-secondary);
   --text-3: var(--text-2); /* deprecated: use --text-2 */
 
-  --tv-text-1: var(--text-1); /* deprecated: use --text-1 */
-  --tv-text-2: var(--text-2); /* deprecated: use --text-2 */
-  --tv-text-3: var(--text-2); /* deprecated: use --text-2 */
 
   /* On-video plate colors: graph tv.video group (mode "tv" — declared here
      because mode tv tokens are deliberately absent from the web tokens.css). */
@@ -74,9 +64,6 @@
   --tv-focus-control-bg-focused: var(--component-bg-active);
   --tv-focus-control-border: var(--border);
   --tv-focus-control-border-focused: var(--border-hover);
-
-  /* Alias so existing TV markup keeps working */
-  --putio-yellow: var(--yellow-solid);
 
   /* TV font stack: adds system fallbacks for capability TVs */
   --font: "GT America", -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
@@ -203,7 +190,6 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
   background: var(--tv-focus-control-bg);
   border: var(--border-width) solid var(--tv-focus-control-border);
   box-sizing: border-box;
-  transition: background 180ms, border-color 180ms;
   white-space: nowrap;
 }
 
@@ -242,7 +228,6 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
   padding: 32px;
   border-radius: var(--radius-tv);
   background: var(--tv-focus-row-bg);
-  transition: background 200ms;
   position: relative;
 }
 /* No icon column in source: a bare 48px (text.label) glyph, hugged. */
@@ -309,12 +294,12 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
   top: 8px; left: 8px;
   width: 48px; height: 48px;
   border-radius: 50%;
-  background: var(--invert-foreground);  /* knob reads white on the green track */
+  background: var(--text-1);
   transition: transform 200ms;
   box-shadow: var(--shadow-sm);
 }
 .tv .toggle.on { background: var(--green-solid); }
-.tv .toggle.on::after { transform: translateX(48px); }
+.tv .toggle.on::after { transform: translateX(48px); background: var(--button-success-fg); }
 
 /* ---------------------------------------------------------------- */
 /* MISC                                                              */
@@ -343,7 +328,7 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
 .tv .bar > i {
   position: absolute;
   inset: 0 auto 0 0;
-  background: var(--putio-yellow);
+  background: var(--yellow-solid);
   border-radius: var(--radius-pill);
 }
 
@@ -365,7 +350,7 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
   align-items: center;
   justify-content: center;
   font-size: 64px;
-  font-weight: 600;
+  font-weight: 500;
   border-radius: var(--radius-tv);
   box-shadow: var(--shadow-md);
 }
@@ -373,9 +358,8 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
 /* ── Fixed on-video values ──────────────────────────────────────────
    The literals below sit ON VIDEO, not on a theme surface, so they are
    deliberately NOT tokenised: a theme colour would shift with the mode
-   while the video underneath does not. Same rationale as the --pl-*
-   values in components-player-web. Everything outside this section
-   must read a semantic token. */
+   while the video underneath does not. Everything outside this
+   section must read a semantic token. */
 .tv .player-chrome {
   position: absolute;
   inset: auto 0 0 0;
@@ -396,7 +380,7 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
 .tv .player-scrub > i {
   position: absolute;
   inset: 0 auto 0 0;
-  background: var(--putio-yellow);
+  background: var(--yellow-solid);
   border-radius: var(--radius-pill);
 }
 .tv .player-scrub > b {
@@ -465,7 +449,7 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
 }
 .tv .sheet-h .sheet-title {
   font-size: 48px;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: -0.01em;
   color: var(--text-1);
 }
@@ -499,13 +483,13 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
   background: transparent;
 }
 .tv .radio.on {
-  border-color: var(--putio-yellow);
+  border-color: var(--yellow-solid);
   background: color-mix(in srgb, var(--yellow-solid) 14%, transparent);
 }
 .tv .radio.on::after {
   content: "";
   width: 16px; height: 16px;
-  background: var(--putio-yellow);
+  background: var(--yellow-solid);
   border-radius: 50%;
 }
 
@@ -521,6 +505,7 @@ html:has(.tv), body:has(.tv) { margin: 0; padding: 0; background: var(--bg); }
 }
 .tv .key {
   aspect-ratio: 1;
+  border: 2px solid transparent;
   display: flex;
   align-items: center;
   justify-content: center;
