@@ -4,6 +4,12 @@ declare const sst: {
       name: string,
       args: {
         readonly path: string;
+        readonly assets?: {
+          readonly fileOptions?: readonly {
+            readonly files: string | readonly string[];
+            readonly cacheControl?: string;
+          }[];
+        };
         readonly domain: {
           readonly name: string;
           readonly cert: string;
