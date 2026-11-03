@@ -62,7 +62,7 @@ descriptions, or codecs.
 
 Pull requests squash-merge into `main`. A merge can publish `@putdotio/design`
 to npm ([CI](.github/workflows/ci.yml)) and redeploy `design.put.io`
-([Deploy](.github/workflows/deploy.yml)). Only the `production` SST stage
+([Deploy](.github/workflows/deploy.yml)). Only the `production` Alchemy stage
 exists; create no other stage.
 
 ### claude.ai design system
