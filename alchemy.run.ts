@@ -22,7 +22,7 @@ export default Alchemy.Stack(
     const site = yield* AWS.Website.StaticSite("Site", {
       path: ".",
       build: {
-        command: "rm -rf .site && cp -R system .site",
+        command: "cp -R system .site",
         output: ".site",
         env: { DESIGN_SOURCE_SHA: process.env.GITHUB_SHA ?? "local" },
       },
