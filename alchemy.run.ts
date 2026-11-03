@@ -1,5 +1,6 @@
 import * as AWS from "@alchemy.run/aws";
 import * as Alchemy from "alchemy";
+import { Stage } from "alchemy/Stage";
 import * as Effect from "effect/Effect";
 
 const domain = "design.put.io";
@@ -13,6 +14,11 @@ export default Alchemy.Stack(
     state: AWS.state({ name: "putio-frontend" }),
   },
   Effect.gen(function* () {
+    const stage = yield* Stage;
+    if (stage !== "production") {
+      return yield* Effect.die(`putio-design only deploys the production stage, not ${stage}.`);
+    }
+
     const site = yield* AWS.Website.StaticSite("Site", {
       path: ".",
       build: {
