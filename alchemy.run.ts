@@ -1,3 +1,5 @@
+import { readdirSync } from "node:fs";
+import { join, relative } from "node:path";
 import * as AWS from "@alchemy.run/aws";
 import * as Alchemy from "alchemy";
 import { Stage } from "alchemy/Stage";
@@ -30,8 +32,7 @@ export default Alchemy.Stack(
       spa: true,
       assets: {
         fileOptions: [
-          { files: "**", cacheControl: "public,max-age=300,s-maxage=31536000" },
-          { files: "**/*.html", cacheControl: "max-age=0,no-cache,no-store,must-revalidate" },
+          { files: nonHtmlFiles(), cacheControl: "public,max-age=300,s-maxage=31536000" },
         ],
       },
       invalidation: { paths: "all", wait: true },
@@ -60,4 +61,10 @@ function required(name: string) {
   const value = process.env[name];
   if (!value) throw new Error(`${name} must be set for the design deploy.`);
   return value;
+}
+
+function nonHtmlFiles() {
+  return readdirSync("system", { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile() && !entry.name.endsWith(".html"))
+    .map((entry) => relative("system", join(entry.parentPath, entry.name)));
 }
