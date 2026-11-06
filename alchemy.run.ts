@@ -13,7 +13,7 @@ export default Alchemy.Stack(
   "putio-design",
   {
     providers: AWS.providers(),
-    state: AWS.state({ name: "putio-frontend" }),
+    state: AWS.state({ backend: "s3", name: "putio-frontend" }),
   },
   Effect.gen(function* () {
     const stage = yield* Stage;
