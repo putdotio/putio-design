@@ -65,9 +65,6 @@ Tier 2: tokens only on stock UIKit. Tier definitions live in
    Bold 17, tab labels Medium 10. Berkeley Mono only for audio player times
    and two-factor codes. Search fields and alerts stay system SF. Filenames,
    sizes and dates in GT America are drift from the Berkeley Mono roles.
-   iOS and iPadOS sizes come from the `ios.text` group (body 17, caption 13,
-   mono 13), adapter data absent from web CSS: cite it by graph path, never
-   `--ios-*`. Other platforms keep the shared `typography.fontSize` scale.
 4. **Icons**. Phosphor, regular with a fill variant for selection. Only
    folders are yellow; other file glyphs in `--text-secondary` are drift from
    the yellow file-icon rule.

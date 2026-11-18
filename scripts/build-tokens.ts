@@ -13,7 +13,7 @@ type TokenNode = {
   $extensions?: {
     putio?: {
       cssName?: string;
-      mode?: "light" | "dark" | "global" | "tv" | "ios";
+      mode?: "light" | "dark" | "global" | "tv";
       category?: string;
       figma?: boolean;
       basis?: "viewport-width" | "viewport-height";
@@ -30,7 +30,7 @@ type FlatToken = {
   type: string;
   description?: string;
   cssName: string;
-  mode: "light" | "dark" | "global" | "tv" | "ios";
+  mode: "light" | "dark" | "global" | "tv";
   category?: string;
   figma: boolean;
   basis?: "viewport-width" | "viewport-height";
@@ -40,7 +40,7 @@ type FlatToken = {
 
 const root = process.cwd();
 const allowedTokenTypes = new Set(["color", "cubicBezier", "dimension", "fontFamily", "fontWeight", "number", "duration", "string"]);
-const allowedModes = new Set(["light", "dark", "global", "tv", "ios"]);
+const allowedModes = new Set(["light", "dark", "global", "tv"]);
 const generatedHeader = `/* ============================================================
    put.io design tokens
    Do not edit directly. Generated from DTCG token JSON in tokens/.
@@ -114,7 +114,7 @@ function flattenTokens(node: unknown, parts: string[] = []): FlatToken[] {
         cssName,
         mode,
         category: putio?.category,
-        figma: putio?.figma ?? (mode !== "dark" && mode !== "tv" && mode !== "ios"),
+        figma: putio?.figma ?? (mode !== "dark" && mode !== "tv"),
         basis: putio?.basis,
         deprecated: putio?.deprecated,
       },
@@ -232,9 +232,9 @@ function tailwindRule(token: FlatToken): { namespace: TailwindNamespace; family?
 function tailwindThemeEntries(tokens: FlatToken[]): Map<string, { namespace: TailwindNamespace; cssName: string }> {
   const entries = new Map<string, { namespace: TailwindNamespace; cssName: string }>();
   for (const token of tokens) {
-    // TV and iOS tokens are absent from tokens.css; "other" holds z-indexes and media-query breakpoints, which var() cannot feed.
+    // TV tokens are absent from tokens.css; "other" holds z-indexes and media-query breakpoints, which var() cannot feed.
     // Deprecated tokens stay, like in every other output, until a major release removes them.
-    if (token.mode === "tv" || token.mode === "ios" || token.category === "other") continue;
+    if (token.mode === "tv" || token.category === "other") continue;
     // --space-N is N × --space-1, so Tailwind's one spacing unit carries every step: p-4 = --space-4.
     if (token.cssName === "space-1") {
       entries.set("--spacing", { namespace: "spacing", cssName: token.cssName });
@@ -311,7 +311,7 @@ function javascriptForTokens(tokens: FlatToken[]): string {
 
 function declarationForTokens(tokens: FlatToken[]): string {
   const names = tokens.map((token) => JSON.stringify(token.name)).join(" | ");
-  return `// Do not edit directly. Generated from tokens/**/*.tokens.json.\n\nexport type PutioTokenName = ${names};\n\nexport type PutioToken = {\n  readonly cssName: string;\n  readonly type: string;\n  readonly mode: \"light\" | \"dark\" | \"global\" | \"tv\" | \"ios\";\n  readonly value: string | number;\n  readonly originalValue: string | number;\n  readonly description?: string;\n  readonly basis?: \"viewport-width\" | \"viewport-height\";\n  readonly deprecated?: boolean;\n};\n\nexport declare const tokens: Readonly<Record<PutioTokenName, PutioToken>>;\n`;
+  return `// Do not edit directly. Generated from tokens/**/*.tokens.json.\n\nexport type PutioTokenName = ${names};\n\nexport type PutioToken = {\n  readonly cssName: string;\n  readonly type: string;\n  readonly mode: \"light\" | \"dark\" | \"global\" | \"tv\";\n  readonly value: string | number;\n  readonly originalValue: string | number;\n  readonly description?: string;\n  readonly basis?: \"viewport-width\" | \"viewport-height\";\n  readonly deprecated?: boolean;\n};\n\nexport declare const tokens: Readonly<Record<PutioTokenName, PutioToken>>;\n`;
 }
 
 function figmaTokens(tokens: FlatToken[]): JsonObject {
