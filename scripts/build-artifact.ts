@@ -13,7 +13,7 @@ import process from "node:process";
 type FlatToken = {
   cssName: string;
   type: string;
-  mode: "light" | "dark" | "global" | "tv" | "ios";
+  mode: "light" | "dark" | "global" | "tv";
   value: string | number;
   description?: string;
 };
@@ -51,7 +51,7 @@ const unmoded = (s = ""): string => s.replace(/ in (light|dark) mode\.$/, ".");
 
 /** First match wins. Motion and anything unlisted stays in bundle.css. */
 const FAMILIES: ReadonlyArray<readonly [string, RegExp]> = [
-  ["fontSize", /^(fs-|tv-text-|ios-text-)/],
+  ["fontSize", /^(fs-|tv-text-)/],
   ["lineHeight", /^lh-/],
   ["fontWeight", /^(fw-|tv-fw-)/],
   ["letterSpacing", /^tracking-/],
@@ -92,11 +92,11 @@ for (const t of flat) {
     entry.value = t.mode !== "light" && t.mode !== "dark" && !modes.dark ? value : modes;
     if (!entry.usage) entry.usage = usage;
     map.set(name, entry);
-    if (t.mode !== "tv" && t.mode !== "ios") owned.add(name);
+    if (t.mode !== "tv") owned.add(name);
   } else if (["dimension", "number", "fontWeight"].includes(t.type)) {
     const family = FAMILIES.find(([, pattern]) => pattern.test(name))![0];
     (lists[family] ??= []).push({ name, value, usage });
-    if (t.mode !== "tv" && t.mode !== "ios") owned.add(name);
+    if (t.mode !== "tv") owned.add(name);
   }
 }
 
