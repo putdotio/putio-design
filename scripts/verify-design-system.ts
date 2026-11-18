@@ -21,7 +21,7 @@ type DesignColors = {
   light?: Record<string, string>;
 };
 
-type TokenMode = "light" | "dark" | "global" | "tv";
+type TokenMode = "light" | "dark" | "global" | "tv" | "ios";
 type TokenAliasContract = { name: string; source: string; cssName: string; mode: TokenMode };
 type TokenValueContract = { name: string; cssName: string; value: string; mode: TokenMode };
 
@@ -297,8 +297,8 @@ function checkTokens(flat: Record<string, TokenRecord>) {
     if (token.type === "color") {
       assert(/^(?:hsl|hsla)\(/.test(String(token.value)), `${name} color token must resolve to hsl() or hsla()`);
     }
-    if (token.mode === "tv" && token.type === "dimension") {
-      assert(!/calc\(|%/.test(String(token.value)), `${name} TV dimension must be portable and must not contain CSS-only calc() or percentages`);
+    if ((token.mode === "tv" || token.mode === "ios") && token.type === "dimension") {
+      assert(!/calc\(|%/.test(String(token.value)), `${name} native dimension must be portable and must not contain CSS-only calc() or percentages`);
     }
   }
 }
